@@ -7,6 +7,7 @@ module Travis
         autoload :Clojure, 'travis/build/job/test/clojure'
         autoload :Erlang,  'travis/build/job/test/erlang'
         autoload :Nodejs,  'travis/build/job/test/nodejs'
+        autoload :Php,     'travis/build/job/test/php'
         autoload :Ruby,    'travis/build/job/test/ruby'
 
         extend Assertions
