@@ -1,6 +1,7 @@
 module Travis
   module Build
     class Shell
+      autoload :Session, 'travis/build/shell/session'
       attr_reader :session
 
       def initialize(config, &block)
