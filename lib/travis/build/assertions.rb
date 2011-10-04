@@ -1,17 +1,17 @@
 module Travis
   module Build
-    module Assertions
-      class AssertionFailed < RuntimeError
-        attr_reader :object, :method
+    class AssertionFailed < RuntimeError
+      attr_reader :object, :method
 
-        def initialize(object, method)
-          @object = object
-          @method = method
-        end
+      def initialize(object, method)
+        @object = object
+        @method = method
       end
+    end
 
-      def new
-        super.tap do |instance|
+    module Assertions
+      def new(*args)
+        super(*args).tap do |instance|
           (class << instance; self; end).send(:include, assertions)
         end
       end
