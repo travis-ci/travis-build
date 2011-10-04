@@ -13,13 +13,13 @@ module Travis
           end
 
           def install
-            rebar_install if rebar_configured?
+            rebar_get_deps if rebar_configured?
           end
 
           protected
 
             def setup_otp
-              shell.execute "source /home/vagrant/otp/#{config.otp_release}/activate"
+              shell.execute "source /home/vagrant/otp/#{config.opt_release}/activate"
             end
             assert :setup_otp
 
@@ -27,8 +27,8 @@ module Travis
               shell.file_exists?('rebar.config') || shell.file_exists?('Rebar.config')
             end
 
-            def rebar_install
-              shell.execute('./rebar get-deps', :timeout => :install_deps)
+            def rebar_get_deps
+              shell.execute('./rebar get-deps', :timeout => :install)
             end
             assert :rebar_install
 

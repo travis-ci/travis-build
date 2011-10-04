@@ -13,7 +13,7 @@ module Travis
           end
 
           def install
-            install_npm if package?
+            install_npm if npm?
           end
 
           protected
@@ -22,19 +22,19 @@ module Travis
               shell.execute("nvm use v#{config.nodejs_version}")
             end
 
-            def package?
+            def npm?
               shell.file_exists?('package.json')
             end
 
             def install_npm
-              shell.execute("npm install #{config.npm_args}".strip, :timeout => :install_deps)
+              shell.execute("npm install #{config.npm_args}".strip, :timeout => :install)
             end
             assert :install_npm
 
             def script
               if config.script?
                 config.script
-              elsif package?
+              elsif npm?
                 'npm test'
               else
                 'make test'

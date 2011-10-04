@@ -4,16 +4,11 @@ module Travis
       class Runner
         autoload :Remote, 'travis/build/job/runner/remote'
 
-        attr_reader :job, :vm
+        attr_reader :job, :observers
 
-        def initialize(job, vm = nil)
+        def initialize(job)
           @job = job
-          @vm = vm
-
-          if vm
-            @shell = vm.shell
-            shell.on_output { |output| log(job, output) }
-          end
+          @observers = []
         end
 
         def run
@@ -38,6 +33,12 @@ module Travis
 
           def log_exception(job, e)
             log(job, "Error: #{e.inspect}" + e.backtrace.map { |b| "  #{b}" }.join("\n"))
+          end
+
+          def notify(event, *args)
+            observers.each do |observer|
+              observer.send(:"on_#{event}", *args) if observer.respond_to?(:"on_#{event}")
+            end
           end
       end
     end

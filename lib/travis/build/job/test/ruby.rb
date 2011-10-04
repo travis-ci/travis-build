@@ -1,3 +1,5 @@
+require 'hashr'
+
 module Travis
   module Build
     module Job
@@ -24,7 +26,7 @@ module Travis
             end
 
             def setup_bundler
-              shell.execute("export BUNDLE_GEMFILE=#{cwd}/#{config.gemfile}")
+              shell.export('BUNDLE_GEMFILE', "#{shell.cwd}/#{config.gemfile}")
             end
 
             def gemfile?
