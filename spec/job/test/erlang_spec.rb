@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Job::Test::Erlang do
-  let(:shell)  { Shell.new(stub(:execute => true, :evaluate => '')) }
+  let(:shell)  { stub('shell') }
   let(:config) { Job::Test::Erlang::Config.new }
   let(:job)    { Job::Test::Erlang.new(shell, nil, nil , config) }
 

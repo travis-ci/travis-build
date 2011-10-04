@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'hashr'
 
 describe Job::Test do
-  let(:shell)      { Shell.new(stub(:execute)) }
+  let(:shell)      { stub('shell', :chdir => true, :export => true, :execute => true, :cwd => '~/builds', :file_exists? => true) }
   let(:repository) { stub(:checkout => true) }
   let(:config)     { Hashr.new(:env => 'FOO=foo', :script => 'rake') }
   let(:job)        { Job::Test.new(shell, repository, '123456', config) }

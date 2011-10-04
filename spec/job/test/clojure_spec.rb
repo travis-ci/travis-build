@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Job::Test::Clojure do
-  let(:shell)  { Shell.new(stub(:execute => true, :evaluate => '')) }
+  let(:shell)  { stub('shell') }
   let(:config) { Job::Test::Clojure::Config.new }
   let(:job)    { Job::Test::Clojure.new(shell, nil, nil , config) }
 

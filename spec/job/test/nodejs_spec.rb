@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Job::Test::Nodejs do
-  let(:shell)  { Shell.new(stub(:execute => true, :evaluate => '')) }
+  let(:shell)  { stub('shell') }
   let(:config) { Job::Test::Nodejs::Config.new(:npm_args => '--dev') }
   let(:job)    { Job::Test::Nodejs.new(shell, nil, nil , config) }
 
