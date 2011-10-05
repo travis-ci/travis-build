@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Job::Test::Erlang do
   let(:shell)  { stub('shell') }
   let(:config) { Job::Test::Erlang::Config.new }
-  let(:job)    { Job::Test::Erlang.new(shell, nil, nil , config) }
+  let(:job)    { Job::Test::Erlang.new(shell, nil , config) }
 
   describe 'config defaults' do
     it ':opt_release to "R14B02"' do

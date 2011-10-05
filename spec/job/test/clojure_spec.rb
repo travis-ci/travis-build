@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Job::Test::Clojure do
   let(:shell)  { stub('shell') }
   let(:config) { Job::Test::Clojure::Config.new }
-  let(:job)    { Job::Test::Clojure.new(shell, nil, nil , config) }
+  let(:job)    { Job::Test::Clojure.new(shell, nil , config) }
 
   describe 'install' do
     it 'installs the lein dependencies' do

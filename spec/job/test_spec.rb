@@ -2,10 +2,10 @@ require 'spec_helper'
 require 'hashr'
 
 describe Job::Test do
-  let(:shell)      { stub('shell', :chdir => true, :export => true, :execute => true, :cwd => '~/builds', :file_exists? => true) }
-  let(:repository) { stub(:checkout => true) }
-  let(:config)     { Hashr.new(:env => 'FOO=foo', :script => 'rake') }
-  let(:job)        { Job::Test.new(shell, repository, '123456', config) }
+  let(:shell)  { stub('shell', :chdir => true, :export => true, :execute => true, :cwd => '~/builds', :file_exists? => true) }
+  let(:commit) { stub(:checkout => true) }
+  let(:config) { Hashr.new(:env => 'FOO=foo', :script => 'rake') }
+  let(:job)    { Job::Test.new(shell, commit, config) }
 
   describe 'run' do
     it 'changes to the build dir' do
@@ -13,8 +13,8 @@ describe Job::Test do
       job.run
     end
 
-    it 'checks the given commit out from the repository' do
-      repository.expects(:checkout).with('123456').returns(true)
+    it 'checks the given commit out' do
+      commit.expects(:checkout).returns(true)
       job.run
     end
 
@@ -44,7 +44,7 @@ describe Job::Test do
     end
 
     it 'returns 1 if checkout raised an exception' do
-      repository.expects(:checkout).returns(false)
+      commit.expects(:checkout).returns(false)
       job.run.should be_false
     end
   end

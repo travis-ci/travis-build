@@ -9,11 +9,10 @@ module Travis
 
         extend Assertions
 
-        attr_reader :shell, :repository, :commit, :config
+        attr_reader :shell, :commit, :config
 
-        def initialize(shell, repository, commit, config)
+        def initialize(shell, commit, config)
           @shell = shell
-          @repository = repository
           @commit = commit
           @config = config
         end
@@ -35,7 +34,7 @@ module Travis
           end
 
           def checkout
-            repository.checkout(commit)
+            commit.checkout
           end
           assert :checkout
 
