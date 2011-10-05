@@ -1,10 +1,11 @@
 require 'spec_helper'
-require 'support/test_observer'
+require 'travis/build/assertions'
+require 'support/mocks'
 
 describe Job::Runner do
   let(:job)      { stub('job:configure', :run => { :foo => 'foo' }) }
   let(:runner)   { Job::Runner.new(job) }
-  let(:observer) { TestObserver.new }
+  let(:observer) { Mocks::Observer.new }
 
   before :each do
     runner.observers << observer
