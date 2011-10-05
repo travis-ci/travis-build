@@ -19,15 +19,15 @@ module Mocks
     class Expector
       include Mocha::API
 
-      attr_reader :object, :order
+      attr_reader :session, :order
 
-      def initialize(object)
-        @object = object
+      def initialize(session)
+        @session = session
         @order = sequence('ssh commands')
       end
 
       def method_missing(method, *args, &block)
-        object.expects(method).in_sequence(order).with(*args)
+        session.expects(method).in_sequence(order).with(*args)
       end
     end
 
@@ -43,7 +43,30 @@ module Mocks
     end
 
     def on_output(&block)
-      @on_output = block
+      $on_output = block
     end
+  end
+end
+
+Mocha::Expectation.class_eval do
+  class OutputSideEffect
+    attr_reader :mock, :output
+
+    def initialize(mock, output)
+      @mock = mock
+      @output = output
+    end
+
+    def perform
+      $on_output.call(output) # OMFG HAX0R
+    end
+
+    def mocha_inspect
+      "outputs #{output.inspect}"
+    end
+  end
+
+  def outputs(output)
+    add_side_effect(OutputSideEffect.new(@mock, output))
   end
 end
