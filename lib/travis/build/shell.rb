@@ -10,7 +10,7 @@ module Travis
       end
 
       def export(name, value)
-        session.execute("export #{name}=#{value}")
+        session.execute("export #{name}=#{value}") if name
       end
 
       def chdir(dir)
