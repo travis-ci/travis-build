@@ -6,11 +6,18 @@ describe Job::Runner do
   let(:runner)   { Job::Runner.new(job) }
   let(:observer) { TestObserver.new }
 
-  describe 'run' do
-    before :each do
-      runner.observers << observer
-    end
+  before :each do
+    runner.observers << observer
+  end
 
+  it 'implements a simple observer pattern' do
+    runner.send(:notify, :start,  :started)
+    runner.send(:notify, :log, :output)
+    runner.send(:notify, :finish, :finished)
+    observer.events.should == [[:start, :started], [:log, :output], [:finish, :finished]]
+  end
+
+  describe 'run' do
     it 'notifies observers about the :start event' do
       runner.run
       observer.events.should include([:start, job])
