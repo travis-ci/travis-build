@@ -1,6 +1,8 @@
 GEM
   remote: http://rubygems.org/
   specs:
+    activesupport (3.1.0)
+      multi_json (~> 1.0)
     addressable (2.2.6)
     bouncy-castle-java (1.5.0146.1)
     diff-lcs (1.1.3)
@@ -35,6 +37,7 @@ PLATFORMS
   java
 
 DEPENDENCIES
+  activesupport
   faraday (~> 0.7.3)
   hashr (~> 0.0.13)
   jruby-openssl

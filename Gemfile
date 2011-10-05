@@ -1,5 +1,6 @@
 source :rubygems
 
+gem 'activesupport'
 gem 'hashr',         '~> 0.0.13'
 gem 'multi_json'
 gem 'faraday',       '~> 0.7.3'
