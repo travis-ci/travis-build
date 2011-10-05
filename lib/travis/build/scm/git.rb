@@ -1,29 +1,28 @@
 module Travis
   module Build
-    module Repository
-      module Git
+    module Scm
+      class Git
         attr_reader :shell
 
-        def initialize(shell, *args)
+        def initialize(shell)
           @shell = shell
-          super(*args)
         end
 
-        def fetch(hash)
-          clone
-          chdir
+        def fetch(source, hash, target)
+          clone(source, target)
+          chdir(target)
           checkout(hash)
         end
 
         protected
 
-          def clone
+          def clone(source, target)
             shell.export('GIT_ASKPASS', 'echo', :echo => false) # this makes git interactive auth fail
-            shell.execute("git clone --depth=100 --quiet #{source_url} #{target_dir}")
+            shell.execute("git clone --depth=100 --quiet #{source} #{target}")
           end
 
-          def chdir
-            shell.chdir(target_dir)
+          def chdir(target)
+            shell.chdir(target)
           end
 
           def checkout(hash)

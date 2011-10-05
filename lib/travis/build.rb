@@ -7,8 +7,11 @@ module Travis
     autoload :Shell,      'travis/build/shell'
 
     module Repository
-      autoload :Git,      'travis/build/repository/git'
-      autoload :Github,   'travis/build/repository/github'
+      autoload :Github, 'travis/build/repository/github'
+    end
+
+    module Scm
+      autoload :Git, 'travis/build/scm/git'
     end
   end
 end

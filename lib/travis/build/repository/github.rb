@@ -2,25 +2,24 @@ module Travis
   module Build
     module Repository
       class Github
-        include Git, Module.new {
-          attr_reader :slug
+        attr_reader :scm, :slug
 
-          def initialize(slug)
-            @slug = slug
-          end
+        def initialize(scm, slug)
+          @scm  = scm
+          @slug = slug
+        end
 
-          def config_url(commit)
-            "http://raw.github.com/#{slug}/#{commit}/.travis.yml"
-          end
+        def fetch(commit)
+          scm.fetch(source_url, commit, slug)
+        end
 
-          def source_url
-            "git://github.com/#{slug}.git"
-          end
+        def config_url(commit)
+          "http://raw.github.com/#{slug}/#{commit}/.travis.yml"
+        end
 
-          def target_dir
-            slug
-          end
-        }
+        def source_url
+          "git://github.com/#{slug}.git"
+        end
       end
     end
   end
