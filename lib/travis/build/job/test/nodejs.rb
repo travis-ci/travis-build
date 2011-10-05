@@ -6,7 +6,7 @@ module Travis
       class Test
         class Nodejs < Test
           class Config < Hashr
-            define :nodejs_version => '0.4.11'
+            define :nodejs_version => '0.4.12'
           end
 
           extend ActiveSupport::Memoizable

@@ -6,14 +6,14 @@ describe Build::Job::Test::Nodejs do
   let(:job)    { Build::Job::Test::Nodejs.new(shell, nil , config) }
 
   describe 'config defaults' do
-    it ':nodejs_version to "0.4.11"' do
-      config.nodejs_version.should == '0.4.11'
+    it ':nodejs_version to "0.4.12"' do
+      config.nodejs_version.should == '0.4.12'
     end
   end
 
   describe 'setup' do
     it 'switches to the given nodejs version' do
-      shell.expects(:execute).with("nvm use v0.4.11").returns(true)
+      shell.expects(:execute).with("nvm use v0.4.12").returns(true)
       job.setup
     end
   end
