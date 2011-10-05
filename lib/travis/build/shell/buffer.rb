@@ -1,6 +1,6 @@
 module Travis
-  module Worker
-    module Shell
+  module Build
+    class Shell
       class Buffer < String
         attr_reader :callback
 

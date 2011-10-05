@@ -1,6 +1,5 @@
 require 'net/ssh'
 require 'net/ssh/shell'
-require 'travis/worker/shell/helpers'
 
 module Travis
   module Build

@@ -1,6 +1,8 @@
 module Travis
   module Build
     class Shell
+      autoload :Buffer,  'travis/build/shell/buffer'
+      autoload :Helpers, 'travis/build/shell/helpers'
       autoload :Session, 'travis/build/shell/session'
 
       attr_reader :session

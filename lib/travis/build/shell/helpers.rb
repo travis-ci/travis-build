@@ -1,8 +1,8 @@
 require 'shellwords'
 
 module Travis
-  module Worker
-    module Shell
+  module Build
+    class Shell
       module Helpers
 
         # Formats a shell command to be echod and executed by a ssh session.
