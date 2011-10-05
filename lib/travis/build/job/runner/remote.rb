@@ -5,17 +5,17 @@ module Travis
         class Remote < Runner
           attr_reader :vm, :shell
 
-          def initialize(job, vm)
+          def initialize(job, vm, shell)
             super(job)
             @vm = vm
-            @shell = vm.shell
+            @shell = shell
           end
 
           protected
 
             def perform
-              vm.sandboxed do
-                with_shell do
+              with_shell do
+                vm.sandboxed do
                   job.run
                 end
               end
@@ -23,13 +23,18 @@ module Travis
 
             def with_shell
               shell.connect
-              shell.on_output { |output| log(job, output) }
+              shell.on_output(&method(:on_output))
 
               yield.tap do
                 shell.close
               end
             end
+
+            def on_output(output)
+               log(job, output)
+            end
         end
       end
     end
   end
+end

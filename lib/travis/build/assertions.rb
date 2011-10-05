@@ -3,9 +3,13 @@ module Travis
     class AssertionFailed < RuntimeError
       attr_reader :object, :method
 
-      def initialize(object, method)
+      def initialize(object = nil, method = nil)
         @object = object
         @method = method
+      end
+
+      def to_s
+        "#{object.inspect}: #{method}"
       end
     end
 

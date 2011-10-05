@@ -26,19 +26,17 @@ module Travis
             job.run
           end
 
+          def log_exception(job, e)
+            log(job, "Error: #{e.inspect}\n" + e.backtrace.map { |b| "  #{b}" }.join("\n"))
+          end
+
           def log(job, output)
-            # could additionally collect the log on the job here
+            # could additionally collect the log on the job here if necessary
             notify(:log, job, :output => output)
           end
 
-          def log_exception(job, e)
-            log(job, "Error: #{e.inspect}" + e.backtrace.map { |b| "  #{b}" }.join("\n"))
-          end
-
-          def notify(event, *args)
-            observers.each do |observer|
-              observer.send(:"on_#{event}", *args) if observer.respond_to?(:"on_#{event}")
-            end
+          def notify(*args)
+            observers.each { |observer| observer.notify(*args) }
           end
       end
     end

@@ -46,7 +46,7 @@ module Travis
           end
 
           def install
-            # to be implemented in concrete test classes
+            # to be implemented in child classes
           end
 
           def run_scripts

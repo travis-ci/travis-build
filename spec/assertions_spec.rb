@@ -1,21 +1,17 @@
 require 'spec_helper'
 
 describe Assertions do
-  class AssertionsTest
-    extend Assertions
-
-    def initialize(return_value)
-      @return_value = return_value
+  let :asserting_class do
+    Class.new do |c|
+      c.extend(Assertions)
+      c.send(:define_method, :initialize) { |return_value| @return_value = return_value }
+      c.send(:define_method, :the_method) { @return_value }
+      c.assert(:the_method)
     end
-
-    def asserted_method
-      @return_value
-    end
-    assert :asserted_method
   end
 
   subject do
-    lambda { AssertionsTest.new(@return_value).asserted_method }
+    lambda { asserting_class.new(@return_value).the_method }
   end
 
   describe 'an asserted method' do
