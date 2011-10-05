@@ -8,7 +8,6 @@ module Travis
           end
 
           def setup
-            super
             setup_nvm
           end
 

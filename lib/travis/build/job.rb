@@ -7,8 +7,8 @@ module Travis
       autoload :Runner,    'travis/build/job/runner'
       autoload :Test,      'travis/build/job/test'
 
-      def self.create(*args)
-        Factory.new(*args).instance
+      def self.runner(*args)
+        Factory.new(*args).runner
       end
     end
   end

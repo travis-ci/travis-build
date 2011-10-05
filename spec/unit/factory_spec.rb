@@ -1,9 +1,13 @@
 require 'spec_helper'
 require 'support/payloads'
 
+# TODO add runner specs, check observers
+
 describe Factory do
+  let(:vm)         { stub }
+  let(:session)    { Mocks::SshSession.new(config) }
   let(:config)     { { :host => '127.0.0.1', :port => 2220, :ssl_ca_path => '/path/to/certs' } }
-  let(:job)        { Factory.new(config, payload).instance }
+  let(:job)        { Factory.new(vm, session, config, payload).job }
   let(:commit)     { job.commit }
   let(:repository) { job.commit.repository }
   let(:scm)        { job.commit.repository.scm }
@@ -34,8 +38,8 @@ describe Factory do
     end
 
     describe 'the shell' do
-      it 'has a ssh session' do
-        scm.shell.session.should be_a(Shell::Session)
+      it 'has the ssh session' do
+        scm.shell.session.should == session
       end
 
       it 'has the ssl config' do
@@ -73,7 +77,7 @@ describe Factory do
   end
 
   describe 'with a test payload' do
-    let(:payload)    { PAYLOADS[:test] }
+    let(:payload) { PAYLOADS[:test] }
 
     it 'returns a Job::Configure instance' do
       job.should be_a(Job::Test)
@@ -86,6 +90,10 @@ describe Factory do
 
       it 'has a commit' do
         job.commit.should be_a(Commit)
+      end
+
+      it 'has the test config from the payload' do
+        job.config.should == { :rvm => '1.9.2', :gemfile => 'Gemfile', :env => 'FOO=foo' }
       end
     end
 

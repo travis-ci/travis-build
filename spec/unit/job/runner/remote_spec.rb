@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Job::Runner::Remote do
   let(:job)    { stub('job:configure', :run => { :foo => 'foo' }) }
   let(:shell)  { stub('shell', :connect => nil, :on_output => nil, :close => nil) }
-  let(:runner) { Job::Runner::Remote.new(job, nil, shell) }
+  let(:runner) { Job::Runner::Remote.new(nil, shell, job) }
 
   describe 'with_shell' do
     it 'connects the shell' do

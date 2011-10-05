@@ -9,7 +9,7 @@ module Travis
           @slug = slug
         end
 
-        def fetch(commit)
+        def checkout(commit)
           scm.fetch(source_url, commit, slug)
         end
 

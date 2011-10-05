@@ -19,6 +19,7 @@ module Travis
 
         def run
           chdir
+          export
           checkout
           setup
           install
@@ -33,15 +34,19 @@ module Travis
             shell.chdir('~/builds')
           end
 
+          def export
+            Array(config.env).each do |env|
+              shell.export(*env.split('=')) unless env.empty?
+            end if config.env
+          end
+
           def checkout
             commit.checkout
           end
           assert :checkout
 
           def setup
-            Array(config.env).each do |env|
-              shell.export(*env.split('=')) unless env.empty?
-            end if config.env
+            # to be implemented in child classes
           end
 
           def install
@@ -50,7 +55,7 @@ module Travis
 
           def run_scripts
             %w{before_script script after_script}.each do |type|
-              script = respond_to?(type) ? send(type) : config.send(type)
+              script = respond_to?(type, true) ? send(type) : config.send(type)
               return false if script && !run_script(script, :timeout => type.to_sym)
             end && true
           end

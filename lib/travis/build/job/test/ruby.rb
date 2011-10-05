@@ -1,4 +1,5 @@
 require 'hashr'
+require 'active_support/memoizable'
 
 module Travis
   module Build
@@ -9,8 +10,9 @@ module Travis
             define :rvm => 'default', :gemfile => 'Gemfile'
           end
 
+          extend ActiveSupport::Memoizable
+
           def setup
-            super
             setup_ruby
             setup_bundler if gemfile?
           end
@@ -32,6 +34,7 @@ module Travis
             def gemfile?
               shell.file_exists?(config.gemfile)
             end
+            memoize :gemfile?
 
             def bundle_install
               shell.execute("bundle install #{config.bundler_args}".strip, :timeout => :install)

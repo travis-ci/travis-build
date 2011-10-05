@@ -5,7 +5,7 @@ module Travis
         class Remote < Runner
           attr_reader :vm, :shell
 
-          def initialize(job, vm, shell)
+          def initialize(vm, shell, job)
             super(job)
             @vm = vm
             @shell = shell

@@ -3,27 +3,38 @@ require 'hashr'
 module Travis
   module Build
     class Factory
-      attr_reader :config, :payload, :reporters
+      attr_reader :vm, :session, :config, :payload, :observers
 
-      def initialize(config, payload, reporters = [])
+      def initialize(vm, session, config, payload, observers = [])
+        @vm = vm
+        @session = session
         @config = Hashr.new(config)
         @payload = Hashr.new(payload)
-        @reporters = reporters
+        @observers = observers
       end
 
-      def instance
-        payload.config? ? test : configure
+      def runner
+        runner = configure? ? Job::Runner.new(job) : Job::Runner::Remote.new(vm, shell, job)
+        observers.each { |observer| runner.observers << observer }
+        runner
+      end
+
+      def job
+        @job ||= configure? ? configure : test
+      end
+
+      def configure?
+        !payload.config?
       end
 
       def configure
-        Job::Configure.new(http, commit)
+        @configure ||= Job::Configure.new(http, commit)
       end
 
       def test
-        Job::Test.new(shell, commit, payload.build.config).tap do |test|
-          reporters.each do |reporter|
-            test.observers << reporter
-          end
+        @test ||= begin
+          # TODO
+          Job::Test::Ruby.new(shell, commit, Job::Test::Ruby::Config.new(payload.config))
         end
       end
 
@@ -32,7 +43,7 @@ module Travis
       end
 
       def shell
-        @shell ||= Shell.new(Shell::Session.new(config))
+        @shell ||= Shell.new(session)
       end
 
       def commit

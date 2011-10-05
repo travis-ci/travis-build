@@ -1,3 +1,5 @@
+require 'active_support/core_ext/module/delegation'
+
 module Travis
   module Build
     class Shell
@@ -6,6 +8,8 @@ module Travis
       autoload :Session, 'travis/build/shell/session'
 
       attr_reader :session
+
+      delegate :connect, :close, :on_output, :evaluate, :execute, :to => :session
 
       def initialize(session)
         @session = session
@@ -25,14 +29,6 @@ module Travis
 
       def file_exists?(filename)
         session.execute("test -f #{filename}", :echo => false)
-      end
-
-      def evaluate(*args)
-        session.evaluate(*args)
-      end
-
-      def execute(*args)
-        session.execute(*args)
       end
     end
   end
