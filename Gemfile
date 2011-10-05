@@ -7,6 +7,7 @@ gem 'net-ssh-shell', '~> 0.2.0'
 gem 'rake',          '~> 0.9.2'
 gem 'thor'
 
+gem 'jruby-openssl', :platforms => :jruby
 
 group :test do
   gem 'mocha'

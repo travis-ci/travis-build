@@ -2,12 +2,15 @@ GEM
   remote: http://rubygems.org/
   specs:
     addressable (2.2.6)
+    bouncy-castle-java (1.5.0146.1)
     diff-lcs (1.1.3)
     faraday (0.7.5)
       addressable (~> 2.2.6)
       multipart-post (~> 1.1.3)
       rack (>= 1.1.0, < 2)
     hashr (0.0.16)
+    jruby-openssl (0.7.4)
+      bouncy-castle-java
     metaclass (0.0.1)
     mocha (0.10.0)
       metaclass (~> 0.0.1)
@@ -34,6 +37,7 @@ PLATFORMS
 DEPENDENCIES
   faraday (~> 0.7.3)
   hashr (~> 0.0.13)
+  jruby-openssl
   mocha
   multi_json
   net-ssh-shell (~> 0.2.0)
