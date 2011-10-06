@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Job::Test::Ruby do
-  let(:shell)  { stub('shell', :export => true, :execute => true, :cwd => '~/builds', :file_exists? => true) }
+  let(:shell)  { stub('shell', :export => true, :execute => true, :evaluate => 'default', :cwd => '~/builds', :file_exists? => true) }
   let(:config) { Job::Test::Ruby::Config.new(:bundler_args => '--binstubs') }
   let(:job)    { Job::Test::Ruby.new(shell, nil, config) }
 

@@ -29,7 +29,7 @@ module Travis
 
           def log_exception(job, e)
             output = "Error: #{e.inspect}\n" + e.backtrace.map { |b| "  #{b}" }.join("\n")
-            puts output
+            # puts output
             log(job, output)
           end
 
