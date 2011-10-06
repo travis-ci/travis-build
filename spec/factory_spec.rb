@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'support/payloads'
+require 'support/helpers'
 
 # TODO add runner specs, check observers
 
@@ -49,7 +50,7 @@ describe Factory do
   end
 
   describe 'with a configure payload' do
-    let(:payload) { PAYLOADS[:configure] }
+    let(:payload) { deep_clone(PAYLOADS[:configure]) }
 
     it 'returns a Job::Configure instance' do
       job.should be_a(Job::Configure)
@@ -77,13 +78,9 @@ describe Factory do
   end
 
   describe 'with a test payload' do
-    let(:payload) { PAYLOADS[:test].dup }
+    let(:payload) { deep_clone(PAYLOADS[:test]) }
 
     describe 'with no language given' do
-      before :each do
-        payload.delete('language')
-      end
-
       it 'returns a Job::Test::Ruby instance' do
         job.should be_a(Job::Test::Ruby)
       end
@@ -95,7 +92,7 @@ describe Factory do
 
     describe 'with "erlang" given as a language' do
       before :each do
-        payload['language'] = 'erlang'
+        payload['config']['language'] = 'erlang'
       end
 
       it 'uses a Job::Test::Erlang instance' do

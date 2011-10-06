@@ -33,7 +33,7 @@ module Travis
 
       def test
         @test ||= begin
-          type   = Job::Test.by_lang(payload.language)
+          type   = Job::Test.by_lang(payload.config.language)
           config = type::Config.new(payload.config)
           type.new(shell, commit, config)
         end

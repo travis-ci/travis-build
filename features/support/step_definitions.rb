@@ -60,7 +60,7 @@ end
 
 
 Then /^it exports the given environment variables$/ do
-  if $payload.config?
+  if $payload.config.env?
     name, value = $payload.config.env.split('=')
     And "it exports #{name}=#{value}"
   end
@@ -137,10 +137,16 @@ Then /^it evaluates the current working directory$/ do
            in_sequence($sequence)
 end
 
-Then /^it (successfully|fails to) installs? the bundle$/ do |result|
+Then /^it (successfully|fails to) installs? the (.*)$/ do |result, dependencies|
+  cmds = {
+    'bundle' => 'bundle install',
+    'lein dependencies' => 'lein deps'
+  }
+  cmd = cmds[dependencies]
+
   $session.expects(:execute).
-           with('bundle install', :timeout => :install).
-           outputs('bundle install').
+           with(cmd, :timeout => :install).
+           outputs(cmd).
            returns(result == 'successfully').
            in_sequence($sequence)
 end
