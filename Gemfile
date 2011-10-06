@@ -13,5 +13,6 @@ gem 'jruby-openssl', :platforms => :jruby
 group :test do
   gem 'mocha'
   gem 'rspec'
+  gem 'cucumber'
 end
 

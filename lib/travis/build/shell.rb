@@ -15,8 +15,8 @@ module Travis
         @session = session
       end
 
-      def export(name, value, options = {})
-        session.execute("export #{name}=#{value}", options) if name
+      def export(name, value, options = nil)
+        session.execute(*["export #{name}=#{value}", options].compact) if name
       end
 
       def chdir(dir)

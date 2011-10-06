@@ -1,3 +1,5 @@
+require 'hashr'
+
 module Mocks
   class Observer
     def events
@@ -35,7 +37,7 @@ module Mocks
 
     def initialize(config)
       @config = Hashr.new(config)
-      stubs(:connect => nil, :close => nil)
+      # stubs(:connect => nil, :close => nil, :execute => true, :evaluate => '')
     end
 
     def expect(*args)
@@ -68,5 +70,6 @@ Mocha::Expectation.class_eval do
 
   def outputs(output)
     add_side_effect(OutputSideEffect.new(@mock, output))
+    self
   end
 end
