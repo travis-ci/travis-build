@@ -10,8 +10,15 @@ module Travis
       end
 
       def name
-        "#{object.class.name.gsub('Travis::Build::', '').gsub('::', ':').downcase}:#{type}"
+        "#{namespace}:#{type}"
       end
+
+      protected
+
+        def namespace
+          tokens = object.class.name.downcase.split('::')
+          tokens[2, 2].join(':')
+        end
     end
   end
 end
