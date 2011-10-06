@@ -2,9 +2,9 @@ Feature: Testing a Ruby project
 
   Background:
    Given the following test payload
-     | repository | travis-ci/travis-ci      |
-     | commit     | 1234567                  |
-     | config     | rvm: 1.9.2, env: FOO=foo |
+     | repository | travis-ci/travis-ci                                 |
+     | commit     | 1234567                                             |
+     | config     | rvm: 1.9.2, env: FOO=foo, gemfile: gemfiles/Gemfile |
 
   Scenario: A successful build
     When it starts a job
@@ -12,7 +12,7 @@ Feature: Testing a Ruby project
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it successfully switches to the ruby version: 1.9.2
-     And it finds the following file does not exist: Gemfile
+     And it does not find the file gemfiles/Gemfile
      And it successfully runs the script: rake
      And it closes the ssh session
      And it returns true
@@ -23,7 +23,7 @@ Feature: Testing a Ruby project
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it successfully switches to the ruby version: 1.9.2
-     And it finds the following file does not exist: Gemfile
+     And it does not find the file gemfiles/Gemfile
      And it fails to run the script: rake
      And it closes the ssh session
      And it returns false
@@ -34,7 +34,7 @@ Feature: Testing a Ruby project
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it successfully switches to the ruby version: 1.9.2
-     And it finds the Gemfile and successfully installs the bundle
+     And it finds the file gemfiles/Gemfile and successfully installs the bundle
      And it successfully runs the script: bundle exec rake
      And it closes the ssh session
      And it returns true
@@ -69,7 +69,7 @@ Feature: Testing a Ruby project
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it successfully switches to the ruby version: 1.9.2
-     And it finds the Gemfile and fails to install the bundle
+     And it finds the file gemfiles/Gemfile but fails to install the bundle
      And it closes the ssh session
      And it returns false
 
