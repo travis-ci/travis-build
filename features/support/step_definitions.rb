@@ -1,14 +1,31 @@
-When /^a ruby payload comes in and starts a test job$/ do
+require 'hashr'
+
+def decode(string)
+  string.split(',').inject({}) do |result, pair|
+    key, value = pair.split(':')
+    result.merge(key.strip => value.strip)
+  end
+end
+
+Given /^the following test payload$/ do |table|
+  hash = Hashr.new(table.rows_hash)
+
+  $payload = Hashr.new(
+    :repository => { :slug => hash.repository },
+    :build      => { :commit => hash.commit }
+  )
+  $payload.config = decode(hash.config) if hash.config?
+end
+
+When /^it starts a job$/ do
   $vm       = Mocks::Vm.new
   $session  = Mocks::SshSession.new(:host => '127.0.0.1', :port => 2220)
-  $payload  = PAYLOADS[:test]
   $observer = Mocks::Observer.new
   $sequence = sequence('build')
   $runner   = Travis::Build::Job.runner($vm, $session, {}, $payload, [$observer])
 
   And 'it opens the ssh session'
   And 'it cds into the builds dir'
-  And 'it exports the given environment variables'
 end
 
 When /^it (successfully|fails to) clones? the repository to the build dir with git$/ do |result|
@@ -29,6 +46,13 @@ When /^it finds the Gemfile and (successfully|fails to) installs? the bundle$/ d
 end
 
 
+When /^it exports the given environment variables$/ do
+  if $payload.config?
+    name, value = $payload.config.env.split('=')
+    And "it exports #{name}=#{value}"
+  end
+end
+
 When /^it opens the ssh session$/ do
   $session.expects(:connect).
            in_sequence($sequence)
@@ -38,10 +62,6 @@ When /^it cds into the builds dir$/ do
   $session.expects(:execute).
            with('mkdir -p ~/builds; cd ~/builds', :echo => false).
            in_sequence($sequence)
-end
-
-When /^it exports the given environment variables$/ do
-  And "it exports FOO=foo"
 end
 
 When /^it exports (.*)=(.*)$/ do |name, value|
@@ -59,7 +79,7 @@ end
 
 When /^it (successfully|fails to) clones? the repository with git$/ do |result|
   $session.expects(:execute).
-           with('git clone --depth=100 --quiet git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci').
+           with("git clone --depth=100 --quiet git://github.com/#{$payload.repository.slug}.git #{$payload.repository.slug}").
            outputs('git clone').
            returns(result == 'successfully').
            in_sequence($sequence)
@@ -67,14 +87,14 @@ end
 
 When /^it cds into the repository directory$/ do
   $session.expects(:execute).
-           with('mkdir -p travis-ci/travis-ci; cd travis-ci/travis-ci', :echo => false).
+           with("mkdir -p #{$payload.repository.slug}; cd #{$payload.repository.slug}", :echo => false).
            in_sequence($sequence)
 end
 
 When /^it (successfully|fails to) checks? the commit out with git$/ do |result|
   $session.expects(:execute).
-           with('git checkout -qf 313f61b').
-           outputs('git checkout -qf 313f61b').
+           with("git checkout -qf #{$payload.build.commit}").
+           outputs("git checkout -qf #{$payload.build.commit}").
            returns(result == 'successfully').
            in_sequence($sequence)
 end
@@ -83,6 +103,10 @@ When /^it (successfully|fails to) switch(?:es)? to the ruby version: (.*)$/ do |
   $session.expects(:execute).
            with("rvm use #{version}").
            outputs("rvm use #{version}").
+           in_sequence($sequence)
+  $session.expects(:evaluate).
+           with('rvm current').
+           returns(result == 'successfully' ? version : 'something else').
            in_sequence($sequence)
 end
 
@@ -96,7 +120,7 @@ end
 When /^it evaluates the current working directory$/ do
   $session.expects(:evaluate).
            with('pwd').
-           returns('~/builds/travis-ci/travis-ci').
+           returns("~/builds/#{$payload.repository.slug}").
            in_sequence($sequence)
 end
 

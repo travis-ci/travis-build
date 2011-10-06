@@ -25,7 +25,9 @@ module Travis
 
             def setup_ruby
               shell.execute("rvm use #{config.rvm}")
+              shell.evaluate('rvm current') == config.rvm
             end
+            assert :setup_ruby
 
             def setup_bundler
               shell.export('BUNDLE_GEMFILE', "#{shell.cwd}/#{config.gemfile}")
