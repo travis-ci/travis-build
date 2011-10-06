@@ -11,13 +11,18 @@ module Travis
           @observers = []
         end
 
+        def name
+          # TODO where to obtain the name?
+          'ze monsta box'
+        end
+
         def run
-          notify(:start, job, :started_at => Time.now)
+          notify :start, :started_at => Time.now
           result = perform
         rescue => e
-          log_exception(job, e)
+          log_exception(e)
         ensure
-          notify(:finish, job, :finished_at => Time.now, :result => result)
+          notify :finish, :finished_at => Time.now, :result => result
           result
         end
 
@@ -27,19 +32,19 @@ module Travis
             job.run
           end
 
-          def log_exception(job, e)
+          def log_exception(e)
             output = "Error: #{e.inspect}\n" + e.backtrace.map { |b| "  #{b}" }.join("\n")
             # puts output
-            log(job, output)
+            log(output)
           end
 
-          def log(job, output)
+          def log(output)
             # could additionally collect the log on the job here if necessary
-            notify(:log, job, :output => output)
+            notify :log, :output => output
           end
 
-          def notify(type, object, data)
-            observers.each { |observer| observer.notify(Event.new(type, object, data)) }
+          def notify(type, data)
+            observers.each { |observer| observer.notify(Event.new(type, job, data)) }
           end
       end
     end

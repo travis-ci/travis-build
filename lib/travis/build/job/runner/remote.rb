@@ -14,11 +14,14 @@ module Travis
           protected
 
             def perform
-              with_shell do
+              log "Using worker: #{name}\n\n"
+              result = with_shell do
                 vm.sandboxed do
                   job.run
                 end
               end
+              log "\nDone. Build script exited with: #{result}\n"
+              result
             end
 
             def with_shell
@@ -31,7 +34,7 @@ module Travis
             end
 
             def on_output(output)
-               log(job, output)
+               log output
             end
         end
       end

@@ -1,10 +1,23 @@
 require 'hashr'
+require 'active_support/core_ext/hash/keys'
 
 def decode(string)
   string.split(',').inject({}) do |result, pair|
-    key, value = pair.split(':')
-    result.merge(key.strip => value.strip)
-  end
+    key, value = pair.split(':').map { |token| token.strip }
+
+    value = case value
+    when '[now]'
+      Time.now
+    when 'true', 'false'
+      eval(value)
+    when /^\/.*\/$/
+      eval(value)
+    else
+      value
+    end
+
+    result.merge(key => value)
+  end.symbolize_keys
 end
 
 Given /^the following test payload$/ do |table|
@@ -67,7 +80,7 @@ end
 Then /^it exports (.*)=(.*)$/ do |name, value|
   $session.expects(:execute).
            with("export #{name}=#{value}").
-           outputs("export #{name}=#{value}").
+           outputs("export #{name}").
            in_sequence($sequence)
 end
 
@@ -94,7 +107,7 @@ end
 Then /^it (successfully|fails to) checks? the commit out with git$/ do |result|
   $session.expects(:execute).
            with("git checkout -qf #{$payload.build.commit}").
-           outputs("git checkout -qf #{$payload.build.commit}").
+           outputs('git checkout').
            returns(result == 'successfully').
            in_sequence($sequence)
 end
@@ -149,4 +162,20 @@ Then /^it returns (.*)$/ do |result|
   $runner.run.should == eval(result)
 end
 
+Then /^it has captured the following events$/ do |table|
+  expected = table.hashes.map { |hash| Hashr.new(hash) }
+  actual = $observer.events
 
+  expected.each_with_index do |expected, ix|
+    actual[ix].name.should == expected.name
+
+    decode(expected.data).each do |key, value|
+      case value
+      when Regexp
+        actual[ix].data[key].should =~ value
+      else
+        actual[ix].data[key].should == value
+      end
+    end
+  end
+end

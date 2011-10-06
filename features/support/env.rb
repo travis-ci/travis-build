@@ -11,6 +11,9 @@ World(Mocha::API)
 
 Before do
   mocha_setup
+
+  $now = Time.now
+  Time.stubs(:now).returns($now)
 end
 
 After do

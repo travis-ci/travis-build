@@ -16,6 +16,17 @@ Feature: Testing a Ruby project
      And it successfully runs the script: rake
      And it closes the ssh session
      And it returns true
+     And it has captured the following events
+       | name                 | data                             |
+       | job:test:ruby:start  | started_at: [now]                |
+       | job:test:ruby:log    | output: /Using worker/           |
+       | job:test:ruby:log    | output: export FOO               |
+       | job:test:ruby:log    | output: git clone                |
+       | job:test:ruby:log    | output: git checkout             |
+       | job:test:ruby:log    | output: rvm use 1.9.2            |
+       | job:test:ruby:log    | output: rake                     |
+       | job:test:ruby:log    | output: /Done.* true/            |
+       | job:test:ruby:finish | finished_at: [now], result: true |
 
   Scenario: A failing build
     When it starts a job
@@ -38,6 +49,19 @@ Feature: Testing a Ruby project
      And it successfully runs the script: bundle exec rake
      And it closes the ssh session
      And it returns true
+     And it has captured the following events
+       | name                 | data                             |
+       | job:test:ruby:start  | started_at: [now]                |
+       | job:test:ruby:log    | output: /Using worker/           |
+       | job:test:ruby:log    | output: export FOO               |
+       | job:test:ruby:log    | output: git clone                |
+       | job:test:ruby:log    | output: git checkout             |
+       | job:test:ruby:log    | output: rvm use 1.9.2            |
+       | job:test:ruby:log    | output: export BUNDLE_GEMFILE    |
+       | job:test:ruby:log    | output: bundle install           |
+       | job:test:ruby:log    | output: bundle exec rake         |
+       | job:test:ruby:log    | output: /Done.* true/            |
+       | job:test:ruby:finish | finished_at: [now], result: true |
 
   Scenario: The repository can not be cloned
     When it starts a job
