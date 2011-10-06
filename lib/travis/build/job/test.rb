@@ -1,3 +1,5 @@
+require 'active_support/inflector/methods'
+
 module Travis
   module Build
     module Job
@@ -8,6 +10,15 @@ module Travis
         autoload :Ruby,    'travis/build/job/test/ruby'
 
         extend Assertions
+
+        class << self
+          def by_lang(lang)
+            lang = lang || 'ruby'
+            args = [ActiveSupport::Inflector.camelize(lang.gsub('.', '').downcase)]
+            args << false if Kernel.method(:const_get).arity == -1
+            Job::Test.const_get(*args)
+          end
+        end
 
         attr_reader :shell, :commit, :config
 

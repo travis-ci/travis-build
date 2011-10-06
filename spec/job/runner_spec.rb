@@ -18,9 +18,9 @@ describe Job::Runner do
   end
 
   it 'implements a simple observer pattern' do
-    runner.send(:notify, :start, nil, :data)
-    runner.send(:notify, :log, nil, :data)
-    runner.send(:notify, :finish, nil, :data)
+    runner.send(:notify, :start, :data)
+    runner.send(:notify, :log, :data)
+    runner.send(:notify, :finish, :data)
     observer.events.map { |event| event.type }.should == [:start, :log, :finish]
   end
 

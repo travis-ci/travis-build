@@ -7,6 +7,37 @@ describe Job::Test do
   let(:config) { Hashr.new(:env => 'FOO=foo', :script => 'rake') }
   let(:job)    { Job::Test.new(shell, commit, config) }
 
+
+  describe 'by_lang' do
+    it 'returns Job::Test::Ruby for nil' do
+      Job::Test.by_lang(nil).should == Job::Test::Ruby
+    end
+
+    it 'returns Job::Test::Clojure for "clojure"' do
+      Job::Test.by_lang('clojure').should == Job::Test::Clojure
+    end
+
+    it 'returns Job::Test::Erlang for "erlang"' do
+      Job::Test.by_lang('erlang').should == Job::Test::Erlang
+    end
+
+    it 'returns Job::Test::Nodejs for "nodejs"' do
+      Job::Test.by_lang('nodejs').should == Job::Test::Nodejs
+    end
+
+    it 'returns Job::Test::Nodejs for "NodeJs"' do
+      Job::Test.by_lang('NodeJs').should == Job::Test::Nodejs
+    end
+
+    it 'returns Job::Test::Nodejs for "node.js"' do
+      Job::Test.by_lang('node.js').should == Job::Test::Nodejs
+    end
+
+    it 'returns Job::Test::Ruby for "ruby"' do
+      Job::Test.by_lang('ruby').should == Job::Test::Ruby
+    end
+  end
+
   describe 'run' do
     it 'changes to the build dir' do
       shell.expects(:chdir).with('~/builds')

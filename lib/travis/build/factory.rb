@@ -33,8 +33,9 @@ module Travis
 
       def test
         @test ||= begin
-          # TODO
-          Job::Test::Ruby.new(shell, commit, Job::Test::Ruby::Config.new(payload.config))
+          type   = Job::Test.by_lang(payload.language)
+          config = type::Config.new(payload.config)
+          type.new(shell, commit, config)
         end
       end
 

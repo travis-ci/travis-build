@@ -77,10 +77,34 @@ describe Factory do
   end
 
   describe 'with a test payload' do
-    let(:payload) { PAYLOADS[:test] }
+    let(:payload) { PAYLOADS[:test].dup }
 
-    it 'returns a Job::Configure instance' do
-      job.should be_a(Job::Test)
+    describe 'with no language given' do
+      before :each do
+        payload.delete('language')
+      end
+
+      it 'returns a Job::Test::Ruby instance' do
+        job.should be_a(Job::Test::Ruby)
+      end
+
+      it 'uses a Job::Test::Ruby::Config instance' do
+        job.config.should be_a(Job::Test::Ruby::Config)
+      end
+    end
+
+    describe 'with "erlang" given as a language' do
+      before :each do
+        payload['language'] = 'erlang'
+      end
+
+      it 'uses a Job::Test::Erlang instance' do
+        job.should be_a(Job::Test::Erlang)
+      end
+
+      it 'uses a Job::Test::Erlang::Config instance' do
+        job.config.should be_a(Job::Test::Erlang::Config)
+      end
     end
 
     describe 'the test job' do
