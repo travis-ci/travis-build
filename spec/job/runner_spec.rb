@@ -1,27 +1,33 @@
 require 'spec_helper'
 require 'travis/build/assertions'
 require 'support/mocks'
+require 'support/matchers'
 
 describe Job::Runner do
   let(:job)      { stub('job:configure', :run => { :foo => 'foo' }) }
   let(:runner)   { Job::Runner.new(job) }
   let(:observer) { Mocks::Observer.new }
 
+  attr_reader :now
+
   before :each do
+    @now = Time.now
+    Time.stubs(:now).returns(@now)
+
     runner.observers << observer
   end
 
   it 'implements a simple observer pattern' do
-    runner.send(:notify, :start,  :started)
-    runner.send(:notify, :log, :output)
-    runner.send(:notify, :finish, :finished)
-    observer.events.should == [[:start, :started], [:log, :output], [:finish, :finished]]
+    runner.send(:notify, :start, nil, :data)
+    runner.send(:notify, :log, nil, :data)
+    runner.send(:notify, :finish, nil, :data)
+    observer.events.map { |event| event.type }.should == [:start, :log, :finish]
   end
 
   describe 'run' do
     it 'notifies observers about the :start event' do
       runner.run
-      observer.events.should include([:start, job])
+      observer.events.should include_event(:start, job, :started_at => now)
     end
 
     it 'runs the job' do
@@ -32,7 +38,7 @@ describe Job::Runner do
     describe 'with no exception happening' do
       it 'notifies observers about the :finish event' do
         runner.run
-        observer.events.should include([:finish, job, { :result => { :foo => 'foo' } }])
+        observer.events.should include_event(:finish, job, :result => { :foo => 'foo' }, :finished_at => now)
       end
     end
 
@@ -40,14 +46,12 @@ describe Job::Runner do
       it 'logs the exception' do
         job.stubs(:run).raises(AssertionFailed.new(job, 'install'))
         runner.run
-        event = observer.events.detect { |event| event.first == :log }
-        event[1].should == job
-        event[2][:output].should =~ /Error: .*: install/
+        observer.events.should include_event(:log, job, :output => /Error: .*: install/)
       end
 
       it 'still notifies observers about the :finish event' do
         runner.run
-        observer.events.should include([:finish, job, { :result => { :foo => 'foo' } }])
+        observer.events.should include_event(:finish, job, :result => { :foo => 'foo' }, :finished_at => now)
       end
     end
   end

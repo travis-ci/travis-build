@@ -6,8 +6,8 @@ module Mocks
       @events ||= []
     end
 
-    def notify(*args)
-      events << args
+    def notify(event)
+      events << event
     end
   end
 

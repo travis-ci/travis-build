@@ -12,12 +12,12 @@ module Travis
         end
 
         def run
-          notify(:start, job)
+          notify(:start, job, :started_at => Time.now)
           result = perform
         rescue => e
           log_exception(job, e)
         ensure
-          notify(:finish, job, :result => result)
+          notify(:finish, job, :finished_at => Time.now, :result => result)
           result
         end
 
@@ -38,8 +38,8 @@ module Travis
             notify(:log, job, :output => output)
           end
 
-          def notify(*args)
-            observers.each { |observer| observer.notify(*args) }
+          def notify(type, object, data)
+            observers.each { |observer| observer.notify(Event.new(type, object, data)) }
           end
       end
     end
