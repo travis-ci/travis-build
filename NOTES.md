@@ -1,15 +1,16 @@
++ split mkdir -p and cd commands in chdir
+- port shell/buffer and session tests
+
 - make sure that config values don't come in as bogus arrays (such as :rvm => ['1.9.2'])
 - make sure that all the asserted shell commands actually return 0 on success and 1 on failure
 - port recent commits where necessary
 
-- port timeouts config?
-- un-hardcode the builds dir?
-- split mkdir -p and cd commands in chdir
+- config: port timeouts config?
+- config: un-hardcode the builds dir?
 
 - specify what happens when an invalid language is given
 - specify the language configs
 
-- port shell/buffer and session tests
 
 
   def test_setup_env_accepts_an_array_config_env_with_more_than_one_item
