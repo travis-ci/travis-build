@@ -16,7 +16,7 @@ module Travis
             lang = lang || 'ruby'
             args = [ActiveSupport::Inflector.camelize(lang.gsub('.', '').downcase)]
             args << false if Kernel.method(:const_get).arity == -1
-            Job::Test.const_get(*args)
+            Job::Test.const_get(*args) rescue Job::Test::Ruby
           end
         end
 

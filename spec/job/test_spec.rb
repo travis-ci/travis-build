@@ -7,10 +7,17 @@ describe Job::Test do
   let(:config) { Hashr.new(:env => 'FOO=foo', :script => 'rake') }
   let(:job)    { Job::Test.new(shell, commit, config) }
 
-
   describe 'by_lang' do
     it 'returns Job::Test::Ruby for nil' do
       Job::Test.by_lang(nil).should == Job::Test::Ruby
+    end
+
+    it 'returns Job::Test::Ruby for an unknown language' do
+      Job::Test.by_lang('brainfuck').should == Job::Test::Ruby
+    end
+
+    it 'returns Job::Test::Ruby for "ruby"' do
+      Job::Test.by_lang('ruby').should == Job::Test::Ruby
     end
 
     it 'returns Job::Test::Clojure for "clojure"' do
@@ -31,10 +38,6 @@ describe Job::Test do
 
     it 'returns Job::Test::Nodejs for "node.js"' do
       Job::Test.by_lang('node.js').should == Job::Test::Nodejs
-    end
-
-    it 'returns Job::Test::Ruby for "ruby"' do
-      Job::Test.by_lang('ruby').should == Job::Test::Ruby
     end
   end
 
