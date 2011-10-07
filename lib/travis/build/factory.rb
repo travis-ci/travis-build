@@ -19,45 +19,47 @@ module Travis
         runner
       end
 
-      def job
-        @job ||= configure? ? configure : test
-      end
+      protected
 
-      def configure?
-        !payload.config?
-      end
-
-      def configure
-        @configure ||= Job::Configure.new(http, commit)
-      end
-
-      def test
-        @test ||= begin
-          type   = Job::Test.by_lang(payload.config.language)
-          config = type::Config.new(payload.config)
-          type.new(shell, commit, config)
+        def job
+          @job ||= configure? ? configure : test
         end
-      end
 
-      def http
-        @http ||= Connection::Http.new(config)
-      end
+        def configure?
+          !payload.config?
+        end
 
-      def shell
-        @shell ||= Shell.new(session)
-      end
+        def configure
+          @configure ||= Job::Configure.new(http, commit)
+        end
 
-      def commit
-        @commit ||= Commit.new(repository, payload.build.commit)
-      end
+        def test
+          @test ||= begin
+            type   = Job::Test.by_lang(payload.config.language)
+            config = type::Config.new(payload.config)
+            type.new(shell, commit, config)
+          end
+        end
 
-      def repository
-        @repository ||= Repository::Github.new(scm, payload.repository.slug)
-      end
+        def http
+          @http ||= Connection::Http.new(config)
+        end
 
-      def scm
-        @scm ||= Scm::Git.new(shell)
-      end
+        def shell
+          @shell ||= Shell.new(session)
+        end
+
+        def commit
+          @commit ||= Commit.new(repository, payload.build.commit)
+        end
+
+        def repository
+          @repository ||= Repository::Github.new(scm, payload.repository.slug)
+        end
+
+        def scm
+          @scm ||= Scm::Git.new(shell)
+        end
     end
   end
 end
