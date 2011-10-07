@@ -83,6 +83,21 @@ describe Job::Test do
     end
   end
 
+  describe 'export' do
+    it 'accepts a single string' do
+      config.env = 'FOO=foo'
+      shell.expects(:export).with('FOO', 'foo')
+      job.send(:export)
+    end
+
+    it 'accepts an array of strings' do
+      config.env = ['FOO=foo', 'BAR=bar']
+      shell.expects(:export).with('FOO', 'foo')
+      shell.expects(:export).with('BAR', 'bar')
+      job.send(:export)
+    end
+  end
+
   describe 'run_script' do
     it 'returns true if the given script yields true' do
       shell.expects(:execute).returns(true)
