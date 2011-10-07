@@ -25,7 +25,7 @@ module Travis
       end
 
       def cwd
-        session.evaluate('pwd').strip
+        session.evaluate('pwd').to_s.strip
       end
 
       def file_exists?(filename)
