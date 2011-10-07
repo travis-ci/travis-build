@@ -17,7 +17,7 @@ module Travis
 
         # Initialize a shell Session
         #
-        # config - A Hashr containing the ssh connection information
+        # config - A hash containing the timeouts, shell buffer time and ssh connection information
         # block - An optional block of commands to be excuted within the session. If
         #         a block is provided then the session will be started, block evaluated,
         #         and then the session will be closed.
@@ -36,9 +36,9 @@ module Travis
         #
         # Returns the Net::SSH::Shell
         def connect(silent = false)
-          puts "starting ssh session to #{config.host}:#{config.port} ..." unless silent
-          options = { :port => config.port, :keys => [config.private_key_path] }
-          @shell = Net::SSH.start(config.host, config.username, options).shell
+          puts "starting ssh session to #{config.ssh.host}:#{config.ssh.port} ..." unless silent
+          options = { :port => config.ssh.port, :keys => [config.ssh.private_key_path] }
+          @shell = Net::SSH.start(config.ssh.host, config.ssh.username, options).shell
         end
 
         # Closes the Shell and flushes the buffer
@@ -97,7 +97,7 @@ module Travis
           # Internal: Sets up and returns a buffer to use for the entire ssh session when code
           # is executed.
           def buffer
-            @buffer ||= Buffer.new(config.shell.buffer) do |string|
+            @buffer ||= Buffer.new(config.buffer) do |string|
               @on_output.call(string) if @on_output
             end
           end
@@ -132,7 +132,7 @@ module Travis
               options[:timeout]
             else
               timeout = options[:timeout] || :default
-              Travis::Worker.config.timeouts[timeout]
+              config.timeouts[timeout]
             end
           end
       end
