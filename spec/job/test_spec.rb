@@ -98,20 +98,77 @@ describe Job::Test do
     end
   end
 
+  describe 'run_scripts' do
+    before :each do
+      job.config.clear
+    end
+
+    [:before_script, :script, :after_script].each do |type|
+      it "does not run any #{type}s if the config does not define them" do
+        job.expects(:run_script).never
+        job.send(:run_scripts)
+      end
+
+      it "runs a single #{type} defined in the config" do
+        job.config[type] = './foo'
+        job.expects(:run_script).with('./foo', :timeout => type)
+        job.send(:run_scripts)
+      end
+
+      it "runs an array of #{type}s defined in the config" do
+        job.config[type] =['./foo', './bar']
+        job.expects(:run_script).with(['./foo', './bar'], :timeout => type)
+        job.send(:run_scripts)
+      end
+    end
+
+    it 'runs before_scripts, scripts and after_script as defined in the config' do
+      job.config.before_script = './before'
+      job.config.script = './script'
+      job.config.after_script = './after'
+
+      job.expects(:run_script).with('./before', any_parameters).returns(true)
+      job.expects(:run_script).with('./script', any_parameters).returns(true)
+      job.expects(:run_script).with('./after', any_parameters)
+
+      job.send(:run_scripts)
+    end
+
+    it 'does not run scripts if a before_script has failed' do
+      job.config.before_script = './before'
+      job.config.script = './script'
+
+      job.expects(:run_script).with('./before', any_parameters).returns(false)
+      job.expects(:run_script).with('./script').never
+
+      job.send(:run_scripts)
+    end
+
+    it 'does not run after_scripts if a script has failed' do
+      job.config.script = './script'
+      job.config.after_script = './after'
+
+      job.expects(:run_script).with('./script', any_parameters).returns(false)
+      job.expects(:run_script).with('./after').never
+
+      job.send(:run_scripts)
+    end
+  end
+
   describe 'run_script' do
     it 'returns true if the given script yields true' do
       shell.expects(:execute).returns(true)
-      job.send(:run_script, 'rake').should be_true
+      job.send(:run_script, './foo').should be_true
     end
 
-    it 'returns false if the given script yields false (given a single line)' do
+    it 'returns false if the given script yields false' do
       shell.expects(:execute).returns(false)
-      job.send(:run_script, 'rake').should be_false
+      job.send(:run_script, './foo').should be_false
     end
 
-    it 'returns false if the given script yields false (given multiple lines)' do
-      shell.expects(:execute).with('rake', any_parameters).returns(false)
-      job.send(:run_script, "rake\nfoo").should be_false
+    it 'returns false if the first given script yields false' do
+      shell.expects(:execute).with('./foo', any_parameters).returns(false)
+      job.send(:run_script, ['./foo', './bar']).should be_false
     end
   end
 end

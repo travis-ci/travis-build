@@ -72,7 +72,7 @@ module Travis
           end
 
           def run_script(script, options = {})
-            (script.is_a?(Array) ? script : script.split("\n")).each do |script|
+            Array(script).each do |script|
               return false unless shell.execute(script, options)
             end && true
           end
