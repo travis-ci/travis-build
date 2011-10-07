@@ -97,7 +97,7 @@ module Travis
           # Internal: Sets up and returns a buffer to use for the entire ssh session when code
           # is executed.
           def buffer
-            @buffer ||= Buffer.new do |string|
+            @buffer ||= Buffer.new(config.shell.buffer) do |string|
               @on_output.call(string) if @on_output
             end
           end

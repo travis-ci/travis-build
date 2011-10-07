@@ -2,11 +2,11 @@ module Travis
   module Build
     class Shell
       class Buffer < String
-        attr_reader :callback
+        attr_reader :interval, :callback
 
-        def initialize(&callback)
+        def initialize(interval = nil, &callback)
           @callback = callback
-          start
+          start if interval
         end
 
         def flush
@@ -35,7 +35,7 @@ module Travis
             @thread = Thread.new do
               loop do
                 flush
-                sleep(Travis::Worker.config.shell.buffer)
+                sleep(interval) if interval
               end
             end
           end
