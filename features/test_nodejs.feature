@@ -20,8 +20,10 @@ Feature: Testing a Node.js project
        | name            | data                             |
        | job:test:start  | started_at: [now]                |
        | job:test:log    | output: /Using worker/           |
+       | job:test:log    | output: cd ~/builds              |
        | job:test:log    | output: export FOO               |
        | job:test:log    | output: git clone                |
+       | job:test:log    | output: cd travis-ci/travis-ci   |
        | job:test:log    | output: git checkout             |
        | job:test:log    | output: nvm use v0.4.12          |
        | job:test:log    | output: make test                |
@@ -42,8 +44,10 @@ Feature: Testing a Node.js project
        | name            | data                             |
        | job:test:start  | started_at: [now]                |
        | job:test:log    | output: /Using worker/           |
+       | job:test:log    | output: cd ~/builds              |
        | job:test:log    | output: export FOO               |
        | job:test:log    | output: git clone                |
+       | job:test:log    | output: cd travis-ci/travis-ci   |
        | job:test:log    | output: git checkout             |
        | job:test:log    | output: nvm use v0.4.12          |
        | job:test:log    | output: npm install --dev        |

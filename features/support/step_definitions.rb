@@ -73,9 +73,20 @@ Then /^it opens the ssh session$/ do
            in_sequence($sequence)
 end
 
-Then /^it cds into the builds dir$/ do
+Then /^it cds into the (.*)$/ do |dir|
+  dirs = {
+    'builds dir' => '~/builds',
+    'repository directory' => $payload.repository.slug
+  }
+  dir = dirs[dir]
+
   $session.expects(:execute).
-           with('mkdir -p ~/builds; cd ~/builds', :echo => false).
+           with("mkdir -p #{dir}", :echo => false).
+           in_sequence($sequence)
+
+  $session.expects(:execute).
+           with("cd #{dir}").
+           outputs("cd #{dir}").
            in_sequence($sequence)
 end
 
@@ -97,12 +108,6 @@ Then /^it (successfully|fails to) clones? the repository with git$/ do |result|
            with("git clone --depth=100 --quiet git://github.com/#{$payload.repository.slug}.git #{$payload.repository.slug}").
            outputs('git clone').
            returns(result == 'successfully').
-           in_sequence($sequence)
-end
-
-Then /^it cds into the repository directory$/ do
-  $session.expects(:execute).
-           with("mkdir -p #{$payload.repository.slug}; cd #{$payload.repository.slug}", :echo => false).
            in_sequence($sequence)
 end
 

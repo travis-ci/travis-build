@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'support/mocks'
 require 'support/payloads'
 require 'support/helpers'
 
@@ -8,7 +9,8 @@ describe Factory do
   let(:vm)         { stub }
   let(:session)    { Mocks::SshSession.new(config) }
   let(:config)     { { :host => '127.0.0.1', :port => 2220, :ssl_ca_path => '/path/to/certs' } }
-  let(:job)        { Factory.new(vm, session, config, payload).job }
+  let(:runner)     { Factory.new(vm, session, config, payload).runner }
+  let(:job)        { runner.job }
   let(:commit)     { job.commit }
   let(:repository) { job.commit.repository }
   let(:scm)        { job.commit.repository.scm }
@@ -52,7 +54,11 @@ describe Factory do
   describe 'with a configure payload' do
     let(:payload) { deep_clone(PAYLOADS[:configure]) }
 
-    it 'returns a Job::Configure instance' do
+    it 'uses a Job::Runner instance' do
+      runner.should be_a(Job::Runner)
+    end
+
+    it 'uses a Job::Configure instance' do
       job.should be_a(Job::Configure)
     end
 
@@ -80,8 +86,12 @@ describe Factory do
   describe 'with a test payload' do
     let(:payload) { deep_clone(PAYLOADS[:test]) }
 
+    it 'uses a Job::Runner::Remote instance' do
+      runner.should be_a(Job::Runner)
+    end
+
     describe 'with no language given' do
-      it 'returns a Job::Test::Ruby instance' do
+      it 'uses a Job::Test::Ruby instance' do
         job.should be_a(Job::Test::Ruby)
       end
 

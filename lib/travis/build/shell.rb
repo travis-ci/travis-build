@@ -20,7 +20,8 @@ module Travis
       end
 
       def chdir(dir)
-        session.execute("mkdir -p #{dir}; cd #{dir}", :echo => false)
+        session.execute("mkdir -p #{dir}", :echo => false)
+        session.execute("cd #{dir}")
       end
 
       def cwd
