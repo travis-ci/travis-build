@@ -27,16 +27,6 @@ Feature: Testing a Clojure project
        | job:test:log    | output: /Done.* true/            |
        | job:test:finish | finished_at: [now], result: true |
 
-  Scenario: A failing build
-    When it starts a job
-    Then it exports the given environment variables
-     And it successfully clones the repository to the build dir with git
-     And it successfully checks out the commit with git to the repository directory
-     And it successfully installs the lein dependencies
-     And it fails to run the script: lein test
-     And it closes the ssh session
-     And it returns false
-
   Scenario: The repository can not be cloned
     When it starts a job
     Then it exports the given environment variables
@@ -58,5 +48,15 @@ Feature: Testing a Clojure project
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it fails to install the lein dependencies
+     And it closes the ssh session
+     And it returns false
+
+  Scenario: A failing build
+    When it starts a job
+    Then it exports the given environment variables
+     And it successfully clones the repository to the build dir with git
+     And it successfully checks out the commit with git to the repository directory
+     And it successfully installs the lein dependencies
+     And it fails to run the script: lein test
      And it closes the ssh session
      And it returns false

@@ -1,3 +1,5 @@
+require 'active_support/memoizable'
+
 module Travis
   module Build
     module Job
@@ -6,6 +8,8 @@ module Travis
           class Config < Hashr
             define :opt_release => 'R14B02'
           end
+
+          extend ActiveSupport::Memoizable
 
           def setup
             setup_otp
@@ -25,11 +29,12 @@ module Travis
             def rebar_configured?
               shell.file_exists?('rebar.config') || shell.file_exists?('Rebar.config')
             end
+            memoize :rebar_configured?
 
             def rebar_get_deps
               shell.execute('./rebar get-deps', :timeout => :install)
             end
-            assert :rebar_install
+            assert :rebar_get_deps
 
             def script
               if config.script?

@@ -1,19 +1,19 @@
-Feature: Testing a Ruby project
+Feature: Testing a Node.js project
 
   Background:
    Given the following test payload
-     | repository | travis-ci/travis-ci                                 |
-     | commit     | 1234567                                             |
-     | config     | rvm: 1.9.2, env: FOO=foo, gemfile: gemfiles/Gemfile |
+     | repository | travis-ci/travis-ci                                                      |
+     | commit     | 1234567                                                                  |
+     | config     | language: node.js, nodejs_version: 0.4.12, env: FOO=foo, npm_args: --dev |
 
   Scenario: A successful build
     When it starts a job
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
-     And it successfully switches to the ruby version: 1.9.2
-     And it does not find the file gemfiles/Gemfile
-     And it successfully runs the script: rake
+     And it successfully switches to the node.js version: 0.4.12
+     And it does not find the file package.json
+     And it successfully runs the script: make test
      And it closes the ssh session
      And it returns true
      And it has captured the following events
@@ -23,19 +23,19 @@ Feature: Testing a Ruby project
        | job:test:log    | output: export FOO               |
        | job:test:log    | output: git clone                |
        | job:test:log    | output: git checkout             |
-       | job:test:log    | output: rvm use 1.9.2            |
-       | job:test:log    | output: rake                     |
+       | job:test:log    | output: nvm use v0.4.12          |
+       | job:test:log    | output: make test                |
        | job:test:log    | output: /Done.* true/            |
        | job:test:finish | finished_at: [now], result: true |
 
-  Scenario: A successful build with a Gemfile
+  Scenario: A successful with a package.json file
     When it starts a job
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
-     And it successfully switches to the ruby version: 1.9.2
-     And it finds a file gemfiles/Gemfile and successfully installs the bundle
-     And it successfully runs the script: bundle exec rake
+     And it successfully switches to the node.js version: 0.4.12
+     And it finds a file package.json and successfully installs the npm packages
+     And it successfully runs the script: npm test
      And it closes the ssh session
      And it returns true
      And it has captured the following events
@@ -45,10 +45,9 @@ Feature: Testing a Ruby project
        | job:test:log    | output: export FOO               |
        | job:test:log    | output: git clone                |
        | job:test:log    | output: git checkout             |
-       | job:test:log    | output: rvm use 1.9.2            |
-       | job:test:log    | output: export BUNDLE_GEMFILE    |
-       | job:test:log    | output: bundle install           |
-       | job:test:log    | output: bundle exec rake         |
+       | job:test:log    | output: nvm use v0.4.12          |
+       | job:test:log    | output: npm install --dev        |
+       | job:test:log    | output: npm test                 |
        | job:test:log    | output: /Done.* true/            |
        | job:test:finish | finished_at: [now], result: true |
 
@@ -67,12 +66,12 @@ Feature: Testing a Ruby project
      And it closes the ssh session
      And it returns false
 
-  Scenario: The ruby version can not be activated
+  Scenario: The node.js version can not be activated
     When it starts a job
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
-     And it fails to switch to the ruby version: 1.9.2
+     And it fails to switch to the node.js version: 0.4.12
      And it closes the ssh session
      And it returns false
 
@@ -81,19 +80,20 @@ Feature: Testing a Ruby project
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
-     And it successfully switches to the ruby version: 1.9.2
-     And it finds a file gemfiles/Gemfile but fails to install the bundle
+     And it successfully switches to the node.js version: 0.4.12
+     And it finds a file package.json but fails to install the npm packages
      And it closes the ssh session
      And it returns false
 
-  Scenario: The build fails
+  Scenario: A failing build
     When it starts a job
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
-     And it successfully switches to the ruby version: 1.9.2
-     And it does not find the file gemfiles/Gemfile
-     And it fails to run the script: rake
+     And it successfully switches to the node.js version: 0.4.12
+     And it does not find the file package.json
+     And it fails to run the script: make test
      And it closes the ssh session
      And it returns false
+
 

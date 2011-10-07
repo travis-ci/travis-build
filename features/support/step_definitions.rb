@@ -51,11 +51,13 @@ Then /^it (successfully|fails to) checks? out the commit with git to the reposit
   And "it #{result} checks the commit out with git"
 end
 
-Then /^it finds the file (.*) (?:and|but) (successfully|fails to) installs? the bundle$/ do |filename, result|
+Then /^it finds a file (.*) (?:and|but) (successfully|fails to) installs? the (.*)$/ do |filename, result, dependencies|
   And "it finds the file #{filename}"
-  And 'it evaluates the current working directory'
-  And "it exports BUNDLE_GEMFILE=~/builds/travis-ci/travis-ci/#{filename}"
-  And "it #{result} installs the bundle"
+  if dependencies == 'bundle'
+    And 'it evaluates the current working directory'
+    And "it exports BUNDLE_GEMFILE=~/builds/travis-ci/travis-ci/#{filename}"
+  end
+  And "it #{result} installs the #{dependencies}"
 end
 
 
@@ -112,22 +114,40 @@ Then /^it (successfully|fails to) checks? the commit out with git$/ do |result|
            in_sequence($sequence)
 end
 
-Then /^it (successfully|fails to) switch(?:es)? to the ruby version: (.*)$/ do |result, version|
-  $session.expects(:execute).
-           with("rvm use #{version}").
-           outputs("rvm use #{version}").
-           in_sequence($sequence)
-  $session.expects(:evaluate).
-           with('rvm current').
-           returns(result == 'successfully' ? version : 'something else').
-           in_sequence($sequence)
+Then /^it (successfully|fails to) switch(?:es)? to the (.*) version: (.*)$/ do |result, language, version|
+  cmds = {
+    'ruby'   => "rvm use #{version}",
+    'erlang' => "source /home/vagrant/otp/#{version}/activate",
+    'nodejs' => "nvm use v#{version}"
+  }
+  cmd = cmds[language.gsub('.', '')]
+
+  if language == 'ruby'
+    $session.expects(:execute).
+             with(cmd).
+             outputs(cmd).
+             in_sequence($sequence)
+    $session.expects(:evaluate).
+             with('rvm current').
+             returns(result == 'successfully' ? version : 'something else').
+             in_sequence($sequence)
+  else
+    $session.expects(:execute).
+             with(cmd).
+             outputs(cmd).
+             returns(result == 'successfully').
+             in_sequence($sequence)
+  end
 end
 
-Then /^it (finds|does not find) the file (\S*)$/ do |result, filename|
-  $session.expects(:execute).
-           with("test -f #{filename}", :echo => false).
-           returns(result == 'finds').
-           in_sequence($sequence)
+Then /^it (finds|does not find) the file (.*)$/ do |result, filenames|
+  filenames = filenames.split(/, | or /).map { |filename| filename.strip }
+  filenames.each do |filename|
+    $session.expects(:execute).
+             with("test -f #{filename}", :echo => false).
+             returns(result == 'finds').
+             in_sequence($sequence)
+  end
 end
 
 Then /^it evaluates the current working directory$/ do
@@ -140,7 +160,9 @@ end
 Then /^it (successfully|fails to) installs? the (.*)$/ do |result, dependencies|
   cmds = {
     'bundle' => 'bundle install',
-    'lein dependencies' => 'lein deps'
+    'lein dependencies' => 'lein deps',
+    'rebar dependencies' => './rebar get-deps',
+    'npm packages' => 'npm install --dev'
   }
   cmd = cmds[dependencies]
 

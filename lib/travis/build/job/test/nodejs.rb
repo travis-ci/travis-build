@@ -1,3 +1,5 @@
+require 'active_support/memoizable'
+
 module Travis
   module Build
     module Job
@@ -6,6 +8,8 @@ module Travis
           class Config < Hashr
             define :nodejs_version => '0.4.11'
           end
+
+          extend ActiveSupport::Memoizable
 
           def setup
             setup_nvm
@@ -20,10 +24,12 @@ module Travis
             def setup_nvm
               shell.execute("nvm use v#{config.nodejs_version}")
             end
+            assert :setup_nvm
 
             def npm?
               shell.file_exists?('package.json')
             end
+            memoize :npm?
 
             def install_npm
               shell.execute("npm install #{config.npm_args}".strip, :timeout => :install)
