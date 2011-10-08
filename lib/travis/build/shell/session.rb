@@ -36,9 +36,9 @@ module Travis
         #
         # Returns the Net::SSH::Shell
         def connect(silent = false)
-          puts "starting ssh session to #{config.ssh.host}:#{config.ssh.port} ..." unless silent
-          options = { :port => config.ssh.port, :keys => [config.ssh.private_key_path] }
-          @shell = Net::SSH.start(config.ssh.host, config.ssh.username, options).shell
+          puts "starting ssh session to #{config.host}:#{config.port} ..." unless silent
+          options = { :port => config.port, :keys => [config.private_key_path] }
+          @shell = Net::SSH.start(config.host, config.username, options).shell
         end
 
         # Closes the Shell and flushes the buffer
@@ -136,7 +136,6 @@ module Travis
             end
           end
       end
-
     end
   end
 end
