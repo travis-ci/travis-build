@@ -12,6 +12,10 @@ module Mocks
   end
 
   class Vm
+    def name
+      'the-vm-name'
+    end
+
     def sandboxed
       yield
     end

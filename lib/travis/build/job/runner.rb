@@ -11,11 +11,6 @@ module Travis
           @observers = []
         end
 
-        def name
-          # TODO where to obtain the name?
-          'ze monsta box'
-        end
-
         def run
           notify :start, :started_at => Time.now
           result = perform

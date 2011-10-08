@@ -11,6 +11,11 @@ module Travis
             @shell = shell
           end
 
+          def name
+            # TODO where to obtain the host name?
+            "ze monsta box: #{vm.name}"
+          end
+
           protected
 
             def perform

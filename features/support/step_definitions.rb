@@ -32,7 +32,7 @@ end
 
 When /^it starts a job$/ do
   $vm       = Mocks::Vm.new
-  $session  = Mocks::SshSession.new(:host => '127.0.0.1', :port => 2220)
+  $session  = Mocks::SshSession.new
   $http     = stub('http')
   $observer = Mocks::Observer.new
   $sequence = sequence('build')
