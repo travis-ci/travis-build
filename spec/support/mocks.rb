@@ -18,30 +18,8 @@ module Mocks
   end
 
   class SshSession
-    class Expector
-      include Mocha::API
-
-      attr_reader :session, :order
-
-      def initialize(session)
-        @session = session
-        @order = sequence('ssh commands')
-      end
-
-      def method_missing(method, *args, &block)
-        session.expects(method).in_sequence(order).with(*args)
-      end
-    end
-
-    attr_reader :config
-
-    def initialize(config)
-      @config = Hashr.new(config)
+    def initialize
       # stubs(:connect => nil, :close => nil, :execute => true, :evaluate => '')
-    end
-
-    def expect(*args)
-      yield Expector.new(self)
     end
 
     def on_output(&block)

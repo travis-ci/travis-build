@@ -6,10 +6,10 @@ require 'support/helpers'
 # TODO add runner specs, check observers
 
 describe Factory do
-  let(:vm)         { stub }
-  let(:session)    { Mocks::SshSession.new(config) }
-  let(:config)     { { :host => '127.0.0.1', :port => 2220, :ssl_ca_path => '/path/to/certs' } }
-  let(:runner)     { Factory.new(vm, session, config, payload).runner }
+  let(:vm)         { stub('vm') }
+  let(:session)    { Mocks::SshSession.new }
+  let(:http)       { stub('http') }
+  let(:runner)     { Factory.new(vm, session, http, payload).runner }
   let(:job)        { runner.job }
   let(:commit)     { job.commit }
   let(:repository) { job.commit.repository }
@@ -44,10 +44,6 @@ describe Factory do
       it 'has the ssh session' do
         scm.shell.session.should == session
       end
-
-      it 'has the ssl config' do
-        scm.shell.session.config.port.should == 2220
-      end
     end
   end
 
@@ -63,18 +59,12 @@ describe Factory do
     end
 
     describe 'the configure job' do
-      it 'has an http connection' do
-        job.http.should be_a(Connection::Http)
+      it 'has the given http connection' do
+        job.http.should == http
       end
 
       it 'has a commit' do
         job.commit.should be_a(Commit)
-      end
-    end
-
-    describe 'the http connection' do
-      it 'has the ssl config' do
-        job.http.ssl[:ca_path].should == config[:ssl_ca_path]
       end
     end
 
