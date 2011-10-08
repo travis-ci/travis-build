@@ -11,6 +11,10 @@ module Travis
             @shell = shell
           end
 
+          def name
+            vm.full_name
+          end
+
           protected
 
             def perform
