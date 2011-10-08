@@ -15,8 +15,8 @@ module Travis
 
             def perform
               log "Using worker: #{name}\n\n"
-              result = with_shell do
-                vm.sandboxed do
+              result = vm.sandboxed do
+                with_shell do
                   job.run
                 end
               end
