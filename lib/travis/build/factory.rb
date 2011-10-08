@@ -10,7 +10,7 @@ module Travis
         @session = session
         @config = Hashr.new(config)
         @payload = Hashr.new(payload)
-        @observers = observers
+        @observers = Array(observers)
       end
 
       def runner
