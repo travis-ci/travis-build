@@ -1,0 +1,2 @@
+script: "rspec spec && cucumber"
+rvm: jruby
