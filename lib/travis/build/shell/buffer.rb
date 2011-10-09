@@ -5,6 +5,7 @@ module Travis
         attr_reader :interval, :callback
 
         def initialize(interval = nil, &callback)
+          @interval = interval
           @callback = callback
           start if interval
         end
