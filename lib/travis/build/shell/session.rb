@@ -67,11 +67,14 @@ module Travis
         # Evaluates a command within the ssh shell, returning the command output.
         #
         # command - The command to be evaluated.
+        # options - Optional Hash options (default: {}):
+        #           :echo - true or false if the command should be echod to the log
         #
         # Returns the output from the command.
         # Raises RuntimeError if the commands exit status is 1
-        def evaluate(command)
+        def evaluate(command, options = {})
           result = ''
+          command = echoize(command) if options[:echo]
           status = exec(command) { |p, data| result << data }
           raise("command #{command} failed: #{result}") unless status == 0
           result

@@ -129,13 +129,10 @@ Then /^it (successfully|fails to) switch(?:es)? to the (.*) version: (.*)$/ do |
   cmd = cmds[language.gsub('.', '')]
 
   if language == 'ruby'
-    $session.expects(:execute).
-             with(cmd).
-             outputs(cmd).
-             in_sequence($sequence)
     $session.expects(:evaluate).
-             with('rvm current').
-             returns(result == 'successfully' ? version : 'something else').
+             with(cmd, :echo => true).
+             outputs(cmd).
+             returns(result == 'successfully' ? "Using #{version}" : "WARN: #{version} is not installed").
              in_sequence($sequence)
   else
     $session.expects(:execute).

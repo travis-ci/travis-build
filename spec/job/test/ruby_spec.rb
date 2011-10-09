@@ -17,8 +17,15 @@ describe Job::Test::Ruby do
 
   describe 'setup' do
     it 'switches to the given ruby version' do
-      shell.expects(:execute).with("rvm use default")
+      config.rvm = 'rbx'
+      shell.expects(:evaluate).with('rvm use rbx', :echo => true)
       job.setup
+    end
+
+    it 'raises AssertionFailed when rvm outputs an ERROR string' do
+      config.rvm = 'rbx'
+      shell.expects(:evaluate).with('rvm use rbx', :echo => true).returns('ERROR: Unknown ruby interpreter version')
+      lambda { job.setup }.should raise_error(AssertionFailed)
     end
 
     it 'configures bundler to use the given gemfile if it exists' do

@@ -24,8 +24,8 @@ module Travis
           protected
 
             def setup_ruby
-              shell.execute("rvm use #{config.rvm}")
-              shell.evaluate('rvm current') == config.rvm
+              output = shell.evaluate("rvm use #{config.rvm}", :echo => true)
+              output !~ /ERROR|WARN/
             end
             assert :setup_ruby
 
