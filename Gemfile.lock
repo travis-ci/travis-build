@@ -1,7 +1,7 @@
 GEM
   remote: http://rubygems.org/
   specs:
-    activesupport (3.1.0)
+    activesupport (3.1.1)
       multi_json (~> 1.0)
     addressable (2.2.6)
     bouncy-castle-java (1.5.0146.1)
@@ -22,7 +22,7 @@ GEM
     hashr (0.0.16)
     jruby-openssl (0.7.4)
       bouncy-castle-java
-    json (1.5.4-java)
+    json (1.6.1-java)
     metaclass (0.0.1)
     mocha (0.10.0)
       metaclass (~> 0.0.1)

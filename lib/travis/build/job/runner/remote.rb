@@ -12,16 +12,15 @@ module Travis
           end
 
           def name
-            # TODO where to obtain the host name?
-            "ze monsta box: #{vm.name}"
+            vm.full_name
           end
 
           protected
 
             def perform
               log "Using worker: #{name}\n\n"
-              result = with_shell do
-                vm.sandboxed do
+              result = vm.sandboxed do
+                with_shell do
                   job.run
                 end
               end
