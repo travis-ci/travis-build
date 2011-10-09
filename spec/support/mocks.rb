@@ -12,8 +12,8 @@ module Mocks
   end
 
   class Vm
-    def name
-      'the-vm-name'
+    def full_name
+      'the-full:vm-name'
     end
 
     def sandboxed
