@@ -75,7 +75,10 @@ module Travis
         def evaluate(command, options = {})
           result = ''
           command = echoize(command) if options[:echo]
-          status = exec(command) { |p, data| result << data }
+          status = exec(command) do |p, data|
+            result << data
+            buffer << data if options[:echo]
+          end
           raise("command #{command} failed: #{result}") unless status == 0
           result
         end
