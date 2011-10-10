@@ -6,7 +6,6 @@ module Travis
     autoload :Event,      'travis/build/event'
     autoload :Factory,    'travis/build/factory'
     autoload :Job,        'travis/build/job'
-    autoload :Shell,      'travis/build/shell'
     autoload :Remote,     'travis/build/remote'
 
     module Repository
