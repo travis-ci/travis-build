@@ -5,7 +5,7 @@ module Travis
         attr_reader :id
 
         def initialize(payload)
-          @id = payload[:id]
+          @id = payload[:build][:id] rescue nil
         end
 
         def create(type, object, data)
