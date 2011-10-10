@@ -4,8 +4,9 @@ require 'support/mocks'
 require 'support/matchers'
 
 describe Build::Build do
+  let(:events)   { Build::Event::Factory.new(:id => 1) }
   let(:job)      { stub('job:configure', :run => { :foo => 'foo' }) }
-  let(:runner)   { Build::Build.new(job) }
+  let(:runner)   { Build::Build.new(events, job) }
   let(:observer) { Mocks::Observer.new }
 
   attr_reader :now
@@ -18,9 +19,9 @@ describe Build::Build do
   end
 
   it 'implements a simple observer pattern' do
-    runner.send(:notify, :start, :data)
-    runner.send(:notify, :log, :data)
-    runner.send(:notify, :finish, :data)
+    runner.send(:notify, :start, {})
+    runner.send(:notify, :log, {})
+    runner.send(:notify, :finish, {})
     observer.events.map { |event| event.type }.should == [:start, :log, :finish]
   end
 

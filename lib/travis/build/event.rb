@@ -1,6 +1,18 @@
 module Travis
   class Build
     class Event
+      class Factory
+        attr_reader :id
+
+        def initialize(payload)
+          @id = payload[:id]
+        end
+
+        def create(type, object, data)
+          Event.new(type, object, data.merge(:id => id))
+        end
+      end
+
       attr_reader :type, :object, :data
 
       def initialize(type, object, data)

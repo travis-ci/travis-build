@@ -20,10 +20,11 @@ module Travis
       Factory.new(*args).build
     end
 
-    attr_reader :job, :observers
+    attr_reader :events, :job, :observers
 
-    def initialize(job)
+    def initialize(events, job)
       @job = job
+      @events = events
       @observers = []
     end
 
@@ -55,7 +56,8 @@ module Travis
       end
 
       def notify(type, data)
-        observers.each { |observer| observer.notify(Event.new(type, job, data)) }
+        event = events.create(type, job, data)
+        observers.each { |observer| observer.notify(event) }
       end
   end
 end

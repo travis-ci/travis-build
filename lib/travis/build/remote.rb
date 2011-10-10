@@ -3,8 +3,8 @@ module Travis
     class Remote < Build
       attr_reader :vm, :shell
 
-      def initialize(vm, shell, job)
-        super(job)
+      def initialize(vm, shell, events, job)
+        super(events, job)
         @vm = vm
         @shell = shell
       end

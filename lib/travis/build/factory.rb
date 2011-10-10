@@ -14,7 +14,7 @@ module Travis
       end
 
       def build
-        build = configure? ? Build.new(job) : Build::Remote.new(vm, shell, job)
+        build = configure? ? Build.new(events, job) : Build::Remote.new(vm, shell, events, job)
         observers.each { |observer| build.observers << observer }
         build
       end
@@ -23,6 +23,10 @@ module Travis
 
         def job
           @job ||= configure? ? configure : test
+        end
+
+        def events
+          Event::Factory.new(payload)
         end
 
         def configure?
