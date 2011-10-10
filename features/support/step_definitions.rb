@@ -36,7 +36,7 @@ When /^it starts a job$/ do
   $http     = stub('http')
   $observer = Mocks::Observer.new
   $sequence = sequence('build')
-  $runner   = Travis::Build::Job.runner($vm, $shell, $http, $payload, [$observer])
+  $build    = Travis::Build.create($vm, $shell, $http, $payload, [$observer])
 
   And 'it opens the ssh session'
   And 'it cds into the builds dir'
@@ -185,7 +185,7 @@ Then /^it closes the ssh session$/ do
 end
 
 Then /^it returns (.*)$/ do |result|
-  $runner.run.should == eval(result)
+  $build.run.should == eval(result)
 end
 
 Then /^it has captured the following events$/ do |table|

@@ -15,7 +15,7 @@ module Travis
 
       def build
         build = configure? ? Build.new(job) : Build::Remote.new(vm, shell, job)
-        observers.each { |observer| runner.observers << observer }
+        observers.each { |observer| build.observers << observer }
         build
       end
 
