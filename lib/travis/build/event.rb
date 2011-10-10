@@ -9,7 +9,7 @@ module Travis
         end
 
         def create(type, object, data)
-          Event.new(type, object, data.merge(:id => id))
+          Event.new(type, object, { :id => id }.merge(data))
         end
       end
 
