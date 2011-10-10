@@ -33,10 +33,9 @@ end
 When /^it starts a job$/ do
   $vm       = Mocks::Vm.new
   $shell    = Mocks::Shell.new
-  $http     = stub('http')
   $observer = Mocks::Observer.new
   $sequence = sequence('build')
-  $build    = Travis::Build.create($vm, $shell, $http, $payload, [$observer])
+  $build    = Travis::Build.create($vm, $shell, [$observer], $payload, {})
 
   And 'it opens the ssh session'
   And 'it cds into the builds dir'

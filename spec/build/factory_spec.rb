@@ -8,9 +8,10 @@ require 'support/helpers'
 describe Build::Factory do
   let(:vm)         { stub('vm') }
   let(:shell)      { stub('shell') }
-  let(:http)       { stub('http') }
+  let(:observer)   { stub('observer') }
+  let(:config)     { {} }
 
-  let(:build)      { Build.create(vm, shell, http, payload) }
+  let(:build)      { Build.create(vm, shell, observer, payload, config) }
 
   let(:job)        { build.job }
   let(:commit)     { build.job.commit }
@@ -56,7 +57,7 @@ describe Build::Factory do
 
     describe 'the configure job' do
       it 'has the given http connection' do
-        job.http.should == http
+        job.http.should be_a(Build::Connection::Http)
       end
 
       it 'has a commit' do
