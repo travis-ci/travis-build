@@ -1,7 +1,7 @@
 require 'active_support/memoizable'
 
 module Travis
-  module Build
+  class Build
     module Job
       class Test
         class Nodejs < Test

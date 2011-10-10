@@ -3,9 +3,9 @@ require 'travis/build/assertions'
 require 'support/mocks'
 require 'support/matchers'
 
-describe Job::Runner do
+describe Build::Build do
   let(:job)      { stub('job:configure', :run => { :foo => 'foo' }) }
-  let(:runner)   { Job::Runner.new(job) }
+  let(:runner)   { Build::Build.new(job) }
   let(:observer) { Mocks::Observer.new }
 
   attr_reader :now
@@ -44,7 +44,7 @@ describe Job::Runner do
 
     describe 'with an exception being raised in the job' do
       it 'logs the exception' do
-        job.stubs(:run).raises(AssertionFailed.new(job, 'install'))
+        job.stubs(:run).raises(Build::AssertionFailed.new(job, 'install'))
         runner.run
         observer.events.should include_event(:log, job, :output => /Error: .*: install/)
       end

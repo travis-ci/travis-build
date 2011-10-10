@@ -1,7 +1,7 @@
 require 'hashr'
 
 module Travis
-  module Build
+  class Build
     class Factory
       attr_reader :vm, :shell, :http, :payload, :observers
 
@@ -13,10 +13,10 @@ module Travis
         @observers = Array(observers)
       end
 
-      def runner
-        runner = configure? ? Job::Runner.new(job) : Job::Runner::Remote.new(vm, shell, job)
+      def build
+        build = configure? ? Build.new(job) : Build::Remote.new(vm, shell, job)
         observers.each { |observer| runner.observers << observer }
-        runner
+        build
       end
 
       protected

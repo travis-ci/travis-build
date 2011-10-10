@@ -5,7 +5,7 @@ require 'rspec'
 require 'mocha'
 
 require 'travis/build'
-include Travis::Build
+include Travis
 
 RSpec.configure do |config|
   config.mock_with :mocha

@@ -2,7 +2,7 @@ require 'hashr'
 require 'active_support/memoizable'
 
 module Travis
-  module Build
+  class Build
     module Job
       class Test
         class Ruby < Test

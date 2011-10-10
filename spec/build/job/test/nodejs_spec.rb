@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-describe Job::Test::Nodejs do
+describe Build::Job::Test::Nodejs do
   let(:shell)  { stub('shell') }
-  let(:config) { Job::Test::Nodejs::Config.new(:npm_args => '--dev') }
-  let(:job)    { Job::Test::Nodejs.new(shell, nil , config) }
+  let(:config) { Build::Job::Test::Nodejs::Config.new(:npm_args => '--dev') }
+  let(:job)    { Build::Job::Test::Nodejs.new(shell, nil , config) }
 
   describe 'config defaults' do
     it ':nodejs_version to "0.4.11"' do

@@ -1,7 +1,7 @@
 require 'active_support/inflector/methods'
 
 module Travis
-  module Build
+  class Build
     module Job
       class Test
         autoload :Clojure, 'travis/build/job/test/clojure'

@@ -1,43 +1,43 @@
 require 'spec_helper'
 require 'hashr'
 
-describe Job::Test do
+describe Build::Job::Test do
   let(:shell)  { stub('shell', :chdir => true, :export => true, :execute => true, :cwd => '~/builds', :file_exists? => true) }
   let(:commit) { stub(:checkout => true) }
   let(:config) { Hashr.new(:env => 'FOO=foo', :script => 'rake') }
-  let(:job)    { Job::Test.new(shell, commit, config) }
+  let(:job)    { Build::Job::Test.new(shell, commit, config) }
 
   describe 'by_lang' do
-    it 'returns Job::Test::Ruby for nil' do
-      Job::Test.by_lang(nil).should == Job::Test::Ruby
+    it 'returns Build::Job::Test::Ruby for nil' do
+      Build::Job::Test.by_lang(nil).should == Build::Job::Test::Ruby
     end
 
-    it 'returns Job::Test::Ruby for an unknown language' do
-      Job::Test.by_lang('brainfuck').should == Job::Test::Ruby
+    it 'returns Build::Job::Test::Ruby for an unknown language' do
+      Build::Job::Test.by_lang('brainfuck').should == Build::Job::Test::Ruby
     end
 
-    it 'returns Job::Test::Ruby for "ruby"' do
-      Job::Test.by_lang('ruby').should == Job::Test::Ruby
+    it 'returns Build::Job::Test::Ruby for "ruby"' do
+      Build::Job::Test.by_lang('ruby').should == Build::Job::Test::Ruby
     end
 
-    it 'returns Job::Test::Clojure for "clojure"' do
-      Job::Test.by_lang('clojure').should == Job::Test::Clojure
+    it 'returns Build::Job::Test::Clojure for "clojure"' do
+      Build::Job::Test.by_lang('clojure').should == Build::Job::Test::Clojure
     end
 
-    it 'returns Job::Test::Erlang for "erlang"' do
-      Job::Test.by_lang('erlang').should == Job::Test::Erlang
+    it 'returns Build::Job::Test::Erlang for "erlang"' do
+      Build::Job::Test.by_lang('erlang').should == Build::Job::Test::Erlang
     end
 
-    it 'returns Job::Test::Nodejs for "nodejs"' do
-      Job::Test.by_lang('nodejs').should == Job::Test::Nodejs
+    it 'returns Build::Job::Test::Nodejs for "nodejs"' do
+      Build::Job::Test.by_lang('nodejs').should == Build::Job::Test::Nodejs
     end
 
-    it 'returns Job::Test::Nodejs for "NodeJs"' do
-      Job::Test.by_lang('NodeJs').should == Job::Test::Nodejs
+    it 'returns Build::Job::Test::Nodejs for "NodeJs"' do
+      Build::Job::Test.by_lang('NodeJs').should == Build::Job::Test::Nodejs
     end
 
-    it 'returns Job::Test::Nodejs for "node.js"' do
-      Job::Test.by_lang('node.js').should == Job::Test::Nodejs
+    it 'returns Build::Job::Test::Nodejs for "node.js"' do
+      Build::Job::Test.by_lang('node.js').should == Build::Job::Test::Nodejs
     end
   end
 

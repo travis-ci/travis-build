@@ -1,5 +1,5 @@
 module Travis
-  module Build
+  class Build
     class Event
       attr_reader :type, :object, :data
 

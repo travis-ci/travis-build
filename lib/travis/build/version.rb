@@ -1,5 +1,5 @@
 module Travis
-  module Build
+  class Build
     VERSION = '0.2.0'
   end
 end

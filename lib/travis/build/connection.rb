@@ -1,7 +1,7 @@
 require 'faraday'
 
 module Travis
-  module Build
+  class Build
     module Connection
       class Http < Faraday::Connection
         def initialize(config)

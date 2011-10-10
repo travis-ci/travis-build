@@ -1,5 +1,5 @@
 module Travis
-  module Build
+  class Build
     class AssertionFailed < RuntimeError
       attr_reader :object, :method
 
