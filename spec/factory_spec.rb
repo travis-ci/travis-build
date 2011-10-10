@@ -7,9 +7,9 @@ require 'support/helpers'
 
 describe Factory do
   let(:vm)         { stub('vm') }
-  let(:session)    { Mocks::SshSession.new }
+  let(:shell)      { stub('shell') }
   let(:http)       { stub('http') }
-  let(:runner)     { Factory.new(vm, session, http, payload).runner }
+  let(:runner)     { Factory.new(vm, shell, http, payload).runner }
   let(:job)        { runner.job }
   let(:commit)     { job.commit }
   let(:repository) { job.commit.repository }
@@ -36,13 +36,7 @@ describe Factory do
 
     describe 'the scm' do
       it 'has a shell' do
-        scm.shell.should be_a(Shell)
-      end
-    end
-
-    describe 'the shell' do
-      it 'has the ssh session' do
-        scm.shell.session.should == session
+        scm.shell.should == shell
       end
     end
   end
@@ -106,11 +100,11 @@ describe Factory do
 
     describe 'the test job' do
       it 'has a shell' do
-        job.shell.should be_a(Shell)
+        job.shell.should == shell
       end
 
       it 'has a commit' do
-        job.commit.should be_a(Commit)
+        job.commit.should == commit
       end
 
       it 'has the test config from the payload' do

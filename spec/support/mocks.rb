@@ -21,7 +21,7 @@ module Mocks
     end
   end
 
-  class SshSession
+  class Shell
     def initialize
       # stubs(:connect => nil, :close => nil, :execute => true, :evaluate => '')
     end

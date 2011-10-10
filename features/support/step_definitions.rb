@@ -32,11 +32,11 @@ end
 
 When /^it starts a job$/ do
   $vm       = Mocks::Vm.new
-  $session  = Mocks::SshSession.new
+  $shell    = Mocks::Shell.new
   $http     = stub('http')
   $observer = Mocks::Observer.new
   $sequence = sequence('build')
-  $runner   = Travis::Build::Job.runner($vm, $session, $http, $payload, [$observer])
+  $runner   = Travis::Build::Job.runner($vm, $shell, $http, $payload, [$observer])
 
   And 'it opens the ssh session'
   And 'it cds into the builds dir'
@@ -70,7 +70,7 @@ Then /^it exports the given environment variables$/ do
 end
 
 Then /^it opens the ssh session$/ do
-  $session.expects(:connect).
+  $shell.expects(:connect).
            in_sequence($sequence)
 end
 
@@ -81,31 +81,27 @@ Then /^it cds into the (.*)$/ do |dir|
   }
   dir = dirs[dir]
 
-  $session.expects(:execute).
-           with("mkdir -p #{dir}", :echo => false).
-           in_sequence($sequence)
-
-  $session.expects(:execute).
-           with("cd #{dir}").
+  $shell.expects(:chdir).
+           with(dir).
            outputs("cd #{dir}").
            in_sequence($sequence)
 end
 
 Then /^it exports (.*)=(.*)$/ do |name, value|
-  $session.expects(:execute).
-           with("export #{name}=#{value}").
+  $shell.expects(:export).
+           with(name, value).
            outputs("export #{name}").
            in_sequence($sequence)
 end
 
 Then /^it silently disables interactive git auth$/ do
-  $session.expects(:execute).
-           with('export GIT_ASKPASS=echo', :echo => false).
+  $shell.expects(:export).
+           with('GIT_ASKPASS', 'echo', :echo => false).
            in_sequence($sequence)
 end
 
 Then /^it (successfully|fails to) clones? the repository with git$/ do |result|
-  $session.expects(:execute).
+  $shell.expects(:execute).
            with("git clone --depth=100 --quiet git://github.com/#{$payload.repository.slug}.git #{$payload.repository.slug}").
            outputs('git clone').
            returns(result == 'successfully').
@@ -113,7 +109,7 @@ Then /^it (successfully|fails to) clones? the repository with git$/ do |result|
 end
 
 Then /^it (successfully|fails to) checks? the commit out with git$/ do |result|
-  $session.expects(:execute).
+  $shell.expects(:execute).
            with("git checkout -qf #{$payload.build.commit}").
            outputs('git checkout').
            returns(result == 'successfully').
@@ -129,13 +125,13 @@ Then /^it (successfully|fails to) switch(?:es)? to the (.*) version: (.*)$/ do |
   cmd = cmds[language.gsub('.', '')]
 
   if language == 'ruby'
-    $session.expects(:evaluate).
+    $shell.expects(:evaluate).
              with(cmd, :echo => true).
              outputs(cmd).
              returns(result == 'successfully' ? "Using #{version}" : "WARN: #{version} is not installed").
              in_sequence($sequence)
   else
-    $session.expects(:execute).
+    $shell.expects(:execute).
              with(cmd).
              outputs(cmd).
              returns(result == 'successfully').
@@ -146,16 +142,15 @@ end
 Then /^it (finds|does not find) the file (.*)$/ do |result, filenames|
   filenames = filenames.split(/, | or /).map { |filename| filename.strip }
   filenames.each do |filename|
-    $session.expects(:execute).
-             with("test -f #{filename}", :echo => false).
+    $shell.expects(:file_exists?).
+             with(filename).
              returns(result == 'finds').
              in_sequence($sequence)
   end
 end
 
 Then /^it evaluates the current working directory$/ do
-  $session.expects(:evaluate).
-           with('pwd').
+  $shell.expects(:cwd).
            returns("~/builds/#{$payload.repository.slug}").
            in_sequence($sequence)
 end
@@ -169,7 +164,7 @@ Then /^it (successfully|fails to) installs? the (.*)$/ do |result, dependencies|
   }
   cmd = cmds[dependencies]
 
-  $session.expects(:execute).
+  $shell.expects(:execute).
            with(cmd, :timeout => :install).
            outputs(cmd).
            returns(result == 'successfully').
@@ -177,7 +172,7 @@ Then /^it (successfully|fails to) installs? the (.*)$/ do |result, dependencies|
 end
 
 Then /^it (successfully|fails to) runs? the (.*): (.*)$/ do |result, type, command|
-  $session.expects(:execute).
+  $shell.expects(:execute).
            with(command, :timeout => type.to_sym).
            outputs(command).
            returns(result == 'successfully').
@@ -185,7 +180,7 @@ Then /^it (successfully|fails to) runs? the (.*): (.*)$/ do |result, type, comma
 end
 
 Then /^it closes the ssh session$/ do
-  $session.expects(:close).
+  $shell.expects(:close).
            in_sequence($sequence)
 end
 

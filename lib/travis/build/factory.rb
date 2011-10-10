@@ -3,11 +3,11 @@ require 'hashr'
 module Travis
   module Build
     class Factory
-      attr_reader :vm, :session, :http, :payload, :observers
+      attr_reader :vm, :shell, :http, :payload, :observers
 
-      def initialize(vm, session, http, payload, observers = [])
+      def initialize(vm, shell, http, payload, observers = [])
         @vm = vm
-        @session = session
+        @shell = shell
         @http = http
         @payload = Hashr.new(payload)
         @observers = Array(observers)
@@ -39,10 +39,6 @@ module Travis
             config = type::Config.new(payload.config)
             type.new(shell, commit, config)
           end
-        end
-
-        def shell
-          @shell ||= Shell.new(session)
         end
 
         def commit
