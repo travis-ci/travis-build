@@ -31,10 +31,11 @@ module Travis
     def run
       notify :start, :started_at => Time.now
       result = perform
-    rescue => e
+    rescue Exception => e
       log_exception(e)
+      result = {}
     ensure
-      notify :finish, :finished_at => Time.now, :result => result
+      notify :finish, result.merge(:finished_at => Time.now)
       result
     end
 
@@ -45,14 +46,12 @@ module Travis
       end
 
       def log_exception(e)
-        output = "Error: #{e.inspect}\n" + e.backtrace.map { |b| "  #{b}" }.join("\n")
-        # puts output
-        log(output)
+        log("Error: #{e.inspect}\n" + e.backtrace.map { |b| "  #{b}" }.join("\n"))
       end
 
       def log(output)
         # could additionally collect the log on the job here if necessary
-        notify :log, :output => output
+        notify :log, :log => output
       end
 
       def notify(type, data)

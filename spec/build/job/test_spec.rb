@@ -67,19 +67,19 @@ describe Build::Job::Test do
       job.run
     end
 
-    it 'returns 0 if the last script returned true' do
+    it 'returns { :status => 0 } if the last script returned true' do
       shell.expects(:execute).with('rake', :timeout => :script).returns(true)
-      job.run.should be_true
+      job.run.should == { :status => 0 }
     end
 
-    it 'returns 1 if the last script returned false' do
+    it 'returns { :status => 1 } if the last script returned false' do
       shell.expects(:execute).with('rake', :timeout => :script).returns(false)
-      job.run.should be_false
+      job.run.should == { :status => 1 }
     end
 
-    it 'returns 1 if checkout raised an exception' do
+    it 'returns { :status => 1 } if checkout raised an exception' do
       commit.expects(:checkout).returns(false)
-      job.run.should be_false
+      job.run.should == { :status => 1 }
     end
   end
 
