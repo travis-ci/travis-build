@@ -15,20 +15,20 @@ Feature: Testing a Node.js project
      And it does not find the file package.json
      And it successfully runs the script: make test
      And it closes the ssh session
-     And it returns true
+     And it returns the status 0
      And it has captured the following events
-       | name            | data                             |
-       | job:test:start  | started_at: [now]                |
-       | job:test:log    | output: /Using worker/           |
-       | job:test:log    | output: cd ~/builds              |
-       | job:test:log    | output: export FOO               |
-       | job:test:log    | output: git clone                |
-       | job:test:log    | output: cd travis-ci/travis-ci   |
-       | job:test:log    | output: git checkout             |
-       | job:test:log    | output: nvm use v0.4.12          |
-       | job:test:log    | output: make test                |
-       | job:test:log    | output: /Done.* true/            |
-       | job:test:finish | finished_at: [now], result: true |
+       | name            | data                          |
+       | job:test:start  | started_at: [now]             |
+       | job:test:log    | log: /Using worker/           |
+       | job:test:log    | log: cd ~/builds              |
+       | job:test:log    | log: export FOO               |
+       | job:test:log    | log: git clone                |
+       | job:test:log    | log: cd travis-ci/travis-ci   |
+       | job:test:log    | log: git checkout             |
+       | job:test:log    | log: nvm use v0.4.12          |
+       | job:test:log    | log: make test                |
+       | job:test:log    | log: /Done.* 0/               |
+       | job:test:finish | finished_at: [now], status: 0 |
 
   Scenario: A successful with a package.json file
     When it starts a job
@@ -39,28 +39,28 @@ Feature: Testing a Node.js project
      And it finds a file package.json and successfully installs the npm packages
      And it successfully runs the script: npm test
      And it closes the ssh session
-     And it returns true
+     And it returns the status 0
      And it has captured the following events
-       | name            | data                             |
-       | job:test:start  | started_at: [now]                |
-       | job:test:log    | output: /Using worker/           |
-       | job:test:log    | output: cd ~/builds              |
-       | job:test:log    | output: export FOO               |
-       | job:test:log    | output: git clone                |
-       | job:test:log    | output: cd travis-ci/travis-ci   |
-       | job:test:log    | output: git checkout             |
-       | job:test:log    | output: nvm use v0.4.12          |
-       | job:test:log    | output: npm install --dev        |
-       | job:test:log    | output: npm test                 |
-       | job:test:log    | output: /Done.* true/            |
-       | job:test:finish | finished_at: [now], result: true |
+       | name            | data                          |
+       | job:test:start  | started_at: [now]             |
+       | job:test:log    | log: /Using worker/           |
+       | job:test:log    | log: cd ~/builds              |
+       | job:test:log    | log: export FOO               |
+       | job:test:log    | log: git clone                |
+       | job:test:log    | log: cd travis-ci/travis-ci   |
+       | job:test:log    | log: git checkout             |
+       | job:test:log    | log: nvm use v0.4.12          |
+       | job:test:log    | log: npm install --dev        |
+       | job:test:log    | log: npm test                 |
+       | job:test:log    | log: /Done.* 0/               |
+       | job:test:finish | finished_at: [now], status: 0 |
 
   Scenario: The repository can not be cloned
     When it starts a job
     Then it exports the given environment variables
      And it fails to clone the repository to the build dir with git
      And it closes the ssh session
-     And it returns false
+     And it returns the status 1
 
   Scenario: The commit can not be checked out
     When it starts a job
@@ -68,7 +68,7 @@ Feature: Testing a Node.js project
      And it successfully clones the repository to the build dir with git
      And it fails to check out the commit with git to the repository directory
      And it closes the ssh session
-     And it returns false
+     And it returns the status 1
 
   Scenario: The node.js version can not be activated
     When it starts a job
@@ -77,7 +77,7 @@ Feature: Testing a Node.js project
      And it successfully checks out the commit with git to the repository directory
      And it fails to switch to the node.js version: 0.4.12
      And it closes the ssh session
-     And it returns false
+     And it returns the status 1
 
   Scenario: The bundle can not be installed
     When it starts a job
@@ -87,7 +87,7 @@ Feature: Testing a Node.js project
      And it successfully switches to the node.js version: 0.4.12
      And it finds a file package.json but fails to install the npm packages
      And it closes the ssh session
-     And it returns false
+     And it returns the status 1
 
   Scenario: A failing build
     When it starts a job
@@ -98,6 +98,6 @@ Feature: Testing a Node.js project
      And it does not find the file package.json
      And it fails to run the script: make test
      And it closes the ssh session
-     And it returns false
+     And it returns the status 1
 
 

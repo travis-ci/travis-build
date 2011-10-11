@@ -12,6 +12,8 @@ def decode(string)
       eval(value)
     when /^\/.*\/$/
       eval(value)
+    when /^\d*$/
+      value.to_i
     else
       value
     end
@@ -183,8 +185,8 @@ Then /^it closes the ssh session$/ do
            in_sequence($sequence)
 end
 
-Then /^it returns (.*)$/ do |result|
-  $build.run.should == eval(result)
+Then /^it returns the status (.*)$/ do |result|
+  $build.run[:status].should == result.to_i
 end
 
 Then /^it has captured the following events$/ do |table|
