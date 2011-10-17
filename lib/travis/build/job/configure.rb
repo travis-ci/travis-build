@@ -10,7 +10,7 @@ module Travis
         end
 
         def run
-          fetch.merge('.configured' => true)
+          { 'config' => fetch.merge('.configured' => true) }
         end
 
         protected

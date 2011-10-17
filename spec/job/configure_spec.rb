@@ -12,11 +12,11 @@ describe Job::Configure do
     end
 
     it 'merges { .configured => true } to the actual configuration' do
-      job.run['.configured'].should be_true
+      job.run['config']['.configured'].should be_true
     end
 
     it 'yaml parses the response body if the response is successful' do
-      job.run['foo'].should == 'Foo'
+      job.run['config']['foo'].should == 'Foo'
     end
 
     it 'returns a hash if the response is not successful' do
