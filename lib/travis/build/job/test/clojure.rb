@@ -1,5 +1,5 @@
 module Travis
-  module Build
+  class Build
     module Job
       class Test
         class Clojure < Test

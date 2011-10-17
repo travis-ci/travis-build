@@ -1,7 +1,7 @@
 require 'active_support/inflector/methods'
 
 module Travis
-  module Build
+  class Build
     module Job
       class Test
         autoload :Clojure, 'travis/build/job/test/clojure'
@@ -29,17 +29,21 @@ module Travis
         end
 
         def run
-          chdir
-          export
-          checkout
-          setup
-          install
-          run_scripts
-        rescue AssertionFailed => e
-          false
+          { :status => perform ? 0 : 1 }
         end
 
         protected
+
+          def perform
+            chdir
+            export
+            checkout
+            setup
+            install
+            run_scripts
+          rescue AssertionFailed => e
+            false
+          end
 
           def chdir
             shell.chdir('~/builds')

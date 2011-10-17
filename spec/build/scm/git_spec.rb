@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe Scm::Git do
+describe Build::Scm::Git do
   let(:shell)  { stub('shell', :export => nil, :execute => true, :chdir => true) }
-  let(:scm)    { Scm::Git.new(shell) }
+  let(:scm)    { Build::Scm::Git.new(shell) }
 
   let(:source) { 'git://example.com/travis-ci.git' }
   let(:commit) { '1234567' }

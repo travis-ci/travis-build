@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-describe Job::Test::Clojure do
+describe Build::Job::Test::Clojure do
   let(:shell)  { stub('shell') }
-  let(:config) { Job::Test::Clojure::Config.new }
-  let(:job)    { Job::Test::Clojure.new(shell, nil , config) }
+  let(:config) { Build::Job::Test::Clojure::Config.new }
+  let(:job)    { Build::Job::Test::Clojure.new(shell, nil , config) }
 
   describe 'install' do
     it 'installs the lein dependencies' do

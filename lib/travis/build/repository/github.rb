@@ -1,5 +1,5 @@
 module Travis
-  module Build
+  class Build
     module Repository
       class Github
         attr_reader :scm, :slug

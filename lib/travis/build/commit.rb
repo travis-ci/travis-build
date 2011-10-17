@@ -1,5 +1,5 @@
 module Travis
-  module Build
+  class Build
     class Commit
       attr_reader :repository, :hash
 

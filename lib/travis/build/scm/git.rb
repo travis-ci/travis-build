@@ -1,5 +1,5 @@
 module Travis
-  module Build
+  class Build
     module Scm
       class Git
         extend Assertions

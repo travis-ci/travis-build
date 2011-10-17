@@ -1,9 +1,10 @@
 require 'spec_helper'
 
-describe Job::Runner::Remote do
+describe Build::Remote do
+  let(:events) { Build::Event::Factory.new(:id => 1) }
   let(:job)    { stub('job:configure', :run => { :foo => 'foo' }) }
   let(:shell)  { stub('shell', :connect => nil, :on_output => nil, :close => nil) }
-  let(:runner) { Job::Runner::Remote.new(nil, shell, job) }
+  let(:runner) { Build::Remote.new(nil, shell, events, job) }
 
   describe 'with_shell' do
     it 'connects the shell' do

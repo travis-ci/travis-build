@@ -14,27 +14,27 @@ Feature: Testing a Clojure project
      And it successfully installs the lein dependencies
      And it successfully runs the script: lein test
      And it closes the ssh session
-     And it returns true
+     And it returns the status 0
      And it has captured the following events
-       | name            | data                             |
-       | job:test:start  | started_at: [now]                |
-       | job:test:log    | output: /Using worker/           |
-       | job:test:log    | output: cd ~/builds              |
-       | job:test:log    | output: export FOO               |
-       | job:test:log    | output: git clone                |
-       | job:test:log    | output: cd travis-ci/travis-ci   |
-       | job:test:log    | output: git checkout             |
-       | job:test:log    | output: lein deps                |
-       | job:test:log    | output: lein test                |
-       | job:test:log    | output: /Done.* true/            |
-       | job:test:finish | finished_at: [now], result: true |
+       | name            | data                          |
+       | job:test:start  | started_at: [now]             |
+       | job:test:log    | log: /Using worker/           |
+       | job:test:log    | log: cd ~/builds              |
+       | job:test:log    | log: export FOO               |
+       | job:test:log    | log: git clone                |
+       | job:test:log    | log: cd travis-ci/travis-ci   |
+       | job:test:log    | log: git checkout             |
+       | job:test:log    | log: lein deps                |
+       | job:test:log    | log: lein test                |
+       | job:test:log    | log: /Done.* 0/               |
+       | job:test:finish | finished_at: [now], status: 0 |
 
   Scenario: The repository can not be cloned
     When it starts a job
     Then it exports the given environment variables
      And it fails to clone the repository to the build dir with git
      And it closes the ssh session
-     And it returns false
+     And it returns the status 1
 
   Scenario: The commit can not be checked out
     When it starts a job
@@ -42,7 +42,7 @@ Feature: Testing a Clojure project
      And it successfully clones the repository to the build dir with git
      And it fails to check out the commit with git to the repository directory
      And it closes the ssh session
-     And it returns false
+     And it returns the status 1
 
   Scenario: The lein dependencies can not be installed
     When it starts a job
@@ -51,7 +51,7 @@ Feature: Testing a Clojure project
      And it successfully checks out the commit with git to the repository directory
      And it fails to install the lein dependencies
      And it closes the ssh session
-     And it returns false
+     And it returns the status 1
 
   Scenario: A failing build
     When it starts a job
@@ -61,4 +61,4 @@ Feature: Testing a Clojure project
      And it successfully installs the lein dependencies
      And it fails to run the script: lein test
      And it closes the ssh session
-     And it returns false
+     And it returns the status 1
