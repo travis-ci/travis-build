@@ -14,7 +14,7 @@ module Travis
         end
 
         def config_url(commit)
-          "http://raw.github.com/#{slug}/#{commit}/.travis.yml"
+          "https://raw.github.com/#{slug}/#{commit}/.travis.yml"
         end
 
         def source_url

@@ -10,7 +10,7 @@ describe Build::Repository::Github do
   end
 
   it 'config_url returns the github specific config url for the given commit' do
-    github.config_url('1234567').should == 'http://raw.github.com/travis-ci/travis-ci/1234567/.travis.yml'
+    github.config_url('1234567').should == 'https://raw.github.com/travis-ci/travis-ci/1234567/.travis.yml'
   end
 
   it 'source_url returns the github specific source url' do
