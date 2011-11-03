@@ -45,7 +45,7 @@ describe Build::Build do
 
     describe 'with an exception being raised in the job' do
       it 'logs the exception' do
-        job.stubs(:run).raises(Exception.new('fatal'))
+        job.stubs(:run).raises(StandardError.new('fatal'))
         build.run
         observer.events.should include_event(:log, job, :log => /fatal/)
       end
