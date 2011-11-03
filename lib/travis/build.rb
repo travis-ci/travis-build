@@ -31,7 +31,7 @@ module Travis
     def run
       notify :start, :started_at => Time.now
       result = perform
-    rescue Exception => e
+    rescue => e
       log_exception(e)
       result = {}
     ensure
