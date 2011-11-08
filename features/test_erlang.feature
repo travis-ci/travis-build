@@ -1,4 +1,4 @@
-Feature: Testing a Ruby project
+Feature: Testing an Erlang project
 
   Background:
    Given the following test payload
