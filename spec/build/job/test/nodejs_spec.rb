@@ -6,8 +6,8 @@ describe Build::Job::Test::Nodejs do
   let(:job)    { Build::Job::Test::Nodejs.new(shell, nil , config) }
 
   describe 'config defaults' do
-    it ':nodejs_version to "0.4.12"' do
-      config.nodejs_version.should == '0.4.12'
+    it ':node_js to "0.4.12"' do
+      config.node_js.should == '0.4.12'
     end
   end
 

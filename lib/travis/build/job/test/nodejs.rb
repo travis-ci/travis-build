@@ -6,7 +6,7 @@ module Travis
       class Test
         class Nodejs < Test
           class Config < Hashr
-            define :nodejs_version => '0.4.12'
+            define :node_js => '0.4.12'
           end
 
           extend ActiveSupport::Memoizable
@@ -22,7 +22,7 @@ module Travis
           protected
 
             def setup_nvm
-              shell.execute("nvm use #{config.nodejs_version}")
+              shell.execute("nvm use #{config.node_js}")
             end
             assert :setup_nvm
 
