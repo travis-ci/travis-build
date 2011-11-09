@@ -6,7 +6,7 @@ module Travis
       class Test
         class Nodejs < Test
           class Config < Hashr
-            define :node_js => '0.4.12'
+            define :node_js => '0.4'
             def nodejs; self[:node_js]; end # TODO legacy
           end
 

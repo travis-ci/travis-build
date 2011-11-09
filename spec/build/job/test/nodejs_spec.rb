@@ -6,8 +6,8 @@ describe Build::Job::Test::Nodejs do
   let(:job)    { Build::Job::Test::Nodejs.new(shell, nil , config) }
 
   describe 'config' do
-    it 'defaults :node_js to "0.4.12"' do
-      config.node_js.should == '0.4.12'
+    it 'defaults :node_js to "0.4"' do
+      config.node_js.should == '0.4'
     end
 
     it 'aliases :nodejs to :node_js' do
@@ -17,7 +17,7 @@ describe Build::Job::Test::Nodejs do
 
   describe 'setup' do
     it 'switches to the given nodejs version' do
-      shell.expects(:execute).with("nvm use 0.4.12").returns(true)
+      shell.expects(:execute).with("nvm use 0.4").returns(true)
       job.setup
     end
   end
