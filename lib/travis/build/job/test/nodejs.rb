@@ -22,7 +22,7 @@ module Travis
           protected
 
             def setup_nvm
-              shell.execute("nvm use v#{config.nodejs_version}")
+              shell.execute("nvm use #{config.nodejs_version}")
             end
             assert :setup_nvm
 

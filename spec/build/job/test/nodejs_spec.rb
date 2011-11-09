@@ -13,7 +13,7 @@ describe Build::Job::Test::Nodejs do
 
   describe 'setup' do
     it 'switches to the given nodejs version' do
-      shell.expects(:execute).with("nvm use v0.4.12").returns(true)
+      shell.expects(:execute).with("nvm use 0.4.12").returns(true)
       job.setup
     end
   end
