@@ -5,9 +5,13 @@ describe Build::Job::Test::Nodejs do
   let(:config) { Build::Job::Test::Nodejs::Config.new(:npm_args => '--dev') }
   let(:job)    { Build::Job::Test::Nodejs.new(shell, nil , config) }
 
-  describe 'config defaults' do
-    it ':node_js to "0.4.12"' do
+  describe 'config' do
+    it 'defaults :node_js to "0.4.12"' do
       config.node_js.should == '0.4.12'
+    end
+
+    it 'aliases :nodejs to :node_js' do
+      config.nodejs.should == config.node_js
     end
   end
 

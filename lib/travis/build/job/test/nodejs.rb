@@ -7,6 +7,7 @@ module Travis
         class Nodejs < Test
           class Config < Hashr
             define :node_js => '0.4.12'
+            def nodejs; self[:node_js]; end # TODO legacy
           end
 
           extend ActiveSupport::Memoizable
