@@ -35,7 +35,7 @@ module Travis
       log_exception(e)
       result = {}
     ensure
-      notify :finish, result.merge(:finished_at => Time.now)
+      notify :finish, (result || {}).merge(:finished_at => Time.now)
       result
     end
 

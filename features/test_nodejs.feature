@@ -4,7 +4,7 @@ Feature: Testing a Node.js project
    Given the following test payload
      | repository | travis-ci/travis-ci                                                      |
      | commit     | 1234567                                                                  |
-     | config     | language: node.js, nodejs_version: 0.4.12, env: FOO=foo, npm_args: --dev |
+     | config     | language: node.js, node_js: 0.4.12, env: FOO=foo, npm_args: --dev |
 
   Scenario: A successful build
     When it starts a job
@@ -25,7 +25,7 @@ Feature: Testing a Node.js project
        | job:test:log    | log: git clone                |
        | job:test:log    | log: cd travis-ci/travis-ci   |
        | job:test:log    | log: git checkout             |
-       | job:test:log    | log: nvm use v0.4.12          |
+       | job:test:log    | log: nvm use 0.4.12           |
        | job:test:log    | log: make test                |
        | job:test:log    | log: /Done.* 0/               |
        | job:test:finish | finished_at: [now], status: 0 |
@@ -49,7 +49,7 @@ Feature: Testing a Node.js project
        | job:test:log    | log: git clone                |
        | job:test:log    | log: cd travis-ci/travis-ci   |
        | job:test:log    | log: git checkout             |
-       | job:test:log    | log: nvm use v0.4.12          |
+       | job:test:log    | log: nvm use 0.4.12           |
        | job:test:log    | log: npm install --dev        |
        | job:test:log    | log: npm test                 |
        | job:test:log    | log: /Done.* 0/               |

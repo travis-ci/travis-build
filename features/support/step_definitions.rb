@@ -39,34 +39,34 @@ When /^it starts a job$/ do
   $sequence = sequence('build')
   $build    = Travis::Build.create($vm, $shell, [$observer], $payload, {})
 
-  And 'it opens the ssh session'
-  And 'it cds into the builds dir'
+  step 'it opens the ssh session'
+  step 'it cds into the builds dir'
 end
 
 Then /^it (successfully|fails to) clones? the repository to the build dir with git$/ do |result|
-  And 'it silently disables interactive git auth'
-  And "it #{result} clones the repository with git"
+  step 'it silently disables interactive git auth'
+  step "it #{result} clones the repository with git"
 end
 
 Then /^it (successfully|fails to) checks? out the commit with git to the repository directory$/ do |result|
-  And 'it cds into the repository directory'
-  And "it #{result} checks the commit out with git"
+  step 'it cds into the repository directory'
+  step "it #{result} checks the commit out with git"
 end
 
 Then /^it finds a file (.*) (?:and|but) (successfully|fails to) installs? the (.*)$/ do |filename, result, dependencies|
-  And "it finds the file #{filename}"
+  step "it finds the file #{filename}"
   if dependencies == 'bundle'
-    And 'it evaluates the current working directory'
-    And "it exports BUNDLE_GEMFILE=~/builds/travis-ci/travis-ci/#{filename}"
+    step 'it evaluates the current working directory'
+    step "it exports BUNDLE_GEMFILE=~/builds/travis-ci/travis-ci/#{filename}"
   end
-  And "it #{result} installs the #{dependencies}"
+  step "it #{result} installs the #{dependencies}"
 end
 
 
 Then /^it exports the given environment variables$/ do
   if $payload.config.env?
     name, value = $payload.config.env.split('=')
-    And "it exports #{name}=#{value}"
+    step "it exports #{name}=#{value}"
   end
 end
 
@@ -121,7 +121,7 @@ Then /^it (successfully|fails to) switch(?:es)? to the (.*) version: (.*)$/ do |
   cmds = {
     'ruby'   => "rvm use #{version}",
     'erlang' => "source /home/vagrant/otp/#{version}/activate",
-    'nodejs' => "nvm use v#{version}",
+    'nodejs' => "nvm use #{version}",
     'php'    => "phpenv global php-#{version}"
   }
   cmd = cmds[language.gsub('.', '')]
