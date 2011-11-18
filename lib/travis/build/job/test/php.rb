@@ -6,32 +6,15 @@ module Travis
       class Test
         class Php < Test
           class Config < Hashr
-            define :php => '5.3.8'
+            define :php => '5.3.8', :script => 'phpunit'
           end
-
-          extend ActiveSupport::Memoizable
 
           def setup
-            setup_phpenv
+            shell.execute("phpenv global php-#{config.php}")
           end
-
-          protected
-
-            def setup_phpenv
-              shell.execute("phpenv global php-#{config.php}")
-            end
-            assert :setup_phpenv
-
-            def script
-              if config.script?
-                config.script
-              else
-                'phpunit'
-              end
-            end
+          assert :setup
         end
       end
     end
   end
 end
-

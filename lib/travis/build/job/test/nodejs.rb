@@ -13,39 +13,24 @@ module Travis
           extend ActiveSupport::Memoizable
 
           def setup
-            setup_nvm
+            shell.execute("nvm use #{config.node_js}")
           end
+          assert :setup
 
           def install
-            install_npm if npm?
+            "npm install #{config.npm_args}".strip if npm?
+          end
+
+          def script
+            npm? ? 'npm test' : 'make test'
           end
 
           protected
-
-            def setup_nvm
-              shell.execute("nvm use #{config.node_js}")
-            end
-            assert :setup_nvm
 
             def npm?
               shell.file_exists?('package.json')
             end
             memoize :npm?
-
-            def install_npm
-              shell.execute("npm install #{config.npm_args}".strip, :timeout => :install)
-            end
-            assert :install_npm
-
-            def script
-              if config.script?
-                config.script
-              elsif npm?
-                'npm test'
-              else
-                'make test'
-              end
-            end
         end
       end
     end

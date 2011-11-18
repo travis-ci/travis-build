@@ -4,25 +4,10 @@ module Travis
       class Test
         class Clojure < Test
           class Config < Hashr
+            define :install => 'lein deps', :script  => 'lein test'
           end
-
-          def install
-            shell.execute("lein deps", :timeout => :install)
-          end
-          assert :install
-
-          protected
-
-            def script
-              if config.script?
-                config.script
-              else
-                'lein test'
-              end
-            end
         end
       end
     end
   end
 end
-

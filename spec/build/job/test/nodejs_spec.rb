@@ -23,31 +23,24 @@ describe Build::Job::Test::Nodejs do
   end
 
   describe 'install' do
-    it 'installs the package if a package file exists' do
+    it 'returns "npm install --dev" if a package file exists' do
       job.expects(:npm?).returns(true)
-      shell.expects(:execute).with('npm install --dev', :timeout => :install).returns(true)
-      job.install
+      job.install.should == 'npm install --dev'
     end
 
     it 'does not try to install the package if no package file exists' do
       job.expects(:npm?).returns(false)
-      shell.expects(:execute).never
-      job.install
+      job.install.should be_nil
     end
   end
 
   describe 'script' do
-    it 'prefers the script from the config' do
-      config.script = 'custom'
-      job.send(:script).should == 'custom'
-    end
-
-    it 'defaults to "npm test" if a package file exists' do
+    it 'returns "npm test" if a package file exists' do
       job.expects(:npm?).returns(true)
       job.send(:script).should == 'npm test'
     end
 
-    it 'defaults to "make test" if a package file does not exist' do
+    it 'returns "make test" if a package file does not exist' do
       job.expects(:npm?).returns(false)
       job.send(:script).should == 'make test'
     end

@@ -1,5 +1,8 @@
 require 'active_support/inflector/methods'
 
+# # rake and fileutils might be mixed into the global namespace, defining :install
+# class Hashr; undef :install; end
+
 module Travis
   class Build
     module Job
@@ -21,12 +24,13 @@ module Travis
           end
         end
 
-        attr_reader :shell, :commit, :config
+        attr_reader :shell, :commit, :config, :commands
 
         def initialize(shell, commit, config)
           @shell = shell
           @commit = commit
           @config = config
+          @commands = %w(before_install install before_script script after_script)
         end
 
         def run
@@ -39,9 +43,8 @@ module Travis
             chdir
             export
             checkout
-            setup
-            install
-            run_scripts
+            setup if respond_to?(:setup)
+            run_commands
           rescue AssertionFailed => e
             false
           end
@@ -61,22 +64,14 @@ module Travis
           end
           assert :checkout
 
-          def setup
-            # to be implemented in child classes
-          end
-
-          def install
-            # to be implemented in child classes
-          end
-
-          def run_scripts
-            %w{before_script script after_script}.each do |type|
-              script = respond_to?(type, true) ? send(type) : config.send(type)
-              return false if script && !run_script(script, :timeout => type.to_sym)
+          def run_commands
+            commands.each do |type|
+              script = config[type] || (respond_to?(type, true) ? send(type) : nil)
+              return false if script && !run_command(script, :timeout => type.to_sym)
             end && true
           end
 
-          def run_script(script, options = {})
+          def run_command(script, options = {})
             Array(script).each do |script|
               return false unless shell.execute(script, options)
             end && true

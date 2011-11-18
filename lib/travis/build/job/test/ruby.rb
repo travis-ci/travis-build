@@ -18,7 +18,11 @@ module Travis
           end
 
           def install
-            bundle_install if gemfile?
+            "bundle install #{config.bundler_args}".strip if gemfile?
+          end
+
+          def script
+            gemfile? ? 'bundle exec rake' : 'rake'
           end
 
           protected
@@ -37,21 +41,6 @@ module Travis
               shell.file_exists?(config.gemfile)
             end
             memoize :gemfile?
-
-            def bundle_install
-              shell.execute("bundle install #{config.bundler_args}".strip, :timeout => :install)
-            end
-            assert :bundle_install
-
-            def script
-              if config.script?
-                config.script
-              elsif gemfile?
-                'bundle exec rake'
-              else
-                'rake'
-              end
-            end
         end
       end
     end

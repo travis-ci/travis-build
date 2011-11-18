@@ -43,31 +43,24 @@ describe Build::Job::Test::Ruby do
   end
 
   describe 'install' do
-    it 'installs the bundle if the given gemfile exists' do
+    it 'returns "bundle install --binstubs" if the given gemfile exists' do
       job.expects(:gemfile?).returns(true)
-      shell.expects(:execute).with('bundle install --binstubs', :timeout => :install).returns(true)
-      job.install
+      job.install.should == "bundle install --binstubs"
     end
 
-    it 'does not try to install the bundle if the given gemfile does not exist' do
+    it 'returns nil if the given gemfile does not exist' do
       job.expects(:gemfile?).returns(false)
-      shell.expects(:execute).never
-      job.install
+      job.install.should be_nil
     end
   end
 
   describe 'script' do
-    it 'prefers the script from the config' do
-      config.script = 'custom'
-      job.send(:script).should == 'custom'
-    end
-
-    it 'defaults to "bundle exec rake" if a gemfile exists' do
+    it 'returns "bundle exec rake" if a gemfile exists' do
       job.expects(:gemfile?).returns(true)
       job.send(:script).should == 'bundle exec rake'
     end
 
-    it 'defaults to "rake" if a gemfile does not exist' do
+    it 'returns "rake" if a gemfile does not exist' do
       job.expects(:gemfile?).returns(false)
       job.send(:script).should == 'rake'
     end

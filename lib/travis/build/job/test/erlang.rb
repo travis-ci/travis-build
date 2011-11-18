@@ -12,39 +12,28 @@ module Travis
           extend ActiveSupport::Memoizable
 
           def setup
-            setup_otp
+            shell.execute "source /home/vagrant/otp/#{config.opt_release}/activate"
           end
+          assert :setup
 
           def install
-            rebar_get_deps if rebar_configured?
+            './rebar get-deps' if rebar_configured?
+          end
+
+          def script
+            if rebar_configured?
+              './rebar compile && ./rebar skip_deps=true eunit'
+            else
+              'make test'
+            end
           end
 
           protected
-
-            def setup_otp
-              shell.execute "source /home/vagrant/otp/#{config.opt_release}/activate"
-            end
-            assert :setup_otp
 
             def rebar_configured?
               shell.file_exists?('rebar.config') || shell.file_exists?('Rebar.config')
             end
             memoize :rebar_configured?
-
-            def rebar_get_deps
-              shell.execute('./rebar get-deps', :timeout => :install)
-            end
-            assert :rebar_get_deps
-
-            def script
-              if config.script?
-                config.script
-              elsif rebar_configured?
-                './rebar compile && ./rebar skip_deps=true eunit'
-              else
-                'make test'
-              end
-            end
         end
       end
     end
