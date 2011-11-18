@@ -11,7 +11,7 @@ describe Build::Factory do
   let(:observer)   { stub('observer') }
   let(:config)     { {} }
 
-  let(:build)      { Build.create(vm, shell, observer, payload, config) }
+  let(:build)      { Build.create(vm, shell, [observer], payload, config) }
 
   let(:job)        { build.job }
   let(:commit)     { build.job.commit }
