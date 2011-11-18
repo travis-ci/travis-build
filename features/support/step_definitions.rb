@@ -121,7 +121,8 @@ Then /^it (successfully|fails to) switch(?:es)? to the (.*) version: (.*)$/ do |
   cmds = {
     'ruby'   => "rvm use #{version}",
     'erlang' => "source /home/vagrant/otp/#{version}/activate",
-    'nodejs' => "nvm use v#{version}"
+    'nodejs' => "nvm use v#{version}",
+    'php'    => "phpenv global php-#{version}"
   }
   cmd = cmds[language.gsub('.', '')]
 

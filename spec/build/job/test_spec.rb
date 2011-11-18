@@ -39,6 +39,10 @@ describe Build::Job::Test do
     it 'returns Build::Job::Test::Nodejs for "node.js"' do
       Build::Job::Test.by_lang('node.js').should == Build::Job::Test::Nodejs
     end
+
+    it 'returns Build::Job::Test::Php for "php"' do
+      Build::Job::Test.by_lang('php').should == Build::Job::Test::Php
+    end
   end
 
   describe 'run' do
