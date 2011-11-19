@@ -2,8 +2,8 @@ Feature: Testing a Node.js project
 
   Background:
    Given the following test payload
-     | repository | travis-ci/travis-ci                                                      |
-     | commit     | 1234567                                                                  |
+     | repository | travis-ci/travis-ci                                               |
+     | commit     | 1234567                                                           |
      | config     | language: node.js, node_js: 0.4.12, env: FOO=foo, npm_args: --dev |
 
   Scenario: A successful build
@@ -30,7 +30,7 @@ Feature: Testing a Node.js project
        | job:test:log    | log: /Done.* 0/               |
        | job:test:finish | finished_at: [now], status: 0 |
 
-  Scenario: A successful with a package.json file
+  Scenario: A successful build with a package.json file
     When it starts a job
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
