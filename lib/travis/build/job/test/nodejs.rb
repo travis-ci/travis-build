@@ -13,7 +13,7 @@ module Travis
           extend ActiveSupport::Memoizable
 
           def setup
-            shell.execute("nvm use #{config.node_js}")
+            shell.execute("npm use #{config.node_js}")
           end
           assert :setup
 
