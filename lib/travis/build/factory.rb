@@ -1,3 +1,4 @@
+require 'travis/support'
 require 'hashr'
 
 module Travis

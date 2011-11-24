@@ -13,7 +13,10 @@ module Travis
         autoload :Php,     'travis/build/job/test/php'
         autoload :Ruby,    'travis/build/job/test/ruby'
 
+        COMMANDS = %w(before_install install before_script script after_script)
+
         extend Assertions
+        include Logging
 
         class << self
           def by_lang(lang)
@@ -24,18 +27,18 @@ module Travis
           end
         end
 
-        attr_reader :shell, :commit, :config, :commands
+        attr_reader :shell, :commit, :config
 
         def initialize(shell, commit, config)
           @shell = shell
           @commit = commit
           @config = config
-          @commands = %w(before_install install before_script script after_script)
         end
 
         def run
           { :status => perform ? 0 : 1 }
         end
+        log :run
 
         protected
 
@@ -46,6 +49,7 @@ module Travis
             setup if respond_to?(:setup)
             run_commands
           rescue AssertionFailed => e
+            log_exception(e)
             false
           end
 
@@ -65,9 +69,12 @@ module Travis
           assert :checkout
 
           def run_commands
-            commands.each do |type|
-              script = config[type] || (respond_to?(type, true) ? send(type) : nil)
-              return false if script && !run_command(script, :timeout => type.to_sym)
+            COMMANDS.each do |type|
+              next unless command = self.command(type)
+              if command && !run_command(command, :timeout => type.to_sym)
+                shell.echo "#{type}: #{command} returned false." unless type == 'script'
+                return false
+              end
             end && true
           end
 
@@ -75,6 +82,10 @@ module Travis
             Array(script).each do |script|
               return false unless shell.execute(script, options)
             end && true
+          end
+
+          def command(type)
+            config[type] || (respond_to?(type, true) ? send(type) : nil)
           end
       end
     end

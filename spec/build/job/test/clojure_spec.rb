@@ -1,7 +1,8 @@
 require 'spec_helper'
+require 'travis/build'
 
-describe Build::Job::Test::Clojure do
-  let(:config) { Build::Job::Test::Clojure::Config.new }
+describe Travis::Build::Job::Test::Clojure do
+  let(:config) { Travis::Build::Job::Test::Clojure::Config.new }
 
   describe 'config' do
     it 'defaults :install to "lein deps"' do

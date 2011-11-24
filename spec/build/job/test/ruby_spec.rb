@@ -1,9 +1,10 @@
 require 'spec_helper'
+require 'travis/build'
 
-describe Build::Job::Test::Ruby do
+describe Travis::Build::Job::Test::Ruby do
   let(:shell)  { stub('shell', :export => true, :execute => true, :evaluate => 'default', :cwd => '~/builds', :file_exists? => true) }
-  let(:config) { Build::Job::Test::Ruby::Config.new(:bundler_args => '--binstubs') }
-  let(:job)    { Build::Job::Test::Ruby.new(shell, nil, config) }
+  let(:config) { Travis::Build::Job::Test::Ruby::Config.new(:bundler_args => '--binstubs') }
+  let(:job)    { Travis::Build::Job::Test::Ruby.new(shell, nil, config) }
 
   describe 'config defaults' do
     it ':rvm to "default"' do
@@ -25,7 +26,7 @@ describe Build::Job::Test::Ruby do
     it 'raises AssertionFailed when rvm outputs an ERROR string' do
       config.rvm = 'rbx'
       shell.expects(:evaluate).with('rvm use rbx', :echo => true).returns('ERROR: Unknown ruby interpreter version')
-      lambda { job.setup }.should raise_error(Build::AssertionFailed)
+      lambda { job.setup }.should raise_error(Travis::AssertionFailed)
     end
 
     it 'configures bundler to use the given gemfile if it exists' do

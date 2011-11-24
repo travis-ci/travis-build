@@ -1,12 +1,12 @@
 require 'spec_helper'
-require 'travis/build/assertions'
-require 'support/mocks'
-require 'support/matchers'
+require 'spec_helper/mocks'
+require 'spec_helper/matchers'
+require 'travis/build'
 
-describe Build::Build do
-  let(:events)   { Build::Event::Factory.new(:id => 1) }
+describe Travis::Build do
+  let(:events)   { Travis::Build::Event::Factory.new(:id => 1) }
   let(:job)      { stub('job:configure', :run => { :foo => 'foo' }) }
-  let(:build)    { Build::Build.new(events, job) }
+  let(:build)    { Travis::Build.new(events, job) }
   let(:observer) { Mocks::Observer.new }
 
   attr_reader :now

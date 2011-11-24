@@ -2,6 +2,8 @@ module Travis
   class Build
     module Job
       class Configure
+        include Logging
+
         attr_reader :http, :commit
 
         def initialize(http, commit)
@@ -16,7 +18,12 @@ module Travis
         protected
 
           def fetch
-            response.success? ? parse(response.body) : {}
+            if response.success?
+              parse(response.body)
+            else
+              # TODO log error
+              {}
+            end
           end
 
           def response
@@ -24,7 +31,10 @@ module Travis
           end
 
           def parse(yaml)
-            YAML.load(yaml) || {} rescue {}
+            YAML.load(yaml) || {}
+          rescue => e
+            log_exception(e)
+            {} # TODO include '.invalid' => true here?
           end
       end
     end

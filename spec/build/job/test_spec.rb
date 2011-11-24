@@ -1,47 +1,48 @@
 require 'spec_helper'
+require 'travis/build'
 require 'hashr'
 
-describe Build::Job::Test do
-  let(:shell)  { stub('shell', :chdir => true, :export => true, :execute => true, :cwd => '~/builds', :file_exists? => true) }
+describe Travis::Build::Job::Test do
+  let(:shell)  { stub('shell', :chdir => true, :export => true, :execute => true, :cwd => '~/builds', :file_exists? => true, :echo => nil) }
   let(:commit) { stub(:checkout => true) }
   let(:config) { Hashr.new(:env => 'FOO=foo', :script => 'rake') }
-  let(:job)    { Build::Job::Test.new(shell, commit, config) }
+  let(:job)    { Travis::Build::Job::Test.new(shell, commit, config) }
 
   describe 'by_lang' do
-    it 'returns Build::Job::Test::Ruby for nil' do
-      Build::Job::Test.by_lang(nil).should == Build::Job::Test::Ruby
+    it 'returns Travis::Build::Job::Test::Ruby for nil' do
+      Travis::Build::Job::Test.by_lang(nil).should == Travis::Build::Job::Test::Ruby
     end
 
-    it 'returns Build::Job::Test::Ruby for an unknown language' do
-      Build::Job::Test.by_lang('brainfuck').should == Build::Job::Test::Ruby
+    it 'returns Travis::Build::Job::Test::Ruby for an unknown language' do
+      Travis::Build::Job::Test.by_lang('brainfuck').should == Travis::Build::Job::Test::Ruby
     end
 
-    it 'returns Build::Job::Test::Ruby for "ruby"' do
-      Build::Job::Test.by_lang('ruby').should == Build::Job::Test::Ruby
+    it 'returns Travis::Build::Job::Test::Ruby for "ruby"' do
+      Travis::Build::Job::Test.by_lang('ruby').should == Travis::Build::Job::Test::Ruby
     end
 
-    it 'returns Build::Job::Test::Clojure for "clojure"' do
-      Build::Job::Test.by_lang('clojure').should == Build::Job::Test::Clojure
+    it 'returns Travis::Build::Job::Test::Clojure for "clojure"' do
+      Travis::Build::Job::Test.by_lang('clojure').should == Travis::Build::Job::Test::Clojure
     end
 
-    it 'returns Build::Job::Test::Erlang for "erlang"' do
-      Build::Job::Test.by_lang('erlang').should == Build::Job::Test::Erlang
+    it 'returns Travis::Build::Job::Test::Erlang for "erlang"' do
+      Travis::Build::Job::Test.by_lang('erlang').should == Travis::Build::Job::Test::Erlang
     end
 
-    it 'returns Build::Job::Test::Nodejs for "nodejs"' do
-      Build::Job::Test.by_lang('nodejs').should == Build::Job::Test::Nodejs
+    it 'returns Travis::Build::Job::Test::Nodejs for "nodejs"' do
+      Travis::Build::Job::Test.by_lang('nodejs').should == Travis::Build::Job::Test::Nodejs
     end
 
-    it 'returns Build::Job::Test::Nodejs for "NodeJs"' do
-      Build::Job::Test.by_lang('NodeJs').should == Build::Job::Test::Nodejs
+    it 'returns Travis::Build::Job::Test::Nodejs for "NodeJs"' do
+      Travis::Build::Job::Test.by_lang('NodeJs').should == Travis::Build::Job::Test::Nodejs
     end
 
-    it 'returns Build::Job::Test::Nodejs for "node.js"' do
-      Build::Job::Test.by_lang('node.js').should == Build::Job::Test::Nodejs
+    it 'returns Travis::Build::Job::Test::Nodejs for "node.js"' do
+      Travis::Build::Job::Test.by_lang('node.js').should == Travis::Build::Job::Test::Nodejs
     end
 
-    it 'returns Build::Job::Test::Php for "php"' do
-      Build::Job::Test.by_lang('php').should == Build::Job::Test::Php
+    it 'returns Travis::Build::Job::Test::Php for "php"' do
+      Travis::Build::Job::Test.by_lang('php').should == Travis::Build::Job::Test::Php
     end
   end
 
@@ -115,13 +116,13 @@ describe Build::Job::Test do
 
       it "runs a single #{type} defined in the config" do
         job.config[type] = './foo'
-        job.expects(:run_command).with('./foo', :timeout => type)
+        job.expects(:run_command).with('./foo', :timeout => type).returns(true)
         job.send(:run_commands)
       end
 
       it "runs an array of #{type}s defined in the config" do
         job.config[type] =['./foo', './bar']
-        job.expects(:run_command).with(['./foo', './bar'], :timeout => type)
+        job.expects(:run_command).with(['./foo', './bar'], :timeout => type).returns(true)
         job.send(:run_commands)
       end
     end
@@ -140,6 +141,16 @@ describe Build::Job::Test do
 
       job.expects(:run_command).with('./before', any_parameters).returns(false)
       job.expects(:run_command).with('./script').never
+
+      job.send(:run_commands)
+    end
+
+    it 'echos a message to the shell if a before_script has failed' do
+      job.config.before_script = './before'
+      job.config.script = './script'
+
+      job.expects(:run_command).with('./before', any_parameters).returns(false)
+      shell.expects(:echo).with('before_script: ./before returned false.')
 
       job.send(:run_commands)
     end

@@ -1,9 +1,10 @@
 require 'spec_helper'
+require 'travis/build'
 
-describe Build::Job::Test::Php do
+describe Travis::Build::Job::Test::Php do
   let(:shell)  { stub('shell') }
-  let(:config) { Build::Job::Test::Php::Config.new }
-  let(:job)    { Build::Job::Test::Php.new(shell, nil , config) }
+  let(:config) { Travis::Build::Job::Test::Php::Config.new }
+  let(:job)    { Travis::Build::Job::Test::Php.new(shell, nil , config) }
 
   describe 'config' do
     it 'defaults :php to "5.3.8"' do

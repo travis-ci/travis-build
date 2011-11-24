@@ -1,10 +1,11 @@
 require 'spec_helper'
+require 'travis/build'
 
-describe Build::Job::Configure do
+describe Travis::Build::Job::Configure do
   let(:response) { stub('response', :success? => true, :body => 'foo: Foo') }
   let(:http)     { stub('http', :get => response) }
   let(:commit)   { stub('commit', :config_url => 'http://raw.github.com/path/to/.travis.yml' ) }
-  let(:job)      { Build::Job::Configure.new(http, commit) }
+  let(:job)      { Travis::Build::Job::Configure.new(http, commit) }
 
   describe 'run' do
     it 'returns a hash' do
