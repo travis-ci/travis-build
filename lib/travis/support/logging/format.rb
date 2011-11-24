@@ -2,8 +2,12 @@ module Travis
   module Logging
     module Format
       class << self
-        def format(severity, datetime, progname, msg)
-          "#{severity[0, 1]} [#{datetime}] #{msg}\n"
+        def format(severity, time, progname, msg)
+          "#{severity[0, 1]} [#{format_time(time)}] #{msg}\n"
+        end
+
+        def format_time(time)
+          time.strftime("%Y-%m-%d %H:%M:%S.") << "%06d " % time.usec
         end
 
         def before(object, name, args)
