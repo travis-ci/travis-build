@@ -33,7 +33,7 @@ module Travis
 
     [:fatal, :error, :warn, :info, :debug].each do |level|
       define_method(level) do |message, options|
-        logger.send(level, Logging::Format.wrap(self, message, options))
+        logger.send(level, Logging::Format.wrap(self, message, options || {}))
       end
     end
 
