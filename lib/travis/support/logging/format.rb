@@ -3,19 +3,19 @@ module Travis
     module Format
       class << self
         def format(severity, datetime, progname, msg)
-          "#{severity[0]} [#{datetime}] #{msg}\n"
+          "#{severity[0, 1]} [#{datetime}] #{msg}\n"
         end
 
         def before(object, name, args)
-          "#{header(object)} about to #{name}#{self.arguments(args)}"
+          wrap(object, "about to #{name}#{self.arguments(args)}")
         end
 
         def after(object, name)
-          "#{header(object)} done: #{name}"
+          wrap(object, "done: #{name}")
         end
 
-        def header(object)
-          "[#{object.log_header}]"
+        def wrap(object, message)
+          "[#{object.log_header}] #{message}"
         end
 
         def exception(exception)

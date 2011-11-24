@@ -20,22 +20,26 @@ module Travis
         end
       end
 
-      def log_before(*args)
+      def before(*args)
         logger.info(Format.before(*args))
       end
 
-      def log_after(*args)
+      def after(*args)
         logger.debug(Format.after(*args))
-      end
-
-      def log_exception(exception)
-        logger.error(Format.exception(exception))
       end
     end
 
     delegate :logger, :to => Travis
-    delegate :fatal, :error, :warn, :info, :debug, :to => :logger
-    delegate :log_before, :log_after, :log_exception, :to => Logging
+
+    [:fatal, :error, :warn, :info, :debug].each do |level|
+      define_method(level) do |message|
+        logger.send(level, Logging::Format.wrap(self, message))
+      end
+    end
+
+    def log_exception(exception)
+      logger.error(Logging::Format.exception(exception))
+    end
 
     def log_header
       self.class.log_header ? instance_eval(&self.class.log_header) : self.class.name.split('::').last.downcase
@@ -50,9 +54,9 @@ module Travis
       def log(name, options = {})
         define_method(:"#{name}_with_log") do |*args, &block|
           arguments = options[:params].is_a?(FalseClass) ? [] : args
-          log_before(self, name, arguments) unless options[:only] == :after
+          Logging.before(self, name, arguments) unless options[:only] == :after
           send(:"#{name}_without_log", *args, &block).tap do |result|
-            log_after(self, name) unless options[:only] == :before
+            Logging.after(self, name) unless options[:only] == :before
           end
         end
         alias_method_chain name, 'log'

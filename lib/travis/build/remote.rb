@@ -36,7 +36,7 @@ module Travis
         end
 
         def on_output(output)
-           log output
+          log output
         end
     end
   end
