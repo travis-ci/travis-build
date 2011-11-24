@@ -49,7 +49,7 @@ module Travis
 
       def log(name, options = {})
         define_method(:"#{name}_with_log") do |*args, &block|
-          arguments = options[:params].is_a?(FalseClass) ? [] : [args]
+          arguments = options[:params].is_a?(FalseClass) ? [] : args
           log_before(self, name, arguments) unless options[:only] == :after
           send(:"#{name}_without_log", *args, &block).tap do |result|
             log_after(self, name) unless options[:only] == :before
