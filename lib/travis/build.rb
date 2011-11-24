@@ -19,6 +19,8 @@ module Travis
 
     include Logging
 
+    log_header { "#{Thread.current[:log_header]}:build" }
+
     def self.create(*args)
       Factory.new(*args).build
     end

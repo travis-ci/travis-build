@@ -18,6 +18,8 @@ module Travis
         extend Assertions
         include Logging
 
+        log_header { "#{Thread.current[:log_header]}:job:test" }
+
         class << self
           def by_lang(lang)
             lang = lang || 'ruby'

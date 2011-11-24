@@ -5,6 +5,7 @@ module Travis
         include Logging
 
         attr_reader :http, :commit
+        log_header { "#{Thread.current[:log_header]}:job:configure" }
 
         def initialize(http, commit)
           @http = http
