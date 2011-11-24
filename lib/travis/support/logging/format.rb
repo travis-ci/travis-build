@@ -19,7 +19,8 @@ module Travis
         end
 
         def wrap(object, message, options = {})
-          "[#{options[:header] || object.log_header}] #{message}"
+          header = options[:header] || object.log_header
+          message.chomp.split("\n").each { |line| "[#{header}] #{line.chomp}" }.join("\n")
         end
 
         def exception(exception)
