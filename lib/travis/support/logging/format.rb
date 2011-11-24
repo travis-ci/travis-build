@@ -7,7 +7,7 @@ module Travis
         end
 
         def format_time(time)
-          time.strftime("%Y-%m-%d %H:%M:%S.") << "%06d " % time.usec
+          time.strftime("%Y-%m-%d %H:%M:%S.") << time.usec.to_s[0, 3]
         end
 
         def before(object, name, args)
