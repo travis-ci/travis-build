@@ -34,12 +34,17 @@ module Travis
     [:fatal, :error, :warn, :info, :debug].each do |level|
       define_method(level) do |*args|
         message, options = *args
-        logger.send(level, Logging::Format.wrap(self, message, options || {}))
+        message.chomp.split("\n").each do |line|
+          logger.send(level, Logging::Format.wrap(self, line, options || {}))
+        end
       end
     end
 
     def log_exception(exception)
-      logger.error(Logging::Format.exception(exception))
+      logger.error(Logging::Format.wrap(self, "#{exception.class.name}: #{exception.message}"))
+      exception.backtrace.each do |line|
+        logger.error(Logging::Format.wrap(self, line))
+      end if exception.backtrace
     end
 
     def log_header

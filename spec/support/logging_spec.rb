@@ -48,7 +48,8 @@ describe Travis::Logging do
 
     it 'logs the backtrace' do
       object.log_exception(exception)
-      io.string.should include("line 1\nline 2")
+      io.string.should include("line 1")
+      io.string.should include("line 2")
     end
   end
 end

@@ -20,11 +20,11 @@ module Travis
 
         def wrap(object, message, options = {})
           header = options[:header] || object.log_header
-          message.chomp.split("\n").each { |line| "[#{header}] #{line.chomp}" }.join("\n")
+          "[#{header}] #{message.chomp}"
         end
 
-        def exception(exception)
-          (["#{exception.class.name}: #{exception.message}"] + (exception.backtrace || [])).join("\n")
+        def exception(object, exception)
+          wrap(object, ([message] + backtrace).join("\n"))
         end
 
         def arguments(args)
