@@ -26,6 +26,9 @@ module Mocks
       # stubs(:connect => nil, :close => nil, :execute => true, :evaluate => '')
     end
 
+    def echo(*)
+    end
+
     def on_output(&block)
       $on_output = block
     end

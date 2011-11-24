@@ -1,6 +1,7 @@
+require 'travis/support'
+
 module Travis
   class Build
-    autoload :Assertions, 'travis/build/assertions'
     autoload :Connection, 'travis/build/connection'
     autoload :Commit,     'travis/build/commit'
     autoload :Event,      'travis/build/event'
@@ -15,6 +16,8 @@ module Travis
     module Scm
       autoload :Git, 'travis/build/scm/git'
     end
+
+    include Logging
 
     def self.create(*args)
       Factory.new(*args).build
@@ -38,6 +41,7 @@ module Travis
       notify :finish, (result || {}).merge(:finished_at => Time.now)
       result
     end
+    log :run
 
     protected
 
@@ -52,6 +56,7 @@ module Travis
       def log(output)
         # could additionally collect the log on the job here if necessary
         notify :log, :log => output
+        logger.info output
       end
 
       def notify(type, data)

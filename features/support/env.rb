@@ -3,14 +3,19 @@ root = File.expand_path('../../..', __FILE__)
 $: << "#{root}/lib" << "#{root}/spec"
 
 require 'travis/build'
+require 'travis/support'
+
+require 'stringio'
 require 'mocha'
-require 'support/mocks'
-require 'support/payloads'
+require 'spec_helper/mocks'
+require 'spec_helper/payloads'
 
 World(Mocha::API)
 
 Before do
   mocha_setup
+
+  Travis.logger = Logger.new(StringIO.new)
 
   $now = Time.now
   Time.stubs(:now).returns($now)

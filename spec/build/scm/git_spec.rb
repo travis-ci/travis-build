@@ -1,8 +1,9 @@
 require 'spec_helper'
+require 'travis/build'
 
-describe Build::Scm::Git do
+describe Travis::Build::Scm::Git do
   let(:shell)  { stub('shell', :export => nil, :execute => true, :chdir => true) }
-  let(:scm)    { Build::Scm::Git.new(shell) }
+  let(:scm)    { Travis::Build::Scm::Git.new(shell) }
 
   let(:source) { 'git://example.com/travis-ci.git' }
   let(:commit) { '1234567' }

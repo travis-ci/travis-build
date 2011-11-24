@@ -1,9 +1,10 @@
 require 'spec_helper'
+require 'travis/build'
 
-describe Build::Job::Test::Erlang do
+describe Travis::Build::Job::Test::Erlang do
   let(:shell)  { stub('shell') }
-  let(:config) { Build::Job::Test::Erlang::Config.new }
-  let(:job)    { Build::Job::Test::Erlang.new(shell, nil , config) }
+  let(:config) { Travis::Build::Job::Test::Erlang::Config.new }
+  let(:job)    { Travis::Build::Job::Test::Erlang.new(shell, nil , config) }
 
   describe 'config' do
     it 'defaults :opt_release to "R14B02"' do

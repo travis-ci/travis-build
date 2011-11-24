@@ -1,8 +1,9 @@
 require 'spec_helper'
+require 'travis/build'
 
-describe Build::Repository::Github do
+describe Travis::Build::Repository::Github do
   let(:git)    { stub('git') }
-  let(:github) { Build::Repository::Github.new(git, 'travis-ci/travis-ci') }
+  let(:github) { Travis::Build::Repository::Github.new(git, 'travis-ci/travis-ci') }
 
   it 'checkout fetches the given commit from the scm' do
     git.expects(:fetch).with('git://github.com/travis-ci/travis-ci.git', '1234567', 'travis-ci/travis-ci')

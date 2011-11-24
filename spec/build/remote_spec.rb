@@ -1,10 +1,11 @@
 require 'spec_helper'
+require 'travis/build'
 
-describe Build::Remote do
-  let(:events) { Build::Event::Factory.new(:id => 1) }
+describe Travis::Build::Remote do
+  let(:events) { Travis::Build::Event::Factory.new(:id => 1) }
   let(:job)    { stub('job:configure', :run => { :foo => 'foo' }) }
   let(:shell)  { stub('shell', :connect => nil, :on_output => nil, :close => nil) }
-  let(:runner) { Build::Remote.new(nil, shell, events, job) }
+  let(:runner) { Travis::Build::Remote.new(nil, shell, events, job) }
 
   describe 'with_shell' do
     it 'connects the shell' do
