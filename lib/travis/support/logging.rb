@@ -20,12 +20,12 @@ module Travis
         end
       end
 
-      def before(*args)
-        logger.info(Format.before(*args))
+      def before(type, *args)
+        logger.send(type || :info, Format.before(*args))
       end
 
-      def after(*args)
-        logger.debug(Format.after(*args))
+      def after(type, *args)
+        logger.send(type || :debug, Format.after(*args))
       end
     end
 
@@ -54,9 +54,9 @@ module Travis
       def log(name, options = {})
         define_method(:"#{name}_with_log") do |*args, &block|
           arguments = options[:params].is_a?(FalseClass) ? [] : args
-          Logging.before(self, name, arguments) unless options[:only] == :after
+          Logging.before(options[:as], self, name, arguments) unless options[:only] == :after
           send(:"#{name}_without_log", *args, &block).tap do |result|
-            Logging.after(self, name) unless options[:only] == :before
+            Logging.after(options[:as], self, name) unless options[:only] == :before
           end
         end
         alias_method_chain name, 'log'
