@@ -21,7 +21,7 @@ module Travis
       end
 
       def log_before(*args)
-        logger.debug(Format.before(*args))
+        logger.info(Format.before(*args))
       end
 
       def log_after(*args)
@@ -34,7 +34,7 @@ module Travis
     end
 
     delegate :logger, :to => Travis
-    delegate :fatal, :error, :warn, :info, :to => :logger
+    delegate :fatal, :error, :warn, :info, :debug, :to => :logger
     delegate :log_before, :log_after, :log_exception, :to => Logging
 
     def log_header
