@@ -56,7 +56,10 @@ module Travis
       def log(output)
         # could additionally collect the log on the job here if necessary
         notify :log, :log => output
-        logger.info output
+
+        # TODO should log the output here. in order to do this the build needs to have
+        # a log_header that includes the current worker name though
+        # logger.info output
       end
 
       def notify(type, data)
