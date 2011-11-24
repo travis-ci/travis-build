@@ -1,10 +1,13 @@
 module Travis
   class Build
     class Remote < Build
-      attr_reader :vm, :shell
+      attr_reader :name, :vm, :shell
+
+      log_header { "#{Thread.current[:log_header]}:build:remote" }
 
       def initialize(vm, shell, events, job)
         super(events, job)
+        @name = vm.name
         @vm = vm
         @shell = shell
       end
@@ -35,8 +38,8 @@ module Travis
           end
         end
 
-        def on_output(output)
-          log output
+        def on_output(output, options = {})
+          log(output, options)
         end
     end
   end

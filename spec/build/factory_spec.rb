@@ -7,7 +7,7 @@ require 'travis/build'
 # TODO check observers
 
 describe Travis::Build::Factory do
-  let(:vm)         { stub('vm') }
+  let(:vm)         { stub('vm', :name => 'worker-1') }
   let(:shell)      { stub('shell') }
   let(:observer)   { stub('observer') }
   let(:config)     { {} }

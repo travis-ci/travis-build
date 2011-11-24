@@ -52,16 +52,16 @@ module Travis
       end
 
       def log_exception(e)
-        log("Error: #{e.inspect}\n" + e.backtrace.map { |b| "  #{b}" }.join("\n"))
+        log "Error: #{e.inspect}\n" + e.backtrace.map { |b| "  #{b}" }.join("\n")
       end
 
-      def log(output)
+      def log(output, options = {})
         # could additionally collect the log on the job here if necessary
         notify :log, :log => output
 
         # TODO should log the output here. in order to do this the build needs to have
         # a log_header that includes the current worker name though
-        # logger.info output
+        info output, options
       end
 
       def notify(type, data)

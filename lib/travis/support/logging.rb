@@ -32,8 +32,8 @@ module Travis
     delegate :logger, :to => Travis
 
     [:fatal, :error, :warn, :info, :debug].each do |level|
-      define_method(level) do |message|
-        logger.send(level, Logging::Format.wrap(self, message))
+      define_method(level) do |message, options = {}|
+        logger.send(level, Logging::Format.wrap(self, message, options))
       end
     end
 
@@ -46,8 +46,7 @@ module Travis
     end
 
     module ClassMethods
-      def log_header(header = nil, &block)
-        block = lambda { header } if !block && header
+      def log_header(&block)
         block ? @log_header = block : @log_header
       end
 

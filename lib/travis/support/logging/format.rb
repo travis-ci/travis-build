@@ -18,8 +18,8 @@ module Travis
           wrap(object, "done: #{name}")
         end
 
-        def wrap(object, message)
-          "[#{object.log_header}] #{message}"
+        def wrap(object, message, options = {})
+          "[#{options[:header] || object.log_header}] #{message}"
         end
 
         def exception(exception)

@@ -2,10 +2,11 @@ require 'spec_helper'
 require 'travis/build'
 
 describe Travis::Build::Remote do
+  let(:vm)     { stub('vm', :name => 'worker-1') }
   let(:events) { Travis::Build::Event::Factory.new(:id => 1) }
   let(:job)    { stub('job:configure', :run => { :foo => 'foo' }) }
   let(:shell)  { stub('shell', :connect => nil, :on_output => nil, :close => nil) }
-  let(:runner) { Travis::Build::Remote.new(nil, shell, events, job) }
+  let(:runner) { Travis::Build::Remote.new(vm, shell, events, job) }
 
   describe 'with_shell' do
     it 'connects the shell' do

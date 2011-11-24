@@ -12,6 +12,10 @@ module Mocks
   end
 
   class Vm
+    def name
+      'vm-name'
+    end
+
     def full_name
       'the-full:vm-name'
     end
