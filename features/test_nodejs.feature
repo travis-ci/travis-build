@@ -4,7 +4,7 @@ Feature: Testing a Node.js project
    Given the following test payload
      | repository | travis-ci/travis-ci                                               |
      | commit     | 1234567                                                           |
-     | config     | language: node.js, node_js: 0.4.12, env: FOO=foo, npm_args: --dev |
+     | config     | language: node_js, node_js: 0.4.12, env: FOO=foo, npm_args: --dev |
 
   Scenario: A successful build
     When it starts a job
