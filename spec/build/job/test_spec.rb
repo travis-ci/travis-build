@@ -29,20 +29,8 @@ describe Travis::Build::Job::Test do
       Travis::Build::Job::Test.by_lang('erlang').should == Travis::Build::Job::Test::Erlang
     end
 
-    it 'returns Travis::Build::Job::Test::Nodejs for "nodejs"' do
-      Travis::Build::Job::Test.by_lang('nodejs').should == Travis::Build::Job::Test::Nodejs
-    end
-
-    it 'returns Travis::Build::Job::Test::Nodejs for "node_js"' do
-      Travis::Build::Job::Test.by_lang('node_js').should == Travis::Build::Job::Test::Nodejs
-    end
-
-    it 'returns Travis::Build::Job::Test::Nodejs for "NodeJs"' do
-      Travis::Build::Job::Test.by_lang('NodeJs').should == Travis::Build::Job::Test::Nodejs
-    end
-
-    it 'returns Travis::Build::Job::Test::Nodejs for "node.js"' do
-      Travis::Build::Job::Test.by_lang('node.js').should == Travis::Build::Job::Test::Nodejs
+    it 'returns Travis::Build::Job::Test::NodeJs for "node_js"' do
+      Travis::Build::Job::Test.by_lang('node_js').should == Travis::Build::Job::Test::NodeJs
     end
 
     it 'returns Travis::Build::Job::Test::Php for "php"' do

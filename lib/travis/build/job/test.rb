@@ -9,7 +9,7 @@ module Travis
       class Test
         autoload :Clojure, 'travis/build/job/test/clojure'
         autoload :Erlang,  'travis/build/job/test/erlang'
-        autoload :Nodejs,  'travis/build/job/test/nodejs'
+        autoload :NodeJs,  'travis/build/job/test/node_js'
         autoload :Php,     'travis/build/job/test/php'
         autoload :Ruby,    'travis/build/job/test/ruby'
 
@@ -23,9 +23,7 @@ module Travis
         class << self
           def by_lang(lang)
             lang = lang || 'ruby'
-
-            # TODO: move language name normalization to travis-core. MK. SF.
-            args = [ActiveSupport::Inflector.camelize(lang.gsub('.', '').gsub('_', '').downcase)]
+            args = [ActiveSupport::Inflector.camelize(lang.downcase)]
             args << false if Kernel.method(:const_get).arity == -1
             Job::Test.const_get(*args) rescue Job::Test::Ruby
           end

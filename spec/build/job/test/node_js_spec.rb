@@ -1,10 +1,10 @@
 require 'spec_helper'
 require 'travis/build'
 
-describe Travis::Build::Job::Test::Nodejs do
+describe Travis::Build::Job::Test::NodeJs do
   let(:shell)  { stub('shell') }
-  let(:config) { Travis::Build::Job::Test::Nodejs::Config.new(:npm_args => '--dev') }
-  let(:job)    { Travis::Build::Job::Test::Nodejs.new(shell, nil , config) }
+  let(:config) { Travis::Build::Job::Test::NodeJs::Config.new(:npm_args => '--dev') }
+  let(:job)    { Travis::Build::Job::Test::NodeJs.new(shell, nil , config) }
 
   describe 'config' do
     it 'defaults :node_js to "0.4"' do
