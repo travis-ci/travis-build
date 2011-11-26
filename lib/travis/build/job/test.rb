@@ -24,9 +24,10 @@ module Travis
           def by_lang(lang)
             lang = lang || 'ruby'
 
-              args = [ActiveSupport::Inflector.camelize(lang.gsub('.', '').gsub('_', '').downcase)]
-              args << false if Kernel.method(:const_get).arity == -1
-              Job::Test.const_get(*args) rescue Job::Test::Ruby
+            # TODO: move language name normalization to travis-core. MK. SF.
+            args = [ActiveSupport::Inflector.camelize(lang.gsub('.', '').gsub('_', '').downcase)]
+            args << false if Kernel.method(:const_get).arity == -1
+            Job::Test.const_get(*args) rescue Job::Test::Ruby
           end
         end
 
