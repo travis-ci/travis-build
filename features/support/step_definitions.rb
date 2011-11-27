@@ -141,6 +141,13 @@ Then /^it (successfully|fails to) switch(?:es)? to the (.*) version: (.*)$/ do |
   end
 end
 
+Then /it announces active Ruby version/ do
+  $shell.expects(:execute).
+    with("ruby --version").
+    outputs("ruby --version").
+    in_sequence($sequence)
+end
+
 Then /^it (finds|does not find) the file (.*)$/ do |result, filenames|
   filenames = filenames.split(/, | or /).map { |filename| filename.strip }
   filenames.each do |filename|

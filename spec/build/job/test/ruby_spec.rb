@@ -23,6 +23,11 @@ describe Travis::Build::Job::Test::Ruby do
       job.setup
     end
 
+    it 'announces activated ruby version' do
+      shell.expects(:execute).with('ruby --version')
+      job.setup
+    end
+
     it 'raises AssertionFailed when rvm outputs an ERROR string' do
       config.rvm = 'rbx'
       shell.expects(:evaluate).with('rvm use rbx', :echo => true).returns('ERROR: Unknown ruby interpreter version')

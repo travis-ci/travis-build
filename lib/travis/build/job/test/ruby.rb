@@ -14,6 +14,7 @@ module Travis
 
           def setup
             setup_ruby
+            announce_ruby
             setup_bundler if gemfile?
           end
 
@@ -41,6 +42,10 @@ module Travis
               shell.file_exists?(config.gemfile)
             end
             memoize :gemfile?
+
+            def announce_ruby
+              shell.execute("ruby --version")
+            end
         end
       end
     end

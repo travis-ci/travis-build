@@ -12,6 +12,7 @@ Feature: Testing a Ruby project
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it successfully switches to the ruby version: 1.9.2
+     And it announces active Ruby version
      And it does not find the file gemfiles/Gemfile
      And it successfully runs the script: rake
      And it closes the ssh session
@@ -26,6 +27,7 @@ Feature: Testing a Ruby project
        | job:test:log    | log: cd travis-ci/travis-ci   |
        | job:test:log    | log: git checkout             |
        | job:test:log    | log: rvm use 1.9.2            |
+       | job:test:log    | log: ruby --version           |
        | job:test:log    | log: rake                     |
        | job:test:log    | log: /Done.* 0/               |
        | job:test:finish | finished_at: [now], status: 0 |
@@ -36,6 +38,7 @@ Feature: Testing a Ruby project
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it successfully switches to the ruby version: 1.9.2
+     And it announces active Ruby version
      And it finds a file gemfiles/Gemfile and successfully installs the bundle
      And it successfully runs the script: bundle exec rake
      And it closes the ssh session
@@ -50,6 +53,7 @@ Feature: Testing a Ruby project
        | job:test:log    | log: cd travis-ci/travis-ci   |
        | job:test:log    | log: git checkout             |
        | job:test:log    | log: rvm use 1.9.2            |
+       | job:test:log    | log: ruby --version           |
        | job:test:log    | log: export BUNDLE_GEMFILE    |
        | job:test:log    | log: bundle install           |
        | job:test:log    | log: bundle exec rake         |
@@ -86,6 +90,7 @@ Feature: Testing a Ruby project
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it successfully switches to the ruby version: 1.9.2
+     And it announces active Ruby version
      And it finds a file gemfiles/Gemfile but fails to install the bundle
      And it closes the ssh session
      And it returns the status 1
@@ -96,6 +101,7 @@ Feature: Testing a Ruby project
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it successfully switches to the ruby version: 1.9.2
+     And it announces active Ruby version
      And it does not find the file gemfiles/Gemfile
      And it fails to run the script: rake
      And it closes the ssh session
