@@ -30,7 +30,7 @@ Feature: Testing a Node.js project
        | job:test:log    | log: /Done.* 0/               |
        | job:test:finish | finished_at: [now], status: 0 |
 
-  Scenario: A successful with a package.json file
+  Scenario: A successful build with a package.json file
     When it starts a job
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git

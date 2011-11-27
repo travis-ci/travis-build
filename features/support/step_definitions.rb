@@ -122,7 +122,7 @@ Then /^it (successfully|fails to) switch(?:es)? to the (.*) version: (.*)$/ do |
     'ruby'   => "rvm use #{version}",
     'erlang' => "source /home/vagrant/otp/#{version}/activate",
     'nodejs' => "nvm use #{version}",
-    'php'    => "phpenv global php-#{version}"
+    'php'    => "phpenv global #{version}"
   }
   cmd = cmds[language.gsub('.', '')]
 
@@ -162,7 +162,8 @@ Then /^it (successfully|fails to) installs? the (.*)$/ do |result, dependencies|
     'bundle' => 'bundle install',
     'lein dependencies' => 'lein deps',
     'rebar dependencies' => './rebar get-deps',
-    'npm packages' => 'npm install --dev'
+    'npm packages' => 'npm install --dev',
+    'composer packages' => 'composer install --dev'
   }
   cmd = cmds[dependencies]
 
