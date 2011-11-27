@@ -28,6 +28,7 @@ module Travis
 
             def composer?
               shell.file_exists?('composer.json')
+              false
             end
             memoize :composer?
         end
