@@ -37,6 +37,16 @@ module Travis
           @config = config
         end
 
+        def install
+          # intentional no-op. If we don't define this method, builders
+          # that do not define #install (like the php one) will fail because
+          # rake defines Kernel#install with different arity. Because we cannot
+          # guarantee that all of our dependencies will correctly depend on rake only
+          # for development and occasionally people may forget to run
+          # bundle install --without test. So, the best solution may be to just difine this no-op
+          # method. MK.
+        end
+
         def run
           { :status => perform ? 0 : 1 }
         end
