@@ -7,7 +7,7 @@ def decode(string)
 
     value = case value
     when '[now]'
-      Time.now
+      Time.now.utc
     when 'true', 'false'
       eval(value)
     when /^\/.*\/$/

@@ -12,7 +12,7 @@ describe Travis::Build do
   attr_reader :now
 
   before :each do
-    @now = Time.now
+    @now = Time.now.utc
     Time.stubs(:now).returns(@now)
 
     build.observers << observer

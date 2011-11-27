@@ -17,7 +17,7 @@ Before do
 
   Travis.logger = Logger.new(StringIO.new)
 
-  $now = Time.now
+  $now = Time.now.utc
   Time.stubs(:now).returns($now)
 end
 

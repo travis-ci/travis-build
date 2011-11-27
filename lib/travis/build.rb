@@ -34,13 +34,13 @@ module Travis
     end
 
     def run
-      notify :start, :started_at => Time.now
+      notify :start, :started_at => Time.now.utc
       result = perform
     rescue => e
       log_exception(e)
       result = {}
     ensure
-      notify :finish, (result || {}).merge(:finished_at => Time.now)
+      notify :finish, (result || {}).merge(:finished_at => Time.now.utc)
       result
     end
     log :run
