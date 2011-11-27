@@ -3,8 +3,8 @@ require 'travis/build'
 
 describe Travis::Build::Job::Test::Php do
   let(:shell)  { stub('shell') }
-  let(:config) { Travis::Build::Job::Test::Php::Config.new }
-  let(:job)    { Travis::Build::Job::Test::Php.new(shell, nil , config) }
+  let(:config) { Build::Job::Test::Php::Config.new }
+  let(:job)    { Build::Job::Test::Php.new(shell, nil , config) }
 
   describe 'config' do
     it 'defaults :php to "5.3.8"' do
