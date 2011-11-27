@@ -70,8 +70,10 @@ module Travis
           end
 
           def export
-            Array(config.env).each do |env|
-              shell.export(*env.split('=')) unless env.empty?
+            Array(config.env).each do |list|
+              list.split(" ").each do |env|
+                shell.export(*env.split('=')) unless env.empty?
+              end
             end if config.env
           end
 

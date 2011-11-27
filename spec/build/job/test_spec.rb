@@ -81,9 +81,17 @@ describe Travis::Build::Job::Test do
   end
 
   describe 'export' do
-    it 'accepts a single string' do
-      config.env = 'FOO=foo'
+    it 'accepts a single string with multiple values' do
+      config.env = 'SUITE=integration'
+      shell.expects(:export).with('SUITE', 'integration')
+      job.send(:export)
+    end
+
+    it 'accepts a single string with multiple values' do
+      config.env = 'FOO=foo BAR=2 BAZ=values/baz'
       shell.expects(:export).with('FOO', 'foo')
+      shell.expects(:export).with('BAR', '2')
+      shell.expects(:export).with('BAZ', 'values/baz')
       job.send(:export)
     end
 
