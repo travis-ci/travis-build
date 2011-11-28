@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'travis/build'
 
 describe Travis::Build::Job::Test::Ruby do
-  let(:shell)  { stub('shell', :export => true, :execute => true, :evaluate => 'default', :cwd => '~/builds', :file_exists? => true) }
+  let(:shell)  { stub('shell', :export_line => true, :execute => true, :evaluate => 'default', :cwd => '~/builds', :file_exists? => true) }
   let(:config) { Travis::Build::Job::Test::Ruby::Config.new(:bundler_args => '--binstubs') }
   let(:job)    { Travis::Build::Job::Test::Ruby.new(shell, nil, config) }
 
@@ -37,13 +37,13 @@ describe Travis::Build::Job::Test::Ruby do
     it 'configures bundler to use the given gemfile if it exists' do
       job.expects(:gemfile?).returns(true)
       shell.expects(:cwd).returns('~/builds')
-      shell.expects(:export).with('BUNDLE_GEMFILE', '~/builds/Gemfile')
+      shell.expects(:export_line).with('BUNDLE_GEMFILE=~/builds/Gemfile')
       job.setup
     end
 
     it 'does not configure bundler if the given gemfile does not exist' do
       job.expects(:gemfile?).returns(false)
-      shell.expects(:export).never
+      shell.expects(:export_line).never
       job.setup
     end
   end

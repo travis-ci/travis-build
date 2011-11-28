@@ -35,7 +35,7 @@ module Travis
             assert :setup_ruby
 
             def setup_bundler
-              shell.export('BUNDLE_GEMFILE', "#{shell.cwd}/#{config.gemfile}")
+              shell.export_line("BUNDLE_GEMFILE=#{shell.cwd}/#{config.gemfile}")
             end
 
             def gemfile?
