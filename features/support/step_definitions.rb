@@ -25,7 +25,7 @@ end
 Given /^the following test payload$/ do |table|
   hash = Hashr.new(table.rows_hash)
 
-  $paoyload = Hashr.new(
+  $payload = Hashr.new(
     :repository => { :slug => hash.repository },
     :build      => { :commit => hash.commit }
   )
