@@ -3,7 +3,7 @@ require 'travis/build'
 require 'hashr'
 
 describe Travis::Build::Job::Test do
-  let(:shell)  { stub('shell', :chdir => true, :export => true, :execute => true, :cwd => '~/builds', :file_exists? => true, :echo => nil) }
+  let(:shell)  { stub('shell', :chdir => true, :export_line => true, :execute => true, :cwd => '~/builds', :file_exists? => true, :echo => nil) }
   let(:commit) { stub(:checkout => true) }
   let(:config) { Hashr.new(:env => 'FOO=foo', :script => 'rake') }
   let(:job)    { Travis::Build::Job::Test.new(shell, commit, config) }
