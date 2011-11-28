@@ -1,4 +1,5 @@
 require 'active_support/inflector/methods'
+require 'active_support/core_ext/object/blank'
 
 # # rake and fileutils might be mixed into the global namespace, defining :install
 # class Hashr; undef :install; end
@@ -70,10 +71,8 @@ module Travis
           end
 
           def export
-            Array(config.env).each do |list|
-              list.split(" ").each do |env|
-                shell.export(*env.split('=')) unless env.empty?
-              end
+            Array(config.env).compact.select { |line| line.present? }.each do |line|
+              shell.export_line(line)
             end if config.env
           end
 

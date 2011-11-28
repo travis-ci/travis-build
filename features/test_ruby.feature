@@ -22,7 +22,7 @@ Feature: Testing a Ruby project
        | job:test:start  | started_at: [now]             |
        | job:test:log    | log: /Using worker/           |
        | job:test:log    | log: cd ~/builds              |
-       | job:test:log    | log: export FOO               |
+       | job:test:log    | log: export FOO=foo           |
        | job:test:log    | log: git clone                |
        | job:test:log    | log: cd travis-ci/travis-ci   |
        | job:test:log    | log: git checkout             |
@@ -48,13 +48,13 @@ Feature: Testing a Ruby project
        | job:test:start  | started_at: [now]             |
        | job:test:log    | log: /Using worker/           |
        | job:test:log    | log: cd ~/builds              |
-       | job:test:log    | log: export FOO               |
+       | job:test:log    | log: export FOO=foo           |
        | job:test:log    | log: git clone                |
        | job:test:log    | log: cd travis-ci/travis-ci   |
        | job:test:log    | log: git checkout             |
        | job:test:log    | log: rvm use 1.9.2            |
        | job:test:log    | log: ruby --version           |
-       | job:test:log    | log: export BUNDLE_GEMFILE    |
+       | job:test:log    | log: /export BUNDLE_GEMFILE=/ |
        | job:test:log    | log: bundle install           |
        | job:test:log    | log: bundle exec rake         |
        | job:test:log    | log: /Done.* 0/               |

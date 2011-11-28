@@ -3,7 +3,7 @@ require 'travis/build'
 require 'hashr'
 
 describe Travis::Build::Job::Test do
-  let(:shell)  { stub('shell', :chdir => true, :export => true, :execute => true, :cwd => '~/builds', :file_exists? => true, :echo => nil) }
+  let(:shell)  { stub('shell', :chdir => true, :export_line => true, :execute => true, :cwd => '~/builds', :file_exists? => true, :echo => nil) }
   let(:commit) { stub(:checkout => true) }
   let(:config) { Hashr.new(:env => 'FOO=foo', :script => 'rake') }
   let(:job)    { Travis::Build::Job::Test.new(shell, commit, config) }
@@ -50,7 +50,7 @@ describe Travis::Build::Job::Test do
     end
 
     it 'sets the project up' do
-      shell.expects(:export).with('FOO', 'foo')
+      shell.expects(:export_line).with('FOO=foo')
       job.run
     end
 
@@ -82,23 +82,26 @@ describe Travis::Build::Job::Test do
 
   describe 'export' do
     it 'accepts a single string with multiple values' do
-      config.env = 'SUITE=integration'
-      shell.expects(:export).with('SUITE', 'integration')
+      s          = 'SUITE=integration'
+      config.env = s
+      shell.expects(:export_line).with(s)
       job.send(:export)
     end
 
     it 'accepts a single string with multiple values' do
-      config.env = 'FOO=foo BAR=2 BAZ=values/baz'
-      shell.expects(:export).with('FOO', 'foo')
-      shell.expects(:export).with('BAR', '2')
-      shell.expects(:export).with('BAZ', 'values/baz')
+      s          = 'FOO=foo BAR=2 BAZ="test values/baz"'
+      config.env = s
+      shell.expects(:export_line).with(s)
       job.send(:export)
     end
 
     it 'accepts an array of strings' do
-      config.env = ['FOO=foo', 'BAR=bar']
-      shell.expects(:export).with('FOO', 'foo')
-      shell.expects(:export).with('BAR', 'bar')
+      s1         = 'FOO=foo'
+      s2         = 'BAR=bar BAZ="test test/ci"'
+
+      config.env = [s1, s2]
+      shell.expects(:export_line).with(s1)
+      shell.expects(:export_line).with(s2)
       job.send(:export)
     end
   end

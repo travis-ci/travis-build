@@ -57,7 +57,7 @@ Then /^it finds a file (.*) (?:and|but) (successfully|fails to) installs? the (.
   step "it finds the file #{filename}"
   if dependencies == 'bundle'
     step 'it evaluates the current working directory'
-    step "it exports BUNDLE_GEMFILE=~/builds/travis-ci/travis-ci/#{filename}"
+    step "it exports the line BUNDLE_GEMFILE=~/builds/travis-ci/travis-ci/#{filename}"
   end
   step "it #{result} installs the #{dependencies}"
 end
@@ -65,8 +65,8 @@ end
 
 Then /^it exports the given environment variables$/ do
   if $payload.config.env?
-    name, value = $payload.config.env.split('=')
-    step "it exports #{name}=#{value}"
+    line = $payload.config.env
+    step "it exports the line #{line}"
   end
 end
 
@@ -88,10 +88,10 @@ Then /^it cds into the (.*)$/ do |dir|
            in_sequence($sequence)
 end
 
-Then /^it exports (.*)=(.*)$/ do |name, value|
-  $shell.expects(:export).
-           with(name, value).
-           outputs("export #{name}").
+Then /^it exports the line (.+)$/ do |line|
+  $shell.expects(:export_line).
+           with(line).
+           outputs("export #{line}").
            in_sequence($sequence)
 end
 
