@@ -65,8 +65,8 @@ end
 
 Then /^it exports the given environment variables$/ do
   if $payload.config.env?
-    name, value = $payload.config.env.split('=')
-    step "it exports #{name}=#{value}"
+    line = $payload.config.env
+    step "it exports #{line}"
   end
 end
 
