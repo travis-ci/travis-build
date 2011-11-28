@@ -6,13 +6,13 @@ module Travis
       class Test
         class Erlang < Test
           class Config < Hashr
-            define :opt_release => 'R14B02'
+            define :otp_release => 'R14B02'
           end
 
           extend ActiveSupport::Memoizable
 
           def setup
-            shell.execute "source /home/vagrant/otp/#{config.opt_release}/activate"
+            shell.execute "source /home/vagrant/otp/#{config.otp_release}/activate"
           end
           assert :setup
 

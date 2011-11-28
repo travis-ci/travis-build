@@ -7,8 +7,8 @@ describe Travis::Build::Job::Test::Erlang do
   let(:job)    { Travis::Build::Job::Test::Erlang.new(shell, nil , config) }
 
   describe 'config' do
-    it 'defaults :opt_release to "R14B02"' do
-      config.opt_release.should == 'R14B02'
+    it 'defaults :otp_release to "R14B02"' do
+      config.otp_release.should == 'R14B02'
     end
   end
 

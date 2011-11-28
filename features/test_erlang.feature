@@ -4,7 +4,7 @@ Feature: Testing an Erlang project
    Given the following test payload
      | repository | travis-ci/travis-ci                                 |
      | commit     | 1234567                                             |
-     | config     | language: erlang, opt_release: R14B04, env: FOO=foo |
+     | config     | language: erlang, otp_release: R14B04, env: FOO=foo |
 
   Scenario: A successful build
     When it starts a job
