@@ -20,7 +20,7 @@ Feature: Testing a Clojure project
        | job:test:start  | started_at: [now]             |
        | job:test:log    | log: /Using worker/           |
        | job:test:log    | log: cd ~/builds              |
-       | job:test:log    | log: export FOO               |
+       | job:test:log    | log: export FOO=foo           |
        | job:test:log    | log: git clone                |
        | job:test:log    | log: cd travis-ci/travis-ci   |
        | job:test:log    | log: git checkout             |

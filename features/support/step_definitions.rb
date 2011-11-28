@@ -25,7 +25,7 @@ end
 Given /^the following test payload$/ do |table|
   hash = Hashr.new(table.rows_hash)
 
-  $payload = Hashr.new(
+  $paoyload = Hashr.new(
     :repository => { :slug => hash.repository },
     :build      => { :commit => hash.commit }
   )
@@ -66,7 +66,7 @@ end
 Then /^it exports the given environment variables$/ do
   if $payload.config.env?
     line = $payload.config.env
-    step "it exports #{line}"
+    step "it exports line #{line}"
   end
 end
 
@@ -88,10 +88,10 @@ Then /^it cds into the (.*)$/ do |dir|
            in_sequence($sequence)
 end
 
-Then /^it exports (.*)=(.*)$/ do |name, value|
-  $shell.expects(:export).
-           with(name, value).
-           outputs("export #{name}").
+Then /^it exports line (.+)$/ do |line|
+  $shell.expects(:export_line).
+           with(line).
+           outputs("export #{line}").
            in_sequence($sequence)
 end
 
