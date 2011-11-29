@@ -25,7 +25,7 @@ Feature: Testing a Php project
        | job:test:log    | log: git clone                |
        | job:test:log    | log: cd travis-ci/travis-ci   |
        | job:test:log    | log: git checkout             |
-       | job:test:log    | log: phpenv global php-5.3.6  |
+       | job:test:log    | log: phpenv global 5.3.6      |
        | job:test:log    | log: phpunit                  |
        | job:test:log    | log: /Done.* 0/               |
        | job:test:finish | finished_at: [now], status: 0 |
@@ -49,7 +49,7 @@ Feature: Testing a Php project
        #| job:test:log    | log: git clone                |
        #| job:test:log    | log: cd travis-ci/travis-ci   |
        #| job:test:log    | log: git checkout             |
-       #| job:test:log    | log: phpenv global php-5.3.6  |
+       #| job:test:log    | log: phpenv global 5.3.6  |
        #| job:test:log    | log: composer install --dev   |
        #| job:test:log    | log: phpunit                  |
        #| job:test:log    | log: /Done.* 0/               |

@@ -12,7 +12,7 @@ module Travis
           extend ActiveSupport::Memoizable
 
           def setup
-            shell.execute("phpenv global php-#{config.php}")
+            shell.execute("phpenv global #{config.php}")
           end
           assert :setup
 
