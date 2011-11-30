@@ -203,14 +203,14 @@ Then /^it has captured the following events$/ do |table|
   actual = $observer.events
 
   expected.each_with_index do |expected, ix|
-    actual[ix].name.should == expected.name
+    actual[ix][0].should == expected.name
 
     decode(expected.data).each do |key, value|
       case value
       when Regexp
-        actual[ix].data[key].should =~ value
+        actual[ix][1][key].should =~ value
       else
-        actual[ix].data[key].should == value
+        actual[ix][1][key].should == value
       end
     end
   end
