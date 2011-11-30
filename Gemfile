@@ -1,5 +1,7 @@
 source :rubygems
 
+gem 'travis-support', :git => 'git://github.com/travis-ci/travis-support.git'
+
 gem 'activesupport', '~> 3.1.2'
 gem 'hashr',         '~> 0.0.17'
 gem 'multi_json',    '~> 1.0.3'
