@@ -66,7 +66,7 @@ module Travis
 
       def notify(type, data)
         event = events.create(type, job, data)
-        observers.each { |observer| observer.notify(event) }
+        observers.each { |observer| observer.notify(event.name, event.data) }
       end
   end
 end

@@ -1,7 +1,7 @@
-RSpec::Matchers.define :include_event do |type, object, data|
+RSpec::Matchers.define :include_event do |type, data|
   match do |events|
     events.detect do |event|
-      type == event.type && object == event.object && match_event_data(data, event.data)
+      type == event.first && match_event_data(data, event.last)
     end
   end
 
