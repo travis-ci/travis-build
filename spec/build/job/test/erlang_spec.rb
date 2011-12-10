@@ -20,26 +20,46 @@ describe Travis::Build::Job::Test::Erlang do
   end
 
   describe 'install' do
-    it 'returns "./rebar get-deps" if a rebar.config file exists' do
-      job.expects(:rebar_configured?).returns(true)
-      job.install.should == './rebar get-deps'
+    context "when a rebar.config file exists" do
+      it 'returns "./rebar get-deps"' do
+        job.expects(:rebar_configured?).returns(true)
+        job.expects(:has_local_rebar?).returns(false)
+        job.install.should == 'rebar get-deps'
+      end
     end
 
-    it 'returns nil if no rebar.config file exists' do
-      job.expects(:rebar_configured?).returns(false)
-      job.install.should be_nil
+    context "when a rebar.config file DOES NOT exist" do
+      it 'returns nil' do
+        job.expects(:rebar_configured?).returns(false)
+        job.install.should be_nil
+      end
     end
   end
 
   describe 'script' do
-    it 'returns "./rebar compile && ./rebar skip_deps=true eunit" if a rebar.config file exists' do
-      job.expects(:rebar_configured?).returns(true)
-      job.send(:script).should == './rebar compile && ./rebar skip_deps=true eunit'
+    context "when a rebar.config file exists" do
+      context "and project DOES have local rebar (./rebar)" do
+        it 'returns "./rebar compile && ./rebar skip_deps=true eunit"' do
+          job.expects(:rebar_configured?).returns(true)
+          job.expects(:has_local_rebar?).returns(true)
+          job.send(:script).should == './rebar compile && ./rebar skip_deps=true eunit'
+        end
+      end
+
+      context "and project DOES NOT have local rebar (./rebar)" do
+        it 'returns "rebar compile && rebar skip_deps=true eunit"' do
+          job.expects(:rebar_configured?).returns(true)
+          job.expects(:has_local_rebar?).returns(false)
+          job.send(:script).should == 'rebar compile && rebar skip_deps=true eunit'
+        end
+      end
     end
 
-    it 'returns "make test" if a rebar.config file does not exist' do
-      job.expects(:rebar_configured?).returns(false)
-      job.send(:script).should == 'make test'
+    context "when a rebar.config file DOES NOT exist" do
+      it 'returns "make test"' do
+        job.expects(:rebar_configured?).returns(false)
+        job.send(:script).should == 'make test'
+      end
     end
   end
 end

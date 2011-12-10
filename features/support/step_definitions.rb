@@ -6,17 +6,17 @@ def decode(string)
     key, value = pair.split(':').map { |token| token.strip }
 
     value = case value
-    when '[now]'
-      Time.now.utc
-    when 'true', 'false'
-      eval(value)
-    when /^\/.*\/$/
-      eval(value)
-    when /^\d*$/
-      value.to_i
-    else
-      value
-    end
+            when '[now]'
+              Time.now.utc
+            when 'true', 'false'
+              eval(value)
+            when /^\/.*\/$/
+              eval(value)
+            when /^\d*$/
+              value.to_i
+            else
+              value
+            end
 
     result.merge(key => value)
   end.symbolize_keys
@@ -26,9 +26,9 @@ Given /^the following test payload$/ do |table|
   hash = Hashr.new(table.rows_hash)
 
   $payload = Hashr.new(
-    :repository => { :slug => hash.repository },
-    :build      => { :commit => hash.commit }
-  )
+                       :repository => { :slug => hash.repository },
+                       :build      => { :commit => hash.commit }
+                       )
   $payload.config = decode(hash.config) if hash.config?
 end
 
@@ -72,7 +72,7 @@ end
 
 Then /^it opens the ssh session$/ do
   $shell.expects(:connect).
-           in_sequence($sequence)
+    in_sequence($sequence)
 end
 
 Then /^it cds into the (.*)$/ do |dir|
@@ -83,38 +83,38 @@ Then /^it cds into the (.*)$/ do |dir|
   dir = dirs[dir]
 
   $shell.expects(:chdir).
-           with(dir).
-           outputs("cd #{dir}").
-           in_sequence($sequence)
+    with(dir).
+    outputs("cd #{dir}").
+    in_sequence($sequence)
 end
 
 Then /^it exports the line (.+)$/ do |line|
   $shell.expects(:export_line).
-           with(line).
-           outputs("export #{line}").
-           in_sequence($sequence)
+    with(line).
+    outputs("export #{line}").
+    in_sequence($sequence)
 end
 
 Then /^it silently disables interactive git auth$/ do
   $shell.expects(:export).
-           with('GIT_ASKPASS', 'echo', :echo => false).
-           in_sequence($sequence)
+    with('GIT_ASKPASS', 'echo', :echo => false).
+    in_sequence($sequence)
 end
 
 Then /^it (successfully|fails to) clones? the repository with git$/ do |result|
   $shell.expects(:execute).
-           with("git clone --depth=100 --quiet git://github.com/#{$payload.repository.slug}.git #{$payload.repository.slug}").
-           outputs('git clone').
-           returns(result == 'successfully').
-           in_sequence($sequence)
+    with("git clone --depth=100 --quiet git://github.com/#{$payload.repository.slug}.git #{$payload.repository.slug}").
+    outputs('git clone').
+    returns(result == 'successfully').
+    in_sequence($sequence)
 end
 
 Then /^it (successfully|fails to) checks? the commit out with git$/ do |result|
   $shell.expects(:execute).
-           with("git checkout -qf #{$payload.build.commit}").
-           outputs('git checkout').
-           returns(result == 'successfully').
-           in_sequence($sequence)
+    with("git checkout -qf #{$payload.build.commit}").
+    outputs('git checkout').
+    returns(result == 'successfully').
+    in_sequence($sequence)
 end
 
 Then /^it (successfully|fails to) switch(?:es)? to the (.*) version: (.*)$/ do |result, language, version|
@@ -128,16 +128,16 @@ Then /^it (successfully|fails to) switch(?:es)? to the (.*) version: (.*)$/ do |
 
   if language == 'ruby'
     $shell.expects(:evaluate).
-             with(cmd, :echo => true).
-             outputs(cmd).
-             returns(result == 'successfully' ? "Using #{version}" : "WARN: #{version} is not installed").
-             in_sequence($sequence)
+      with(cmd, :echo => true).
+      outputs(cmd).
+      returns(result == 'successfully' ? "Using #{version}" : "WARN: #{version} is not installed").
+      in_sequence($sequence)
   else
     $shell.expects(:execute).
-             with(cmd).
-             outputs(cmd).
-             returns(result == 'successfully').
-             in_sequence($sequence)
+      with(cmd).
+      outputs(cmd).
+      returns(result == 'successfully').
+      in_sequence($sequence)
   end
 end
 
@@ -152,46 +152,53 @@ Then /^it (finds|does not find) the file (.*)$/ do |result, filenames|
   filenames = filenames.split(/, | or /).map { |filename| filename.strip }
   filenames.each do |filename|
     $shell.expects(:file_exists?).
-             with(filename).
-             returns(result == 'finds').
-             in_sequence($sequence)
+      with(filename).
+      returns(result == 'finds').
+      in_sequence($sequence)
   end
+end
+
+Then /^there is no local rebar in the repository$/ do
+  $build.stubs(:has_local_rebar?).returns(false)
+  $shell.stubs(:file_exists?).
+    with("rebar").
+    returns(false)
 end
 
 Then /^it evaluates the current working directory$/ do
   $shell.expects(:cwd).
-           returns("~/builds/#{$payload.repository.slug}").
-           in_sequence($sequence)
+    returns("~/builds/#{$payload.repository.slug}").
+    in_sequence($sequence)
 end
 
 Then /^it (successfully|fails to) installs? the (.*)$/ do |result, dependencies|
   cmds = {
     'bundle' => 'bundle install',
     'lein dependencies' => 'lein deps',
-    'rebar dependencies' => './rebar get-deps',
+    'rebar dependencies' => 'rebar get-deps',
     'npm packages' => 'npm install --dev',
     'composer packages' => 'composer install --dev'
   }
   cmd = cmds[dependencies]
 
   $shell.expects(:execute).
-           with(cmd, :timeout => :install).
-           outputs(cmd).
-           returns(result == 'successfully').
-           in_sequence($sequence)
+    with(cmd, :timeout => :install).
+    outputs(cmd).
+    returns(result == 'successfully').
+    in_sequence($sequence)
 end
 
 Then /^it (successfully|fails to) runs? the (.*): (.*)$/ do |result, type, command|
   $shell.expects(:execute).
-           with(command, :timeout => type.to_sym).
-           outputs(command).
-           returns(result == 'successfully').
-           in_sequence($sequence)
+    with(command, :timeout => type.to_sym).
+    outputs(command).
+    returns(result == 'successfully').
+    in_sequence($sequence)
 end
 
 Then /^it closes the ssh session$/ do
   $shell.expects(:close).
-           in_sequence($sequence)
+    in_sequence($sequence)
 end
 
 Then /^it returns the status (.*)$/ do |result|

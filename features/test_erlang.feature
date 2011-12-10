@@ -30,14 +30,15 @@ Feature: Testing an Erlang project
        | job:test:log    | log: /Done.* 0/                               |
        | job:test:finish | finished_at: [now], status: 0                 |
 
-  Scenario: A successful build with a rebar.config file
+  Scenario: A successful build with system-wide rebar
     When it starts a job
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it successfully switches to the erlang version: R14B04
+     And there is no local rebar in the repository
      And it finds a file rebar.config and successfully installs the rebar dependencies
-     And it successfully runs the script: ./rebar compile && ./rebar skip_deps=true eunit
+     And it successfully runs the script: rebar compile && rebar skip_deps=true eunit
      And it closes the ssh session
      And it returns the status 0
      And it has captured the following events
@@ -50,7 +51,7 @@ Feature: Testing an Erlang project
        | job:test:log    | log: cd travis-ci/travis-ci   |
        | job:test:log    | log: git checkout             |
        | job:test:log    | log: /activate/               |
-       | job:test:log    | log: ./rebar get-deps         |
+       | job:test:log    | log: rebar get-deps           |
        | job:test:log    | log: /eunit/                  |
        | job:test:log    | log: /Done.* 0/               |
        | job:test:finish | finished_at: [now], status: 0 |
@@ -79,12 +80,13 @@ Feature: Testing an Erlang project
      And it closes the ssh session
      And it returns the status 1
 
-  Scenario: The bundle can not be installed
+  Scenario: dependencies cannot be installed
     When it starts a job
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it successfully switches to the erlang version: R14B04
+     And there is no local rebar in the repository
      And it finds a file rebar.config but fails to install the rebar dependencies
      And it closes the ssh session
      And it returns the status 1
