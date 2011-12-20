@@ -19,7 +19,7 @@ describe Travis::Build::Job::Test::Ruby do
   describe 'setup' do
     it 'switches to the given ruby version' do
       config.rvm = 'rbx'
-      shell.expects(:evaluate).with('rvm use rbx', :echo => true)
+      shell.expects(:execute).with('rvm use rbx', :echo => true).returns(true)
       job.setup
     end
 
@@ -30,7 +30,7 @@ describe Travis::Build::Job::Test::Ruby do
 
     it 'raises AssertionFailed when rvm outputs an ERROR string' do
       config.rvm = 'rbx'
-      shell.expects(:evaluate).with('rvm use rbx', :echo => true).returns('ERROR: Unknown ruby interpreter version')
+      shell.expects(:execute).with('rvm use rbx', :echo => true).returns(false)
       lambda { job.setup }.should raise_error(Travis::AssertionFailed)
     end
 

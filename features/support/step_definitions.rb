@@ -126,19 +126,14 @@ Then /^it (successfully|fails to) switch(?:es)? to the (.*) version: (.*)$/ do |
   }
   cmd = cmds[language.gsub('.', '')]
 
-  if language == 'ruby'
-    $shell.expects(:evaluate).
-      with(cmd, :echo => true).
-      outputs(cmd).
-      returns(result == 'successfully' ? "Using #{version}" : "WARN: #{version} is not installed").
-      in_sequence($sequence)
-  else
-    $shell.expects(:execute).
-      with(cmd).
-      outputs(cmd).
-      returns(result == 'successfully').
-      in_sequence($sequence)
-  end
+  options = nil
+  options = { :echo => true } if language == 'ruby'
+
+  $shell.expects(:execute).
+    with(cmd, options).
+    outputs(cmd).
+    returns(result == 'successfully').
+    in_sequence($sequence)
 end
 
 Then /it announces active Ruby version/ do
