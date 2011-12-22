@@ -12,9 +12,9 @@ module Travis
           extend ActiveSupport::Memoizable
 
           def setup
-            shell.execute("phpenv global #{config.php}")
+            setup_php
+            announce_php
           end
-          assert :setup
 
           def install
             "composer install #{config.composer_args}".strip if composer?
@@ -26,11 +26,20 @@ module Travis
 
           protected
 
+            def setup_php
+              shell.execute("phpenv global #{config.php}")
+            end
+            assert :setup_php
+
             def composer?
               shell.file_exists?('composer.json')
               false
             end
             memoize :composer?
+
+            def announce_php
+              shell.execute("php --version")
+            end
         end
       end
     end

@@ -136,10 +136,16 @@ Then /^it (successfully|fails to) switch(?:es)? to the (.*) version: (.*)$/ do |
     in_sequence($sequence)
 end
 
-Then /it announces active Ruby version/ do
+Then /it announces active (.*) version/ do |language|
+  cmds = {
+    'ruby' => 'ruby --version',
+    'php'  => 'php --version'
+  }
+  cmd = cmds[language]
+
   $shell.expects(:execute).
-    with("ruby --version").
-    outputs("ruby --version").
+    with(cmd).
+    outputs(cmd).
     in_sequence($sequence)
 end
 
