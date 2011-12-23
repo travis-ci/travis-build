@@ -12,6 +12,7 @@ Feature: Testing a Php project
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it successfully switches to the php version: 5.3.6
+     And it announces active php version
      And it does not find the file composer.json
      And it successfully runs the script: phpunit
      And it closes the ssh session
@@ -26,6 +27,7 @@ Feature: Testing a Php project
        | job:test:log    | log: cd travis-ci/travis-ci   |
        | job:test:log    | log: git checkout             |
        | job:test:log    | log: phpenv global 5.3.6      |
+       | job:test:log    | log: php --version            |
        | job:test:log    | log: phpunit                  |
        | job:test:log    | log: /Done.* 0/               |
        | job:test:finish | finished_at: [now], status: 0 |
@@ -36,6 +38,7 @@ Feature: Testing a Php project
      #And it successfully clones the repository to the build dir with git
      #And it successfully checks out the commit with git to the repository directory
      #And it successfully switches to the php version: 5.3.6
+     #And it announces active php version
      #And it finds a file composer.json and successfully installs the composer packages
      #And it successfully runs the script: phpunit
      #And it closes the ssh session
@@ -95,6 +98,7 @@ Feature: Testing a Php project
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it successfully switches to the php version: 5.3.6
+     And it announces active php version
      And it does not find the file composer.json
      And it fails to run the script: phpunit
      And it closes the ssh session
