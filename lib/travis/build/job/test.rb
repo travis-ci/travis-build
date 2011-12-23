@@ -104,7 +104,7 @@ module Travis
             end
           rescue Timeout::Error => e
             timeout  = shell.timeout(category)
-            shell.echo "\n\n#{category}: Execution of '#{command}' took longer than #{timeout} seconds and was terminated. Consider rewriting your stuff in AssemblyScript, we've heard it handles Web Scale\u2122\n\n"
+            shell.echo "\n\n#{category}: Execution of '#{command}' took longer than #{timeout} seconds and was terminated. Consider rewriting your stuff in AssemblyScript, we've heard it handles Web Scale\342\204\242\n\n"
             false
           end
 
