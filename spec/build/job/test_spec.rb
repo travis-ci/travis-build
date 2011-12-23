@@ -200,7 +200,7 @@ describe Travis::Build::Job::Test do
 
       shell.expects(:timeout).with(:before_script).returns(300)
       shell.expects(:execute).with('./before', { :timeout => :before_script }).raises(Timeout::Error)
-      shell.expects(:echo).with("\n\nbefore_script: Execution of './before' took longer than 300 seconds and was terminated. Consider rewriting your stuff in AssemblyScript, we've heard it handles Web Scale\u2122\n\n")
+      shell.expects(:echo).with("\n\nbefore_script: Execution of './before' took longer than 300 seconds and was terminated. Consider rewriting your stuff in AssemblyScript, we've heard it handles Web Scale\342\204\242\n\n")
 
       job.send(:run_command, './before', { :category => :before_script })
     end
