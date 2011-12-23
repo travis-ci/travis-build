@@ -1,5 +1,6 @@
 require 'active_support/inflector/methods'
 require 'active_support/core_ext/object/blank'
+require 'timeout'
 
 # # rake and fileutils might be mixed into the global namespace, defining :install
 # class Hashr; undef :install; end
@@ -82,23 +83,34 @@ module Travis
           assert :checkout
 
           def run_commands
-            COMMANDS.each do |type|
-              next unless command = self.command(type)
-              if command && !run_command(command, :timeout => type.to_sym)
-                shell.echo "#{type}: #{command} returned false." unless type == 'script'
-                return false
-              end
+            COMMANDS.each do |category|
+              return false unless run_commands_for_category(category)
             end && true
           end
 
-          def run_command(script, options = {})
-            Array(script).each do |script|
-              return false unless shell.execute(script, options)
+          def run_commands_for_category(category)
+            commands(category).each do |command|
+              return false unless run_command(command, :category => category.to_sym)
             end && true
           end
 
-          def command(type)
-            config[type] || (respond_to?(type, true) ? send(type) : nil)
+          def run_command(command, options = {})
+            category = options[:category]
+            unless shell.execute(command, :timeout => category)
+              shell.echo "\n\n#{category}: '#{command}' returned false." unless category == :script
+              false
+            else
+              true
+            end
+          rescue Timeout::Error => e
+            timeout  = shell.timeout(category)
+            shell.echo "\n\n#{category}: Execution of '#{command}' took longer than #{timeout} seconds and was terminated. Consider rewriting your stuff in AssemblyScript, we've heard it handles Web Scale\u2122\n\n"
+            false
+          end
+
+          def commands(type)
+            commands = config[type] || (respond_to?(type, true) ? send(type) : nil)
+            Array(commands)
           end
       end
     end
