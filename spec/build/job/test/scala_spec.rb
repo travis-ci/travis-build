@@ -22,7 +22,7 @@ describe Travis::Build::Job::Test::Scala do
   end
 
   describe 'script' do
-    it 'returns "sbt ++2.8.2 test if configured for sbt and scala version is set to 2.8.2"' do
+    it 'returns "sbt ++2.8.2 test" if configured for sbt and scala version is set to 2.8.2' do
       config.scala = '2.8.2'
       job.expects(:configured_for_sbt?).returns(true)
       job.send(:script).should == 'sbt ++2.8.2 test'
