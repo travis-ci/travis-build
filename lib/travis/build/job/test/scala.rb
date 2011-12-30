@@ -22,7 +22,11 @@ module Travis
           end
 
           def script
-            "sbt ++#{config.scala} test" if configured_for_sbt?
+            if configured_for_sbt?
+              "sbt ++#{config.scala} test" 
+            else
+              "make test"
+            end
           end
 
           protected

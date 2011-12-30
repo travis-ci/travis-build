@@ -28,9 +28,9 @@ describe Travis::Build::Job::Test::Scala do
       job.send(:script).should == 'sbt ++2.8.2 test'
     end
 
-    it 'returns nil if not configured for sbt' do
+    it 'returns "make test" if not configured for sbt' do
       job.expects(:configured_for_sbt?).returns(false)
-      job.script.should be_nil
+      job.send(:script).should == 'make test'
     end
   end
 
