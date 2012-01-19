@@ -22,7 +22,7 @@ module Travis
           end
 
           def script
-            if configured_for_sbt?
+            if uses_sbt?
               "sbt ++#{config.scala} test"
             else
               "mvn test"
@@ -31,10 +31,10 @@ module Travis
 
           protected
 
-          def configured_for_sbt?
+          def uses_sbt?
             shell.file_exists?('project') || shell.file_exists?('build.sbt')
           end
-          memoize :configured_for_sbt?
+          memoize :uses_sbt?
 
           def define_scala
             # export expected Scala version in an environment variable as helper
