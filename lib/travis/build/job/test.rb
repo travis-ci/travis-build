@@ -9,12 +9,13 @@ module Travis
   class Build
     module Job
       class Test
-        autoload :Clojure, 'travis/build/job/test/clojure'
-        autoload :Erlang,  'travis/build/job/test/erlang'
-        autoload :NodeJs,  'travis/build/job/test/node_js'
-        autoload :Php,     'travis/build/job/test/php'
-        autoload :Ruby,    'travis/build/job/test/ruby'
-        autoload :Scala,   'travis/build/job/test/scala'
+        autoload :Clojure,  'travis/build/job/test/clojure'
+        autoload :Erlang,   'travis/build/job/test/erlang'
+        autoload :PureJava, 'travis/build/job/test/pure_java'
+        autoload :NodeJs,   'travis/build/job/test/node_js'
+        autoload :Php,      'travis/build/job/test/php'
+        autoload :Ruby,     'travis/build/job/test/ruby'
+        autoload :Scala,    'travis/build/job/test/scala'
 
         COMMANDS = %w(before_install install before_script script after_script)
 
@@ -25,7 +26,11 @@ module Travis
 
         class << self
           def by_lang(lang)
-            lang = lang || 'ruby'
+            lang = (lang || 'ruby').downcase
+            # Java builder cannot follow typical conventions
+            # because JRuby won't let us use a class named "Java". MK.
+            return Job::Test::PureJava if lang == "java"
+
             args = [ActiveSupport::Inflector.camelize(lang.downcase)]
             args << false if Kernel.method(:const_get).arity == -1
             Job::Test.const_get(*args) rescue Job::Test::Ruby
