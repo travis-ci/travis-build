@@ -17,11 +17,11 @@ module Travis
           assert :setup
 
           def install
-            "#{rebar} get-deps" if rebar_configured?
+            "#{rebar} get-deps" if uses_rebar?
           end
 
           def script
-            if rebar_configured?
+            if uses_rebar?
               "#{rebar} compile && #{rebar} skip_deps=true eunit"
             else
               'make test'
@@ -30,10 +30,10 @@ module Travis
 
           protected
 
-          def rebar_configured?
+          def uses_rebar?
             shell.file_exists?('rebar.config') || shell.file_exists?('Rebar.config')
           end
-          memoize :rebar_configured?
+          memoize :uses_rebar?
 
           def rebar
             if has_local_rebar?
