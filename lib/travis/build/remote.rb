@@ -16,7 +16,7 @@ module Travis
         @vm = vm
         @shell = shell
 
-        @output_length_limit = LengthLimit.new(150)
+        @output_length_limit = LengthLimit.new(BUILD_LOG_LENGTH_LIMIT)
         @injected_log_trimming_message = false
       end
 
