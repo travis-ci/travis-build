@@ -16,7 +16,9 @@ module Travis
 
           def install
             if uses_maven?
-              "mvn install"
+              # otherwise mvn install will run tests
+              # and we do not want it. Per suggestion from Charles Nutter. MK.
+              "mvn install -DskipTests=true"
             end
           end
 

@@ -10,7 +10,7 @@ describe Travis::Build::Job::Test::PureJava do
     context "when project uses Maven" do
       it 'returns "mvn install"' do
         job.expects(:uses_maven?).returns(true)
-        job.install.should == 'mvn install'
+        job.install.should == 'mvn install -DskipTests=true'
       end
     end
 
