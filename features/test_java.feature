@@ -28,6 +28,28 @@ Feature: Testing a Java project
        | job:test:log    | log: mvn install              |
        | job:test:log    | log: mvn test                 |
        | job:test:log    | log: /Done.* 0/               |
+       | job:test:finish | finished_at: [now], status: 0 | 
+
+  Scenario: A successful build with Ant fallback
+    When it starts a job
+    Then it exports the given environment variables
+     And it successfully clones the repository to the build dir with git
+     And it successfully checks out the commit with git to the repository directory
+     And it does not find the file pom.xml
+     And it successfully runs the script: ant test
+     And it closes the ssh session
+     And it returns the status 0
+     And it has captured the following events
+       | name            | data                          |
+       | job:test:start  | started_at: [now]             |
+       | job:test:log    | log: /Using worker/           |
+       | job:test:log    | log: cd ~/builds              |
+       | job:test:log    | log: export FOO=foo           |
+       | job:test:log    | log: git clone                |
+       | job:test:log    | log: cd travis-ci/travis-ci   |
+       | job:test:log    | log: git checkout             |
+       | job:test:log    | log: ant test                 |
+       | job:test:log    | log: /Done.* 0/               |
        | job:test:finish | finished_at: [now], status: 0 |
 
   Scenario: The repository can not be cloned
