@@ -13,7 +13,7 @@ module Travis
 
           def setup
             define_scala
-            # version is switched by sbt "++<scala-version>" parameter in 'script' step 
+            # version is switched by sbt "++<scala-version>" parameter in 'script' step
           end
 
           def install
@@ -23,9 +23,9 @@ module Travis
 
           def script
             if configured_for_sbt?
-              "sbt ++#{config.scala} test" 
+              "sbt ++#{config.scala} test"
             else
-              "make test"
+              "mvn test"
             end
           end
 
@@ -39,7 +39,7 @@ module Travis
           def define_scala
             # export expected Scala version in an environment variable as helper
             # for cross-version build in custom scripts (ant, maven, local sbt,...)
-            shell.export_line("SCALA_VERSION=#{config.scala}") 
+            shell.export_line("SCALA_VERSION=#{config.scala}")
             shell.echo("Expect to build with Scala #{config.scala}")
           end
 

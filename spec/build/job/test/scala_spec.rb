@@ -22,16 +22,19 @@ describe Travis::Build::Job::Test::Scala do
   end
 
   describe 'script' do
-    it 'returns "sbt ++2.8.2 test" if configured for sbt and scala version is set to 2.8.2' do
-      config.scala = '2.8.2'
-      job.expects(:configured_for_sbt?).returns(true)
-      job.send(:script).should == 'sbt ++2.8.2 test'
+    context "when configured to use SBT 2.8.2" do
+      it 'returns "sbt ++2.8.2 test"' do
+        config.scala = '2.8.2'
+        job.expects(:configured_for_sbt?).returns(true)
+        job.send(:script).should == 'sbt ++2.8.2 test'
+      end
     end
 
-    it 'returns "make test" if not configured for sbt' do
-      job.expects(:configured_for_sbt?).returns(false)
-      job.send(:script).should == 'make test'
+    context "when SBT is not used by the project" do
+      it 'falls back to Maven' do
+        job.expects(:configured_for_sbt?).returns(false)
+        job.send(:script).should == 'mvn test'
+      end
     end
   end
-
 end
