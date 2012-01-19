@@ -1,3 +1,5 @@
+require "travis/build/length_limit"
+
 module Travis
   class Build
     class Remote < Build
@@ -14,7 +16,7 @@ module Travis
         @vm = vm
         @shell = shell
 
-        @output_length = 0
+        @output_length_limit = LengthLimit.new(150)
         @injected_log_trimming_message = false
       end
 
@@ -23,7 +25,7 @@ module Travis
       end
 
       def drop_log_output?
-        @output_length >= BUILD_LOG_LENGTH_LIMIT
+        @output_length_limit.hit?
       end
 
       def name
@@ -54,7 +56,7 @@ module Travis
 
       def inject_log_limit_message!
         log("\n\n")
-        log("[WARNING] Build log length has exceeded the limit (2 MB). This usually means that test suite is raising the same exception over and over. Trimming all subsequent output.")
+        log("[WARNING] Build log length has exceeded the limit (2 MB). This usually means that test suite is raising the same exception over and over. Ignoring all subsequent output.")
         log("\n\n")
 
         @injected_log_trimming_message = true
@@ -67,7 +69,7 @@ module Travis
           log(output, options)
         end
 
-          @output_length += output.length
+        @output_length_limit.update(output)
       end
 
       def on_output(output, options = {})
