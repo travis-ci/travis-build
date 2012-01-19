@@ -36,6 +36,10 @@ describe Travis::Build::Job::Test do
     it 'returns Travis::Build::Job::Test::Php for "php"' do
       Travis::Build::Job::Test.by_lang('php').should == Travis::Build::Job::Test::Php
     end
+
+    it 'returns Travis::Build::Job::Test::Scala for "scala"' do
+      Travis::Build::Job::Test.by_lang('scala').should == Travis::Build::Job::Test::Scala
+    end
   end
 
   describe 'run' do
