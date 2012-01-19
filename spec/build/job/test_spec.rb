@@ -19,14 +19,23 @@ describe Travis::Build::Job::Test do
 
     it 'returns Travis::Build::Job::Test::Ruby for "ruby"' do
       Travis::Build::Job::Test.by_lang('ruby').should == Travis::Build::Job::Test::Ruby
+      Travis::Build::Job::Test.by_lang('Ruby').should == Travis::Build::Job::Test::Ruby
     end
 
     it 'returns Travis::Build::Job::Test::Clojure for "clojure"' do
       Travis::Build::Job::Test.by_lang('clojure').should == Travis::Build::Job::Test::Clojure
+      Travis::Build::Job::Test.by_lang('Clojure').should == Travis::Build::Job::Test::Clojure
     end
 
     it 'returns Travis::Build::Job::Test::Erlang for "erlang"' do
       Travis::Build::Job::Test.by_lang('erlang').should == Travis::Build::Job::Test::Erlang
+      Travis::Build::Job::Test.by_lang('Erlang').should == Travis::Build::Job::Test::Erlang
+    end
+
+    # JRuby won't let us use a class named Java. MK.
+    it 'returns Travis::Build::Job::Test::PureJava for "java"' do
+      Travis::Build::Job::Test.by_lang('java').should == Travis::Build::Job::Test::PureJava
+      Travis::Build::Job::Test.by_lang('JAVA').should == Travis::Build::Job::Test::PureJava
     end
 
     it 'returns Travis::Build::Job::Test::NodeJs for "node_js"' do
@@ -35,10 +44,12 @@ describe Travis::Build::Job::Test do
 
     it 'returns Travis::Build::Job::Test::Php for "php"' do
       Travis::Build::Job::Test.by_lang('php').should == Travis::Build::Job::Test::Php
+      Travis::Build::Job::Test.by_lang('PHP').should == Travis::Build::Job::Test::Php
     end
 
     it 'returns Travis::Build::Job::Test::Scala for "scala"' do
       Travis::Build::Job::Test.by_lang('scala').should == Travis::Build::Job::Test::Scala
+      Travis::Build::Job::Test.by_lang('Scala').should == Travis::Build::Job::Test::Scala
     end
   end
 

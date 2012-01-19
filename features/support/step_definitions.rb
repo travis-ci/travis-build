@@ -174,11 +174,12 @@ end
 
 Then /^it (successfully|fails to) installs? the (.*)$/ do |result, dependencies|
   cmds = {
-    'bundle' => 'bundle install',
-    'lein dependencies' => 'lein deps',
+    'bundle'             => 'bundle install',
+    'lein dependencies'  => 'lein deps',
+    'maven dependencies' => 'mvn install',
     'rebar dependencies' => 'rebar get-deps',
-    'npm packages' => 'npm install --dev',
-    'composer packages' => 'composer install --dev'
+    'npm packages'       => 'npm install --dev',
+    'composer packages'  => 'composer install --dev'
   }
   cmd = cmds[dependencies]
 
