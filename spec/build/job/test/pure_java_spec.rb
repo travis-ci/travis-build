@@ -14,24 +14,44 @@ describe Travis::Build::Job::Test::PureJava do
       end
     end
 
-    it 'does not do anything if project does not use Maven' do
-      job.expects(:uses_maven?).returns(false)
-      job.install.should be_nil
+    context "when project uses Gradle" do
+      it 'returns "gradle assemble"' do
+        job.expects(:uses_maven?).returns(false)
+        job.expects(:uses_gradle?).returns(true)
+        job.install.should == 'gradle assemble'
+      end
+    end
+
+    context "when neither Maven nor Gradle are used by the project" do
+      it 'does not do anything' do
+        job.expects(:uses_maven?).returns(false)
+        job.expects(:uses_gradle?).returns(false)
+        job.install.should be_nil
+      end
     end
   end
 
 
   describe 'script' do
-    context "when configured to use Maven" do
+    context "when project uses Maven (pom.xml is available)" do
       it 'returns "mvn test"' do
         job.expects(:uses_maven?).returns(true)
         job.send(:script).should == 'mvn test'
       end
     end
 
-    context "when Maven is not used by the project" do
+    context "when project uses Gradle (build.gradle is available)" do
+      it 'returns "gradle test"' do
+        job.expects(:uses_maven?).returns(false)
+        job.expects(:uses_gradle?).returns(true)
+        job.send(:script).should == 'gradle check'
+      end
+    end
+
+    context "when neither Maven nor Gradle are used by the project" do
       it 'falls back to Ant' do
         job.expects(:uses_maven?).returns(false)
+        job.expects(:uses_gradle?).returns(false)
         job.send(:script).should == 'ant test'
       end
     end
