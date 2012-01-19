@@ -14,6 +14,7 @@ module Travis
         autoload :NodeJs,  'travis/build/job/test/node_js'
         autoload :Php,     'travis/build/job/test/php'
         autoload :Ruby,    'travis/build/job/test/ruby'
+        autoload :Scala,   'travis/build/job/test/scala'
 
         COMMANDS = %w(before_install install before_script script after_script)
 
