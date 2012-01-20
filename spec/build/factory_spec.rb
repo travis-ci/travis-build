@@ -102,6 +102,20 @@ describe Travis::Build::Factory do
       end
     end
 
+    describe 'with "PHP" given as a language' do
+      before :each do
+        payload['config']['language'] = 'PHP'
+      end
+
+      it 'uses a Job::Test::Php instance' do
+        job.should be_a(Travis::Build::Job::Test::Php)
+      end
+
+      it 'uses a Job::Test::Php::Config instance' do
+        job.config.should be_a(Travis::Build::Job::Test::Php::Config)
+      end
+    end
+
     describe 'the test job' do
       it 'has a shell' do
         job.shell.should == shell
