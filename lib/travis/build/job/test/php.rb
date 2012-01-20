@@ -17,7 +17,7 @@ module Travis
           end
 
           def install
-            "composer install #{config.composer_args}".strip if composer?
+            "composer install #{config.composer_args}".strip if uses_composer?
           end
 
           def script
@@ -31,11 +31,11 @@ module Travis
             end
             assert :setup_php
 
-            def composer?
+            def uses_composer?
               shell.file_exists?('composer.json')
               false
             end
-            memoize :composer?
+            memoize :uses_composer?
 
             def announce_php
               shell.execute("php --version")

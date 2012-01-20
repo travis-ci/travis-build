@@ -26,12 +26,12 @@ describe Travis::Build::Job::Test::Php do
 
   describe 'install' do
     it 'returns "composer install --dev" if a composer file exists' do
-      job.expects(:composer?).returns(true)
+      job.expects(:uses_composer?).returns(true)
       job.install.should == 'composer install --dev'
     end
 
     it 'returns nil if the composer file does not exist' do
-      job.expects(:composer?).returns(false)
+      job.expects(:uses_composer?).returns(false)
       job.install.should be_nil
     end
   end
