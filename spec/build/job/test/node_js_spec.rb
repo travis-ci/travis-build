@@ -25,24 +25,24 @@ describe Travis::Build::Job::Test::NodeJs do
 
   describe 'install' do
     it 'returns "npm install --dev" if a package file exists' do
-      job.expects(:npm?).returns(true)
+      job.expects(:uses_npm?).returns(true)
       job.install.should == 'npm install --dev'
     end
 
     it 'does not try to install the package if no package file exists' do
-      job.expects(:npm?).returns(false)
+      job.expects(:uses_npm?).returns(false)
       job.install.should be_nil
     end
   end
 
   describe 'script' do
     it 'returns "npm test" if a package file exists' do
-      job.expects(:npm?).returns(true)
+      job.expects(:uses_npm?).returns(true)
       job.send(:script).should == 'npm test'
     end
 
     it 'returns "make test" if a package file does not exist' do
-      job.expects(:npm?).returns(false)
+      job.expects(:uses_npm?).returns(false)
       job.send(:script).should == 'make test'
     end
   end

@@ -7,7 +7,10 @@ module Travis
         class NodeJs < Test
           class Config < Hashr
             define :node_js => '0.4'
-            def nodejs; self[:node_js]; end # TODO legacy
+            def nodejs
+              # some old projects use language: nodejs. MK.
+              self[:node_js]
+            end
           end
 
           extend ActiveSupport::Memoizable
@@ -18,19 +21,19 @@ module Travis
           assert :setup
 
           def install
-            "npm install #{config.npm_args}".strip if npm?
+            "npm install #{config.npm_args}".strip if uses_npm?
           end
 
           def script
-            npm? ? 'npm test' : 'make test'
+            uses_npm? ? 'npm test' : 'make test'
           end
 
           protected
 
-            def npm?
+            def uses_npm?
               shell.file_exists?('package.json')
             end
-            memoize :npm?
+            memoize :uses_npm?
         end
       end
     end
