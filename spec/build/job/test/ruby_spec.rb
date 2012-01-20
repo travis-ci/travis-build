@@ -35,14 +35,14 @@ describe Travis::Build::Job::Test::Ruby do
     end
 
     it 'configures bundler to use the given gemfile if it exists' do
-      job.expects(:gemfile?).returns(true)
+      job.expects(:uses_bundler?).returns(true)
       shell.expects(:cwd).returns('~/builds')
       shell.expects(:export_line).with('BUNDLE_GEMFILE=~/builds/Gemfile')
       job.setup
     end
 
     it 'does not configure bundler if the given gemfile does not exist' do
-      job.expects(:gemfile?).returns(false)
+      job.expects(:uses_bundler?).returns(false)
       shell.expects(:export_line).never
       job.setup
     end
@@ -50,24 +50,24 @@ describe Travis::Build::Job::Test::Ruby do
 
   describe 'install' do
     it 'returns "bundle install --binstubs" if the given gemfile exists' do
-      job.expects(:gemfile?).returns(true)
+      job.expects(:uses_bundler?).returns(true)
       job.install.should == "bundle install --binstubs"
     end
 
     it 'returns nil if the given gemfile does not exist' do
-      job.expects(:gemfile?).returns(false)
+      job.expects(:uses_bundler?).returns(false)
       job.install.should be_nil
     end
   end
 
   describe 'script' do
     it 'returns "bundle exec rake" if a gemfile exists' do
-      job.expects(:gemfile?).returns(true)
+      job.expects(:uses_bundler?).returns(true)
       job.send(:script).should == 'bundle exec rake'
     end
 
     it 'returns "rake" if a gemfile does not exist' do
-      job.expects(:gemfile?).returns(false)
+      job.expects(:uses_bundler?).returns(false)
       job.send(:script).should == 'rake'
     end
   end

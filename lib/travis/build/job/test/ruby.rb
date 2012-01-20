@@ -15,15 +15,15 @@ module Travis
           def setup
             setup_ruby
             announce_ruby
-            setup_bundler if gemfile?
+            setup_bundler if uses_bundler?
           end
 
           def install
-            "bundle install #{config.bundler_args}".strip if gemfile?
+            "bundle install #{config.bundler_args}".strip if uses_bundler?
           end
 
           def script
-            gemfile? ? 'bundle exec rake' : 'rake'
+            uses_bundler? ? 'bundle exec rake' : 'rake'
           end
 
           protected
@@ -37,10 +37,10 @@ module Travis
               shell.export_line("BUNDLE_GEMFILE=#{shell.cwd}/#{config.gemfile}")
             end
 
-            def gemfile?
+            def uses_bundler?
               shell.file_exists?(config.gemfile)
             end
-            memoize :gemfile?
+            memoize :uses_bundler?
 
             def announce_ruby
               shell.execute("ruby --version")
