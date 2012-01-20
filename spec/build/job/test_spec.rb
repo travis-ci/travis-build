@@ -201,23 +201,27 @@ describe Travis::Build::Job::Test do
       job.send(:run_command, './foo', { :category => :script }).should be_false
     end
 
-    it 'echos a message to the shell if a before_script has failed' do
-      job.config.before_script = './before'
+    context "when a before_script has failed" do
+      it 'echos a message to the shell' do
+        job.config.before_script = './before'
 
-      shell.expects(:execute).with('./before', { :timeout => :before_script }).returns(false)
-      shell.expects(:echo).with("\n\nbefore_script: './before' returned false.")
+        shell.expects(:execute).with('./before', { :timeout => :before_script }).returns(false)
+        shell.expects(:echo).with("\n\nbefore_script: './before' returned false.")
 
-      job.send(:run_command, './before', { :category => :before_script })
+        job.send(:run_command, './before', { :category => :before_script })
+      end
     end
 
-    it 'echos a message to the shell if a before_script has failed' do
-      job.config.before_script = './before'
+    context "when a before_script has timed out" do
+      it 'echos a message to the shell' do
+        job.config.before_script = './before'
 
-      shell.expects(:timeout).with(:before_script).returns(300)
-      shell.expects(:execute).with('./before', { :timeout => :before_script }).raises(Timeout::Error)
-      shell.expects(:echo).with("\n\nbefore_script: Execution of './before' took longer than 300 seconds and was terminated. Consider rewriting your stuff in AssemblyScript, we've heard it handles Web Scale\342\204\242\n\n")
+        shell.expects(:timeout).with(:before_script).returns(300)
+        shell.expects(:execute).with('./before', { :timeout => :before_script }).raises(Timeout::Error)
+        shell.expects(:echo).with("\n\nbefore_script: Execution of './before' took longer than 300 seconds and was terminated. Consider rewriting your stuff in AssemblyScript, we've heard it handles Web Scale\342\204\242\n\n")
 
-      job.send(:run_command, './before', { :category => :before_script })
+        job.send(:run_command, './before', { :category => :before_script })
+      end
     end
   end
 end
