@@ -53,13 +53,13 @@ Then /^it (successfully|fails to) checks? out the commit with git to the reposit
   step "it #{result} checks the commit out with git"
 end
 
-Then /^it finds a file (.*) (?:and|but) (successfully|fails to) installs? the (.*)$/ do |filename, result, dependencies|
+Then /^it finds a file (.*) (?:and|but) (successfully|fails to) installs? dependencies with (.*)$/ do |filename, result, tool|
   step "it finds the file #{filename}"
-  if dependencies == 'bundle'
+  if tool == 'bundle'
     step 'it evaluates the current working directory'
     step "it exports the line BUNDLE_GEMFILE=~/builds/travis-ci/travis-ci/#{filename}"
   end
-  step "it #{result} installs the #{dependencies}"
+  step "it #{result} installs dependencies with #{tool}"
 end
 
 
@@ -172,15 +172,16 @@ Then /^it evaluates the current working directory$/ do
     in_sequence($sequence)
 end
 
-Then /^it (successfully|fails to) installs? the (.*)$/ do |result, dependencies|
+Then /^it (successfully|fails to) installs? dependencies with (.*)$/ do |result, dependencies|
   cmds = {
-    'bundle'              => 'bundle install',
-    'lein dependencies'   => 'lein deps',
-    'maven dependencies'  => 'mvn install -DskipTests=true',
-    'gradle dependencies' => 'gradle assemble',
-    'rebar dependencies'  => 'rebar get-deps',
-    'npm packages'        => 'npm install --dev',
-    'composer packages'   => 'composer install --dev'
+    'bundle'   => 'bundle install',
+    'lein'     => 'lein deps',
+    'maven'    => 'mvn install -DskipTests=true',
+    'mvn'      => 'mvn install -DskipTests=true',
+    'gradle'   => 'gradle assemble',
+    'rebar'    => 'rebar get-deps',
+    'npm'      => 'npm install --dev',
+    'composer' => 'composer install --dev'
   }
   cmd = cmds[dependencies]
 

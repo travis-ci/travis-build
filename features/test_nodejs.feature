@@ -36,7 +36,7 @@ Feature: Testing a Node.js project
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it successfully switches to the node.js version: 0.4.12
-     And it finds a file package.json and successfully installs the npm packages
+     And it finds a file package.json and successfully installs dependencies with npm
      And it successfully runs the script: npm test
      And it closes the ssh session
      And it returns the status 0
@@ -85,7 +85,7 @@ Feature: Testing a Node.js project
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it successfully switches to the node.js version: 0.4.12
-     And it finds a file package.json but fails to install the npm packages
+     And it finds a file package.json but fails to install dependencies with npm
      And it closes the ssh session
      And it returns the status 1
 

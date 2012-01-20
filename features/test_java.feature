@@ -12,7 +12,7 @@ Feature: Testing a Java project
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it finds the file pom.xml
-     And it successfully installs the maven dependencies
+     And it successfully installs dependencies with maven
      And it successfully runs the script: mvn test
      And it closes the ssh session
      And it returns the status 0
@@ -37,7 +37,7 @@ Feature: Testing a Java project
      And it successfully checks out the commit with git to the repository directory
      And it does not find the file pom.xml
      And it finds the file build.gradle
-     And it successfully installs the gradle dependencies
+     And it successfully installs dependencies with gradle
      And it successfully runs the script: gradle check
      And it closes the ssh session
      And it returns the status 0
@@ -99,7 +99,7 @@ Feature: Testing a Java project
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it finds the file pom.xml
-     And it successfully installs the maven dependencies
+     And it successfully installs dependencies with maven
      And it fails to run the script: mvn test
      And it closes the ssh session
      And it returns the status 1

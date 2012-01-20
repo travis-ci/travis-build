@@ -37,7 +37,7 @@ Feature: Testing an Erlang project
      And it successfully checks out the commit with git to the repository directory
      And it successfully switches to the erlang version: R14B04
      And there is no local rebar in the repository
-     And it finds a file rebar.config and successfully installs the rebar dependencies
+     And it finds a file rebar.config and successfully installs dependencies with rebar
      And it successfully runs the script: rebar compile && rebar skip_deps=true eunit
      And it closes the ssh session
      And it returns the status 0
@@ -87,7 +87,7 @@ Feature: Testing an Erlang project
      And it successfully checks out the commit with git to the repository directory
      And it successfully switches to the erlang version: R14B04
      And there is no local rebar in the repository
-     And it finds a file rebar.config but fails to install the rebar dependencies
+     And it finds a file rebar.config but fails to install dependencies with rebar
      And it closes the ssh session
      And it returns the status 1
 

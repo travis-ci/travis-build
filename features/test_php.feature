@@ -39,7 +39,7 @@ Feature: Testing a Php project
      #And it successfully checks out the commit with git to the repository directory
      #And it successfully switches to the php version: 5.3.6
      #And it announces active php version
-     #And it finds a file composer.json and successfully installs the composer packages
+     #And it finds a file composer.json and successfully installs dependencies with composer
      #And it successfully runs the script: phpunit
      #And it closes the ssh session
      #And it returns the status 0
@@ -88,7 +88,7 @@ Feature: Testing a Php project
      #And it successfully clones the repository to the build dir with git
      #And it successfully checks out the commit with git to the repository directory
      #And it successfully switches to the php version: 5.3.6
-     #And it finds a file composer.json but fails to install the composer packages
+     #And it finds a file composer.json but fails to install dependencies with composer
      #And it closes the ssh session
      #And it returns the status 1
 

@@ -39,7 +39,7 @@ Feature: Testing a Ruby project
      And it successfully checks out the commit with git to the repository directory
      And it successfully switches to the ruby version: 1.9.2
      And it announces active ruby version
-     And it finds a file gemfiles/Gemfile and successfully installs the bundle
+     And it finds a file gemfiles/Gemfile and successfully installs dependencies with bundle
      And it successfully runs the script: bundle exec rake
      And it closes the ssh session
      And it returns the status 0
@@ -91,7 +91,7 @@ Feature: Testing a Ruby project
      And it successfully checks out the commit with git to the repository directory
      And it successfully switches to the ruby version: 1.9.2
      And it announces active ruby version
-     And it finds a file gemfiles/Gemfile but fails to install the bundle
+     And it finds a file gemfiles/Gemfile but fails to install dependencies with bundle
      And it closes the ssh session
      And it returns the status 1
 
