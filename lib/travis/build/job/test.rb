@@ -11,6 +11,7 @@ module Travis
       class Test
         autoload :Clojure,  'travis/build/job/test/clojure'
         autoload :Erlang,   'travis/build/job/test/erlang'
+        autoload :Groovy,   'travis/build/job/test/groovy'
         autoload :PureJava, 'travis/build/job/test/pure_java'
         autoload :NodeJs,   'travis/build/job/test/node_js'
         autoload :Php,      'travis/build/job/test/php'
