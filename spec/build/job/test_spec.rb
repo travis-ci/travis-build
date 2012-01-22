@@ -9,47 +9,49 @@ describe Travis::Build::Job::Test do
   let(:job)    { Travis::Build::Job::Test.new(shell, commit, config) }
 
   describe 'by_lang' do
-    it 'returns Travis::Build::Job::Test::Ruby for nil' do
-      Travis::Build::Job::Test.by_lang(nil).should == Travis::Build::Job::Test::Ruby
+    Test = Travis::Build::Job::Test
+
+    it 'returns Test::Ruby for nil' do
+      Test.by_lang(nil).should == Test::Ruby
     end
 
-    it 'returns Travis::Build::Job::Test::Ruby for an unknown language' do
-      Travis::Build::Job::Test.by_lang('brainfuck').should == Travis::Build::Job::Test::Ruby
+    it 'returns Test::Ruby for an unknown language' do
+      Test.by_lang('brainfuck').should == Test::Ruby
     end
 
-    it 'returns Travis::Build::Job::Test::Ruby for "ruby"' do
-      Travis::Build::Job::Test.by_lang('ruby').should == Travis::Build::Job::Test::Ruby
-      Travis::Build::Job::Test.by_lang('Ruby').should == Travis::Build::Job::Test::Ruby
+    it 'returns Test::Ruby for "ruby"' do
+      Test.by_lang('ruby').should == Test::Ruby
+      Test.by_lang('Ruby').should == Test::Ruby
     end
 
-    it 'returns Travis::Build::Job::Test::Clojure for "clojure"' do
-      Travis::Build::Job::Test.by_lang('clojure').should == Travis::Build::Job::Test::Clojure
-      Travis::Build::Job::Test.by_lang('Clojure').should == Travis::Build::Job::Test::Clojure
+    it 'returns Test::Clojure for "clojure"' do
+      Test.by_lang('clojure').should == Test::Clojure
+      Test.by_lang('Clojure').should == Test::Clojure
     end
 
-    it 'returns Travis::Build::Job::Test::Erlang for "erlang"' do
-      Travis::Build::Job::Test.by_lang('erlang').should == Travis::Build::Job::Test::Erlang
-      Travis::Build::Job::Test.by_lang('Erlang').should == Travis::Build::Job::Test::Erlang
+    it 'returns Test::Erlang for "erlang"' do
+      Test.by_lang('erlang').should == Test::Erlang
+      Test.by_lang('Erlang').should == Test::Erlang
     end
 
     # JRuby won't let us use a class named Java. MK.
-    it 'returns Travis::Build::Job::Test::PureJava for "java"' do
-      Travis::Build::Job::Test.by_lang('java').should == Travis::Build::Job::Test::PureJava
-      Travis::Build::Job::Test.by_lang('JAVA').should == Travis::Build::Job::Test::PureJava
+    it 'returns Test::PureJava for "java"' do
+      Test.by_lang('java').should == Test::PureJava
+      Test.by_lang('JAVA').should == Test::PureJava
     end
 
-    it 'returns Travis::Build::Job::Test::NodeJs for "node_js"' do
-      Travis::Build::Job::Test.by_lang('node_js').should == Travis::Build::Job::Test::NodeJs
+    it 'returns Test::NodeJs for "node_js"' do
+      Test.by_lang('node_js').should == Test::NodeJs
     end
 
-    it 'returns Travis::Build::Job::Test::Php for "php"' do
-      Travis::Build::Job::Test.by_lang('php').should == Travis::Build::Job::Test::Php
-      Travis::Build::Job::Test.by_lang('PHP').should == Travis::Build::Job::Test::Php
+    it 'returns Test::Php for "php"' do
+      Test.by_lang('php').should == Test::Php
+      Test.by_lang('PHP').should == Test::Php
     end
 
-    it 'returns Travis::Build::Job::Test::Scala for "scala"' do
-      Travis::Build::Job::Test.by_lang('scala').should == Travis::Build::Job::Test::Scala
-      Travis::Build::Job::Test.by_lang('Scala').should == Travis::Build::Job::Test::Scala
+    it 'returns Test::Scala for "scala"' do
+      Test.by_lang('scala').should == Test::Scala
+      Test.by_lang('Scala').should == Test::Scala
     end
   end
 
