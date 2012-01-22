@@ -75,6 +75,11 @@ module Travis
       def on_output(output, options = {})
         maybe_log(output, options)
       end
+
+      def notify(type, data)
+        data.merge!(:worker => name) if type == :start
+        super
+      end
     end
   end
 end
