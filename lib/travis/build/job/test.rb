@@ -28,6 +28,7 @@ module Travis
 
         class << self
           def by_lang(lang)
+            lang = Array(lang).first
             lang = (lang || 'ruby').downcase
             # Java builder cannot follow typical conventions
             # because JRuby won't let us use a class named "Java". MK.
