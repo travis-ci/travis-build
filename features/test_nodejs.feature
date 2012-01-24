@@ -17,6 +17,7 @@ Feature: Testing a Node.js project
      And it successfully checks out the commit with git to the repository directory
      And it exports the line TRAVIS_NODE_VERSION=0.4
      And it successfully switches to the node.js version: 0.4
+     And it announces active node version
      And it does not find the file package.json
      And it successfully runs the script: make test
      And it closes the ssh session
@@ -32,6 +33,8 @@ Feature: Testing a Node.js project
        | job:test:log    | log: git checkout                   |
        | job:test:log    | log: export TRAVIS_NODE_VERSION=0.4 |
        | job:test:log    | log: nvm use 0.4                    |
+       | job:test:log    | log: node --version                 |
+       | job:test:log    | log: npm --version                  |
        | job:test:log    | log: make test                      |
        | job:test:log    | log: /Done.* 0/                     |
        | job:test:finish | finished_at: [now], status: 0       |
@@ -44,6 +47,7 @@ Feature: Testing a Node.js project
      And it successfully checks out the commit with git to the repository directory
      And it exports the line TRAVIS_NODE_VERSION=0.6.1
      And it successfully switches to the node.js version: 0.6.1
+     And it announces active node version
      And it does not find the file package.json
      And it successfully runs the script: make test
      And it closes the ssh session
@@ -59,6 +63,8 @@ Feature: Testing a Node.js project
        | job:test:log    | log: git checkout                     |
        | job:test:log    | log: export TRAVIS_NODE_VERSION=0.6.1 |
        | job:test:log    | log: nvm use 0.6.1                    |
+       | job:test:log    | log: node --version                   |
+       | job:test:log    | log: npm --version                    |
        | job:test:log    | log: make test                        |
        | job:test:log    | log: /Done.* 0/                       |
        | job:test:finish | finished_at: [now], status: 0         |
@@ -70,6 +76,7 @@ Feature: Testing a Node.js project
      And it successfully checks out the commit with git to the repository directory
      And it exports the line TRAVIS_NODE_VERSION=0.6.1
      And it successfully switches to the node.js version: 0.6.1
+     And it announces active node version
      And it finds a file package.json and successfully installs dependencies with npm
      And it successfully runs the script: npm test
      And it closes the ssh session
@@ -85,6 +92,8 @@ Feature: Testing a Node.js project
        | job:test:log    | log: git checkout                     |
        | job:test:log    | log: export TRAVIS_NODE_VERSION=0.6.1 |
        | job:test:log    | log: nvm use 0.6.1                    |
+       | job:test:log    | log: node --version                   |
+       | job:test:log    | log: npm --version                    |
        | job:test:log    | log: npm install --dev                |
        | job:test:log    | log: npm test                         |
        | job:test:log    | log: /Done.* 0/                       |
@@ -111,7 +120,7 @@ Feature: Testing a Node.js project
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it exports the line TRAVIS_NODE_VERSION=0.6.1
-     And it fails to switch to the node.js version: 0.6.1
+     And it fails to switch to the nodejs version: 0.6.1
      And it closes the ssh session
      And it returns the status 1
 
@@ -122,6 +131,7 @@ Feature: Testing a Node.js project
      And it successfully checks out the commit with git to the repository directory
      And it exports the line TRAVIS_NODE_VERSION=0.6.1
      And it successfully switches to the node.js version: 0.6.1
+     And it announces active node version
      And it finds a file package.json but fails to install dependencies with npm
      And it closes the ssh session
      And it returns the status 1
@@ -133,6 +143,7 @@ Feature: Testing a Node.js project
      And it successfully checks out the commit with git to the repository directory
      And it exports the line TRAVIS_NODE_VERSION=0.6.1
      And it successfully switches to the node.js version: 0.6.1
+     And it announces active node version
      And it does not find the file package.json
      And it fails to run the script: make test
      And it closes the ssh session

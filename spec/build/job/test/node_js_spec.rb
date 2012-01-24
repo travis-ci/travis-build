@@ -20,11 +20,8 @@ describe Travis::Build::Job::Test::NodeJs do
     it 'switches to the given nodejs version' do
       shell.expects(:export_line).with("TRAVIS_NODE_VERSION=0.4").returns(true)
       shell.expects(:execute).with("nvm use 0.4").returns(true)
-      job.setup
-    end
-
-    xit 'announces activated node version' do
-      shell.expects(:execute).with('node --version')
+      shell.expects(:execute).with('node --version').returns(true)
+      shell.expects(:execute).with('npm --version').returns(true)
       job.setup
     end
   end

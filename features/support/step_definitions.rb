@@ -157,6 +157,20 @@ Then /it announces active (?:ruby|Ruby) version/ do
     in_sequence($sequence)
 end
 
+Then /it announces active (?:node|node.js|Node|Node.js) version/ do
+  $shell.expects(:execute).
+    with("node --version").
+    outputs("node --version").
+    returns(true).
+    in_sequence($sequence)
+
+  $shell.expects(:execute).
+    with("npm --version").
+    outputs("npm --version").
+    returns(true).
+    in_sequence($sequence)
+end
+
 Then /^it (finds|does not find) the file (.*)$/ do |result, filenames|
   filenames = filenames.split(/, | or /).map { |filename| filename.strip }
   filenames.each do |filename|
