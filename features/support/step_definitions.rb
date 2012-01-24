@@ -154,6 +154,7 @@ Then /^it (finds|does not find) the file (.*)$/ do |result, filenames|
   filenames.each do |filename|
     $shell.expects(:file_exists?).
       with(filename).
+      at_least_once.
       returns(result == 'finds').
       in_sequence($sequence)
   end
