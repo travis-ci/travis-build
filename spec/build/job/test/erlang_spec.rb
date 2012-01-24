@@ -40,16 +40,16 @@ describe Travis::Build::Job::Test::Erlang do
     context "when a rebar.config file exists" do
       context "and project DOES have local rebar (./rebar)" do
         it 'returns "./rebar compile && ./rebar skip_deps=true eunit"' do
-          job.expects(:uses_rebar?).returns(true)
-          job.expects(:has_local_rebar?).returns(true)
+          job.expects(:uses_rebar?).at_least_once.returns(true)
+          job.expects(:has_local_rebar?).at_least_once.returns(true)
           job.send(:script).should == './rebar compile && ./rebar skip_deps=true eunit'
         end
       end
 
       context "and project DOES NOT have local rebar (./rebar)" do
         it 'returns "rebar compile && rebar skip_deps=true eunit"' do
-          job.expects(:uses_rebar?).returns(true)
-          job.expects(:has_local_rebar?).returns(false)
+          job.expects(:uses_rebar?).at_least_once.returns(true)
+          job.expects(:has_local_rebar?).at_least_once.returns(false)
           job.send(:script).should == 'rebar compile && rebar skip_deps=true eunit'
         end
       end
