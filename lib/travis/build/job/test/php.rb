@@ -9,9 +9,8 @@ module Travis
             define :php => '5.3.8'
           end
 
-          extend ActiveSupport::Memoizable
-
           def setup
+            super
             setup_php
             announce_php
           end
@@ -32,10 +31,11 @@ module Travis
             assert :setup_php
 
             def uses_composer?
-              shell.file_exists?('composer.json')
+              @uses_composer ||= shell.file_exists?('composer.json')
+
+              # composer is not yet ready for prime time. MK.
               false
             end
-            memoize :uses_composer?
 
             def announce_php
               shell.execute("php --version")

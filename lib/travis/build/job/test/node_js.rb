@@ -13,9 +13,8 @@ module Travis
             end
           end
 
-          extend ActiveSupport::Memoizable
-
           def setup
+            super
             shell.execute("nvm use #{config.node_js}")
           end
           assert :setup
@@ -31,9 +30,8 @@ module Travis
           protected
 
             def uses_npm?
-              shell.file_exists?('package.json')
+              @uses_npm ||= shell.file_exists?('package.json')
             end
-            memoize :uses_npm?
         end
       end
     end

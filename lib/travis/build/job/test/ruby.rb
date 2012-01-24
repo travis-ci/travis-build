@@ -10,9 +10,9 @@ module Travis
             define :rvm => 'default', :gemfile => 'Gemfile'
           end
 
-          extend ActiveSupport::Memoizable
-
           def setup
+            super
+
             setup_ruby
             announce_ruby
             setup_bundler if uses_bundler?
@@ -38,9 +38,8 @@ module Travis
             end
 
             def uses_bundler?
-              shell.file_exists?(config.gemfile)
+              @uses_bundler ||= shell.file_exists?(config.gemfile)
             end
-            memoize :uses_bundler?
 
             def announce_ruby
               shell.execute("ruby --version")
