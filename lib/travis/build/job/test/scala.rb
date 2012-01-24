@@ -9,8 +9,6 @@ module Travis
             define :scala => '2.9.1'
           end
 
-          extend ActiveSupport::Memoizable
-
           def setup
             super
             shell.echo("Using Scala #{config.scala}")
@@ -32,9 +30,8 @@ module Travis
           protected
 
           def uses_sbt?
-            shell.file_exists?('project') || shell.file_exists?('build.sbt')
+            @uses_sbt ||= (shell.file_exists?('project') || shell.file_exists?('build.sbt'))
           end
-          memoize :uses_sbt?
 
           def export_environment_variables
             # export expected Scala version in an environment variable as helper
