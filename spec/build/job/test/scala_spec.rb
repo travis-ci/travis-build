@@ -16,7 +16,7 @@ describe Travis::Build::Job::Test::Scala do
     it 'exports the Scala version to use for the build and announces it, without any validation' do
       config.scala = '0.0.7' # version validity is not verified
       shell.expects(:export_line).with('SCALA_VERSION=0.0.7')
-      shell.expects(:echo).with('Expect to build with Scala 0.0.7')
+      shell.expects(:echo).with('Using Scala 0.0.7')
       job.setup
     end
   end

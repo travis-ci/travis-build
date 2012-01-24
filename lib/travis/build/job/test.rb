@@ -48,6 +48,10 @@ module Travis
           @config = config
         end
 
+        def setup
+          export_environment_variables
+        end
+
         def install
           # intentional no-op. If we don't define this method, builders
           # that do not define #install (like the php one) will fail because
@@ -64,6 +68,10 @@ module Travis
         log :run
 
         protected
+
+        def export_environment_variables
+          # no-op, overriden by subclasses. MK.
+        end
 
           def perform
             chdir

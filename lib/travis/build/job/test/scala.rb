@@ -12,8 +12,8 @@ module Travis
           extend ActiveSupport::Memoizable
 
           def setup
-            define_scala
-            # version is switched by sbt "++<scala-version>" parameter in 'script' step
+            super
+            shell.echo("Using Scala #{config.scala}")
           end
 
           def install
@@ -36,11 +36,10 @@ module Travis
           end
           memoize :uses_sbt?
 
-          def define_scala
+          def export_environment_variables
             # export expected Scala version in an environment variable as helper
             # for cross-version build in custom scripts (ant, maven, local sbt,...)
             shell.export_line("SCALA_VERSION=#{config.scala}")
-            shell.echo("Expect to build with Scala #{config.scala}")
           end
 
         end
