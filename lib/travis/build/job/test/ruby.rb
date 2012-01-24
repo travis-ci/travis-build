@@ -43,6 +43,7 @@ module Travis
 
             def announce_ruby
               shell.execute("ruby --version")
+              shell.execute("gem --version")
             end
 
           def export_environment_variables
