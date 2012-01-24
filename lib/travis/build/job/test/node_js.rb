@@ -32,6 +32,10 @@ module Travis
             def uses_npm?
               @uses_npm ||= shell.file_exists?('package.json')
             end
+
+          def export_environment_variables
+            shell.export_line("TRAVIS_NODE_VERSION=#{config.node_js}")
+          end
         end
       end
     end
