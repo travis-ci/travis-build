@@ -44,6 +44,10 @@ module Travis
             def announce_ruby
               shell.execute("ruby --version")
             end
+
+          def export_environment_variables
+            shell.export_line("TRAVIS_RUBY_VERSION=#{config.rvm}")
+          end
         end
       end
     end
