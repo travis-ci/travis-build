@@ -8,11 +8,6 @@ module Travis
           class Config < Hashr
           end
 
-          extend ActiveSupport::Memoizable
-
-          def setup
-          end
-
           def install
             if uses_gradle?
               install_dependencies_with_gradle
@@ -34,14 +29,12 @@ module Travis
           protected
 
           def uses_maven?
-            shell.file_exists?('pom.xml')
+            @uses_maven ||= shell.file_exists?('pom.xml')
           end
-          memoize :uses_maven?
 
           def uses_gradle?
-            shell.file_exists?('build.gradle')
+            @uses_gradle ||= shell.file_exists?('build.gradle')
           end
-          memoize :uses_gradle?
 
           def install_dependencies_with_gradle
             "gradle assemble"
