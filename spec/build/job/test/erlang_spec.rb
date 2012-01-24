@@ -7,14 +7,14 @@ describe Travis::Build::Job::Test::Erlang do
   let(:job)    { Travis::Build::Job::Test::Erlang.new(shell, nil , config) }
 
   describe 'config' do
-    it 'defaults :otp_release to "R14B02"' do
-      config.otp_release.should == 'R14B02'
+    it 'defaults :otp_release to "R14B04"' do
+      config.otp_release.should == 'R14B04'
     end
   end
 
   describe 'setup' do
     it 'activates the given otp version' do
-      shell.expects(:execute).with("source /home/vagrant/otp/R14B02/activate").returns(true)
+      shell.expects(:execute).with("source /home/vagrant/otp/R14B04/activate").returns(true)
       job.setup
     end
   end

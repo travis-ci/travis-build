@@ -6,7 +6,7 @@ module Travis
       class Test
         class Erlang < Test
           class Config < Hashr
-            define :otp_release => 'R14B02'
+            define :otp_release => 'R14B04'
           end
 
           def setup
