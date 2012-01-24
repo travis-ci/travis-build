@@ -14,12 +14,10 @@ describe Travis::Build::Job::Test::Php do
 
   describe 'setup' do
     it 'switches to the given php version' do
+      shell.expects(:export_line).with("TRAVIS_PHP_VERSION=5.3.8").returns(true)
       shell.expects(:execute).with('phpenv global 5.3.8').returns(true)
-      job.setup
-    end
-
-    it 'announces activated php version' do
       shell.expects(:execute).with('php --version')
+
       job.setup
     end
   end

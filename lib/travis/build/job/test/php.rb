@@ -11,6 +11,7 @@ module Travis
 
           def setup
             super
+
             setup_php
             announce_php
           end
@@ -25,21 +26,25 @@ module Travis
 
           protected
 
-            def setup_php
-              shell.execute("phpenv global #{config.php}")
-            end
-            assert :setup_php
+          def setup_php
+            shell.execute("phpenv global #{config.php}")
+          end
+          assert :setup_php
 
-            def uses_composer?
-              @uses_composer ||= shell.file_exists?('composer.json')
+          def uses_composer?
+            @uses_composer ||= shell.file_exists?('composer.json')
 
-              # composer is not yet ready for prime time. MK.
-              false
-            end
+            # composer is not yet ready for prime time. MK.
+            false
+          end
 
-            def announce_php
-              shell.execute("php --version")
-            end
+          def announce_php
+            shell.execute("php --version")
+          end
+
+          def export_environment_variables
+            shell.export_line("TRAVIS_PHP_VERSION=#{config.php}")
+          end
         end
       end
     end
