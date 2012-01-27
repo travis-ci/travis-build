@@ -30,7 +30,7 @@ module Travis
           protected
 
           def uses_sbt?
-            @uses_sbt ||= (shell.file_exists?('project') || shell.file_exists?('build.sbt'))
+            @uses_sbt ||= (shell.directory_exists?('project') || shell.file_exists?('build.sbt'))
           end
 
           def export_environment_variables

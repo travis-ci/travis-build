@@ -171,7 +171,7 @@ Then /it announces active (?:node|node.js|Node|Node.js) version/ do
     in_sequence($sequence)
 end
 
-Then /^it (finds|does not find) the file (.*)$/ do |result, filenames|
+Then /^it (finds|does not find) (?:the )?file (.*)$/ do |result, filenames|
   filenames = filenames.split(/, | or /).map { |filename| filename.strip }
   filenames.each do |filename|
     $shell.expects(:file_exists?).
@@ -180,6 +180,15 @@ Then /^it (finds|does not find) the file (.*)$/ do |result, filenames|
       returns(result == 'finds').
       in_sequence($sequence)
   end
+end
+
+Then /^it (finds|does not find) directory (.*)$/ do |result, dirname|
+  puts dirname.inspect
+  $shell.expects(:directory_exists?).
+    with(dirname).
+    at_least_once.
+    returns(result == 'finds').
+    in_sequence($sequence)
 end
 
 Then /^there is no local rebar in the repository$/ do
