@@ -183,7 +183,6 @@ Then /^it (finds|does not find) (?:the )?file (.*)$/ do |result, filenames|
 end
 
 Then /^it (finds|does not find) directory (.*)$/ do |result, dirname|
-  puts dirname.inspect
   $shell.expects(:directory_exists?).
     with(dirname).
     at_least_once.
