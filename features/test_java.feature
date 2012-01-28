@@ -11,6 +11,7 @@ Feature: Testing a Java project
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
+     And it does not find the file build.gradle
      And it finds the file pom.xml
      And it successfully installs dependencies with maven
      And it successfully runs the script: mvn test
@@ -35,7 +36,6 @@ Feature: Testing a Java project
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
-     And it does not find the file pom.xml
      And it finds the file build.gradle
      And it successfully installs dependencies with gradle
      And it successfully runs the script: gradle check
@@ -60,8 +60,8 @@ Feature: Testing a Java project
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
-     And it does not find the file pom.xml
      And it does not find the file build.gradle
+     And it does not find the file pom.xml
      And it successfully runs the script: ant test
      And it closes the ssh session
      And it returns the status 0
@@ -98,6 +98,7 @@ Feature: Testing a Java project
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
+     And it does not find the file build.gradle
      And it finds the file pom.xml
      And it successfully installs dependencies with maven
      And it fails to run the script: mvn test
