@@ -103,7 +103,7 @@ end
 
 Then /^it (successfully|fails to) clones? the repository with git$/ do |result|
   $shell.expects(:execute).
-    with("git clone --depth=100 --quiet --recursive git://github.com/#{$payload.repository.slug}.git #{$payload.repository.slug}").
+    with("git clone --depth=100 --quiet git://github.com/#{$payload.repository.slug}.git #{$payload.repository.slug}").
     outputs('git clone').
     returns(result == 'successfully').
     in_sequence($sequence)

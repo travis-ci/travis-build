@@ -20,7 +20,7 @@ module Travis
 
           def clone(source, target)
             shell.export('GIT_ASKPASS', 'echo', :echo => false) # this makes git interactive auth fail
-            shell.execute("git clone --depth=100 --quiet --recursive #{source} #{target}")
+            shell.execute("git clone --depth=100 --quiet #{source} #{target}")
           end
           assert :clone
 
