@@ -16,7 +16,7 @@ describe Travis::Build::Scm::Git do
     end
 
     it 'clones the repository' do
-      shell.expects(:execute).with('git clone --depth=100 --quiet git://example.com/travis-ci.git travis-ci').returns(true)
+      shell.expects(:execute).with('git clone --depth=100 --quiet --recursive git://example.com/travis-ci.git travis-ci').returns(true)
       scm.fetch(source, commit, target)
     end
 
