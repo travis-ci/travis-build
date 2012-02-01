@@ -1,5 +1,3 @@
-require 'travis/build/job/test/jvm_language'
-
 module Travis
   class Build
     module Job

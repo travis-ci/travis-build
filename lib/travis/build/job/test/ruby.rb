@@ -1,5 +1,4 @@
 require 'hashr'
-require 'active_support/memoizable'
 
 module Travis
   class Build

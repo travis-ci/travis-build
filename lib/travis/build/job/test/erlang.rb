@@ -1,5 +1,3 @@
-require 'active_support/memoizable'
-
 module Travis
   class Build
     module Job
