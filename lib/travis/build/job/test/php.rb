@@ -4,7 +4,7 @@ module Travis
       class Test
         class Php < Test
           class Config < Hashr
-            define :php => '5.3.8'
+            define :php => '5.3'
           end
 
           def setup
