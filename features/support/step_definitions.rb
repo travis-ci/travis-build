@@ -122,7 +122,8 @@ Then /^it (successfully|fails to) switch(?:es)? to the (.*) version: (.*)$/ do |
     'ruby'   => "rvm use #{version}",
     'erlang' => "source /home/vagrant/otp/#{version}/activate",
     'nodejs' => "nvm use #{version}",
-    'php'    => "phpenv global #{version}"
+    'php'    => "phpenv global #{version}",
+    'perl'   => "perlbrew use #{version}"
   }
   cmd = cmds[language.gsub('.', '')]
 
@@ -147,6 +148,15 @@ end
 
 Then /it announces active (?:php|PHP) version/ do
   cmd = 'php --version'
+
+  $shell.expects(:execute).
+    with(cmd).
+    outputs(cmd).
+    in_sequence($sequence)
+end
+
+Then /it announces active (?:perl|Perl) version/ do
+  cmd = 'perl --version'
 
   $shell.expects(:execute).
     with(cmd).
