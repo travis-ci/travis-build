@@ -4,8 +4,17 @@ class Build
         class Perl < Test
           class Config < Hashr
           end
+          def setup
+            super
+            announce_versions
+          end
           def install
             "cpanm --installdeps ."
+          end
+
+          def announce_versions
+            shell.execute("perl --version")
+            shell.execute("cpanm --version")
           end
 
           def script
