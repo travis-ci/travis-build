@@ -11,6 +11,7 @@ Feature: Testing a Clojure project
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
+     And it announces active leiningen version
      And it successfully installs dependencies with lein
      And it successfully runs the script: lein test
      And it closes the ssh session
@@ -24,6 +25,7 @@ Feature: Testing a Clojure project
        | job:test:log    | log: git clone                |
        | job:test:log    | log: cd travis-ci/travis-ci   |
        | job:test:log    | log: git checkout             |
+       | job:test:log    | log: lein version             |
        | job:test:log    | log: lein deps                |
        | job:test:log    | log: lein test                |
        | job:test:log    | log: /Done.* 0/               |
@@ -49,6 +51,7 @@ Feature: Testing a Clojure project
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
+     And it announces active leiningen version
      And it fails to install dependencies with lein
      And it closes the ssh session
      And it returns the status 1
@@ -58,6 +61,7 @@ Feature: Testing a Clojure project
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
+     And it announces active leiningen version
      And it successfully installs dependencies with lein
      And it fails to run the script: lein test
      And it closes the ssh session

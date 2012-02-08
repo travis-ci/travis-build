@@ -136,6 +136,15 @@ Then /^it (successfully|fails to) switch(?:es)? to the (.*) version: (.*)$/ do |
     in_sequence($sequence)
 end
 
+Then /it announces active (?:lein|leiningen|Leiningen) version/ do
+  cmd = 'lein version'
+
+  $shell.expects(:execute).
+    with(cmd).
+    outputs(cmd).
+    in_sequence($sequence)
+end
+
 Then /it announces active (?:php|PHP) version/ do
   cmd = 'php --version'
 
