@@ -23,7 +23,7 @@ describe Travis::Build::Job::Test::Perl do
     end
   end
     context "when project uses neither Build.PL nor Makefile.PL" do
-      it 'does nothing' do
+      it 'returns "make test"' do
         job.expects(:uses_module_build?).returns(false)
         job.expects(:uses_eumm?).returns(false)
         job.install.should == 'make test'
