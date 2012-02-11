@@ -20,7 +20,7 @@ class Build
           def script
             if uses_module_build?
               run_tests_with_mb
-            else
+            elsif uses_eumm?
               run_tests_with_eumm
             else
               run_default
@@ -33,7 +33,7 @@ class Build
             @uses_module_build ||= shell.file_exists?('Build.PL')
           end
 
-          def uses_eumm
+          def uses_eumm?
             @uses_eumm ||= shell.file_exists?('Makefile.PL')
           end
 
