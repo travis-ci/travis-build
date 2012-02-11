@@ -1,4 +1,5 @@
-class Build
+module Travis
+  class Build
     module Job
       class Test
         class Perl < Test
@@ -48,8 +49,8 @@ class Build
           def run_default
             "make test"
           end
-
         end
       end
     end
   end
+end
