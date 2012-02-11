@@ -10,7 +10,7 @@ module Travis
             announce_versions
           end
           def install
-            "cpanm --installdeps ."
+            "cpanm --installdeps --notest ."
           end
 
           def announce_versions

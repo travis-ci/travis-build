@@ -9,7 +9,7 @@ describe Travis::Build::Job::Test::Perl do
 
   describe 'install' do
     it 'uses cpanm' do
-      job.install.should == "cpanm --installdeps ."
+      job.install.should == "cpanm --installdeps --notest ."
     end
   end
 
