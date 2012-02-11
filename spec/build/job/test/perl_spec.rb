@@ -18,7 +18,6 @@ describe Travis::Build::Job::Test::Perl do
     context "when project uses Build.PL" do
       it 'returns "perl Build.PL && ./Build test"' do
         job.expects(:uses_module_build?).returns(true)
-        job.expects(:uses_eumm?).returns(false)
         job.script.should == 'perl Build.PL && ./Build test'
       end
     end
