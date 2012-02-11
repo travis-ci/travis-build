@@ -21,7 +21,7 @@ describe Travis::Build::Job::Test::Perl do
         job.install.should == 'perl Makefile.PL && make test'
       end
     end
-  end
+
     context "when project uses neither Build.PL nor Makefile.PL" do
       it 'returns "make test"' do
         job.expects(:uses_module_build?).returns(false)
@@ -30,5 +30,4 @@ describe Travis::Build::Job::Test::Perl do
       end
     end
   end
-
 end
