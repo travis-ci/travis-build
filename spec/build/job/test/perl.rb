@@ -26,7 +26,7 @@ describe Travis::Build::Job::Test::Perl do
       it 'does nothing' do
         job.expects(:uses_module_build?).returns(false)
         job.expects(:uses_eumm?).returns(false)
-        job.install.should be_nil
+        job.install.should == 'make test'
       end
     end
   end

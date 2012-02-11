@@ -22,6 +22,8 @@ class Build
               run_tests_with_mb
             else
               run_tests_with_eumm
+            else
+              run_default
             end
           end
 
@@ -41,6 +43,10 @@ class Build
 
           def run_tests_with_eumm
             "perl Makefile.PL && make test"
+          end
+
+          def run_default
+            "make test"
           end
 
         end
