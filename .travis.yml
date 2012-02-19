@@ -1,5 +1,6 @@
-script: "bundle exec rspec spec && bundle exec cucumber"
+language: ruby
 rvm:
   - jruby-18mode
   - jruby-19mode
-
+  - jruby-head
+script: "bundle exec rspec spec && bundle exec cucumber"
