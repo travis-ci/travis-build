@@ -1,5 +1,3 @@
-require 'active_support/memoizable'
-
 module Travis
   class Build
     module Job
@@ -13,12 +11,12 @@ module Travis
             end
           end
 
-          extend ActiveSupport::Memoizable
-
           def setup
-            shell.execute("nvm use #{config.node_js}")
+            super
+
+            setup_node
+            announce_node
           end
-          assert :setup
 
           def install
             "npm install #{config.npm_args}".strip if uses_npm?
@@ -30,10 +28,23 @@ module Travis
 
           protected
 
-            def uses_npm?
-              shell.file_exists?('package.json')
-            end
-            memoize :uses_npm?
+          def uses_npm?
+            @uses_npm ||= shell.file_exists?('package.json')
+          end
+
+          def setup_node
+            shell.execute("nvm use #{config.node_js}")
+          end
+          assert :setup_node
+
+          def announce_node
+            shell.execute("node --version")
+            shell.execute("npm --version")
+          end
+
+          def export_environment_variables
+            shell.export_line("TRAVIS_NODE_VERSION=#{config.node_js}")
+          end
         end
       end
     end

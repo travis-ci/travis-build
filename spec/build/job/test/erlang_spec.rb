@@ -7,14 +7,14 @@ describe Travis::Build::Job::Test::Erlang do
   let(:job)    { Travis::Build::Job::Test::Erlang.new(shell, nil , config) }
 
   describe 'config' do
-    it 'defaults :otp_release to "R14B02"' do
-      config.otp_release.should == 'R14B02'
+    it 'defaults :otp_release to "R14B04"' do
+      config.otp_release.should == 'R14B04'
     end
   end
 
   describe 'setup' do
     it 'activates the given otp version' do
-      shell.expects(:execute).with("source /home/vagrant/otp/R14B02/activate").returns(true)
+      shell.expects(:execute).with("source /home/vagrant/otp/R14B04/activate").returns(true)
       job.setup
     end
   end
@@ -40,16 +40,16 @@ describe Travis::Build::Job::Test::Erlang do
     context "when a rebar.config file exists" do
       context "and project DOES have local rebar (./rebar)" do
         it 'returns "./rebar compile && ./rebar skip_deps=true eunit"' do
-          job.expects(:uses_rebar?).returns(true)
-          job.expects(:has_local_rebar?).returns(true)
+          job.expects(:uses_rebar?).at_least_once.returns(true)
+          job.expects(:has_local_rebar?).at_least_once.returns(true)
           job.send(:script).should == './rebar compile && ./rebar skip_deps=true eunit'
         end
       end
 
       context "and project DOES NOT have local rebar (./rebar)" do
         it 'returns "rebar compile && rebar skip_deps=true eunit"' do
-          job.expects(:uses_rebar?).returns(true)
-          job.expects(:has_local_rebar?).returns(false)
+          job.expects(:uses_rebar?).at_least_once.returns(true)
+          job.expects(:has_local_rebar?).at_least_once.returns(false)
           job.send(:script).should == 'rebar compile && rebar skip_deps=true eunit'
         end
       end

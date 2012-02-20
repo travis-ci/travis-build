@@ -136,12 +136,8 @@ Then /^it (successfully|fails to) switch(?:es)? to the (.*) version: (.*)$/ do |
     in_sequence($sequence)
 end
 
-Then /it announces active (.*) version/ do |language|
-  cmds = {
-    'ruby' => 'ruby --version',
-    'php'  => 'php --version'
-  }
-  cmd = cmds[language]
+Then /it announces active (?:lein|leiningen|Leiningen) version/ do
+  cmd = 'lein version'
 
   $shell.expects(:execute).
     with(cmd).
@@ -149,14 +145,58 @@ Then /it announces active (.*) version/ do |language|
     in_sequence($sequence)
 end
 
-Then /^it (finds|does not find) the file (.*)$/ do |result, filenames|
+Then /it announces active (?:php|PHP) version/ do
+  cmd = 'php --version'
+
+  $shell.expects(:execute).
+    with(cmd).
+    outputs(cmd).
+    in_sequence($sequence)
+end
+
+Then /it announces active (?:ruby|Ruby) version/ do
+  $shell.expects(:execute).
+    with("ruby --version").
+    outputs("ruby --version").
+    in_sequence($sequence)
+
+  $shell.expects(:execute).
+    with("gem --version").
+    outputs("gem --version").
+    in_sequence($sequence)
+end
+
+Then /it announces active (?:node|node.js|Node|Node.js) version/ do
+  $shell.expects(:execute).
+    with("node --version").
+    outputs("node --version").
+    returns(true).
+    in_sequence($sequence)
+
+  $shell.expects(:execute).
+    with("npm --version").
+    outputs("npm --version").
+    returns(true).
+    in_sequence($sequence)
+end
+
+Then /^it (finds|does not find) (?:the )?file (.*)$/ do |result, filenames|
   filenames = filenames.split(/, | or /).map { |filename| filename.strip }
   filenames.each do |filename|
     $shell.expects(:file_exists?).
       with(filename).
+      at_least_once.
       returns(result == 'finds').
       in_sequence($sequence)
   end
+end
+
+Then /^it (finds|does not find) directory (.*)$/ do |result, dirname|
+  $shell.expects(:directory_exists?).
+    with(dirname).
+    at_least_once.
+    returns(result == 'finds').
+    in_sequence($sequence)
 end
 
 Then /^there is no local rebar in the repository$/ do

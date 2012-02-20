@@ -116,6 +116,26 @@ describe Travis::Build::Factory do
       end
     end
 
+    describe 'with an array of known languages given as a language' do
+      before :each do
+        payload['config']['language'] = ['php', 'erlang']
+      end
+
+      it 'uses the first lanaguge and returns a Job::Test::Php instance' do
+        job.should be_a(Travis::Build::Job::Test::Php)
+      end
+    end
+
+    describe 'with an array of unknown languages given as a language' do
+      before :each do
+        payload['config']['language'] = ['fraggle', 'rock']
+      end
+
+      it 'uses a Job::Test::Ruby::Config instance' do
+        job.should be_a(Travis::Build::Job::Test::Ruby)
+      end
+    end
+
     describe 'the test job' do
       it 'has a shell' do
         job.shell.should == shell

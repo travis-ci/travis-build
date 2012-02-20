@@ -1,5 +1,3 @@
-require 'active_support/memoizable'
-
 module Travis
   class Build
     module Job
@@ -9,11 +7,9 @@ module Travis
             define :scala => '2.9.1'
           end
 
-          extend ActiveSupport::Memoizable
-
           def setup
-            define_scala
-            # version is switched by sbt "++<scala-version>" parameter in 'script' step
+            super
+            shell.echo("Using Scala #{config.scala}")
           end
 
           def install
@@ -32,15 +28,14 @@ module Travis
           protected
 
           def uses_sbt?
-            shell.file_exists?('project') || shell.file_exists?('build.sbt')
+            @uses_sbt ||= (shell.directory_exists?('project') || shell.file_exists?('build.sbt'))
           end
-          memoize :uses_sbt?
 
-          def define_scala
+          def export_environment_variables
             # export expected Scala version in an environment variable as helper
             # for cross-version build in custom scripts (ant, maven, local sbt,...)
             shell.export_line("SCALA_VERSION=#{config.scala}")
-            shell.echo("Expect to build with Scala #{config.scala}")
+            shell.export_line("TRAVIS_SCALA_VERSION=#{config.scala}")
           end
 
         end

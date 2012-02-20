@@ -1,15 +1,11 @@
-require 'active_support/memoizable'
-
 module Travis
   class Build
     module Job
       class Test
         class Erlang < Test
           class Config < Hashr
-            define :otp_release => 'R14B02'
+            define :otp_release => 'R14B04'
           end
-
-          extend ActiveSupport::Memoizable
 
           def setup
             shell.execute "source /home/vagrant/otp/#{config.otp_release}/activate"
@@ -31,9 +27,8 @@ module Travis
           protected
 
           def uses_rebar?
-            shell.file_exists?('rebar.config') || shell.file_exists?('Rebar.config')
+            @uses_rebar ||= (shell.file_exists?('rebar.config') || shell.file_exists?('Rebar.config'))
           end
-          memoize :uses_rebar?
 
           def rebar
             if has_local_rebar?
@@ -42,7 +37,6 @@ module Travis
               "rebar"
             end
           end
-          memoize :rebar
 
           def has_local_rebar?
             shell.file_exists?('rebar')

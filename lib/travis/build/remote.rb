@@ -4,7 +4,7 @@ module Travis
   class Build
     class Remote < Build
       # 2 MB per discussion with svenfuchs. MK.
-      BUILD_LOG_LENGTH_LIMIT = 2 * 1024 * 1024
+      BUILD_LOG_LENGTH_LIMIT = 4 * 1024 * 1024
 
       attr_reader :name, :vm, :shell, :output_length
 
@@ -56,7 +56,7 @@ module Travis
 
       def inject_log_limit_message!
         log("\n\n")
-        log("[WARNING] Build log length has exceeded the limit (2 MB). This usually means that test suite is raising the same exception over and over. Ignoring all subsequent output.")
+        log("[WARNING] Build log length has exceeded the limit (4 MB). This usually means that test suite is raising the same exception over and over. Ignoring all subsequent output.")
         log("\n\n")
 
         @injected_log_trimming_message = true

@@ -1,17 +1,15 @@
-require 'active_support/memoizable'
-
 module Travis
   class Build
     module Job
       class Test
         class Php < Test
           class Config < Hashr
-            define :php => '5.3.8'
+            define :php => '5.3'
           end
 
-          extend ActiveSupport::Memoizable
-
           def setup
+            super
+
             setup_php
             announce_php
           end
@@ -26,20 +24,25 @@ module Travis
 
           protected
 
-            def setup_php
-              shell.execute("phpenv global #{config.php}")
-            end
-            assert :setup_php
+          def setup_php
+            shell.execute("phpenv global #{config.php}")
+          end
+          assert :setup_php
 
-            def uses_composer?
-              shell.file_exists?('composer.json')
-              false
-            end
-            memoize :uses_composer?
+          def uses_composer?
+            @uses_composer ||= shell.file_exists?('composer.json')
 
-            def announce_php
-              shell.execute("php --version")
-            end
+            # composer is not yet ready for prime time. MK.
+            false
+          end
+
+          def announce_php
+            shell.execute("php --version")
+          end
+
+          def export_environment_variables
+            shell.export_line("TRAVIS_PHP_VERSION=#{config.php}")
+          end
         end
       end
     end

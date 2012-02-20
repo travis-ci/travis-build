@@ -10,19 +10,19 @@ module Travis
           end
 
           def install
-            # prefer Maven when both pom.xml and build.gradle exist in the repo. MK.
-            if uses_maven?
-              install_dependencies_with_maven
-            elsif uses_gradle?
+            # prefer Gradle when both pom.xml and build.gradle exist in the repo. MK.
+            if uses_gradle?
               install_dependencies_with_gradle
+            elsif uses_maven?
+              install_dependencies_with_maven
             end
           end
 
           def script
-            if uses_maven?
-              run_tests_with_maven
-            elsif uses_gradle?
+            if uses_gradle?
               run_tests_with_gradle
+            elsif uses_maven?
+              run_tests_with_maven
             else
               run_tests_with_ant
             end

@@ -25,6 +25,7 @@ describe Travis::Build::Job::Test::Ruby do
 
     it 'announces activated ruby version' do
       shell.expects(:execute).with('ruby --version')
+      shell.expects(:execute).with('gem --version')
       job.setup
     end
 

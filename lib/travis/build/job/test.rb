@@ -15,6 +15,7 @@ module Travis
         autoload :PureJava,    'travis/build/job/test/pure_java'
         autoload :JvmLanguage, 'travis/build/job/test/jvm_language'
         autoload :NodeJs,      'travis/build/job/test/node_js'
+        autoload :Perl,        'travis/build/job/test/perl'
         autoload :Php,         'travis/build/job/test/php'
         autoload :Ruby,        'travis/build/job/test/ruby'
         autoload :Scala,       'travis/build/job/test/scala'
@@ -28,6 +29,7 @@ module Travis
 
         class << self
           def by_lang(lang)
+            lang = Array(lang).first
             lang = (lang || 'ruby').downcase
             # Java builder cannot follow typical conventions
             # because JRuby won't let us use a class named "Java". MK.
@@ -47,6 +49,10 @@ module Travis
           @config = config
         end
 
+        def setup
+          export_environment_variables
+        end
+
         def install
           # intentional no-op. If we don't define this method, builders
           # that do not define #install (like the php one) will fail because
@@ -63,6 +69,10 @@ module Travis
         log :run
 
         protected
+
+        def export_environment_variables
+          # no-op, overriden by subclasses. MK.
+        end
 
           def perform
             chdir

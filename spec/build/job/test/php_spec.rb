@@ -7,20 +7,32 @@ describe Travis::Build::Job::Test::Php do
   let(:job)    { Travis::Build::Job::Test::Php.new(shell, nil , config) }
 
   describe 'config' do
-    it 'defaults :php to "5.3.8"' do
-      config.php.should == '5.3.8'
+    it 'defaults :php to "5.3"' do
+      config.php.should == '5.3'
     end
   end
 
   describe 'setup' do
-    it 'switches to the given php version' do
-      shell.expects(:execute).with('phpenv global 5.3.8').returns(true)
-      job.setup
+    context "when PHP version is not explicitly specified and we have to use the default one" do
+      it 'switches to the default php version' do
+        shell.expects(:export_line).with("TRAVIS_PHP_VERSION=5.3").returns(true)
+        shell.expects(:execute).with('phpenv global 5.3').returns(true)
+        shell.expects(:execute).with('php --version')
+
+        job.setup
+      end
     end
 
-    it 'announces activated php version' do
-      shell.expects(:execute).with('php --version')
-      job.setup
+    context "when PHP version IS explicitly specified" do
+      let(:config) { Travis::Build::Job::Test::Php::Config.new(:composer_args => '--dev', :php => "5.4") }
+
+      it 'switches to the given php version' do
+        shell.expects(:export_line).with("TRAVIS_PHP_VERSION=5.4").returns(true)
+        shell.expects(:execute).with('phpenv global 5.4').returns(true)
+        shell.expects(:execute).with('php --version')
+
+        job.setup
+      end
     end
   end
 
