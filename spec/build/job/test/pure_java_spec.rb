@@ -11,7 +11,7 @@ describe Travis::Build::Job::Test::PureJava do
       it 'returns "mvn install"' do
         job.expects(:uses_gradle?).returns(false)
         job.expects(:uses_maven?).returns(true)
-        job.install.should == 'mvn install -DskipTests=true'
+        job.install.should == 'mvn install --quiet -DskipTests=true'
       end
     end
 

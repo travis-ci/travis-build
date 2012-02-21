@@ -50,7 +50,7 @@ Feature: Testing a Groovy project
        | job:test:log    | log: git clone                    |
        | job:test:log    | log: cd travis-ci/travis-ci       |
        | job:test:log    | log: git checkout                 |
-       | job:test:log    | log: mvn install -DskipTests=true |
+       | job:test:log    | log: mvn install --quiet -DskipTests=true |
        | job:test:log    | log: mvn test                     |
        | job:test:log    | log: /Done.* 0/                   |
        | job:test:finish | finished_at: [now], status: 0     |

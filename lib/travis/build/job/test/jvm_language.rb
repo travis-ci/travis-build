@@ -41,7 +41,7 @@ module Travis
           def install_dependencies_with_maven
             # otherwise mvn install will run tests
             # and we do not want it. Per suggestion from Charles Nutter. MK.
-            "mvn install -DskipTests=true"
+            "mvn install --quiet -DskipTests=true"
           end
 
           def run_tests_with_gradle
