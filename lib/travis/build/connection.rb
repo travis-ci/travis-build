@@ -3,6 +3,8 @@ require 'faraday'
 module Travis
   class Build
     module Connection
+      # Models an http connection on top of faraday but encapsulating details
+      # about the ssl cert
       class Http < Faraday::Connection
         def initialize(config)
           super(nil, :ssl => ssl_options(config))

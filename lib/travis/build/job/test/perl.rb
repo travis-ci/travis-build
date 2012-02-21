@@ -5,10 +5,12 @@ module Travis
         class Perl < Test
           class Config < Hashr
           end
+
           def setup
             super
             announce_versions
           end
+
           def install
             "cpanm --installdeps --notest ."
           end
@@ -30,25 +32,25 @@ module Travis
 
           protected
 
-          def uses_module_build?
-            @uses_module_build ||= shell.file_exists?('Build.PL')
-          end
+            def uses_module_build?
+              @uses_module_build ||= shell.file_exists?('Build.PL')
+            end
 
-          def uses_eumm?
-            @uses_eumm ||= shell.file_exists?('Makefile.PL')
-          end
+            def uses_eumm?
+              @uses_eumm ||= shell.file_exists?('Makefile.PL')
+            end
 
-          def run_tests_with_mb
-            "perl Build.PL && ./Build test"
-          end
+            def run_tests_with_mb
+              "perl Build.PL && ./Build test"
+            end
 
-          def run_tests_with_eumm
-            "perl Makefile.PL && make test"
-          end
+            def run_tests_with_eumm
+              "perl Makefile.PL && make test"
+            end
 
-          def run_default
-            "make test"
-          end
+            def run_default
+              "make test"
+            end
         end
       end
     end

@@ -26,21 +26,21 @@ module Travis
 
           protected
 
-          def uses_rebar?
-            @uses_rebar ||= (shell.file_exists?('rebar.config') || shell.file_exists?('Rebar.config'))
-          end
-
-          def rebar
-            if has_local_rebar?
-              "./rebar"
-            else
-              "rebar"
+            def uses_rebar?
+              @uses_rebar ||= (shell.file_exists?('rebar.config') || shell.file_exists?('Rebar.config'))
             end
-          end
 
-          def has_local_rebar?
-            shell.file_exists?('rebar')
-          end
+            def rebar
+              if has_local_rebar?
+                "./rebar"
+              else
+                "rebar"
+              end
+            end
+
+            def has_local_rebar?
+              shell.file_exists?('rebar')
+            end
         end
       end
     end

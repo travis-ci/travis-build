@@ -1,6 +1,19 @@
 require 'travis/support'
 
 module Travis
+
+  # Encapsulates a build that is run on a worker. Build is both used for
+  # running a Job::Configure as well as a base class for Build::Remote which
+  # runs a Job::Test in a VM.
+  #
+  # Implements a simple observer pattern to notify observers about state
+  # changes and stream log output.
+  #
+  # A Build takes an event factory which knows how to create events and a
+  # job.
+  #
+  # TODO passing the event factory seems quite odd, doesn't it? Maybe we
+  # could just have a Context which is notified?
   class Build
     autoload :Connection, 'travis/build/connection'
     autoload :Commit,     'travis/build/commit'

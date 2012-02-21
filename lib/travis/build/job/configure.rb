@@ -1,6 +1,12 @@
 module Travis
   class Build
     module Job
+
+      # Job that performs the unit of work of configuring a build request.
+      #
+      # I.e. this simply does an HTTP GET request to the Github API and
+      # passes the result back to travis-hub (which then will either reject
+      # the request based on the configuration or create and run a Build).
       class Configure
         include Logging
 

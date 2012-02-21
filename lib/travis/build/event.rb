@@ -1,6 +1,13 @@
 module Travis
   class Build
+
+    # Models an event, knowing how to construct an event name and namespace.
     class Event
+
+      # Not sure why I decided to have a factory here. It carries the build id
+      # from the payload that we currently build.
+      #
+      # TODO might want to remove this.
       class Factory
         attr_reader :id
 

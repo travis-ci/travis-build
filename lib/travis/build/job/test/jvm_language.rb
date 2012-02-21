@@ -26,35 +26,35 @@ module Travis
 
           protected
 
-          def uses_maven?
-            @uses_maven ||= shell.file_exists?('pom.xml')
-          end
+            def uses_maven?
+              @uses_maven ||= shell.file_exists?('pom.xml')
+            end
 
-          def uses_gradle?
-            @uses_gradle ||= shell.file_exists?('build.gradle')
-          end
+            def uses_gradle?
+              @uses_gradle ||= shell.file_exists?('build.gradle')
+            end
 
-          def install_dependencies_with_gradle
-            "gradle assemble"
-          end
+            def install_dependencies_with_gradle
+              "gradle assemble"
+            end
 
-          def install_dependencies_with_maven
-            # otherwise mvn install will run tests
-            # and we do not want it. Per suggestion from Charles Nutter. MK.
-            "mvn install --quiet -DskipTests=true"
-          end
+            def install_dependencies_with_maven
+              # otherwise mvn install will run tests
+              # and we do not want it. Per suggestion from Charles Nutter. MK.
+              "mvn install --quiet -DskipTests=true"
+            end
 
-          def run_tests_with_gradle
-            "gradle check"
-          end
+            def run_tests_with_gradle
+              "gradle check"
+            end
 
-          def run_tests_with_maven
-            "mvn test"
-          end
+            def run_tests_with_maven
+              "mvn test"
+            end
 
-          def run_tests_with_ant
-            "ant test"
-          end
+            def run_tests_with_ant
+              "ant test"
+            end
         end
       end
     end

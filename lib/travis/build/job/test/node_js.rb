@@ -5,6 +5,7 @@ module Travis
         class NodeJs < Test
           class Config < Hashr
             define :node_js => '0.4'
+
             def nodejs
               # some old projects use language: nodejs. MK.
               self[:node_js]
@@ -13,7 +14,6 @@ module Travis
 
           def setup
             super
-
             setup_node
             announce_node
           end
@@ -28,23 +28,23 @@ module Travis
 
           protected
 
-          def uses_npm?
-            @uses_npm ||= shell.file_exists?('package.json')
-          end
+            def uses_npm?
+              @uses_npm ||= shell.file_exists?('package.json')
+            end
 
-          def setup_node
-            shell.execute("nvm use #{config.node_js}")
-          end
-          assert :setup_node
+            def setup_node
+              shell.execute("nvm use #{config.node_js}")
+            end
+            assert :setup_node
 
-          def announce_node
-            shell.execute("node --version")
-            shell.execute("npm --version")
-          end
+            def announce_node
+              shell.execute("node --version")
+              shell.execute("npm --version")
+            end
 
-          def export_environment_variables
-            shell.export_line("TRAVIS_NODE_VERSION=#{config.node_js}")
-          end
+            def export_environment_variables
+              shell.export_line("TRAVIS_NODE_VERSION=#{config.node_js}")
+            end
         end
       end
     end

@@ -2,12 +2,32 @@ require 'active_support/inflector/methods'
 require 'active_support/core_ext/object/blank'
 require 'timeout'
 
-# # rake and fileutils might be mixed into the global namespace, defining :install
-# class Hashr; undef :install; end
-
 module Travis
   class Build
     module Job
+
+      # Job::Test subclasses execute test suite run using presets for the given
+      # language.
+      #
+      # A test job takes
+      #  * a shell (ssh shell into a running vm) which will be used to run comands
+      #  * a commit which can be checked out from Github
+      #  * the configuration for this test run
+      #
+      # A test job performs the following steps:
+      #
+      #  * change to the vm's build working directory
+      #  * export enviroment variables as defined by the configuration as well
+      #    as variables that inform about the current environment
+      #  * check out the commit from Github
+      #  * setup the build if required for the current language (e.g. switch to
+      #    the given Ruby version and define the Gemfile for bundler if used)
+      #  * run the before_install, install, before_script, script, and
+      #    after_script commands
+      #
+      # The install and script commands might be defined by the language
+      # specific test subclasses. All of the commands can be defined in the
+      # test configuration.
       class Test
         autoload :Clojure,     'travis/build/job/test/clojure'
         autoload :Erlang,      'travis/build/job/test/erlang'
@@ -20,7 +40,7 @@ module Travis
         autoload :Ruby,        'travis/build/job/test/ruby'
         autoload :Scala,       'travis/build/job/test/scala'
 
-        COMMANDS = %w(before_install install before_script script after_script)
+        STAGES = [:before_install, :install, :before_script, :script, :after_script]
 
         extend Assertions
         include Logging
@@ -31,13 +51,14 @@ module Travis
           def by_lang(lang)
             lang = Array(lang).first
             lang = (lang || 'ruby').downcase
-            # Java builder cannot follow typical conventions
-            # because JRuby won't let us use a class named "Java". MK.
-            return Job::Test::PureJava if lang == "java"
 
-            args = [ActiveSupport::Inflector.camelize(lang.downcase)]
-            args << false if Kernel.method(:const_get).arity == -1
-            Job::Test.const_get(*args) rescue Job::Test::Ruby
+            if lang == 'java'
+              Job::Test::PureJava
+            else
+              args = [ActiveSupport::Inflector.camelize(lang.downcase)]
+              args << false if Kernel.method(:const_get).arity == -1
+              Job::Test.const_get(*args) rescue Job::Test::Ruby
+            end
           end
         end
 
@@ -49,18 +70,9 @@ module Travis
           @config = config
         end
 
-        def setup
-          export_environment_variables
-        end
-
         def install
-          # intentional no-op. If we don't define this method, builders
-          # that do not define #install (like the php one) will fail because
-          # rake defines Kernel#install with different arity. Because we cannot
-          # guarantee that all of our dependencies will correctly depend on rake only
-          # for development and occasionally people may forget to run
-          # bundle install --without test. So, the best solution may be to just difine this no-op
-          # method. MK.
+          # intentional no-op. We need to overwrite Kernel#install which is added by Rake
+          # because we use `respond_to?` in `commands_for`.
         end
 
         def run
@@ -70,16 +82,12 @@ module Travis
 
         protected
 
-        def export_environment_variables
-          # no-op, overriden by subclasses. MK.
-        end
-
           def perform
             chdir
             export
             checkout
             setup if respond_to?(:setup)
-            run_commands
+            run_stages
           rescue AssertionFailed => e
             log_exception(e)
             false
@@ -100,35 +108,42 @@ module Travis
           end
           assert :checkout
 
-          def run_commands
-            COMMANDS.each do |category|
-              return false unless run_commands_for_category(category)
+          def setup
+            export_environment_variables
+          end
+
+          # TODO can't this be merged with export? does it actually need to happen after checkout?
+          def export_environment_variables
+            # no-op, overriden by subclasses. MK.
+          end
+
+          def run_stages
+            STAGES.each do |stage|
+              return false unless run_commands(stage)
             end && true
           end
 
-          def run_commands_for_category(category)
-            commands(category).each do |command|
-              return false unless run_command(command, :category => category.to_sym)
+          def run_commands(stage)
+            commands_for(stage).each do |command|
+              return false unless run_command(stage, command)
             end && true
           end
 
-          def run_command(command, options = {})
-            category = options[:category]
-            unless shell.execute(command, :timeout => category)
-              shell.echo "\n\n#{category}: '#{command}' returned false." unless category == :script
+          def run_command(stage, command)
+            unless shell.execute(command, :timeout => stage)
+              shell.echo "\n\n#{stage}: '#{command}' returned false." unless stage == :script
               false
             else
               true
             end
           rescue Timeout::Error => e
-            timeout  = shell.timeout(category)
-            shell.echo "\n\n#{category}: Execution of '#{command}' took longer than #{timeout} seconds and was terminated. Consider rewriting your stuff in AssemblyScript, we've heard it handles Web Scale\342\204\242\n\n"
+            timeout = shell.timeout(stage)
+            shell.echo "\n\n#{stage}: Execution of '#{command}' took longer than #{timeout} seconds and was terminated. Consider rewriting your stuff in AssemblyScript, we've heard it handles Web Scale\342\204\242\n\n"
             false
           end
 
-          def commands(type)
-            commands = config[type] || (respond_to?(type, true) ? send(type) : nil)
-            Array(commands)
+          def commands_for(stage)
+            Array(config[stage] || (respond_to?(stage, true) ? send(stage) : nil))
           end
       end
     end

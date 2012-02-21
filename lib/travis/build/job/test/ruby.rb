@@ -11,7 +11,6 @@ module Travis
 
           def setup
             super
-
             setup_ruby
             announce_ruby
             setup_bundler if uses_bundler?
@@ -27,27 +26,27 @@ module Travis
 
           protected
 
-          def setup_ruby
-            shell.execute("rvm use #{config.rvm}", :echo => true)
-          end
-          assert :setup_ruby
+            def setup_ruby
+              shell.execute("rvm use #{config.rvm}", :echo => true)
+            end
+            assert :setup_ruby
 
-          def setup_bundler
-            shell.export_line("BUNDLE_GEMFILE=#{shell.cwd}/#{config.gemfile}")
-          end
+            def setup_bundler
+              shell.export_line("BUNDLE_GEMFILE=#{shell.cwd}/#{config.gemfile}")
+            end
 
-          def uses_bundler?
-            @uses_bundler ||= shell.file_exists?(config.gemfile)
-          end
+            def uses_bundler?
+              @uses_bundler ||= shell.file_exists?(config.gemfile)
+            end
 
-          def announce_ruby
-            shell.execute("ruby --version")
-            shell.execute("gem --version")
-          end
+            def announce_ruby
+              shell.execute("ruby --version")
+              shell.execute("gem --version")
+            end
 
-          def export_environment_variables
-            shell.export_line("TRAVIS_RUBY_VERSION=#{config.rvm}")
-          end
+            def export_environment_variables
+              shell.export_line("TRAVIS_RUBY_VERSION=#{config.rvm}")
+            end
         end
       end
     end

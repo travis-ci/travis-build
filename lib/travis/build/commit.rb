@@ -1,5 +1,8 @@
 module Travis
   class Build
+
+    # Models a commit hash on a repository so we do not have to pass both
+    # around.
     class Commit
       attr_reader :repository, :hash
 

@@ -11,7 +11,6 @@ module Travis
 
           def setup
             super
-
             announce_leiningen
           end
 
@@ -21,9 +20,9 @@ module Travis
 
           protected
 
-          def announce_leiningen
-            shell.execute("lein version")
-          end
+            def announce_leiningen
+              shell.execute("lein version")
+            end
         end
       end
     end

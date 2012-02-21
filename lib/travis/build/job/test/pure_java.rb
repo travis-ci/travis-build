@@ -4,7 +4,7 @@ module Travis
   class Build
     module Job
       class Test
-        # Using just "Java" clashes with JRuby's Java integration. MK.
+        # JRuby makes "Java" a reserved word so we cannot name our subclass like that
         class PureJava < JvmLanguage
           class Config < Hashr
           end

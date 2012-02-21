@@ -2,8 +2,10 @@ require "travis/build/length_limit"
 
 module Travis
   class Build
+
+    # Build that runs the given job in the given vm through the given shell.
+    #
     class Remote < Build
-      # 2 MB per discussion with svenfuchs. MK.
       BUILD_LOG_LENGTH_LIMIT = 4 * 1024 * 1024
 
       attr_reader :name, :vm, :shell, :output_length
@@ -34,52 +36,55 @@ module Travis
 
       protected
 
-      def perform
-        log "Using worker: #{name}\n\n"
-        result = vm.sandboxed do
-          with_shell do
-            job.run
+        def perform
+          log "Using worker: #{name}\n\n"
+          result = vm.sandboxed do
+            with_shell do
+              job.run
+            end
+          end
+          log "\nDone. Build script exited with: #{result[:status]}\n"
+          result
+        end
+
+        def with_shell
+          shell.connect
+          shell.on_output(&method(:on_output))
+
+          yield.tap do
+            shell.close
           end
         end
-        log "\nDone. Build script exited with: #{result[:status]}\n"
-        result
-      end
 
-      def with_shell
-        shell.connect
-        shell.on_output(&method(:on_output))
+        # TODO if we keep tabs on the logged output length in `log` and just
+        # make the build fail here (similar to the `timeout`) we should be
+        # able to reduce the logic required here?
+        def inject_log_limit_message!
+          log("\n\n")
+          log("[WARNING] Build log length has exceeded the limit (4 MB). This usually means that test suite is raising the same exception over and over. Ignoring all subsequent output.")
+          log("\n\n")
 
-        yield.tap do
-          shell.close
-        end
-      end
-
-      def inject_log_limit_message!
-        log("\n\n")
-        log("[WARNING] Build log length has exceeded the limit (4 MB). This usually means that test suite is raising the same exception over and over. Ignoring all subsequent output.")
-        log("\n\n")
-
-        @injected_log_trimming_message = true
-      end
-
-      def maybe_log(output, options = {})
-        if drop_log_output?
-          inject_log_limit_message! unless injected_log_trimming_message?
-        else
-          log(output, options)
+          @injected_log_trimming_message = true
         end
 
-        @output_length_limit.update(output)
-      end
+        def maybe_log(output, options = {})
+          if drop_log_output?
+            inject_log_limit_message! unless injected_log_trimming_message?
+          else
+            log(output, options)
+          end
 
-      def on_output(output, options = {})
-        maybe_log(output, options)
-      end
+          @output_length_limit.update(output)
+        end
 
-      def notify(type, data)
-        data.merge!(:worker => name) if type == :start
-        super
-      end
+        def on_output(output, options = {})
+          maybe_log(output, options)
+        end
+
+        def notify(type, data)
+          data.merge!(:worker => name) if type == :start
+          super
+        end
     end
   end
 end
