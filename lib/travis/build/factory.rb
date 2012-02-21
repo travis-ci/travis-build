@@ -23,7 +23,13 @@ module Travis
       protected
 
         def job
-          @job ||= configure? ? configure : test
+          @job ||= if payload[:type]
+            self.send(payload[:type])
+          else
+            # TODO this can be removed once this travis-core commit is deployed on travis-hub:
+            # https://github.com/travis-ci/travis-core/commit/9157f820c0f7278a345cdd4a6967bf4d2751bd84
+            configure? ? configure : test
+          end
         end
 
         def events
