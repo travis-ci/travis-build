@@ -1,5 +1,3 @@
-require "travis/build/length_limit"
-
 module Travis
   class Build
 
@@ -35,7 +33,7 @@ module Travis
 
         def with_shell
           shell.connect
-          shell.on_output(&method(:on_output))
+          shell.on_output(&method(:log))
 
           yield.tap do
             shell.close
