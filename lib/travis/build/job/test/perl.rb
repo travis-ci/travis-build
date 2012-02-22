@@ -8,8 +8,16 @@ module Travis
 
           def setup
             super
+            # cpanm modules will be stored here. Should be writeable and
+            # local/unique to this particular Perl version. Per discussion with Duke Leto. MK.
+            shell.execute "mkdir -p #{cpanm_modules_location}"
+            shell.execute "export PERL_CPANM_OPT=#{cpanm_modules_location}"
             shell.execute "perlbrew use #{config.perl}"
             announce_versions
+          end
+
+          def cpanm_modules_location
+            "~/perl5/perlbrew/perls/#{config.perl}/cpanm"
           end
 
           def install
