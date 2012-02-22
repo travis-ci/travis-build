@@ -136,9 +136,11 @@ module Travis
             else
               true
             end
+          rescue OutputLimitExceeded => e
+            shell.echo "\n\n#{e.message}\n\n"
+            false
           rescue Timeout::Error => e
-            timeout = shell.timeout(stage)
-            shell.echo "\n\n#{stage}: Execution of '#{command}' took longer than #{timeout} seconds and was terminated. Consider rewriting your stuff in AssemblyScript, we've heard it handles Web Scale\342\204\242\n\n"
+            shell.echo "\n\n#{shell.timeout(stage)}: Execution of '#{command}' took longer than #{timeout} seconds and was terminated. Consider rewriting your stuff in AssemblyScript, we've heard it handles Web Scale\342\204\242\n\n"
             false
           end
 
