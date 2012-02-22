@@ -112,9 +112,13 @@ module Travis
             export_environment_variables
           end
 
-          # TODO can't this be merged with export? does it actually need to happen after checkout?
+          # Exports system env variables like TRAVIS_RUBY_VERSION, TRAVIS_SCALA_VERSION and so on.
           def export_environment_variables
             # no-op, overriden by subclasses. MK.
+          end
+
+          def home_directory
+            "/home/vagrant"
           end
 
           def run_stages

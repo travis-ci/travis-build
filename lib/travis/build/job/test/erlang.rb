@@ -8,7 +8,7 @@ module Travis
           end
 
           def setup
-            shell.execute "source /home/vagrant/otp/#{config.otp_release}/activate"
+            shell.execute "source #{home_directory}/otp/#{config.otp_release}/activate"
           end
           assert :setup
 
