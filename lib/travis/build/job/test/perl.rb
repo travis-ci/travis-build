@@ -8,6 +8,7 @@ module Travis
 
           def setup
             super
+            shell.execute "perlbrew use #{config.perl}"
             announce_versions
           end
 

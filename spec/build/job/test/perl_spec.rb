@@ -3,8 +3,19 @@ require 'travis/build'
 
 describe Travis::Build::Job::Test::Perl do
   let(:shell) { stub('shell') }
-  let(:config) { Travis::Build::Job::Test::Perl::Config.new }
+  let(:config) { Travis::Build::Job::Test::Perl::Config.new(:perl => "5.14") }
   let(:job) { Travis::Build::Job::Test::Perl.new(shell, nil, config) }
+
+
+  describe 'setup' do
+    it 'switches Perl version using Perlbrew, then announces it' do
+      shell.expects(:execute).with("perlbrew use 5.14").returns(true)
+      shell.expects(:execute).with("perl --version").returns(true)
+      shell.expects(:execute).with("cpanm --version").returns(true)
+
+      job.setup
+    end
+  end
 
 
   describe 'install' do
