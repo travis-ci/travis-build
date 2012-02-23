@@ -21,7 +21,7 @@ module Travis
             if requirements_file_found?
               "pip install -r #{requirements_file_location}"
             else
-              "echo 'Could not locate requirements.txt, not installing dependencies. Override install: key in your .travis.yml to install dependencies the way your project needs.'"
+              "echo 'Could not locate requirements.txt in the repository root, not installing dependencies. Override install: key in your .travis.yml to install dependencies the way your project needs.'"
             end
           end
 

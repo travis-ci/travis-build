@@ -38,7 +38,7 @@ describe Travis::Build::Job::Test::Python do
     context "when neither requirements.txt nor Requirements.txt is found in the repository root" do
       it "echoes that requirements file isn't found" do
         job.expects(:requirements_file_found?).returns(false)
-        job.install.should == "echo 'Could not locate requirements.txt, not installing dependencies. Override install: key in your .travis.yml to install dependencies the way your project needs.'"
+        job.install.should == "echo 'Could not locate requirements.txt in the repository root, not installing dependencies. Override install: key in your .travis.yml to install dependencies the way your project needs.'"
       end
     end
   end
