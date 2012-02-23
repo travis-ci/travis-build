@@ -4,16 +4,12 @@ module Travis
       class Test
         class Perl < Test
           class Config < Hashr
+            define :perl => '5.14'
           end
 
           def setup
             super
-            # cpanm modules will be stored here. Should be writeable and
-            # local/unique to this particular Perl version. Per discussion with Duke Leto and Magnus Hold. MK.
-            shell.execute "mkdir -p #{cpanm_modules_location}"
-            shell.execute "export PERL_CPANM_OPT='-L #{cpanm_modules_location}'"
             shell.execute "perlbrew use #{config.perl}"
-            shell.execute "eval $(perl -Mlocal::lib=#{cpanm_modules_location})"
             announce_versions
           end
 
