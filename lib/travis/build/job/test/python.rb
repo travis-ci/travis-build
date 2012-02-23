@@ -27,6 +27,10 @@ module Travis
           end
 
           def script
+            # if we can do sane test tool detection by testing files or directories,
+            # we should do it here. If not, Python projects will have to always override
+            # script: key. MK.
+            run_default
           end
 
           protected
