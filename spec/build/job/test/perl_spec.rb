@@ -10,8 +10,9 @@ describe Travis::Build::Job::Test::Perl do
   describe 'setup' do
     it 'switches Perl version using Perlbrew, then announces it' do
       shell.expects(:execute).with("mkdir -p ~/perl5/perlbrew/perls/5.14/cpanm").returns(true)
-      shell.expects(:execute).with("export PERL_CPANM_OPT=~/perl5/perlbrew/perls/5.14/cpanm").returns(true)
+      shell.expects(:execute).with("export PERL_CPANM_OPT='-L ~/perl5/perlbrew/perls/5.14/cpanm'").returns(true)
       shell.expects(:execute).with("perlbrew use 5.14").returns(true)
+      shell.expects(:execute).with("eval $(perl -Mlocal::lib=~/perl5/perlbrew/perls/5.14/cpanm)").returns(true)
       shell.expects(:execute).with("perl --version").returns(true)
       shell.expects(:execute).with("cpanm --version").returns(true)
 
