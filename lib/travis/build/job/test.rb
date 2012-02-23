@@ -37,6 +37,7 @@ module Travis
         autoload :NodeJs,      'travis/build/job/test/node_js'
         autoload :Perl,        'travis/build/job/test/perl'
         autoload :Php,         'travis/build/job/test/php'
+        autoload :Python,      'travis/build/job/test/python'
         autoload :Ruby,        'travis/build/job/test/ruby'
         autoload :Scala,       'travis/build/job/test/scala'
 
