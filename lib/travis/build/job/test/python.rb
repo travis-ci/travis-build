@@ -18,6 +18,7 @@ module Travis
           end
 
           def install
+            "pip install -r #{requirements_file_location}"
           end
 
           def announce_versions
@@ -31,13 +32,27 @@ module Travis
           protected
 
             def run_default
-              "make test"
+              # no default for the Python builder, because Python ecosystem has
+              # no good default most of the community agrees on. Per discussion with jezjez, josh-k
+              # and several others.
+              #
+              # This ALWAYS fails the build. MK.
+              "/bin/false"
             end
 
             def export_environment_variables
               # export expected Python version in an environment variable as helper
               # for cross-version build in custom scripts
               shell.export_line("TRAVIS_PYTHON_VERSION=#{config.python}")
+            end
+
+            def requirements_file_location
+              if shell.file_exists?("Requirements.txt")
+                "Requirements.txt"
+              else
+                # heroku build pack uses this. MK.
+                "requirements.txt"
+              end
             end
         end
       end

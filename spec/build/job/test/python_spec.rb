@@ -20,6 +20,19 @@ describe Travis::Build::Job::Test::Python do
 
 
   describe 'install' do
+    context "when Requirements.txt is found in the repository root" do
+      it "returns pip install -r Requirements.txt" do
+        shell.expects(:file_exists?).with("Requirements.txt").returns(true)
+        job.install.should == "pip install -r Requirements.txt"
+      end
+    end
+
+    context "when Requirements.txt is NOT found in the repository root" do
+      it "returns pip install -r requirements.txt" do
+        shell.expects(:file_exists?).with("Requirements.txt").returns(false)
+        job.install.should == "pip install -r requirements.txt"
+      end
+    end
   end
 
 
