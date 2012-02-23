@@ -18,7 +18,11 @@ module Travis
           end
 
           def install
-            "pip install -r #{requirements_file_location}"
+            if requirements_file_found?
+              "pip install -r #{requirements_file_location}"
+            else
+              "echo 'Could not locate requirements.txt, not installing dependencies. Override install: key in your .travis.yml to install dependencies the way your project needs.'"
+            end
           end
 
           def announce_versions
@@ -30,18 +34,18 @@ module Travis
             # if we can do sane test tool detection by testing files or directories,
             # we should do it here. If not, Python projects will have to always override
             # script: key. MK.
-            run_default
+            shell.execute ""
+            fail_the_build("Please override script: key in your .travis.yml to run tests the way your project needs.")
           end
 
           protected
 
-            def run_default
+            def fail_the_build(msg)
               # no default for the Python builder, because Python ecosystem has
               # no good default most of the community agrees on. Per discussion with jezjez, josh-k
               # and several others.
-              #
               # This ALWAYS fails the build. MK.
-              "/bin/false"
+              "echo '#{msg}' && /bin/false"
             end
 
             def export_environment_variables
@@ -57,6 +61,10 @@ module Travis
                 # heroku build pack uses this. MK.
                 "requirements.txt"
               end
+            end
+
+            def requirements_file_found?
+              shell.file_exists?("Requirements.txt") || shell.file_exists?("requirements.txt")
             end
         end
       end
