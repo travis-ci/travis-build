@@ -34,7 +34,6 @@ module Travis
             # if we can do sane test tool detection by testing files or directories,
             # we should do it here. If not, Python projects will have to always override
             # script: key. MK.
-            shell.execute ""
             fail_the_build("Please override script: key in your .travis.yml to run tests the way your project needs.")
           end
 
