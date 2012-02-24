@@ -1,6 +1,7 @@
 require 'travis/support'
 
 module Travis
+
   # Encapsulates a build that is run on a worker. Build is both used for
   # running a Job::Configure as well as a base class for Build::Remote which
   # runs a Job::Test in a VM.
@@ -13,10 +14,15 @@ module Travis
   #
   # TODO passing the event factory seems quite odd, doesn't it? Maybe we
   # could just have a Context which is notified?
+  #
+  # TODO using Build both as a concrete class (for running configure jobs)
+  # and as a base class for Build::Remote (which runs test and potentially
+  # other jobs) seems odd. Maybe move to Runner::Local and Runner::Remote
+  # or similar.
   class Build
     # not quite sure where to best put this
     class OutputLimitExceeded < RuntimeError
-      def intitialize(limit)
+      def initialize(limit)
         super("The log length has exceeded the limit of #{limit} Bytes (this usually means that test suite is raising the same exception over and over). Terminating.")
       end
     end
@@ -55,12 +61,13 @@ module Travis
     def run
       notify :start, :started_at => Time.now.utc
       result = perform
+    rescue OutputLimitExceeded => e
+      log "\n\n#{e.message}\n\n"
     rescue => e
       log_exception(e)
-      result = {}
     ensure
       notify :finish, (result || {}).merge(:finished_at => Time.now.utc)
-      result
+      result || {}
     end
     log :run
 

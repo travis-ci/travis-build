@@ -18,4 +18,3 @@ On JRuby (currently 1.8 mode):
 See LICENSE file.
 
 Copyright (c) 2011-2012 [Travis CI development team](https://github.com/travis-ci).
-
