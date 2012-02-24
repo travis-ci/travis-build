@@ -226,7 +226,7 @@ Then /^it (successfully|fails to) installs? dependencies with (.*)$/ do |result,
   cmd = cmds[dependencies]
 
   $shell.expects(:execute).
-    with(cmd, :timeout => :install).
+    with(cmd, :stage => :install).
     outputs(cmd).
     returns(result == 'successfully').
     in_sequence($sequence)
@@ -234,7 +234,7 @@ end
 
 Then /^it (successfully|fails to) runs? the (.*): (.*)$/ do |result, type, command|
   $shell.expects(:execute).
-    with(command, :timeout => type.to_sym).
+    with(command, :stage => type.to_sym).
     outputs(command).
     returns(result == 'successfully').
     in_sequence($sequence)

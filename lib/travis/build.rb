@@ -1,4 +1,5 @@
 require 'travis/support'
+require 'travis/build/exceptions'
 
 module Travis
 
@@ -20,13 +21,6 @@ module Travis
   # other jobs) seems odd. Maybe move to Runner::Local and Runner::Remote
   # or similar.
   class Build
-    # not quite sure where to best put this
-    class OutputLimitExceeded < RuntimeError
-      def initialize(limit)
-        super("The log length has exceeded the limit of #{limit} Bytes (this usually means that test suite is raising the same exception over and over). Terminating.")
-      end
-    end
-
     autoload :Connection, 'travis/build/connection'
     autoload :Commit,     'travis/build/commit'
     autoload :Event,      'travis/build/event'
@@ -61,7 +55,7 @@ module Travis
     def run
       notify :start, :started_at => Time.now.utc
       result = perform
-    rescue OutputLimitExceeded => e
+    rescue CommandTimeout, OutputLimitExceeded => e
       log "\n\n#{e.message}\n\n"
     rescue => e
       log_exception(e)

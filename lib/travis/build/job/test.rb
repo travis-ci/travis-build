@@ -130,16 +130,9 @@ module Travis
           end
 
           def run_command(stage, command)
-            unless shell.execute(command, :timeout => stage)
-              shell.echo "\n\n#{stage}: '#{command}' returned false." unless stage == :script
-              false
-            else
-              true
-            end
-          # TODO move this to build.run, need to figure out how to pass the timeout though, Timeout::Error seems to be too stupid for that
-          rescue Timeout::Error => e
-            shell.echo "\n\n#{stage}: Execution of '#{command}' took longer than #{shell.timeout(stage)} seconds and was terminated. Consider rewriting your stuff in AssemblyScript, we've heard it handles Web Scale\342\204\242\n\n"
-            false
+            result = shell.execute(command, :stage => stage)
+            shell.echo "\n\n#{stage}: '#{command}' returned false." if !result && stage != :script
+            result
           end
 
           def commands_for(stage)
