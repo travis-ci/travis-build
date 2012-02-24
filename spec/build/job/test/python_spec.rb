@@ -23,7 +23,7 @@ describe Travis::Build::Job::Test::Python do
     context "when Requirements.txt is found in the repository root" do
       it "returns pip install -r Requirements.txt" do
         shell.expects(:file_exists?).with("Requirements.txt").at_least_once.returns(true)
-        job.install.should == "pip install -r Requirements.txt"
+        job.install.should == "pip install -r Requirements.txt --use-mirrors"
       end
     end
 
@@ -31,7 +31,7 @@ describe Travis::Build::Job::Test::Python do
       it "returns pip install -r requirements.txt" do
         shell.expects(:file_exists?).with("Requirements.txt").at_least_once.returns(false)
         shell.expects(:file_exists?).with("requirements.txt").at_least_once.returns(true)
-        job.install.should == "pip install -r requirements.txt"
+        job.install.should == "pip install -r requirements.txt --use-mirrors"
       end
     end
 

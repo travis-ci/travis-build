@@ -19,7 +19,7 @@ module Travis
 
           def install
             if requirements_file_found?
-              "pip install -r #{requirements_file_location}"
+              "pip install -r #{requirements_file_location} --use-mirrors"
             else
               "echo 'Could not locate requirements.txt in the repository root, not installing dependencies. Override install: key in your .travis.yml to install dependencies the way your project needs.'"
             end
