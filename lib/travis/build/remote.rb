@@ -1,13 +1,8 @@
-require "travis/build/length_limit"
-
 module Travis
   class Build
 
     # Build that runs the given job in the given vm through the given shell.
-    #
     class Remote < Build
-      BUILD_LOG_LENGTH_LIMIT = 4 * 1024 * 1024
-
       attr_reader :name, :vm, :shell, :output_length
 
       log_header { "#{Thread.current[:log_header]}:build:remote" }
@@ -17,17 +12,6 @@ module Travis
         @name = vm.name
         @vm = vm
         @shell = shell
-
-        @output_length_limit = LengthLimit.new(BUILD_LOG_LENGTH_LIMIT)
-        @injected_log_trimming_message = false
-      end
-
-      def injected_log_trimming_message?
-        @injected_log_trimming_message
-      end
-
-      def drop_log_output?
-        @output_length_limit.hit?
       end
 
       def name
@@ -49,36 +33,10 @@ module Travis
 
         def with_shell
           shell.connect
-          shell.on_output(&method(:on_output))
-
-          yield.tap do
-            shell.close
-          end
-        end
-
-        # TODO if we keep tabs on the logged output length in `log` and just
-        # make the build fail here (similar to the `timeout`) we should be
-        # able to reduce the logic required here?
-        def inject_log_limit_message!
-          log("\n\n")
-          log("[WARNING] Build log length has exceeded the limit (4 MB). This usually means that test suite is raising the same exception over and over. Ignoring all subsequent output.")
-          log("\n\n")
-
-          @injected_log_trimming_message = true
-        end
-
-        def maybe_log(output, options = {})
-          if drop_log_output?
-            inject_log_limit_message! unless injected_log_trimming_message?
-          else
-            log(output, options)
-          end
-
-          @output_length_limit.update(output)
-        end
-
-        def on_output(output, options = {})
-          maybe_log(output, options)
+          shell.on_output(&method(:log))
+          yield
+        ensure
+          shell.close
         end
 
         def notify(type, data)

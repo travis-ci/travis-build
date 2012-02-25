@@ -82,12 +82,12 @@ describe Travis::Build::Job::Test do
     end
 
     it 'returns { :status => 0 } if the last script returned true' do
-      shell.expects(:execute).with('rake', :timeout => :script).returns(true)
+      shell.expects(:execute).with('rake', :stage => :script).returns(true)
       job.run.should == { :status => 0 }
     end
 
     it 'returns { :status => 1 } if the last script returned false' do
-      shell.expects(:execute).with('rake', :timeout => :script).returns(false)
+      shell.expects(:execute).with('rake', :stage => :script).returns(false)
       job.run.should == { :status => 1 }
     end
 
@@ -193,30 +193,12 @@ describe Travis::Build::Job::Test do
       job.send(:run_command, :script, './foo').should be_false
     end
 
-    it 'returns false if a Timeout::Error is raised' do
-      shell.expects(:timeout).with(:script).returns(300)
-      shell.expects(:execute).with('./foo', any_parameters).raises(Timeout::Error)
-      job.send(:run_command, :script, './foo').should be_false
-    end
-
     context "when a before_script has failed" do
       it 'echos a message to the shell' do
         job.config.before_script = './before'
 
-        shell.expects(:execute).with('./before', { :timeout => :before_script }).returns(false)
+        shell.expects(:execute).with('./before', { :stage => :before_script }).returns(false)
         shell.expects(:echo).with("\n\nbefore_script: './before' returned false.")
-
-        job.send(:run_command, :before_script, './before')
-      end
-    end
-
-    context "when a before_script has timed out" do
-      it 'echos a message to the shell' do
-        job.config.before_script = './before'
-
-        shell.expects(:timeout).with(:before_script).returns(300)
-        shell.expects(:execute).with('./before', { :timeout => :before_script }).raises(Timeout::Error)
-        shell.expects(:echo).with("\n\nbefore_script: Execution of './before' took longer than 300 seconds and was terminated. Consider rewriting your stuff in AssemblyScript, we've heard it handles Web Scale\342\204\242\n\n")
 
         job.send(:run_command, :before_script, './before')
       end

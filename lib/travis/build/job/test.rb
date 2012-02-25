@@ -89,6 +89,9 @@ module Travis
             checkout
             setup if respond_to?(:setup)
             run_stages
+          rescue CommandTimeout, OutputLimitExceeded => e
+            shell.echo "\n\n#{e.message}\n\n", :force => true
+            false
           rescue AssertionFailed => e
             log_exception(e)
             false
@@ -135,16 +138,9 @@ module Travis
           end
 
           def run_command(stage, command)
-            unless shell.execute(command, :timeout => stage)
-              shell.echo "\n\n#{stage}: '#{command}' returned false." unless stage == :script
-              false
-            else
-              true
-            end
-          rescue Timeout::Error => e
-            timeout = shell.timeout(stage)
-            shell.echo "\n\n#{stage}: Execution of '#{command}' took longer than #{timeout} seconds and was terminated. Consider rewriting your stuff in AssemblyScript, we've heard it handles Web Scale\342\204\242\n\n"
-            false
+            result = shell.execute(command, :stage => stage)
+            shell.echo "\n\n#{stage}: '#{command}' returned false." if !result && stage != :script
+            result
           end
 
           def commands_for(stage)

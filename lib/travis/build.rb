@@ -1,4 +1,5 @@
 require 'travis/support'
+require 'travis/build/exceptions'
 
 module Travis
 
@@ -14,6 +15,11 @@ module Travis
   #
   # TODO passing the event factory seems quite odd, doesn't it? Maybe we
   # could just have a Context which is notified?
+  #
+  # TODO using Build both as a concrete class (for running configure jobs)
+  # and as a base class for Build::Remote (which runs test and potentially
+  # other jobs) seems odd. Maybe move to Runner::Local and Runner::Remote
+  # or similar.
   class Build
     autoload :Connection, 'travis/build/connection'
     autoload :Commit,     'travis/build/commit'
@@ -51,10 +57,8 @@ module Travis
       result = perform
     rescue => e
       log_exception(e)
-      result = {}
     ensure
       notify :finish, (result || {}).merge(:finished_at => Time.now.utc)
-      result
     end
     log :run
 
