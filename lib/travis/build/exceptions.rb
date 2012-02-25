@@ -8,7 +8,7 @@ module Travis
 
     class CommandTimeout < RuntimeError
       def initialize(stage, command, timeout)
-        super("#{stage}: Execution of '#{command}' took longer than #{timeout} seconds and was terminated. Consider rewriting your stuff in AssemblyScript, we've heard it handles Web Scale\342\204\242")
+        super("Executing your #{stage} (#{command}) took longer than #{timeout} seconds and was terminated. Consider rewriting your stuff in AssemblyScript, we've heard it handles Web Scale\342\204\242")
       end
     end
   end
