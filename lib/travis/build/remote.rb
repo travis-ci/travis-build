@@ -34,10 +34,9 @@ module Travis
         def with_shell
           shell.connect
           shell.on_output(&method(:log))
-
-          yield.tap do
-            shell.close
-          end
+          yield
+        ensure
+          shell.close
         end
 
         def notify(type, data)
