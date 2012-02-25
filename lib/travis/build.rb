@@ -55,13 +55,10 @@ module Travis
     def run
       notify :start, :started_at => Time.now.utc
       result = perform
-    rescue CommandTimeout, OutputLimitExceeded => e
-      log "\n\n#{e.message}\n\n"
     rescue => e
       log_exception(e)
     ensure
       notify :finish, (result || {}).merge(:finished_at => Time.now.utc)
-      result || {}
     end
     log :run
 

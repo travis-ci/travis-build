@@ -88,6 +88,9 @@ module Travis
             checkout
             setup if respond_to?(:setup)
             run_stages
+          rescue CommandTimeout, OutputLimitExceeded => e
+            shell.echo "\n\n#{e.message}\n\n", :force => true
+            false
           rescue AssertionFailed => e
             log_exception(e)
             false
