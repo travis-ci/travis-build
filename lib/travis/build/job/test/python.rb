@@ -4,6 +4,7 @@ module Travis
       class Test
         class Python < Test
           class Config < Hashr
+            define :python => "2.7"
           end
 
           def setup
