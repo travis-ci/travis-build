@@ -18,7 +18,7 @@ module Travis
           end
 
           def install
-            "cpanm -vv --installdeps --notest ."
+            "cpanm --quiet --installdeps --notest ."
           end
 
           def announce_versions
