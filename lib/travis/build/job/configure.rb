@@ -30,7 +30,7 @@ module Travis
               parse(response.body)
             else
               # TODO log error
-              {}
+              { ".fetching_failed" => true }
             end
           end
 
@@ -42,7 +42,7 @@ module Travis
             YAML.load(yaml) || {}
           rescue => e
             log_exception(e)
-            {} # TODO include '.invalid' => true here?
+            { ".parsing_failed" => true }
           end
       end
     end
