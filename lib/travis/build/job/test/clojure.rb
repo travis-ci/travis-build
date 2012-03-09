@@ -6,12 +6,20 @@ module Travis
       class Test
         class Clojure < Test
           class Config < Hashr
-            define :install => 'lein deps', :script  => 'lein test'
+            define :lein => "lein"
           end
 
           def setup
             super
             announce_leiningen
+          end
+
+          def install
+            "#{leiningen} deps"
+          end
+
+          def script
+            "#{leiningen} test"
           end
 
           def uses_leiningen?
@@ -20,8 +28,12 @@ module Travis
 
           protected
 
+            def leiningen
+              config.lein
+            end
+
             def announce_leiningen
-              shell.execute("lein version")
+              shell.execute("#{leiningen} version")
             end
         end
       end
