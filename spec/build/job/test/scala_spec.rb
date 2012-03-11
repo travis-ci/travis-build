@@ -3,8 +3,8 @@ require 'travis/build'
 
 describe Travis::Build::Job::Test::Scala do
   let(:shell)  { stub('shell') }
-  let(:config) { Travis::Build::Job::Test::Scala::Config.new }
-  let(:job)    { Travis::Build::Job::Test::Scala.new(shell, nil, config) }
+  let(:config) { described_class::Config.new }
+  let(:job)    { described_class.new(shell, nil, config) }
 
   describe 'config' do
     it 'defaults :scala to "2.9.1"' do

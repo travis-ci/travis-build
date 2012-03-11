@@ -3,8 +3,8 @@ require 'travis/build'
 
 describe Travis::Build::Job::Test::PureJava do
   let(:shell)  { stub('shell') }
-  let(:config) { Travis::Build::Job::Test::PureJava::Config.new }
-  let(:job)    { Travis::Build::Job::Test::PureJava.new(shell, nil, config) }
+  let(:config) { described_class::Config.new }
+  let(:job)    { described_class.new(shell, nil, config) }
 
   describe 'install' do
     context "when project uses Maven" do
