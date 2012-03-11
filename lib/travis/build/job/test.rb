@@ -32,6 +32,7 @@ module Travis
         autoload :Clojure,     'travis/build/job/test/clojure'
         autoload :Erlang,      'travis/build/job/test/erlang'
         autoload :Groovy,      'travis/build/job/test/groovy'
+        autoload :Haskell,     'travis/build/job/test/haskell'
         autoload :PureJava,    'travis/build/job/test/pure_java'
         autoload :JvmLanguage, 'travis/build/job/test/jvm_language'
         autoload :NodeJs,      'travis/build/job/test/node_js'
