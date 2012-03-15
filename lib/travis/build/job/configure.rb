@@ -30,12 +30,7 @@ module Travis
               parse(response.body)
             else
               # TODO log error
-              {
-                ".fetching_failed" => true,
-                # do not send out any emails if .travis.yml does not exist
-                # on a branch. See travis-ci/travis-ci#414 to learn more.
-                "notifications" => { "email" => false }
-              }
+              { ".fetching_failed" => true }
             end
           end
 
