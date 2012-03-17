@@ -13,7 +13,7 @@ module Travis
           end
 
           def install
-            "cabal install"
+            "cabal update && cabal install"
           end
 
           def script
