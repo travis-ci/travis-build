@@ -28,10 +28,6 @@ module Travis
     autoload :Job,        'travis/build/job'
     autoload :Remote,     'travis/build/remote'
 
-    module Repository
-      autoload :Github, 'travis/build/repository/github'
-    end
-
     module Scm
       autoload :Git, 'travis/build/scm/git'
     end
