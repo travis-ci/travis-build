@@ -6,7 +6,7 @@ describe Travis::Build::Job::Configure do
   let(:response) { stub('response', :success? => true, :body => 'foo: Foo') }
   let(:http)     { stub('http', :get => response) }
   let(:payload)  { Hashr.new(PAYLOADS[:configure]) }
-  let(:commit)   { Travis::Build::Commit.new(payload.repository, payload.build) }
+  let(:commit)   { Travis::Build::Commit.new(payload.build, payload.repository, stub('scm')) }
   let(:job)      { Travis::Build::Job::Configure.new(http, commit) }
 
   describe 'run' do

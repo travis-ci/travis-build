@@ -6,7 +6,7 @@ PAYLOADS = {
   },
   :test => {
     'type'       => 'test',
-    'repository' => { 'slug' => 'travis-ci/travis-ci' },
+    'repository' => { 'slug' => 'travis-ci/travis-ci', 'source_url' => 'git://github.com/travis-ci/travis-ci.git' },
     'build'      => { 'id' => 1, 'commit' => '313f61b' },
     'config'     => { 'rvm' => '1.9.2', 'env' => 'FOO=foo' }
   }

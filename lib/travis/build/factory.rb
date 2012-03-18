@@ -65,11 +65,7 @@ module Travis
         end
 
         def commit
-          @commit ||= Commit.new(repository, payload.build)
-        end
-
-        def repository
-          @repository ||= Repository::Github.new(scm, payload.repository.slug)
+          @commit ||= Commit.new(payload.build, payload.repository, scm)
         end
 
         def scm
