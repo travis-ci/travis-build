@@ -4,19 +4,24 @@ module Travis
     # Models a commit hash on a repository so we do not have to pass both
     # around.
     class Commit
-      attr_reader :repository, :hash
+      attr_reader :repository, :build, :scm
 
-      def initialize(repository, hash)
+      def initialize(build, repository, scm)
         @repository = repository
-        @hash = hash
+        @build = build
+        @scm = scm
       end
 
       def checkout
-        repository.checkout(hash)
+        scm.fetch(repository.source_url, ref, repository.slug)
+      end
+
+      def ref
+        build.commit
       end
 
       def config_url
-        repository.config_url(hash)
+        build.config_url
       end
     end
   end

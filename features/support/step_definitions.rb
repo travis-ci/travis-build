@@ -25,10 +25,17 @@ end
 Given /^the following test payload$/ do |table|
   hash = Hashr.new(table.rows_hash)
 
-  $payload = Hashr.new(
-                       :repository => { :slug => hash.repository },
-                       :build      => { :commit => hash.commit }
-                       )
+  $payload = Hashr.new({
+    :repository => {
+      :slug => hash.repository,
+      :source_url => "git://github.com/#{hash.repository}.git"
+    },
+    :build => {
+      :commit => hash.commit
+    },
+    :type => 'test'
+  })
+
   $payload.config = decode(hash.config) if hash.config?
 end
 

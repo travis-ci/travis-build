@@ -17,22 +17,26 @@ describe Travis::Build::Factory do
   let(:job)        { build.job }
   let(:commit)     { build.job.commit }
   let(:repository) { build.job.commit.repository }
-  let(:scm)        { build.job.commit.repository.scm }
+  let(:scm)        { build.job.commit.scm }
 
   shared_examples_for 'a github commit' do
-    it 'has a github repository' do
-      commit.repository.should be_a(Travis::Build::Repository::Github)
+    it 'has a build hashr' do
+      commit.repository.should be_a(Hashr)
     end
 
-    it 'has the hash from the payload' do
-      commit.hash.should == payload['build']['commit']
+    it 'has a repository hashr' do
+      commit.repository.should be_a(Hashr)
+    end
+
+    it 'has the sha reference from the payload' do
+      commit.ref.should == payload['build']['commit']
+    end
+
+    it 'has an git scm' do
+      commit.scm.should be_a(Travis::Build::Scm::Git)
     end
 
     describe 'the repository' do
-      it 'has an git scm' do
-        repository.scm.should be_a(Travis::Build::Scm::Git)
-      end
-
       it 'has the slug from the payload' do
         repository.slug.should == payload['repository']['slug']
       end
