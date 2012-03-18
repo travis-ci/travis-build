@@ -45,7 +45,7 @@ module Travis
         end
 
         def configure?
-          !payload.config?
+          payload['type'] == 'configure'
         end
 
         def configure
