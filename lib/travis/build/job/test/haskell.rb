@@ -13,11 +13,11 @@ module Travis
           end
 
           def install
-            "cabal update && cabal install"
+            "cabal update && cabal install --enable-tests"
           end
 
           def script
-            "cabal configure --enable-tests && cabal build && cabal test"
+            "cabal test"
           end
 
           protected
