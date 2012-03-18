@@ -13,10 +13,6 @@ module Travis
           scm.fetch(source_url, commit, slug)
         end
 
-        def config_url(commit)
-          "https://raw.github.com/#{slug}/#{commit}/.travis.yml"
-        end
-
         def source_url
           "git://github.com/#{slug}.git"
         end

@@ -65,7 +65,7 @@ module Travis
         end
 
         def commit
-          @commit ||= Commit.new(repository, payload.build.commit)
+          @commit ||= Commit.new(repository, payload.build)
         end
 
         def repository

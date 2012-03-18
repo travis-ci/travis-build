@@ -1,10 +1,12 @@
 require 'spec_helper'
+require 'spec_helper/payloads'
 require 'travis/build'
 
 describe Travis::Build::Job::Configure do
   let(:response) { stub('response', :success? => true, :body => 'foo: Foo') }
   let(:http)     { stub('http', :get => response) }
-  let(:commit)   { stub('commit', :config_url => 'http://raw.github.com/path/to/.travis.yml' ) }
+  let(:payload)  { Hashr.new(PAYLOADS[:configure]) }
+  let(:commit)   { Travis::Build::Commit.new(payload.repository, payload.build) }
   let(:job)      { Travis::Build::Job::Configure.new(http, commit) }
 
   describe 'run' do

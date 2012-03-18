@@ -24,8 +24,8 @@ describe Travis::Build::Factory do
       commit.repository.should be_a(Travis::Build::Repository::Github)
     end
 
-    it 'has the hash from the payload' do
-      commit.hash.should == payload['build']['commit']
+    it 'has the sha reference from the payload' do
+      commit.ref.should == payload['build']['commit']
     end
 
     describe 'the repository' do
