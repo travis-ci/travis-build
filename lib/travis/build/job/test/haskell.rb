@@ -13,6 +13,15 @@ module Travis
           end
 
           def install
+
+            # Ideally we would use:
+            #
+            # "cabal update && cabal install --only-dependencies --enable-tests"
+            #
+            # But this does not properly work with cabal-install 0.10.2.
+            #
+            # http://www.haskell.org/pipermail/cabal-devel/2012-January/008428.html
+            #
             "cabal update && cabal install"
           end
 
