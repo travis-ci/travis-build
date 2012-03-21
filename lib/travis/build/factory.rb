@@ -65,7 +65,7 @@ module Travis
         end
 
         def commit
-          @commit ||= Commit.new(payload.build, payload.repository, scm)
+          @commit ||= Commit.new(payload, scm)
         end
 
         def scm
