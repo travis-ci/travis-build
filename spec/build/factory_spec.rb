@@ -29,7 +29,11 @@ describe Travis::Build::Factory do
     end
 
     it 'has the sha reference from the payload' do
-      commit.ref.should == payload['build']['commit']
+      commit.sha.should == payload['build']['commit']
+    end
+
+    it 'has the ref reference from the payload' do
+      commit.ref.should == payload['build']['ref']
     end
 
     it 'has an git scm' do
@@ -162,6 +166,14 @@ describe Travis::Build::Factory do
       it 'is used on the job and the scm' do
         job.shell.should equal(scm.shell)
       end
+    end
+  end
+
+  describe 'with a pull request test payload' do
+    let(:payload) { deep_clone(PAYLOADS[:pull_request]) }
+
+    describe 'the commit' do
+      it_behaves_like 'a github commit'
     end
   end
 end
