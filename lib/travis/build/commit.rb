@@ -14,11 +14,15 @@ module Travis
       end
 
       def checkout
-        scm.fetch(repository.source_url, ref, repository.slug, config)
+        scm.fetch(repository.source_url, repository.slug, sha, ref, config)
+      end
+
+      def sha
+        build.commit
       end
 
       def ref
-        build.commit
+        build.ref
       end
 
       def config_url
