@@ -13,11 +13,11 @@ module Travis
           @shell = shell
         end
 
-        def fetch(source, hash, target, config = {})
+        def fetch(source, target, sha, ref, config = {})
           copy_key(config['source_key']) if config.key?('source_key')
           clone(source, target)
           chdir(target)
-          checkout(hash)
+          checkout(sha, ref)
         end
 
         protected
@@ -40,8 +40,9 @@ module Travis
             shell.chdir(target)
           end
 
-          def checkout(hash)
-            shell.execute("git checkout -qf #{hash}")
+          def checkout(sha, ref)
+            shell.execute("git fetch origin +#{ref}:") if ref
+            shell.execute("git checkout -qf #{sha}")
           end
           assert :checkout
       end
