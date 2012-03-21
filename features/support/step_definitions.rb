@@ -53,6 +53,7 @@ end
 Then /^it (successfully|fails to) clones? the repository to the build dir with git$/ do |result|
   step 'it silently disables interactive git auth'
   step "it #{result} clones the repository with git"
+  step 'it silently removes the ssh key'
 end
 
 Then /^it (successfully|fails to) checks? out the commit with git to the repository directory$/ do |result|
@@ -113,6 +114,12 @@ Then /^it (successfully|fails to) clones? the repository with git$/ do |result|
     with("git clone --depth=100 --quiet git://github.com/#{$payload.repository.slug}.git #{$payload.repository.slug}").
     outputs('git clone').
     returns(result == 'successfully').
+    in_sequence($sequence)
+end
+
+Then /^it silently removes the ssh key/ do
+  $shell.expects(:execute).
+    with('rm -f ~/.ssh/source_rsa', :echo => false).
     in_sequence($sequence)
 end
 
