@@ -18,6 +18,7 @@ module Travis
           clone(source, target)
           chdir(target)
           checkout(sha, ref)
+          submodules if shell.file_exists? '.gitmodules'
         end
 
         protected
@@ -38,6 +39,11 @@ module Travis
 
           def chdir(target)
             shell.chdir(target)
+          end
+
+          def submodules
+            shell.execute("git submodule init")
+            shell.execute("git submodule update")
           end
 
           def checkout(sha, ref)

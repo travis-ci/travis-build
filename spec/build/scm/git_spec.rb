@@ -3,7 +3,7 @@ require 'travis/build'
 require 'base64'
 
 describe Travis::Build::Scm::Git do
-  let(:shell)  { stub('shell', :export => nil, :execute => true, :chdir => true) }
+  let(:shell)  { stub('shell', :export => nil, :execute => true, :chdir => true, :file_exists? => false) }
   let(:scm)    { Travis::Build::Scm::Git.new(shell) }
 
   let(:source) { 'git://example.com/travis-ci.git' }
@@ -36,6 +36,13 @@ describe Travis::Build::Scm::Git do
       ref = 'refs/pulls/180/merge'
       shell.expects(:execute).with('git checkout -qf 1234567').returns(true)
       shell.expects(:execute).with("git fetch origin +refs/pulls/180/merge:").returns(true)
+      scm.fetch(source, target, sha, ref)
+    end
+
+    it 'sets up submodules if .gitmodules exists' do
+      shell.expects(:file_exists?).with('.gitmodules').returns(true)
+      shell.expects(:execute).with('git submodule init').returns(true)
+      shell.expects(:execute).with('git submodule update').returns(true)
       scm.fetch(source, target, sha, ref)
     end
 
