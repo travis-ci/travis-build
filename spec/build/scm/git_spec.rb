@@ -40,7 +40,7 @@ describe Travis::Build::Scm::Git do
     end
 
     it 'sets up submodules if .gitmodules exists' do
-      File.expects(:exist?).with('.gitmodules').returns(true)
+      shell.expects(:file_exists?).with('.gitmodules').returns(true)
       shell.expects(:execute).with('git submodule init').returns(true)
       shell.expects(:execute).with('git submodule update').returns(true)
       scm.fetch(source, target, sha, ref)

@@ -17,8 +17,8 @@ module Travis
           copy_key(config['source_key']) if config.key?('source_key')
           clone(source, target)
           chdir(target)
-          submodules
           checkout(sha, ref)
+          submodules if shell.file_exists? '.gitmodules'
         end
 
         protected
@@ -42,7 +42,6 @@ module Travis
           end
 
           def submodules
-            return unless File.exist? '.gitmodules'
             shell.execute("git submodule init")
             shell.execute("git submodule update")
           end
