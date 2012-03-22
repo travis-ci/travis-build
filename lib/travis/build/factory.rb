@@ -69,7 +69,7 @@ module Travis
         end
 
         def scm
-          @scm ||= Scm::Git.new(shell)
+          @scm ||= Scm::Git.new(shell, payload.config)
         end
     end
   end
