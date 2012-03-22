@@ -129,6 +129,9 @@ Then /^it (successfully|fails to) checks? the commit out with git$/ do |result|
     outputs('git checkout').
     returns(result == 'successfully').
     in_sequence($sequence)
+ $shell.expects(:file_exists?).
+   with('.gitmodules').
+   returns(false)
 end
 
 Then /^it (successfully|fails to) switch(?:es)? to the (.*) version: (.*)$/ do |result, language, version|
