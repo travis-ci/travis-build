@@ -29,7 +29,13 @@ module Travis
       end
 
       def build
-        build = configure? ? Build.new(events, job) : Build::Remote.new(vm, shell, events, job)
+        build = if configure?
+          Build.new(events, job)
+        else
+          # add dynamic configuration to the static vm config
+          vm.configure(payload.config)
+          Build::Remote.new(vm, shell, events, job)
+        end
         observers.each { |observer| build.observers << observer }
         build
       end
