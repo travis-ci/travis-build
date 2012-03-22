@@ -3,7 +3,7 @@ require 'travis/build'
 require 'base64'
 
 describe Travis::Build::Scm::Git do
-  let(:shell)  { stub('shell', :export => nil, :execute => true, :chdir => true) }
+  let(:shell)  { stub('shell', :export => nil, :execute => true, :chdir => true, :file_exists? => false) }
   let(:scm)    { Travis::Build::Scm::Git.new(shell) }
 
   let(:source) { 'git://example.com/travis-ci.git' }
