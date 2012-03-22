@@ -1,6 +1,5 @@
 require 'spec_helper'
 require 'travis/build'
-require 'base64'
 
 describe Travis::Build::Scm::Git do
   let(:shell)  { stub('shell', :export => nil, :execute => true, :chdir => true, :file_exists? => false) }
@@ -44,14 +43,6 @@ describe Travis::Build::Scm::Git do
       shell.expects(:execute).with('git submodule init').returns(true)
       shell.expects(:execute).with('git submodule update').returns(true)
       scm.fetch(source, target, sha, ref)
-    end
-
-    it 'copies the source key when given and removes it after clone' do
-      source_key = Base64.encode64('da key, baby!')
-      shell.expects(:execute).with('cat da\ key,\ baby\! > ~/.ssh/source_rsa', :echo => false)
-      shell.expects(:execute).with('ssh-add ~/.ssh/source_rsa', :echo => false)
-      shell.expects(:execute).with('rm -f ~/.ssh/source_rsa', :echo => false)
-      scm.fetch(source, target, sha, ref, 'source_key' => source_key)
     end
   end
 end
