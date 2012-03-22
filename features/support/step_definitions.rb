@@ -124,14 +124,23 @@ Then /^it silently removes the ssh key/ do
 end
 
 Then /^it (successfully|fails to) checks? the commit out with git$/ do |result|
-  $shell.expects(:execute).
+  checkout = $shell.expects(:execute).
     with("git checkout -qf #{$payload.build.commit}").
-    outputs('git checkout').
-    returns(result == 'successfully').
-    in_sequence($sequence)
- $shell.expects(:file_exists?).
-   with('.gitmodules').
-   returns(false)
+    outputs('git checkout')
+
+  if result == 'successfully'
+    checkout.
+      returns(true).
+      in_sequence($sequence)
+
+    $shell.expects(:file_exists?).
+      with('.gitmodules').
+      returns(false)
+  else
+    checkout.
+      raises(Travis::AssertionFailed).
+      in_sequence($sequence)
+  end
 end
 
 Then /^it (successfully|fails to) switch(?:es)? to the (.*) version: (.*)$/ do |result, language, version|
