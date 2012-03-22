@@ -39,6 +39,13 @@ describe Travis::Build::Scm::Git do
       scm.fetch(source, target, sha, ref)
     end
 
+    it 'sets up submodules if .gitmodules exists' do
+      File.expects(:exist?).with('.gitmodules').returns(true)
+      shell.expects(:execute).with('git submodule init').returns(true)
+      shell.expects(:execute).with('git submodule update').returns(true)
+      scm.fetch(source, target, sha, ref)
+    end
+
     it 'copies the source key when given and removes it after clone' do
       source_key = Base64.encode64('da key, baby!')
       shell.expects(:execute).with('cat da\ key,\ baby\! > ~/.ssh/source_rsa', :echo => false)
