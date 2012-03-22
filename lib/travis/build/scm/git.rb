@@ -7,14 +7,14 @@ module Travis
       class Git
         extend Assertions
 
-        attr_reader :shell
+        attr_reader :shell, :config
 
-        def initialize(shell)
+        def initialize(shell, config = {})
           @shell = shell
+          @config = config
         end
 
-        def fetch(source, target, sha, ref, config = {})
-          copy_key(config['source_key']) if config.key?('source_key')
+        def fetch(source, target, sha, ref)
           clone(source, target)
           chdir(target)
           checkout(sha, ref)
@@ -23,12 +23,6 @@ module Travis
         end
 
         protected
-
-          def copy_key(key)
-            key = Base64.decode64(key)
-            shell.execute("cat #{Shellwords.escape(key)} > ~/.ssh/source_rsa", :echo => false)
-            shell.execute('ssh-add ~/.ssh/source_rsa', :echo => false)
-          end
 
           def clone(source, target)
             shell.export('GIT_ASKPASS', 'echo', :echo => false) # this makes git interactive auth fail

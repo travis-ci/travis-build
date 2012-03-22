@@ -9,12 +9,11 @@ module Travis
       def initialize(payload, scm)
         @repository = payload.repository
         @build      = payload.build
-        @config     = payload.config
         @scm        = scm
       end
 
       def checkout
-        scm.fetch(repository.source_url, repository.slug, sha, ref, config)
+        scm.fetch(repository.source_url, repository.slug, sha, ref)
       end
 
       def sha
