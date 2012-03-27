@@ -40,7 +40,7 @@ Given /^the following test payload$/ do |table|
 end
 
 When /^it starts a job$/ do
-  $vm       = Mocks::Vm.new
+  $vm       = Mocks::Vm.new('vm-name', {})
   $shell    = Mocks::Shell.new
   $observer = Mocks::Observer.new
   $sequence = sequence('build')
