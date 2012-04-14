@@ -11,7 +11,6 @@ Feature: Testing a Scala project
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
-     And it exports the line SCALA_VERSION=2.9.1
      And it exports the line TRAVIS_SCALA_VERSION=2.9.1
      # think ./project
      And it finds directory project
@@ -27,7 +26,6 @@ Feature: Testing a Scala project
        | job:test:log    | log: git clone                      |
        | job:test:log    | log: cd travis-ci/travis-ci         |
        | job:test:log    | log: git checkout                   |
-       | job:test:log    | log: /export SCALA_VERSION=/        |
        | job:test:log    | log: /export TRAVIS_SCALA_VERSION=/ |
        | job:test:log    | log: sbt ++2.9.1 test               |
        | job:test:log    | log: /Done.* 0/                     |
@@ -38,7 +36,6 @@ Feature: Testing a Scala project
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
-     And it exports the line SCALA_VERSION=2.9.1
      And it exports the line TRAVIS_SCALA_VERSION=2.9.1
      And it does not find directory project
      And it finds the file build.sbt
@@ -54,7 +51,6 @@ Feature: Testing a Scala project
        | job:test:log    | log: git clone                      |
        | job:test:log    | log: cd travis-ci/travis-ci         |
        | job:test:log    | log: git checkout                   |
-       | job:test:log    | log: /export SCALA_VERSION=/        |
        | job:test:log    | log: /export TRAVIS_SCALA_VERSION=/ |
        | job:test:log    | log: sbt ++2.9.1 test               |
        | job:test:log    | log: /Done.* 0/                     |
@@ -81,7 +77,6 @@ Feature: Testing a Scala project
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
-     And it exports the line SCALA_VERSION=2.9.1
      And it exports the line TRAVIS_SCALA_VERSION=2.9.1
      # think ./project
      And it finds directory project
