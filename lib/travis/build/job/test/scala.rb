@@ -34,7 +34,6 @@ module Travis
             def export_environment_variables
               # export expected Scala version in an environment variable as helper
               # for cross-version build in custom scripts (ant, maven, local sbt,...)
-              shell.export_line("SCALA_VERSION=#{config.scala}")
               shell.export_line("TRAVIS_SCALA_VERSION=#{config.scala}")
             end
         end
