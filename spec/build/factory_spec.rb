@@ -7,9 +7,11 @@ require 'travis/build'
 # TODO check observers
 
 describe Travis::Build::Factory do
-  let(:vm)         { stub('vm', :name => 'worker-1') }
+  let(:vm)         { Mocks::Vm.new('vm-name', {}) }
   let(:shell)      { stub('shell') }
   let(:observer)   { stub('observer') }
+  let(:timeouts)   { { :before_install => 42, :install => 42, :before_script => 42, :script => 42, :after_script => 42 } }
+  let(:payload)    { { :config => { :timeouts => timeouts } } }
   let(:config)     { {} }
 
   let(:build)      { Travis::Build.create(vm, shell, [observer], payload, config) }
@@ -96,6 +98,12 @@ describe Travis::Build::Factory do
       end
     end
 
+    describe 'merges the payload config in the vm' do
+      it "has the given timeouts" do
+        build.vm.config.timeouts.should == timeouts
+      end
+    end
+
     describe 'with "erlang" given as a language' do
       before :each do
         payload['config']['language'] = 'erlang'
@@ -154,7 +162,7 @@ describe Travis::Build::Factory do
       end
 
       it 'has the test config from the payload' do
-        job.config.should == { :rvm => '1.9.2', :gemfile => 'Gemfile', :env => 'FOO=foo' }
+        job.config.should == { :rvm => '1.9.2', :gemfile => 'Gemfile', :env => 'FOO=foo', :timeouts => timeouts }
       end
     end
 

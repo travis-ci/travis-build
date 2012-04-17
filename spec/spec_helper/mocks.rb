@@ -12,6 +12,20 @@ module Mocks
   end
 
   class Vm
+    attr_reader :name, :config, :shell
+
+    def initialize(name, config)
+      @name = name
+      @config = Hashr.new(config)
+      @shell = nil
+
+      if block_given?
+        connect
+        yield(self) if block_given?
+        close
+      end
+    end
+
     def name
       'vm-name'
     end
@@ -22,6 +36,10 @@ module Mocks
 
     def sandboxed
       yield
+    end
+
+    def configure(config)
+      self.config.merge!(config)
     end
   end
 
