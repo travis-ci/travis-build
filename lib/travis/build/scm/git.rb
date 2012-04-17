@@ -37,6 +37,7 @@ module Travis
           end
 
           def submodules
+            shell.execute('echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config', :echo => false)
             shell.execute("git submodule init")
             shell.execute("git submodule update")
           end
