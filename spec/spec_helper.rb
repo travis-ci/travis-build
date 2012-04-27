@@ -7,6 +7,11 @@ require 'logger'
 require 'stringio'
 require 'travis/support'
 
+require 'support/helpers'
+require 'support/matchers'
+require 'support/mocks'
+require 'support/payloads'
+
 RSpec.configure do |config|
   config.mock_with :mocha
 

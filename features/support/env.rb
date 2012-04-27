@@ -7,8 +7,8 @@ require 'travis/support'
 
 require 'stringio'
 require 'mocha'
-require 'spec_helper/mocks'
-require 'spec_helper/payloads'
+require 'support/mocks'
+require 'support/payloads'
 
 World(Mocha::API)
 
