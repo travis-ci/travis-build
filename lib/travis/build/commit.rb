@@ -27,6 +27,10 @@ module Travis
       def config_url
         build.config_url
       end
+
+      def branch
+        repository.ref.gsub( "refs/heads/", "" )
+      end
     end
   end
 end
