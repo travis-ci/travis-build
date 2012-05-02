@@ -106,7 +106,7 @@ module Travis
             Array(config.env).compact.select { |line| line.present? }.each do |line|
               shell.export_line(line)
             end if config.env
-            shell.export_line("BRANCH=#{commit.branch}")
+            shell.export_line("TRAVIS_BRANCH=#{commit.branch}")
           end
 
           def checkout

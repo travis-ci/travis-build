@@ -123,7 +123,7 @@ describe Travis::Build::Job::Test do
     end
 
     it 'sets the commit branch in the environment' do
-      s = "BRANCH=somebranch"
+      s = "TRAVIS_BRANCH=somebranch"
       shell.expects(:export_line).with(s)
       job.send(:export)
     end
