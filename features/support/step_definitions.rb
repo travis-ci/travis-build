@@ -31,7 +31,8 @@ Given /^the following test payload$/ do |table|
       :source_url => "git://github.com/#{hash.repository}.git"
     },
     :build => {
-      :commit => hash.commit
+      :commit => hash.commit,
+      :branch => 'master'
     },
     :type => 'test'
   })
