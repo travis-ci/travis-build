@@ -31,7 +31,8 @@ Given /^the following test payload$/ do |table|
       :source_url => "git://github.com/#{hash.repository}.git"
     },
     :build => {
-      :commit => hash.commit
+      :commit => hash.commit,
+      :branch => 'master'
     },
     :type => 'test'
   })
@@ -76,6 +77,7 @@ Then /^it exports the given environment variables$/ do
     line = $payload.config.env
     step "it exports the line #{line}"
   end
+  step "it exports the branch #{$payload.build.branch}"
 end
 
 Then /^it opens the ssh session$/ do
@@ -93,6 +95,12 @@ Then /^it cds into the (.*)$/ do |dir|
   $shell.expects(:chdir).
     with(dir).
     outputs("cd #{dir}").
+    in_sequence($sequence)
+end
+
+Then /^it exports the branch (.+)$/ do |branch|
+  $shell.expects(:export_line).
+    with("TRAVIS_BRANCH=#{branch}").
     in_sequence($sequence)
 end
 

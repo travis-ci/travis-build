@@ -4,7 +4,7 @@ require 'hashr'
 
 describe Travis::Build::Job::Test do
   let(:shell)  { stub('shell', :chdir => true, :export_line => true, :execute => true, :cwd => '~/builds', :file_exists? => true, :echo => nil) }
-  let(:commit) { stub(:checkout => true) }
+  let(:commit) { stub(:checkout => true, :branch => 'somebranch') }
   let(:config) { Hashr.new(:env => 'FOO=foo', :script => 'rake') }
   let(:job)    { Travis::Build::Job::Test.new(shell, commit, config) }
 
@@ -119,6 +119,12 @@ describe Travis::Build::Job::Test do
       config.env = [s1, s2]
       shell.expects(:export_line).with(s1)
       shell.expects(:export_line).with(s2)
+      job.send(:export)
+    end
+
+    it 'sets the commit branch in the environment' do
+      s = "TRAVIS_BRANCH=somebranch"
+      shell.expects(:export_line).with(s)
       job.send(:export)
     end
   end

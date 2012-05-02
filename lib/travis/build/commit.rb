@@ -27,6 +27,10 @@ module Travis
       def config_url
         build.config_url
       end
+
+      def branch
+        build.branch
+      end
     end
   end
 end

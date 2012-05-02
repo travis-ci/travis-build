@@ -33,6 +33,10 @@ describe Travis::Build::Factory do
       commit.ref.should == payload['build']['ref']
     end
 
+    it 'has the branch from the payload' do
+      commit.branch.should == payload['build']['branch']
+    end
+
     it 'has an git scm' do
       commit.scm.should be_a(Travis::Build::Scm::Git)
     end
