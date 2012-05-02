@@ -34,7 +34,7 @@ describe Travis::Build::Factory do
     end
 
     it 'has the branch from the payload' do
-      commit.branch.should == payload['repository']['ref'].gsub("refs/heads/", "")
+      commit.branch.should == payload['build']['branch']
     end
 
     it 'has an git scm' do

@@ -29,7 +29,7 @@ module Travis
       end
 
       def branch
-        repository.ref.gsub( "refs/heads/", "" )
+        build.branch
       end
     end
   end
