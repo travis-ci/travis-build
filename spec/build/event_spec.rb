@@ -5,7 +5,6 @@ describe 'Event' do
   describe 'name' do
     Event     = Travis::Build::Event
     Test      = Travis::Build::Job::Test
-    Configure = Travis::Build::Job::Configure
 
     it 'returns "job:test:started" for a start event on a clojure test job' do
       job = Test::Clojure.new(nil, nil, nil)
@@ -54,11 +53,5 @@ describe 'Event' do
       event = Event.new(:started, job, nil)
       event.name.should == 'job:test:started'
     end
-
-    it 'returns "job:test:ruby:started" for a start event on a configure job' do
-      job = Configure.new(nil, nil)
-      event = Event.new(:started, job, nil)
-      event.name.should == 'job:configure:started'
-    end
- end
+  end
 end

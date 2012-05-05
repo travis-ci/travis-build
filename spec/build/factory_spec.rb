@@ -1,7 +1,4 @@
 require 'spec_helper'
-require 'spec_helper/mocks'
-require 'spec_helper/payloads'
-require 'spec_helper/helpers'
 require 'travis/build'
 
 # TODO check observers
@@ -50,32 +47,6 @@ describe Travis::Build::Factory do
       it 'has a shell' do
         scm.shell.should == shell
       end
-    end
-  end
-
-  describe 'with a configure payload' do
-    let(:payload) { deep_clone(PAYLOADS[:configure]) }
-
-    it 'uses a Job::Runner instance' do
-      build.should be_a(Travis::Build)
-    end
-
-    it 'uses a Job::Configure instance' do
-      job.should be_a(Travis::Build::Job::Configure)
-    end
-
-    describe 'the configure job' do
-      it 'has the given http connection' do
-        job.http.should be_a(Travis::Build::Connection::Http)
-      end
-
-      it 'has a commit' do
-        job.commit.should be_a(Travis::Build::Commit)
-      end
-    end
-
-    describe 'the commit' do
-      it_behaves_like 'a github commit'
     end
   end
 
