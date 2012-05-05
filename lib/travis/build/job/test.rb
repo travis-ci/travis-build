@@ -78,7 +78,7 @@ module Travis
         end
 
         def run
-          { :status => perform ? 0 : 1 }
+          { :result => perform ? 0 : 1 }
         end
         log :run
 

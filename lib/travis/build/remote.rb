@@ -27,7 +27,7 @@ module Travis
               job.run
             end
           end
-          log "\nDone. Build script exited with: #{result[:status]}\n"
+          log "\nDone. Build script exited with: #{result[:result]}\n"
           result
         end
 

@@ -81,19 +81,19 @@ describe Travis::Build::Job::Test do
       job.run
     end
 
-    it 'returns { :status => 0 } if the last script returned true' do
+    it 'returns { :result => 0 } if the last script returned true' do
       shell.expects(:execute).with('rake', :stage => :script).returns(true)
-      job.run.should == { :status => 0 }
+      job.run.should == { :result => 0 }
     end
 
-    it 'returns { :status => 1 } if the last script returned false' do
+    it 'returns { :result => 1 } if the last script returned false' do
       shell.expects(:execute).with('rake', :stage => :script).returns(false)
-      job.run.should == { :status => 1 }
+      job.run.should == { :result => 1 }
     end
 
-    it 'returns { :status => 1 } if checkout raised an exception' do
+    it 'returns { :result => 1 } if checkout raised an exception' do
       commit.expects(:checkout).returns(false)
-      job.run.should == { :status => 1 }
+      job.run.should == { :result => 1 }
     end
   end
 

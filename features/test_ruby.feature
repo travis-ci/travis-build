@@ -17,7 +17,7 @@ Feature: Testing a Ruby project
      And it does not find the file gemfiles/Gemfile
      And it successfully runs the script: rake
      And it closes the ssh session
-     And it returns the status 0
+     And it returns the result 0
      And it has captured the following events
        | name            | data                                    |
        | job:test:start  | started_at: [now]                       |
@@ -33,7 +33,7 @@ Feature: Testing a Ruby project
        | job:test:log    | log: gem --version                      |
        | job:test:log    | log: rake                               |
        | job:test:log    | log: /Done.* 0/                         |
-       | job:test:finish | finished_at: [now], status: 0           |
+       | job:test:finish | finished_at: [now], result: 0           |
 
   Scenario: A successful build with a Gemfile
     When it starts a job
@@ -46,7 +46,7 @@ Feature: Testing a Ruby project
      And it finds a file gemfiles/Gemfile and successfully installs dependencies with bundle
      And it successfully runs the script: bundle exec rake
      And it closes the ssh session
-     And it returns the status 0
+     And it returns the result 0
      And it has captured the following events
        | name            | data                                    |
        | job:test:start  | started_at: [now]                       |
@@ -64,14 +64,14 @@ Feature: Testing a Ruby project
        | job:test:log    | log: bundle install                     |
        | job:test:log    | log: bundle exec rake                   |
        | job:test:log    | log: /Done.* 0/                         |
-       | job:test:finish | finished_at: [now], status: 0           |
+       | job:test:finish | finished_at: [now], result: 0           |
 
   Scenario: The repository can not be cloned
     When it starts a job
     Then it exports the given environment variables
      And it fails to clone the repository to the build dir with git
      And it closes the ssh session
-     And it returns the status 1
+     And it returns the result 1
 
   Scenario: The commit can not be checked out
     When it starts a job
@@ -79,7 +79,7 @@ Feature: Testing a Ruby project
      And it successfully clones the repository to the build dir with git
      And it fails to check out the commit with git to the repository directory
      And it closes the ssh session
-     And it returns the status 1
+     And it returns the result 1
 
   Scenario: The ruby version can not be activated
     When it starts a job
@@ -89,7 +89,7 @@ Feature: Testing a Ruby project
      And it exports the line TRAVIS_RUBY_VERSION=1.9.2
      And it fails to switch to the ruby version: 1.9.2
      And it closes the ssh session
-     And it returns the status 1
+     And it returns the result 1
 
   Scenario: The bundle can not be installed
     When it starts a job
@@ -101,7 +101,7 @@ Feature: Testing a Ruby project
      And it announces active ruby version
      And it finds a file gemfiles/Gemfile but fails to install dependencies with bundle
      And it closes the ssh session
-     And it returns the status 1
+     And it returns the result 1
 
   Scenario: The build fails
     When it starts a job
@@ -114,5 +114,5 @@ Feature: Testing a Ruby project
      And it does not find the file gemfiles/Gemfile
      And it fails to run the script: rake
      And it closes the ssh session
-     And it returns the status 1
+     And it returns the result 1
 

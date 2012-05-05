@@ -17,7 +17,7 @@ Feature: Testing a Php project
      And it does not find the file composer.json
      And it successfully runs the script: phpunit
      And it closes the ssh session
-     And it returns the status 0
+     And it returns the result 0
      And it has captured the following events
        | name            | data                                   |
        | job:test:start  | started_at: [now]                      |
@@ -32,7 +32,7 @@ Feature: Testing a Php project
        | job:test:log    | log: php --version                     |
        | job:test:log    | log: phpunit                           |
        | job:test:log    | log: /Done.* 0/                        |
-       | job:test:finish | finished_at: [now], status: 0          |
+       | job:test:finish | finished_at: [now], result: 0          |
 
   #Scenario: A successful build with a composer.json file
     #When it starts a job
@@ -44,7 +44,7 @@ Feature: Testing a Php project
      #And it finds a file composer.json and successfully installs dependencies with composer
      #And it successfully runs the script: phpunit
      #And it closes the ssh session
-     #And it returns the status 0
+     #And it returns the result 0
      #And it has captured the following events
        #| name            | data                          |
        #| job:test:start  | started_at: [now]             |
@@ -58,14 +58,14 @@ Feature: Testing a Php project
        #| job:test:log    | log: composer install --dev   |
        #| job:test:log    | log: phpunit                  |
        #| job:test:log    | log: /Done.* 0/               |
-       #| job:test:finish | finished_at: [now], status: 0 |
+       #| job:test:finish | finished_at: [now], result: 0 |
 
   Scenario: The repository can not be cloned
     When it starts a job
     Then it exports the given environment variables
      And it fails to clone the repository to the build dir with git
      And it closes the ssh session
-     And it returns the status 1
+     And it returns the result 1
 
   Scenario: The commit can not be checked out
     When it starts a job
@@ -73,7 +73,7 @@ Feature: Testing a Php project
      And it successfully clones the repository to the build dir with git
      And it fails to check out the commit with git to the repository directory
      And it closes the ssh session
-     And it returns the status 1
+     And it returns the result 1
 
   Scenario: The php version can not be activated
     When it starts a job
@@ -83,7 +83,7 @@ Feature: Testing a Php project
      And it exports the line TRAVIS_PHP_VERSION=5.3.6
      And it fails to switch to the php version: 5.3.6
      And it closes the ssh session
-     And it returns the status 1
+     And it returns the result 1
 
   #Scenario: The composer packages can not be installed
     #When it starts a job
@@ -93,7 +93,7 @@ Feature: Testing a Php project
      #And it successfully switches to the php version: 5.3.6
      #And it finds a file composer.json but fails to install dependencies with composer
      #And it closes the ssh session
-     #And it returns the status 1
+     #And it returns the result 1
 
   Scenario: A failing build
     When it starts a job
@@ -106,5 +106,5 @@ Feature: Testing a Php project
      And it does not find the file composer.json
      And it fails to run the script: phpunit
      And it closes the ssh session
-     And it returns the status 1
+     And it returns the result 1
 

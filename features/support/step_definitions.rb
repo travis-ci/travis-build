@@ -271,8 +271,8 @@ Then /^it closes the ssh session$/ do
     in_sequence($sequence)
 end
 
-Then /^it returns the status (.*)$/ do |result|
-  $build.run[:status].should == result.to_i
+Then /^it returns the result (.*)$/ do |result|
+  $build.run[:result].should == result.to_i
 end
 
 Then /^it has captured the following events$/ do |table|

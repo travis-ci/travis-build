@@ -21,7 +21,7 @@ Feature: Testing a Node.js project
      And it does not find the file package.json
      And it successfully runs the script: make test
      And it closes the ssh session
-     And it returns the status 0
+     And it returns the result 0
      And it has captured the following events
        | name            | data                                |
        | job:test:start  | started_at: [now]                   |
@@ -37,7 +37,7 @@ Feature: Testing a Node.js project
        | job:test:log    | log: npm --version                  |
        | job:test:log    | log: make test                      |
        | job:test:log    | log: /Done.* 0/                     |
-       | job:test:finish | finished_at: [now], status: 0       |
+       | job:test:finish | finished_at: [now], result: 0       |
 
 
   Scenario: A successful build
@@ -51,7 +51,7 @@ Feature: Testing a Node.js project
      And it does not find the file package.json
      And it successfully runs the script: make test
      And it closes the ssh session
-     And it returns the status 0
+     And it returns the result 0
      And it has captured the following events
        | name            | data                                  |
        | job:test:start  | started_at: [now]                     |
@@ -67,7 +67,7 @@ Feature: Testing a Node.js project
        | job:test:log    | log: npm --version                    |
        | job:test:log    | log: make test                        |
        | job:test:log    | log: /Done.* 0/                       |
-       | job:test:finish | finished_at: [now], status: 0         |
+       | job:test:finish | finished_at: [now], result: 0         |
 
   Scenario: A successful build with a package.json file
     When it starts a job
@@ -80,7 +80,7 @@ Feature: Testing a Node.js project
      And it finds a file package.json and successfully installs dependencies with npm
      And it successfully runs the script: npm test
      And it closes the ssh session
-     And it returns the status 0
+     And it returns the result 0
      And it has captured the following events
        | name            | data                                  |
        | job:test:start  | started_at: [now]                     |
@@ -97,14 +97,14 @@ Feature: Testing a Node.js project
        | job:test:log    | log: npm install --dev                |
        | job:test:log    | log: npm test                         |
        | job:test:log    | log: /Done.* 0/                       |
-       | job:test:finish | finished_at: [now], status: 0         |
+       | job:test:finish | finished_at: [now], result: 0         |
 
   Scenario: The repository can not be cloned
     When it starts a job
     Then it exports the given environment variables
      And it fails to clone the repository to the build dir with git
      And it closes the ssh session
-     And it returns the status 1
+     And it returns the result 1
 
   Scenario: The commit can not be checked out
     When it starts a job
@@ -112,7 +112,7 @@ Feature: Testing a Node.js project
      And it successfully clones the repository to the build dir with git
      And it fails to check out the commit with git to the repository directory
      And it closes the ssh session
-     And it returns the status 1
+     And it returns the result 1
 
   Scenario: The node.js version can not be activated
     When it starts a job
@@ -122,7 +122,7 @@ Feature: Testing a Node.js project
      And it exports the line TRAVIS_NODE_VERSION=0.6.1
      And it fails to switch to the nodejs version: 0.6.1
      And it closes the ssh session
-     And it returns the status 1
+     And it returns the result 1
 
   Scenario: The bundle can not be installed
     When it starts a job
@@ -134,7 +134,7 @@ Feature: Testing a Node.js project
      And it announces active node version
      And it finds a file package.json but fails to install dependencies with npm
      And it closes the ssh session
-     And it returns the status 1
+     And it returns the result 1
 
   Scenario: A failing build
     When it starts a job
@@ -147,6 +147,6 @@ Feature: Testing a Node.js project
      And it does not find the file package.json
      And it fails to run the script: make test
      And it closes the ssh session
-     And it returns the status 1
+     And it returns the result 1
 
 
