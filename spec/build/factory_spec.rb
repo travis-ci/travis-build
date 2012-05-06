@@ -26,11 +26,11 @@ describe Travis::Build::Factory do
     end
 
     it 'has the sha reference from the payload' do
-      commit.sha.should == payload['build']['commit']
+      commit.sha.should == payload['job']['commit']
     end
 
     it 'has the ref reference from the payload' do
-      commit.ref.should == payload['build']['ref']
+      commit.ref.should == payload['job']['ref']
     end
 
     it 'has an git scm' do
