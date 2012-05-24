@@ -7,8 +7,8 @@ describe Travis::Build::Job::Test::Scala do
   let(:job)    { described_class.new(shell, nil, config) }
 
   describe 'config' do
-    it 'defaults :scala to "2.9.1"' do
-      config.scala.should == '2.9.1'
+    it 'defaults :scala to "2.9.2"' do
+      config.scala.should == '2.9.2'
     end
 
     it 'defaults :jdk to "openjdk7"' do
