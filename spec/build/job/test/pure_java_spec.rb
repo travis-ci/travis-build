@@ -19,6 +19,7 @@ describe Travis::Build::Job::Test::PureJava do
         shell.expects(:export_line).with("TRAVIS_JAVA_VERSION=openjdk7").returns(true)
         shell.expects(:execute).with('sudo jdk-switcher use openjdk7').returns(true)
         shell.expects(:execute).with('java -version')
+        shell.expects(:execute).with('javac -version')
 
         job.setup
       end
@@ -31,6 +32,7 @@ describe Travis::Build::Job::Test::PureJava do
         shell.expects(:export_line).with("TRAVIS_JAVA_VERSION=openjdk6").returns(true)
         shell.expects(:execute).with('sudo jdk-switcher use openjdk6').returns(true)
         shell.expects(:execute).with('java -version')
+        shell.expects(:execute).with('javac -version')
 
         job.setup
       end

@@ -182,11 +182,14 @@ Then /it announces active (?:php|PHP) version/ do
 end
 
 Then /it announces active (?:java|Java) version/ do
-  cmd = 'java -version'
+  $shell.expects(:execute).
+    with("java -version").
+    outputs("java -version").
+    in_sequence($sequence)
 
   $shell.expects(:execute).
-    with(cmd).
-    outputs(cmd).
+    with("javac -version").
+    outputs("javac -version").
     in_sequence($sequence)
 end
 

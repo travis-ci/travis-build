@@ -26,6 +26,7 @@ module Travis
 
             def announce_java
               shell.execute("java -version")
+              shell.execute("javac -version")
             end
 
             def export_environment_variables
