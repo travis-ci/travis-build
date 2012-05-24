@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'travis/build'
 
 describe Travis::Build::Job::Test::Scala do
-  let(:shell)  { stub('shell') }
+  let(:shell)  { stub('shell', :execute => true, :export_line => true, :echo => true) }
   let(:config) { described_class::Config.new }
   let(:job)    { described_class.new(shell, nil, config) }
 
@@ -10,14 +10,40 @@ describe Travis::Build::Job::Test::Scala do
     it 'defaults :scala to "2.9.1"' do
       config.scala.should == '2.9.1'
     end
+
+    it 'defaults :jdk to "openjdk7"' do
+      config.jdk.should == 'openjdk7'
+    end
   end
 
   describe 'setup' do
-    it 'exports the Scala version to use for the build and announces it, without any validation' do
-      config.scala = '0.0.7' # version validity is not verified
-      shell.expects(:export_line).with('TRAVIS_SCALA_VERSION=0.0.7')
-      shell.expects(:echo).with('Using Scala 0.0.7')
-      job.setup
+    context "when JDK version is not explicitly specified and we have to use the default one" do
+      it 'switches to the default JDK version' do
+        shell.expects(:export_line).with("TRAVIS_JDK_VERSION=openjdk7").returns(true)
+        shell.expects(:execute).with('sudo jdk-switcher use openjdk7').returns(true)
+        shell.expects(:execute).with('java -version')
+        shell.expects(:execute).with('javac -version')
+        job.setup
+      end
+
+      it 'exports the Scala version to use for the build and announces it, without any validation' do
+        config.scala = '0.0.7' # version validity is not verified
+        shell.expects(:export_line).with('TRAVIS_SCALA_VERSION=0.0.7')
+        shell.expects(:echo).with('Using Scala 0.0.7')
+        job.setup
+      end
+    end
+
+    context "when JDK version IS explicitly specified" do
+      let(:config) { described_class::Config.new(:jdk => "openjdk6") }
+
+      it 'switches to the given JDK version' do
+        shell.expects(:export_line).with("TRAVIS_JDK_VERSION=openjdk6").returns(true)
+        shell.expects(:execute).with('sudo jdk-switcher use openjdk6').returns(true)
+        shell.expects(:execute).with('java -version')
+        shell.expects(:execute).with('javac -version')
+        job.setup
+      end
     end
   end
 

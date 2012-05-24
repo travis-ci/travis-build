@@ -3,12 +3,15 @@ module Travis
     module Job
       class Test
         class Scala < Test
+          include JdkSwitcher
+
           class Config < Hashr
-            define :scala => '2.9.1'
+            define :scala => '2.9.1', :jdk => 'openjdk7'
           end
 
           def setup
             super
+            setup_jdk
             shell.echo("Using Scala #{config.scala}")
           end
 
@@ -32,6 +35,7 @@ module Travis
             end
 
             def export_environment_variables
+              export_jdk_environment_variables
               # export expected Scala version in an environment variable as helper
               # for cross-version build in custom scripts (ant, maven, local sbt,...)
               shell.export_line("TRAVIS_SCALA_VERSION=#{config.scala}")
