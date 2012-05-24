@@ -33,11 +33,12 @@ module Travis
         autoload :Erlang,      'travis/build/job/test/erlang'
         autoload :Groovy,      'travis/build/job/test/groovy'
         autoload :Haskell,     'travis/build/job/test/haskell'
-        autoload :PureJava,    'travis/build/job/test/pure_java'
+        autoload :JdkSwitcher, 'travis/build/job/test/jdk_switcher'
         autoload :JvmLanguage, 'travis/build/job/test/jvm_language'
         autoload :NodeJs,      'travis/build/job/test/node_js'
         autoload :Perl,        'travis/build/job/test/perl'
         autoload :Php,         'travis/build/job/test/php'
+        autoload :PureJava,    'travis/build/job/test/pure_java'
         autoload :Python,      'travis/build/job/test/python'
         autoload :Ruby,        'travis/build/job/test/ruby'
         autoload :Scala,       'travis/build/job/test/scala'
@@ -146,20 +147,6 @@ module Travis
 
           def commands_for(stage)
             Array(config[stage] || (respond_to?(stage, true) ? send(stage) : nil))
-          end
-
-          def setup_jdk
-            shell.execute("sudo jdk-switcher use #{config.jdk}")
-          end
-          assert :setup_jdk
-
-          def announce_jdk
-            shell.execute("java -version")
-            shell.execute("javac -version")
-          end
-
-          def export_jdk_environment_variables
-            shell.export_line("TRAVIS_JDK_VERSION=#{config.jdk}")
           end
       end
     end

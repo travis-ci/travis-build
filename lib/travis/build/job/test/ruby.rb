@@ -5,6 +5,8 @@ module Travis
     module Job
       class Test
         class Ruby < Test
+          include JdkSwitcher
+
           class Config < Hashr
             define :rvm => 'default', :gemfile => 'Gemfile'
           end
@@ -17,7 +19,6 @@ module Travis
 
             if !!config[:jdk]
               setup_jdk
-              announce_jdk
             end
           end
 

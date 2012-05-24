@@ -8,18 +8,6 @@ module Travis
         class PureJava < JvmLanguage
           #class Config < Hashr
           #end
-
-          protected
-
-            def setup_java
-              shell.execute("sudo jdk-switcher use #{config.java}")
-            end
-            assert :setup_java
-
-            def announce_java
-              shell.execute("java -version")
-              shell.execute("javac -version")
-            end
         end
       end
     end

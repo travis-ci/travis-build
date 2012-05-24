@@ -3,6 +3,8 @@ module Travis
     module Job
       class Test
         class JvmLanguage < Test
+          include JdkSwitcher
+
           class Config < Hashr
             define :jdk => 'openjdk7'
           end
@@ -11,7 +13,6 @@ module Travis
             super
 
             setup_jdk
-            announce_jdk
           end
 
           def install
