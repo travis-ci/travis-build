@@ -17,35 +17,101 @@ describe Travis::Build::Job::Test::Ruby do
   end
 
   describe 'setup' do
-    it 'switches to the given ruby version' do
-      config.rvm = 'rbx'
-      shell.expects(:execute).with('rvm use rbx', :echo => true).returns(true)
-      job.setup
+    context "when JDK version is not explicitly specified" do
+      it 'exports the given ruby version' do
+        config.rvm = 'rbx'
+        shell.expects(:export_line).with("TRAVIS_RUBY_VERSION=rbx").returns(true)
+        job.setup
+      end
+
+      it 'switches to the given ruby version' do
+        config.rvm = 'rbx'
+        shell.expects(:execute).with('rvm use rbx', :echo => true).returns(true)
+        job.setup
+      end
+
+      it 'announces activated ruby version' do
+        shell.expects(:execute).with('ruby --version')
+        shell.expects(:execute).with('gem --version')
+        job.setup
+      end
+
+      it 'raises AssertionFailed when rvm outputs an ERROR string' do
+        config.rvm = 'rbx'
+        shell.expects(:execute).with('rvm use rbx', :echo => true).returns(false)
+        lambda { job.setup }.should raise_error(Travis::AssertionFailed)
+      end
+
+      it 'configures bundler to use the given gemfile if it exists' do
+        job.expects(:uses_bundler?).returns(true)
+        shell.expects(:cwd).returns('~/builds')
+        shell.expects(:export_line).with('BUNDLE_GEMFILE=~/builds/Gemfile')
+        job.setup
+      end
+
+      it 'does not configure bundler if the given gemfile does not exist' do
+        job.expects(:uses_bundler?).returns(false)
+        shell.expects(:export_line).never
+        job.setup
+      end
     end
 
-    it 'announces activated ruby version' do
-      shell.expects(:execute).with('ruby --version')
-      shell.expects(:execute).with('gem --version')
-      job.setup
-    end
+    context "when a JDK version is explicitly specified" do
+      it 'exports the given JDK version' do
+        config.jdk = 'openjdk6'
+        shell.expects(:export_line).with("TRAVIS_JDK_VERSION=openjdk6").returns(true)
+        job.setup
+      end
 
-    it 'raises AssertionFailed when rvm outputs an ERROR string' do
-      config.rvm = 'rbx'
-      shell.expects(:execute).with('rvm use rbx', :echo => true).returns(false)
-      lambda { job.setup }.should raise_error(Travis::AssertionFailed)
-    end
+      it 'switches to the given JDK version' do
+        config.jdk = 'openjdk6'
+        shell.expects(:execute).with('sudo jdk-switcher use openjdk6').returns(true)
+        job.setup
+      end
 
-    it 'configures bundler to use the given gemfile if it exists' do
-      job.expects(:uses_bundler?).returns(true)
-      shell.expects(:cwd).returns('~/builds')
-      shell.expects(:export_line).with('BUNDLE_GEMFILE=~/builds/Gemfile')
-      job.setup
-    end
+      it 'announces activated JDK version' do
+        config.jdk = 'openjdk6'
+        shell.expects(:execute).with('java -version')
+        shell.expects(:execute).with('javac -version')
+        job.setup
+      end
 
-    it 'does not configure bundler if the given gemfile does not exist' do
-      job.expects(:uses_bundler?).returns(false)
-      shell.expects(:export_line).never
-      job.setup
+      it 'exports the given ruby version' do
+        config.rvm = 'rbx'
+        shell.expects(:export_line).with("TRAVIS_RUBY_VERSION=rbx").returns(true)
+        job.setup
+      end
+
+      it 'switches to the given ruby version' do
+        config.rvm = 'rbx'
+        shell.expects(:execute).with('rvm use rbx', :echo => true).returns(true)
+        job.setup
+      end
+
+      it 'announces activated ruby version' do
+        shell.expects(:execute).with('ruby --version')
+        shell.expects(:execute).with('gem --version')
+        job.setup
+      end
+
+      it 'raises AssertionFailed when rvm outputs an ERROR string' do
+        config.rvm = 'rbx'
+        shell.expects(:execute).with('rvm use rbx', :echo => true).returns(false)
+        lambda { job.setup }.should raise_error(Travis::AssertionFailed)
+      end
+
+      it 'configures bundler to use the given gemfile if it exists' do
+        job.expects(:uses_bundler?).returns(true)
+        shell.expects(:cwd).returns('~/builds')
+        shell.expects(:export_line).with('BUNDLE_GEMFILE=~/builds/Gemfile')
+        job.setup
+      end
+
+      it 'does not configure bundler if the given gemfile does not exist' do
+        job.expects(:uses_bundler?).returns(false)
+        shell.expects(:export_line).never
+        job.setup
+      end
     end
   end
 
