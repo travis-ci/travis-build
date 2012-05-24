@@ -4,6 +4,14 @@ module Travis
       class Test
         class JvmLanguage < Test
           class Config < Hashr
+            define :jdk => 'openjdk7'
+          end
+
+          def setup
+            super
+
+            setup_jdk
+            announce_jdk
           end
 
           def install
@@ -54,6 +62,10 @@ module Travis
 
             def run_tests_with_ant
               "ant test"
+            end
+
+            def export_environment_variables
+              export_jdk_environment_variables
             end
         end
       end

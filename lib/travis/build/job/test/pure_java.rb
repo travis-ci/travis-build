@@ -6,16 +6,8 @@ module Travis
       class Test
         # JRuby makes "Java" a reserved word so we cannot name our subclass like that
         class PureJava < JvmLanguage
-          class Config < Hashr
-            define :java => 'openjdk7'
-          end
-
-          def setup
-            super
-
-            setup_java
-            announce_java
-          end
+          #class Config < Hashr
+          #end
 
           protected
 
@@ -27,10 +19,6 @@ module Travis
             def announce_java
               shell.execute("java -version")
               shell.execute("javac -version")
-            end
-
-            def export_environment_variables
-              shell.export_line("TRAVIS_JAVA_VERSION=#{config.java}")
             end
         end
       end

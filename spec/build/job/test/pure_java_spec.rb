@@ -8,15 +8,15 @@ describe Travis::Build::Job::Test::PureJava do
 
 
   describe 'config' do
-    it 'defaults :java to "openjdk7"' do
-      config.java.should == 'openjdk7'
+    it 'defaults :jdk to "openjdk7"' do
+      config.jdk.should == 'openjdk7'
     end
   end
 
   describe 'setup' do
-    context "when Java version is not explicitly specified and we have to use the default one" do
-      it 'switches to the default Java version' do
-        shell.expects(:export_line).with("TRAVIS_JAVA_VERSION=openjdk7").returns(true)
+    context "when JDK version is not explicitly specified and we have to use the default one" do
+      it 'switches to the default JDK version' do
+        shell.expects(:export_line).with("TRAVIS_JDK_VERSION=openjdk7").returns(true)
         shell.expects(:execute).with('sudo jdk-switcher use openjdk7').returns(true)
         shell.expects(:execute).with('java -version')
         shell.expects(:execute).with('javac -version')
@@ -25,11 +25,11 @@ describe Travis::Build::Job::Test::PureJava do
       end
     end
 
-    context "when Java version IS explicitly specified" do
-      let(:config) { Travis::Build::Job::Test::PureJava::Config.new(:java => "openjdk6") }
+    context "when JDK version IS explicitly specified" do
+      let(:config) { Travis::Build::Job::Test::PureJava::Config.new(:jdk => "openjdk6") }
 
-      it 'switches to the given Java version' do
-        shell.expects(:export_line).with("TRAVIS_JAVA_VERSION=openjdk6").returns(true)
+      it 'switches to the given JDK version' do
+        shell.expects(:export_line).with("TRAVIS_JDK_VERSION=openjdk6").returns(true)
         shell.expects(:execute).with('sudo jdk-switcher use openjdk6').returns(true)
         shell.expects(:execute).with('java -version')
         shell.expects(:execute).with('javac -version')
