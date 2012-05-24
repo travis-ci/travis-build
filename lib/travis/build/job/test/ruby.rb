@@ -14,6 +14,11 @@ module Travis
             setup_ruby
             announce_ruby
             setup_bundler if uses_bundler?
+
+            if !!config[:jdk]
+              setup_jdk
+              announce_jdk
+            end
           end
 
           def install
@@ -46,6 +51,7 @@ module Travis
 
             def export_environment_variables
               shell.export_line("TRAVIS_RUBY_VERSION=#{config.rvm}")
+              export_jdk_environment_variables if !!config[:jdk]
             end
         end
       end
