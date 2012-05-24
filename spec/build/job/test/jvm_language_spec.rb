@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'travis/build'
 
-describe Travis::Build::Job::Test::PureJava do
+describe Travis::Build::Job::Test::JvmLanguage do
   let(:shell)  { stub('shell') }
   let(:config) { described_class::Config.new }
   let(:job)    { described_class.new(shell, nil, config) }
