@@ -6,6 +6,37 @@ describe Travis::Build::Job::Test::PureJava do
   let(:config) { described_class::Config.new }
   let(:job)    { described_class.new(shell, nil, config) }
 
+
+  describe 'config' do
+    it 'defaults :java to "openjdk7"' do
+      config.java.should == 'openjdk7'
+    end
+  end
+
+  describe 'setup' do
+    context "when Java version is not explicitly specified and we have to use the default one" do
+      it 'switches to the default Java version' do
+        shell.expects(:export_line).with("TRAVIS_JAVA_VERSION=openjdk7").returns(true)
+        shell.expects(:execute).with('sudo jdk-switcher use openjdk7').returns(true)
+        shell.expects(:execute).with('java -version')
+
+        job.setup
+      end
+    end
+
+    context "when Java version IS explicitly specified" do
+      let(:config) { Travis::Build::Job::Test::PureJava::Config.new(:java => "openjdk6") }
+
+      it 'switches to the given Java version' do
+        shell.expects(:export_line).with("TRAVIS_JAVA_VERSION=openjdk6").returns(true)
+        shell.expects(:execute).with('sudo jdk-switcher use openjdk6').returns(true)
+        shell.expects(:execute).with('java -version')
+
+        job.setup
+      end
+    end
+  end
+
   describe 'install' do
     context "when project uses Maven" do
       it 'returns "mvn install"' do
