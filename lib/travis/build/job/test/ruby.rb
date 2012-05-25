@@ -14,9 +14,7 @@ module Travis
           def setup
             super
 
-            if !!config[:jdk]
-              setup_jdk
-            end
+            setup_jdk if needs_jdk?
 
             setup_ruby
             announce_ruby
@@ -52,8 +50,12 @@ module Travis
             end
 
             def export_environment_variables
-              export_jdk_environment_variables if !!config[:jdk]
+              export_jdk_environment_variables if needs_jdk?
               shell.export_line("TRAVIS_RUBY_VERSION=#{config.rvm}")
+            end
+
+            def needs_jdk?
+              config[:rvm] =~ /jruby/i and !!config[:jdk]
             end
         end
       end

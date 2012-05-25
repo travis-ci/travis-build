@@ -4,7 +4,7 @@ Feature: Testing a Ruby project with a given JDK version
    Given the following test payload
      | repository | travis-ci/travis-ci                                                |
      | commit     | 1234567                                                            |
-     | config     | rvm: 1.9.2, jdk: openjdk6, env: FOO=foo, gemfile: gemfiles/Gemfile |
+     | config     | rvm: jruby, jdk: openjdk6, env: FOO=foo, gemfile: gemfiles/Gemfile |
 
   Scenario: A successful build
     When it starts a job
@@ -12,10 +12,10 @@ Feature: Testing a Ruby project with a given JDK version
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it exports the line TRAVIS_JDK_VERSION=openjdk6
-     And it exports the line TRAVIS_RUBY_VERSION=1.9.2
+     And it exports the line TRAVIS_RUBY_VERSION=jruby
      And it successfully switches to the jdk version: openjdk6
      And it announces active jdk version
-     And it successfully switches to the ruby version: 1.9.2
+     And it successfully switches to the ruby version: jruby
      And it announces active ruby version
      And it does not find the file gemfiles/Gemfile
      And it successfully runs the script: rake
@@ -30,12 +30,12 @@ Feature: Testing a Ruby project with a given JDK version
        | job:test:log    | log: git clone                             |
        | job:test:log    | log: cd travis-ci/travis-ci                |
        | job:test:log    | log: git checkout                          |
-       | job:test:log    | log: /export TRAVIS_JDK_VERSION=openjdk6/  |
-       | job:test:log    | log: /export TRAVIS_RUBY_VERSION=1.9.2/    |
+       | job:test:log    | log: export TRAVIS_JDK_VERSION=openjdk6    |
+       | job:test:log    | log: export TRAVIS_RUBY_VERSION=jruby      |
        | job:test:log    | log: sudo jdk-switcher use openjdk6        |
        | job:test:log    | log: java -version                         |
        | job:test:log    | log: javac -version                        |
-       | job:test:log    | log: rvm use 1.9.2                         |
+       | job:test:log    | log: rvm use jruby                         |
        | job:test:log    | log: ruby --version                        |
        | job:test:log    | log: gem --version                         |
        | job:test:log    | log: rake                                  |
@@ -48,10 +48,10 @@ Feature: Testing a Ruby project with a given JDK version
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it exports the line TRAVIS_JDK_VERSION=openjdk6
-     And it exports the line TRAVIS_RUBY_VERSION=1.9.2
+     And it exports the line TRAVIS_RUBY_VERSION=jruby
      And it successfully switches to the jdk version: openjdk6
      And it announces active jdk version
-     And it successfully switches to the ruby version: 1.9.2
+     And it successfully switches to the ruby version: jruby
      And it announces active ruby version
      And it finds a file gemfiles/Gemfile and successfully installs dependencies with bundle
      And it successfully runs the script: bundle exec rake
@@ -66,12 +66,12 @@ Feature: Testing a Ruby project with a given JDK version
        | job:test:log    | log: git clone                            |
        | job:test:log    | log: cd travis-ci/travis-ci               |
        | job:test:log    | log: git checkout                         |
-       | job:test:log    | log: /export TRAVIS_JDK_VERSION=openjdk6/ |
-       | job:test:log    | log: /export TRAVIS_RUBY_VERSION=1.9.2/   |
+       | job:test:log    | log: export TRAVIS_JDK_VERSION=openjdk6   |
+       | job:test:log    | log: export TRAVIS_RUBY_VERSION=jruby     |
        | job:test:log    | log: sudo jdk-switcher use openjdk6       |
        | job:test:log    | log: java -version                        |
        | job:test:log    | log: javac -version                       |
-       | job:test:log    | log: rvm use 1.9.2                        |
+       | job:test:log    | log: rvm use jruby                        |
        | job:test:log    | log: ruby --version                       |
        | job:test:log    | log: gem --version                        |
        | job:test:log    | log: /export BUNDLE_GEMFILE=/             |
@@ -101,7 +101,7 @@ Feature: Testing a Ruby project with a given JDK version
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it exports the line TRAVIS_JDK_VERSION=openjdk6
-     And it exports the line TRAVIS_RUBY_VERSION=1.9.2
+     And it exports the line TRAVIS_RUBY_VERSION=jruby
      And it fails to switch to the jdk version: openjdk6
      And it closes the ssh session
      And it returns the result 1
@@ -112,10 +112,10 @@ Feature: Testing a Ruby project with a given JDK version
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it exports the line TRAVIS_JDK_VERSION=openjdk6
-     And it exports the line TRAVIS_RUBY_VERSION=1.9.2
+     And it exports the line TRAVIS_RUBY_VERSION=jruby
      And it successfully switches to the jdk version: openjdk6
      And it announces active jdk version
-     And it fails to switch to the ruby version: 1.9.2
+     And it fails to switch to the ruby version: jruby
      And it closes the ssh session
      And it returns the result 1
 
@@ -125,10 +125,10 @@ Feature: Testing a Ruby project with a given JDK version
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it exports the line TRAVIS_JDK_VERSION=openjdk6
-     And it exports the line TRAVIS_RUBY_VERSION=1.9.2
+     And it exports the line TRAVIS_RUBY_VERSION=jruby
      And it successfully switches to the jdk version: openjdk6
      And it announces active jdk version
-     And it successfully switches to the ruby version: 1.9.2
+     And it successfully switches to the ruby version: jruby
      And it announces active ruby version
      And it finds a file gemfiles/Gemfile but fails to install dependencies with bundle
      And it closes the ssh session
@@ -140,10 +140,10 @@ Feature: Testing a Ruby project with a given JDK version
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it exports the line TRAVIS_JDK_VERSION=openjdk6
-     And it exports the line TRAVIS_RUBY_VERSION=1.9.2
+     And it exports the line TRAVIS_RUBY_VERSION=jruby
      And it successfully switches to the jdk version: openjdk6
      And it announces active jdk version
-     And it successfully switches to the ruby version: 1.9.2
+     And it successfully switches to the ruby version: jruby
      And it announces active ruby version
      And it does not find the file gemfiles/Gemfile
      And it fails to run the script: rake
