@@ -149,7 +149,7 @@ Then /^it (successfully|fails to) switch(?:es)? to the (.*) version: (.*)$/ do |
     'erlang' => "source /home/vagrant/otp/#{version}/activate",
     'nodejs' => "nvm use #{version}",
     'php'    => "phpenv global #{version}",
-    'jdk'    => "sudo jdk-switcher use #{version}"
+    'jdk'    => "sudo jdk_switcher use #{version}"
   }
   cmd = cmds[language.gsub('.', '')]
 

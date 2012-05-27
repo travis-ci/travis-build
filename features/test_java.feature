@@ -30,7 +30,7 @@ Feature: Testing a Java project
        | job:test:log    | log: cd travis-ci/travis-ci                |
        | job:test:log    | log: git checkout                          |
        | job:test:log    | log: /export TRAVIS_JDK_VERSION=openjdk6/  |
-       | job:test:log    | log: sudo jdk-switcher use openjdk6        |
+       | job:test:log    | log: sudo jdk_switcher use openjdk6        |
        | job:test:log    | log: java -version                         |
        | job:test:log    | log: javac -version                        |
        | job:test:log    | log: mvn install --quiet -DskipTests=true  |
@@ -61,7 +61,7 @@ Feature: Testing a Java project
        | job:test:log    | log: cd travis-ci/travis-ci                |
        | job:test:log    | log: git checkout                          |
        | job:test:log    | log: /export TRAVIS_JDK_VERSION=openjdk6/  |
-       | job:test:log    | log: sudo jdk-switcher use openjdk6        |
+       | job:test:log    | log: sudo jdk_switcher use openjdk6        |
        | job:test:log    | log: java -version                         |
        | job:test:log    | log: javac -version                        |
        | job:test:log    | log: gradle assemble                       |
@@ -92,7 +92,7 @@ Feature: Testing a Java project
        | job:test:log    | log: cd travis-ci/travis-ci                |
        | job:test:log    | log: git checkout                          |
        | job:test:log    | log: /export TRAVIS_JDK_VERSION=openjdk6/  |
-       | job:test:log    | log: sudo jdk-switcher use openjdk6        |
+       | job:test:log    | log: sudo jdk_switcher use openjdk6        |
        | job:test:log    | log: java -version                         |
        | job:test:log    | log: javac -version                        |
        | job:test:log    | log: ant test                              |

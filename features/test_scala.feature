@@ -31,7 +31,7 @@ Feature: Testing a Scala project
        | job:test:log    | log: git checkout                         |
        | job:test:log    | log: /export TRAVIS_JDK_VERSION=openjdk7/ |
        | job:test:log    | log: /export TRAVIS_SCALA_VERSION=/       |
-       | job:test:log    | log: sudo jdk-switcher use openjdk7       |
+       | job:test:log    | log: sudo jdk_switcher use openjdk7       |
        | job:test:log    | log: java -version                        |
        | job:test:log    | log: javac -version                       |
        | job:test:log    | log: sbt ++2.9.1 test                     |
@@ -63,7 +63,7 @@ Feature: Testing a Scala project
        | job:test:log    | log: git checkout                         |
        | job:test:log    | log: /export TRAVIS_JDK_VERSION=openjdk7/ |
        | job:test:log    | log: /export TRAVIS_SCALA_VERSION=/       |
-       | job:test:log    | log: sudo jdk-switcher use openjdk7       |
+       | job:test:log    | log: sudo jdk_switcher use openjdk7       |
        | job:test:log    | log: java -version                        |
        | job:test:log    | log: javac -version                       |
        | job:test:log    | log: sbt ++2.9.1 test                     |
