@@ -2,18 +2,18 @@ Feature: Testing a Scala project
 
   Background:
    Given the following test payload
-     | repository | travis-ci/travis-ci                         |
-     | commit     | 1234567                                     |
-     | config     | language: scala, scala: 2.9.1, env: FOO=foo |
+     | repository | travis-ci/travis-ci                                        |
+     | commit     | 1234567                                                    |
+     | config     | language: scala, scala: 2.9.1, jdk: openjdk6, env: FOO=foo |
 
   Scenario: A successful build with ./project directory in the repository root
     When it starts a job
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
-     And it exports the line TRAVIS_JDK_VERSION=openjdk7
+     And it exports the line TRAVIS_JDK_VERSION=openjdk6
      And it exports the line TRAVIS_SCALA_VERSION=2.9.1
-     And it successfully switches to the jdk version: openjdk7
+     And it successfully switches to the jdk version: openjdk6
      And it announces active jdk version
      # think ./project
      And it finds directory project
@@ -29,9 +29,9 @@ Feature: Testing a Scala project
        | job:test:log    | log: git clone                            |
        | job:test:log    | log: cd travis-ci/travis-ci               |
        | job:test:log    | log: git checkout                         |
-       | job:test:log    | log: /export TRAVIS_JDK_VERSION=openjdk7/ |
+       | job:test:log    | log: /export TRAVIS_JDK_VERSION=openjdk6/ |
        | job:test:log    | log: /export TRAVIS_SCALA_VERSION=/       |
-       | job:test:log    | log: sudo jdk_switcher use openjdk7       |
+       | job:test:log    | log: sudo jdk_switcher use openjdk6       |
        | job:test:log    | log: java -version                        |
        | job:test:log    | log: javac -version                       |
        | job:test:log    | log: sbt ++2.9.1 test                     |
@@ -43,9 +43,9 @@ Feature: Testing a Scala project
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
-     And it exports the line TRAVIS_JDK_VERSION=openjdk7
+     And it exports the line TRAVIS_JDK_VERSION=openjdk6
      And it exports the line TRAVIS_SCALA_VERSION=2.9.1
-     And it successfully switches to the jdk version: openjdk7
+     And it successfully switches to the jdk version: openjdk6
      And it announces active jdk version
      And it does not find directory project
      And it finds the file build.sbt
@@ -61,9 +61,9 @@ Feature: Testing a Scala project
        | job:test:log    | log: git clone                            |
        | job:test:log    | log: cd travis-ci/travis-ci               |
        | job:test:log    | log: git checkout                         |
-       | job:test:log    | log: /export TRAVIS_JDK_VERSION=openjdk7/ |
+       | job:test:log    | log: /export TRAVIS_JDK_VERSION=openjdk6/ |
        | job:test:log    | log: /export TRAVIS_SCALA_VERSION=/       |
-       | job:test:log    | log: sudo jdk_switcher use openjdk7       |
+       | job:test:log    | log: sudo jdk_switcher use openjdk6       |
        | job:test:log    | log: java -version                        |
        | job:test:log    | log: javac -version                       |
        | job:test:log    | log: sbt ++2.9.1 test                     |
@@ -91,9 +91,9 @@ Feature: Testing a Scala project
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
-     And it exports the line TRAVIS_JDK_VERSION=openjdk7
+     And it exports the line TRAVIS_JDK_VERSION=openjdk6
      And it exports the line TRAVIS_SCALA_VERSION=2.9.1
-     And it fails to switch to the jdk version: openjdk7
+     And it fails to switch to the jdk version: openjdk6
      And it closes the ssh session
      And it returns the result 1
 
@@ -102,9 +102,9 @@ Feature: Testing a Scala project
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
-     And it exports the line TRAVIS_JDK_VERSION=openjdk7
+     And it exports the line TRAVIS_JDK_VERSION=openjdk6
      And it exports the line TRAVIS_SCALA_VERSION=2.9.1
-     And it successfully switches to the jdk version: openjdk7
+     And it successfully switches to the jdk version: openjdk6
      And it announces active jdk version
      # think ./project
      And it finds directory project

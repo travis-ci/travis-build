@@ -1,10 +1,43 @@
 require 'spec_helper'
 require 'travis/build'
 
-describe Travis::Build::Job::Test::PureJava do
+describe Travis::Build::Job::Test::JvmLanguage do
   let(:shell)  { stub('shell') }
   let(:config) { described_class::Config.new }
   let(:job)    { described_class.new(shell, nil, config) }
+
+
+  describe 'config' do
+    it 'defaults :jdk to "openjdk7"' do
+      config.jdk.should == 'openjdk7'
+    end
+  end
+
+  describe 'setup' do
+    context "when JDK version is not explicitly specified and we have to use the default one" do
+      it 'switches to the default JDK version' do
+        shell.expects(:export_line).with("TRAVIS_JDK_VERSION=openjdk7").returns(true)
+        shell.expects(:execute).with('sudo jdk_switcher use openjdk7').returns(true)
+        shell.expects(:execute).with('java -version')
+        shell.expects(:execute).with('javac -version')
+
+        job.setup
+      end
+    end
+
+    context "when JDK version IS explicitly specified" do
+      let(:config) { Travis::Build::Job::Test::PureJava::Config.new(:jdk => "openjdk6") }
+
+      it 'switches to the given JDK version' do
+        shell.expects(:export_line).with("TRAVIS_JDK_VERSION=openjdk6").returns(true)
+        shell.expects(:execute).with('sudo jdk_switcher use openjdk6').returns(true)
+        shell.expects(:execute).with('java -version')
+        shell.expects(:execute).with('javac -version')
+
+        job.setup
+      end
+    end
+  end
 
   describe 'install' do
     context "when project uses Maven" do

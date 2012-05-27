@@ -16,10 +16,14 @@ describe Travis::Build::Job::Test::Ruby do
     end
   end
 
-  describe 'setup' do
+  shared_examples 'ruby_setup' do
+    it 'exports the given ruby version' do
+      shell.expects(:export_line).with("TRAVIS_RUBY_VERSION=#{config.rvm}").returns(true)
+      job.setup
+    end
+
     it 'switches to the given ruby version' do
-      config.rvm = 'rbx'
-      shell.expects(:execute).with('rvm use rbx', :echo => true).returns(true)
+      shell.expects(:execute).with("rvm use #{config.rvm}", :echo => true).returns(true)
       job.setup
     end
 
@@ -30,8 +34,7 @@ describe Travis::Build::Job::Test::Ruby do
     end
 
     it 'raises AssertionFailed when rvm outputs an ERROR string' do
-      config.rvm = 'rbx'
-      shell.expects(:execute).with('rvm use rbx', :echo => true).returns(false)
+      shell.expects(:execute).with("rvm use #{config.rvm}", :echo => true).returns(false)
       lambda { job.setup }.should raise_error(Travis::AssertionFailed)
     end
 
@@ -46,6 +49,50 @@ describe Travis::Build::Job::Test::Ruby do
       job.expects(:uses_bundler?).returns(false)
       shell.expects(:export_line).never
       job.setup
+    end
+  end
+
+
+  describe 'setup' do
+    context "when JDK is not needed" do
+      it 'does not setup JDK' do
+        config.rvm = 'rbx'
+        shell.expects(:execute).with('java -version').never
+        shell.expects(:execute).with('javac -version').never
+        job.setup
+      end
+
+      it_behaves_like 'ruby_setup' do
+        let(:config) { described_class::Config.new(:rvm => 'rbx', :bundler_args => '--binstubs') }
+      end
+    end
+
+    context "when JDK is needed: a JDK version is explicitly specified and language is JRuby" do
+      it 'exports the given JDK version' do
+        config.rvm = 'jruby'
+        config.jdk = 'openjdk6'
+        shell.expects(:export_line).with("TRAVIS_JDK_VERSION=openjdk6").returns(true)
+        job.setup
+      end
+
+      it 'switches to the given JDK version' do
+        config.rvm = 'jruby'
+        config.jdk = 'openjdk6'
+        shell.expects(:execute).with('sudo jdk_switcher use openjdk6').returns(true)
+        job.setup
+      end
+
+      it 'announces activated JDK version' do
+        config.rvm = 'jruby'
+        config.jdk = 'openjdk6'
+        shell.expects(:execute).with('java -version')
+        shell.expects(:execute).with('javac -version')
+        job.setup
+      end
+
+      it_behaves_like 'ruby_setup' do
+        let(:config) { described_class::Config.new(:rvm => 'rbx', :bundler_args => '--binstubs') }
+      end
     end
   end
 

@@ -5,12 +5,17 @@ module Travis
     module Job
       class Test
         class Ruby < Test
+          include JdkSwitcher
+
           class Config < Hashr
             define :rvm => 'default', :gemfile => 'Gemfile'
           end
 
           def setup
             super
+
+            setup_jdk if needs_jdk?
+
             setup_ruby
             announce_ruby
             setup_bundler if uses_bundler?
@@ -45,7 +50,12 @@ module Travis
             end
 
             def export_environment_variables
+              export_jdk_environment_variables if needs_jdk?
               shell.export_line("TRAVIS_RUBY_VERSION=#{config.rvm}")
+            end
+
+            def needs_jdk?
+              config[:rvm] =~ /jruby/i and !!config[:jdk]
             end
         end
       end
