@@ -6,7 +6,7 @@ module Travis
           include JdkSwitcher
 
           class Config < Hashr
-            define :lein => "lein", :jdk => 'openjdk7'
+            define :lein => "lein", :jdk => 'default'
           end
 
           def setup

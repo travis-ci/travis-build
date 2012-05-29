@@ -6,7 +6,7 @@ module Travis
           include JdkSwitcher
 
           class Config < Hashr
-            define :scala => '2.9.2', :jdk => 'openjdk7'
+            define :scala => '2.9.2', :jdk => 'default'
           end
 
           def setup

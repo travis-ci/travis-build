@@ -17,8 +17,8 @@ describe Travis::Build::Job::Test::Clojure do
         job.script.should == 'lein test'
       end
 
-      it 'defaults :jdk to "openjdk7"' do
-        config.jdk.should == 'openjdk7'
+      it 'defaults :jdk to "default"' do
+        config.jdk.should == 'default'
       end
     end
 
@@ -40,8 +40,8 @@ describe Travis::Build::Job::Test::Clojure do
   describe "setup" do
     context "when JDK version is not explicitly specified and we have to use the default one" do
       it 'switches to the default JDK version' do
-        shell.expects(:export_line).with("TRAVIS_JDK_VERSION=openjdk7").returns(true)
-        shell.expects(:execute).with('sudo jdk_switcher use openjdk7').returns(true)
+        shell.expects(:export_line).with("TRAVIS_JDK_VERSION=default").returns(true)
+        shell.expects(:execute).with('sudo jdk_switcher use default').returns(true)
         shell.expects(:execute).with('java -version')
         shell.expects(:execute).with('javac -version')
         job.setup
