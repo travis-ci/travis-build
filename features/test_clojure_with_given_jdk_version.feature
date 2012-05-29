@@ -2,17 +2,17 @@ Feature: Testing a Clojure project
 
   Background:
    Given the following test payload
-     | repository | travis-ci/travis-ci             |
-     | commit     | 1234567                         |
-     | config     | language: clojure, env: FOO=foo |
+     | repository | travis-ci/travis-ci                            |
+     | commit     | 1234567                                        |
+     | config     | language: clojure, jdk: openjdk6, env: FOO=foo |
 
   Scenario: A successful build
     When it starts a job
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
-     And it exports the line TRAVIS_JDK_VERSION=openjdk7
-     And it successfully switches to the jdk version: openjdk7
+     And it exports the line TRAVIS_JDK_VERSION=openjdk6
+     And it successfully switches to the jdk version: openjdk6
      And it announces active jdk version
      And it announces active leiningen version
      And it successfully installs dependencies with lein
@@ -28,8 +28,8 @@ Feature: Testing a Clojure project
        | job:test:log    | log: git clone                            |
        | job:test:log    | log: cd travis-ci/travis-ci               |
        | job:test:log    | log: git checkout                         |
-       | job:test:log    | log: /export TRAVIS_JDK_VERSION=openjdk7/ |
-       | job:test:log    | log: sudo jdk_switcher use openjdk7       |
+       | job:test:log    | log: /export TRAVIS_JDK_VERSION=openjdk6/ |
+       | job:test:log    | log: sudo jdk_switcher use openjdk6       |
        | job:test:log    | log: java -version                        |
        | job:test:log    | log: javac -version                       |
        | job:test:log    | log: lein version                         |
@@ -58,8 +58,8 @@ Feature: Testing a Clojure project
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
-     And it exports the line TRAVIS_JDK_VERSION=openjdk7
-     And it successfully switches to the jdk version: openjdk7
+     And it exports the line TRAVIS_JDK_VERSION=openjdk6
+     And it successfully switches to the jdk version: openjdk6
      And it announces active jdk version
      And it announces active leiningen version
      And it fails to install dependencies with lein
@@ -71,8 +71,8 @@ Feature: Testing a Clojure project
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
-     And it exports the line TRAVIS_JDK_VERSION=openjdk7
-     And it fails to switch to the jdk version: openjdk7
+     And it exports the line TRAVIS_JDK_VERSION=openjdk6
+     And it fails to switch to the jdk version: openjdk6
      And it closes the ssh session
      And it returns the result 1
 
@@ -81,8 +81,8 @@ Feature: Testing a Clojure project
     Then it exports the given environment variables
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
-     And it exports the line TRAVIS_JDK_VERSION=openjdk7
-     And it successfully switches to the jdk version: openjdk7
+     And it exports the line TRAVIS_JDK_VERSION=openjdk6
+     And it successfully switches to the jdk version: openjdk6
      And it announces active jdk version
      And it announces active leiningen version
      And it successfully installs dependencies with lein

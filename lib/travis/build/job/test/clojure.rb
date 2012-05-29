@@ -1,16 +1,17 @@
-require 'travis/build/job/test/jvm_language'
-
 module Travis
   class Build
     module Job
       class Test
         class Clojure < Test
+          include JdkSwitcher
+
           class Config < Hashr
-            define :lein => "lein"
+            define :lein => "lein", :jdk => 'openjdk7'
           end
 
           def setup
             super
+            setup_jdk
             announce_leiningen
           end
 
@@ -34,6 +35,10 @@ module Travis
 
             def announce_leiningen
               shell.execute("#{leiningen} version")
+            end
+
+            def export_environment_variables
+              export_jdk_environment_variables
             end
         end
       end

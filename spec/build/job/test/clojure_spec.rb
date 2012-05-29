@@ -2,12 +2,12 @@ require 'spec_helper'
 require 'travis/build'
 
 describe Travis::Build::Job::Test::Clojure do
-  let(:shell)  { stub('shell', :execute => true) }
+  let(:shell)  { stub('shell', :execute => true, :export_line => true) }
+  let(:config) { described_class::Config.new }
+  let(:job)    { described_class.new(shell, nil , config) }
 
   describe 'config' do
     context "when Leiningen 1.7 is used" do
-      let(:config) { described_class::Config.new }
-      let(:job)    { described_class.new(shell, nil , config) }
 
       it 'defaults :install to "lein deps"' do
         job.install.should == 'lein deps'
@@ -16,11 +16,14 @@ describe Travis::Build::Job::Test::Clojure do
       it 'defaults :script to "lein test"' do
         job.script.should == 'lein test'
       end
+
+      it 'defaults :jdk to "openjdk7"' do
+        config.jdk.should == 'openjdk7'
+      end
     end
 
     context "when Leiningen 2.0 is used" do
       let(:config) { described_class::Config.new(:lein => "lein2") }
-      let(:job)    { described_class.new(shell, nil , config) }
 
       it 'defaults :install to "lein deps"' do
         job.install.should == 'lein2 deps'
@@ -35,12 +38,29 @@ describe Travis::Build::Job::Test::Clojure do
 
 
   describe "setup" do
-    let(:shell)  { stub('shell') }
+    context "when JDK version is not explicitly specified and we have to use the default one" do
+      it 'switches to the default JDK version' do
+        shell.expects(:export_line).with("TRAVIS_JDK_VERSION=openjdk7").returns(true)
+        shell.expects(:execute).with('sudo jdk_switcher use openjdk7').returns(true)
+        shell.expects(:execute).with('java -version')
+        shell.expects(:execute).with('javac -version')
+        job.setup
+      end
+    end
+
+    context "when JDK version IS explicitly specified" do
+      let(:config) { described_class::Config.new(:jdk => "openjdk6") }
+
+      it 'switches to the given JDK version' do
+        shell.expects(:export_line).with("TRAVIS_JDK_VERSION=openjdk6").returns(true)
+        shell.expects(:execute).with('sudo jdk_switcher use openjdk6').returns(true)
+        shell.expects(:execute).with('java -version')
+        shell.expects(:execute).with('javac -version')
+        job.setup
+      end
+    end
 
     context "when Leiningen 1.7 is used" do
-      let(:config) { described_class::Config.new }
-      let(:job)    { described_class.new(shell, nil , config) }
-
       it "announces Leiningen version" do
         shell.expects(:execute).with('lein version')
 
@@ -50,7 +70,6 @@ describe Travis::Build::Job::Test::Clojure do
 
     context "when Leiningen 2.0 is used" do
       let(:config) { described_class::Config.new(:lein => "lein2") }
-      let(:job)    { described_class.new(shell, nil , config) }
 
       it "announces Leiningen version" do
         shell.expects(:execute).with('lein2 version')
