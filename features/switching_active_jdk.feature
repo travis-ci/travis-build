@@ -27,7 +27,7 @@ Feature: Switching JDKs when testing a Clojure project
        | job:test:log    | log: cd travis-ci/travis-ci               |
        | job:test:log    | log: git checkout                         |
        | job:test:log    | log: /export TRAVIS_JDK_VERSION=openjdk7/ |
-       | job:test:log    | log: sudo jdk_switcher use openjdk7       |
+       | job:test:log    | log: jdk_switcher use openjdk7            |
        | job:test:log    | log: java -version                        |
        | job:test:log    | log: javac -version                       |
        | job:test:log    | log: lein version                         |
@@ -64,7 +64,7 @@ Feature: Switching JDKs when testing a Clojure project
        | job:test:log    | log: cd travis-ci/travis-ci                 |
        | job:test:log    | log: git checkout                           |
        | job:test:log    | log: /export TRAVIS_JDK_VERSION=oraclejdk7/ |
-       | job:test:log    | log: sudo jdk_switcher use oraclejdk7       |
+       | job:test:log    | log: jdk_switcher use oraclejdk7            |
        | job:test:log    | log: java -version                          |
        | job:test:log    | log: javac -version                         |
        | job:test:log    | log: lein version                           |

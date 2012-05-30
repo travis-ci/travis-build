@@ -17,7 +17,7 @@ describe Travis::Build::Job::Test::JvmLanguage do
     context "when JDK version is not explicitly specified and we have to use the default one" do
       it 'switches to the default JDK version' do
         shell.expects(:export_line).with("TRAVIS_JDK_VERSION=default").returns(true)
-        shell.expects(:execute).with('sudo jdk_switcher use default').returns(true)
+        shell.expects(:execute).with('jdk_switcher use default').returns(true)
         shell.expects(:execute).with('java -version')
         shell.expects(:execute).with('javac -version')
 
@@ -30,7 +30,7 @@ describe Travis::Build::Job::Test::JvmLanguage do
 
       it 'switches to the given JDK version' do
         shell.expects(:export_line).with("TRAVIS_JDK_VERSION=openjdk6").returns(true)
-        shell.expects(:execute).with('sudo jdk_switcher use openjdk6').returns(true)
+        shell.expects(:execute).with('jdk_switcher use openjdk6').returns(true)
         shell.expects(:execute).with('java -version')
         shell.expects(:execute).with('javac -version')
 

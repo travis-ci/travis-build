@@ -13,7 +13,7 @@ module Travis
           protected
 
             def setup_jdk_switcher
-              shell.execute("sudo jdk_switcher use #{config.jdk}")
+              shell.execute("jdk_switcher use #{config.jdk}")
             end
             assert :setup_jdk_switcher
 

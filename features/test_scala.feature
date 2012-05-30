@@ -29,9 +29,9 @@ Feature: Testing a Scala project
        | job:test:log    | log: git clone                            |
        | job:test:log    | log: cd travis-ci/travis-ci               |
        | job:test:log    | log: git checkout                         |
-       | job:test:log    | log: /export TRAVIS_JDK_VERSION=default/ |
+       | job:test:log    | log: /export TRAVIS_JDK_VERSION=default/  |
        | job:test:log    | log: /export TRAVIS_SCALA_VERSION=/       |
-       | job:test:log    | log: sudo jdk_switcher use default |
+       | job:test:log    | log: jdk_switcher use default             |
        | job:test:log    | log: java -version                        |
        | job:test:log    | log: javac -version                       |
        | job:test:log    | log: sbt ++2.9.1 test                     |
@@ -63,7 +63,7 @@ Feature: Testing a Scala project
        | job:test:log    | log: git checkout                        |
        | job:test:log    | log: /export TRAVIS_JDK_VERSION=default/ |
        | job:test:log    | log: /export TRAVIS_SCALA_VERSION=/      |
-       | job:test:log    | log: sudo jdk_switcher use default       |
+       | job:test:log    | log: jdk_switcher use default            |
        | job:test:log    | log: java -version                       |
        | job:test:log    | log: javac -version                      |
        | job:test:log    | log: sbt ++2.9.1 test                    |

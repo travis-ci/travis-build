@@ -78,7 +78,7 @@ describe Travis::Build::Job::Test::Ruby do
       it 'switches to the given JDK version' do
         config.rvm = 'jruby'
         config.jdk = 'openjdk6'
-        shell.expects(:execute).with('sudo jdk_switcher use openjdk6').returns(true)
+        shell.expects(:execute).with('jdk_switcher use openjdk6').returns(true)
         job.setup
       end
 

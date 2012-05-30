@@ -29,7 +29,7 @@ Feature: Testing a Clojure project
        | job:test:log    | log: cd travis-ci/travis-ci              |
        | job:test:log    | log: git checkout                        |
        | job:test:log    | log: /export TRAVIS_JDK_VERSION=default/ |
-       | job:test:log    | log: sudo jdk_switcher use default       |
+       | job:test:log    | log: jdk_switcher use default            |
        | job:test:log    | log: java -version                       |
        | job:test:log    | log: javac -version                      |
        | job:test:log    | log: lein version                        |

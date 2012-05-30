@@ -32,7 +32,7 @@ Feature: Testing a Ruby project with a given JDK version
        | job:test:log    | log: git checkout                          |
        | job:test:log    | log: export TRAVIS_JDK_VERSION=openjdk6    |
        | job:test:log    | log: export TRAVIS_RUBY_VERSION=jruby      |
-       | job:test:log    | log: sudo jdk_switcher use openjdk6        |
+       | job:test:log    | log: jdk_switcher use openjdk6             |
        | job:test:log    | log: java -version                         |
        | job:test:log    | log: javac -version                        |
        | job:test:log    | log: rvm use jruby                         |
@@ -68,7 +68,7 @@ Feature: Testing a Ruby project with a given JDK version
        | job:test:log    | log: git checkout                         |
        | job:test:log    | log: export TRAVIS_JDK_VERSION=openjdk6   |
        | job:test:log    | log: export TRAVIS_RUBY_VERSION=jruby     |
-       | job:test:log    | log: sudo jdk_switcher use openjdk6       |
+       | job:test:log    | log: jdk_switcher use openjdk6            |
        | job:test:log    | log: java -version                        |
        | job:test:log    | log: javac -version                       |
        | job:test:log    | log: rvm use jruby                        |
