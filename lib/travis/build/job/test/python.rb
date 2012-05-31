@@ -14,8 +14,12 @@ module Travis
           end
 
           def virtualenv_activate_location
-            # python2.6, python2.7, python3.2, etc
-            "~/virtualenv/python#{config.python}/bin/activate"
+            if config.python =~ /pypy/i
+              "~/virtualenv/pypy/bin/activate"
+            else
+              # python2.6, python2.7, python3.2, etc
+              "~/virtualenv/python#{config.python}/bin/activate"
+            end
           end
 
           def install

@@ -19,6 +19,20 @@ describe Travis::Build::Job::Test::Python do
   end
 
 
+  describe 'setup with PyPy' do
+    let(:config) { Travis::Build::Job::Test::Python::Config.new(:python => "pypy") }
+
+    it 'is treated as a special case' do
+      shell.expects(:export_line).with("TRAVIS_PYTHON_VERSION=pypy").returns(true)
+      shell.expects(:execute).with("source ~/virtualenv/pypy/bin/activate").returns(true)
+      shell.expects(:execute).with("python --version").returns(true)
+      shell.expects(:execute).with("pip --version").returns(true)
+
+      job.setup
+    end
+  end
+
+
   describe 'install' do
     context "when Requirements.txt is found in the repository root" do
       it "returns pip install -r Requirements.txt" do
