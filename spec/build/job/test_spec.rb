@@ -7,7 +7,8 @@ describe Travis::Build::Job::Test do
   let(:commit) { Hashr.new(:repository => {
                              :slug => "owner/repo",
                            },
-                           :checkout => true) }
+                           :checkout     => true,
+                           :pull_request => false) }
   let(:config) { Hashr.new(:env => 'FOO=foo', :script => 'rake') }
   let(:job)    { Travis::Build::Job::Test.new(shell, commit, config) }
 
@@ -101,6 +102,42 @@ describe Travis::Build::Job::Test do
   end
 
   describe 'export' do
+    context 'when we\'re dealing pull request' do
+      it 'exports TRAVIS_PULL_REQUEST=true ENV var' do
+        commit.expects(:pull_request?).at_least_once.returns(true)
+        shell.expects(:export_line).with("TRAVIS_PULL_REQUEST=true")
+        job.send(:export)
+      end
+    end
+
+    it 'exports TRAVIS_PULL_REQUEST=false ENV var' do
+      shell.expects(:export_line).with("TRAVIS_PULL_REQUEST=false")
+      job.send(:export)
+    end
+
+    it 'exports TRAVIS_SECURE_ENV_VARS=false ENV var' do
+      shell.expects(:export_line).with("TRAVIS_SECURE_ENV_VARS=false")
+      job.send(:export)
+    end
+
+    context 'with secure env vars' do
+      let(:config) { Hashr.new(:env => 'SECURE FOO=foo') }
+
+      it 'exports TRAVIS_SECURE_ENV_VARS=true ENV var' do
+        shell.expects(:export_line).with("TRAVIS_SECURE_ENV_VARS=true")
+        job.send(:export)
+      end
+    end
+
+    context 'when commit is a pull_request commit' do
+      it 'sets TRAVIS specific env vars accordingly' do
+        commit.expects(:pull_request?).twice.returns(true)
+        shell.expects(:export_line).with("TRAVIS_PULL_REQUEST=true")
+        shell.expects(:export_line).with("TRAVIS_SECURE_ENV_VARS=false")
+        job.send(:export)
+      end
+    end
+
     it 'accepts a single string with multiple values' do
       s          = 'SUITE=integration'
       config.env = s

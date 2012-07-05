@@ -72,6 +72,9 @@ end
 
 
 Then /^it exports the given environment variables$/ do
+  step "it exports the line TRAVIS_PULL_REQUEST=false"
+  step "it exports the line TRAVIS_SECURE_ENV_VARS=false"
+
   if $payload.config.env?
     line = $payload.config.env
     step "it exports the line #{line}"

@@ -24,6 +24,8 @@ Feature: Testing a Clojure project
        | job:test:start  | started_at: [now]                        |
        | job:test:log    | log: /Using worker/                      |
        | job:test:log    | log: cd ~/builds                         |
+       | job:test:log    | log: export TRAVIS_PULL_REQUEST=false    |
+       | job:test:log    | log: export TRAVIS_SECURE_ENV_VARS=false |
        | job:test:log    | log: export FOO=foo                      |
        | job:test:log    | log: git clone                           |
        | job:test:log    | log: cd travis-ci/travis-ci              |

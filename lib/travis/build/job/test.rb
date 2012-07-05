@@ -107,9 +107,28 @@ module Travis
           end
 
           def export
-            Array(config.env).compact.select { |line| line.present? }.each do |line|
+            export_travis_specific_variables
+
+            env_vars.each do |line|
               shell.export_line(line)
-            end if config.env
+            end
+          end
+
+          def export_travis_specific_variables
+            shell.export_line "TRAVIS_PULL_REQUEST=#{(!!commit.pull_request?).inspect}"
+            shell.export_line "TRAVIS_SECURE_ENV_VARS=#{secure_env_vars?}"
+          end
+
+          def env_vars
+            if config.env
+              Array(config.env).compact.select { |line| line.present? }
+            else
+              []
+            end
+          end
+
+          def secure_env_vars?
+            !commit.pull_request? && env_vars.any? { |line| line =~ /^SECURE / }
           end
 
           def checkout
