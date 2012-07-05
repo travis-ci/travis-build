@@ -3,7 +3,13 @@ require 'travis/build'
 
 describe Travis::Build do
   let(:events)   { Travis::Build::Event::Factory.new(:id => 1) }
-  let(:job)      { Travis::Build::Job::Test.new(nil, nil, nil) }
+  let(:commit) do
+    Hashr.new(:repository => {
+                :slug => "owner/repo",
+              },
+              :checkout => true)
+  end
+  let(:job)      { Travis::Build::Job::Test.new(nil, commit, nil) }
   let(:build)    { Travis::Build.new(events, job) }
   let(:observer) { Mocks::Observer.new }
 

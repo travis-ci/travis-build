@@ -4,7 +4,9 @@ require 'travis/build'
 describe Travis::Build::Job::Test::Perl do
   let(:shell) { stub('shell') }
   let(:config) { Travis::Build::Job::Test::Perl::Config.new(:perl => "5.14") }
-  let(:job) { Travis::Build::Job::Test::Perl.new(shell, nil, config) }
+  let(:job) { Travis::Build::Job::Test::Perl.new(shell, Hashr.new(:repository => {
+                                                        :slug => "owner/repo"
+                                                      }), config) }
 
 
   describe 'setup' do

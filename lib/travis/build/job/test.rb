@@ -31,6 +31,7 @@ module Travis
       class Test
         autoload :Clojure,     'travis/build/job/test/clojure'
         autoload :Erlang,      'travis/build/job/test/erlang'
+        autoload :Go,          'travis/build/job/test/go'
         autoload :Groovy,      'travis/build/job/test/groovy'
         autoload :Haskell,     'travis/build/job/test/haskell'
         autoload :JdkSwitcher, 'travis/build/job/test/jdk_switcher'
@@ -65,12 +66,14 @@ module Travis
           end
         end
 
-        attr_reader :shell, :commit, :config
+        attr_reader :shell, :commit, :config, :repository
 
         def initialize(shell, commit, config)
           @shell = shell
           @commit = commit
           @config = config
+
+          @repository = @commit.repository
         end
 
         def install
@@ -147,6 +150,23 @@ module Travis
 
           def commands_for(stage)
             Array(config[stage] || (respond_to?(stage, true) ? send(stage) : nil))
+          end
+
+
+          def source_url
+            repository.source_url
+          end
+
+          def repository_slug
+            repository.slug
+          end
+
+          def repository_owner
+            repository.slug.split("/").first
+          end
+
+          def repository_name
+            repository.slug.split("/").last
           end
       end
     end

@@ -4,7 +4,9 @@ require 'travis/build'
 describe Travis::Build::Job::Test::Clojure do
   let(:shell)  { stub('shell', :execute => true, :export_line => true) }
   let(:config) { described_class::Config.new }
-  let(:job)    { described_class.new(shell, nil , config) }
+  let(:job)    { described_class.new(shell, Hashr.new(:repository => {
+                                                                     :slug => "owner/repo"
+                                                                   }), config) }
 
   describe 'config' do
     context "when Leiningen 1.7 is used" do

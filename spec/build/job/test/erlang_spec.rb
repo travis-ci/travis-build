@@ -4,7 +4,9 @@ require 'travis/build'
 describe Travis::Build::Job::Test::Erlang do
   let(:shell)  { stub('shell') }
   let(:config) { Travis::Build::Job::Test::Erlang::Config.new }
-  let(:job)    { Travis::Build::Job::Test::Erlang.new(shell, nil , config) }
+  let(:job)    { Travis::Build::Job::Test::Erlang.new(shell, Hashr.new(:repository => {
+                                                        :slug => "owner/repo"
+                                                      }), config) }
 
   describe 'config' do
     it 'defaults :otp_release to "R14B04"' do

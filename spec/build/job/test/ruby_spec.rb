@@ -4,7 +4,9 @@ require 'travis/build'
 describe Travis::Build::Job::Test::Ruby do
   let(:shell)  { stub('shell', :export_line => true, :execute => true, :evaluate => 'default', :cwd => '~/builds', :file_exists? => true) }
   let(:config) { Travis::Build::Job::Test::Ruby::Config.new(:bundler_args => '--binstubs') }
-  let(:job)    { Travis::Build::Job::Test::Ruby.new(shell, nil, config) }
+  let(:job)    { Travis::Build::Job::Test::Ruby.new(shell, Hashr.new(:repository => {
+                                                        :slug => "owner/repo"
+                                                      }), config) }
 
   describe 'config defaults' do
     it ':rvm to "default"' do

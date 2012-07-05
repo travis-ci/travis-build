@@ -4,7 +4,9 @@ require 'travis/build'
 describe Travis::Build::Job::Test::Scala do
   let(:shell)  { stub('shell', :execute => true, :export_line => true, :echo => true) }
   let(:config) { described_class::Config.new }
-  let(:job)    { described_class.new(shell, nil, config) }
+  let(:job)    { described_class.new(shell, Hashr.new(:repository => {
+                                                        :slug => "owner/repo"
+                                                      }), config) }
 
   describe 'config' do
     it 'defaults :scala to "2.9.2"' do

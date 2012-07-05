@@ -4,7 +4,9 @@ require 'travis/build'
 describe Travis::Build::Job::Test::Python do
   let(:shell) { stub('shell') }
   let(:config) { Travis::Build::Job::Test::Python::Config.new(:python => "3.2") }
-  let(:job) { Travis::Build::Job::Test::Python.new(shell, nil, config) }
+  let(:job) { Travis::Build::Job::Test::Python.new(shell, Hashr.new(:repository => {
+                                                        :slug => "owner/repo"
+                                                      }), config) }
 
 
   describe 'setup' do

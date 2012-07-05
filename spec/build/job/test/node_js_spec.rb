@@ -4,7 +4,9 @@ require 'travis/build'
 describe Travis::Build::Job::Test::NodeJs do
   let(:shell)  { stub('shell') }
   let(:config) { Travis::Build::Job::Test::NodeJs::Config.new(:npm_args => '--dev') }
-  let(:job)    { Travis::Build::Job::Test::NodeJs.new(shell, nil , config) }
+  let(:job)    { Travis::Build::Job::Test::NodeJs.new(shell, Hashr.new(:repository => {
+                                                        :slug => "owner/repo"
+                                                      }), config) }
 
   describe 'config' do
     it 'defaults :node_js to "0.4"' do

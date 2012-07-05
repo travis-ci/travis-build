@@ -4,7 +4,9 @@ require 'travis/build'
 describe Travis::Build::Job::Test::Php do
   let(:shell)  { stub('shell', :execute => true) }
   let(:config) { Travis::Build::Job::Test::Php::Config.new(:composer_args => '--dev') }
-  let(:job)    { Travis::Build::Job::Test::Php.new(shell, nil , config) }
+  let(:job)    { Travis::Build::Job::Test::Php.new(shell, Hashr.new(:repository => {
+                                                        :slug => "owner/repo"
+                                                      }), config) }
 
   describe 'config' do
     it 'defaults :php to "5.3"' do
