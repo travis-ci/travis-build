@@ -19,7 +19,7 @@ describe Travis::Build::Job::Test::Go do
     context "when Makefile DOES NOT exist" do
       it 'uses go get' do
         job.expects(:uses_make?).returns(false)
-        job.install.should == "cd /home/vagrant/gopath/src/repo && go get -v ."
+        job.install.should == "go get -v ."
       end
     end
   end

@@ -12,13 +12,18 @@ module Travis
             # For example, ln -s ~/builds/peterbourgon/g2g ~/gopath/src/g2g
             shell.execute "ln -s #{home_directory}/builds/#{repository_slug} #{package_path_under_gopath}"
             shell.export_line "GOPATH=#{gopath}"
+            # this is not how we do it for all other languages but an experienced Go developer suggests
+            # this makes sense for Go projects. We still end up in the same directory as with other
+            # builders (in the local git repository root) but with `pwd` reporting a path under
+            # GOPATH. MK.
+            shell.execute "cd #{package_path_under_gopath}"
           end
 
           def install
             if uses_make?
               # no-op
             else
-              "cd #{package_path_under_gopath} && go get -v ."
+              "go get -v ."
             end
           end
 
