@@ -29,7 +29,9 @@ module Travis
       # specific test subclasses. All of the commands can be defined in the
       # test configuration.
       class Test
+        autoload :C,           'travis/build/job/test/c'
         autoload :Clojure,     'travis/build/job/test/clojure'
+        autoload :Cpp,         'travis/build/job/test/cpp'
         autoload :Erlang,      'travis/build/job/test/erlang'
         autoload :Go,          'travis/build/job/test/go'
         autoload :Groovy,      'travis/build/job/test/groovy'
@@ -52,12 +54,14 @@ module Travis
         log_header { "#{Thread.current[:log_header]}:job:test" }
 
         class << self
-          def by_lang(lang)
-            lang = Array(lang).first
-            lang = (lang || 'ruby').downcase
+          def by_lang(lng)
+            lang = (Array(lng).first || 'ruby').downcase.strip
 
             if lang == 'java'
+              # just "Java" would conflict with JRuby's Java integration
               Job::Test::PureJava
+            elsif %w(c++ cpp cplusplus).include?(lang)
+              
             else
               args = [ActiveSupport::Inflector.camelize(lang.downcase)]
               args << false if Kernel.method(:const_get).arity == -1
