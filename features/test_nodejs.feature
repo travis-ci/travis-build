@@ -23,21 +23,23 @@ Feature: Testing a Node.js project
      And it closes the ssh session
      And it returns the result 0
      And it has captured the following events
-       | name            | data                                |
-       | job:test:start  | started_at: [now]                   |
-       | job:test:log    | log: /Using worker/                 |
-       | job:test:log    | log: cd ~/builds                    |
-       | job:test:log    | log: export FOO=foo                 |
-       | job:test:log    | log: git clone                      |
-       | job:test:log    | log: cd travis-ci/travis-ci         |
-       | job:test:log    | log: git checkout                   |
-       | job:test:log    | log: export TRAVIS_NODE_VERSION=0.4 |
-       | job:test:log    | log: nvm use 0.4                    |
-       | job:test:log    | log: node --version                 |
-       | job:test:log    | log: npm --version                  |
-       | job:test:log    | log: make test                      |
-       | job:test:log    | log: /Done.* 0/                     |
-       | job:test:finish | finished_at: [now], result: 0       |
+       | name            | data                                     |
+       | job:test:start  | started_at: [now]                        |
+       | job:test:log    | log: /Using worker/                      |
+       | job:test:log    | log: cd ~/builds                         |
+       | job:test:log    | log: export TRAVIS_PULL_REQUEST=false    |
+       | job:test:log    | log: export TRAVIS_SECURE_ENV_VARS=false |
+       | job:test:log    | log: export FOO=foo                      |
+       | job:test:log    | log: git clone                           |
+       | job:test:log    | log: cd travis-ci/travis-ci              |
+       | job:test:log    | log: git checkout                        |
+       | job:test:log    | log: export TRAVIS_NODE_VERSION=0.4      |
+       | job:test:log    | log: nvm use 0.4                         |
+       | job:test:log    | log: node --version                      |
+       | job:test:log    | log: npm --version                       |
+       | job:test:log    | log: make test                           |
+       | job:test:log    | log: /Done.* 0/                          |
+       | job:test:finish | finished_at: [now], result: 0            |
 
 
   Scenario: A successful build
@@ -53,21 +55,23 @@ Feature: Testing a Node.js project
      And it closes the ssh session
      And it returns the result 0
      And it has captured the following events
-       | name            | data                                  |
-       | job:test:start  | started_at: [now]                     |
-       | job:test:log    | log: /Using worker/                   |
-       | job:test:log    | log: cd ~/builds                      |
-       | job:test:log    | log: export FOO=foo                   |
-       | job:test:log    | log: git clone                        |
-       | job:test:log    | log: cd travis-ci/travis-ci           |
-       | job:test:log    | log: git checkout                     |
-       | job:test:log    | log: export TRAVIS_NODE_VERSION=0.6.1 |
-       | job:test:log    | log: nvm use 0.6.1                    |
-       | job:test:log    | log: node --version                   |
-       | job:test:log    | log: npm --version                    |
-       | job:test:log    | log: make test                        |
-       | job:test:log    | log: /Done.* 0/                       |
-       | job:test:finish | finished_at: [now], result: 0         |
+       | name            | data                                     |
+       | job:test:start  | started_at: [now]                        |
+       | job:test:log    | log: /Using worker/                      |
+       | job:test:log    | log: cd ~/builds                         |
+       | job:test:log    | log: export TRAVIS_PULL_REQUEST=false    |
+       | job:test:log    | log: export TRAVIS_SECURE_ENV_VARS=false |
+       | job:test:log    | log: export FOO=foo                      |
+       | job:test:log    | log: git clone                           |
+       | job:test:log    | log: cd travis-ci/travis-ci              |
+       | job:test:log    | log: git checkout                        |
+       | job:test:log    | log: export TRAVIS_NODE_VERSION=0.6.1    |
+       | job:test:log    | log: nvm use 0.6.1                       |
+       | job:test:log    | log: node --version                      |
+       | job:test:log    | log: npm --version                       |
+       | job:test:log    | log: make test                           |
+       | job:test:log    | log: /Done.* 0/                          |
+       | job:test:finish | finished_at: [now], result: 0            |
 
   Scenario: A successful build with a package.json file
     When it starts a job
@@ -82,22 +86,24 @@ Feature: Testing a Node.js project
      And it closes the ssh session
      And it returns the result 0
      And it has captured the following events
-       | name            | data                                  |
-       | job:test:start  | started_at: [now]                     |
-       | job:test:log    | log: /Using worker/                   |
-       | job:test:log    | log: cd ~/builds                      |
-       | job:test:log    | log: export FOO=foo                   |
-       | job:test:log    | log: git clone                        |
-       | job:test:log    | log: cd travis-ci/travis-ci           |
-       | job:test:log    | log: git checkout                     |
-       | job:test:log    | log: export TRAVIS_NODE_VERSION=0.6.1 |
-       | job:test:log    | log: nvm use 0.6.1                    |
-       | job:test:log    | log: node --version                   |
-       | job:test:log    | log: npm --version                    |
-       | job:test:log    | log: npm install --dev                |
-       | job:test:log    | log: npm test                         |
-       | job:test:log    | log: /Done.* 0/                       |
-       | job:test:finish | finished_at: [now], result: 0         |
+       | name            | data                                     |
+       | job:test:start  | started_at: [now]                        |
+       | job:test:log    | log: /Using worker/                      |
+       | job:test:log    | log: cd ~/builds                         |
+       | job:test:log    | log: export TRAVIS_PULL_REQUEST=false    |
+       | job:test:log    | log: export TRAVIS_SECURE_ENV_VARS=false |
+       | job:test:log    | log: export FOO=foo                      |
+       | job:test:log    | log: git clone                           |
+       | job:test:log    | log: cd travis-ci/travis-ci              |
+       | job:test:log    | log: git checkout                        |
+       | job:test:log    | log: export TRAVIS_NODE_VERSION=0.6.1    |
+       | job:test:log    | log: nvm use 0.6.1                       |
+       | job:test:log    | log: node --version                      |
+       | job:test:log    | log: npm --version                       |
+       | job:test:log    | log: npm install --dev                   |
+       | job:test:log    | log: npm test                            |
+       | job:test:log    | log: /Done.* 0/                          |
+       | job:test:finish | finished_at: [now], result: 0            |
 
   Scenario: The repository can not be cloned
     When it starts a job
