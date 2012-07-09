@@ -51,6 +51,16 @@ describe Travis::Build::Job::Test do
       Test.by_lang('Erlang').should == Test::Erlang
     end
 
+    it 'returns Test::Go for "go"' do
+      Test.by_lang('go').should == Test::Go
+      Test.by_lang('GO').should == Test::Go
+    end
+
+    it 'returns Test::Haskell for "haskell"' do
+      Test.by_lang('haskell').should == Test::Haskell
+      Test.by_lang('Haskell').should == Test::Haskell
+    end
+
     # JRuby won't let us use a class named Java. MK.
     it 'returns Test::PureJava for "java"' do
       Test.by_lang('java').should == Test::PureJava
