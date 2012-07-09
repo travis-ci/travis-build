@@ -5,8 +5,8 @@ describe Travis::Build::Job::Test::Php do
   let(:shell)  { stub('shell', :execute => true) }
   let(:config) { Travis::Build::Job::Test::Php::Config.new(:composer_args => '--dev') }
   let(:job)    { Travis::Build::Job::Test::Php.new(shell, Hashr.new(:repository => {
-                                                        :slug => "owner/repo"
-                                                      }), config) }
+                                                                      :slug => "owner/repo"
+                                                                    }), config) }
 
   describe 'config' do
     it 'defaults :php to "5.3"' do
@@ -39,20 +39,24 @@ describe Travis::Build::Job::Test::Php do
   end
 
   describe 'install' do
-    it 'returns "composer install --dev" if a composer file exists' do
-      job.expects(:uses_composer?).returns(true)
-      job.install.should == 'composer install --dev'
+    context "if a composer file exists" do
+      it 'returns "composer install --dev"' do
+        job.expects(:uses_composer?).returns(true)
+        job.install.should == 'composer install --dev'
+      end
     end
 
-    it 'returns nil if the composer file does not exist' do
-      job.expects(:uses_composer?).returns(false)
-      job.install.should be_nil
+    context "if the composer file does not exist" do
+      it 'returns nil' do
+        job.expects(:uses_composer?).returns(false)
+        job.install.should be_nil
+      end
     end
   end
 
   describe 'script' do
     it 'returns "phpunit"' do
-      job.send(:script).should == 'phpunit'
+      job.script.should == 'phpunit'
     end
   end
 end
