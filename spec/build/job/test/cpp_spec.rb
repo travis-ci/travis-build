@@ -18,6 +18,7 @@ describe Travis::Build::Job::Test::Cpp do
     context "when compiler is not explicitly overriden" do
       it "uses g++" do
         shell.expects(:export_line).with("CXX=g++").returns(true)
+        shell.expects(:export_line).with("CC=gcc").returns(true)
         job.setup
       end
     end
@@ -27,6 +28,7 @@ describe Travis::Build::Job::Test::Cpp do
 
       it "uses clang++" do
         shell.expects(:export_line).with("CXX=clang++").returns(true)
+        shell.expects(:export_line).with("CC=clang").returns(true)
         job.setup
       end
     end
@@ -36,6 +38,7 @@ describe Travis::Build::Job::Test::Cpp do
 
       it "uses g++" do
         shell.expects(:export_line).with("CXX=g++").returns(true)
+        shell.expects(:export_line).with("CC=gcc").returns(true)
         job.setup
       end
     end

@@ -12,6 +12,9 @@ module Travis
             super
 
             setup_cxx
+            # come projects also need to compile some C, Rubinius is one
+            # example. MK.
+            setup_cc
             announce_compiler_version
           end
 
@@ -36,6 +39,19 @@ module Travis
                     end
 
               shell.export_line "CXX=#{cxx}"
+            end
+
+            def setup_cc
+              cc = case config.compiler
+                    when /^gcc/i, /^g++/i then
+                      "gcc"
+                    when /^clang/i, /^clang++/i then
+                      "clang"
+                    else
+                      "gcc"
+                    end
+
+              shell.export_line "CC=#{cc}"
             end
 
             def announce_compiler_version
