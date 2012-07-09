@@ -57,11 +57,12 @@ module Travis
           def by_lang(lng)
             lang = (Array(lng).first || 'ruby').downcase.strip
 
-            if lang == 'java'
+            case lang
+            when /^java/i then
               # just "Java" would conflict with JRuby's Java integration
               Job::Test::PureJava
-            elsif %w(c++ cpp cplusplus).include?(lang)
-              
+            when "c++", "cpp", "cplusplus" then
+              Job::Test::Cpp
             else
               args = [ActiveSupport::Inflector.camelize(lang.downcase)]
               args << false if Kernel.method(:const_get).arity == -1
@@ -92,105 +93,105 @@ module Travis
 
         protected
 
-          def perform
-            chdir
-            export
-            checkout
-            setup if respond_to?(:setup)
-            run_stages
-          rescue CommandTimeout, OutputLimitExceeded => e
-            shell.echo "\n\n#{e.message}\n\n", :force => true
-            false
-          rescue AssertionFailed => e
-            log_exception(e)
-            false
+        def perform
+          chdir
+          export
+          checkout
+          setup if respond_to?(:setup)
+          run_stages
+        rescue CommandTimeout, OutputLimitExceeded => e
+          shell.echo "\n\n#{e.message}\n\n", :force => true
+          false
+        rescue AssertionFailed => e
+          log_exception(e)
+          false
+        end
+
+        def chdir
+          shell.chdir('~/builds')
+        end
+
+        def export
+          export_travis_specific_variables
+
+          env_vars.each do |line|
+            shell.export_line(line)
           end
+        end
 
-          def chdir
-            shell.chdir('~/builds')
+        def export_travis_specific_variables
+          shell.export_line "TRAVIS_PULL_REQUEST=#{(!!commit.pull_request?).inspect}"
+          shell.export_line "TRAVIS_SECURE_ENV_VARS=#{secure_env_vars?}"
+        end
+
+        def env_vars
+          if config.env
+            Array(config.env).compact.select { |line| line.present? }
+          else
+            []
           end
+        end
 
-          def export
-            export_travis_specific_variables
+        def secure_env_vars?
+          !commit.pull_request? && env_vars.any? { |line| line =~ /^SECURE / }
+        end
 
-            env_vars.each do |line|
-              shell.export_line(line)
-            end
-          end
+        def checkout
+          commit.checkout
+        end
+        assert :checkout
 
-          def export_travis_specific_variables
-            shell.export_line "TRAVIS_PULL_REQUEST=#{(!!commit.pull_request?).inspect}"
-            shell.export_line "TRAVIS_SECURE_ENV_VARS=#{secure_env_vars?}"
-          end
+        def setup
+          export_environment_variables
+        end
 
-          def env_vars
-            if config.env
-              Array(config.env).compact.select { |line| line.present? }
-            else
-              []
-            end
-          end
+        # Exports system env variables like TRAVIS_RUBY_VERSION, TRAVIS_SCALA_VERSION and so on.
+        def export_environment_variables
+          # no-op, overriden by subclasses. MK.
+        end
 
-          def secure_env_vars?
-            !commit.pull_request? && env_vars.any? { |line| line =~ /^SECURE / }
-          end
+        def home_directory
+          "/home/vagrant"
+        end
 
-          def checkout
-            commit.checkout
-          end
-          assert :checkout
+        def run_stages
+          STAGES.each do |stage|
+            return false unless run_commands(stage)
+          end && true
+        end
 
-          def setup
-            export_environment_variables
-          end
+        def run_commands(stage)
+          commands_for(stage).each do |command|
+            return false unless run_command(stage, command)
+          end && true
+        end
 
-          # Exports system env variables like TRAVIS_RUBY_VERSION, TRAVIS_SCALA_VERSION and so on.
-          def export_environment_variables
-            # no-op, overriden by subclasses. MK.
-          end
+        def run_command(stage, command)
+          result = shell.execute(command, :stage => stage)
+          shell.echo "\n\n#{stage}: '#{command}' returned false." if !result && stage != :script
+          result
+        end
 
-          def home_directory
-            "/home/vagrant"
-          end
-
-          def run_stages
-            STAGES.each do |stage|
-              return false unless run_commands(stage)
-            end && true
-          end
-
-          def run_commands(stage)
-            commands_for(stage).each do |command|
-              return false unless run_command(stage, command)
-            end && true
-          end
-
-          def run_command(stage, command)
-            result = shell.execute(command, :stage => stage)
-            shell.echo "\n\n#{stage}: '#{command}' returned false." if !result && stage != :script
-            result
-          end
-
-          def commands_for(stage)
-            Array(config[stage] || (respond_to?(stage, true) ? send(stage) : nil))
-          end
+        def commands_for(stage)
+          Array(config[stage] || (respond_to?(stage, true) ? send(stage) : nil))
+        end
 
 
-          def source_url
-            repository.source_url
-          end
+        def source_url
+          repository.source_url
+        end
 
-          def repository_slug
-            repository.slug
-          end
+        def repository_slug
+          repository.slug
+        end
 
-          def repository_owner
-            repository.slug.split("/").first
-          end
+        def repository_owner
+          repository.slug.split("/").first
+        end
 
-          def repository_name
-            repository.slug.split("/").last
-          end
+        def repository_name
+          repository.slug.split("/").last
+        end
       end
     end
   end

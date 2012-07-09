@@ -28,6 +28,19 @@ describe Travis::Build::Job::Test do
       Test.by_lang('Ruby').should == Test::Ruby
     end
 
+
+    it 'returns Test::C for "c"' do
+      Test.by_lang('c').should == Test::C
+      Test.by_lang('C').should == Test::C
+    end
+
+    it 'returns Test::Cpp for "cpp", "c++", "C++"' do
+      Test.by_lang('cpp').should == Test::Cpp
+      Test.by_lang('c++').should == Test::Cpp
+      Test.by_lang('C++').should == Test::Cpp
+      Test.by_lang('cplusplus').should == Test::Cpp
+    end
+
     it 'returns Test::Clojure for "clojure"' do
       Test.by_lang('clojure').should == Test::Clojure
       Test.by_lang('Clojure').should == Test::Clojure
