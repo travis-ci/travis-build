@@ -24,6 +24,8 @@ Feature: Testing an Erlang project
        | job:test:start  | started_at: [now]                             |
        | job:test:log    | log: /Using worker/                           |
        | job:test:log    | log: cd ~/builds                              |
+       | job:test:log    | log: export TRAVIS_PULL_REQUEST=false         |
+       | job:test:log    | log: export TRAVIS_SECURE_ENV_VARS=false      |
        | job:test:log    | log: export FOO=foo                           |
        | job:test:log    | log: git clone                                |
        | job:test:log    | log: cd travis-ci/travis-ci                   |
@@ -48,6 +50,8 @@ Feature: Testing an Erlang project
        | job:test:start  | started_at: [now]                             |
        | job:test:log    | log: /Using worker/                           |
        | job:test:log    | log: cd ~/builds                              |
+       | job:test:log    | log: export TRAVIS_PULL_REQUEST=false         |
+       | job:test:log    | log: export TRAVIS_SECURE_ENV_VARS=false      |
        | job:test:log    | log: export FOO=foo                           |
        | job:test:log    | log: git clone                                |
        | job:test:log    | log: cd travis-ci/travis-ci                   |
@@ -69,19 +73,21 @@ Feature: Testing an Erlang project
      And it closes the ssh session
      And it returns the result 0
      And it has captured the following events
-       | name            | data                          |
-       | job:test:start  | started_at: [now]             |
-       | job:test:log    | log: /Using worker/           |
-       | job:test:log    | log: cd ~/builds              |
-       | job:test:log    | log: export FOO=foo           |
-       | job:test:log    | log: git clone                |
-       | job:test:log    | log: cd travis-ci/travis-ci   |
-       | job:test:log    | log: git checkout             |
-       | job:test:log    | log: /activate/               |
-       | job:test:log    | log: rebar get-deps           |
-       | job:test:log    | log: /eunit/                  |
-       | job:test:log    | log: /Done.* 0/               |
-       | job:test:finish | finished_at: [now], result: 0 |
+       | name            | data                                    |
+       | job:test:start  | started_at: [now]                       |
+       | job:test:log    | log: /Using worker/                     |
+       | job:test:log    | log: cd ~/builds                        |
+       | job:test:log    | log: export TRAVIS_PULL_REQUEST=false   |
+       | job:test:log    | log: export TRAVIS_SECURE_ENV_VARS=false|
+       | job:test:log    | log: export FOO=foo                     |
+       | job:test:log    | log: git clone                          |
+       | job:test:log    | log: cd travis-ci/travis-ci             |
+       | job:test:log    | log: git checkout                       |
+       | job:test:log    | log: /activate/                         |
+       | job:test:log    | log: rebar get-deps                     |
+       | job:test:log    | log: /eunit/                            |
+       | job:test:log    | log: /Done.* 0/                         |
+       | job:test:finish | finished_at: [now], result: 0           |
 
   Scenario: The repository can not be cloned
     When it starts a job

@@ -27,6 +27,10 @@ module Travis
       def config_url
         job.config_url
       end
+
+      def pull_request?
+        job.pull_request
+      end
     end
   end
 end
