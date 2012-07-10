@@ -7,24 +7,18 @@ module Travis
           end
 
           def setup
-            # Here we set up GOPATH + subdirectories structure Go build tool expects
+            # Here we set up GOPATH + subdirectories structure Go build tool expects.
+            # We will just put dependencies here, as source only, via 'go get -d'.
+            # The 'go build' step will look for them here, and build them.
             shell.execute "mkdir -p #{gopath}/src"
-            # For example, cp -r ~/builds/peterbourgon/g2g ~/gopath/src/g2g. Unfortunately, go build
-            # tool does not like symlinks. MK.
-            shell.execute "cp -r #{home_directory}/builds/#{repository_slug} #{package_path_under_gopath}"
             shell.export_line "GOPATH=#{gopath}"
-            # this is not how we do it for all other languages but an experienced Go developer suggests
-            # this makes sense for Go projects. We still end up in the same directory as with other
-            # builders (in the local git repository root) but with `pwd` reporting a path under
-            # GOPATH. MK.
-            shell.execute "cd #{package_path_under_gopath}"
           end
 
           def install
             if uses_make?
               # no-op
             else
-              "go get -v ."
+              "go get -d -v && go build -v"
             end
           end
 
@@ -32,7 +26,7 @@ module Travis
             if uses_make?
               "make"
             else
-              "go test -v ."
+              "go test -v"
             end
           end
 
@@ -44,11 +38,6 @@ module Travis
 
             def gopath
               "#{home_directory}/gopath"
-            end
-
-            # GOPATH/src/[package] location
-            def package_path_under_gopath
-              "#{gopath}/src/#{repository_name}"
             end
         end
       end
