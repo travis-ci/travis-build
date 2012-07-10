@@ -9,8 +9,9 @@ module Travis
           def setup
             # Here we set up GOPATH + subdirectories structure Go build tool expects
             shell.execute "mkdir -p #{gopath}/src"
-            # For example, ln -s ~/builds/peterbourgon/g2g ~/gopath/src/g2g
-            shell.execute "ln -s #{home_directory}/builds/#{repository_slug} #{package_path_under_gopath}"
+            # For example, cp -r ~/builds/peterbourgon/g2g ~/gopath/src/g2g. Unfortunately, go build
+            # tool does not like symlinks. MK.
+            shell.execute "cp -r #{home_directory}/builds/#{repository_slug} #{package_path_under_gopath}"
             shell.export_line "GOPATH=#{gopath}"
             # this is not how we do it for all other languages but an experienced Go developer suggests
             # this makes sense for Go projects. We still end up in the same directory as with other
