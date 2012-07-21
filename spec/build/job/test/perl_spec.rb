@@ -22,7 +22,7 @@ describe Travis::Build::Job::Test::Perl do
 
   describe 'install' do
     it 'uses cpanm' do
-      job.install.should == "cpanm --quiet --installdeps --notest ."
+      job.install.should == "cpanm --quiet --installdeps --notest --mirror 'http://cpan.mirrors.travis-ci.org' ."
     end
   end
 
