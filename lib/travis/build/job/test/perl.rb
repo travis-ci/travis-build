@@ -59,7 +59,7 @@ module Travis
             end
 
             def mirror_opts
-              self.mirrors.map { |s| "--mirror '#{s}'" }.join(" ")
+              self.mirrors.map { |s| "--mirror #{s}" }.join(" ")
             end
 
             def mirrors
