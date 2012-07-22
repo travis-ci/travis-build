@@ -18,7 +18,7 @@ module Travis
           end
 
           def install
-            "cpanm --quiet --installdeps --notest #{mirror_opts} ."
+            "cpanm --quiet --installdeps --notest ."
           end
 
           def announce_versions
@@ -56,14 +56,6 @@ module Travis
 
             def run_default
               "make test"
-            end
-
-            def mirror_opts
-              self.mirrors.map { |s| "--mirror #{s}" }.join(" ")
-            end
-
-            def mirrors
-              %w(http://cpan.mirrors.travis-ci.org)
             end
         end
       end
