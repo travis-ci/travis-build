@@ -47,7 +47,7 @@ module Travis
             def gopath
               "#{home_directory}/gopath"
             end
-          
+
             # GOPATH/src/github.com/[package] location,
             # see travis-build issue #25
             def package_path_under_gopath
