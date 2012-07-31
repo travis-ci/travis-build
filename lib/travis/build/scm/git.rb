@@ -44,8 +44,12 @@ module Travis
           assert :submodules
 
           def checkout(sha, ref)
-            shell.execute("git fetch origin +#{ref}:") if ref
-            shell.execute("git checkout -qf #{sha}")
+            if ref
+              shell.execute("git fetch origin +#{ref}:")
+              shell.execute("git checkout -qf FETCH_HEAD")
+            else
+              shell.execute("git checkout -qf #{sha}")
+            end
           end
           assert :checkout
       end
