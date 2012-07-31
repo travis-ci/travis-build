@@ -51,7 +51,7 @@ module Travis
             # GOPATH/src/github.com/[package] location,
             # see travis-build issue #25
             def package_path_under_gopath
-              "#{gopath}/src/github.com/#{repository_name}"
+              "#{gopath}/src/github.com/#{repository_slug}"
             end
         end
       end
