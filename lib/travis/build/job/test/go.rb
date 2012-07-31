@@ -11,8 +11,8 @@ module Travis
             # including the assumptions about remote packages.
             # We will just put dependencies here, as source only, via 'go get -d'.
             # The 'go build' step will look for them here, and build them.
-            shell.execute "mkdir -p #{gopath}/src/github.com"
-            # For example, cp -r ~/builds/peterbourgon/g2g ~/gopath/src/github.com/g2g. go build does not link symlinks.
+            shell.execute "mkdir -p #{gopath}/src/github.com/#{repository_owner}"
+            # For example, cp -r ~/builds/peterbourgon/g2g ~/gopath/src/github.com/peterbourgon/g2g. go build does not link symlinks.
             shell.execute "cp -r #{home_directory}/builds/#{repository_slug} #{package_path_under_gopath}"
             shell.export_line "GOPATH=#{gopath}"
             # this is not how we do it for all other languages but people experienced with Go suggest
