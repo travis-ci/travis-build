@@ -1,4 +1,6 @@
 language: ruby
+env:
+  - JRUBY_OPTS="--server -Xcext.enabled=false -Xcompile.invokedynamic=false"
 rvm:
   - jruby-18mode
   - jruby-19mode
