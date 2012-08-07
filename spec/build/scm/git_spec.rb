@@ -33,8 +33,8 @@ describe Travis::Build::Scm::Git do
 
     it 'fetches the ref before checking out the given commit out' do
       ref = 'refs/pulls/180/merge'
-      shell.expects(:execute).with('git checkout -qf 1234567').returns(true)
       shell.expects(:execute).with("git fetch origin +refs/pulls/180/merge:").returns(true)
+      shell.expects(:execute).with('git checkout -qf FETCH_HEAD').returns(true)
       scm.fetch(source, target, sha, ref)
     end
 
