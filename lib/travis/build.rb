@@ -53,6 +53,7 @@ module Travis
       result = perform
     rescue => e
       log_exception(e)
+      result = { :result => 0 }
     ensure
       notify :finish, (result || {}).merge(:finished_at => Time.now.utc)
     end

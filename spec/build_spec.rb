@@ -18,7 +18,7 @@ describe Travis::Build do
   before :each do
     @now = Time.now.utc
     Time.stubs(:now).returns(@now)
-    job.stubs(:run).returns({ :status => 0 })
+    job.stubs(:run).returns({ :result => 0 })
     build.observers << observer
   end
 
@@ -43,7 +43,7 @@ describe Travis::Build do
     describe 'with no exception happening' do
       it 'notifies observers about the :finish event' do
         build.run
-        observer.events.should include_event('job:test:finish', :id => nil, :status => 0, :finished_at => now)
+        observer.events.should include_event('job:test:finish', :id => nil, :result => 0, :finished_at => now)
       end
     end
 
@@ -64,15 +64,19 @@ describe Travis::Build do
     end
 
     describe 'with a standard error being raised' do
-      it 'logs the exception' do
+      before(:each) do
         job.stubs(:run).raises(StandardError.new('fatal'))
+      end
+
+      it 'logs the exception' do
         build.run
         observer.events.should include_event('job:test:log', :log => /fatal/)
       end
 
       it 'still notifies observers about the :finish event' do
+        job.stubs(:run).raises(StandardError.new('fatal'))
         build.run
-        observer.events.should include_event('job:test:finish', :id => nil, :status => 0, :finished_at => now)
+        observer.events.should include_event('job:test:finish', :id => nil, :result => 0, :finished_at => now)
       end
     end
   end
