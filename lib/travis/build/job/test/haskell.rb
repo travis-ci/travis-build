@@ -10,10 +10,11 @@ module Travis
             super
             announce_ghc
             announce_cabal
+            cabal_update
           end
 
           def install
-            "cabal update && cabal install --enable-tests"
+            "cabal install --enable-tests"
           end
 
           def script
@@ -28,6 +29,10 @@ module Travis
 
             def announce_cabal
               shell.execute("cabal --version")
+            end
+
+            def cabal_update
+              shell.execute("cabal update")
             end
         end
       end

@@ -10,7 +10,7 @@ describe Travis::Build::Job::Test::Haskell do
 
   describe 'install' do
     it "uses cabal" do
-      job.install.should == "cabal update && cabal install --enable-tests"
+      job.install.should == "cabal install --enable-tests"
     end
   end
 
