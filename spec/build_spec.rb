@@ -78,7 +78,7 @@ describe Travis::Build do
       it 'still notifies observers about the :finish event' do
         job.stubs(:run).raises(StandardError.new('fatal'))
         build.run
-        observer.events.should include_event('job:test:finish', :id => nil, :result => 0, :finished_at => now)
+        observer.events.should include_event('job:test:finish', :id => nil, :result => 1, :finished_at => now)
       end
     end
   end
