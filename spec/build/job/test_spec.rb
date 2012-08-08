@@ -1,9 +1,11 @@
 require 'spec_helper'
+require 'support/mock_shell'
 require 'travis/build'
 require 'hashr'
 
 describe Travis::Build::Job::Test do
-  let(:shell)  { stub('shell', :chdir => true, :export_line => true, :execute => true, :cwd => '~/builds', :file_exists? => true, :echo => nil) }
+  let(:shell)  { MockShell.new(echo) }
+  let(:echo)   { StringIO.new }
   let(:commit) { Hashr.new(:repository => {
                              :slug => "owner/repo",
                            },
@@ -94,6 +96,7 @@ describe Travis::Build::Job::Test do
     end
 
     it 'sets the project up' do
+      shell.stubs(:export_line)
       shell.expects(:export_line).with('FOO=foo')
       job.run
     end
@@ -122,23 +125,48 @@ describe Travis::Build::Job::Test do
       commit.expects(:checkout).returns(false)
       job.run.should == { :result => 1 }
     end
+
+    describe 'with a command timeout exception being raised' do
+      before(:each) do
+        job.stubs(:chdir).raises(Travis::Build::CommandTimeout.new(:script, 'rake', 1000))
+      end
+
+      it 'logs the exception' do
+        job.run.should == { :result => 1 }
+        echo.string.should match(/Executing your script \(rake\) took longer than 16 minutes and was terminated/)
+      end
+    end
+
+    describe 'with an output exceeded exception being raised' do
+      before(:each) do
+        job.stubs(:chdir).raises(Travis::Build::OutputLimitExceeded.new(1000))
+      end
+
+      it 'logs the exception' do
+        job.run.should == { :result => 1 }
+        echo.string.should match(/The log length has exceeded the limit of 1000 Bytes/)
+      end
+    end
   end
 
   describe 'export' do
     context 'when we\'re dealing pull request' do
       it 'exports TRAVIS_PULL_REQUEST=true ENV var' do
         commit.expects(:pull_request?).at_least_once.returns(true)
+        shell.stubs(:export_line)
         shell.expects(:export_line).with("TRAVIS_PULL_REQUEST=true")
         job.send(:export)
       end
     end
 
     it 'exports TRAVIS_PULL_REQUEST=false ENV var' do
+      shell.stubs(:export_line)
       shell.expects(:export_line).with("TRAVIS_PULL_REQUEST=false")
       job.send(:export)
     end
 
     it 'exports TRAVIS_SECURE_ENV_VARS=false ENV var' do
+      shell.stubs(:export_line)
       shell.expects(:export_line).with("TRAVIS_SECURE_ENV_VARS=false")
       job.send(:export)
     end
@@ -147,6 +175,7 @@ describe Travis::Build::Job::Test do
       let(:config) { Hashr.new(:env => 'SECURE FOO=foo') }
 
       it 'exports TRAVIS_SECURE_ENV_VARS=true ENV var' do
+        shell.stubs(:export_line)
         shell.expects(:export_line).with("TRAVIS_SECURE_ENV_VARS=true")
         job.send(:export)
       end
@@ -155,6 +184,7 @@ describe Travis::Build::Job::Test do
     context 'when commit is a pull_request commit' do
       it 'sets TRAVIS specific env vars accordingly' do
         commit.expects(:pull_request?).twice.returns(true)
+        shell.stubs(:export_line)
         shell.expects(:export_line).with("TRAVIS_PULL_REQUEST=true")
         shell.expects(:export_line).with("TRAVIS_SECURE_ENV_VARS=false")
         job.send(:export)
@@ -164,6 +194,7 @@ describe Travis::Build::Job::Test do
     it 'accepts a single string with multiple values' do
       s          = 'SUITE=integration'
       config.env = s
+      shell.stubs(:export_line)
       shell.expects(:export_line).with(s)
       job.send(:export)
     end
@@ -171,6 +202,7 @@ describe Travis::Build::Job::Test do
     it 'accepts a single string with multiple values' do
       s          = 'FOO=foo BAR=2 BAZ="test values/baz"'
       config.env = s
+      shell.stubs(:export_line)
       shell.expects(:export_line).with(s)
       job.send(:export)
     end
@@ -180,6 +212,7 @@ describe Travis::Build::Job::Test do
       s2         = 'BAR=bar BAZ="test test/ci"'
 
       config.env = [s1, s2]
+      shell.stubs(:export_line)
       shell.expects(:export_line).with(s1)
       shell.expects(:export_line).with(s2)
       job.send(:export)

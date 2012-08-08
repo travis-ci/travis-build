@@ -47,22 +47,6 @@ describe Travis::Build do
       end
     end
 
-    describe 'with a command timeout exception being raised' do
-      it 'logs the exception' do
-        job.stubs(:run).raises(Travis::Build::CommandTimeout.new(:script, 'rake', 1000))
-        build.run
-        observer.events.should include_event('job:test:log', :log => /Executing your script \(rake\) took longer than 1000 seconds/)
-      end
-    end
-
-    describe 'with an output exceeded exception being raised' do
-      it 'logs the exception' do
-        job.stubs(:run).raises(Travis::Build::OutputLimitExceeded.new(1000))
-        build.run
-        observer.events.should include_event('job:test:log', :log => /The log length has exceeded the limit of 1000 Bytes/)
-      end
-    end
-
     describe 'with a standard error being raised' do
       before(:each) do
         job.stubs(:run).raises(StandardError.new('fatal'))
