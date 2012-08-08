@@ -66,7 +66,10 @@ module Travis
       end
 
       def log_exception(e)
-        log "Error: #{e.inspect}\n" + e.backtrace.map { |b| "  #{b}" }.join("\n")
+        log "\n\n\nI'm sorry but an error occured within Travis while running your build."
+        log "\n\nWe are continuosly working on test run stability, please email support@travis-ci.org if this error persists."
+        log "\n\nBelow is the stacktrace of the error:"
+        log "\n\nError: #{e.inspect}\n" + e.backtrace.map { |b| "  #{b}" }.join("\n")
       end
 
       def log(output, options = {})

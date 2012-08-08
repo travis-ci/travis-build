@@ -70,6 +70,8 @@ describe Travis::Build do
 
       it 'logs the exception' do
         build.run
+        friendly_message = "I'm sorry but an error occured within Travis while running your build."
+        observer.events.should include_event('job:test:log', :log => /#{friendly_message}/)
         observer.events.should include_event('job:test:log', :log => /fatal/)
       end
 
