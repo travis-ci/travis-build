@@ -59,6 +59,12 @@ module Travis
     end
     log :run
 
+    def vm_stall
+      log "\n\n\nI'm sorry but the VM stalled during your build and was not recoverable."
+      log "\n\nWe are continuosly working on test run stability, please email support@travis-ci.org if this issue persists."
+      notify :finish, { :result => 1, :finished_at => Time.now.utc }
+    end
+
     protected
 
       def perform

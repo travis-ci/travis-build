@@ -66,4 +66,10 @@ describe Travis::Build do
       end
     end
   end
+
+  it "logs a vm stall message and fails the build" do
+    build.vm_stall
+    observer.events.should include_event('job:test:log',    :id => nil, :log => "\n\n\nI'm sorry but the VM stalled during your build and was not recoverable.")
+    observer.events.should include_event('job:test:finish', :id => nil, :result => 1, :finished_at => now)
+  end
 end
