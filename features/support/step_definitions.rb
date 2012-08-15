@@ -31,7 +31,8 @@ Given /^the following test payload$/ do |table|
       :source_url => "git://github.com/#{hash.repository}.git"
     },
     :build => {
-      :commit => hash.commit
+      :commit => hash.commit,
+      :id => 10
     },
     :type => 'test'
   })
@@ -74,6 +75,7 @@ end
 Then /^it exports the given environment variables$/ do
   step "it exports the line TRAVIS_PULL_REQUEST=false"
   step "it exports the line TRAVIS_SECURE_ENV_VARS=false"
+  step "it exports the line TRAVIS_JOB_ID=10"
 
   if $payload.config.env?
     line = $payload.config.env

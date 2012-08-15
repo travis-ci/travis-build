@@ -26,6 +26,7 @@ Feature: Testing an Erlang project
        | job:test:log    | log: cd ~/builds                              |
        | job:test:log    | log: export TRAVIS_PULL_REQUEST=false         |
        | job:test:log    | log: export TRAVIS_SECURE_ENV_VARS=false      |
+       | job:test:log    | log: export TRAVIS_JOB_ID=10                  |
        | job:test:log    | log: export FOO=foo                           |
        | job:test:log    | log: git clone                                |
        | job:test:log    | log: cd travis-ci/travis-ci                   |
@@ -52,6 +53,7 @@ Feature: Testing an Erlang project
        | job:test:log    | log: cd ~/builds                              |
        | job:test:log    | log: export TRAVIS_PULL_REQUEST=false         |
        | job:test:log    | log: export TRAVIS_SECURE_ENV_VARS=false      |
+       | job:test:log    | log: export TRAVIS_JOB_ID=10                  |
        | job:test:log    | log: export FOO=foo                           |
        | job:test:log    | log: git clone                                |
        | job:test:log    | log: cd travis-ci/travis-ci                   |
@@ -79,6 +81,7 @@ Feature: Testing an Erlang project
        | job:test:log    | log: cd ~/builds                        |
        | job:test:log    | log: export TRAVIS_PULL_REQUEST=false   |
        | job:test:log    | log: export TRAVIS_SECURE_ENV_VARS=false|
+       | job:test:log    | log: export TRAVIS_JOB_ID=10            |
        | job:test:log    | log: export FOO=foo                     |
        | job:test:log    | log: git clone                          |
        | job:test:log    | log: cd travis-ci/travis-ci             |
