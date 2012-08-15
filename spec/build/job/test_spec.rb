@@ -10,7 +10,8 @@ describe Travis::Build::Job::Test do
                              :slug => "owner/repo",
                            },
                            :checkout     => true,
-                           :pull_request => false) }
+                           :pull_request => false,
+                           :job_id       => 10) }
   let(:config) { Hashr.new(:env => 'FOO=foo', :script => 'rake') }
   let(:job)    { Travis::Build::Job::Test.new(shell, commit, config) }
 
@@ -170,6 +171,12 @@ describe Travis::Build::Job::Test do
     it 'exports TRAVIS_PULL_REQUEST=false ENV var' do
       shell.stubs(:export_line)
       shell.expects(:export_line).with("TRAVIS_PULL_REQUEST=false")
+      job.send(:export)
+    end
+
+    it 'exports TRAVIS_JOB_ID ENV var' do
+      shell.stubs(:export_line)
+      shell.expects(:export_line).with("TRAVIS_JOB_ID=10")
       job.send(:export)
     end
 
