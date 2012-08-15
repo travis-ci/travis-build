@@ -32,6 +32,10 @@ module Travis
         job.pull_request
       end
 
+      def pull_request_number
+        job.pull_request_number
+      end
+
       def job_id
         job.id
       end

@@ -32,7 +32,9 @@ Given /^the following test payload$/ do |table|
     },
     :build => {
       :commit => hash.commit,
-      :id => 10
+      :id => 10,
+      :pull_request => hash.pull_request,
+      :pull_request_number => hash.pull_request_number
     },
     :type => 'test'
   })
