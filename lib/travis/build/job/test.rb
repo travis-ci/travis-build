@@ -122,6 +122,7 @@ module Travis
         def export_travis_specific_variables
           shell.export_line "TRAVIS_PULL_REQUEST=#{(!!commit.pull_request?).inspect}"
           shell.export_line "TRAVIS_SECURE_ENV_VARS=#{secure_env_vars?}"
+          shell.export_line "TRAVIS_JOB_ID=#{commit.job_id}"
           if commit.pull_request?
             shell.export_line "TRAVIS_PULL_REQUEST_NUMBER=#{commit.pull_request_number}"
           end
