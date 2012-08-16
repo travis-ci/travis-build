@@ -84,7 +84,7 @@ module Travis
 
         # TODO should log the output here. in order to do this the build needs to have
         # a log_header that includes the current worker name though
-        info output, options
+        debug output, options
       end
 
       def notify(type, data)
