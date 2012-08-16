@@ -3,6 +3,8 @@ module Travis
     module Job
       class Test
         class NodeJs < Test
+          log_header { [Thread.current[:log_header], "build:job:test:node_js"].join(':') }
+
           class Config < Hashr
             define :node_js => '0.4'
 

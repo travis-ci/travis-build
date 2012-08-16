@@ -51,7 +51,7 @@ module Travis
         extend Assertions
         include Logging
 
-        log_header { "#{Thread.current[:log_header]}:job:test" }
+        log_header { [Thread.current[:log_header], "build:job:test"].join(':') }
 
         class << self
           def by_lang(lng)

@@ -3,6 +3,8 @@ module Travis
     module Job
       class Test
         class C < Test
+          log_header { [Thread.current[:log_header], "build:job:test:c"].join(':') }
+
           class Config < Hashr
             # Travis CI env provides gcc and clang
             define :compiler => "gcc"

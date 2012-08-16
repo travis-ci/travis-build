@@ -5,6 +5,8 @@ module Travis
     module Job
       class Test
         class Groovy < JvmLanguage
+          log_header { [Thread.current[:log_header], "build:job:test:groovy"].join(':') }
+
           #class Config < Hashr
           #end
 

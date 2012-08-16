@@ -5,7 +5,7 @@ module Travis
     class Remote < Build
       attr_reader :name, :vm, :shell, :output_length
 
-      log_header { "#{Thread.current[:log_header]}:build:remote" }
+      log_header { [Thread.current[:log_header], "build:remote"].join(':') }
 
       def initialize(vm, shell, events, job)
         super(events, job)

@@ -3,6 +3,8 @@ module Travis
     module Job
       class Test
         class Haskell < Test
+          log_header { [Thread.current[:log_header], "build:job:test:haskell"].join(':') }
+
           class Config < Hashr
           end
 

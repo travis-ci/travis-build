@@ -3,6 +3,8 @@ module Travis
     module Job
       class Test
         class Erlang < Test
+          log_header { [Thread.current[:log_header], "build:job:test:erlang"].join(':') }
+
           class Config < Hashr
             define :otp_release => 'R14B04'
           end

@@ -3,6 +3,8 @@ module Travis
     module Job
       class Test
         class Php < Test
+          log_header { [Thread.current[:log_header], "build:job:test:php"].join(':') }
+
           class Config < Hashr
             define :php => '5.3'
           end

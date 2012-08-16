@@ -5,6 +5,8 @@ module Travis
     module Job
       class Test
         class Ruby < Test
+          log_header { [Thread.current[:log_header], "build:job:test:ruby"].join(':') }
+
           include JdkSwitcher
 
           class Config < Hashr

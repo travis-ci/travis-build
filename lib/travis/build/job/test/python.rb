@@ -3,6 +3,8 @@ module Travis
     module Job
       class Test
         class Python < Test
+          log_header { [Thread.current[:log_header], "build:job:test:python"].join(':') }
+
           class Config < Hashr
             define :python => "2.7"
           end

@@ -3,6 +3,8 @@ module Travis
     module Job
       class Test
         class JvmLanguage < Test
+          log_header { [Thread.current[:log_header], "build:job:test:jvm"].join(':') }
+
           include JdkSwitcher
 
           class Config < Hashr

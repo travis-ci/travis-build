@@ -5,6 +5,8 @@ module Travis
         class Clojure < Test
           include JdkSwitcher
 
+          log_header { [Thread.current[:log_header], "build:job:test:clojure"].join(':') }
+
           class Config < Hashr
             define :lein => "lein", :jdk => 'default'
           end

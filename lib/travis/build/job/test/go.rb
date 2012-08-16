@@ -3,6 +3,8 @@ module Travis
     module Job
       class Test
         class Go < Test
+          log_header { [Thread.current[:log_header], "build:job:test:go"].join(':') }
+
           class Config < Hashr
           end
 
