@@ -6,7 +6,7 @@ module Travis
           log_header { [Thread.current[:log_header], "build:job:test:python"].join(':') }
 
           class Config < Hashr
-            define :python => "2.7"
+            define :python => "2.7", :virtualenv => { :system_site_packages => false }
           end
 
           def setup
@@ -16,11 +16,18 @@ module Travis
           end
 
           def virtualenv_activate_location
-            if config.python =~ /pypy/i
-              "~/virtualenv/pypy/bin/activate"
+            py = if config.python =~ /pypy/i
+                   "pypy"
+                 else
+                   # python2.6, python2.7, python3.2, etc
+                   "python#{config.python}"
+                 end
+
+            # we have 2 sets of virtualenvs, with --system-site-packages enabled and not. MK.
+            if config.virtualenv.system_site_packages
+              "~/virtualenv/#{py}_with_system_site_packages/bin/activate"
             else
-              # python2.6, python2.7, python3.2, etc
-              "~/virtualenv/python#{config.python}/bin/activate"
+              "~/virtualenv/#{py}/bin/activate"
             end
           end
 
@@ -46,32 +53,32 @@ module Travis
 
           protected
 
-            def fail_the_build(msg)
-              # no default for the Python builder, because Python ecosystem has
-              # no good default most of the community agrees on. Per discussion with jezjez, josh-k
-              # and several others.
-              # This ALWAYS fails the build. MK.
-              "echo '#{msg}' && /bin/false"
-            end
+          def fail_the_build(msg)
+            # no default for the Python builder, because Python ecosystem has
+            # no good default most of the community agrees on. Per discussion with jezjez, josh-k
+            # and several others.
+            # This ALWAYS fails the build. MK.
+            "echo '#{msg}' && /bin/false"
+          end
 
-            def export_environment_variables
-              # export expected Python version in an environment variable as helper
-              # for cross-version build in custom scripts
-              shell.export_line("TRAVIS_PYTHON_VERSION=#{config.python}")
-            end
+          def export_environment_variables
+            # export expected Python version in an environment variable as helper
+            # for cross-version build in custom scripts
+            shell.export_line("TRAVIS_PYTHON_VERSION=#{config.python}")
+          end
 
-            def requirements_file_location
-              if shell.file_exists?("Requirements.txt")
-                "Requirements.txt"
-              else
-                # heroku build pack uses this. MK.
-                "requirements.txt"
-              end
+          def requirements_file_location
+            if shell.file_exists?("Requirements.txt")
+              "Requirements.txt"
+            else
+              # heroku build pack uses this. MK.
+              "requirements.txt"
             end
+          end
 
-            def requirements_file_found?
-              shell.file_exists?("Requirements.txt") || shell.file_exists?("requirements.txt")
-            end
+          def requirements_file_found?
+            shell.file_exists?("Requirements.txt") || shell.file_exists?("requirements.txt")
+          end
         end
       end
     end
