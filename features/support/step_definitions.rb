@@ -110,6 +110,19 @@ Then /^it exports the line (.+)$/ do |line|
     in_sequence($sequence)
 end
 
+Then /^it enables a service named "(.+)"$/ do |name|
+  cmd = "sudo service #{name} start"
+
+  $shell.expects(:execute).
+    with(cmd, :stage => :services).
+    outputs(cmd).
+    in_sequence($sequence)
+end
+
+Then /^it gives services a moment to start$/ do
+  $shell.expects(:execute).with("sleep 3").outputs("sleep 3").in_sequence($sequence)
+end
+
 Then /^it silently disables interactive git auth$/ do
   $shell.expects(:export).
     with('GIT_ASKPASS', 'echo', :echo => false).
