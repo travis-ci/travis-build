@@ -10,6 +10,7 @@ Feature: service dependencies
     When it starts a job
     Then it exports the given environment variables
     And it enables a service named "rabbitmq-server"
+    And it gives services a moment to start
     And it successfully clones the repository to the build dir with git
     And it successfully checks out the commit with git to the repository directory
     And it exports the line TRAVIS_JDK_VERSION=openjdk6
@@ -30,6 +31,7 @@ Feature: service dependencies
        | job:test:log    | log: export TRAVIS_JOB_ID=10              |
        | job:test:log    | log: export FOO=foo                       |
        | job:test:log    | log: sudo service rabbitmq-server start   |
+       | job:test:log    | log: sleep 3                              |
        | job:test:log    | log: git clone                            |
        | job:test:log    | log: cd travis-ci/travis-ci               |
        | job:test:log    | log: git checkout                         |

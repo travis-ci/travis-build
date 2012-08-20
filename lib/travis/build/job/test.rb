@@ -109,9 +109,14 @@ module Travis
         end
 
         def start_services
-          Array(config.services || []).
-            map { |s| normalize_service(s) }.
-            each { |s| start_service(s) }
+          xs = Array(config.services || []).
+            map { |s| normalize_service(s) }
+
+          if xs.any?
+            xs.each { |s| start_service(s) }
+            # give services a moment to start
+            shell.execute "sleep 3"
+          end
         end
 
         def normalize_service(name)
