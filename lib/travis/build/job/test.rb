@@ -96,6 +96,7 @@ module Travis
         def perform
           chdir
           export
+          start_services
           checkout
           setup if respond_to?(:setup)
           run_stages
@@ -105,6 +106,33 @@ module Travis
         rescue AssertionFailed => e
           log_exception(e)
           false
+        end
+
+        def start_services
+          xs = Array(config.services || []).
+            map { |s| normalize_service(s) }
+
+          if xs.any?
+            xs.each { |s| start_service(s) }
+            # give services a moment to start
+            shell.execute "sleep 3"
+          end
+        end
+
+        def normalize_service(name)
+          s = name.to_s.downcase
+          case s
+          when "rabbitmq" then
+            "rabbitmq-server"
+          when "memcache" then
+            "memcached"
+          else
+            s
+          end
+        end
+
+        def start_service(name)
+          shell.execute "sudo service #{name} start", :stage => :services
         end
 
         def chdir
