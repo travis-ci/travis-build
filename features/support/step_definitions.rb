@@ -166,7 +166,7 @@ end
 Then /^it (successfully|fails to) switch(?:es)? to the (.*) version: (.*)$/ do |result, language, version|
   cmds = {
     'ruby'   => "rvm use #{version}",
-    'erlang' => "source /home/vagrant/otp/#{version}/activate",
+    'erlang' => "source ~/otp/#{version}/activate",
     'nodejs' => "nvm use #{version}",
     'php'    => "phpenv global #{version}",
     'jdk'    => "jdk_switcher use #{version}"

@@ -136,7 +136,7 @@ module Travis
         end
 
         def chdir
-          shell.chdir('~/builds')
+          shell.chdir("~/builds")
         end
 
         def export
@@ -183,7 +183,7 @@ module Travis
         end
 
         def home_directory
-          "/home/vagrant"
+          "~"
         end
 
         def run_stages

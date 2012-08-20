@@ -16,7 +16,7 @@ describe Travis::Build::Job::Test::Erlang do
 
   describe 'setup' do
     it 'activates the given otp version' do
-      shell.expects(:execute).with("source /home/vagrant/otp/R14B04/activate").returns(true)
+      shell.expects(:execute).with("source ~/otp/R14B04/activate").returns(true)
       job.setup
     end
   end
