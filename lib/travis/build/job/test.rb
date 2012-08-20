@@ -109,11 +109,9 @@ module Travis
         end
 
         def start_services
-          xs = Array(config.services || Array.new).map { |s| normalize_service(s) }
-
-          xs.each do |s|
-            start_service(s)
-          end
+          Array(config.services || []).
+            map { |s| normalize_service(s) }.
+            each { |s| start_service(s) }
         end
 
         def normalize_service(name)
