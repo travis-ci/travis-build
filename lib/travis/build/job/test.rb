@@ -121,7 +121,7 @@ module Travis
           case s
           when "rabbitmq" then
             "rabbitmq-server"
-          when "memcached" then
+          when "memcache" then
             "memcached"
           else
             s
