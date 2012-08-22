@@ -107,6 +107,7 @@ module Travis
           log_exception(e)
           false
         end
+        log :perform
 
         def start_services
           xs = Array(config.services || []).
@@ -138,6 +139,7 @@ module Travis
         def chdir
           shell.chdir("~/builds")
         end
+        log :chdir, :only => :before
 
         def export
           export_travis_specific_variables
@@ -146,6 +148,7 @@ module Travis
             shell.export_line(line)
           end
         end
+        log :export, :only => :before
 
         def export_travis_specific_variables
           shell.export_line "TRAVIS_PULL_REQUEST=#{(!!commit.pull_request?).inspect}"
@@ -172,10 +175,12 @@ module Travis
           commit.checkout
         end
         assert :checkout
+        log :checkout, :only => :before
 
         def setup
           export_environment_variables
         end
+        log :setup, :only => :before
 
         # Exports system env variables like TRAVIS_RUBY_VERSION, TRAVIS_SCALA_VERSION and so on.
         def export_environment_variables
@@ -203,6 +208,7 @@ module Travis
           shell.echo "\n\n#{stage}: '#{command}' returned false." if !result && stage != :script
           result
         end
+        log :run_command, :only => :before
 
         def commands_for(stage)
           Array(config[stage] || (respond_to?(stage, true) ? send(stage) : nil))
