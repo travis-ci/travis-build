@@ -126,6 +126,8 @@ module Travis
             "rabbitmq-server"
           when "memcache" then
             "memcached"
+          when "neo4j", "neo4j-server" then
+            "neo4j"
           else
             s
           end
