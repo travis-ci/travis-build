@@ -223,7 +223,7 @@ module Travis
         log :run_command, :only => :before
 
         def commands_for(stage)
-          Array(config[stage] || (respond_to?(stage, true) ? __send__(stage) : nil))
+          Array(config[stage] || (respond_to?(stage, true) ? send(stage) : nil))
         end
 
         def run_after_success
