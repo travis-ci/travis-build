@@ -308,6 +308,14 @@ Then /^it returns the result (.*)$/ do |result|
   $build.run[:result].should == result.to_i
 end
 
+Then /^it executes (.*) after the successful build$/ do |command|
+  $shell.expects(:execute).
+    with(command, :stage => :after_success).
+    outputs(command).
+    returns(true).
+    in_sequence($sequence)
+end
+
 Then /^it has captured the following events$/ do |table|
   expected = table.hashes.map { |hash| Hashr.new(hash) }
   actual = $observer.events
