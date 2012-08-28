@@ -316,6 +316,14 @@ Then /^it executes (.*) after the successful build$/ do |command|
     in_sequence($sequence)
 end
 
+Then /^it executes (.*) after the failed build$/ do |command|
+  $shell.expects(:execute).
+    with(command, :stage => :after_failure).
+    outputs(command).
+    returns(true).
+    in_sequence($sequence)
+end
+
 Then /^it has captured the following events$/ do |table|
   expected = table.hashes.map { |hash| Hashr.new(hash) }
   actual = $observer.events
