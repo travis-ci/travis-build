@@ -227,7 +227,7 @@ module Travis
         end
 
         def run_after_success
-          commands_for(:after_success).each do |command|
+          Array(config.after_success).each do |command|
             # we don't check for exit code here since this runs after the build has finished. MK.
             shell.execute(command, :stage => :after_success)
           end
@@ -235,7 +235,7 @@ module Travis
         log :run_after_success, :only => :before
 
         def run_after_failure
-          commands_for(:after_failure).each do |command|
+          Array(config.after_failure).each do |command|
             # we don't check for exit code here since this runs after the build has finished. MK.
             shell.execute(command, :stage => :after_failure)
           end
