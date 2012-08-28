@@ -87,7 +87,17 @@ module Travis
         end
 
         def run
-          { :result => perform ? 0 : 1 }
+          ok   = self.perform
+          code = ok ? 0 : 1
+
+          # here we have the final success/failure flag so we can take care of after_success, after_failure. MK.
+          if ok
+            run_after_success if commands_for(:after_success).any?
+          else
+            run_after_failure if commands_for(:after_failure).any?
+          end
+
+          { :result => code }
         end
         log :run
 
@@ -213,7 +223,22 @@ module Travis
         log :run_command, :only => :before
 
         def commands_for(stage)
-          Array(config[stage] || (respond_to?(stage, true) ? send(stage) : nil))
+          Array(config[stage] || (respond_to?(stage, true) ? __send__(stage) : nil))
+        end
+
+        def run_after_success
+          commands_for(:after_success).each do |command|
+            # we don't check for exit code here since this runs after the build has finished. MK.
+            shell.execute(command, :stage => :after_success)
+          end
+        end
+        log :run_after_success, :only => :before
+
+        def run_after_failure
+          commands_for(:after_failure).each do |command|
+            # we don't check for exit code here since this runs after the build has finished. MK.
+            shell.execute(command, :stage => :after_failure)
+          end
         end
 
 
