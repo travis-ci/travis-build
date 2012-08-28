@@ -240,7 +240,7 @@ module Travis
             shell.execute(command, :stage => :after_failure)
           end
         end
-
+        log :run_after_failure, :only => :before
 
         def source_url
           repository.source_url
