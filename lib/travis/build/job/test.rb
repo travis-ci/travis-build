@@ -139,6 +139,9 @@ module Travis
             "memcached"
           when "neo4j", "neo4j-server" then
             "neo4j"
+          # for HBase status, see travis-ci/travis-cookbooks#40. MK.
+          when "hbase" then
+            "hbase-master"
           else
             s
           end
