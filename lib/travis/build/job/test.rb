@@ -55,7 +55,7 @@ module Travis
 
         class << self
           def by_lang(lng)
-            lang = (Array(lng).first || 'ruby').downcase.strip
+            lang = (Array(lng).first || 'ruby').to_s.downcase.strip
 
             case lang
             when /^java/i then
