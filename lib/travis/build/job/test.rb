@@ -142,6 +142,8 @@ module Travis
           # for HBase status, see travis-ci/travis-cookbooks#40. MK.
           when "hbase" then
             "hbase-master"
+          when "redis" then
+            "redis-server"
           else
             s
           end
