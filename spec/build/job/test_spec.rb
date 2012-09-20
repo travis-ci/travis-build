@@ -6,12 +6,16 @@ require 'hashr'
 describe Travis::Build::Job::Test do
   let(:shell)  { MockShell.new(echo) }
   let(:echo)   { StringIO.new }
-  let(:commit) { Hashr.new(:repository => {
-                             :slug => "owner/repo",
-                           },
-                           :checkout     => true,
-                           :pull_request => false,
-                           :job_id       => 10) }
+  let(:commit) { Hashr.new({
+                   :repository => {
+                     :slug => "owner/repo",
+                   },
+                   :checkout     => true,
+                   :pull_request => false,
+                   :job_id       => 10,
+                   :job => { :branch => 'master' }
+                 })
+               }
   let(:config) { Hashr.new(:env => 'FOO=foo', :script => 'rake') }
   let(:job)    { Travis::Build::Job::Test.new(shell, commit, config) }
 
@@ -183,6 +187,12 @@ describe Travis::Build::Job::Test do
     it 'exports TRAVIS_SECURE_ENV_VARS=false ENV var' do
       shell.stubs(:export_line)
       shell.expects(:export_line).with("TRAVIS_SECURE_ENV_VARS=false")
+      job.send(:export)
+    end
+
+    it 'exports TRAVIS_BRANCH=master ENV var' do
+      shell.stubs(:export_line)
+      shell.expects(:export_line).with("TRAVIS_BRANCH=master")
       job.send(:export)
     end
 

@@ -171,6 +171,7 @@ module Travis
           shell.export_line "TRAVIS_PULL_REQUEST=#{(!!commit.pull_request?).inspect}"
           shell.export_line "TRAVIS_SECURE_ENV_VARS=#{secure_env_vars?}"
           shell.export_line "TRAVIS_JOB_ID=#{commit.job_id}"
+          shell.export_line "TRAVIS_BRANCH=#{commit.job.branch}"
           if commit.pull_request?
             shell.export_line "TRAVIS_PULL_REQUEST_NUMBER=#{commit.pull_request_number}"
           end
