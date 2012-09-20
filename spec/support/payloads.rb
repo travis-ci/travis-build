@@ -7,7 +7,7 @@ PAYLOADS = {
   :test => {
     'type'       => 'test',
     'repository' => { 'slug' => 'travis-ci/travis-ci', 'source_url' => 'git://github.com/travis-ci/travis-ci.git' },
-    'job'        => { 'id' => 1, 'commit' => '313f61b' },
+    'job'        => { 'id' => 1, 'commit' => '313f61b', 'branch' => 'master' },
     'config'     => { 'rvm' => '1.9.2', 'env' => 'FOO=foo' }
   },
   :pull_request => {
