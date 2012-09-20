@@ -3,7 +3,7 @@ require 'hashr'
 module Travis
   class Build
     module Job
-      autoload :Test,      'travis/build/job/test'
+      autoload :Test, 'travis/build/job/test'
     end
   end
 end
