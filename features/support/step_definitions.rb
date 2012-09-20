@@ -30,11 +30,12 @@ Given /^the following test payload$/ do |table|
       :slug => hash.repository,
       :source_url => "git://github.com/#{hash.repository}.git"
     },
-    :build => {
+    :job => {
       :commit => hash.commit,
       :id => 10,
       :pull_request => hash.pull_request,
-      :pull_request_number => hash.pull_request_number
+      :pull_request_number => hash.pull_request_number,
+      :branch => hash.branch || 'master'
     },
     :type => 'test'
   })
@@ -78,6 +79,7 @@ Then /^it exports the given environment variables$/ do
   step "it exports the line TRAVIS_PULL_REQUEST=false"
   step "it exports the line TRAVIS_SECURE_ENV_VARS=false"
   step "it exports the line TRAVIS_JOB_ID=10"
+  step "it exports the line TRAVIS_BRANCH=master"
 
   if $payload.config.env?
     line = $payload.config.env
@@ -145,7 +147,7 @@ end
 
 Then /^it (successfully|fails to) checks? the commit out with git$/ do |result|
   checkout = $shell.expects(:execute).
-    with("git checkout -qf #{$payload.build.commit}").
+    with("git checkout -qf #{$payload.job.commit}").
     outputs('git checkout')
 
   if result == 'successfully'
