@@ -6,3 +6,6 @@ rvm:
   - jruby-19mode
   - jruby-head
 script: "bundle exec rspec spec && bundle exec cucumber"
+matrix:
+  allow_failures:
+    - rvm: jruby-head
