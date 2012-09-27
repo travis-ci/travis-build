@@ -157,25 +157,18 @@ describe Travis::Build::Job::Test do
   describe 'export' do
     context 'when we\'re dealing pull request' do
       it 'exports TRAVIS_PULL_REQUEST=true ENV var' do
-        commit.expects(:pull_request?).at_least_once.returns(true)
+        commit.expects(:pull_request).at_least_once.returns(15)
         shell.stubs(:export_line)
-        shell.expects(:export_line).with("TRAVIS_PULL_REQUEST=true")
+        shell.expects(:export_line).with("TRAVIS_PULL_REQUEST=15")
         job.send(:export)
       end
 
-      it 'exports TRAVIS_PULL_REQUEST_NUMBER ENV var' do
-        commit.expects(:pull_request?).at_least_once.returns(true)
-        commit.expects(:pull_request_number).at_least_once.returns(180)
+      it 'exports TRAVIS_PULL_REQUEST=false ENV var' do
+        commit.expects(:pull_request).at_least_once.returns(false)
         shell.stubs(:export_line)
-        shell.expects(:export_line).with("TRAVIS_PULL_REQUEST_NUMBER=180")
+        shell.expects(:export_line).with("TRAVIS_PULL_REQUEST=false")
         job.send(:export)
       end
-    end
-
-    it 'exports TRAVIS_PULL_REQUEST=false ENV var' do
-      shell.stubs(:export_line)
-      shell.expects(:export_line).with("TRAVIS_PULL_REQUEST=false")
-      job.send(:export)
     end
 
     it 'exports TRAVIS_JOB_ID ENV var' do
@@ -208,9 +201,9 @@ describe Travis::Build::Job::Test do
 
     context 'when commit is a pull_request commit' do
       it 'sets TRAVIS specific env vars accordingly' do
-        commit.expects(:pull_request?).at_least_once.returns(true)
+        commit.expects(:pull_request).at_least_once.returns(1)
         shell.stubs(:export_line)
-        shell.expects(:export_line).with("TRAVIS_PULL_REQUEST=true")
+        shell.expects(:export_line).with("TRAVIS_PULL_REQUEST=1")
         shell.expects(:export_line).with("TRAVIS_SECURE_ENV_VARS=false")
         job.send(:export)
       end

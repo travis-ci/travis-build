@@ -33,8 +33,7 @@ Given /^the following test payload$/ do |table|
     :job => {
       :commit => hash.commit,
       :id => 10,
-      :pull_request => hash.pull_request,
-      :pull_request_number => hash.pull_request_number,
+      :pull_request => hash.pull_request || false,
       :branch => hash.branch || 'master'
     },
     :type => 'test'

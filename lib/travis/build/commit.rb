@@ -28,12 +28,12 @@ module Travis
         job.config_url
       end
 
-      def pull_request?
+      def pull_request
         job.pull_request
       end
 
-      def pull_request_number
-        job.pull_request_number
+      def pull_request?
+        !!pull_request
       end
 
       def job_id
