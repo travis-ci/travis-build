@@ -48,20 +48,12 @@ module Travis
           payload['type'] == 'configure'
         end
 
-        def configure
-          @configure ||= Job::Configure.new(http, commit)
-        end
-
         def test
           @test ||= begin
             type   = Job::Test.by_lang(payload.config.language)
             config = type::Config.new(payload.config)
             type.new(shell, commit, config)
           end
-        end
-
-        def http
-          @http ||= Connection::Http.new(config)
         end
 
         def commit
