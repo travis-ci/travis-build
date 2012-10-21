@@ -21,7 +21,6 @@ module Travis
   # other jobs) seems odd. Maybe move to Runner::Local and Runner::Remote
   # or similar.
   class Build
-    autoload :Connection, 'travis/build/connection'
     autoload :Commit,     'travis/build/commit'
     autoload :Event,      'travis/build/event'
     autoload :Factory,    'travis/build/factory'
