@@ -13,7 +13,12 @@ describe Travis::Build::Job::Test do
                    :checkout     => true,
                    :pull_request => false,
                    :job_id       => 10,
-                   :job   => { :branch => 'master', :number => '22.1' },
+                   :job   => {
+                     :branch => 'master',
+                     :number => '22.1',
+                     :commit => 'f4ca9d',
+                     :commit_range => 'a...b'
+                   },
                    :build => { :id => 8, :number => '22' }
                  })
                }
@@ -175,6 +180,36 @@ describe Travis::Build::Job::Test do
     it 'exports TRAVIS_JOB_ID ENV var' do
       shell.stubs(:export_line)
       shell.expects(:export_line).with("TRAVIS_JOB_ID=10")
+      job.send(:export)
+    end
+
+    it 'exports TRAVIS_JOB_NUMBER ENV var' do
+      shell.stubs(:export_line)
+      shell.expects(:export_line).with("TRAVIS_JOB_NUMBER=22.1")
+      job.send(:export)
+    end
+
+    it 'exports TRAVIS_BUILD_ID ENV var' do
+      shell.stubs(:export_line)
+      shell.expects(:export_line).with("TRAVIS_BUILD_ID=8")
+      job.send(:export)
+    end
+
+    it 'exports TRAVIS_BUILD_NUMBER ENV var' do
+      shell.stubs(:export_line)
+      shell.expects(:export_line).with("TRAVIS_BUILD_NUMBER=22")
+      job.send(:export)
+    end
+
+    it 'exports TRAVIS_COMMIT_RANGE ENV var' do
+      shell.stubs(:export_line)
+      shell.expects(:export_line).with("TRAVIS_COMMIT_RANGE=a...b")
+      job.send(:export)
+    end
+
+    it 'exports TRAVIS_COMMIT ENV var' do
+      shell.stubs(:export_line)
+      shell.expects(:export_line).with("TRAVIS_COMMIT=f4ca9d")
       job.send(:export)
     end
 

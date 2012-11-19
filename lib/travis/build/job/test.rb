@@ -175,6 +175,8 @@ module Travis
           shell.export_line "TRAVIS_BUILD_ID=#{commit.build.id}"
           shell.export_line "TRAVIS_BUILD_NUMBER=#{commit.build.number}"
           shell.export_line "TRAVIS_JOB_NUMBER=#{commit.job.number}"
+          shell.export_line "TRAVIS_COMMIT_RANGE=#{commit.job.commit_range}"
+          shell.export_line "TRAVIS_COMMIT=#{commit.job.commit}"
         end
 
         def env_vars

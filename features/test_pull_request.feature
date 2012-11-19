@@ -16,6 +16,8 @@ Feature: Testing a Ruby project
      And it exports the line TRAVIS_BUILD_ID=9
      And it exports the line TRAVIS_BUILD_NUMBER=22
      And it exports the line TRAVIS_JOB_NUMBER=22.1
+     And it exports the line TRAVIS_COMMIT_RANGE=a...b
+     And it exports the line TRAVIS_COMMIT=f4ca9d
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it exports the line TRAVIS_RUBY_VERSION=1.9.2
@@ -37,6 +39,8 @@ Feature: Testing a Ruby project
        | job:test:log    | log: export TRAVIS_BUILD_ID=9              |
        | job:test:log    | log: export TRAVIS_BUILD_NUMBER=22         |
        | job:test:log    | log: export TRAVIS_JOB_NUMBER=22.1         |
+       | job:test:log    | log: export TRAVIS_COMMIT_RANGE=a...b      |
+       | job:test:log    | log: export TRAVIS_COMMIT=f4ca9d           |
        | job:test:log    | log: git clone                             |
        | job:test:log    | log: cd travis-ci/travis-ci                |
        | job:test:log    | log: git checkout                          |

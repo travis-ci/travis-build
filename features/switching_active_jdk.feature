@@ -29,6 +29,8 @@ Feature: Switching JDKs when testing a Clojure project
        | job:test:log    | log: export TRAVIS_BUILD_ID=9             |
        | job:test:log    | log: export TRAVIS_BUILD_NUMBER=22        |
        | job:test:log    | log: export TRAVIS_JOB_NUMBER=22.1        |
+       | job:test:log    | log: export TRAVIS_COMMIT_RANGE=a...b     |
+       | job:test:log    | log: export TRAVIS_COMMIT=f4ca9d          |
        | job:test:log    | log: export FOO=foo                       |
        | job:test:log    | log: git clone                            |
        | job:test:log    | log: cd travis-ci/travis-ci               |
@@ -73,6 +75,8 @@ Feature: Switching JDKs when testing a Clojure project
        | job:test:log    | log: export TRAVIS_BUILD_ID=9               |
        | job:test:log    | log: export TRAVIS_BUILD_NUMBER=22          |
        | job:test:log    | log: export TRAVIS_JOB_NUMBER=22.1          |
+       | job:test:log    | log: export TRAVIS_COMMIT_RANGE=a...b       |
+       | job:test:log    | log: export TRAVIS_COMMIT=f4ca9d            |
        | job:test:log    | log: export FOO=foo                         |
        | job:test:log    | log: git clone                              |
        | job:test:log    | log: cd travis-ci/travis-ci                 |
