@@ -4,11 +4,12 @@ module Travis
     # Models a commit hash on a repository so we do not have to pass both
     # around.
     class Commit
-      attr_reader :repository, :job, :config, :scm
+      attr_reader :repository, :job, :config, :scm, :build
 
       def initialize(payload, scm)
         @repository = payload.repository
-        @job        = payload.job || payload.build # TODO remove once payloads contain a :job key
+        @job        = payload.job
+        @build      = payload.build
         @scm        = scm
       end
 

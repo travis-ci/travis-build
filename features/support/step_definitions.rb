@@ -34,7 +34,14 @@ Given /^the following test payload$/ do |table|
       :commit => hash.commit,
       :id => 10,
       :pull_request => hash.pull_request || false,
-      :branch => hash.branch || 'master'
+      :branch => hash.branch || 'master',
+      :number => '22.1',
+      :commit_range => 'a...b',
+      :commit => 'f4ca9d'
+    },
+    :build => {
+      :id => 9,
+      :number => '22'
     },
     :type => 'test'
   })
@@ -79,6 +86,11 @@ Then /^it exports the given environment variables$/ do
   step "it exports the line TRAVIS_SECURE_ENV_VARS=false"
   step "it exports the line TRAVIS_JOB_ID=10"
   step "it exports the line TRAVIS_BRANCH=master"
+  step "it exports the line TRAVIS_BUILD_ID=9"
+  step "it exports the line TRAVIS_BUILD_NUMBER=22"
+  step "it exports the line TRAVIS_JOB_NUMBER=22.1"
+  step "it exports the line TRAVIS_COMMIT_RANGE=a...b"
+  step "it exports the line TRAVIS_COMMIT=f4ca9d"
 
   if $payload.config.env?
     line = $payload.config.env
