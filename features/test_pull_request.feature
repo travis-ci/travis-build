@@ -13,6 +13,9 @@ Feature: Testing a Ruby project
     Then it exports the line TRAVIS_SECURE_ENV_VARS=false
      And it exports the line TRAVIS_JOB_ID=10
      And it exports the line TRAVIS_BRANCH=master
+     And it exports the line TRAVIS_BUILD_ID=9
+     And it exports the line TRAVIS_BUILD_NUMBER=22
+     And it exports the line TRAVIS_JOB_NUMBER=22.1
      And it successfully clones the repository to the build dir with git
      And it successfully checks out the commit with git to the repository directory
      And it exports the line TRAVIS_RUBY_VERSION=1.9.2
@@ -31,6 +34,9 @@ Feature: Testing a Ruby project
        | job:test:log    | log: export TRAVIS_SECURE_ENV_VARS=false   |
        | job:test:log    | log: export TRAVIS_JOB_ID=10               |
        | job:test:log    | log: export TRAVIS_BRANCH=master           |
+       | job:test:log    | log: export TRAVIS_BUILD_ID=9              |
+       | job:test:log    | log: export TRAVIS_BUILD_NUMBER=22         |
+       | job:test:log    | log: export TRAVIS_JOB_NUMBER=22.1         |
        | job:test:log    | log: git clone                             |
        | job:test:log    | log: cd travis-ci/travis-ci                |
        | job:test:log    | log: git checkout                          |

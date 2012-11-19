@@ -13,7 +13,8 @@ describe Travis::Build::Job::Test do
                    :checkout     => true,
                    :pull_request => false,
                    :job_id       => 10,
-                   :job => { :branch => 'master' }
+                   :job   => { :branch => 'master', :number => '22.1' },
+                   :build => { :id => 8, :number => '22' }
                  })
                }
   let(:config) { Hashr.new(:env => 'FOO=foo', :script => 'rake') }
