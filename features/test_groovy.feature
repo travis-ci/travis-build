@@ -43,6 +43,7 @@ Feature: Testing a Groovy project
        | job:test:log    | log: javac -version                        |
        | job:test:log    | log: gradle assemble                       |
        | job:test:log    | log: gradle check                          |
+       | job:test:log    | log: export TRAVIS_TEST_RESULT=0           |
        | job:test:log    | log: /Done.* 0/                            |
        | job:test:finish | finished_at: [now], result: 0              |
 
@@ -84,6 +85,7 @@ Feature: Testing a Groovy project
        | job:test:log    | log: javac -version                        |
        | job:test:log    | log: mvn install --quiet -DskipTests=true  |
        | job:test:log    | log: mvn test                              |
+       | job:test:log    | log: export TRAVIS_TEST_RESULT=0           |
        | job:test:log    | log: /Done.* 0/                            |
        | job:test:finish | finished_at: [now], result: 0              |
 
@@ -123,6 +125,7 @@ Feature: Testing a Groovy project
        | job:test:log    | log: java -version                         |
        | job:test:log    | log: javac -version                        |
        | job:test:log    | log: ant test                              |
+       | job:test:log    | log: export TRAVIS_TEST_RESULT=0           |
        | job:test:log    | log: /Done.* 0/                            |
        | job:test:finish | finished_at: [now], result: 0              |
 

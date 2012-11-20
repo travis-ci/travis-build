@@ -97,6 +97,8 @@ module Travis
             run_after_failure if commands_for(:after_failure).any?
           end
 
+          run_after_test(code)
+
           { :result => code }
         end
         log :run
@@ -249,6 +251,15 @@ module Travis
           end
         end
         log :run_after_failure, :only => :before
+
+        def run_after_test(code)
+          shell.export_line "TRAVIS_TEST_RESULT=#{code}"
+
+          Array(config.after_test || []).each do |command|
+            shell.execute(command, :stage => :after_test)
+          end
+        end
+        log :run_after_test, :only => :before
 
         def source_url
           repository.source_url
