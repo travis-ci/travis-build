@@ -64,11 +64,15 @@ Then /^it (successfully|fails to) clones? the repository to the build dir with g
   step 'it silently disables interactive git auth'
   step "it #{result} clones the repository with git"
   step 'it silently removes the ssh key'
+
+  step "it exports the line TRAVIS_TEST_RESULT=1" if result != 'successfully'
 end
 
 Then /^it (successfully|fails to) checks? out the commit with git to the repository directory$/ do |result|
   step 'it cds into the repository directory'
   step "it #{result} checks the commit out with git"
+
+  step "it exports the line TRAVIS_TEST_RESULT=1" if result != 'successfully'
 end
 
 Then /^it finds a file (.*) (?:and|but) (successfully|fails to) installs? dependencies with (.*)$/ do |filename, result, tool|
@@ -194,6 +198,8 @@ Then /^it (successfully|fails to) switch(?:es)? to the (.*) version: (.*)$/ do |
     outputs(cmd).
     returns(result == 'successfully').
     in_sequence($sequence)
+
+  step "it exports the line TRAVIS_TEST_RESULT=1" if result != 'successfully'
 end
 
 Then /it announces active (?:lein|leiningen|Leiningen) version/ do
@@ -302,6 +308,8 @@ Then /^it (successfully|fails to) installs? dependencies with (.*)$/ do |result,
     outputs(cmd).
     returns(result == 'successfully').
     in_sequence($sequence)
+
+  step "it exports the line TRAVIS_TEST_RESULT=1" if result != 'successfully'
 end
 
 Then /^it (successfully|fails to) runs? the (.*): (.*)$/ do |result, type, command|
@@ -310,6 +318,12 @@ Then /^it (successfully|fails to) runs? the (.*): (.*)$/ do |result, type, comma
     outputs(command).
     returns(result == 'successfully').
     in_sequence($sequence)
+
+  # we can add this expectation only if we don't need to run after_success or after_failure
+  # hooks, I'm not sure if there is better way to check this
+  if !$payload[:config] || ($payload[:config].keys & [:after_failure, :after_success, :after_test]) == []
+    step "it exports the line TRAVIS_TEST_RESULT=#{result == 'successfully' ? 0 : 1}"
+  end
 end
 
 Then /^it closes the ssh session$/ do
@@ -327,6 +341,18 @@ Then /^it executes (.*) after the successful build$/ do |command|
     outputs(command).
     returns(true).
     in_sequence($sequence)
+
+  step "it exports the line TRAVIS_TEST_RESULT=0"
+end
+
+Then /^it executes (.*) after the test$/ do |command|
+  step "it exports the line TRAVIS_TEST_RESULT=0"
+
+  $shell.expects(:execute).
+    with(command, :stage => :after_test).
+    outputs(command).
+    returns(true).
+    in_sequence($sequence)
 end
 
 Then /^it executes (.*) after the failed build$/ do |command|
@@ -335,6 +361,8 @@ Then /^it executes (.*) after the failed build$/ do |command|
     outputs(command).
     returns(true).
     in_sequence($sequence)
+
+  step "it exports the line TRAVIS_TEST_RESULT=1"
 end
 
 Then /^it has captured the following events$/ do |table|

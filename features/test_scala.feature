@@ -44,6 +44,7 @@ Feature: Testing a Scala project
        | job:test:log    | log: java -version                        |
        | job:test:log    | log: javac -version                       |
        | job:test:log    | log: sbt ++2.9.1 test                     |
+       | job:test:log    | log: export TRAVIS_TEST_RESULT=0          |
        | job:test:log    | log: /Done.* 0/                           |
        | job:test:finish | finished_at: [now], result: 0             |
 
@@ -85,6 +86,7 @@ Feature: Testing a Scala project
        | job:test:log    | log: java -version                       |
        | job:test:log    | log: javac -version                      |
        | job:test:log    | log: sbt ++2.9.1 test                    |
+       | job:test:log    | log: export TRAVIS_TEST_RESULT=0         |
        | job:test:log    | log: /Done.* 0/                          |
        | job:test:finish | finished_at: [now], result: 0            |
 

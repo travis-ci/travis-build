@@ -45,6 +45,7 @@ Feature: Testing a Node.js project
        | job:test:log    | log: node --version                      |
        | job:test:log    | log: npm --version                       |
        | job:test:log    | log: make test                           |
+       | job:test:log    | log: export TRAVIS_TEST_RESULT=0         |
        | job:test:log    | log: /Done.* 0/                          |
        | job:test:finish | finished_at: [now], result: 0            |
 
@@ -84,6 +85,7 @@ Feature: Testing a Node.js project
        | job:test:log    | log: node --version                      |
        | job:test:log    | log: npm --version                       |
        | job:test:log    | log: make test                           |
+       | job:test:log    | log: export TRAVIS_TEST_RESULT=0         |
        | job:test:log    | log: /Done.* 0/                          |
        | job:test:finish | finished_at: [now], result: 0            |
 
@@ -123,6 +125,7 @@ Feature: Testing a Node.js project
        | job:test:log    | log: npm --version                       |
        | job:test:log    | log: npm install --dev                   |
        | job:test:log    | log: npm test                            |
+       | job:test:log    | log: export TRAVIS_TEST_RESULT=0         |
        | job:test:log    | log: /Done.* 0/                          |
        | job:test:finish | finished_at: [now], result: 0            |
 

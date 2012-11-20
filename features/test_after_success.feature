@@ -46,5 +46,6 @@ Feature: after_success commands
        | job:test:log    | log: lein deps                            |
        | job:test:log    | log: lein test                            |
        | job:test:log    | log: ./launch-missles.sh                  |
+       | job:test:log    | log: export TRAVIS_TEST_RESULT=0          |
        | job:test:log    | log: /Done.* 0/                           |
        | job:test:finish | finished_at: [now], result: 0             |
