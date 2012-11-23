@@ -28,7 +28,7 @@ module Travis
             if uses_make?
               # no-op
             else
-              "go get -d -v && go build -v"
+              "go get -d -v ./... && go build -v ./..."
             end
           end
 
@@ -36,7 +36,7 @@ module Travis
             if uses_make?
               "make"
             else
-              "go test -v"
+              "go test -v ./..."
             end
           end
 
