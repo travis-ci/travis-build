@@ -60,9 +60,9 @@ When /^it starts a job$/ do
   step 'it cds into the builds dir'
 end
 
-Then /^it (successfully|fails to) clones? the repository to the build dir with git$/ do |result|
+Then /^it (successfully|fails to) clones? the (repository|.+ branch) to the build dir with git$/ do |result, branch|
   step 'it silently disables interactive git auth'
-  step "it #{result} clones the repository with git"
+  step "it #{result} clones the #{branch} with git"
   step 'it silently removes the ssh key'
 
   step "it exports the line TRAVIS_TEST_RESULT=1" if result != 'successfully'
@@ -89,7 +89,7 @@ Then /^it exports the given environment variables$/ do
   step "it exports the line TRAVIS_PULL_REQUEST=false"
   step "it exports the line TRAVIS_SECURE_ENV_VARS=false"
   step "it exports the line TRAVIS_JOB_ID=10"
-  step "it exports the line TRAVIS_BRANCH=master"
+  step "it exports the line TRAVIS_BRANCH=#{$payload.job.branch}"
   step "it exports the line TRAVIS_BUILD_ID=9"
   step "it exports the line TRAVIS_BUILD_NUMBER=22"
   step "it exports the line TRAVIS_JOB_NUMBER=22.1"
@@ -146,9 +146,11 @@ Then /^it silently disables interactive git auth$/ do
     in_sequence($sequence)
 end
 
-Then /^it (successfully|fails to) clones? the repository with git$/ do |result|
+Then /^it (successfully|fails to) clones? the (repository|.+ branch) with git$/ do |result, branch|
+  branch = "master" if branch == "repository"
+  branch = branch.gsub(/ branch/, '')
   $shell.expects(:execute).
-    with("git clone --depth=100 --quiet git://github.com/#{$payload.repository.slug}.git #{$payload.repository.slug}").
+    with("git clone --branch=#{branch} --depth=100 --quiet git://github.com/#{$payload.repository.slug}.git #{$payload.repository.slug}").
     outputs('git clone').
     returns(result == 'successfully').
     in_sequence($sequence)
