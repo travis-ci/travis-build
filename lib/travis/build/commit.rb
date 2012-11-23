@@ -14,7 +14,7 @@ module Travis
       end
 
       def checkout
-        scm.fetch(repository.source_url, repository.slug, sha, ref)
+        scm.fetch(repository.source_url, repository.slug, sha, branch, ref)
       end
 
       def sha
@@ -23,6 +23,10 @@ module Travis
 
       def ref
         job.ref
+      end
+      
+      def branch
+        job.branch
       end
 
       def config_url

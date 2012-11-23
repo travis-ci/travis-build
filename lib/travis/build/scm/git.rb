@@ -14,8 +14,8 @@ module Travis
           @config = config
         end
 
-        def fetch(source, target, sha, ref)
-          clone(source, target)
+        def fetch(source, target, sha, branch, ref)
+          clone(source, target, branch, ref)
           chdir(target)
           checkout(sha, ref)
           submodules if shell.file_exists?('.gitmodules')
@@ -24,13 +24,19 @@ module Travis
 
         protected
 
-          def clone(source, target)
+          def clone(source, target, branch, ref)
             shell.export('GIT_ASKPASS', 'echo', :echo => false) # this makes git interactive auth fail
-            shell.execute("git clone --depth=100 --quiet #{source} #{target}")
+            shell.execute("git clone #{clone_args(branch, ref)} #{source} #{target}")
           ensure
             shell.execute('rm -f ~/.ssh/source_rsa', :echo => false)
           end
           assert :clone
+
+          def clone_args(branch, ref)
+            args = ["--depth=100", "--quiet"]
+            args.unshift("--branch=#{branch}") unless ref
+            args.join(' ')
+          end
 
           def chdir(target)
             shell.chdir(target)
