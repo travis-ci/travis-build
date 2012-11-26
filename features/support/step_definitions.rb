@@ -22,6 +22,10 @@ def decode(string)
   end.symbolize_keys
 end
 
+Given /^the source is not available in a payload$/ do
+  $payload.source = nil
+end
+
 Given /^the following test payload$/ do |table|
   hash = Hashr.new(table.rows_hash)
 
@@ -93,8 +97,8 @@ Then /^it exports the given environment variables$/ do
   step "it exports the line TRAVIS_SECURE_ENV_VARS=false"
   step "it exports the line TRAVIS_JOB_ID=10"
   step "it exports the line TRAVIS_BRANCH=#{$payload.job.branch}"
-  step "it exports the line TRAVIS_BUILD_ID=9"
-  step "it exports the line TRAVIS_BUILD_NUMBER=22"
+  step "it exports the line TRAVIS_BUILD_ID=#{$payload.source ? $payload.source.id : nil}"
+  step "it exports the line TRAVIS_BUILD_NUMBER=#{$payload.source ? $payload.source.number : nil}"
   step "it exports the line TRAVIS_JOB_NUMBER=22.1"
   step "it exports the line TRAVIS_COMMIT_RANGE=a...b"
   step "it exports the line TRAVIS_COMMIT=f4ca9d"

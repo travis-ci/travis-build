@@ -9,7 +9,7 @@ module Travis
       def initialize(payload, scm)
         @repository = payload.repository
         @job        = payload.job || payload.build # TODO remove once payloads contain a :job key
-        @build      = payload.source
+        @build      = payload.source || Hashr.new
         @scm        = scm
       end
 
