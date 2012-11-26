@@ -8,8 +8,8 @@ module Travis
 
       def initialize(payload, scm)
         @repository = payload.repository
-        @job        = payload.job
-        @build      = payload.build
+        @job        = payload.job || payload.build # TODO remove once payloads contain a :job key
+        @build      = payload.source
         @scm        = scm
       end
 
@@ -24,7 +24,7 @@ module Travis
       def ref
         job.ref
       end
-      
+
       def branch
         job.branch
       end

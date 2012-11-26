@@ -25,21 +25,24 @@ end
 Given /^the following test payload$/ do |table|
   hash = Hashr.new(table.rows_hash)
 
+  job = {
+    :commit => hash.commit,
+    :id => 10,
+    :pull_request => hash.pull_request || false,
+    :branch => hash.branch || 'master',
+    :number => '22.1',
+    :commit_range => 'a...b',
+    :commit => 'f4ca9d'
+  }
+
   $payload = Hashr.new({
     :repository => {
       :slug => hash.repository,
       :source_url => "git://github.com/#{hash.repository}.git"
     },
-    :job => {
-      :commit => hash.commit,
-      :id => 10,
-      :pull_request => hash.pull_request || false,
-      :branch => hash.branch || 'master',
-      :number => '22.1',
-      :commit_range => 'a...b',
-      :commit => 'f4ca9d'
-    },
-    :build => {
+    :job => job,
+    :build => job,
+    :source => {
       :id => 9,
       :number => '22'
     },
