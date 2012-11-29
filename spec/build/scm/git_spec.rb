@@ -50,5 +50,17 @@ describe Travis::Build::Scm::Git do
       shell.expects(:execute).with('git submodule update').returns(true)
       scm.fetch(source, target, sha, branch, ref)
     end
+
+    context 'submodules are turned off in the configuration' do
+      let(:scm) { described_class.new(shell, :git => { :submodules => false }) }
+
+      it 'does not set up submodules' do
+        shell.expects(:file_exists?).with('.gitmodules').returns(true)
+        shell.unstub(:execute)
+        shell.stubs(:execute).with { |command, *args| command !~ /submodule/ }.returns(true)
+
+        scm.fetch(source, target, sha, branch, ref)
+      end
+    end
   end
 end
