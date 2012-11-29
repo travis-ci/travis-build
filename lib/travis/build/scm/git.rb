@@ -8,7 +8,7 @@ module Travis
         extend Assertions
 
         class Config < Hashr
-          define :git => { :submodules => true }
+          define :git => { :submodules => true, :depth => 100 }
         end
 
         attr_reader :shell, :config
@@ -37,7 +37,7 @@ module Travis
           assert :clone
 
           def clone_args(branch, ref)
-            args = ["--depth=100", "--quiet"]
+            args = ["--depth=#{config[:git][:depth]}", "--quiet"]
             args.unshift("--branch=#{branch}") unless ref
             args.join(' ')
           end
