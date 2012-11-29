@@ -7,9 +7,13 @@ module Travis
       class Git
         extend Assertions
 
+        class Config < Hashr
+          define :git => { :submodules => true }
+        end
+
         attr_reader :shell, :config
 
-        def initialize(shell, config = {})
+        def initialize(shell, config = Config.new)
           @shell = shell
           @config = config
         end
@@ -18,7 +22,7 @@ module Travis
           clone(source, target, branch, ref)
           chdir(target)
           checkout(sha, ref)
-          submodules if shell.file_exists?('.gitmodules')
+          submodules if checkout_submodules?
           true
         end
 
@@ -40,6 +44,10 @@ module Travis
 
           def chdir(target)
             shell.chdir(target)
+          end
+
+          def checkout_submodules?
+            shell.file_exists?('.gitmodules') && config[:git][:submodules]
           end
 
           def submodules
