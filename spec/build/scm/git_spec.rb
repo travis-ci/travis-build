@@ -62,5 +62,14 @@ describe Travis::Build::Scm::Git do
         scm.fetch(source, target, sha, branch, ref)
       end
     end
+
+    context 'with a custom --depth set in the configuration' do
+      let(:scm) { described_class.new(shell, :git => { :depth => 20 }) }
+
+      it 'clones with the set depth' do
+        shell.expects(:execute).with('git clone --branch=master --depth=20 --quiet git://example.com/travis-ci.git travis-ci').returns(true)
+        scm.fetch(source, target, sha, branch, ref)
+      end
+    end
   end
 end
