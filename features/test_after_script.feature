@@ -4,7 +4,7 @@ Feature: after_success commands
    Given the following test payload
      | repository | travis-ci/travis-ci                                                                |
      | commit     | 1234567                                                                            |
-     | config     | language: clojure, jdk: openjdk6, env: FOO=foo, after_test: ./launch-missles.sh    |
+     | config     | language: clojure, jdk: openjdk6, env: FOO=foo, after_script: ./launch-missles.sh    |
 
   Scenario: A successful build is wrapped up with an after_success command
     When it starts a job
@@ -17,7 +17,7 @@ Feature: after_success commands
     And it announces active leiningen version
     And it successfully installs dependencies with lein
     And it successfully runs the script: lein test
-    And it executes ./launch-missles.sh after the test
+    And it executes ./launch-missles.sh after the script
     And it closes the ssh session
     And it returns the result 0
     And it has captured the following events
