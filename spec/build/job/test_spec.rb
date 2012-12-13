@@ -275,7 +275,7 @@ describe Travis::Build::Job::Test do
 
   describe 'run_stages' do
     it 'runs all the command stages in order if they return true' do
-      [:before_install, :install, :before_script, :script, :after_script].each do |stage|
+      [:before_install, :install, :before_script, :script].each do |stage|
         job.expects(:run_commands).with(stage).returns(true).once
       end
       job.send(:run_stages)

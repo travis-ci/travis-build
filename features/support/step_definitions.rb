@@ -330,7 +330,7 @@ Then /^it (successfully|fails to) runs? the (.*): (.*)$/ do |result, type, comma
 
   # we can add this expectation only if we don't need to run after_success or after_failure
   # hooks, I'm not sure if there is better way to check this
-  if !$payload[:config] || ($payload[:config].keys & [:after_failure, :after_success, :after_test]) == []
+  if !$payload[:config] || ($payload[:config].keys & [:after_failure, :after_success, :after_script]) == []
     step "it exports the line TRAVIS_TEST_RESULT=#{result == 'successfully' ? 0 : 1}"
   end
 end
@@ -354,11 +354,11 @@ Then /^it executes (.*) after the successful build$/ do |command|
   step "it exports the line TRAVIS_TEST_RESULT=0"
 end
 
-Then /^it executes (.*) after the test$/ do |command|
+Then /^it executes (.*) after the script$/ do |command|
   step "it exports the line TRAVIS_TEST_RESULT=0"
 
   $shell.expects(:execute).
-    with(command, :stage => :after_test).
+    with(command, :stage => :after_script).
     outputs(command).
     returns(true).
     in_sequence($sequence)

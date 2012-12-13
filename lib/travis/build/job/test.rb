@@ -22,8 +22,8 @@ module Travis
       #  * check out the commit from Github
       #  * setup the build if required for the current language (e.g. switch to
       #    the given Ruby version and define the Gemfile for bundler if used)
-      #  * run the before_install, install, before_script, script, and
-      #    after_script commands
+      #  * run the before_install, install, before_script, abd script commands
+      #  * run after_success, after_failure and after_script commands
       #
       # The install and script commands might be defined by the language
       # specific test subclasses. All of the commands can be defined in the
@@ -46,7 +46,7 @@ module Travis
         autoload :Ruby,        'travis/build/job/test/ruby'
         autoload :Scala,       'travis/build/job/test/scala'
 
-        STAGES = [:before_install, :install, :before_script, :script, :after_script]
+        STAGES = [:before_install, :install, :before_script, :script]
 
         extend Assertions
         include Logging
@@ -97,7 +97,7 @@ module Travis
             run_after_failure if commands_for(:after_failure).any?
           end
 
-          run_after_test(code)
+          run_after_script(code)
 
           { :result => code }
         end
@@ -252,14 +252,14 @@ module Travis
         end
         log :run_after_failure, :only => :before
 
-        def run_after_test(code)
+        def run_after_script(code)
           shell.export_line "TRAVIS_TEST_RESULT=#{code}"
 
-          Array(config.after_test || []).each do |command|
-            shell.execute(command, :stage => :after_test)
+          Array(config.after_script || []).each do |command|
+            shell.execute(command, :stage => :after_script)
           end
         end
-        log :run_after_test, :only => :before
+        log :run_after_script, :only => :before
 
         def source_url
           repository.source_url
