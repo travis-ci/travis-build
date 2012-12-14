@@ -253,7 +253,15 @@ module Travis
         log :run_after_failure, :only => :before
 
         def run_after_script(code)
-          shell.export_line "TRAVIS_TEST_RESULT=#{code}"
+          retries = 0
+          begin
+            shell.export_line "TRAVIS_TEST_RESULT=#{code}"
+          rescue Travis::Build::CommandTimeout
+            raise if retries > 2
+            retries += 1
+            sleep 1 + retries
+            retry
+          end
 
           Array(config.after_script || []).each do |command|
             shell.execute(command, :stage => :after_script)
