@@ -87,19 +87,19 @@ module Travis
         end
 
         def run
-          ok   = self.perform
-          code = ok ? 0 : 1
+          state = self.perform
 
           # here we have the final success/failure flag so we can take care of after_success, after_failure. MK.
-          if ok
+          if state == :passed
             run_after_success if commands_for(:after_success).any?
-          else
+          elsif state == :failed
             run_after_failure if commands_for(:after_failure).any?
           end
 
-          run_after_script(code)
+          code = { :passed => 0, :failed => 1 }[state]
+          run_after_script(code) if code
 
-          { :result => code }
+          { :state => state }
         end
         log :run
 
@@ -111,13 +111,13 @@ module Travis
           start_services
           checkout
           setup if respond_to?(:setup)
-          run_stages
+          run_stages ? :passed : :failed
         rescue CommandTimeout, OutputLimitExceeded => e
           shell.echo "\n\n#{e.message}\n\n", :force => true
-          false
+          :errored
         rescue AssertionFailed => e
           log_exception(e)
-          false
+          :errored
         end
         log :perform
 

@@ -52,7 +52,7 @@ module Travis
       result = perform
     rescue => e
       log_exception(e)
-      result = { :result => 1 }
+      result = { :state => :errored }
     ensure
       notify :finish, (result || {}).merge(:finished_at => Time.now.utc)
     end
@@ -62,7 +62,7 @@ module Travis
       log "\n\n\nI'm sorry but the VM stalled during your build and was not recoverable."
       log "\n\nYour build will be requeued shortly."
       if opts[:fail]
-        notify :finish, { :result => 1, :finished_at => Time.now.utc }
+        notify :finish, { :state => :errored, :finished_at => Time.now.utc }
       end
     end
 

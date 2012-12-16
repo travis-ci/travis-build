@@ -122,19 +122,19 @@ describe Travis::Build::Job::Test do
       job.run
     end
 
-    it 'returns { :result => 0 } if the last script returned true' do
+    it 'returns { :state => :passed } if the last script returned true' do
       shell.expects(:execute).with('rake', :stage => :script).returns(true)
-      job.run.should == { :result => 0 }
+      job.run.should == { :state => :passed }
     end
 
-    it 'returns { :result => 1 } if the last script returned false' do
+    it 'returns { :state => :failed } if the last script returned false' do
       shell.expects(:execute).with('rake', :stage => :script).returns(false)
-      job.run.should == { :result => 1 }
+      job.run.should == { :state => :failed }
     end
 
-    it 'returns { :result => 1 } if checkout raised an exception' do
+    it 'returns { :state => :errored } if checkout raised an exception' do
       commit.expects(:checkout).returns(false)
-      job.run.should == { :result => 1 }
+      job.run.should == { :state => :errored }
     end
 
     describe 'with a command timeout exception being raised' do
@@ -143,7 +143,7 @@ describe Travis::Build::Job::Test do
       end
 
       it 'logs the exception' do
-        job.run.should == { :result => 1 }
+        job.run.should == { :state => :errored }
         echo.string.should match(/Executing your script \(rake\) took longer than 16 minutes and was terminated/)
       end
     end
@@ -154,7 +154,7 @@ describe Travis::Build::Job::Test do
       end
 
       it 'logs the exception' do
-        job.run.should == { :result => 1 }
+        job.run.should == { :state => :errored }
         echo.string.should match(/The log length has exceeded the limit of 1000 Bytes/)
       end
     end
