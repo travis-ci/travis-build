@@ -18,7 +18,7 @@ Feature: Testing a Groovy project
      And it successfully installs dependencies with gradle
      And it successfully runs the script: gradle check
      And it closes the ssh session
-     And it returns the result 0
+     And it returns the state :passed
      And it has captured the following events
        | name            | data                                       |
        | job:test:start  | started_at: [now]                          |
@@ -44,7 +44,7 @@ Feature: Testing a Groovy project
        | job:test:log    | log: gradle assemble                       |
        | job:test:log    | log: gradle check                          |
        | job:test:log    | log: /Done.* 0/                            |
-       | job:test:finish | finished_at: [now], result: 0              |
+       | job:test:finish | finished_at: [now], state: :passed         |
 
   Scenario: A successful build with Maven
     When it starts a job
@@ -59,7 +59,7 @@ Feature: Testing a Groovy project
      And it successfully installs dependencies with maven
      And it successfully runs the script: mvn test
      And it closes the ssh session
-     And it returns the result 0
+     And it returns the state :passed
      And it has captured the following events
        | name            | data                                       |
        | job:test:start  | started_at: [now]                          |
@@ -85,7 +85,7 @@ Feature: Testing a Groovy project
        | job:test:log    | log: mvn install --quiet -DskipTests=true  |
        | job:test:log    | log: mvn test                              |
        | job:test:log    | log: /Done.* 0/                            |
-       | job:test:finish | finished_at: [now], result: 0              |
+       | job:test:finish | finished_at: [now], state: :passed         |
 
   Scenario: A successful build with Ant fallback
     When it starts a job
@@ -99,7 +99,7 @@ Feature: Testing a Groovy project
      And it does not find the file pom.xml
      And it successfully runs the script: ant test
      And it closes the ssh session
-     And it returns the result 0
+     And it returns the state :passed
      And it has captured the following events
        | name            | data                                       |
        | job:test:start  | started_at: [now]                          |
@@ -124,14 +124,14 @@ Feature: Testing a Groovy project
        | job:test:log    | log: javac -version                        |
        | job:test:log    | log: ant test                              |
        | job:test:log    | log: /Done.* 0/                            |
-       | job:test:finish | finished_at: [now], result: 0              |
+       | job:test:finish | finished_at: [now], state: :passed         |
 
   Scenario: The repository can not be cloned
     When it starts a job
     Then it exports the given environment variables
      And it fails to clone the repository to the build dir with git
      And it closes the ssh session
-     And it returns the result 1
+     And it returns the state :errored
 
   Scenario: The commit can not be checked out
     When it starts a job
@@ -139,7 +139,7 @@ Feature: Testing a Groovy project
      And it successfully clones the repository to the build dir with git
      And it fails to check out the commit with git to the repository directory
      And it closes the ssh session
-     And it returns the result 1
+     And it returns the state :errored
 
   Scenario: A failing build that uses Gradle
     When it starts a job
@@ -153,4 +153,4 @@ Feature: Testing a Groovy project
      And it successfully installs dependencies with gradle
      And it fails to run the script: gradle check
      And it closes the ssh session
-     And it returns the result 1
+     And it returns the state :failed

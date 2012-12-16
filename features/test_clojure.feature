@@ -18,7 +18,7 @@ Feature: Testing a Clojure project
      And it successfully installs dependencies with lein
      And it successfully runs the script: lein test
      And it closes the ssh session
-     And it returns the result 0
+     And it returns the state :passed
      And it has captured the following events
        | name            | data                                     |
        | job:test:start  | started_at: [now]                        |
@@ -45,14 +45,14 @@ Feature: Testing a Clojure project
        | job:test:log    | log: lein deps                           |
        | job:test:log    | log: lein test                           |
        | job:test:log    | log: /Done.* 0/                          |
-       | job:test:finish | finished_at: [now], result: 0            |
+       | job:test:finish | finished_at: [now], state: :passed       |
 
   Scenario: The repository can not be cloned
     When it starts a job
     Then it exports the given environment variables
      And it fails to clone the repository to the build dir with git
      And it closes the ssh session
-     And it returns the result 1
+     And it returns the state :errored
 
   Scenario: The commit can not be checked out
     When it starts a job
@@ -60,7 +60,7 @@ Feature: Testing a Clojure project
      And it successfully clones the repository to the build dir with git
      And it fails to check out the commit with git to the repository directory
      And it closes the ssh session
-     And it returns the result 1
+     And it returns the state :errored
 
   Scenario: The lein dependencies can not be installed
     When it starts a job
@@ -73,7 +73,7 @@ Feature: Testing a Clojure project
      And it announces active leiningen version
      And it fails to install dependencies with lein
      And it closes the ssh session
-     And it returns the result 1
+     And it returns the state :failed
 
   Scenario: The jdk version can not be activated
     When it starts a job
@@ -83,7 +83,7 @@ Feature: Testing a Clojure project
      And it exports the line TRAVIS_JDK_VERSION=default
      And it fails to switch to the jdk version: default
      And it closes the ssh session
-     And it returns the result 1
+     And it returns the state :errored
 
   Scenario: A failing build
     When it starts a job
@@ -97,4 +97,4 @@ Feature: Testing a Clojure project
      And it successfully installs dependencies with lein
      And it fails to run the script: lein test
      And it closes the ssh session
-     And it returns the result 1
+     And it returns the state :failed

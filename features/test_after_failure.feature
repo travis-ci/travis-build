@@ -19,7 +19,7 @@ Feature: after_success commands
     And it fails to run the script: lein test
     And it executes ./launch-missles.sh after the failed build
     And it closes the ssh session
-    And it returns the result 1
+    And it returns the state :failed
     And it has captured the following events
        | name            | data                                      |
        | job:test:start  | started_at: [now]                         |
@@ -47,4 +47,4 @@ Feature: after_success commands
        | job:test:log    | log: lein test                            |
        | job:test:log    | log: ./launch-missles.sh                  |
        | job:test:log    | log: /Done.* 1/                           |
-       | job:test:finish | finished_at: [now], result: 1             |
+       | job:test:finish | finished_at: [now], state: :failed        |

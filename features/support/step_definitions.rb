@@ -3,7 +3,7 @@ require 'active_support/core_ext/hash/keys'
 
 def decode(string)
   string.split(',').inject({}) do |result, pair|
-    key, value = pair.split(':').map { |token| token.strip }
+    key, value = pair.split(': ').map { |token| token.strip }
 
     value = case value
             when '[now]'
@@ -14,6 +14,8 @@ def decode(string)
               eval(value)
             when /^\d*$/
               value.to_i
+            when /^:.*$/
+              value[1..-1].to_sym
             else
               value
             end
@@ -332,6 +334,8 @@ Then /^it (successfully|fails to) runs? the (.*): (.*)$/ do |result, type, comma
     returns(result == 'successfully').
     in_sequence($sequence)
 
+  # we can add this expectation only if we don't need to run after_success or after_failure
+  # hooks, I'm not sure if there is better way to check this
   if !$payload[:config] && !$payload[:config][:after_script]
     step "it exports the line TRAVIS_TEST_RESULT=#{result == 'successfully' ? 0 : 1}"
   end
@@ -346,6 +350,10 @@ Then /^it returns the result (.*)$/ do |result|
   $build.run[:result].should == result.to_i
 end
 
+Then /^it returns the state :(.*)$/ do |state|
+  $build.run[:state].should == state.to_sym
+end
+
 Then /^it executes (.*) after the successful build$/ do |command|
   $shell.expects(:execute).
     with(command, :stage => :after_success).
@@ -353,6 +361,7 @@ Then /^it executes (.*) after the successful build$/ do |command|
     returns(true).
     in_sequence($sequence)
 
+  step "it exports the line TRAVIS_TEST_RESULT=0"
 end
 
 Then /^it executes (.*) after the script$/ do |command|
