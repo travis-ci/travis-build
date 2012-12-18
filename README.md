@@ -2,18 +2,18 @@
 
 travis-build is a library that travis-ci.org workers use to clone repositories, manage dependencies,
 run test suites and perform other CI build life cycle operations. It was originally extracted from
-[https://github.com/travis-ci/travis-worker](travis-worker).
+[travis-worker](https://github.com/travis-ci/travis-worker).
 
 
 ## Running test suites
 
-On JRuby (currently 1.8 mode):
+On JRuby:
 
     bundle exec rspec spec
     bundle exec cucumber
 
 
-## License & copyright information ##
+## License & copyright information
 
 See LICENSE file.
 
