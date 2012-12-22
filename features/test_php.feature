@@ -40,7 +40,6 @@ Feature: Testing a Php project
        | job:test:log    | log: phpenv global 5.3.6                |
        | job:test:log    | log: php --version                      |
        | job:test:log    | log: phpunit                            |
-       | job:test:log    | log: export TRAVIS_TEST_RESULT=0        |
        | job:test:log    | log: /Done.* 0/                         |
        | job:test:finish | finished_at: [now], result: 0           |
 

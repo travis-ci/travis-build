@@ -39,7 +39,6 @@ Feature: Testing an Erlang project
        | job:test:log    | log: git checkout                        |
        | job:test:log    | log: source ~/otp/R14B04/activate        |
        | job:test:log    | log: make test                           |
-       | job:test:log    | log: export TRAVIS_TEST_RESULT=0         |
        | job:test:log    | log: /Done.* 0/                          |
        | job:test:finish | finished_at: [now], result: 0            |
 
@@ -73,7 +72,6 @@ Feature: Testing an Erlang project
        | job:test:log    | log: git checkout                        |
        | job:test:log    | log: source ~/otp/R15B/activate          |
        | job:test:log    | log: make test                           |
-       | job:test:log    | log: export TRAVIS_TEST_RESULT=0         |
        | job:test:log    | log: /Done.* 0/                          |
        | job:test:finish | finished_at: [now], result: 0            |
 
@@ -109,7 +107,6 @@ Feature: Testing an Erlang project
        | job:test:log    | log: /activate/                         |
        | job:test:log    | log: rebar get-deps                     |
        | job:test:log    | log: /eunit/                            |
-       | job:test:log    | log: export TRAVIS_TEST_RESULT=0        |
        | job:test:log    | log: /Done.* 0/                         |
        | job:test:finish | finished_at: [now], result: 0           |
 

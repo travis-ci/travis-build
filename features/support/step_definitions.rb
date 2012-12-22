@@ -72,14 +72,14 @@ Then /^it (successfully|fails to) clones? the (repository|.+ branch) to the buil
   step "it #{result} clones the #{branch} with git"
   step 'it silently removes the ssh key'
 
-  step "it exports the line TRAVIS_TEST_RESULT=1" if result != 'successfully'
+  step "it exports the line TRAVIS_TEST_RESULT=1" if result != 'successfully' && export_test_result?
 end
 
 Then /^it (successfully|fails to) checks? out the commit with git to the repository directory$/ do |result|
   step 'it cds into the repository directory'
   step "it #{result} checks the commit out with git"
 
-  step "it exports the line TRAVIS_TEST_RESULT=1" if result != 'successfully'
+  step "it exports the line TRAVIS_TEST_RESULT=1" if result != 'successfully' && export_test_result?
 end
 
 Then /^it finds a file (.*) (?:and|but) (successfully|fails to) installs? dependencies with (.*)$/ do |filename, result, tool|
@@ -208,7 +208,7 @@ Then /^it (successfully|fails to) switch(?:es)? to the (.*) version: (.*)$/ do |
     returns(result == 'successfully').
     in_sequence($sequence)
 
-  step "it exports the line TRAVIS_TEST_RESULT=1" if result != 'successfully'
+  step "it exports the line TRAVIS_TEST_RESULT=1" if result != 'successfully' && export_test_result?
 end
 
 Then /it announces active (?:lein|leiningen|Leiningen) version/ do
@@ -318,7 +318,11 @@ Then /^it (successfully|fails to) installs? dependencies with (.*)$/ do |result,
     returns(result == 'successfully').
     in_sequence($sequence)
 
-  step "it exports the line TRAVIS_TEST_RESULT=1" if result != 'successfully'
+  step "it exports the line TRAVIS_TEST_RESULT=1" if result != 'successfully' && export_test_result?
+end
+
+def export_test_result?
+  $payload[:config] && $payload[:config][:after_script] && !$payload[:config][:after_script].empty?
 end
 
 Then /^it (successfully|fails to) runs? the (.*): (.*)$/ do |result, type, command|
@@ -328,9 +332,7 @@ Then /^it (successfully|fails to) runs? the (.*): (.*)$/ do |result, type, comma
     returns(result == 'successfully').
     in_sequence($sequence)
 
-  # we can add this expectation only if we don't need to run after_success or after_failure
-  # hooks, I'm not sure if there is better way to check this
-  if !$payload[:config] || ($payload[:config].keys & [:after_failure, :after_success, :after_script]) == []
+  if !$payload[:config] && !$payload[:config][:after_script]
     step "it exports the line TRAVIS_TEST_RESULT=#{result == 'successfully' ? 0 : 1}"
   end
 end
@@ -351,7 +353,6 @@ Then /^it executes (.*) after the successful build$/ do |command|
     returns(true).
     in_sequence($sequence)
 
-  step "it exports the line TRAVIS_TEST_RESULT=0"
 end
 
 Then /^it executes (.*) after the script$/ do |command|
@@ -371,7 +372,7 @@ Then /^it executes (.*) after the failed build$/ do |command|
     returns(true).
     in_sequence($sequence)
 
-  step "it exports the line TRAVIS_TEST_RESULT=1"
+  step "it exports the line TRAVIS_TEST_RESULT=1" if export_test_result?
 end
 
 Then /^it has captured the following events$/ do |table|

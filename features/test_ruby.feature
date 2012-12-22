@@ -43,7 +43,6 @@ Feature: Testing a Ruby project
        | job:test:log    | log: ruby --version                     |
        | job:test:log    | log: gem --version                      |
        | job:test:log    | log: rake                               |
-       | job:test:log    | log: export TRAVIS_TEST_RESULT=0        |
        | job:test:log    | log: /Done.* 0/                         |
        | job:test:finish | finished_at: [now], result: 0           |
 
@@ -82,7 +81,6 @@ Feature: Testing a Ruby project
        | job:test:log    | log: ruby --version                     |
        | job:test:log    | log: gem --version                      |
        | job:test:log    | log: rake                               |
-       | job:test:log    | log: export TRAVIS_TEST_RESULT=0        |
        | job:test:log    | log: /Done.* 0/                         |
        | job:test:finish | finished_at: [now], result: 0           |
 
@@ -126,7 +124,6 @@ Feature: Testing a Ruby project
        | job:test:log    | log: ruby --version                     |
        | job:test:log    | log: gem --version                      |
        | job:test:log    | log: rake                               |
-       | job:test:log    | log: export TRAVIS_TEST_RESULT=0        |
        | job:test:log    | log: /Done.* 0/                         |
        | job:test:finish | finished_at: [now], result: 0           |
 
@@ -167,7 +164,6 @@ Feature: Testing a Ruby project
        | job:test:log    | log: /export BUNDLE_GEMFILE=/           |
        | job:test:log    | log: bundle install                     |
        | job:test:log    | log: bundle exec rake                   |
-       | job:test:log    | log: export TRAVIS_TEST_RESULT=0        |
        | job:test:log    | log: /Done.* 0/                         |
        | job:test:finish | finished_at: [now], result: 0           |
 

@@ -254,6 +254,10 @@ module Travis
 
         def run_after_script(code)
           retries = 0
+          after_script_lines = Array(config.after_script || [])
+
+          return if after_script_lines.empty?
+
           begin
             shell.export_line "TRAVIS_TEST_RESULT=#{code}"
           rescue Travis::Build::CommandTimeout
@@ -263,7 +267,7 @@ module Travis
             retry
           end
 
-          Array(config.after_script || []).each do |command|
+          after_script_lines.each do |command|
             shell.execute(command, :stage => :after_script)
           end
         end
