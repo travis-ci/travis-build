@@ -1,6 +1,7 @@
 language: ruby
 rvm:
+  - 1.9.3
   - jruby-18mode
   - jruby-19mode
   - jruby-head
-script: "bundle exec rspec spec && bundle exec cucumber"
+script: "bundle exec rspec spec"

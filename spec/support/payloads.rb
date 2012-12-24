@@ -1,19 +1,14 @@
 PAYLOADS = {
-  :configure => {
-    'type'       => 'configure',
-    'repository' => { 'slug' => 'travis-ci/travis-ci' },
-    'job'        => { 'id' => 1, 'commit' => '313f61b', 'config_url' => 'https://raw.github.com/travis-ci/travis-ci/313f61b/.travis.yml' }
-  },
-  :test => {
+  :push => {
     'type'       => 'test',
+    'config'     => {},
     'repository' => { 'slug' => 'travis-ci/travis-ci', 'source_url' => 'git://github.com/travis-ci/travis-ci.git' },
-    'job'        => { 'id' => 1, 'commit' => '313f61b' },
-    'config'     => { 'rvm' => '1.9.2', 'env' => 'FOO=foo' }
+    'job'        => { 'id' => 1, 'commit' => '313f61b' }
   },
   :pull_request => {
     'type'       => 'test',
+    'config'     => { 'env' => 'FOO=foo' },
     'repository' => { 'slug' => 'travis-ci/travis-ci', 'source_url' => 'git://github.com/travis-ci/travis-ci.git' },
-    'job'        => { 'id' => 1, 'commit' => '313f61b', 'ref' => 'refs/pull/118/merge' },
-    'config'     => { 'rvm' => '1.9.2', 'env' => 'FOO=foo' }
+    'job'        => { 'id' => 1, 'commit' => '313f61b', 'ref' => 'refs/pull/118/merge' }
   }
 }
