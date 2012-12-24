@@ -1,25 +1,51 @@
-require 'rubygems'
-
-require 'rspec'
-require 'mocha'
-
-require 'logger'
-require 'stringio'
-require 'travis/support'
-
-require 'support/helpers'
+require 'fileutils'
+require 'travis/build'
 require 'support/matchers'
-require 'support/mocks'
 require 'support/payloads'
+require 'shared/jdk'
+require 'shared/jvm'
+require 'shared/script'
 
-RSpec.configure do |config|
-  config.mock_with :mocha
+STDOUT.sync = true
 
-  config.before :each do
-    Travis.logger = Logger.new(StringIO.new)
+class Hash
+  def deep_clone
+    Marshal.load(Marshal.dump(self))
+  end
+end
+
+Travis::Build::Script::TEMPLATES[:header] = File.read('spec/support/header.sh')
+Travis::Build::LOGS.replace(build: 'build.log', state: 'state.log')
+Travis::Build::HOME_DIR.replace('.')
+
+module SpecHelpers
+  def executable(name)
+    file(name, "builtin echo #{name} $@ >> test.log; builtin echo output from #{name} $@;")
+    FileUtils.chmod('+x', "tmp/#{name}")
   end
 
-  config.alias_example_to :fit, :focused => true
-  config.filter_run :focused => true
-  config.run_all_when_everything_filtered = true
+  def file(name, content = '')
+    path = "tmp/#{name}"
+    FileUtils.mkdir_p(File.dirname(path))
+    File.open(path, 'w+') { |f| f.write(content) }
+  end
+
+  def gemfile(name)
+    file(name)
+    config['config']['gemfile'] = name
+  end
+
+  def timeout_for(stage)
+    Travis::Build::Config::DEFAULTS[:timeouts][stage]
+  end
+end
+
+RSpec.configure do |c|
+  c.include SpecHelpers
+  c.mock_with :mocha
+
+  c.before :each do
+    FileUtils.rm_rf 'tmp'
+    FileUtils.mkdir 'tmp'
+  end
 end

@@ -1,11 +1,7 @@
 language: ruby
-env:
-  - JRUBY_OPTS="--server -Xcext.enabled=false -Xcompile.invokedynamic=false"
 rvm:
+  - 1.9.3
   - jruby-18mode
   - jruby-19mode
   - jruby-head
-script: "bundle exec rspec spec && bundle exec cucumber"
-matrix:
-  allow_failures:
-    - rvm: jruby-head
+script: "bundle exec rspec spec"
