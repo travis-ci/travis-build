@@ -8,11 +8,11 @@ describe Travis::Build::Script::Haskell do
   it_behaves_like 'a build script'
 
   it 'announces ghc --version' do
-    should run 'ghc --version', echo: true, log: true
+    should announce 'ghc --version'
   end
 
   it 'announces cabal --version' do
-    should run 'cabal --version', echo: true, log: true
+    should announce 'cabal --version'
   end
 
   it 'installs with cabal update && cabal install' do

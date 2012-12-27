@@ -1,3 +1,7 @@
+def timeout_for(stage)
+  Travis::Build::Config::DEFAULTS[:timeouts][stage]
+end
+
 def runs?(lines, cmd)
   cmd = /^#{Regexp.escape(cmd)}/ if cmd.is_a?(String)
   lines.detect { |line| line =~ cmd }
@@ -29,6 +33,46 @@ end
 def log_for(script)
   system script unless File.exists?('tmp/test.log')
   File.read('tmp/test.log')
+end
+
+RSpec::Matchers.define :setup do |cmd, options = {}|
+  match do |script|
+    options = options.merge(echo: true, log: true, assert: true)
+    failure_message_for_should do
+      "expected script to setup #{cmd.inspect} with #{options} but it didn't:\n#{log_for(script)}"
+    end
+    script.should run cmd, options
+  end
+end
+
+RSpec::Matchers.define :announce do |cmd, options = {}|
+  match do |script|
+    options = options.merge(echo: true, log: true)
+    failure_message_for_should do
+      "expected script to announce #{cmd.inspect} with #{options} but it didn't:\n#{log_for(script)}"
+    end
+    script.should run cmd, options
+  end
+end
+
+RSpec::Matchers.define :install do |cmd, options = {}|
+  match do |script|
+    options = options.merge(echo: true, log: true, assert: true, timeout: timeout_for(:install))
+    failure_message_for_should do
+      "expected script to install #{cmd.inspect} with #{options} but it didn't:\n#{log_for(script)}"
+    end
+    script.should run cmd, options
+  end
+end
+
+RSpec::Matchers.define :run_script do |cmd, options = {}|
+  match do |script|
+    options = options.merge(echo: true, log: true, timeout: timeout_for(:script))
+    failure_message_for_should do
+      "expected script to run the script #{cmd.inspect} with #{options} but it didn't:\n#{log_for(script)}"
+    end
+    script.should run cmd, options
+  end
 end
 
 RSpec::Matchers.define :run do |cmd, options = {}|

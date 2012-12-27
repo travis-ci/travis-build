@@ -15,8 +15,8 @@ describe Travis::Build::Script::C do
     should set 'CC', 'gcc'
   end
 
-  it 'runs gcc --version' do
-    should run 'gcc --version', echo: true, log: true
+  it 'announces gcc --version' do
+    should announce 'gcc --version', echo: true, log: true
   end
 
   it 'runs ./configure && make && make test' do

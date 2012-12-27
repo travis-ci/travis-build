@@ -23,7 +23,7 @@ describe Travis::Build::Script::Go do
     end
 
     it 'runs go test -v' do
-      should run 'go test -v', echo: true, log: true, timeout: timeout_for(:script)
+      should run_script 'go test -v'
     end
   end
 
@@ -37,7 +37,7 @@ describe Travis::Build::Script::Go do
     end
 
     it 'runs make' do
-      should run 'make', echo: true, log: true, timeout: timeout_for(:script)
+      should run_script 'make'
     end
   end
 end

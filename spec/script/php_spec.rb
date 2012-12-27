@@ -12,14 +12,14 @@ describe Travis::Build::Script::Php do
   end
 
   it 'sets up the php version' do
-    should run 'phpenv global 5.3', echo: true, log: true, assert: true
+    should setup 'phpenv global 5.3'
   end
 
   it 'announces php --version' do
-    should run 'php --version', echo: true, log: true
+    should announce 'php --version'
   end
 
   it 'runs phpunit' do
-    should run 'phpunit', echo: true, log: true, timeout: timeout_for(:script)
+    should run_script 'phpunit'
   end
 end

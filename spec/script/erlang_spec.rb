@@ -23,7 +23,7 @@ describe Travis::Build::Script::Erlang do
     end
 
     it 'runs make test' do
-      should run 'make test', echo: true, log: true, timeout: timeout_for(:script)
+      should run_script 'make test'
     end
   end
 
