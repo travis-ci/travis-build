@@ -12,12 +12,12 @@ describe Travis::Build::Script::Ruby do
   end
 
   it 'sets the default ruby if no :rvm config given' do
-    should run 'rvm use default', echo: true, log: true, assert: true
+    should setup 'rvm use default'
   end
 
   it 'sets the ruby from config :rvm' do
     config['config']['rvm'] = 'rbx'
-    should run 'rvm use rbx', echo: true, log: true, assert: true
+    should setup 'rvm use rbx'
   end
 
   xit 'sets BUNDLE_GEMFILE if the gemfile exists' do
@@ -25,22 +25,22 @@ describe Travis::Build::Script::Ruby do
     should set 'BUNDLE_GEMFILE', 'Gemfile.ci'
   end
 
-  it 'runs ruby --version' do
-    should run 'ruby --version', echo: true, log: true
+  it 'announces ruby --version' do
+    should announce 'ruby --version'
   end
 
-  it 'runs bundle install with the given bundler_args if the gemfile exists' do
+  it 'installs with bundle install with the given bundler_args if the gemfile exists' do
     gemfile 'Gemfile.ci'
-    should run 'bundle install', echo: true, log: true
+    should install 'bundle install'
   end
 
   it 'runs bundle exec rake if the gemfile exists' do
     gemfile 'Gemfile.ci'
-    should run 'bundle exec rake', echo: true, log: true, timeout: timeout_for(:script)
+    should run_script 'bundle exec rake'
   end
 
   it 'runs rake if the gemfile does not exist' do
-    should run 'rake', echo: true, log: true, timeout: timeout_for(:script)
+    should run_script 'rake'
   end
 
   describe 'using jruby' do

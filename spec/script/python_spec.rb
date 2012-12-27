@@ -18,22 +18,20 @@ describe Travis::Build::Script::Python do
   end
 
   it 'sets up the python version (pypy)' do
-    # TODO can't really capture source, yet
     config['config']['python'] = 'pypy'
-    should run 'echo $ source ~/virtualenv/pypy/bin/activate'
+    should run 'echo $ source ~/virtualenv/pypy/bin/activate' # TODO can't really capture source, yet
   end
 
   it 'sets up the python version (2.7)' do
-    # TODO can't really capture source, yet
-    should run 'echo $ source ~/virtualenv/python2.7/bin/activate'
+    should run 'echo $ source ~/virtualenv/python2.7/bin/activate' # TODO can't really capture source, yet
   end
 
   it 'announces python --version' do
-    should run 'python --version', echo: true, log: true
+    should announce 'python --version'
   end
 
   it 'announces pip --version' do
-    should run 'pip --version', echo: true, log: true
+    should announce 'pip --version'
   end
 
   describe 'if no requirements file exists' do
@@ -48,7 +46,7 @@ describe Travis::Build::Script::Python do
     end
 
     it 'installs with pip' do
-      should run 'pip install -r Requirements.txt --use-mirrors', echo: true, assert: true, log: true, timeout: timeout_for(:install)
+      should install 'pip install -r Requirements.txt --use-mirrors'
     end
   end
 
@@ -59,7 +57,7 @@ describe Travis::Build::Script::Python do
 
     # TODO [[ -f file ]] matches case insensitive on mac osx but doesn't on ubuntu?
     xit 'installs with pip' do
-      should run 'pip install -r requirements.txt --use-mirrors', echo: true, assert: true, log: true, timeout: timeout_for(:install)
+      should install 'pip install -r requirements.txt --use-mirrors'
     end
   end
 end

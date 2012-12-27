@@ -18,15 +18,15 @@ describe Travis::Build::Script::Scala do
 
   it 'runs sbt ++2.9.2 test if ./project exists' do
     file('project')
-    should run 'sbt ++2.9.2 test', echo: true, log: true, timeout: timeout_for(:script)
+    should run_script 'sbt ++2.9.2 test'
   end
 
   it 'runs sbt ++2.9.2 test if ./build.sbt exists' do
     file('build.sbt')
-    should run 'sbt ++2.9.2 test', echo: true, log: true, timeout: timeout_for(:script)
+    should run_script 'sbt ++2.9.2 test'
   end
 
   it 'runs mvn test no project or build file exists' do
-    should run 'mvn test', echo: true, log: true, timeout: timeout_for(:script)
+    should run_script 'mvn test'
   end
 end

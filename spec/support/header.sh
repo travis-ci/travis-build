@@ -1,3 +1,4 @@
+mkdir -p tmp
 cd tmp
 
 function travis_timeout() {

@@ -34,10 +34,6 @@ module SpecHelpers
     file(name)
     config['config']['gemfile'] = name
   end
-
-  def timeout_for(stage)
-    Travis::Build::Config::DEFAULTS[:timeouts][stage]
-  end
 end
 
 RSpec.configure do |c|

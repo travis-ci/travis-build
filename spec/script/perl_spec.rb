@@ -12,24 +12,24 @@ describe Travis::Build::Script::Perl do
   end
 
   it 'sets up the perl version' do
-    should run 'perlbrew use 5.14', echo: true, log: true, assert: true
+    should setup 'perlbrew use 5.14'
   end
 
   it 'announces perl --version' do
-    should run 'perl --version', echo: true, log: true
+    should announce 'perl --version'
   end
 
   it 'announces cpanm --version' do
-    should run 'cpanm --version', echo: true, log: true
+    should announce 'cpanm --version'
   end
 
   it 'installs with ' do
-    should run 'cpanm --quiet --installdeps --notest .', echo: true, assert: true, log: true, timeout: timeout_for(:install)
+    should install 'cpanm --quiet --installdeps --notest .'
   end
 
   describe 'if no Build.PL or Makefile.PL exists' do
     it 'runs make test' do
-      should run 'make test', echo: true, log: true, timeout: timeout_for(:script)
+      should run_script 'make test'
     end
   end
 

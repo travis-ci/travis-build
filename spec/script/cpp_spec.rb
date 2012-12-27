@@ -63,7 +63,7 @@ describe Travis::Build::Script::Cpp do
 
   it 'runs gcc --version' do
     config['config']['compiler'] = 'gcc'
-    should run 'gcc --version', echo: true, log: true
+    should announce 'gcc --version'
   end
 
   it 'runs ./configure && make && make test' do

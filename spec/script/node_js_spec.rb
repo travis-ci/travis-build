@@ -12,20 +12,20 @@ describe Travis::Build::Script::NodeJs do
   end
 
   it 'sets up the node version' do
-    should run 'nvm use 0.4', echo: true, log: true, assert: true
+    should setup 'nvm use 0.4'
   end
 
   it 'announces node --version' do
-    should run 'node --version', echo: true, log: true
+    should announce 'node --version'
   end
 
   it 'announces npm --version' do
-    should run 'npm --version', echo: true, log: true
+    should announce 'npm --version'
   end
 
   describe 'if no package.json exists' do
     it 'runs make test' do
-      should run 'make test', echo: true, log: true, timeout: timeout_for(:script)
+      should run_script 'make test'
     end
   end
 
@@ -36,11 +36,11 @@ describe Travis::Build::Script::NodeJs do
 
     it 'installs with npm install --npm-args' do
       config['config']['npm_args'] = '--npm-args'
-      should run 'npm install --npm-args'
+      should install 'npm install --npm-args'
     end
 
     it 'runs npm test' do
-      should run 'npm test', echo: true, log: true, timeout: timeout_for(:script)
+      should run_script 'npm test'
     end
   end
 end
