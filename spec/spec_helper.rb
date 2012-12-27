@@ -44,4 +44,18 @@ RSpec.configure do |c|
     FileUtils.rm_rf 'tmp'
     FileUtils.mkdir 'tmp'
   end
+
+  c.after :each do
+    puts subject if example.failed?
+  end
+end
+
+class RSpec::Core::Example
+  def passed?
+    @exception.nil?
+  end
+
+  def failed?
+    !passed?
+  end
 end
