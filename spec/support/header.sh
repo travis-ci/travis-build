@@ -1,7 +1,7 @@
 mkdir -p tmp
 cd tmp
 
-function travis_timeout() {
+travis_timeout() {
   sleep 0 # no usleep
   sleep 0
   builtin echo travis_timeout $1 >> test.log
@@ -26,7 +26,7 @@ stubs=( \
   sbt
 )
 for stub in ${stubs[*]}; do
-  eval "function $stub() { builtin echo $stub \$@ >> test.log; builtin echo output from $stub \$@; }"
+  eval "$stub() { builtin echo $stub \$@ >> test.log; builtin echo output from $stub \$@; }"
 done
 
 stubs=( \
@@ -34,5 +34,5 @@ stubs=( \
   travis_start travis_end travis_assert \
 )
 for stub in ${stubs[*]}; do
-  eval "function $stub() { builtin echo $stub \$@ >> test.log; }"
+  eval "$stub() { builtin echo $stub \$@ >> test.log; }"
 done
