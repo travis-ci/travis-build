@@ -1,12 +1,12 @@
-function travis_start() {
+travis_start() {
   echo "`date +%s.%N` [$1] start" >> <%= LOGS[:state] %>
 }
 
-function travis_end() {
+travis_end() {
   echo "`date +%s.%N` [$1] end, result: $?" >> <%= LOGS[:state] %>
 }
 
-function travis_assert() {
+travis_assert() {
   if [ $? != 0 ]; then
     echo "Command did not exit with 0. Exiting." >> <%= LOGS[:build] %>
     echo "`date +%s.%N` Command did not exit with 0. Exiting." >> <%= LOGS[:state] %>
@@ -14,7 +14,7 @@ function travis_assert() {
   fi
 }
 
-function travis_timeout() {
+travis_timeout() {
   local pid=$!
   local start=$(date +%s)
   while ps aux | awk '{print $2 }' | grep -q $pid 2> /dev/null; do
