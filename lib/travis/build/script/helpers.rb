@@ -20,7 +20,7 @@ module Travis
 
         def failure(message)
           echo message
-          raw '/usr/bin/false' # TODO will this actually fail the build? shouldn't we exit?
+          raw 'false'
         end
 
         def stacking
