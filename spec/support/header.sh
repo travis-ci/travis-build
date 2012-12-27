@@ -2,8 +2,7 @@ mkdir -p tmp
 cd tmp
 
 travis_timeout() {
-  sleep 0 # no usleep
-  sleep 0
+  wait $!
   builtin echo travis_timeout $1 >> test.log
 }
 
