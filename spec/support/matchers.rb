@@ -31,6 +31,7 @@ def asserts?(lines, cmd)
 end
 
 def log_for(script)
+  File.open('tmp/build.sh', 'w+') { |f| f.write(script) } unless File.exists?('tmp/build.sh')
   system script unless File.exists?('tmp/test.log')
   File.read('tmp/test.log')
 end
