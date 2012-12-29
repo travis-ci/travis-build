@@ -18,6 +18,12 @@ module Travis
           stack.last
         end
 
+        def template(filename)
+          sh.script do
+            raw ERB.new(File.read(File.expand_path(filename, TEMPLATE_PATH))).result(binding)
+          end
+        end
+
         def failure(message)
           echo message
           raw 'false'
