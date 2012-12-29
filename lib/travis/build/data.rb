@@ -76,13 +76,13 @@ module Travis
           {
             TRAVIS_PULL_REQUEST:    pull_request?,
             TRAVIS_SECURE_ENV_VARS: secure_env_vars?,
-            TRAVIS_BUILD_ID:        source[:id],
-            TRAVIS_BUILD_NUMBER:    source[:number],
+            TRAVIS_BUILD_ID:        build[:id],
+            TRAVIS_BUILD_NUMBER:    build[:number],
             TRAVIS_JOB_ID:          job[:id],
             TRAVIS_JOB_NUMBER:      job[:number],
             TRAVIS_BRANCH:          job[:branch],
-            TRAVIS_COMMIT_RANGE:    job[:commit_range],
-            TRAVIS_COMMIT:          job[:commit]
+            TRAVIS_COMMIT:          job[:commit],
+            TRAVIS_COMMIT_RANGE:    job[:commit_range]
           }
         end
 
@@ -100,8 +100,8 @@ module Travis
           config[:job] || {}
         end
 
-        def source
-          config[:source] || {}
+        def build
+          config[:source] || config[:build] || {} # TODO standarize the payload on :build
         end
 
         def repository

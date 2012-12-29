@@ -27,8 +27,9 @@ travis_timeout() {
   wait $pid
 }
 
+rm -rf   <%= BUILD_DIR %>
 mkdir -p <%= BUILD_DIR %>
-cd <%= BUILD_DIR %>
+cd       <%= BUILD_DIR %>
 
 <%= LOGS.map { |name, path| "touch #{path}; > #{path}" }.join("\n") %>
 

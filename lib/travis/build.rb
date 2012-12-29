@@ -7,7 +7,7 @@ module Travis
     autoload :Shell,    'travis/build/shell'
 
     HOME_DIR  = '~'
-    BUILD_DIR = '~/builds'
+    BUILD_DIR = '~/build'
 
     LOGS = {
       build: '~/build.log',
