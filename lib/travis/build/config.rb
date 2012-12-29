@@ -32,6 +32,14 @@ module Travis
         config[:config][key]
       end
 
+      def urls
+        {
+          # TODO this could point to https://api.travis-ci.com/jobs/:id/log and /jobs/:id/state or something
+          logs:  'http://requestb.in/18ygqfo1',
+          state: 'http://requestb.in/12g6u3e1'
+        }
+      end
+
       def timeout?(type)
         !!config[:timeouts][type]
       end

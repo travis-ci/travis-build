@@ -4,7 +4,6 @@ $: << 'lib'
 require 'travis/build'
 
 config = {
-  language: 'c',
   repository: {
     source_url: 'http://github.com/travis-ci/travis-support.git',
     slug: 'travis-ci/travis-support'
@@ -16,10 +15,11 @@ config = {
     commit: 'a214c21',
   },
   rvm: '1.9.3',
-  services: ['redis'],
-  after_success: 'yo dawg',
-  after_failure: 'yo kaputt',
-  after_script: 'travis-artifacts upload shit'
+  # language: 'c',
+  # services: ['redis'],
+  # after_success: 'yo dawg',
+  # after_failure: 'yo kaputt',
+  # after_script: 'travis-artifacts upload shit'
   # jdk: 'jdk-foo'
   # script: 'bundle exec rspec'
 }

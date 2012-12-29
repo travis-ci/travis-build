@@ -27,20 +27,11 @@ module Travis
       autoload :Services, 'travis/build/script/services'
       autoload :Stages,   'travis/build/script/stages'
 
-      class << self
-        def template(name)
-          File.read(File.expand_path("../script/templates/#{name}.sh", __FILE__))
-        end
-      end
+      TEMPLATE_PATH = File.expand_path('../script/templates', __FILE__)
 
       STAGES = {
         builtin: [:export, :checkout, :setup, :announce],
         custom:  [:before_install, :install, :before_script, :script, :after_result, :after_script]
-      }
-
-      TEMPLATES = {
-        header: template(:header),
-        footer: template(:footer)
       }
 
       include Git, Helpers, Services, Stages
@@ -53,16 +44,17 @@ module Travis
       end
 
       def compile
-        render(:header)
+        raw template 'header.sh'
+        raw template 'stream.sh'
         run_stages
-        render(:footer)
+        raw template 'footer.sh'
         sh.to_s
       end
 
       private
 
-        def render(name)
-          raw ERB.new(TEMPLATES[name]).result(binding)
+        def template(filename)
+          ERB.new(File.read(File.expand_path(filename, TEMPLATE_PATH))).result(binding)
         end
 
         def export
