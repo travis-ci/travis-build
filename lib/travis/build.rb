@@ -4,6 +4,7 @@ module Travis
   module Build
     autoload :Data,     'travis/build/data'
     autoload :Script,   'travis/build/script'
+    autoload :Services, 'travis/build/services'
     autoload :Shell,    'travis/build/shell'
 
     HOME_DIR  = '~'
@@ -15,6 +16,10 @@ module Travis
     }
 
     class << self
+      def self.register(key)
+        Travis.services.add(key, self)
+      end
+
       def script(data)
         data  = data.deep_symbolize_keys
         lang  = (Array(data[:language]).first || 'ruby').downcase.strip
