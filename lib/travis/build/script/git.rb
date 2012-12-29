@@ -5,7 +5,6 @@ module Travis
         def checkout
           clone
           rm_key
-          chdir
           fetch_ref if data.ref
           git_checkout
           submodules
@@ -16,16 +15,11 @@ module Travis
 
           def clone
             set 'GIT_ASKPASS', 'echo', :echo => false # this makes git interactive auth fail
-            raw "rm -rf #{data.slug}"
-            cmd "git clone --depth=100 --quiet #{data.source_url} #{data.slug}", assert: true, timeout: :git_clone
+            cmd "git clone --depth=100 --quiet #{data.source_url} .", assert: true, timeout: :git_clone
           end
 
           def rm_key
             raw 'rm -f ~/.ssh/source_rsa'
-          end
-
-          def chdir
-            cd data.slug
           end
 
           def fetch_ref

@@ -27,8 +27,9 @@ travis_timeout() {
   wait $pid
 }
 
-mkdir -p ~/builds
-cd ~/builds
+rm -rf   ~/build
+mkdir -p ~/build
+cd       ~/build
 
 touch ~/build.log; > ~/build.log
 touch ~/state.log; > ~/state.log
@@ -63,30 +64,27 @@ echo \#\!/usr/bin/env\ ruby'
 chmod +x ~/travis_stream
 
 
-  ~/travis_stream ~/build.log http://localhost:3000/logs/1 &
+  ~/travis_stream ~/build.log http://localhost:3000/jobs/1/logs &
 travis_start 'export'
 TRAVIS_PULL_REQUEST=false
 TRAVIS_SECURE_ENV_VARS=false
 TRAVIS_BUILD_ID=1
-TRAVIS_BUILD_NUMBER=
-TRAVIS_JOB_ID=
-TRAVIS_JOB_NUMBER=
-TRAVIS_BRANCH=
-TRAVIS_COMMIT_RANGE=
+TRAVIS_BUILD_NUMBER=1
+TRAVIS_JOB_ID=1
+TRAVIS_JOB_NUMBER=1.1
+TRAVIS_BRANCH=master
 TRAVIS_COMMIT=a214c21
-TRAVIS_RUBY_VERSION=default
+TRAVIS_COMMIT_RANGE=abcdefg..a214c21
+TRAVIS_RUBY_VERSION=1.9.3
 travis_end 'export'
 
 travis_start 'checkout'
 GIT_ASKPASS=echo
-rm -rf travis-ci/travis-support
-echo \$\ git\ clone\ --depth\=100\ --quiet\ http://github.com/travis-ci/travis-support.git\ travis-ci/travis-support >> ~/build.log 2>&1
-((git clone --depth=100 --quiet http://github.com/travis-ci/travis-support.git travis-ci/travis-support) >> ~/build.log 2>&1) &
+echo \$\ git\ clone\ --depth\=100\ --quiet\ http://github.com/travis-ci/travis-support.git\ . >> ~/build.log 2>&1
+((git clone --depth=100 --quiet http://github.com/travis-ci/travis-support.git .) >> ~/build.log 2>&1) &
 travis_timeout 300
 travis_assert
 rm -f ~/.ssh/source_rsa
-echo \$\ cd\ travis-ci/travis-support >> ~/build.log 2>&1
-cd travis-ci/travis-support
 echo \$\ git\ checkout\ -qf\ a214c21 >> ~/build.log 2>&1
 (git checkout -qf a214c21) >> ~/build.log 2>&1
 travis_assert
@@ -102,8 +100,8 @@ fi
 travis_end 'checkout'
 
 travis_start 'setup'
-echo \$\ rvm\ use\ default >> ~/build.log 2>&1
-(rvm use default) >> ~/build.log 2>&1
+echo \$\ rvm\ use\ 1.9.3 >> ~/build.log 2>&1
+(rvm use 1.9.3) >> ~/build.log 2>&1
 travis_assert
 if [[ -f Gemfile ]]; then
   BUNDLE_GEMFILE=$pwd/Gemfile
