@@ -1,9 +1,9 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Ruby do
-  let(:config) { PAYLOADS[:push].deep_clone }
+  let(:data) { PAYLOADS[:push].deep_clone }
 
-  subject { described_class.new(config).compile }
+  subject { described_class.new(data).compile }
 
   it_behaves_like 'a build script'
 
@@ -16,7 +16,7 @@ describe Travis::Build::Script::Ruby do
   end
 
   it 'sets the ruby from config :rvm' do
-    config['config']['rvm'] = 'rbx'
+    data['config']['rvm'] = 'rbx'
     should setup 'rvm use rbx'
   end
 
@@ -45,8 +45,8 @@ describe Travis::Build::Script::Ruby do
 
   describe 'using jruby' do
     before :each do
-      config['config']['rvm'] = 'jruby'
-      config['config']['jdk'] = 'openjdk7'
+      data['config']['rvm'] = 'jruby'
+      data['config']['jdk'] = 'openjdk7'
     end
 
     it_behaves_like 'a jdk build'

@@ -1,0 +1,1 @@
+../../lib/travis/build/script/templates/footer.sh

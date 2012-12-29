@@ -1,7 +1,7 @@
 shared_examples_for 'a jdk build' do
   describe 'if no jdk is given' do
     before :each do
-      config['config']['jdk'] = nil
+      data['config']['jdk'] = nil
     end
 
     xit 'does not set TRAVIS_JDK_VERSION' do
@@ -15,7 +15,7 @@ shared_examples_for 'a jdk build' do
 
   describe 'if jdk is given' do
     before :each do
-      config['config']['jdk'] = 'openjdk7'
+      data['config']['jdk'] = 'openjdk7'
     end
 
     it 'sets TRAVIS_JDK_VERSION' do

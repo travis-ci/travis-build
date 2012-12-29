@@ -3,11 +3,11 @@ module Travis
     class Script
       module Jdk
         def export_jdk
-          set 'TRAVIS_JDK_VERSION', config[:jdk] if config[:jdk]
+          set 'TRAVIS_JDK_VERSION', data[:jdk] if data[:jdk]
         end
 
         def setup_jdk
-          cmd "jdk_switcher use #{config[:jdk]}", assert: true if config[:jdk]
+          cmd "jdk_switcher use #{data[:jdk]}", assert: true if data[:jdk]
         end
 
         def announce

@@ -8,7 +8,7 @@ module Travis
         end
 
         def run_stage(stage)
-          if config[stage] && stage != :after_result
+          if data[stage] && stage != :after_result
             run_custom_stage(stage)
           elsif respond_to?(stage, false) || stage == :after_result # TODO do we really still have that Kernel#install issue with rake?
             run_builtin_stage(stage)
@@ -17,7 +17,7 @@ module Travis
 
         def run_custom_stage(stage)
           stage(stage) do
-            Array(config[stage]).each do |command|
+            Array(data[stage]).each do |command|
               cmd command
             end
             set_result if stage == :script
@@ -36,8 +36,8 @@ module Travis
         end
 
         def after_result
-          self.if('$TRAVIS_TEST_RESULT = 0')  { run_stage(:after_success) } if config[:after_success]
-          self.if('$TRAVIS_TEST_RESULT != 0') { run_stage(:after_failure) } if config[:after_failure]
+          self.if('$TRAVIS_TEST_RESULT = 0')  { run_stage(:after_success) } if data[:after_success]
+          self.if('$TRAVIS_TEST_RESULT != 0') { run_stage(:after_failure) } if data[:after_failure]
         end
 
         def stage(stage = nil)
@@ -54,11 +54,9 @@ module Travis
         end
 
         def timeout_for(stage)
-          config.timeout(stage) if config.timeout?(stage)
+          data.timeout(stage) if data.timeout?(stage)
         end
       end
     end
   end
 end
-
-

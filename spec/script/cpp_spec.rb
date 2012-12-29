@@ -1,9 +1,9 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Cpp do
-  let(:config) { PAYLOADS[:push].deep_clone }
+  let(:data) { PAYLOADS[:push].deep_clone }
 
-  subject { described_class.new(config).compile }
+  subject { described_class.new(data).compile }
 
   before :each do
     executable 'configure'
@@ -12,57 +12,57 @@ describe Travis::Build::Script::Cpp do
   it_behaves_like 'a build script'
 
   it 'sets CXX to g++ if gcc given as compiler' do
-    config['config']['compiler'] = 'gcc'
+    data['config']['compiler'] = 'gcc'
     should set 'CXX', 'g++'
   end
 
   it 'sets CXX to g++ if g++ given as compiler' do
-    config['config']['compiler'] = 'g++'
+    data['config']['compiler'] = 'g++'
     should set 'CXX', 'g++'
   end
 
   it 'sets CXX to clang if clang given as compiler' do
-    config['config']['compiler'] = 'clang'
+    data['config']['compiler'] = 'clang'
     should set 'CXX', 'clang'
   end
 
   it 'sets CXX to clang if clang++ given as compiler' do
-    config['config']['compiler'] = 'clang++'
+    data['config']['compiler'] = 'clang++'
     should set 'CXX', 'clang'
   end
 
   it 'sets CXX to g++ by default' do
-    config['config']['compiler'] = 'compiler'
+    data['config']['compiler'] = 'compiler'
     should set 'CXX', 'g++'
   end
 
   it 'sets CC to gcc if gcc given as compiler' do
-    config['config']['compiler'] = 'gcc'
+    data['config']['compiler'] = 'gcc'
     should set 'CC', 'gcc'
   end
 
   it 'sets CC to gcc if g++ given as compiler' do
-    config['config']['compiler'] = 'g++'
+    data['config']['compiler'] = 'g++'
     should set 'CC', 'gcc'
   end
 
   it 'sets CC to clang if clang given as compiler' do
-    config['config']['compiler'] = 'clang'
+    data['config']['compiler'] = 'clang'
     should set 'CC', 'clang'
   end
 
   it 'sets CC to clang if clang++ given as compiler' do
-    config['config']['compiler'] = 'clang++'
+    data['config']['compiler'] = 'clang++'
     should set 'CC', 'clang'
   end
 
   it 'sets CC to gcc by default' do
-    config['config']['compiler'] = 'compiler'
+    data['config']['compiler'] = 'compiler'
     should set 'CC', 'gcc'
   end
 
   it 'runs gcc --version' do
-    config['config']['compiler'] = 'gcc'
+    data['config']['compiler'] = 'gcc'
     should announce 'gcc --version'
   end
 

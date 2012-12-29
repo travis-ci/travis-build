@@ -1,9 +1,11 @@
 require 'core_ext/hash/deep_merge'
 require 'core_ext/hash/deep_symbolize_keys'
 
+# actually, the worker payload can be cleaned up a lot ...
+
 module Travis
   module Build
-    class Config
+    class Data
       DEFAULTS = {
         timeouts: {
           git_clone:      300,
@@ -33,11 +35,7 @@ module Travis
       end
 
       def urls
-        {
-          # TODO this could point to https://api.travis-ci.com/jobs/:id/log and /jobs/:id/state or something
-          logs:  'http://requestb.in/18ygqfo1',
-          state: 'http://requestb.in/12g6u3e1'
-        }
+        config[:urls]
       end
 
       def timeout?(type)

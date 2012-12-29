@@ -14,7 +14,7 @@ class Hash
   end
 end
 
-Travis::Build::Script::TEMPLATES[:header] = File.read('spec/support/header.sh')
+Travis::Build::Script::TEMPLATES_PATH.replace 'spec/templates'
 Travis::Build::LOGS.replace(build: 'build.log', state: 'state.log')
 Travis::Build::HOME_DIR.replace('.')
 
@@ -32,13 +32,14 @@ module SpecHelpers
 
   def gemfile(name)
     file(name)
-    config['config']['gemfile'] = name
+    data['config']['gemfile'] = name
   end
 end
 
 RSpec.configure do |c|
   c.include SpecHelpers
   c.mock_with :mocha
+  # c.backtrace_clean_patterns.clear
 
   c.before :each do
     FileUtils.rm_rf 'tmp'

@@ -8,12 +8,12 @@ module Travis
 
         def export
           super
-          set 'CC', config[:compiler]
+          set 'CC', data[:compiler]
         end
 
         def announce
           super
-          cmd "#{config[:compiler]} --version"
+          cmd "#{data[:compiler]} --version"
         end
 
         def script

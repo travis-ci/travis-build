@@ -1,9 +1,9 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::NodeJs do
-  let(:config) { PAYLOADS[:push].deep_clone }
+  let(:data) { PAYLOADS[:push].deep_clone }
 
-  subject { described_class.new(config).compile }
+  subject { described_class.new(data).compile }
 
   it_behaves_like 'a build script'
 
@@ -35,7 +35,7 @@ describe Travis::Build::Script::NodeJs do
     end
 
     it 'installs with npm install --npm-args' do
-      config['config']['npm_args'] = '--npm-args'
+      data['config']['npm_args'] = '--npm-args'
       should install 'npm install --npm-args'
     end
 

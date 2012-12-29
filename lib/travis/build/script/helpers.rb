@@ -5,7 +5,7 @@ module Travis
         Shell::Dsl.instance_methods(false).each do |name|
           define_method(name) do |*args, &block|
             options = args.last if args.last.is_a?(Hash)
-            args.last[:timeout] = config.timeout(options[:timeout]) if options && options.key?(:timeout)
+            args.last[:timeout] = data.timeout(options[:timeout]) if options && options.key?(:timeout)
             sh.send(name, *args, &stacking(&block))
           end
         end
@@ -16,12 +16,6 @@ module Travis
 
         def sh
           stack.last
-        end
-
-        def template(filename)
-          sh.script do
-            raw ERB.new(File.read(File.expand_path(filename, TEMPLATE_PATH))).result(binding)
-          end
         end
 
         def failure(message)

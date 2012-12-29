@@ -62,8 +62,8 @@ echo \#\!/usr/bin/env\ ruby'
 ' > ~/travis_stream
 chmod +x ~/travis_stream
 
-~/travis_stream ~/build.log http://requestb.in/18ygqfo1 &
-~/travis_stream ~/state.log http://requestb.in/12g6u3e1 &
+
+  ~/travis_stream ~/build.log http://localhost:3000/logs/1 &
 travis_start 'export'
 TRAVIS_PULL_REQUEST=false
 TRAVIS_SECURE_ENV_VARS=false

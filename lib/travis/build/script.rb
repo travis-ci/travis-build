@@ -27,7 +27,7 @@ module Travis
       autoload :Services, 'travis/build/script/services'
       autoload :Stages,   'travis/build/script/stages'
 
-      TEMPLATE_PATH = File.expand_path('../script/templates', __FILE__)
+      TEMPLATES_PATH = File.expand_path('../script/templates', __FILE__)
 
       STAGES = {
         builtin: [:export, :checkout, :setup, :announce],
@@ -36,10 +36,10 @@ module Travis
 
       include Git, Helpers, Services, Stages
 
-      attr_reader :stack, :config
+      attr_reader :stack, :data
 
-      def initialize(config)
-        @config = Config.new({ config: self.class::DEFAULTS }.deep_merge(config.deep_symbolize_keys))
+      def initialize(data)
+        @data = Data.new({ config: self.class::DEFAULTS }.deep_merge(data.deep_symbolize_keys))
         @stack = [Shell::Script.new(log: true, echo: true, log_file: LOGS[:build])]
       end
 
@@ -54,11 +54,11 @@ module Travis
       private
 
         def template(filename)
-          ERB.new(File.read(File.expand_path(filename, TEMPLATE_PATH))).result(binding)
+          ERB.new(File.read(File.expand_path(filename, TEMPLATES_PATH))).result(binding)
         end
 
         def export
-          config.env.each do |key, value|
+          data.env.each do |key, value|
             set key, value, echo: key.to_s !~ /^TRAVIS_/ # TODO secure stuff?
           end
         end

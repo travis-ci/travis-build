@@ -4,6 +4,10 @@ $: << 'lib'
 require 'travis/build'
 
 config = {
+  urls: {
+    logs:  'http://localhost:3000/logs/1',
+    # state: 'http://requestb.in/12g6u3e1'
+  },
   repository: {
     source_url: 'http://github.com/travis-ci/travis-support.git',
     slug: 'travis-ci/travis-support'
