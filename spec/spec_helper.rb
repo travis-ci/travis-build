@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'travis/build'
+
 require 'support/matchers'
 require 'support/payloads'
 require 'shared/jdk'
@@ -46,9 +47,9 @@ RSpec.configure do |c|
     FileUtils.mkdir 'tmp'
   end
 
-  c.after :each do
-    puts subject if example.failed?
-  end
+  # c.after :each do
+  #   puts subject if example.failed?
+  # end
 end
 
 class RSpec::Core::Example

@@ -3,7 +3,7 @@
 $: << 'lib'
 require 'travis/build'
 
-config = {
+data = {
   urls: {
     logs:  'http://localhost:3000/jobs/1/logs',
     # state:  'http://localhost:3000/jobs/1/state', # not sure about this ...
@@ -35,7 +35,7 @@ config = {
   }
 }
 
-script = Travis::Build.script(config)
+script = Travis::Build.script(data)
 script = script.compile
 puts script
 

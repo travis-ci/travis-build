@@ -1,6 +1,8 @@
 source :rubygems
 
-gem 'travis-support', :git => 'git://github.com/travis-ci/travis-support.git'
+gem 'travis-core',     github: 'travis-ci/travis-core'
+gem 'travis-support',  github: 'travis-ci/travis-support'
+gem 'travis-sidekiqs', github: 'travis-ci/travis-sidekiqs' # siggggghhhhh ......
 
 group :test do
   gem 'mocha',       '~> 0.10.0'
