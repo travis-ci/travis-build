@@ -8,12 +8,12 @@ module Travis
 
         def export
           super
-          set 'TRAVIS_PERL_VERSION', config[:perl]
+          set 'TRAVIS_PERL_VERSION', data[:perl]
         end
 
         def setup
           super
-          cmd "perlbrew use #{config[:perl]}"
+          cmd "perlbrew use #{data[:perl]}"
         end
 
         def announce

@@ -1,5 +1,5 @@
 def timeout_for(stage)
-  Travis::Build::Config::DEFAULTS[:timeouts][stage]
+  Travis::Build::Data::DEFAULTS[:timeouts][stage]
 end
 
 def runs?(lines, cmd)

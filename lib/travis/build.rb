@@ -2,10 +2,9 @@ require 'core_ext/hash/deep_symbolize_keys'
 
 module Travis
   module Build
-    autoload :Buffer, 'travis/build/buffer'
-    autoload :Config, 'travis/build/config'
-    autoload :Script, 'travis/build/script'
-    autoload :Shell,  'travis/build/shell'
+    autoload :Data,     'travis/build/data'
+    autoload :Script,   'travis/build/script'
+    autoload :Shell,    'travis/build/shell'
 
     HOME_DIR  = '~'
     BUILD_DIR = '~/builds'
@@ -16,11 +15,11 @@ module Travis
     }
 
     class << self
-      def script(config)
-        config = config.deep_symbolize_keys
-        lang   = (Array(config[:language]).first || 'ruby').downcase.strip
-        const  = by_lang(lang)
-        const.new(config)
+      def script(data)
+        data  = data.deep_symbolize_keys
+        lang  = (Array(data[:language]).first || 'ruby').downcase.strip
+        const = by_lang(lang)
+        const.new(data)
       end
 
       def by_lang(lang)

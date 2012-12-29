@@ -1,13 +1,13 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Python do
-  let(:config) { PAYLOADS[:push].deep_clone }
+  let(:data) { PAYLOADS[:push].deep_clone }
 
-  subject { described_class.new(config).compile }
+  subject { described_class.new(data).compile }
 
   describe 'given a script' do
     before :each do
-      config['config']['script'] = 'script'
+      data['config']['script'] = 'script'
     end
 
     it_behaves_like 'a build script'
@@ -18,7 +18,7 @@ describe Travis::Build::Script::Python do
   end
 
   it 'sets up the python version (pypy)' do
-    config['config']['python'] = 'pypy'
+    data['config']['python'] = 'pypy'
     should run 'echo $ source ~/virtualenv/pypy/bin/activate' # TODO can't really capture source, yet
   end
 

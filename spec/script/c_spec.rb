@@ -1,9 +1,9 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::C do
-  let(:config) { PAYLOADS[:push].deep_clone }
+  let(:data) { PAYLOADS[:push].deep_clone }
 
-  subject { described_class.new(config).compile }
+  subject { described_class.new(data).compile }
 
   before :each do
     executable 'configure'

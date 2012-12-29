@@ -11,7 +11,7 @@ module Travis
 
         def export
           super
-          set 'TRAVIS_RUBY_VERSION', config[:rvm]
+          set 'TRAVIS_RUBY_VERSION', data[:rvm]
           export_jdk if needs_jdk?
         end
 
@@ -29,7 +29,7 @@ module Travis
         end
 
         def install
-          gemfile? then: "bundle install #{config[:bundler_args]}"
+          gemfile? then: "bundle install #{data[:bundler_args]}"
         end
 
         def script
@@ -39,21 +39,21 @@ module Travis
         private
 
           def setup_ruby
-            cmd "rvm use #{config[:rvm]}"
+            cmd "rvm use #{data[:rvm]}"
           end
 
           def setup_bundler
             gemfile? do |sh|
-              set 'BUNDLE_GEMFILE', "$pwd/#{config[:gemfile]}"
+              set 'BUNDLE_GEMFILE', "$pwd/#{data[:gemfile]}"
             end
           end
 
           def gemfile?(*args, &block)
-            sh_if "-f #{config[:gemfile]}", *args, &block
+            sh_if "-f #{data[:gemfile]}", *args, &block
           end
 
           def needs_jdk?
-            config[:rvm] =~ /jruby/i and !!config[:jdk]
+            data[:rvm] =~ /jruby/i and !!data[:jdk]
           end
       end
     end
