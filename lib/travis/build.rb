@@ -11,7 +11,7 @@ module Travis
     BUILD_DIR = '~/build'
 
     LOGS = {
-      build: '~/build.log',
+      logs:  '~/build.log',
       state: '~/state.log'
     }
 
