@@ -35,7 +35,7 @@ module Travis
       end
 
       def urls
-        config[:urls]
+        config[:urls] || {}
       end
 
       def timeout?(type)

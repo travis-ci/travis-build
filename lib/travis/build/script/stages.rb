@@ -45,7 +45,7 @@ module Travis
             sh.options.update(timeout: timeout_for(stage), assert: assert_stage?(stage))
             raw "travis_start '#{stage}'" if announce?(stage)
             yield
-            raw "travis_end '#{stage}'" if announce?(stage)
+            raw "travis_finish '#{stage}'" if announce?(stage)
           }
         end
 
