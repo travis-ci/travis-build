@@ -40,7 +40,7 @@ module Travis
 
       def initialize(data)
         @data = Data.new({ config: self.class::DEFAULTS }.deep_merge(data.deep_symbolize_keys))
-        @stack = [Shell::Script.new(log: true, echo: true, log_file: LOGS[:logs])]
+        @stack = [Shell::Script.new(log: true, echo: true, log_file: LOGS[:log])]
       end
 
       def compile

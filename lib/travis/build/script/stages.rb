@@ -27,12 +27,7 @@ module Travis
         def run_builtin_stage(stage)
           stage(stage) do
             send(stage)
-            set_result if stage == :script
           end
-        end
-
-        def set_result
-          set 'TRAVIS_TEST_RESULT', '$?', echo: false
         end
 
         def after_result
@@ -43,9 +38,10 @@ module Travis
         def stage(stage = nil)
           sh.script &stacking {
             sh.options.update(timeout: timeout_for(stage), assert: assert_stage?(stage))
-            raw "travis_start '#{stage}'" if announce?(stage)
+            raw "travis_start #{stage}" if announce?(stage)
             yield
-            raw "travis_finish '#{stage}'" if announce?(stage)
+            raw 'TRAVIS_TEST_RESULT=$?' if stage == :script
+            raw "travis_finish #{stage} #{stage == :script ? '$TRAVIS_TEST_RESULT' : '$?'}" if announce?(stage)
           }
         end
 
