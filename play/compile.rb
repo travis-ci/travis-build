@@ -5,7 +5,7 @@ require 'travis/build'
 
 data = {
   urls: {
-    logs:  'http://localhost:3000/jobs/1/logs',
+    log:   'http://localhost:3000/jobs/1/log',
     state: 'http://localhost:3000/jobs/1/state', # not sure about this ...
   },
   repository: {

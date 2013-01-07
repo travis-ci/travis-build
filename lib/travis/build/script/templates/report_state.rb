@@ -11,7 +11,6 @@ file = File.open(source, 'r+')
 last_state, last_stage = nil, nil
 
 post = ->(data) do
-  p data
   Net::HTTP.post_form(target, data)
 end
 

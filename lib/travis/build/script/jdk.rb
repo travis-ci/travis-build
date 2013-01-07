@@ -10,6 +10,8 @@ module Travis
           cmd "jdk_switcher use #{data[:jdk]}", assert: true if data[:jdk]
         end
 
+        # TODO should be announce_java so we don't announce in the ruby builder unless required
+        # maybe have a use_jdk? which can be overwritten in ruby
         def announce
           super
           cmd "java -version"
