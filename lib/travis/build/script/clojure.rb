@@ -9,16 +9,6 @@ module Travis
           jdk:  'default'
         }
 
-        def export
-          super
-          export_jdk
-        end
-
-        def setup
-          super
-          setup_jdk
-        end
-
         def announce
           super
           cmd "#{data[:lein]} version"
