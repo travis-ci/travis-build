@@ -28,25 +28,34 @@ describe Travis::Build::Script::Erlang do
     end
   end
 
-  shared_examples_for 'uses rebar' do
-    it 'installs rebar get-deps' do
-      should run 'rebar get-deps', echo: true, log: true, assert: true, timeout: timeout_for(:install)
+  shared_examples_for 'runs rebar' do |path|
+    it "installs #{path}rebar get-deps" do
+      should run "#{path}rebar get-deps", echo: true, log: true, assert: true, timeout: timeout_for(:install)
     end
 
-    it 'runs rebar compile && rebar skip_deps=true eunit' do
-      should run 'echo $ rebar compile && rebar skip_deps=true eunit'
-      should run 'rebar compile'
-      should run 'rebar skip_deps=true eunit', log: true, timeout: timeout_for(:script)
+    it "runs #{path}rebar compile && #{path}rebar skip_deps=true eunit" do
+      should run "echo $ #{path}rebar compile && #{path}rebar skip_deps=true eunit"
+      should run "#{path}rebar compile"
+      should run "#{path}rebar skip_deps=true eunit", log: true, timeout: timeout_for(:script)
     end
   end
 
   describe 'if rebar.config exists' do
     before(:each) { file('rebar.config') }
-    it_behaves_like 'uses rebar'
+    it_behaves_like 'runs rebar'
   end
 
   describe 'if Rebar.config exists' do
     before(:each) { file('Rebar.config') }
-    it_behaves_like 'uses rebar'
+    it_behaves_like 'runs rebar'
+  end
+
+  describe 'if ./rebar exists' do
+    before(:each) do
+      file       'rebar.config'
+      executable './rebar'
+    end
+
+    it_behaves_like 'runs rebar', './'
   end
 end

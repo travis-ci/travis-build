@@ -17,24 +17,28 @@ module Travis
         end
 
         def install
-          # TODO this should use a local ./rebar if exists or rebar otherwise
-          # can we just link ./rebar to rebar if it doesn't exist or something?
-          uses_rebar? 'rebar get-deps'
+          sh_if   "#{rebar_configured} && -f ./rebar", install_rebar('./')
+          sh_elif rebar_configured, install_rebar
         end
 
         def script
-          # TODO this should use a local ./rebar if exists or rebar otherwise
-          # can we just link ./rebar to rebar if it doesn't exist or something?
-          uses_rebar?(
-            then: 'rebar compile && rebar skip_deps=true eunit',
-            else: 'make test'
-          )
+          sh_if   "#{rebar_configured} && -f ./rebar", run_rebar('./')
+          sh_elif rebar_configured, run_rebar
+          sh_else 'make test'
         end
 
         private
 
-          def uses_rebar?(*args)
-            sh_if '-f rebar.config || -f Rebar.config', *args
+          def rebar_configured
+            '(-f rebar.config || -f Rebar.config)'
+          end
+
+          def install_rebar(path = nil)
+            "#{path}rebar get-deps"
+          end
+
+          def run_rebar(path = nil)
+            "#{path}rebar compile && #{path}rebar skip_deps=true eunit"
           end
       end
     end
