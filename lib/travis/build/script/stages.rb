@@ -20,7 +20,6 @@ module Travis
             Array(data[stage]).each do |command|
               cmd command
             end
-            set_result if stage == :script
           end
         end
 
