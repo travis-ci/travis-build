@@ -40,7 +40,8 @@ module Travis
           end
 
           def echoize(code)
-            "echo #{Shellwords.escape("$ #{@code}")} >> #{options[:log_file]} 2>&1\n#{code}"
+            # "echo #{Shellwords.escape("$ #{@code}")} >> #{options[:log_file]} 2>&1\n#{code}"
+            "echo #{Shellwords.escape("$ #{@code}")}\n#{code}"
           end
         end
       end

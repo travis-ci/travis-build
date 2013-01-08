@@ -40,11 +40,11 @@ module Travis
 
       def initialize(data)
         @data = Data.new({ config: self.class::DEFAULTS }.deep_merge(data.deep_symbolize_keys))
-        @stack = [Shell::Script.new(log: true, echo: true, log_file: LOGS[:log])]
+        @stack = [Shell::Script.new(echo: true)]
       end
 
       def compile
-        raw template 'report.sh'
+        # raw template 'report.sh'
         raw template 'header.sh'
         run_stages
         raw template 'footer.sh'
