@@ -10,11 +10,6 @@ module Travis
     HOME_DIR  = '~'
     BUILD_DIR = '~/build'
 
-    LOGS = {
-      log:   '~/build.log',
-      state: '~/state.log'
-    }
-
     class << self
       def self.register(key)
         Travis.services.add(key, self)

@@ -1,3 +1,4 @@
-echo "\n\nDone. Build script exited with $TRAVIS_TEST_RESULT" >> <%= LOGS[:log] %>
+echo
+echo "Done. Build script exited with $TRAVIS_TEST_RESULT"
 
 travis_terminate $TRAVIS_TEST_RESULT
