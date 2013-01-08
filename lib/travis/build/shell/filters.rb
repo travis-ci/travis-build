@@ -6,7 +6,7 @@ module Travis
       module Filters
         module Logging
           def code
-            options[:log] ? log(super) : super
+            options[:log] && options[:log_file] ? log(super) : super
           end
 
           def log(code)
