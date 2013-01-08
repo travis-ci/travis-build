@@ -2,21 +2,33 @@ module Travis
   module Build
     class Script
       module Jdk
-        def export_jdk
-          set 'TRAVIS_JDK_VERSION', data[:jdk] if data[:jdk]
+        def export
+          super
+          set 'TRAVIS_JDK_VERSION', data[:jdk] if uses_jdk?
         end
 
-        def setup_jdk
-          cmd "jdk_switcher use #{data[:jdk]}", assert: true if data[:jdk]
+        def setup
+          super
+          cmd "jdk_switcher use #{data[:jdk]}", assert: true if uses_jdk?
         end
 
-        # TODO should be announce_java so we don't announce in the ruby builder unless required
-        # maybe have a use_jdk? which can be overwritten in ruby
         def announce
           super
-          cmd "java -version"
-          cmd "javac -version"
+          if uses_java?
+            cmd "java -version"
+            cmd "javac -version"
+          end
         end
+
+        private
+
+          def uses_java?
+            true
+          end
+
+          def uses_jdk?
+            !!data[:jdk]
+          end
       end
     end
   end

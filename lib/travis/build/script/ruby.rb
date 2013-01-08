@@ -12,12 +12,10 @@ module Travis
         def export
           super
           set 'TRAVIS_RUBY_VERSION', data[:rvm]
-          export_jdk if needs_jdk?
         end
 
         def setup
           super
-          setup_jdk if needs_jdk?
           setup_ruby
           setup_bundler
         end
@@ -52,8 +50,8 @@ module Travis
             sh_if "-f #{data[:gemfile]}", *args, &block
           end
 
-          def needs_jdk?
-            data[:rvm] =~ /jruby/i and !!data[:jdk]
+          def uses_java?
+            data[:rvm] =~ /jruby/i
           end
       end
     end

@@ -21,9 +21,9 @@ describe Travis::Build::Script::Ruby do
     should setup 'rvm use rbx'
   end
 
-  xit 'sets BUNDLE_GEMFILE if the gemfile exists' do
+  it 'sets BUNDLE_GEMFILE if the gemfile exists' do
     gemfile 'Gemfile.ci'
-    should set 'BUNDLE_GEMFILE', 'Gemfile.ci'
+    should set 'BUNDLE_GEMFILE', '$pwd/Gemfile.ci'
   end
 
   it 'announces ruby --version' do
@@ -51,5 +51,15 @@ describe Travis::Build::Script::Ruby do
     end
 
     it_behaves_like 'a jdk build'
+  end
+
+  describe 'not using jruby' do
+    it 'does not announce java' do
+      should_not announce 'java'
+    end
+
+    it 'does not announce javac' do
+      should_not announce 'javac'
+    end
   end
 end

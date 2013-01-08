@@ -14,11 +14,6 @@ module Travis
           set 'TRAVIS_SCALA_VERSION', data[:scala]
         end
 
-        def setup
-          super
-          setup_jdk
-        end
-
         def announce
           echo "Using Scala #{data[:scala]}"
         end
