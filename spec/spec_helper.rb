@@ -16,7 +16,7 @@ class Hash
 end
 
 Travis::Build::Script::TEMPLATES_PATH.replace 'spec/templates'
-Travis::Build::LOGS.replace(logs: 'build.log', state: 'state.log')
+Travis::Build::LOGS.replace(build: 'build.log', state: 'state.log')
 Travis::Build::HOME_DIR.replace('.')
 
 module SpecHelpers

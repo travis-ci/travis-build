@@ -1,9 +1,10 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::PureJava do
-  let(:data) { PAYLOADS[:push].deep_clone }
+  let(:options) { { logs: { build: true, state: true } } }
+  let(:data)    { PAYLOADS[:push].deep_clone }
 
-  subject { described_class.new(data).compile }
+  subject { described_class.new(data, options).compile }
 
   it_behaves_like 'a build script'
   it_behaves_like 'a jvm build'

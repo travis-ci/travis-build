@@ -1,15 +1,15 @@
 travis_start() {
-  echo "[travis:$1:start]" <%= ">> #{LOGS[:state]}" if LOGS[:state] %>
+  echo "[travis:$1:start]" <%= ">> #{logs[:state]}" if logs[:state] %>
 }
 
 travis_finish() {
-  echo "[travis:$1:finish:result=$2]" <%= ">> #{LOGS[:state]}" if LOGS[:state] %>
+  echo "[travis:$1:finish:result=$2]" <%= ">> #{logs[:state]}" if logs[:state] %>
   sleep 1
 }
 
 travis_assert() {
   if [ $? != 0 ]; then
-    echo "Command did not exit with 0. Exiting." <%= ">> #{LOGS[:log]}" if LOGS[:log] %>
+    echo "Command did not exit with 0. Exiting." <%= ">> #{logs[:log]}" if logs[:log] %>
     travis_terminate 1
   fi
 }
@@ -19,7 +19,7 @@ travis_timeout() {
   local start=$(date +%s)
   while ps aux | awk '{print $2 }' | grep -q $pid 2> /dev/null; do
     if [ $(expr $(date +%s) - $start) -gt $1 ]; then
-      echo "Command timed out after $1 seconds. Exiting." <%= ">> #{LOGS[:log]}" if LOGS[:log] %>
+      echo "Command timed out after $1 seconds. Exiting." <%= ">> #{logs[:log]}" if logs[:log] %>
       travis_terminate 1
     fi
   done

@@ -11,7 +11,7 @@ module Travis
     BUILD_DIR = '~/build'
 
     LOGS = {
-      # log:   '~/build.log',
+      build: '~/build.log',
       state: '~/state.log'
     }
 
@@ -20,11 +20,11 @@ module Travis
         Travis.services.add(key, self)
       end
 
-      def script(data)
+      def script(data, options = {})
         data  = data.deep_symbolize_keys
-        lang  = (Array(data[:language]).first || 'ruby').downcase.strip
+        lang  = (Array(data[:config][:language]).first || 'ruby').downcase.strip
         const = by_lang(lang)
-        const.new(data)
+        const.new(data, options)
       end
 
       def by_lang(lang)

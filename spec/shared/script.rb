@@ -1,6 +1,6 @@
 shared_examples_for 'a build script' do
   it 'clones the git repo' do
-    cmd = 'git clone --depth=100 --quiet git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci'
+    cmd = 'git clone --depth=100 --quiet git://github.com/travis-ci/travis-ci.git .'
     timeout = Travis::Build::Data::DEFAULTS[:timeouts][:git_clone]
     should run cmd, echo: true, log: true, assert: true, timeout: timeout
   end
@@ -22,10 +22,6 @@ shared_examples_for 'a build script' do
 
   it 'removes the ssh key' do
     should run %r(rm -f .*\.ssh/source_rsa)
-  end
-
-  it 'changes to the repo dir' do
-    should run 'cd travis-ci/travis-ci', echo: true
   end
 
   it 'sets the given :env var' do

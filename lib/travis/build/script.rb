@@ -36,15 +36,15 @@ module Travis
 
       include Git, Helpers, Services, Stages
 
-      attr_reader :stack, :data
+      attr_reader :stack, :data, :options
 
-      def initialize(data)
+      def initialize(data, options)
         @data = Data.new({ config: self.class::DEFAULTS }.deep_merge(data.deep_symbolize_keys))
-        @stack = [Shell::Script.new(log: true, echo: true, log_file: LOGS[:log])]
+        @options = options
+        @stack = [Shell::Script.new(log: true, echo: true, log_file: logs[:build])]
       end
 
       def compile
-        # raw template 'report.sh'
         raw template 'header.sh'
         run_stages
         raw template 'footer.sh'
@@ -52,10 +52,6 @@ module Travis
       end
 
       private
-
-        def template(filename)
-          ERB.new(File.read(File.expand_path(filename, TEMPLATES_PATH))).result(binding)
-        end
 
         def export
           data.env.each do |key, value|
@@ -69,6 +65,17 @@ module Travis
 
         def announce
           # overwrite
+        end
+
+        def template(filename)
+          ERB.new(File.read(File.expand_path(filename, TEMPLATES_PATH))).result(binding)
+        end
+
+        def logs
+          @logs ||= LOGS.inject({}) do |logs, (type, log)|
+            logs[type] = log if options[:logs][type] rescue nil
+            logs
+          end
         end
     end
   end
