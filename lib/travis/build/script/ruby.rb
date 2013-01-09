@@ -53,6 +53,10 @@ module Travis
           def uses_java?
             data[:rvm] =~ /jruby/i
           end
+
+          def uses_jdk?
+            uses_java? && super
+          end
       end
     end
   end
