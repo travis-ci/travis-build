@@ -37,6 +37,7 @@ module Travis
         private
 
           def setup_ruby
+            cmd "typeset -f rvm >/dev/null 2>&1 || source $(dirname $(dirname $(which rvm)))/scripts/rvm", echo: false
             cmd "rvm use #{data[:rvm]}"
           end
 
