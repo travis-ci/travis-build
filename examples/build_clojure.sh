@@ -49,8 +49,8 @@ TRAVIS_JOB_NUMBER=1.1
 TRAVIS_BRANCH=master
 TRAVIS_COMMIT=313f61b
 TRAVIS_COMMIT_RANGE=313f61b..313f61a
-echo \$\ CC\=gcc
-CC=gcc
+echo \$\ TRAVIS_JDK_VERSION\=default
+TRAVIS_JDK_VERSION=default
 travis_finish export $?
 
 travis_start checkout
@@ -75,11 +75,18 @@ fi
 travis_finish checkout $?
 
 travis_start setup
+echo \$\ jdk_switcher\ use\ default
+(jdk_switcher use default) >> ~/build.log 2>&1
+travis_assert
 travis_finish setup $?
 
 travis_start announce
-echo \$\ gcc\ --version
-(gcc --version) >> ~/build.log 2>&1
+echo \$\ java\ -version
+(java -version) >> ~/build.log 2>&1
+echo \$\ javac\ -version
+(javac -version) >> ~/build.log 2>&1
+echo \$\ lein\ version
+(lein version) >> ~/build.log 2>&1
 travis_finish announce $?
 
 travis_start before_install
@@ -93,6 +100,13 @@ travis_timeout 300
 travis_assert
 travis_finish before_install $?
 
+travis_start install
+echo \$\ lein\ deps
+((lein deps) >> ~/build.log 2>&1) &
+travis_timeout 600
+travis_assert
+travis_finish install $?
+
 travis_start before_script
 echo \$\ ./before_script_1.sh
 ((./before_script_1.sh) >> ~/build.log 2>&1) &
@@ -105,8 +119,8 @@ travis_assert
 travis_finish before_script $?
 
 travis_start script
-echo \$\ ./configure\ \&\&\ make\ \&\&\ make\ test
-((./configure && make && make test) >> ~/build.log 2>&1) &
+echo \$\ lein\ test
+((lein test) >> ~/build.log 2>&1) &
 travis_timeout 1500
 TRAVIS_TEST_RESULT=$?
 travis_finish script $TRAVIS_TEST_RESULT

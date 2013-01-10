@@ -56,14 +56,9 @@ shared_examples_for 'a build script' do
     should set 'FOO', 'foo'
   end
 
-  it 'does not echo secure env vars' do
+  it 'echoes obfuscated secure env vars' do
     data['config']['env'] = 'SECURE FOO=foo'
     should echo 'FOO=[secure]'
-  end
-  
-  it 'sets the given :env var' do
-    data['config']['env'] = 'FOO=bar BAR=baz'
-    should include('FOO=bar BAR=baz')
   end
 
   # TODO after_failure won't be called because the build script never returns 1

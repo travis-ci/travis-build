@@ -24,12 +24,12 @@ describe Travis::Build::Script::Cpp do
 
   it 'sets CXX to clang if clang given as compiler' do
     data['config']['compiler'] = 'clang'
-    should set 'CXX', 'clang'
+    should set 'CXX', 'clang++'
   end
 
   it 'sets CXX to clang if clang++ given as compiler' do
     data['config']['compiler'] = 'clang++'
-    should set 'CXX', 'clang'
+    should set 'CXX', 'clang++'
   end
 
   it 'sets CXX to g++ by default' do

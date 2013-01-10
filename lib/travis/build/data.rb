@@ -6,6 +6,9 @@ require 'core_ext/hash/deep_symbolize_keys'
 module Travis
   module Build
     class Data
+      autoload :Env, 'travis/build/data/env'
+      autoload :Var, 'travis/build/data/var'
+
       DEFAULTS = {
         timeouts: {
           git_clone:      300,
@@ -46,8 +49,8 @@ module Travis
         data[:config]
       end
 
-      def env
-        @env ||= travis_env.merge(split_env(config[:env]))
+      def env_vars
+        @env_vars ||= Env.new(self).vars
       end
 
       def pull_request?
@@ -70,43 +73,17 @@ module Travis
         job[:ref]
       end
 
-      private
+      def job
+        data[:job] || {}
+      end
 
-        def travis_env
-          {
-            TRAVIS_PULL_REQUEST:    pull_request?,
-            TRAVIS_SECURE_ENV_VARS: secure_env_vars?,
-            TRAVIS_BUILD_ID:        build[:id],
-            TRAVIS_BUILD_NUMBER:    build[:number],
-            TRAVIS_JOB_ID:          job[:id],
-            TRAVIS_JOB_NUMBER:      job[:number],
-            TRAVIS_BRANCH:          job[:branch],
-            TRAVIS_COMMIT:          job[:commit],
-            TRAVIS_COMMIT_RANGE:    job[:commit_range]
-          }
-        end
+      def build
+        data[:source] || data[:build] || {} # TODO standarize the payload on :build
+      end
 
-        def split_env(env)
-          env = Array(env).compact.reject(&:empty?)
-          Hash[*env.map { |line| line.split('=') }.flatten]
-        end
-
-        # TODO is this correct at all??
-        def secure_env_vars?
-          !pull_request? && Array(config[:env]).any? { |line| line.to_s =~ /^SECURE / }
-        end
-
-        def job
-          data[:job] || {}
-        end
-
-        def build
-          data[:source] || data[:build] || {} # TODO standarize the payload on :build
-        end
-
-        def repository
-          data[:repository] || {}
-        end
+      def repository
+        data[:repository] || {}
+      end
     end
   end
 end

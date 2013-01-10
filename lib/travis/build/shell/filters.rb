@@ -36,12 +36,12 @@ module Travis
 
         module Echoize
           def code
-            options[:echo] ? echoize(super) : super
+            echo = options[:echo]
+            echo ? echoize(super, echo.is_a?(String) ? echo : nil) : super
           end
 
-          def echoize(code)
-            # "echo #{Shellwords.escape("$ #{@code}")} >> #{options[:log_file]} 2>&1\n#{code}"
-            "echo #{Shellwords.escape("$ #{@code}")}\n#{code}"
+          def echoize(code, echo = nil)
+            "echo #{Shellwords.escape("$ #{echo || @code}")}\n#{code}"
           end
         end
       end
