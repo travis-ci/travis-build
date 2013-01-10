@@ -53,8 +53,8 @@ echo \$\ FOO\=foo
 FOO=foo
 echo \$\ BAR\=\[secure\]
 BAR=bar
-echo \$\ TRAVIS_JDK_VERSION\=default
-TRAVIS_JDK_VERSION=default
+echo \$\ TRAVIS_RUBY_VERSION\=default
+TRAVIS_RUBY_VERSION=default
 travis_finish export $?
 
 travis_start checkout
@@ -79,18 +79,29 @@ fi
 travis_finish checkout $?
 
 travis_start setup
-echo \$\ jdk_switcher\ use\ default
-(jdk_switcher use default) >> ~/build.log 2>&1
+(echo Updating\ RVM,\ this\ should\ just\ take\ a\ sec) >> ~/build.log 2>&1
 travis_assert
+(echo \$\ rvm\ get\ head) >> ~/build.log 2>&1
+travis_assert
+rvm get head >/dev/null 2>&1
+travis_assert
+(typeset -f rvm >/dev/null 2>&1 || source $(dirname $(dirname $(which rvm)))/scripts/rvm) >> ~/build.log 2>&1
+travis_assert
+echo \$\ rvm\ use\ default\ --install\ --binary
+(rvm use default --install --binary) >> ~/build.log 2>&1
+travis_assert
+if [[ -f Gemfile ]]; then
+  echo \$\ BUNDLE_GEMFILE\=\$pwd/Gemfile
+  BUNDLE_GEMFILE=$pwd/Gemfile
+  travis_assert
+fi
 travis_finish setup $?
 
 travis_start announce
-echo \$\ java\ -version
-(java -version) >> ~/build.log 2>&1
-echo \$\ javac\ -version
-(javac -version) >> ~/build.log 2>&1
-echo \$\ lein\ version
-(lein version) >> ~/build.log 2>&1
+echo \$\ ruby\ --version
+(ruby --version) >> ~/build.log 2>&1
+echo \$\ gem\ --version
+(gem --version) >> ~/build.log 2>&1
 travis_finish announce $?
 
 travis_start before_install
@@ -105,10 +116,12 @@ travis_assert
 travis_finish before_install $?
 
 travis_start install
-echo \$\ lein\ deps
-((lein deps) >> ~/build.log 2>&1) &
-travis_timeout 600
-travis_assert
+if [[ -f Gemfile ]]; then
+  echo \$\ bundle\ install\ 
+  ((bundle install ) >> ~/build.log 2>&1) &
+  travis_timeout 600
+  travis_assert
+fi
 travis_finish install $?
 
 travis_start before_script
@@ -123,9 +136,15 @@ travis_assert
 travis_finish before_script $?
 
 travis_start script
-echo \$\ lein\ test
-((lein test) >> ~/build.log 2>&1) &
-travis_timeout 1500
+if [[ -f Gemfile ]]; then
+  echo \$\ bundle\ exec\ rake
+  ((bundle exec rake) >> ~/build.log 2>&1) &
+  travis_timeout 1500
+else
+  echo \$\ rake
+  ((rake) >> ~/build.log 2>&1) &
+  travis_timeout 1500
+fi
 TRAVIS_TEST_RESULT=$?
 travis_finish script $TRAVIS_TEST_RESULT
 

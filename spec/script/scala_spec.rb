@@ -6,6 +6,10 @@ describe Travis::Build::Script::Scala do
 
   subject { described_class.new(data, options).compile }
 
+  after :all do
+    store_example
+  end
+
   it_behaves_like 'a build script'
   # it_behaves_like 'a jdk build'
 

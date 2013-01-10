@@ -10,6 +10,10 @@ describe Travis::Build::Script::Cpp do
     executable 'configure'
   end
 
+  after :all do
+    store_example
+  end
+
   it_behaves_like 'a build script'
 
   it 'sets CXX to g++ if gcc given as compiler' do

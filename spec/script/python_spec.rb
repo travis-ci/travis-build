@@ -6,6 +6,10 @@ describe Travis::Build::Script::Python do
 
   subject { described_class.new(data, options).compile }
 
+  after :all do
+    store_example
+  end
+
   describe 'given a script' do
     before :each do
       data['config']['script'] = 'script'

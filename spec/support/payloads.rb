@@ -2,6 +2,7 @@ PAYLOADS = {
   :push => {
     'type' => 'test',
     'config' => {
+      'env' => ['FOO=foo', 'SECURE BAR=bar'],
       'before_install' => ['./before_install_1.sh', './before_install_2.sh'],
       'before_script'  => ['./before_script_1.sh', './before_script_2.sh'],
       'after_script'   => ['./after_script_1.sh', './after_script_2.sh'],

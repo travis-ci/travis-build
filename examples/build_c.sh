@@ -41,7 +41,7 @@ trap 'travis_finish build 1' TERM
 travis_start build
 travis_start export
 TRAVIS_PULL_REQUEST=false
-TRAVIS_SECURE_ENV_VARS=false
+TRAVIS_SECURE_ENV_VARS=true
 TRAVIS_BUILD_ID=1
 TRAVIS_BUILD_NUMBER=1
 TRAVIS_JOB_ID=1
@@ -49,6 +49,10 @@ TRAVIS_JOB_NUMBER=1.1
 TRAVIS_BRANCH=master
 TRAVIS_COMMIT=313f61b
 TRAVIS_COMMIT_RANGE=313f61b..313f61a
+echo \$\ FOO\=foo
+FOO=foo
+echo \$\ BAR\=\[secure\]
+BAR=bar
 echo \$\ CC\=gcc
 CC=gcc
 travis_finish export $?

@@ -6,6 +6,10 @@ describe Travis::Build::Script::NodeJs do
 
   subject { described_class.new(data, options).compile }
 
+  after :all do
+    store_example
+  end
+
   it_behaves_like 'a build script'
 
   it 'sets TRAVIS_NODE_VERSION' do
