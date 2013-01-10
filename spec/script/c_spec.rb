@@ -10,6 +10,10 @@ describe Travis::Build::Script::C do
     executable 'configure'
   end
 
+  after :all do
+    store_example
+  end
+
   it_behaves_like 'a build script'
 
   it 'sets CC' do
