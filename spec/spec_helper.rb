@@ -51,9 +51,9 @@ module SpecHelpers
     data['config']['gemfile'] = name
   end
 
-  def store_example
+  def store_example(name = nil)
     restore_consts
-    name = described_class.name.split('::').last.gsub(/([A-Z]+)/,'_\1').gsub(/^_/, '').downcase
+    name = [described_class.name.split('::').last.gsub(/([A-Z]+)/,'_\1').gsub(/^_/, '').downcase, name].compact.join('_').gsub(' ', '_')
     script = described_class.new(data, options).compile
     File.open("examples/build_#{name}.sh", 'w+') { |f| f.write(script) }
   end

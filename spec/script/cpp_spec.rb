@@ -16,54 +16,74 @@ describe Travis::Build::Script::Cpp do
 
   it_behaves_like 'a build script'
 
-  it 'sets CXX to g++ if gcc given as compiler' do
-    data['config']['compiler'] = 'gcc'
-    should set 'CXX', 'g++'
+  describe 'no compiler set' do
+    before :each do
+      data['config']['compiler'] = nil
+    end
+
+    it 'sets CXX to g++' do
+      should set 'CXX', 'g++'
+    end
+
+    it 'sets CC to gcc' do
+      should set 'CC', 'gcc'
+    end
   end
 
-  it 'sets CXX to g++ if g++ given as compiler' do
-    data['config']['compiler'] = 'g++'
-    should set 'CXX', 'g++'
+  describe 'gcc given as compiler' do
+    before :each do
+      data['config']['compiler'] = 'gcc'
+    end
+
+    it 'sets CXX to g++' do
+      should set 'CXX', 'g++'
+    end
+
+    it 'sets CC to gcc' do
+      should set 'CC', 'gcc'
+    end
   end
 
-  it 'sets CXX to clang if clang given as compiler' do
-    data['config']['compiler'] = 'clang'
-    should set 'CXX', 'clang++'
+  describe 'g++ given as compiler' do
+    before :each do
+      data['config']['compiler'] = 'g++'
+    end
+
+    it 'sets CXX to g++' do
+      should set 'CXX', 'g++'
+    end
+
+    it 'sets CC to gcc' do
+      should set 'CC', 'gcc'
+    end
   end
 
-  it 'sets CXX to clang if clang++ given as compiler' do
-    data['config']['compiler'] = 'clang++'
-    should set 'CXX', 'clang++'
+  describe 'clang given as compiler' do
+    before :each do
+      data['config']['compiler'] = 'clang'
+    end
+
+    it 'sets CXX to clang' do
+      should set 'CXX', 'clang++'
+    end
+
+    it 'sets CC to clang if clang given as compiler' do
+      should set 'CC', 'clang'
+    end
   end
 
-  it 'sets CXX to g++ by default' do
-    data['config']['compiler'] = 'compiler'
-    should set 'CXX', 'g++'
-  end
+  describe 'clang++ given as compiler' do
+    before :each do
+      data['config']['compiler'] = 'clang++'
+    end
 
-  it 'sets CC to gcc if gcc given as compiler' do
-    data['config']['compiler'] = 'gcc'
-    should set 'CC', 'gcc'
-  end
+    it 'sets CXX to clang' do
+      should set 'CXX', 'clang++'
+    end
 
-  it 'sets CC to gcc if g++ given as compiler' do
-    data['config']['compiler'] = 'g++'
-    should set 'CC', 'gcc'
-  end
-
-  it 'sets CC to clang if clang given as compiler' do
-    data['config']['compiler'] = 'clang'
-    should set 'CC', 'clang'
-  end
-
-  it 'sets CC to clang if clang++ given as compiler' do
-    data['config']['compiler'] = 'clang++'
-    should set 'CC', 'clang'
-  end
-
-  it 'sets CC to gcc by default' do
-    data['config']['compiler'] = 'compiler'
-    should set 'CC', 'gcc'
+    it 'sets CC to clang' do
+      should set 'CC', 'clang'
+    end
   end
 
   it 'runs gcc --version' do
