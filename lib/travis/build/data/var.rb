@@ -2,53 +2,61 @@ module Travis
   module Build
     class Data
       class Var
+        PATTERN = /((?:SECURE )?[\w]+)=(("|')(.+?)(\3)|[^"' ]+)/
+
         class << self
           def create(*args)
-            # TODO parse if we have a single line
-            new(args.last.nil? ? args.first : args.join('='))
+            if args.size == 1
+              parse(args.first).map { |key, value| Var.new(key, value) }
+            else
+              [Var.new(*args)]
+            end
+          end
+
+          def parse(line)
+            line.scan(PATTERN).map { |match| [match[0], match[3] || match[1]] }
           end
         end
 
-        attr_reader :src
-
-        def initialize(src)
-          @src = src
+        def initialize(key, value)
+          @key = key.to_s
+          @value = value.to_s
         end
 
         def key
-          strip_secure(src)
+          strip_secure(@key)
         end
 
         def value
-          nil
+          escape(@value)
         end
 
         def echoize
           if travis?
             false
           elsif secure?
-            strip_secure(hide_value(src))
+            [key, '[secure]'].join('=')
           else
-            src
+            [key, escape(@value)].join('=')
           end
         end
 
         def travis?
-          src =~ /^TRAVIS_/
+          @key =~ /^TRAVIS_/
         end
 
         def secure?
-          src =~ /^SECURE /
+          @key =~ /^SECURE /
         end
 
         private
 
-          def hide_value(string)
-            [string.split('=').first, '[secure]'].join('=')
-          end
-
           def strip_secure(string)
             string.gsub('SECURE ', '')
+          end
+
+          def escape(string)
+            string # TODO
           end
       end
     end

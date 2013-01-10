@@ -9,11 +9,11 @@ describe Travis::Build::Data::Env do
   end
 
   it 'includes travis env vars' do
-    env.vars.first.src.should =~ /^TRAVIS_/
+    env.vars.first.key.should =~ /^TRAVIS_/
   end
 
   it 'includes config env vars' do
-    env.vars.last.src.should =~ /^FOO=/
+    env.vars.last.key.should == 'FOO'
   end
 end
 
