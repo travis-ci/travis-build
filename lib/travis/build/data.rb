@@ -47,7 +47,7 @@ module Travis
       end
 
       def env
-        @env ||= travis_env.merge(split_env(config[:env]))
+        @env ||= travis_env + split_env(config[:env])
       end
 
       def pull_request?
@@ -83,12 +83,11 @@ module Travis
             TRAVIS_BRANCH:          job[:branch],
             TRAVIS_COMMIT:          job[:commit],
             TRAVIS_COMMIT_RANGE:    job[:commit_range]
-          }
+          }.map { |k,v| "#{k}=#{v}" }
         end
 
         def split_env(env)
-          env = Array(env).compact.reject(&:empty?)
-          Hash[*env.map { |line| line.split('=') }.flatten]
+          Array(env).compact.reject(&:empty?)
         end
 
         # TODO is this correct at all??

@@ -16,6 +16,7 @@ module Travis
 
         def setup
           super
+          update_rvm
           setup_ruby
           setup_bundler
         end
@@ -36,8 +37,16 @@ module Travis
 
         private
 
+          def update_rvm
+            echo "Updating RVM, this should just take a sec"
+            echo "$ rvm get head"
+            cmd "rvm get head >/dev/null 2>&1", echo: false, log: false
+          end
+
           def setup_ruby
-            cmd "rvm use #{config[:rvm]}"
+            ruby_version = config[:rvm].gsub(/-(1[89])mode$/, '-d\1')
+            cmd "typeset -f rvm >/dev/null 2>&1 || source $(dirname $(dirname $(which rvm)))/scripts/rvm", echo: false
+            cmd "rvm use #{ruby_version} --install --binary"
           end
 
           def setup_bundler

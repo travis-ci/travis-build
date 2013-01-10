@@ -60,6 +60,11 @@ shared_examples_for 'a build script' do
     data['config']['env'] = 'SECURE FOO=foo'
     should echo 'FOO=[secure]'
   end
+  
+  it 'sets the given :env var' do
+    data['config']['env'] = 'FOO=bar BAR=baz'
+    should include('FOO=bar BAR=baz')
+  end
 
   # TODO after_failure won't be called because the build script never returns 1
   %w(before_install install before_script script after_script after_success).each do |script|
