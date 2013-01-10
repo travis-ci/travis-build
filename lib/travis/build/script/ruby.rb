@@ -40,7 +40,7 @@ module Travis
           def update_rvm
             echo "Updating RVM, this should just take a sec"
             echo "$ rvm get head"
-            cmd "rvm get head > /dev/null", echo: false, log: false
+            cmd "rvm get head >/dev/null 2>&1", echo: false, log: false
           end
 
           def setup_ruby
