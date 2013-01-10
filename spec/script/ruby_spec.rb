@@ -54,6 +54,10 @@ describe Travis::Build::Script::Ruby do
       data['config']['jdk'] = 'openjdk7'
     end
 
+    after :each do
+      store_example 'jruby'
+    end
+
     it_behaves_like 'a jdk build'
   end
 
