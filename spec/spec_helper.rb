@@ -15,11 +15,26 @@ class Hash
   end
 end
 
-Travis::Build::Script::TEMPLATES_PATH.replace 'spec/templates'
-Travis::Build::LOGS.replace(build: 'build.log', state: 'state.log')
-Travis::Build::HOME_DIR.replace('.')
-
 module SpecHelpers
+  CONST = {}
+
+  def replace_consts
+    replace_const 'Travis::Build::Script::TEMPLATES_PATH', 'spec/templates'
+    replace_const 'Travis::Build::LOGS', { build: 'build.log', state: 'state.log' }
+    replace_const 'Travis::Build::HOME_DIR', '.'
+  end
+
+  def replace_const(const, value)
+    CONST[const] = eval(const).dup
+    eval "#{const}.replace(#{value.inspect})"
+  end
+
+  def restore_consts
+    CONST.each do |name, value|
+      eval "#{name}.replace(#{value.inspect})"
+    end
+  end
+
   def executable(name)
     file(name, "builtin echo #{name} $@ >> test.log; builtin echo output from #{name} $@;")
     FileUtils.chmod('+x', "tmp/#{name}")
@@ -35,6 +50,13 @@ module SpecHelpers
     file(name)
     data['config']['gemfile'] = name
   end
+
+  def store_example
+    restore_consts
+    name = described_class.name.split('::').last.gsub(/([A-Z]+)/,'_\1').gsub(/^_/, '').downcase
+    script = described_class.new(data, options).compile
+    File.open("examples/build_#{name}.sh", 'w+') { |f| f.write(script) }
+  end
 end
 
 RSpec.configure do |c|
@@ -47,9 +69,13 @@ RSpec.configure do |c|
     FileUtils.mkdir 'tmp'
   end
 
-  # c.after :each do
-  #   puts subject if example.failed?
-  # end
+  c.before :each do
+    replace_consts
+  end
+
+  c.after :each do
+    restore_consts
+  end
 end
 
 class RSpec::Core::Example

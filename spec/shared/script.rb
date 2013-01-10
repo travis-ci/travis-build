@@ -24,9 +24,41 @@ shared_examples_for 'a build script' do
     should run %r(rm -f .*\.ssh/source_rsa)
   end
 
-  it 'sets the given :env var' do
-    data['config']['env'] = 'ENV=foo'
-    should set 'ENV', 'foo'
+  it 'sets TRAVIS_* env vars' do
+    should set 'TRAVIS_PULL_REQUEST',    'false'
+    should set 'TRAVIS_SECURE_ENV_VARS', 'false'
+    should set 'TRAVIS_BUILD_ID',        '1'
+    should set 'TRAVIS_BUILD_NUMBER',    '1'
+    should set 'TRAVIS_JOB_ID',          '1'
+    should set 'TRAVIS_JOB_NUMBER',      '1.1'
+    should set 'TRAVIS_BRANCH',          'master'
+    should set 'TRAVIS_COMMIT',          '313f61b'
+    should set 'TRAVIS_COMMIT_RANGE',    '313f61b..313f61a'
+  end
+
+  it 'sets TRAVIS_PULL_REQUEST to true when running a pull_request' do
+    data['job']['pull_request'] = true
+    should set 'TRAVIS_PULL_REQUEST', 'true'
+  end
+
+  it 'sets TRAVIS_SECURE_ENV_VARS to true when using secure env vars' do
+    data['config']['env'] = 'SECURE FOO=foo'
+    should set 'TRAVIS_SECURE_ENV_VARS', 'true'
+  end
+
+  it 'sets a given :env var' do
+    data['config']['env'] = 'FOO=foo'
+    should set 'FOO', 'foo'
+  end
+
+  it 'sets a given secure :env var' do
+    data['config']['env'] = 'SECURE FOO=foo'
+    should set 'FOO', 'foo'
+  end
+
+  it 'does not echo secure env vars' do
+    data['config']['env'] = 'SECURE FOO=foo'
+    should echo 'FOO=[secure]'
   end
   
   it 'sets the given :env var' do
