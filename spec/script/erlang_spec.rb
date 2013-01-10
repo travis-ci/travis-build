@@ -6,6 +6,10 @@ describe Travis::Build::Script::Erlang do
 
   subject { described_class.new(data, options).compile }
 
+  after :all do
+    store_example
+  end
+
   it_behaves_like 'a build script'
 
   it 'sets TRAVIS_OTP_RELEASE' do

@@ -53,8 +53,8 @@ echo \$\ FOO\=foo
 FOO=foo
 echo \$\ BAR\=\[secure\]
 BAR=bar
-echo \$\ TRAVIS_JDK_VERSION\=default
-TRAVIS_JDK_VERSION=default
+echo \$\ TRAVIS_NODE_VERSION\=0.4
+TRAVIS_NODE_VERSION=0.4
 travis_finish export $?
 
 travis_start checkout
@@ -79,18 +79,16 @@ fi
 travis_finish checkout $?
 
 travis_start setup
-echo \$\ jdk_switcher\ use\ default
-(jdk_switcher use default) >> ~/build.log 2>&1
+echo \$\ nvm\ use\ 0.4
+(nvm use 0.4) >> ~/build.log 2>&1
 travis_assert
 travis_finish setup $?
 
 travis_start announce
-echo \$\ java\ -version
-(java -version) >> ~/build.log 2>&1
-echo \$\ javac\ -version
-(javac -version) >> ~/build.log 2>&1
-echo \$\ lein\ version
-(lein version) >> ~/build.log 2>&1
+echo \$\ node\ --version
+(node --version) >> ~/build.log 2>&1
+echo \$\ npm\ --version
+(npm --version) >> ~/build.log 2>&1
 travis_finish announce $?
 
 travis_start before_install
@@ -105,10 +103,12 @@ travis_assert
 travis_finish before_install $?
 
 travis_start install
-echo \$\ lein\ deps
-((lein deps) >> ~/build.log 2>&1) &
-travis_timeout 600
-travis_assert
+if [[ -f package.json ]]; then
+  echo \$\ npm\ install\ 
+  ((npm install ) >> ~/build.log 2>&1) &
+  travis_timeout 600
+  travis_assert
+fi
 travis_finish install $?
 
 travis_start before_script
@@ -123,9 +123,15 @@ travis_assert
 travis_finish before_script $?
 
 travis_start script
-echo \$\ lein\ test
-((lein test) >> ~/build.log 2>&1) &
-travis_timeout 1500
+if [[ -f package.json ]]; then
+  echo \$\ npm\ test
+  ((npm test) >> ~/build.log 2>&1) &
+  travis_timeout 1500
+else
+  echo \$\ make\ test
+  ((make test) >> ~/build.log 2>&1) &
+  travis_timeout 1500
+fi
 TRAVIS_TEST_RESULT=$?
 travis_finish script $TRAVIS_TEST_RESULT
 

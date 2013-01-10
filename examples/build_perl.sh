@@ -53,8 +53,8 @@ echo \$\ FOO\=foo
 FOO=foo
 echo \$\ BAR\=\[secure\]
 BAR=bar
-echo \$\ TRAVIS_JDK_VERSION\=default
-TRAVIS_JDK_VERSION=default
+echo \$\ TRAVIS_PERL_VERSION\=5.14
+TRAVIS_PERL_VERSION=5.14
 travis_finish export $?
 
 travis_start checkout
@@ -79,18 +79,16 @@ fi
 travis_finish checkout $?
 
 travis_start setup
-echo \$\ jdk_switcher\ use\ default
-(jdk_switcher use default) >> ~/build.log 2>&1
+echo \$\ perlbrew\ use\ 5.14
+(perlbrew use 5.14) >> ~/build.log 2>&1
 travis_assert
 travis_finish setup $?
 
 travis_start announce
-echo \$\ java\ -version
-(java -version) >> ~/build.log 2>&1
-echo \$\ javac\ -version
-(javac -version) >> ~/build.log 2>&1
-echo \$\ lein\ version
-(lein version) >> ~/build.log 2>&1
+echo \$\ perl\ --version
+(perl --version) >> ~/build.log 2>&1
+echo \$\ cpanm\ --version
+(cpanm --version) >> ~/build.log 2>&1
 travis_finish announce $?
 
 travis_start before_install
@@ -105,8 +103,8 @@ travis_assert
 travis_finish before_install $?
 
 travis_start install
-echo \$\ lein\ deps
-((lein deps) >> ~/build.log 2>&1) &
+echo \$\ cpanm\ --quiet\ --installdeps\ --notest\ .
+((cpanm --quiet --installdeps --notest .) >> ~/build.log 2>&1) &
 travis_timeout 600
 travis_assert
 travis_finish install $?
@@ -123,9 +121,19 @@ travis_assert
 travis_finish before_script $?
 
 travis_start script
-echo \$\ lein\ test
-((lein test) >> ~/build.log 2>&1) &
-travis_timeout 1500
+if [[ -f Build.PL ]]; then
+  echo \$\ perl\ Build.PL\ \&\&\ ./Build\ test
+  ((perl Build.PL && ./Build test) >> ~/build.log 2>&1) &
+  travis_timeout 1500
+elif [[ -f Makefile.PL ]]; then
+  echo \$\ perl\ Makefile.PL\ \&\&\ make\ test
+  ((perl Makefile.PL && make test) >> ~/build.log 2>&1) &
+  travis_timeout 1500
+else
+  echo \$\ make\ test
+  ((make test) >> ~/build.log 2>&1) &
+  travis_timeout 1500
+fi
 TRAVIS_TEST_RESULT=$?
 travis_finish script $TRAVIS_TEST_RESULT
 

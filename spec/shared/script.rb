@@ -25,6 +25,8 @@ shared_examples_for 'a build script' do
   end
 
   it 'sets TRAVIS_* env vars' do
+    data['config']['env'].delete_if { |var| var =~ /SECURE / }
+
     should set 'TRAVIS_PULL_REQUEST',    'false'
     should set 'TRAVIS_SECURE_ENV_VARS', 'false'
     should set 'TRAVIS_BUILD_ID',        '1'
