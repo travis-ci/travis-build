@@ -22,32 +22,32 @@ module Travis
         }
       }
 
-      attr_reader :config
+      attr_reader :data
 
-      def initialize(config, defaults = {})
-        config = config.deep_symbolize_keys
+      def initialize(data, defaults = {})
+        data = data.deep_symbolize_keys
         defaults = defaults.deep_symbolize_keys
-        @config = DEFAULTS.deep_merge(defaults.deep_merge(config))
-      end
-
-      def [](key)
-        config[:config][key]
+        @data = DEFAULTS.deep_merge(defaults.deep_merge(data))
       end
 
       def urls
-        config[:urls] || {}
+        data[:urls] || {}
       end
 
       def timeout?(type)
-        !!config[:timeouts][type]
+        !!data[:timeouts][type]
       end
 
       def timeout(type)
-        config[:timeouts][type] || raise("Unknown timeout: #{type}")
+        data[:timeouts][type] || raise("Unknown timeout: #{type}")
+      end
+
+      def config
+        data[:config]
       end
 
       def env
-        @env ||= travis_env.merge(split_env(config[:config][:env]))
+        @env ||= travis_env.merge(split_env(config[:env]))
       end
 
       def pull_request?
@@ -97,15 +97,15 @@ module Travis
         end
 
         def job
-          config[:job] || {}
+          data[:job] || {}
         end
 
         def build
-          config[:source] || config[:build] || {} # TODO standarize the payload on :build
+          data[:source] || data[:build] || {} # TODO standarize the payload on :build
         end
 
         def repository
-          config[:repository] || {}
+          data[:repository] || {}
         end
     end
   end

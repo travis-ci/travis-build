@@ -4,12 +4,12 @@ module Travis
       module Jdk
         def export
           super
-          set 'TRAVIS_JDK_VERSION', data[:jdk] if uses_jdk?
+          set 'TRAVIS_JDK_VERSION', config[:jdk] if uses_jdk?
         end
 
         def setup
           super
-          cmd "jdk_switcher use #{data[:jdk]}", assert: true if uses_jdk?
+          cmd "jdk_switcher use #{config[:jdk]}", assert: true if uses_jdk?
         end
 
         def announce
@@ -27,7 +27,7 @@ module Travis
           end
 
           def uses_jdk?
-            !!data[:jdk]
+            !!config[:jdk]
           end
       end
     end

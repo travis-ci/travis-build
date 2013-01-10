@@ -8,12 +8,12 @@ module Travis
 
         def export
           super
-          set 'TRAVIS_OTP_RELEASE', data[:otp_release]
+          set 'TRAVIS_OTP_RELEASE', config[:otp_release]
         end
 
         def setup
           super
-          cmd "source #{HOME_DIR}/otp/#{data[:otp_release]}/activate"
+          cmd "source #{HOME_DIR}/otp/#{config[:otp_release]}/activate"
         end
 
         def install

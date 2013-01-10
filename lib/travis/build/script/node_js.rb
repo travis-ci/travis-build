@@ -8,13 +8,13 @@ module Travis
 
         def export
           super
-          data[:node_js] ||= data[:nodejs] # some old projects use language: nodejs. MK.
-          set 'TRAVIS_NODE_VERSION', data[:node_js]
+          config[:node_js] ||= config[:nodejs] # some old projects use language: nodejs. MK.
+          set 'TRAVIS_NODE_VERSION', config[:node_js]
         end
 
         def setup
           super
-          cmd "nvm use #{data[:node_js]}"
+          cmd "nvm use #{config[:node_js]}"
         end
 
         def announce
@@ -24,7 +24,7 @@ module Travis
         end
 
         def install
-          uses_npm? "npm install #{data[:npm_args]}"
+          uses_npm? "npm install #{config[:npm_args]}"
         end
 
         def script
