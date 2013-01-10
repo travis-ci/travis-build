@@ -11,15 +11,15 @@ module Travis
 
         def announce
           super
-          cmd "#{data[:lein]} version"
+          cmd "#{config[:lein]} version"
         end
 
         def install
-          cmd "#{data[:lein]} deps"
+          cmd "#{config[:lein]} deps"
         end
 
         def script
-          cmd "#{data[:lein]} test"
+          cmd "#{config[:lein]} test"
         end
       end
     end

@@ -11,15 +11,15 @@ module Travis
 
         def export
           super
-          set 'TRAVIS_SCALA_VERSION', data[:scala]
+          set 'TRAVIS_SCALA_VERSION', config[:scala]
         end
 
         def announce
-          echo "Using Scala #{data[:scala]}"
+          echo "Using Scala #{config[:scala]}"
         end
 
         def script
-          sh_if   '-f project || -f build.sbt', "sbt ++#{data[:scala]} test"
+          sh_if   '-f project || -f build.sbt', "sbt ++#{config[:scala]} test"
           sh_else 'mvn test'
         end
       end

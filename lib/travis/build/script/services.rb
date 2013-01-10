@@ -18,7 +18,7 @@ module Travis
         end
 
         def services
-          @services ||= Array(data[:services]).map do |name|
+          @services ||= Array(config[:services]).map do |name|
             normalize_service(name)
           end
         end

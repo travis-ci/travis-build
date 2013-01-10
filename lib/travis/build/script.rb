@@ -53,6 +53,10 @@ module Travis
 
       private
 
+        def config
+          data.config
+        end
+
         def export
           data.env.each do |key, value|
             set key, value, echo: key.to_s !~ /^TRAVIS_/ # TODO secure stuff?
