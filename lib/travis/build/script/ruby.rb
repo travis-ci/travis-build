@@ -37,7 +37,9 @@ module Travis
         private
 
           def setup_ruby
-            cmd "rvm get head", echo: false
+            echo "Updating RVM, this should just take a sec"
+            echo "rvm get head"
+            cmd "rvm get head > /dev/null", echo: false, log: false
             ruby_version = data[:rvm].gsub(/-(1[89])mode$/, '-d\1')
             cmd "typeset -f rvm >/dev/null 2>&1 || source $(dirname $(dirname $(which rvm)))/scripts/rvm", echo: false
             cmd "rvm use #{ruby_version} --install --binary"
