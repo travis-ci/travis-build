@@ -4,12 +4,6 @@ module Travis
   module Build
     class Data
       class Env
-        class << self
-          def vars(args)
-            args.to_a.map { |args| Var.create(*args) }.flatten
-          end
-        end
-
         delegate :pull_request?, :config, :build, :job, to: :data
 
         attr_reader :data
@@ -25,7 +19,7 @@ module Travis
         private
 
           def travis_vars
-            Env.vars(
+            to_vars(
               TRAVIS_PULL_REQUEST:    pull_request?,
               TRAVIS_SECURE_ENV_VARS: secure_env_vars?,
               TRAVIS_BUILD_ID:        build[:id],
@@ -39,7 +33,11 @@ module Travis
           end
 
           def config_vars
-            Env.vars(Array(config[:env]).compact.reject(&:empty?))
+            to_vars(Array(config[:env]).compact.reject(&:empty?))
+          end
+
+          def to_vars(args)
+            args.to_a.map { |args| Var.create(*args) }.flatten
           end
 
           def secure_env_vars?

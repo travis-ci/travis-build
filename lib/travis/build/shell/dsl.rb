@@ -18,8 +18,7 @@ module Travis
         end
 
         def set(var, value, options = {})
-          var = "#{var}=#{value}" if value
-          cmd var, options.merge(log: false)
+          cmd "#{var}=#{value}", options.merge(log: false)
         end
 
         def echo(string, options = {})

@@ -44,7 +44,7 @@ shared_examples_for 'a build script' do
   end
 
   it 'sets TRAVIS_SECURE_ENV_VARS to true when using secure env vars' do
-    data['config']['env'] = 'SECURE FOO=foo'
+    data['config']['env'] = 'SECURE BAR=bar'
     should set 'TRAVIS_SECURE_ENV_VARS', 'true'
   end
 
@@ -54,13 +54,13 @@ shared_examples_for 'a build script' do
   end
 
   it 'sets a given secure :env var' do
-    data['config']['env'] = 'SECURE FOO=foo'
-    should set 'FOO', 'foo'
+    data['config']['env'] = 'SECURE BAR=bar'
+    should set 'BAR', 'bar'
   end
 
   it 'echoes obfuscated secure env vars' do
-    data['config']['env'] = 'SECURE FOO=foo'
-    should echo 'FOO=[secure]'
+    data['config']['env'] = 'SECURE BAR=bar'
+    should echo 'BAR=[secure]'
   end
 
   # TODO after_failure won't be called because the build script never returns 1
