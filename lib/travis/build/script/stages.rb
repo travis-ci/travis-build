@@ -39,7 +39,7 @@ module Travis
             sh.options.update(timeout: data.timeouts[stage], assert: assert_stage?(stage))
             raw "travis_start #{stage}" if announce?(stage)
             yield
-            raw 'TRAVIS_TEST_RESULT=$?' if stage == :script
+            raw 'export TRAVIS_TEST_RESULT=$?' if stage == :script
             raw "travis_finish #{stage} #{stage == :script ? '$TRAVIS_TEST_RESULT' : '$?'}" if announce?(stage)
           }
         end
