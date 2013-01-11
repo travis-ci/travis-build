@@ -137,7 +137,7 @@ else
   ((make test) >> ~/build.log 2>&1) &
   travis_timeout 1500
 fi
-TRAVIS_TEST_RESULT=$?
+export TRAVIS_TEST_RESULT=$?
 travis_finish script $TRAVIS_TEST_RESULT
 
 if [[ $TRAVIS_TEST_RESULT = 0 ]]; then

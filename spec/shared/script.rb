@@ -96,6 +96,10 @@ shared_examples_for 'a build script' do
     should echo 'export BAR=[secure]'
   end
 
+  it 'sets TRAVIS_TEST_RESULT' do
+    should set 'TRAVIS_TEST_RESULT', '$?'
+  end
+
   # TODO after_failure won't be called because the build script never returns 1
   %w(before_install install before_script script after_script after_success).each do |script|
     it "runs the given :#{script} script" do

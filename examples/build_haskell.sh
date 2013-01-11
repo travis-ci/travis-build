@@ -124,7 +124,7 @@ travis_start script
 echo \$\ cabal\ configure\ --enable-tests\ \&\&\ cabal\ build\ \&\&\ cabal\ test
 ((cabal configure --enable-tests && cabal build && cabal test) >> ~/build.log 2>&1) &
 travis_timeout 1500
-TRAVIS_TEST_RESULT=$?
+export TRAVIS_TEST_RESULT=$?
 travis_finish script $TRAVIS_TEST_RESULT
 
 if [[ $TRAVIS_TEST_RESULT = 0 ]]; then
