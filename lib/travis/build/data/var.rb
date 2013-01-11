@@ -14,9 +14,11 @@ module Travis
           end
 
           def parse(line)
-            line.scan(PATTERN).map { |match| [match[0], match[3] || match[1]] }
+            line.scan(PATTERN).map { |match| [match[0], match[1]] }
           end
         end
+
+        attr_reader :value
 
         def initialize(key, value)
           @key = key.to_s
@@ -27,17 +29,13 @@ module Travis
           strip_secure(@key)
         end
 
-        def value
-          escape(@value)
-        end
-
-        def echoize
+        def to_s
           if travis?
             false
           elsif secure?
             "export #{[key, '[secure]'].join('=')}"
           else
-            "export #{[key, escape(@value)].join('=')}"
+            "export #{[key, value].join('=')}"
           end
         end
 
@@ -53,10 +51,6 @@ module Travis
 
           def strip_secure(string)
             string.gsub('SECURE ', '')
-          end
-
-          def escape(string)
-            string # TODO
           end
       end
     end
