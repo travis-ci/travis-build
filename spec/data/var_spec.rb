@@ -15,19 +15,31 @@ describe Travis::Build::Data::Var do
     end
 
     it 'parses FOO="foo" BAR=bar' do
-      parse('FOO="foo" BAR=bar').should == [['FOO', 'foo'], ['BAR', 'bar']]
+      parse('FOO="foo" BAR=bar').should == [['FOO', '"foo"'], ['BAR', 'bar']]
     end
 
     it 'parses FOO="foo" BAR="bar"' do
-      parse('FOO="foo" BAR="bar"').should == [['FOO', 'foo'], ['BAR', 'bar']]
+      parse('FOO="foo" BAR="bar"').should == [['FOO', '"foo"'], ['BAR', '"bar"']]
+    end
+
+    it "parses FOO='foo' BAR=bar" do
+      parse("FOO='foo' BAR=bar").should == [['FOO', "'foo'"], ['BAR', 'bar']]
+    end
+
+    it "parses FOO='foo' BAR='bar'" do
+      parse("FOO='foo' BAR='bar'").should == [['FOO', "'foo'"], ['BAR', "'bar'"]]
+    end
+
+    it "parses FOO='foo' BAR=\"bar\"" do
+      parse("FOO='foo' BAR=\"bar\"").should == [['FOO', "'foo'"], ['BAR', '"bar"']]
     end
 
     it 'parses FOO="foo foo" BAR=bar' do
-      parse('FOO="foo foo" BAR=bar').should == [['FOO', 'foo foo'], ['BAR', 'bar']]
+      parse('FOO="foo foo" BAR=bar').should == [['FOO', '"foo foo"'], ['BAR', 'bar']]
     end
 
     it 'parses FOO="foo foo" BAR="bar bar"' do
-      parse('FOO="foo foo" BAR="bar bar"').should == [['FOO', 'foo foo'], ['BAR', 'bar bar']]
+      parse('FOO="foo foo" BAR="bar bar"').should == [['FOO', '"foo foo"'], ['BAR', '"bar bar"']]
     end
   end
 
@@ -39,17 +51,17 @@ describe Travis::Build::Data::Var do
     var('SECURE FOO', 'foo').should be_secure
   end
 
-  describe 'echoize' do
+  describe 'to_s' do
     it 'returns false for internal vars' do
-      var(:TRAVIS_FOO, 'foo').echoize.should be_false
+      var(:TRAVIS_FOO, 'foo').to_s.should be_false
     end
 
     it 'obfuscates the value for secure vars' do
-      var('SECURE FOO', 'foo').echoize.should == 'export FOO=[secure]'
+      var('SECURE FOO', 'foo').to_s.should == 'export FOO=[secure]'
     end
 
     it 'returns the normal key=value string for normal vars' do
-      var('FOO', 'foo').echoize.should == 'export FOO=foo'
+      var('FOO', 'foo').to_s.should == 'export FOO=foo'
     end
   end
 end
