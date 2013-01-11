@@ -50,7 +50,7 @@ module Travis
 
           def setup_bundler
             gemfile? do |sh|
-              set 'BUNDLE_GEMFILE', "$pwd/#{config[:gemfile]}"
+              set 'BUNDLE_GEMFILE', "$PWD/#{config[:gemfile]}"
             end
           end
 
