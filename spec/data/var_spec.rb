@@ -45,11 +45,11 @@ describe Travis::Build::Data::Var do
     end
 
     it 'obfuscates the value for secure vars' do
-      var('SECURE FOO', 'foo').echoize.should == 'FOO=[secure]'
+      var('SECURE FOO', 'foo').echoize.should == 'export FOO=[secure]'
     end
 
     it 'returns the normal key=value string for normal vars' do
-      var('FOO', 'foo').echoize.should == 'FOO=foo'
+      var('FOO', 'foo').echoize.should == 'export FOO=foo'
     end
   end
 end

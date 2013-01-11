@@ -64,7 +64,7 @@ shared_examples_for 'a build script' do
 
   it 'echoes obfuscated secure env vars' do
     data['config']['env'] = 'SECURE BAR=bar'
-    should echo 'BAR=[secure]'
+    should echo 'export BAR=[secure]'
   end
 
   # TODO after_failure won't be called because the build script never returns 1

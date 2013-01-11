@@ -35,9 +35,9 @@ module Travis
           if travis?
             false
           elsif secure?
-            [key, '[secure]'].join('=')
+            "export #{[key, '[secure]'].join('=')}"
           else
-            [key, escape(@value)].join('=')
+            "export #{[key, escape(@value)].join('=')}"
           end
         end
 

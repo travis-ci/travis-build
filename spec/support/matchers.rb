@@ -98,7 +98,7 @@ RSpec::Matchers.define :set do |name, value|
       "expected script to set #{name} to #{value} but it didn't:\n#{script}"
     end
 
-    script =~ /^[\s]*#{name}=#{Regexp.escape(value)}[\s]*$/
+    script =~ /^[\s]*export #{name}=#{Regexp.escape(value)}[\s]*$/
   end
 end
 

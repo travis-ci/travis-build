@@ -43,27 +43,27 @@ trap 'travis_finish build 1' TERM
 
 travis_start build
 travis_start export
-TRAVIS_PULL_REQUEST=false
-TRAVIS_SECURE_ENV_VARS=true
-TRAVIS_BUILD_ID=1
-TRAVIS_BUILD_NUMBER=1
-TRAVIS_JOB_ID=1
-TRAVIS_JOB_NUMBER=1.1
-TRAVIS_BRANCH=master
-TRAVIS_COMMIT=313f61b
-TRAVIS_COMMIT_RANGE=313f61b..313f61a
-echo \$\ FOO\=foo
-FOO=foo
-echo \$\ BAR\=\[secure\]
-BAR=bar
-echo \$\ TRAVIS_JDK_VERSION\=openjdk7
-TRAVIS_JDK_VERSION=openjdk7
-echo \$\ TRAVIS_RUBY_VERSION\=jruby
-TRAVIS_RUBY_VERSION=jruby
+export TRAVIS_PULL_REQUEST=false
+export TRAVIS_SECURE_ENV_VARS=true
+export TRAVIS_BUILD_ID=1
+export TRAVIS_BUILD_NUMBER=1
+export TRAVIS_JOB_ID=1
+export TRAVIS_JOB_NUMBER=1.1
+export TRAVIS_BRANCH=master
+export TRAVIS_COMMIT=313f61b
+export TRAVIS_COMMIT_RANGE=313f61b..313f61a
+echo \$\ export\ FOO\=foo
+export FOO=foo
+echo \$\ export\ BAR\=\[secure\]
+export BAR=bar
+echo \$\ export\ TRAVIS_JDK_VERSION\=openjdk7
+export TRAVIS_JDK_VERSION=openjdk7
+echo \$\ export\ TRAVIS_RUBY_VERSION\=jruby
+export TRAVIS_RUBY_VERSION=jruby
 travis_finish export $?
 
 travis_start checkout
-GIT_ASKPASS=echo
+export GIT_ASKPASS=echo
 echo \$\ git\ clone\ --depth\=100\ --quiet\ git://github.com/travis-ci/travis-ci.git\ travis-ci/travis-ci
 ((git clone --depth=100 --quiet git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci) >> ~/build.log 2>&1) &
 travis_timeout 300
@@ -99,8 +99,8 @@ echo \$\ rvm\ use\ jruby\ --install\ --binary
 (rvm use jruby --install --binary) >> ~/build.log 2>&1
 travis_assert
 if [[ -f Gemfile ]]; then
-  echo \$\ BUNDLE_GEMFILE\=\$pwd/Gemfile
-  BUNDLE_GEMFILE=$pwd/Gemfile
+  echo \$\ export\ BUNDLE_GEMFILE\=\$pwd/Gemfile
+  export BUNDLE_GEMFILE=$pwd/Gemfile
   travis_assert
 fi
 travis_finish setup $?
