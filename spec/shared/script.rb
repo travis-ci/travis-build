@@ -20,12 +20,41 @@ shared_examples_for 'a build script' do
     should run cmd, echo: true, log: true, assert: true, timeout: timeout
   end
 
+  it 'removes the ssh key' do
+    should run %r(rm -f .*\.ssh/source_rsa)
+  end
+
   it 'checks the given commit out' do
     should run 'git checkout -qf 313f61b', echo: true, log: true
   end
 
-  it 'removes the ssh key' do
-    should run %r(rm -f .*\.ssh/source_rsa)
+  describe 'if .gitmodules exists' do
+    before :each do
+      file '.gitmodules'
+    end
+
+    it 'inits submodules' do
+      should run 'git submodule init'
+    end
+
+    it 'updates submodules' do
+      should run 'git submodule update'
+    end
+  end
+
+  describe 'submodules is set to false' do
+    before :each do
+      file '.gitmodules'
+      data['config']['git'] = { submodules: false }
+    end
+
+    it 'does not init submodules' do
+      should_not run 'git submodule init'
+    end
+
+    it 'does not update submodules' do
+      should_not run 'git submodule update'
+    end
   end
 
   it 'sets TRAVIS_* env vars' do

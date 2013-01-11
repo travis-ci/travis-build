@@ -70,7 +70,7 @@ rm -f ~/.ssh/source_rsa
 echo \$\ git\ checkout\ -qf\ 313f61b
 git checkout -qf 313f61b
 travis_assert
-if [[ -s .gitmodules ]]; then
+if [[ -f .gitmodules ]]; then
   echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
   echo \$\ git\ submodule\ init
   git submodule init
