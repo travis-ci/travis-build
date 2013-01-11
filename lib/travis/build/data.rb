@@ -65,6 +65,10 @@ module Travis
         job[:commit]
       end
 
+      def branch
+        job[:branch]
+      end
+
       def ref
         job[:ref]
       end
