@@ -99,8 +99,8 @@ echo \$\ rvm\ use\ jruby\ --install\ --binary
 (rvm use jruby --install --binary) >> ~/build.log 2>&1
 travis_assert
 if [[ -f Gemfile ]]; then
-  echo \$\ export\ BUNDLE_GEMFILE\=\$pwd/Gemfile
-  export BUNDLE_GEMFILE=$pwd/Gemfile
+  echo \$\ export\ BUNDLE_GEMFILE\=\$PWD/Gemfile
+  export BUNDLE_GEMFILE=$PWD/Gemfile
   travis_assert
 fi
 travis_finish setup $?

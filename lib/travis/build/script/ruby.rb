@@ -11,7 +11,7 @@ module Travis
 
         def export
           super
-          set 'TRAVIS_RUBY_VERSION', data[:rvm]
+          set 'TRAVIS_RUBY_VERSION', config[:rvm]
         end
 
         def setup
@@ -28,7 +28,7 @@ module Travis
         end
 
         def install
-          gemfile? then: "bundle install #{data[:bundler_args]}"
+          gemfile? then: "bundle install #{config[:bundler_args]}"
         end
 
         def script
@@ -44,22 +44,22 @@ module Travis
           end
 
           def setup_ruby
-            ruby_version = data[:rvm].gsub(/-(1[89])mode$/, '-d\1')
+            ruby_version = config[:rvm].gsub(/-(1[89])mode$/, '-d\1')
             cmd "rvm use #{ruby_version} --install --binary"
           end
 
           def setup_bundler
             gemfile? do |sh|
-              set 'BUNDLE_GEMFILE', "$pwd/#{data[:gemfile]}"
+              set 'BUNDLE_GEMFILE', "$PWD/#{config[:gemfile]}"
             end
           end
 
           def gemfile?(*args, &block)
-            sh_if "-f #{data[:gemfile]}", *args, &block
+            sh_if "-f #{config[:gemfile]}", *args, &block
           end
 
           def uses_java?
-            data[:rvm] =~ /jruby/i
+            config[:rvm] =~ /jruby/i
           end
 
           def uses_jdk?

@@ -36,6 +36,7 @@ module Travis
           end
 
           def submodules
+            # TODO skip unless config[:git][:submodules], should default to true
             sh_if '-s .gitmodules' do
               cmd 'echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config', echo: false
               cmd 'git submodule init'
