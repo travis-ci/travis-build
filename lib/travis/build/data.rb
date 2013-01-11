@@ -49,8 +49,8 @@ module Travis
         @env_vars ||= Env.new(self).vars
       end
 
-      def pull_request?
-        !!job[:pull_request]
+      def pull_request
+        job[:pull_request]
       end
 
       def source_url

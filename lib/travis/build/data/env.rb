@@ -4,7 +4,7 @@ module Travis
   module Build
     class Data
       class Env
-        delegate :pull_request?, :config, :build, :job, to: :data
+        delegate :pull_request, :config, :build, :job, to: :data
 
         attr_reader :data
 
@@ -20,7 +20,7 @@ module Travis
 
           def travis_vars
             to_vars(
-              TRAVIS_PULL_REQUEST:    pull_request?,
+              TRAVIS_PULL_REQUEST:    pull_request || false,
               TRAVIS_SECURE_ENV_VARS: secure_env_vars?,
               TRAVIS_BUILD_ID:        build[:id],
               TRAVIS_BUILD_NUMBER:    build[:number],
@@ -33,7 +33,9 @@ module Travis
           end
 
           def config_vars
-            to_vars(Array(config[:env]).compact.reject(&:empty?))
+            vars = to_vars(Array(config[:env]).compact.reject(&:empty?))
+            vars.reject!(&:secure?) if pull_request
+            vars
           end
 
           def to_vars(args)
@@ -41,7 +43,7 @@ module Travis
           end
 
           def secure_env_vars?
-            !pull_request? && config_vars.any?(&:secure?)
+            !pull_request && config_vars.any?(&:secure?)
           end
       end
     end
