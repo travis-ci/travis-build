@@ -3,6 +3,8 @@ require 'travis/build'
 
 require 'support/matchers'
 require 'support/payloads'
+
+require 'shared/git'
 require 'shared/jdk'
 require 'shared/jvm'
 require 'shared/script'
