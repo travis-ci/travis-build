@@ -10,7 +10,7 @@ module Travis
         def run_stage(stage)
           if config[stage] && stage != :after_result
             run_custom_stage(stage)
-          elsif respond_to?(stage, false) || stage == :after_result # TODO do we really still have that Kernel#install issue with rake?
+          elsif respond_to?(stage, false) || stage == :after_result
             run_builtin_stage(stage)
           end
         end
