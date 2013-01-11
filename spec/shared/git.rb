@@ -5,6 +5,12 @@ shared_examples_for 'a git repo' do
     should run cmd, echo: true, log: true, assert: true, timeout: timeout
   end
 
+  it 'clones with a custom depth if given' do
+    data['config']['git'] = { depth: 1 }
+    cmd = 'git clone --depth=1 --quiet --branch=master git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci'
+    should run cmd, echo: true
+  end
+
   it 'changes to the git repo dir' do
     should run 'cd travis-ci/travis-ci', timeout: false
   end
