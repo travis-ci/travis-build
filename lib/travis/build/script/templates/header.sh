@@ -1,3 +1,6 @@
+#!/bin/bash
+source /etc/profile 
+
 travis_start() {
   echo "[travis:$1:start]" <%= ">> #{logs[:state]}" if logs[:state] %>
 }
