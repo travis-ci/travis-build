@@ -60,8 +60,8 @@ travis_finish export $?
 
 travis_start checkout
 export GIT_ASKPASS=echo
-echo \$\ git\ clone\ --depth\=100\ --quiet\ git://github.com/travis-ci/travis-ci.git\ travis-ci/travis-ci
-(git clone --depth=100 --quiet git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci) &
+echo \$\ git\ clone\ --depth\=100\ --quiet\ --branch\=master\ git://github.com/travis-ci/travis-ci.git\ travis-ci/travis-ci
+(git clone --depth=100 --quiet --branch=master git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci) &
 travis_timeout 300
 travis_assert
 echo \$\ cd\ travis-ci/travis-ci

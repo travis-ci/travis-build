@@ -20,7 +20,7 @@ module Travis
 
           def clone
             set 'GIT_ASKPASS', 'echo', :echo => false # this makes git interactive auth fail
-            cmd "git clone --depth=100 --quiet #{data.source_url} #{dir}", assert: true, timeout: :git_clone
+            cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, timeout: :git_clone
           end
 
           def ch_dir
@@ -53,6 +53,12 @@ module Travis
               cmd 'git submodule init'
               cmd 'git submodule update', assert: true, timeout: :git_submodules
             end
+          end
+
+          def clone_args
+            args = '--depth=100 --quiet'
+            args << " --branch=#{data.branch}" unless data.ref
+            args
           end
 
           def dir
