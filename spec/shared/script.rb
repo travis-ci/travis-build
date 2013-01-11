@@ -1,8 +1,12 @@
 shared_examples_for 'a build script' do
   it 'clones the git repo' do
-    cmd = 'git clone --depth=100 --quiet git://github.com/travis-ci/travis-ci.git .'
+    cmd = 'git clone --depth=100 --quiet git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci'
     timeout = Travis::Build::Data::DEFAULTS[:timeouts][:git_clone]
     should run cmd, echo: true, log: true, assert: true, timeout: timeout
+  end
+
+  it 'changes to the git repo dir' do
+    should run 'cd travis-ci/travis-ci', timeout: false
   end
 
   it 'does not fetch a ref if not given' do

@@ -4,6 +4,7 @@ module Travis
       module Git
         def checkout
           clone
+          ch_dir
           rm_key
           fetch_ref if data.ref
           git_checkout
@@ -15,7 +16,11 @@ module Travis
 
           def clone
             set 'GIT_ASKPASS', 'echo', :echo => false # this makes git interactive auth fail
-            cmd "git clone --depth=100 --quiet #{data.source_url} .", assert: true, timeout: :git_clone
+            cmd "git clone --depth=100 --quiet #{data.source_url} #{dir}", assert: true, timeout: :git_clone
+          end
+
+          def ch_dir
+            cmd "cd #{dir}", timeout: false
           end
 
           def rm_key
@@ -36,6 +41,10 @@ module Travis
               cmd 'git submodule init'
               cmd 'git submodule update', assert: true, timeout: :git_submodules
             end
+          end
+
+          def dir
+            data.source_url.gsub(/\.git$/, '').split('/')[-2, 2].join('/')
           end
       end
     end
