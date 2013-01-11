@@ -18,7 +18,7 @@ module Travis
         end
 
         def set(var, value, options = {})
-          cmd "#{var}=#{value}", options.merge(log: false)
+          cmd "export #{var}=#{value}", options.merge(log: false)
         end
 
         def echo(string, options = {})
