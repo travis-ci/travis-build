@@ -36,7 +36,7 @@ module Travis
 
         def stage(stage = nil)
           sh.script &stacking {
-            sh.options.update(timeout: timeout_for(stage), assert: assert_stage?(stage))
+            sh.options.update(timeout: data.timeouts[stage], assert: assert_stage?(stage))
             raw "travis_start #{stage}" if announce?(stage)
             yield
             raw 'TRAVIS_TEST_RESULT=$?' if stage == :script
@@ -46,10 +46,6 @@ module Travis
 
         def assert_stage?(stage)
           [:setup, :before_install, :install, :before_script].include?(stage)
-        end
-
-        def timeout_for(stage)
-          data.timeout(stage) if data.timeout?(stage)
         end
       end
     end

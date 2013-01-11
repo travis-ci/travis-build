@@ -37,12 +37,8 @@ module Travis
         data[:urls] || {}
       end
 
-      def timeout?(type)
-        !!data[:timeouts][type]
-      end
-
-      def timeout(type)
-        data[:timeouts][type] || raise("Unknown timeout: #{type}")
+      def timeouts
+        data[:timeouts] || {}
       end
 
       def config
