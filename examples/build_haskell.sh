@@ -60,10 +60,12 @@ travis_finish export $?
 
 travis_start checkout
 GIT_ASKPASS=echo
-echo \$\ git\ clone\ --depth\=100\ --quiet\ git://github.com/travis-ci/travis-ci.git\ .
-((git clone --depth=100 --quiet git://github.com/travis-ci/travis-ci.git .) >> ~/build.log 2>&1) &
+echo \$\ git\ clone\ --depth\=100\ --quiet\ git://github.com/travis-ci/travis-ci.git\ travis-ci/travis-ci
+((git clone --depth=100 --quiet git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci) >> ~/build.log 2>&1) &
 travis_timeout 300
 travis_assert
+echo \$\ cd\ travis-ci/travis-ci
+(cd travis-ci/travis-ci) >> ~/build.log 2>&1
 rm -f ~/.ssh/source_rsa
 echo \$\ git\ checkout\ -qf\ 313f61b
 (git checkout -qf 313f61b) >> ~/build.log 2>&1
