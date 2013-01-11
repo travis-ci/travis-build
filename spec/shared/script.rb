@@ -71,9 +71,9 @@ shared_examples_for 'a build script' do
     should set 'TRAVIS_COMMIT_RANGE',    '313f61b..313f61a'
   end
 
-  it 'sets TRAVIS_PULL_REQUEST to true when running a pull_request' do
-    data['job']['pull_request'] = true
-    should set 'TRAVIS_PULL_REQUEST', 'true'
+  it 'sets TRAVIS_PULL_REQUEST to the given number when running a pull_request' do
+    data['job']['pull_request'] = 1
+    should set 'TRAVIS_PULL_REQUEST', '1'
   end
 
   it 'sets TRAVIS_SECURE_ENV_VARS to true when using secure env vars' do
@@ -94,6 +94,12 @@ shared_examples_for 'a build script' do
   it 'echoes obfuscated secure env vars' do
     data['config']['env'] = 'SECURE BAR=bar'
     should echo 'export BAR=[secure]'
+  end
+
+  it 'does not set secure :env vars on pull requests' do
+    data['job']['pull_request'] = 1
+    data['config']['env'] = 'SECURE BAR=bar'
+    should_not set 'BAR', 'bar'
   end
 
   it 'sets TRAVIS_TEST_RESULT' do
