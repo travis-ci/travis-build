@@ -1,3 +1,6 @@
+#!/bin/bash
+source /etc/profile
+
 travis_start() {
   echo "[travis:$1:start]" >> ~/state.log
 }
@@ -89,8 +92,6 @@ travis_assert
 (echo \$\ rvm\ get\ head) >> ~/build.log 2>&1
 travis_assert
 rvm get head >/dev/null 2>&1
-travis_assert
-(typeset -f rvm >/dev/null 2>&1 || source $(dirname $(dirname $(which rvm)))/scripts/rvm) >> ~/build.log 2>&1
 travis_assert
 echo \$\ rvm\ use\ jruby\ --install\ --binary
 (rvm use jruby --install --binary) >> ~/build.log 2>&1
