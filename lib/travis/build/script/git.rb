@@ -3,7 +3,7 @@ module Travis
     class Script
       module Git
         DEFAULTS = {
-          git: { submodules: true }
+          git: { depth: 100, submodules: true }
         }
 
         def checkout
@@ -56,7 +56,7 @@ module Travis
           end
 
           def clone_args
-            args = '--depth=100 --quiet'
+            args = "--depth=#{config[:git][:depth]} --quiet"
             args << " --branch=#{data.branch}" unless data.ref
             args
           end
