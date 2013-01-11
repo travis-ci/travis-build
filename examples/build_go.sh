@@ -110,8 +110,8 @@ if [[ -f Makefile ]]; then
   travis_timeout 600
   travis_assert
 else
-  echo \$\ go\ get\ -d\ -v\ \&\&\ go\ build\ -v
-  ((go get -d -v && go build -v) >> ~/build.log 2>&1) &
+  echo \$\ go\ get\ -d\ -v\ ./...\ \&\&\ go\ build\ -v\ ./...
+  ((go get -d -v ./... && go build -v ./...) >> ~/build.log 2>&1) &
   travis_timeout 600
   travis_assert
 fi
