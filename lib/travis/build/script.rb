@@ -35,12 +35,18 @@ module Travis
         custom:  [:before_install, :install, :before_script, :script, :after_result, :after_script]
       }
 
+      class << self
+        def defaults
+          Git::DEFAULTS.merge(self::DEFAULTS)
+        end
+      end
+
       include Git, Helpers, Services, Stages
 
       attr_reader :stack, :data, :options
 
       def initialize(data, options)
-        @data = Data.new({ config: self.class::DEFAULTS }.deep_merge(data.deep_symbolize_keys))
+        @data = Data.new({ config: self.class.defaults }.deep_merge(data.deep_symbolize_keys))
         @options = options
         @stack = [Shell::Script.new(log: true, echo: true, log_file: logs[:build])]
       end
