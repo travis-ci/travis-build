@@ -20,10 +20,9 @@ describe Travis::Build::Script::Haskell do
     should announce 'cabal --version'
   end
 
-  it 'installs with cabal update && cabal install' do
-    should run 'echo $ cabal update && cabal install'
-    should run 'cabal update'
-    should run 'cabal install', log: true, assert: true, timeout: timeout_for(:install)
+  it 'installs with cabal install --only-dependencies --enable-tests' do
+    should run 'echo $ cabal install --only-dependencies --enable-tests'
+    should run 'cabal install --only-dependencies --enable-tests', log: true, assert: true, timeout: timeout_for(:install)
   end
 
   it 'runs cabal configure --enable-tests && cabal build && cabal test' do

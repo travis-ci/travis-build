@@ -103,8 +103,8 @@ travis_assert
 travis_finish before_install $?
 
 travis_start install
-echo \$\ cabal\ update\ \&\&\ cabal\ install
-((cabal update && cabal install) >> ~/build.log 2>&1) &
+echo \$\ cabal\ install\ --only-dependencies\ --enable-tests
+((cabal install --only-dependencies --enable-tests) >> ~/build.log 2>&1) &
 travis_timeout 600
 travis_assert
 travis_finish install $?
