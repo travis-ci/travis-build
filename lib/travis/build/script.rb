@@ -13,6 +13,7 @@ module Travis
       autoload :Git,      'travis/build/script/git'
       autoload :Go,       'travis/build/script/go'
       autoload :Groovy,   'travis/build/script/groovy'
+      autoload :Generic,  'travis/build/script/generic'
       autoload :Haskell,  'travis/build/script/haskell'
       autoload :Helpers,  'travis/build/script/helpers'
       autoload :Jdk,      'travis/build/script/jdk'

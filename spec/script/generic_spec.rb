@@ -1,0 +1,25 @@
+require 'spec_helper'
+
+describe Travis::Build::Script::Generic do
+  let(:options) { { logs: { build: true, state: true } } }
+  let(:data)    { PAYLOADS[:push].deep_clone }
+
+  subject { described_class.new(data, options).compile }
+
+  after :all do
+    store_example
+  end
+
+  it_behaves_like 'a build script'
+
+  it 'with timeouts set to false it does not timeout commands' do
+    data.update(timeouts: false)
+    subject.should_not =~ /travis_timeout [\d]+/
+  end
+
+  it 'with logs set to false it does not log commands' do
+    options.update(logs: { build: false, state: false })
+    subject.should_not =~ />> build.log/
+  end
+end
+
