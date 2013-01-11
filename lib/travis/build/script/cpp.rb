@@ -14,7 +14,7 @@ module Travis
 
         def announce
           super
-          cmd "#{data[:compiler]} --version"
+          cmd "#{config[:compiler]} --version"
         end
 
         def script
@@ -24,7 +24,7 @@ module Travis
         private
 
           def cxx
-            case data[:compiler]
+            case config[:compiler]
             when /^gcc/i, /^g\+\+/i then
               'g++'
             when /^clang/i, /^clang\+\+/i then
@@ -35,7 +35,7 @@ module Travis
           end
 
           def cc
-            case data[:compiler]
+            case config[:compiler]
             when /^gcc/i, /^g\+\+/i then
               "gcc"
             when /^clang/i, /^clang\+\+/i then

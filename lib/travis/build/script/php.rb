@@ -8,12 +8,12 @@ module Travis
 
         def export
           super
-          set 'TRAVIS_PHP_VERSION', data[:php]
+          set 'TRAVIS_PHP_VERSION', config[:php]
         end
 
         def setup
           super
-          cmd "phpenv global #{data[:php]}", assert: true
+          cmd "phpenv global #{config[:php]}", assert: true
         end
 
         def announce
@@ -23,7 +23,7 @@ module Travis
 
         def install
           # # composer is not yet ready for prime time. MK.
-          # sh_if '-f composer.json', "composer install #{data[:composer_args]}".strip
+          # sh_if '-f composer.json', "composer install #{config[:composer_args]}".strip
         end
 
         def script

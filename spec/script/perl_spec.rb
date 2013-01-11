@@ -6,6 +6,10 @@ describe Travis::Build::Script::Perl do
 
   subject { described_class.new(data, options).compile }
 
+  after :all do
+    store_example
+  end
+
   it_behaves_like 'a build script'
 
   it 'sets TRAVIS_PERL_VERSION' do

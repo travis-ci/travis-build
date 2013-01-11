@@ -11,7 +11,7 @@ module Travis
 
         def export
           super
-          set 'TRAVIS_PYTHON_VERSION', data[:python]
+          set 'TRAVIS_PYTHON_VERSION', config[:python]
         end
 
         def setup
@@ -39,11 +39,11 @@ module Travis
         private
 
           def virtualenv_activate
-            if data[:python] =~ /pypy/i
+            if config[:python] =~ /pypy/i
               "~/virtualenv/pypy/bin/activate"
             else
               # python2.6, python2.7, python3.2, etc
-              "~/virtualenv/python#{data[:python]}/bin/activate"
+              "~/virtualenv/python#{config[:python]}/bin/activate"
             end
           end
       end

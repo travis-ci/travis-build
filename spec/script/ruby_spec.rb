@@ -6,6 +6,10 @@ describe Travis::Build::Script::Ruby do
 
   subject { described_class.new(data, options).compile }
 
+  after :all do
+    store_example
+  end
+
   it_behaves_like 'a build script'
 
   it 'sets TRAVIS_RUBY_VERSION' do
@@ -48,6 +52,10 @@ describe Travis::Build::Script::Ruby do
     before :each do
       data['config']['rvm'] = 'jruby'
       data['config']['jdk'] = 'openjdk7'
+    end
+
+    after :each do
+      store_example 'jruby'
     end
 
     it_behaves_like 'a jdk build'

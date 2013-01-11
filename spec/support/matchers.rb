@@ -98,6 +98,18 @@ RSpec::Matchers.define :set do |name, value|
       "expected script to set #{name} to #{value} but it didn't:\n#{script}"
     end
 
-    script.include?("#{name}=#{value}")
+    script =~ /^[\s]*#{name}=#{Regexp.escape(value)}[\s]*$/
+  end
+end
+
+RSpec::Matchers.define :echo do |string|
+  match do |script|
+    lines = log_for(script).split("\n")
+
+    failure_message_for_should do
+      "expected script to echo #{string} but it didn't:\n#{script}"
+    end
+
+    echoes?(lines, string)
   end
 end

@@ -17,8 +17,8 @@ module Travis
           nodes << (code.is_a?(Node) ? code : Node.new(code, *merge_options(args)))
         end
 
-        def set(key, value, options = {})
-          raw "#{key}=#{value}", options.merge(log: false)
+        def set(var, value, options = {})
+          cmd "#{var}=#{value}", options.merge(log: false)
         end
 
         def echo(string, options = {})

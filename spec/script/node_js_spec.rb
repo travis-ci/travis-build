@@ -6,10 +6,9 @@ describe Travis::Build::Script::NodeJs do
 
   subject { described_class.new(data, options).compile }
 
-  it_behaves_like 'a build script'
-
   it 'sets TRAVIS_NODE_VERSION' do
     should set 'TRAVIS_NODE_VERSION', '0.4'
+    store_example
   end
 
   it 'sets up the node version' do
@@ -33,11 +32,12 @@ describe Travis::Build::Script::NodeJs do
   describe 'if package.json exists' do
     before(:each) do
       file('package.json')
+      data['config']['npm_args'] = '--npm-args'
     end
 
     it 'installs with npm install --npm-args' do
-      data['config']['npm_args'] = '--npm-args'
       should install 'npm install --npm-args'
+      store_example 'npm_args'
     end
 
     it 'runs npm test' do

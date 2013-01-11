@@ -21,10 +21,12 @@ describe Travis::Build::Script::Python do
   it 'sets up the python version (pypy)' do
     data['config']['python'] = 'pypy'
     should run 'echo $ source ~/virtualenv/pypy/bin/activate' # TODO can't really capture source, yet
+    store_example 'pypy'
   end
 
   it 'sets up the python version (2.7)' do
     should run 'echo $ source ~/virtualenv/python2.7/bin/activate' # TODO can't really capture source, yet
+    store_example '2.7'
   end
 
   it 'announces python --version' do
