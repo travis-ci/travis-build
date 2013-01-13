@@ -9,7 +9,7 @@ travis_finish() {
 
 travis_assert() {
   if [ $? != 0 ]; then
-    echo "Command did not exit with 0. Exiting." 
+    echo "Command did not exit with 0. Exiting."
     travis_terminate 1
   fi
 }
@@ -19,7 +19,7 @@ travis_timeout() {
   local start=$(date +%s)
   while ps aux | awk '{print $2 }' | grep -q $pid 2> /dev/null; do
     if [ $(expr $(date +%s) - $start) -gt $1 ]; then
-      echo "Command timed out after $1 seconds. Exiting." 
+      echo "Command timed out after $1 seconds. Exiting."
       travis_terminate 1
     fi
   done
@@ -27,8 +27,9 @@ travis_timeout() {
 }
 
 travis_terminate() {
+  local pid=${$2:-$$}
   travis_finish build $1
-  pkill -9 -P $$ > /dev/null 2>&1
+  pkill -9 -P $pid > /dev/null 2>&1
   exit $1
 }
 

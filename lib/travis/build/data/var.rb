@@ -18,8 +18,6 @@ module Travis
           end
         end
 
-        attr_reader :value
-
         def initialize(key, value)
           @key = key.to_s
           @value = value.to_s
@@ -29,13 +27,17 @@ module Travis
           strip_secure(@key)
         end
 
+        def value
+          decrypt? ? add_decrypt(@value) : @value
+        end
+
         def to_s
           if travis?
             false
           elsif secure?
             "export #{[key, '[secure]'].join('=')}"
           else
-            "export #{[key, value].join('=')}"
+            "export #{[key, @value].join('=')}"
           end
         end
 
@@ -44,13 +46,21 @@ module Travis
         end
 
         def secure?
-          @key =~ /^SECURE /
+          @key =~ /^!?SECURE /
+        end
+
+        def decrypt?
+          @key =~ /^!SECURE /
         end
 
         private
 
           def strip_secure(string)
             string.gsub('SECURE ', '')
+          end
+
+          def add_decrypt(string)
+            "$(travis_decrypt '#{string.gsub("\n", '')}')"
           end
       end
     end
