@@ -35,8 +35,8 @@ travis_terminate() {
   exit $1
 }
 
-travis_decrypt() {
-  echo $1 | base64 -D | openssl rsautl -decrypt -inkey ~/.ssh/id_rsa.repo
+decrypt() {
+  echo $1 | base64 -d | openssl rsautl -decrypt -inkey ~/.ssh/id_rsa.repo
 }
 
 rm -rf   <%= BUILD_DIR %>
