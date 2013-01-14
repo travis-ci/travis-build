@@ -41,6 +41,7 @@ module Travis
             echo "Updating RVM, this should just take a sec"
             echo "$ rvm get head"
             cmd "rvm get head >/dev/null 2>&1", echo: false, log: false
+            echo "$ rvm reload"
             cmd "rvm reload >/dev/null 2>&1",   echo: false, log: false
           end
 
