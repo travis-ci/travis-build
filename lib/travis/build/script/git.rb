@@ -9,10 +9,10 @@ module Travis
         def checkout
           clone
           ch_dir
-          rm_key
           fetch_ref if fetch_ref?
           git_checkout
           submodules if submodules?
+          rm_key
           sh.to_s
         end
 
