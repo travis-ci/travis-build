@@ -16,7 +16,7 @@ Feature: Switching JDKs when testing a Clojure project
      And it successfully installs dependencies with lein
      And it successfully runs the script: lein test
      And it closes the ssh session
-     And it returns the result 0
+     And it returns the state :passed
      And it has captured the following events
        | name            | data                                      |
        | job:test:start  | started_at: [now]                         |
@@ -43,7 +43,7 @@ Feature: Switching JDKs when testing a Clojure project
        | job:test:log    | log: lein deps                            |
        | job:test:log    | log: lein test                            |
        | job:test:log    | log: /Done.* 0/                           |
-       | job:test:finish | finished_at: [now], result: 0             |
+       | job:test:finish | finished_at: [now], state: :passed        |
 
 
   Scenario: A successful build with Oracle JDK 7
@@ -62,7 +62,7 @@ Feature: Switching JDKs when testing a Clojure project
      And it successfully installs dependencies with lein
      And it successfully runs the script: lein test
      And it closes the ssh session
-     And it returns the result 0
+     And it returns the state :passed
      And it has captured the following events
        | name            | data                                        |
        | job:test:start  | started_at: [now]                           |
@@ -89,4 +89,4 @@ Feature: Switching JDKs when testing a Clojure project
        | job:test:log    | log: lein deps                              |
        | job:test:log    | log: lein test                              |
        | job:test:log    | log: /Done.* 0/                             |
-       | job:test:finish | finished_at: [now], result: 0               |
+       | job:test:finish | finished_at: [now], state: :passed          |

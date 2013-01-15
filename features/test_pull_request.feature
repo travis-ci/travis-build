@@ -26,7 +26,7 @@ Feature: Testing a Ruby project
      And it does not find the file gemfiles/Gemfile
      And it successfully runs the script: rake
      And it closes the ssh session
-     And it returns the result 0
+     And it returns the state :passed
      And it has captured the following events
        | name            | data                                       |
        | job:test:start  | started_at: [now]                          |
@@ -50,4 +50,4 @@ Feature: Testing a Ruby project
        | job:test:log    | log: gem --version                         |
        | job:test:log    | log: rake                                  |
        | job:test:log    | log: /Done.* 0/                            |
-       | job:test:finish | finished_at: [now], result: 0              |
+       | job:test:finish | finished_at: [now], state: :passed         |

@@ -18,7 +18,7 @@ describe Travis::Build do
   before :each do
     @now = Time.now.utc
     Time.stubs(:now).returns(@now)
-    job.stubs(:run).returns({ :result => 0 })
+    job.stubs(:run).returns({ :state => :passed })
     build.observers << observer
   end
 
@@ -43,7 +43,7 @@ describe Travis::Build do
     describe 'with no exception happening' do
       it 'notifies observers about the :finish event' do
         build.run
-        observer.events.should include_event('job:test:finish', :id => nil, :result => 0, :finished_at => now)
+        observer.events.should include_event('job:test:finish', :id => nil, :state => :passed, :finished_at => now)
       end
     end
 
@@ -62,7 +62,7 @@ describe Travis::Build do
       it 'still notifies observers about the :finish event' do
         job.stubs(:run).raises(StandardError.new('fatal'))
         build.run
-        observer.events.should include_event('job:test:finish', :id => nil, :result => 1, :finished_at => now)
+        observer.events.should include_event('job:test:finish', :id => nil, :state => :errored, :finished_at => now)
       end
     end
   end
@@ -70,6 +70,6 @@ describe Travis::Build do
   it "logs a vm stall message and fails the build" do
     build.vm_stall
     observer.events.should     include_event('job:test:log',    :id => nil, :log => "\n\n\nI'm sorry but the VM stalled during your build and was not recoverable.")
-    observer.events.should_not include_event('job:test:finish', :id => nil, :result => 1, :finished_at => now)
+    observer.events.should_not include_event('job:test:finish', :id => nil, :state => :errored, :finished_at => now)
   end
 end
