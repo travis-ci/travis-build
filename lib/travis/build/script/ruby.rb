@@ -41,11 +41,13 @@ module Travis
             echo "Updating RVM, this should just take a sec"
             echo "$ rvm get head"
             cmd "rvm get head >/dev/null 2>&1", echo: false, log: false
+            echo "$ rvm reload"
+            cmd "rvm reload >/dev/null 2>&1",   echo: false, log: false
           end
 
           def setup_ruby
             ruby_version = config[:rvm].gsub(/-(1[89])mode$/, '-d\1')
-            cmd "rvm use #{ruby_version} --install --binary"
+            cmd "rvm use #{ruby_version} --install --binary --fuzzy"
           end
 
           def setup_bundler
