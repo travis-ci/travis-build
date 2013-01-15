@@ -21,6 +21,10 @@ module Travis
         def to_s
           code ? code.indent(level) : code
         end
+
+        def escape(code)
+          Shellwords.escape(code)
+        end
       end
 
       class Cmd < Node

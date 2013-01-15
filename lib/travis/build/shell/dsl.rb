@@ -1,5 +1,3 @@
-require 'shellwords'
-
 module Travis
   module Build
     module Shell
@@ -22,7 +20,7 @@ module Travis
         end
 
         def echo(string, options = {})
-          cmd "echo #{Shellwords.escape(string)}", echo: false, log: true
+          cmd "echo #{escape(string)}", echo: false, log: true
         end
 
         def cd(path)
