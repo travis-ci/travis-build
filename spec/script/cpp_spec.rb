@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Cpp do
-  let(:options) { { logs: { build: true, state: true } } }
+  let(:options) { { logs: { build: false, state: false } } }
   let(:data)    { PAYLOADS[:push].deep_clone }
 
   subject { described_class.new(data, options).compile }
