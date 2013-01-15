@@ -47,7 +47,7 @@ module Travis
 
           def setup_ruby
             ruby_version = config[:rvm].gsub(/-(1[89])mode$/, '-d\1')
-            cmd "rvm use #{ruby_version} --install --binary"
+            cmd "rvm use #{ruby_version} --install --binary --fuzzy"
           end
 
           def setup_bundler
