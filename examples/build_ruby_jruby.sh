@@ -35,6 +35,10 @@ travis_terminate() {
   exit $1
 }
 
+decrypt() {
+  echo $1 | base64 -d | openssl rsautl -decrypt -inkey ~/.ssh/id_rsa.repo
+}
+
 rm -rf   ~/build
 mkdir -p ~/build
 cd       ~/build
@@ -70,7 +74,6 @@ travis_timeout 300
 travis_assert
 echo \$\ cd\ travis-ci/travis-ci
 (cd travis-ci/travis-ci) >> ~/build.log 2>&1
-rm -f ~/.ssh/source_rsa
 echo \$\ git\ checkout\ -qf\ 313f61b
 (git checkout -qf 313f61b) >> ~/build.log 2>&1
 travis_assert
@@ -83,6 +86,7 @@ if [[ -f .gitmodules ]]; then
   travis_timeout 300
   travis_assert
 fi
+rm -f ~/.ssh/source_rsa
 travis_finish checkout $?
 
 travis_start setup
@@ -95,8 +99,12 @@ travis_assert
 travis_assert
 rvm get head >/dev/null 2>&1
 travis_assert
-echo \$\ rvm\ use\ jruby\ --install\ --binary
-(rvm use jruby --install --binary) >> ~/build.log 2>&1
+(echo \$\ rvm\ reload) >> ~/build.log 2>&1
+travis_assert
+rvm reload >/dev/null 2>&1
+travis_assert
+echo \$\ rvm\ use\ jruby\ --install\ --binary\ --fuzzy
+(rvm use jruby --install --binary --fuzzy) >> ~/build.log 2>&1
 travis_assert
 if [[ -f Gemfile ]]; then
   echo \$\ export\ BUNDLE_GEMFILE\=\$PWD/Gemfile
