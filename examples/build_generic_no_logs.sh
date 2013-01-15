@@ -65,8 +65,7 @@ travis_finish export $?
 travis_start checkout
 export GIT_ASKPASS=echo
 echo \$\ git\ clone\ --depth\=100\ --quiet\ --branch\=master\ git://github.com/travis-ci/travis-ci.git\ travis-ci/travis-ci
-(git clone --depth=100 --quiet --branch=master git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci) &
-travis_timeout 300
+git clone --depth=100 --quiet --branch=master git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci
 travis_assert
 echo \$\ cd\ travis-ci/travis-ci
 cd travis-ci/travis-ci
@@ -78,8 +77,7 @@ if [[ -f .gitmodules ]]; then
   echo \$\ git\ submodule\ init
   git submodule init
   echo \$\ git\ submodule\ update
-  (git submodule update) &
-  travis_timeout 300
+  git submodule update
   travis_assert
 fi
 rm -f ~/.ssh/source_rsa
@@ -93,23 +91,19 @@ travis_finish announce $?
 
 travis_start before_install
 echo \$\ ./before_install_1.sh
-(./before_install_1.sh) &
-travis_timeout 300
+./before_install_1.sh
 travis_assert
 echo \$\ ./before_install_2.sh
-(./before_install_2.sh) &
-travis_timeout 300
+./before_install_2.sh
 travis_assert
 travis_finish before_install $?
 
 travis_start before_script
 echo \$\ ./before_script_1.sh
-(./before_script_1.sh) &
-travis_timeout 600
+./before_script_1.sh
 travis_assert
 echo \$\ ./before_script_2.sh
-(./before_script_2.sh) &
-travis_timeout 600
+./before_script_2.sh
 travis_assert
 travis_finish before_script $?
 
@@ -122,31 +116,25 @@ travis_finish script $TRAVIS_TEST_RESULT
 if [[ $TRAVIS_TEST_RESULT = 0 ]]; then
   travis_start after_success
   echo \$\ ./after_success_1.sh
-  (./after_success_1.sh) &
-  travis_timeout 300
+  ./after_success_1.sh
   echo \$\ ./after_success_2.sh
-  (./after_success_2.sh) &
-  travis_timeout 300
+  ./after_success_2.sh
   travis_finish after_success $?
 fi
 if [[ $TRAVIS_TEST_RESULT != 0 ]]; then
   travis_start after_failure
   echo \$\ ./after_failure_1.sh
-  (./after_failure_1.sh) &
-  travis_timeout 300
+  ./after_failure_1.sh
   echo \$\ ./after_failure_2.sh
-  (./after_failure_2.sh) &
-  travis_timeout 300
+  ./after_failure_2.sh
   travis_finish after_failure $?
 fi
 
 travis_start after_script
 echo \$\ ./after_script_1.sh
-(./after_script_1.sh) &
-travis_timeout 300
+./after_script_1.sh
 echo \$\ ./after_script_2.sh
-(./after_script_2.sh) &
-travis_timeout 300
+./after_script_2.sh
 travis_finish after_script $?
 
 echo

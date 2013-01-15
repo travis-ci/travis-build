@@ -11,8 +11,8 @@ module Travis
     BUILD_DIR = '~/build'
 
     LOGS = {
-      build: '~/build.log',
-      state: '~/state.log'
+      # build: '~/build.log',
+      # state: '~/state.log'
     }
 
     class << self

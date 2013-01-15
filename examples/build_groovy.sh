@@ -2,11 +2,11 @@
 source /etc/profile
 
 travis_start() {
-  echo "[travis:$1:start]" >> ~/state.log
+  echo "[travis:$1:start]" 
 }
 
 travis_finish() {
-  echo "[travis:$1:finish:result=$2]" >> ~/state.log
+  echo "[travis:$1:finish:result=$2]" 
   sleep 1
 }
 
@@ -65,21 +65,19 @@ travis_finish export $?
 travis_start checkout
 export GIT_ASKPASS=echo
 echo \$\ git\ clone\ --depth\=100\ --quiet\ --branch\=master\ git://github.com/travis-ci/travis-ci.git\ travis-ci/travis-ci
-((git clone --depth=100 --quiet --branch=master git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci) >> ~/build.log 2>&1) &
-travis_timeout 300
+git clone --depth=100 --quiet --branch=master git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci
 travis_assert
 echo \$\ cd\ travis-ci/travis-ci
-(cd travis-ci/travis-ci) >> ~/build.log 2>&1
+cd travis-ci/travis-ci
 echo \$\ git\ checkout\ -qf\ 313f61b
-(git checkout -qf 313f61b) >> ~/build.log 2>&1
+git checkout -qf 313f61b
 travis_assert
 if [[ -f .gitmodules ]]; then
-  (echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config) >> ~/build.log 2>&1
+  echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
   echo \$\ git\ submodule\ init
-  (git submodule init) >> ~/build.log 2>&1
+  git submodule init
   echo \$\ git\ submodule\ update
-  ((git submodule update) >> ~/build.log 2>&1) &
-  travis_timeout 300
+  git submodule update
   travis_assert
 fi
 rm -f ~/.ssh/source_rsa
@@ -90,60 +88,51 @@ travis_finish setup $?
 
 travis_start announce
 echo \$\ java\ -version
-(java -version) >> ~/build.log 2>&1
+java -version
 echo \$\ javac\ -version
-(javac -version) >> ~/build.log 2>&1
+javac -version
 travis_finish announce $?
 
 travis_start before_install
 echo \$\ ./before_install_1.sh
-((./before_install_1.sh) >> ~/build.log 2>&1) &
-travis_timeout 300
+./before_install_1.sh
 travis_assert
 echo \$\ ./before_install_2.sh
-((./before_install_2.sh) >> ~/build.log 2>&1) &
-travis_timeout 300
+./before_install_2.sh
 travis_assert
 travis_finish before_install $?
 
 travis_start install
 if [[ -f build.gradle ]]; then
   echo \$\ gradle\ assemble
-  ((gradle assemble) >> ~/build.log 2>&1) &
-  travis_timeout 600
+  gradle assemble
   travis_assert
 elif [[ -f pom.xml ]]; then
   echo \$\ mvn\ install\ --quiet\ -DskipTests\=true
-  ((mvn install --quiet -DskipTests=true) >> ~/build.log 2>&1) &
-  travis_timeout 600
+  mvn install --quiet -DskipTests=true
   travis_assert
 fi
 travis_finish install $?
 
 travis_start before_script
 echo \$\ ./before_script_1.sh
-((./before_script_1.sh) >> ~/build.log 2>&1) &
-travis_timeout 600
+./before_script_1.sh
 travis_assert
 echo \$\ ./before_script_2.sh
-((./before_script_2.sh) >> ~/build.log 2>&1) &
-travis_timeout 600
+./before_script_2.sh
 travis_assert
 travis_finish before_script $?
 
 travis_start script
 if [[ -f build.gradle ]]; then
   echo \$\ gradle\ check
-  ((gradle check) >> ~/build.log 2>&1) &
-  travis_timeout 1500
+  gradle check
 elif [[ -f pom.xml ]]; then
   echo \$\ mvn\ test
-  ((mvn test) >> ~/build.log 2>&1) &
-  travis_timeout 1500
+  mvn test
 else
   echo \$\ ant\ test
-  ((ant test) >> ~/build.log 2>&1) &
-  travis_timeout 1500
+  ant test
 fi
 export TRAVIS_TEST_RESULT=$?
 travis_finish script $TRAVIS_TEST_RESULT
@@ -151,34 +140,28 @@ travis_finish script $TRAVIS_TEST_RESULT
 if [[ $TRAVIS_TEST_RESULT = 0 ]]; then
   travis_start after_success
   echo \$\ ./after_success_1.sh
-  ((./after_success_1.sh) >> ~/build.log 2>&1) &
-  travis_timeout 300
+  ./after_success_1.sh
   echo \$\ ./after_success_2.sh
-  ((./after_success_2.sh) >> ~/build.log 2>&1) &
-  travis_timeout 300
+  ./after_success_2.sh
   travis_finish after_success $?
 fi
 if [[ $TRAVIS_TEST_RESULT != 0 ]]; then
   travis_start after_failure
   echo \$\ ./after_failure_1.sh
-  ((./after_failure_1.sh) >> ~/build.log 2>&1) &
-  travis_timeout 300
+  ./after_failure_1.sh
   echo \$\ ./after_failure_2.sh
-  ((./after_failure_2.sh) >> ~/build.log 2>&1) &
-  travis_timeout 300
+  ./after_failure_2.sh
   travis_finish after_failure $?
 fi
 
 travis_start after_script
 echo \$\ ./after_script_1.sh
-((./after_script_1.sh) >> ~/build.log 2>&1) &
-travis_timeout 300
+./after_script_1.sh
 echo \$\ ./after_script_2.sh
-((./after_script_2.sh) >> ~/build.log 2>&1) &
-travis_timeout 300
+./after_script_2.sh
 travis_finish after_script $?
 
 echo
-echo "Done. Build script exited with $TRAVIS_TEST_RESULT" >> ~/build.log
+echo "Done. Build script exited with $TRAVIS_TEST_RESULT" 
 
 travis_terminate $TRAVIS_TEST_RESULT

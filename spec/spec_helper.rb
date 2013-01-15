@@ -22,7 +22,8 @@ module SpecHelpers
 
   def replace_consts
     replace_const 'Travis::Build::Script::TEMPLATES_PATH', 'spec/templates'
-    replace_const 'Travis::Build::LOGS', { build: 'build.log', state: 'state.log' }
+    # replace_const 'Travis::Build::LOGS', { build: 'build.log', state: 'state.log' }
+    replace_const 'Travis::Build::LOGS', {}
     replace_const 'Travis::Build::HOME_DIR', '.'
   end
 
@@ -38,7 +39,7 @@ module SpecHelpers
   end
 
   def executable(name)
-    file(name, "builtin echo #{name} $@ >> test.log; builtin echo output from #{name} $@;")
+    file(name, "builtin echo #{name} $@;")
     FileUtils.chmod('+x', "tmp/#{name}")
   end
 
