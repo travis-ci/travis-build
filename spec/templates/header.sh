@@ -3,7 +3,7 @@ cd tmp
 
 travis_timeout() {
   wait $!
-  builtin echo travis_timeout $1 >> test.log
+  builtin echo travis_timeout $1
 }
 
 stubs=(
@@ -25,7 +25,7 @@ stubs=(
   sbt
 )
 for stub in ${stubs[*]}; do
-  eval "$stub() { builtin echo $stub \$@ >> test.log; builtin echo output from $stub \$@; }"
+  eval "$stub() { builtin echo $stub \$@; }"
 done
 
 stubs=(
@@ -33,5 +33,5 @@ stubs=(
   travis_start travis_finish travis_assert travis_terminate
 )
 for stub in ${stubs[*]}; do
-  eval "$stub() { builtin echo $stub \$@ >> test.log; }"
+  eval "$stub() { builtin echo $stub \$@; }"
 done

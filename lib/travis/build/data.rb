@@ -11,17 +11,17 @@ module Travis
 
       DEFAULTS = {
         timeouts: {
-          git_clone:      300,
-          git_fetch_ref:  300,
-          git_submodules: 300,
-          start_service:  60,
-          before_install: 300,
-          install:        600,
-          before_script:  600,
-          script:         1500,
-          after_success:  300,
-          after_failure:  300,
-          after_script:   300
+          # git_clone:      300,
+          # git_fetch_ref:  300,
+          # git_submodules: 300,
+          # start_service:  60,
+          # before_install: 300,
+          # install:        600,
+          # before_script:  600,
+          # script:         1500,
+          # after_success:  300,
+          # after_failure:  300,
+          # after_script:   300
         }
       }
 

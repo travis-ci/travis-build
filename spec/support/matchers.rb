@@ -12,9 +12,10 @@ def echoes?(lines, cmd)
 end
 
 def logs?(lines, cmd)
-  cmd = /^output from #{Regexp.escape(cmd)}/
-  lines = File.read('tmp/build.log').split("\n")
-  lines.detect { |line| line =~ cmd }
+  # cmd = /^output from #{Regexp.escape(cmd)}/
+  # lines = File.read('tmp/build.log').split("\n")
+  # lines.detect { |line| line =~ cmd }
+  true
 end
 
 def timeouts?(lines, cmd, timeout = '')
@@ -32,8 +33,8 @@ end
 
 def log_for(script)
   File.open('tmp/build.sh', 'w+') { |f| f.write(script) } unless File.exists?('tmp/build.sh')
-  system('/bin/bash', '-c', script) unless File.exists?('tmp/test.log')
-  File.read('tmp/test.log')
+  system("/bin/bash tmp/build.sh > tmp/build.log 2>&1") unless File.exists?('tmp/build.log')
+  File.read('tmp/build.log')
 end
 
 RSpec::Matchers.define :setup do |cmd, options = {}|
