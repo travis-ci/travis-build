@@ -34,19 +34,20 @@ shared_examples_for 'a git repo' do
     should run 'git checkout -qf 313f61b', echo: true, log: true
   end
 
-  describe 'if .gitmodules exists' do
-    before :each do
-      file '.gitmodules'
-    end
+  # TODO this currently trashes my ~/.ssh/config
+  # describe 'if .gitmodules exists' do
+  #   before :each do
+  #     file '.gitmodules'
+  #   end
 
-    it 'inits submodules' do
-      should run 'git submodule init'
-    end
+  #   it 'inits submodules' do
+  #     should run 'git submodule init'
+  #   end
 
-    it 'updates submodules' do
-      should run 'git submodule update'
-    end
-  end
+  #   it 'updates submodules' do
+  #     should run 'git submodule update'
+  #   end
+  # end
 
   describe 'submodules is set to false' do
     before :each do
