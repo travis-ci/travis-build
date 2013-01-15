@@ -35,6 +35,10 @@ travis_terminate() {
   exit $1
 }
 
+decrypt() {
+  echo $1 | base64 -d | openssl rsautl -decrypt -inkey ~/.ssh/id_rsa.repo
+}
+
 rm -rf   ~/build
 mkdir -p ~/build
 cd       ~/build
@@ -66,7 +70,6 @@ travis_timeout 300
 travis_assert
 echo \$\ cd\ travis-ci/travis-ci
 cd travis-ci/travis-ci
-rm -f ~/.ssh/source_rsa
 echo \$\ git\ checkout\ -qf\ 313f61b
 git checkout -qf 313f61b
 travis_assert
@@ -79,6 +82,7 @@ if [[ -f .gitmodules ]]; then
   travis_timeout 300
   travis_assert
 fi
+rm -f ~/.ssh/source_rsa
 travis_finish checkout $?
 
 travis_start setup
