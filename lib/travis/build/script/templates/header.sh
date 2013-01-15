@@ -13,7 +13,7 @@ travis_finish() {
 travis_assert() {
   if [ $? != 0 ]; then
     echo "Command did not exit with 0. Exiting." <%= ">> #{logs[:log]}" if logs[:log] %>
-    travis_terminate 1
+    travis_terminate 2
   fi
 }
 
@@ -23,7 +23,7 @@ travis_timeout() {
   while ps aux | awk '{print $2 }' | grep -q $pid 2> /dev/null; do
     if [ $(expr $(date +%s) - $start) -gt $1 ]; then
       echo "Command timed out after $1 seconds. Exiting." <%= ">> #{logs[:log]}" if logs[:log] %>
-      travis_terminate 1
+      travis_terminate 2
     fi
   done
   wait $pid
