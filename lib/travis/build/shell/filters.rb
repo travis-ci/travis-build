@@ -1,5 +1,3 @@
-require 'shellwords'
-
 module Travis
   module Build
     module Shell
@@ -10,7 +8,7 @@ module Travis
           end
 
           def log(code)
-            "(#{code}) >> #{options[:log_file]} 2>&1"
+            "#{code} >> #{options[:log_file]} 2>&1"
           end
         end
 
@@ -20,7 +18,7 @@ module Travis
           end
 
           def timeout(code)
-            "(#{code}) &\ntravis_timeout #{options[:timeout]}"
+            "tlimit -c #{options[:timeout]} #{code}"
           end
         end
 
@@ -41,7 +39,7 @@ module Travis
           end
 
           def echoize(code, echo = nil)
-            "echo #{Shellwords.escape("$ #{echo || @code}")}\n#{code}"
+            "echo #{escape("$ #{echo || @code}")}\n#{code}"
           end
         end
       end

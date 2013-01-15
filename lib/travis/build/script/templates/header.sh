@@ -17,18 +17,6 @@ travis_assert() {
   fi
 }
 
-travis_timeout() {
-  local pid=$!
-  local start=$(date +%s)
-  while ps aux | awk '{print $2 }' | grep -q $pid 2> /dev/null; do
-    if [ $(expr $(date +%s) - $start) -gt $1 ]; then
-      echo "Command timed out after $1 seconds. Exiting." <%= ">> #{logs[:log]}" if logs[:log] %>
-      travis_terminate 2
-    fi
-  done
-  wait $pid
-}
-
 travis_terminate() {
   travis_finish build $1
   pkill -9 -P $$ > /dev/null 2>&1

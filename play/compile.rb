@@ -32,6 +32,9 @@ data = {
     # after_failure: 'yo kaputt',
     # after_script: 'travis-artifacts upload shit',
     # script: 'bundle exec rspec'
+  },
+  timeouts: {
+    git_clone: 300
   }
 }
 
