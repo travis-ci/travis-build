@@ -12,9 +12,9 @@ module Travis
 
         def start_services
           services.each do |name|
-            cmd "sudo service #{name} start", timeout: :start_service
+            cmd "sudo service #{name} start", timeout: :start_service, assert: false
           end
-          cmd 'sleep 3', log: false if services.any? # give services a moment to start
+          cmd 'sleep 3', log: false, assert: false if services.any? # give services a moment to start
         end
 
         def services
