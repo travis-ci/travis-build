@@ -21,13 +21,14 @@ describe Travis::Build::Script::ObjectiveC do
 
     it 'runs pod install' do
       should install 'pod install'
-      store_example 'objective_c_cocoapods'
+      store_example 'cocoapods'
     end
   end
 
   context 'if no Podfile exists' do
     it 'runs xcode tests' do
-      should run_script 'xcodebuild  -scheme MyApp clean test'
+      should run_script 'xcodebuild -scheme MyApp clean test'
+      store_example
     end
   end
 
@@ -37,7 +38,7 @@ describe Travis::Build::Script::ObjectiveC do
     end
 
     it 'runs xcode tests with workspace' do
-      should run_script 'xcodebuild -workspace MyWorkspace.workspace -scheme MyApp clean test'
+      should run_script 'xcodebuild -workspace MyWorkspace.xcworkspace -scheme MyApp clean test'
     end
   end
 end
