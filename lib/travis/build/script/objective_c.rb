@@ -12,7 +12,7 @@ module Travis
         end
 
         def script
-          workspace = config[:xcode_workspace] ? "-workspace #{config[:xcode_workspace]}" : ''
+          workspace = config[:xcode_workspace] ? "-workspace #{config[:xcode_workspace]}.xcworkspace" : ''
           cmd "xcodebuild #{workspace} -scheme #{config[:xcode_scheme]} clean test"
         end
 
