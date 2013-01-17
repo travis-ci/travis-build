@@ -67,7 +67,7 @@ module Travis
 
         def export
           data.env_vars.each do |var|
-            set var.key, var.value, echo: !var.secure?
+            set var.key, var.value, echo: var.to_s
           end
         end
 
