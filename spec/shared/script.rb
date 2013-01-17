@@ -13,6 +13,7 @@ shared_examples_for 'a build script' do
     should set 'TRAVIS_BRANCH',          'master'
     should set 'TRAVIS_COMMIT',          '313f61b'
     should set 'TRAVIS_COMMIT_RANGE',    '313f61b..313f61a'
+    should set 'TRAVIS_REPO_SLUG',       'travis-ci/travis-ci'
   end
 
   it 'sets TRAVIS_PULL_REQUEST to the given number when running a pull_request' do

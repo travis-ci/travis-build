@@ -4,7 +4,7 @@ module Travis
   module Build
     class Data
       class Env
-        delegate :pull_request, :config, :build, :job, to: :data
+        delegate :pull_request, :config, :build, :job, :repository, to: :data
 
         attr_reader :data
 
@@ -28,7 +28,8 @@ module Travis
               TRAVIS_JOB_NUMBER:      job[:number],
               TRAVIS_BRANCH:          job[:branch],
               TRAVIS_COMMIT:          job[:commit],
-              TRAVIS_COMMIT_RANGE:    job[:commit_range]
+              TRAVIS_COMMIT_RANGE:    job[:commit_range],
+              TRAVIS_REPO_SLUG:       repository[:slug]
             )
           end
 
