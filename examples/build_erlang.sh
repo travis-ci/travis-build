@@ -48,7 +48,6 @@ echo \$\ export\ FOO\=foo
 export FOO=foo
 echo \$\ export\ BAR\=\[secure\]
 export BAR=bar
-echo \$\ export\ TRAVIS_OTP_RELEASE\=R14B04
 export TRAVIS_OTP_RELEASE=R14B04
 travis_finish export $?
 

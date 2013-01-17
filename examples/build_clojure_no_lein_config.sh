@@ -48,7 +48,6 @@ echo \$\ export\ FOO\=foo
 export FOO=foo
 echo \$\ export\ BAR\=\[secure\]
 export BAR=bar
-echo \$\ export\ TRAVIS_JDK_VERSION\=default
 export TRAVIS_JDK_VERSION=default
 travis_finish export $?
 

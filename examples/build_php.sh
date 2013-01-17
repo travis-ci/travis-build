@@ -48,7 +48,6 @@ echo \$\ export\ FOO\=foo
 export FOO=foo
 echo \$\ export\ BAR\=\[secure\]
 export BAR=bar
-echo \$\ export\ TRAVIS_PHP_VERSION\=5.3
 export TRAVIS_PHP_VERSION=5.3
 travis_finish export $?
 

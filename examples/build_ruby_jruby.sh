@@ -48,9 +48,7 @@ echo \$\ export\ FOO\=foo
 export FOO=foo
 echo \$\ export\ BAR\=\[secure\]
 export BAR=bar
-echo \$\ export\ TRAVIS_JDK_VERSION\=openjdk7
 export TRAVIS_JDK_VERSION=openjdk7
-echo \$\ export\ TRAVIS_RUBY_VERSION\=jruby
 export TRAVIS_RUBY_VERSION=jruby
 travis_finish export $?
 

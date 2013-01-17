@@ -8,7 +8,7 @@ module Travis
 
         def export
           super
-          set 'TRAVIS_PERL_VERSION', config[:perl]
+          set 'TRAVIS_PERL_VERSION', config[:perl], echo: false
         end
 
         def setup

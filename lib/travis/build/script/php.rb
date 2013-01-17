@@ -8,7 +8,7 @@ module Travis
 
         def export
           super
-          set 'TRAVIS_PHP_VERSION', config[:php]
+          set 'TRAVIS_PHP_VERSION', config[:php], echo: false
         end
 
         def setup

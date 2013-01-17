@@ -9,7 +9,7 @@ module Travis
         def export
           super
           config[:node_js] ||= config[:nodejs] # some old projects use language: nodejs. MK.
-          set 'TRAVIS_NODE_VERSION', config[:node_js]
+          set 'TRAVIS_NODE_VERSION', config[:node_js], echo: false
         end
 
         def setup

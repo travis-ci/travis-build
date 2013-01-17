@@ -11,7 +11,7 @@ module Travis
 
         def export
           super
-          set 'TRAVIS_SCALA_VERSION', config[:scala]
+          set 'TRAVIS_SCALA_VERSION', config[:scala], echo: false
         end
 
         def announce
