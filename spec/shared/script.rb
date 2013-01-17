@@ -19,11 +19,13 @@ shared_examples_for 'a build script' do
   it 'sets TRAVIS_PULL_REQUEST to the given number when running a pull_request' do
     data['job']['pull_request'] = 1
     should set 'TRAVIS_PULL_REQUEST', '1'
+    store_example 'pull_request' if described_class == Travis::Build::Script::Generic
   end
 
   it 'sets TRAVIS_SECURE_ENV_VARS to true when using secure env vars' do
     data['config']['env'] = 'SECURE BAR=bar'
     should set 'TRAVIS_SECURE_ENV_VARS', 'true'
+    store_example 'secure_var' if described_class == Travis::Build::Script::Generic
   end
 
   it 'sets a given :env var' do
