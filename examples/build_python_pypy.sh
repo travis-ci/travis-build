@@ -48,7 +48,6 @@ echo \$\ export\ FOO\=foo
 export FOO=foo
 echo \$\ export\ BAR\=\[secure\]
 export BAR=bar
-echo \$\ export\ TRAVIS_PYTHON_VERSION\=pypy
 export TRAVIS_PYTHON_VERSION=pypy
 travis_finish export $?
 

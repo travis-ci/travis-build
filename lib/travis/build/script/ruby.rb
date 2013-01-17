@@ -11,7 +11,7 @@ module Travis
 
         def export
           super
-          set 'TRAVIS_RUBY_VERSION', config[:rvm]
+          set 'TRAVIS_RUBY_VERSION', config[:rvm], echo: false
         end
 
         def setup

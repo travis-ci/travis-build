@@ -11,7 +11,7 @@ module Travis
 
         def export
           super
-          set 'TRAVIS_PYTHON_VERSION', config[:python]
+          set 'TRAVIS_PYTHON_VERSION', config[:python], echo: false
         end
 
         def setup

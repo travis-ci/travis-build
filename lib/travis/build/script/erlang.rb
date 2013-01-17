@@ -8,7 +8,7 @@ module Travis
 
         def export
           super
-          set 'TRAVIS_OTP_RELEASE', config[:otp_release]
+          set 'TRAVIS_OTP_RELEASE', config[:otp_release], echo: false
         end
 
         def setup
