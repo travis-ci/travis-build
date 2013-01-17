@@ -19,7 +19,7 @@ module Travis
         end
 
         def script
-          sh_if   '-f project || -f build.sbt', "sbt ++#{config[:scala]} test"
+          sh_if   '-d project || -f build.sbt', "sbt ++#{config[:scala]} test"
           sh_else 'mvn test'
         end
       end

@@ -102,7 +102,7 @@ travis_assert
 travis_finish before_script $?
 
 travis_start script
-if [[ -f project || -f build.sbt ]]; then
+if [[ -d project || -f build.sbt ]]; then
   echo \$\ sbt\ \+\+2.9.2\ test
   sbt ++2.9.2 test
 else

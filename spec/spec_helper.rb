@@ -49,6 +49,11 @@ module SpecHelpers
     File.open(path, 'w+') { |f| f.write(content) }
   end
 
+  def directory(name)
+    path = "tmp/#{name}"
+    FileUtils.mkdir_p(path)
+  end
+
   def gemfile(name)
     file(name)
     data['config']['gemfile'] = name

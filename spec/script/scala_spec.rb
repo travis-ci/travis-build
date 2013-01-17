@@ -21,8 +21,8 @@ describe Travis::Build::Script::Scala do
     should run 'echo Using Scala 2.9.2'
   end
 
-  it 'runs sbt ++2.9.2 test if ./project exists' do
-    file('project')
+  it 'runs sbt ++2.9.2 test if ./project directory exists' do
+    directory('project')
     should run_script 'sbt ++2.9.2 test'
   end
 
