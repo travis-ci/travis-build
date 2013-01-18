@@ -34,9 +34,13 @@ data = {
     # script: 'bundle exec rspec'
   },
   timeouts: {
-    git_clone: 300
+    # git_clone: 300
   }
 }
+
+require 'yaml'
+
+data[:config] = YAML.load_file('play/config.yml')
 
 script = Travis::Build.script(data, logs: { build: false, state: true })
 script = script.compile
