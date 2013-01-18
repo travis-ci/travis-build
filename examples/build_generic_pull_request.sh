@@ -2,6 +2,7 @@
 source /etc/profile
 
 travis_start() {
+  TRAVIS_STAGE=$1
   echo "[travis:$1:start]" 
 }
 
@@ -11,8 +12,9 @@ travis_finish() {
 }
 
 travis_assert() {
-  if [ $? != 0 ]; then
-    echo "Command did not exit with 0. Exiting." 
+  local result=$?
+  if [ $result -ne 0 ]; then
+    echo "\nThe command \"$TRAVIS_CMD\" failed and exited with $result during $TRAVIS_STAGE.\n\nYour build has been stopped." 
     travis_terminate 2
   fi
 }
@@ -32,6 +34,7 @@ mkdir -p ~/build
 cd       ~/build
 
 trap 'travis_finish build 1' TERM
+trap 'TRAVIS_CMD=$TRAVIS_NEXT_CMD; TRAVIS_NEXT_CMD=$BASH_COMMAND' DEBUG
 
 travis_start build
 travis_start export
@@ -44,6 +47,7 @@ export TRAVIS_JOB_NUMBER=1.1
 export TRAVIS_BRANCH=master
 export TRAVIS_COMMIT=313f61b
 export TRAVIS_COMMIT_RANGE=313f61b..313f61a
+export TRAVIS_REPO_SLUG=travis-ci/travis-ci
 echo \$\ export\ FOO\=foo
 export FOO=foo
 travis_finish export $?
