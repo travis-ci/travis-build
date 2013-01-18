@@ -7,7 +7,7 @@ module Travis
         register :build_script
 
         def run
-          Travis::Build.script(data).compile
+          Travis::Build.script(data).compile if job
         end
 
         private
@@ -17,7 +17,7 @@ module Travis
           end
 
           def job
-            run_service(:find_job, id: params[:id])
+            @job ||= run_service(:find_job, id: params[:id])
           end
       end
     end
