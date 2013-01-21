@@ -31,7 +31,7 @@ describe Travis::Build::Script::Scala do
     should run_script 'sbt ++2.9.2 test'
   end
 
-  it 'runs mvn test no project or build file exists' do
+  it 'runs mvn test if no project directory or build file exists' do
     should run_script 'mvn test'
   end
 end
