@@ -63,4 +63,53 @@ shared_examples_for 'a git repo' do
       should_not run 'git submodule update'
     end
   end
+
+  # TODO this currently trashes your local ~/.ssh/id_rsa and known_hosts file
+  # describe 'there is a source_key' do
+  #   before :each do
+  #     data['config']['source_key'] = "d2hvbGV0dGhlam9zaG91dA==\n"
+  #   end
+  #
+  #   it 'does not add the source_key' do
+  #     should run /echo '\w+' | base64 -D -o ~\/.ssh\/id_rsa/
+  #   end
+  #
+  #   it 'does not change the id_rsa file permissions' do
+  #     should run "chmod 600 ~/.ssh/id_rsa"
+  #   end
+  #
+  #   it 'does not start the ssh-agent' do
+  #     should run "eval `ssh-agent` > /dev/null 2>&1"
+  #   end
+  #
+  #   it 'does not add the id_rsa key to the ssh agent' do
+  #     should run "ssh-add ~/.ssh/id_rsa > /dev/null 2>&1"
+  #   end
+  #
+  #   it 'does not add github.com to the known_hosts file' do
+  #     should run "echo -e \"Host github.com\n\tBatchMode yes\n\tStrictHostKeyChecking no\n\" >> ~/.ssh/config"
+  #   end
+  # end
+
+  describe 'there is no source_key' do
+    it 'does not add the source_key' do
+      should_not run /echo '\w+' | base64 -D -o ~\/.ssh\/id_rsa/
+    end
+
+    it 'does not change the id_rsa file permissions' do
+      should_not run "chmod 600 ~/.ssh/id_rsa"
+    end
+
+    it 'does not start the ssh-agent' do
+      should_not run "eval `ssh-agent` > /dev/null 2>&1"
+    end
+
+    it 'does not add the id_rsa key to the ssh agent' do
+      should_not run "ssh-add ~/.ssh/id_rsa > /dev/null 2>&1"
+    end
+
+    it 'does not add github.com to the known_hosts file' do
+      should_not run "echo -e \"Host github.com\n\tBatchMode yes\n\tStrictHostKeyChecking no\n\" >> ~/.ssh/config"
+    end
+  end
 end
