@@ -42,7 +42,7 @@ data = {
 # data[:config] = YAML.load_file('play/config.yml')
 
 # script = Travis::Build.script(data, logs: { build: false, state: true })
-script = Travis::Build.script({}, logs: { build: false, state: true })
+script = Travis::Build.script(data, logs: { build: false, state: true })
 script = script.compile
 puts script
 

@@ -14,12 +14,20 @@ describe Travis::Build::Data::Var do
       parse('FOO=foo BAR=bar').should == [['FOO', 'foo'], ['BAR', 'bar']]
     end
 
+    it 'parses FOO="" BAR=bar' do
+      parse('FOO="" BAR=bar').should == [['FOO', '""'], ['BAR', 'bar']]
+    end
+
     it 'parses FOO="foo" BAR=bar' do
       parse('FOO="foo" BAR=bar').should == [['FOO', '"foo"'], ['BAR', 'bar']]
     end
 
     it 'parses FOO="foo" BAR="bar"' do
       parse('FOO="foo" BAR="bar"').should == [['FOO', '"foo"'], ['BAR', '"bar"']]
+    end
+
+    it "parses FOO='' BAR=bar" do
+      parse("FOO='' BAR=bar").should == [['FOO', "''"], ['BAR', 'bar']]
     end
 
     it "parses FOO='foo' BAR=bar" do
