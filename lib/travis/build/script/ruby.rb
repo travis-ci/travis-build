@@ -16,7 +16,7 @@ module Travis
 
         def setup
           super
-          update_rvm
+          # update_rvm
           setup_ruby
           setup_bundler
         end
@@ -46,7 +46,6 @@ module Travis
           end
 
           def setup_ruby
-            ruby_version = config[:rvm].gsub(/-(1[89])mode$/, '-d\1')
             cmd "rvm use #{ruby_version} --install --binary --fuzzy"
           end
 
@@ -66,6 +65,11 @@ module Travis
 
           def uses_jdk?
             uses_java? && super
+          end
+          
+          def ruby_version
+            ruby_version = config[:rvm].gsub(/-(1[89]|20)mode$/, '-d\1')
+            ruby_version.gsub(/^rbx-d(\d{2})$/, 'rbx-weekly-d\1')
           end
       end
     end
