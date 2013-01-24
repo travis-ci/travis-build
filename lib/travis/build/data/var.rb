@@ -2,7 +2,7 @@ module Travis
   module Build
     class Data
       class Var
-        PATTERN = /((?:SECURE )?[\w]+)=(("|')(.+?)(\3)|\$\(.+?\)|[^"' ]+)/
+        PATTERN = /((?:SECURE )?[\w]+)=(("|')(.*?)(\3)|\$\(.*?\)|[^"' ]+)/
 
         class << self
           def create(*args)

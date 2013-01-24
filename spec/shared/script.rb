@@ -33,6 +33,23 @@ shared_examples_for 'a build script' do
     should set 'FOO', 'foo'
   end
 
+  it 'sets a given :env var even if empty' do
+    data['config']['env'] = 'FOO=""'
+    should set 'FOO', '""'
+  end
+
+  it 'sets multiple :env vars (space separated)' do
+    data['config']['env'] = 'FOO=foo BAR=bar'
+    should set 'FOO', 'foo'
+    should set 'BAR', 'bar'
+  end
+
+  it 'sets multiple :env vars (array)' do
+    data['config']['env'] = ['FOO=foo', 'BAR=bar']
+    should set 'FOO', 'foo'
+    should set 'BAR', 'bar'
+  end
+
   it 'sets a given secure :env var' do
     data['config']['env'] = 'SECURE BAR=bar'
     should set 'BAR', 'bar'

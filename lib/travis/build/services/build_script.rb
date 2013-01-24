@@ -7,7 +7,7 @@ module Travis
         register :build_script
 
         def run
-          Travis::Build.script(data).compile if job
+          job ? Travis::Build.script(data).compile : not_found
         end
 
         private
@@ -18,6 +18,10 @@ module Travis
 
           def job
             @job ||= run_service(:find_job, id: params[:id])
+          end
+
+          def not_found
+            "echo \"The build.sh for the job #{params[:id].inspect} could not be generated: job not found.\"; exit 2"
           end
       end
     end
