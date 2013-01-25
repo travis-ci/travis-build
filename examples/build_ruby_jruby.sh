@@ -14,7 +14,7 @@ travis_finish() {
 travis_assert() {
   local result=$?
   if [ $result -ne 0 ]; then
-    echo "\nThe command \"$TRAVIS_CMD\" failed and exited with $result during $TRAVIS_STAGE.\n\nYour build has been stopped." 
+    echo -e "\nThe command \"$TRAVIS_CMD\" failed and exited with $result during $TRAVIS_STAGE.\n\nYour build has been stopped." 
     travis_terminate 2
   fi
 }
@@ -80,16 +80,6 @@ travis_finish checkout $?
 travis_start setup
 echo \$\ jdk_switcher\ use\ openjdk7
 jdk_switcher use openjdk7
-travis_assert
-echo Updating\ RVM,\ this\ should\ just\ take\ a\ sec
-travis_assert
-echo \$\ rvm\ get\ head
-travis_assert
-rvm get head >/dev/null 2>&1
-travis_assert
-echo \$\ rvm\ reload
-travis_assert
-rvm reload >/dev/null 2>&1
 travis_assert
 echo \$\ rvm\ use\ jruby\ --install\ --binary\ --fuzzy
 rvm use jruby --install --binary --fuzzy
