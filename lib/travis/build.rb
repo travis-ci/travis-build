@@ -33,6 +33,8 @@ module Travis
           Script::PureJava
         when "c++", "cpp", "cplusplus" then
           Script::Cpp
+        when 'objective-c'
+          Script::ObjectiveC
         else
           name = lang.split('_').map { |w| w.capitalize }.join
           Script.const_get(name, false) rescue Script::Ruby
