@@ -14,7 +14,7 @@ travis_finish() {
 travis_assert() {
   local result=$?
   if [ $result -ne 0 ]; then
-    echo "\nThe command \"$TRAVIS_CMD\" failed and exited with $result during $TRAVIS_STAGE.\n\nYour build has been stopped." 
+    echo -e "\nThe command \"$TRAVIS_CMD\" failed and exited with $result during $TRAVIS_STAGE.\n\nYour build has been stopped." 
     travis_terminate 2
   fi
 }
@@ -76,6 +76,24 @@ rm -f ~/.ssh/source_rsa
 travis_finish checkout $?
 
 travis_start setup
+cat > ~/xcodebuild-wrapper.pl <<EOF
+#!/usr/bin/env perl
+
+my $status = 1;
+
+open my $fh, "-|", @ARGV
+  or die "unable to run command: $!\n";
+
+while (my $line = readline($fh)) {
+	print $line;
+	$status = 0 if $line =~ /^\*\* TEST SUCCEEDED \*\*$/;
+}
+
+close $fh;
+
+exit $status;
+EOF
+alias xcodebuild='perl ~/xcodebuild-wrapper.pl'
 travis_finish setup $?
 
 travis_start announce
