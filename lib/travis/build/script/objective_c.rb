@@ -7,6 +7,11 @@ module Travis
           cmd 'xcodebuild -version -sdk'
         end
 
+        def setup
+          super
+          raw template 'xcode.sh'
+        end
+
         def install
           uses_cocoapods? 'pod install'
         end
@@ -25,4 +30,3 @@ module Travis
     end
   end
 end
-
