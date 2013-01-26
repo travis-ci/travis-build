@@ -15,6 +15,7 @@ module Travis
         end
 
         def setup
+          super
           cmd "source #{virtualenv_activate}"
         end
 
