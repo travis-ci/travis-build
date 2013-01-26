@@ -76,7 +76,8 @@ rm -f ~/.ssh/source_rsa
 travis_finish checkout $?
 
 travis_start setup
-cat > ~/xcodebuild-wrapper.pl <<EOF
+mkdir ~/bin
+cat > ~/bin/xcodebuild <<EOF
 #!/usr/bin/env perl
 
 my $status = 1;
@@ -93,7 +94,9 @@ close $fh;
 
 exit $status;
 EOF
-alias xcodebuild='perl ~/xcodebuild-wrapper.pl'
+chmod +x ~/bin/xcodebuild
+
+export PATH="$HOME/bin:$PATH"
 travis_finish setup $?
 
 travis_start announce
