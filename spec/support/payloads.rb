@@ -1,19 +1,28 @@
 PAYLOADS = {
-  :configure => {
-    'type'       => 'configure',
-    'repository' => { 'slug' => 'travis-ci/travis-ci' },
-    'job'        => { 'id' => 1, 'commit' => '313f61b', 'config_url' => 'https://raw.github.com/travis-ci/travis-ci/313f61b/.travis.yml' }
-  },
-  :test => {
-    'type'       => 'test',
-    'repository' => { 'slug' => 'travis-ci/travis-ci', 'source_url' => 'git://github.com/travis-ci/travis-ci.git' },
-    'job'        => { 'id' => 1, 'commit' => '313f61b', 'branch' => 'master' },
-    'config'     => { 'rvm' => '1.9.2', 'env' => 'FOO=foo' }
-  },
-  :pull_request => {
-    'type'       => 'test',
-    'repository' => { 'slug' => 'travis-ci/travis-ci', 'source_url' => 'git://github.com/travis-ci/travis-ci.git' },
-    'job'        => { 'id' => 1, 'commit' => '313f61b', 'ref' => 'refs/pull/118/merge' },
-    'config'     => { 'rvm' => '1.9.2', 'env' => 'FOO=foo' }
+  :push => {
+    'type' => 'test',
+    'config' => {
+      'env' => ['FOO=foo', 'SECURE BAR=bar'],
+      'before_install' => ['./before_install_1.sh', './before_install_2.sh'],
+      'before_script'  => ['./before_script_1.sh', './before_script_2.sh'],
+      'after_script'   => ['./after_script_1.sh', './after_script_2.sh'],
+      'after_success'  => ['./after_success_1.sh', './after_success_2.sh'],
+      'after_failure'  => ['./after_failure_1.sh', './after_failure_2.sh']
+    },
+    'repository' => {
+      'slug' => 'travis-ci/travis-ci',
+      'source_url' => 'git://github.com/travis-ci/travis-ci.git'
+    },
+    'source' => {
+      'id' => 1,
+      'number' => 1
+    },
+    'job' => {
+      'id' => 1,
+      'number' => '1.1',
+      'commit' => '313f61b',
+      'branch' => 'master',
+      'commit_range' => '313f61b..313f61a'
+    }
   }
 }

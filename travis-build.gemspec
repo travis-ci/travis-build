@@ -1,11 +1,10 @@
 # encoding: utf-8
 
 $:.unshift File.expand_path('../lib', __FILE__)
-require 'travis/build/version'
 
 Gem::Specification.new do |s|
   s.name         = 'travis-build'
-  s.version      = Travis::Build::VERSION
+  s.version      = '0.0.1'
   s.authors      = ['Sven Fuchs', 'Josh Kalderimis', 'Michael Klishin']
   s.email        = 'contact@travis-ci.org'
   s.homepage     = 'http://github.com/travis-ci/travis-build'
