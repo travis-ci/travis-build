@@ -9,7 +9,8 @@ module Travis
 
         def setup
           super
-          raw template 'xcode.sh'
+          # TODO: Uncomment this once the template has a working xcodebuild wrapper
+          # raw template 'xcode.sh'
         end
 
         def install
