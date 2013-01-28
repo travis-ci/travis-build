@@ -43,7 +43,7 @@ module Travis
           end
 
           def rm_key
-            raw 'rm -f ~/.ssh/source_rsa'
+            rmf '~/.ssh/source_rsa'
           end
 
           def fetch_ref?
@@ -63,7 +63,7 @@ module Travis
           end
 
           def submodules
-            sh_if '-f .gitmodules' do
+            sh_if_file '.gitmodules' do
               cmd 'echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config', echo: false
               cmd 'git submodule init'
               cmd 'git submodule update', assert: true, timeout: :git_submodules

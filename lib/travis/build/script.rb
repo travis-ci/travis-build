@@ -52,10 +52,17 @@ module Travis
         @stack = [Shell::Script.new(log: true, echo: true, log_file: logs[:build])]
       end
 
-      def compile
+      def compile_unix
         raw template 'header.sh'
         run_stages
         raw template 'footer.sh'
+        sh.to_s
+      end
+
+      def compile
+        raw template 'header.PS1'
+        run_stages
+        raw template 'footer.PS1'
         sh.to_s
       end
 

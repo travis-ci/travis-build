@@ -15,18 +15,6 @@ module Travis
           nodes << (code.is_a?(Node) ? code : Node.new(code, *merge_options(args)))
         end
 
-        def set(var, value, options = {})
-          cmd "export #{var}=#{value}", options.merge(log: false)
-        end
-
-        def echo(string, options = {})
-          cmd "echo #{escape(string)}", echo: false, log: true
-        end
-
-        def cd(path)
-          cmd "cd #{path}", echo: true, log: false
-        end
-
         def if(*args, &block)
           args = merge_options(args)
           els_ = args.last.delete(:else)

@@ -1,3 +1,4 @@
+
 module Travis
   module Build
     module Shell
@@ -39,7 +40,7 @@ module Travis
           end
 
           def echoize(code, echo = nil)
-            "echo #{escape("$ #{echo || @code}")}\n#{code}"
+            "Write-Host \"#{escape("$ #{echo || @code}")}\"\n#{code}"
           end
         end
       end

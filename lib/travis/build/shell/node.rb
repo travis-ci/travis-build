@@ -22,21 +22,25 @@ module Travis
           code ? code.indent(level) : code
         end
 
-        def escape(code)
-          Shellwords.escape(code)
-        end
       end
 
       class Cmd < Node
       end
 
       class Group < Node
-        include Dsl
+        Shell::Windows.instance_methods(false).each do |name|
+          define_method(name) do |*args, &block|
+            options = args.last if args.last.is_a?(Hash)
+            args.last[:timeout] = data.timeouts[options[:timeout]] if options && options.key?(:timeout)
+            sh.send(name, *args, &stacking(&block))
+          end
+        end
 
         attr_reader :nodes
 
         def initialize(*args, &block)
           @options = args.last.is_a?(Hash) ? args.pop : {}
+          @builder = 
           @level = options.delete(:level) || 0
           @nodes = []
           args.map { |node| cmd(node) }
@@ -79,13 +83,13 @@ module Travis
         def initialize(condition, *args)
           args.unshift(args.last.delete(:then)) if args.last.is_a?(Hash) && args.last[:then]
           super(*args)
-          @open = Node.new("#{name} [[ #{condition} ]]; then", options)
+          @open = Node.new(if_cmd(name,condition), options)
         end
       end
 
       class If < Conditional
         def close
-          Node.new('fi', options)
+          Node.new(close_conditional(), options)
         end
       end
 
