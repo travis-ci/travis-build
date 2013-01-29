@@ -2,7 +2,7 @@ module Travis
   module Build
     class Data
       class Var
-        PATTERN = /((?:SECURE )?[\w]+)=(("|')(.*?)(\3)|\$\(.*?\)|[^"' ]+)/
+        PATTERN = /(?:SECURE )?([\w]+)=(("|')(.*?)(\3)|\$\(.*?\)|[^"' ]+)/
 
         class << self
           def create(*args)
@@ -14,7 +14,8 @@ module Travis
           end
 
           def parse(line)
-            line.scan(PATTERN).map { |match| [match[0], match[1]] }
+            secure = line =~ /^SECURE /
+            line.scan(PATTERN).map { |match| [(secure ? "SECURE #{match[0]}" : match[0]), match[1]] }
           end
         end
 

@@ -10,6 +10,10 @@ describe Travis::Build::Data::Var do
   end
 
   describe 'parse' do
+    it 'parses SECURE FOO=foo BAR=bar' do
+      parse('SECURE FOO=foo BAR=bar').should == [["SECURE FOO", "foo"], ["SECURE BAR", "bar"]]
+    end
+
     it 'parses FOO=foo BAR=bar' do
       parse('FOO=foo BAR=bar').should == [['FOO', 'foo'], ['BAR', 'bar']]
     end
