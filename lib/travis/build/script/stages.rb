@@ -19,6 +19,7 @@ module Travis
           stage(stage) do
             Array(config[stage]).each do |command|
               cmd command
+              raw 'export TRAVIS_TEST_RESULT=$?' if stage == :script
             end
           end
         end
@@ -26,6 +27,7 @@ module Travis
         def run_builtin_stage(stage)
           stage(stage) do
             send(stage)
+            result if stage == :script
           end
         end
 
@@ -39,13 +41,16 @@ module Travis
             sh.options.update(timeout: data.timeouts[stage], assert: assert_stage?(stage))
             raw "travis_start #{stage}" if announce?(stage)
             yield
-            raw 'export TRAVIS_TEST_RESULT=$?' if stage == :script
             raw "travis_finish #{stage} #{stage == :script ? '$TRAVIS_TEST_RESULT' : '$?'}" if announce?(stage)
           }
         end
 
         def assert_stage?(stage)
           [:setup, :before_install, :install, :before_script].include?(stage)
+        end
+
+        def result
+          raw 'export TRAVIS_TEST_RESULT=$((${TRAVIS_TEST_RESULT:-0} ^ $(($? != 0))))'
         end
       end
     end
