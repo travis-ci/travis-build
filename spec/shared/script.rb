@@ -8,6 +8,7 @@ shared_examples_for 'a build script' do
     should set 'TRAVIS_SECURE_ENV_VARS', 'false'
     should set 'TRAVIS_BUILD_ID',        '1'
     should set 'TRAVIS_BUILD_NUMBER',    '1'
+    should set 'TRAVIS_BUILD_DIR',       "#{Travis::Build::BUILD_DIR}/travis-ci/travis-ci"
     should set 'TRAVIS_JOB_ID',          '1'
     should set 'TRAVIS_JOB_NUMBER',      '1.1'
     should set 'TRAVIS_BRANCH',          'master'

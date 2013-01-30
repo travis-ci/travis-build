@@ -42,6 +42,7 @@ export TRAVIS_PULL_REQUEST=false
 export TRAVIS_SECURE_ENV_VARS=true
 export TRAVIS_BUILD_ID=1
 export TRAVIS_BUILD_NUMBER=1
+export TRAVIS_BUILD_DIR="~/build/travis-ci/travis-ci"
 export TRAVIS_JOB_ID=1
 export TRAVIS_JOB_NUMBER=1.1
 export TRAVIS_BRANCH=master
