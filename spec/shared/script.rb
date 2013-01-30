@@ -35,7 +35,7 @@ shared_examples_for 'a build script' do
 
   it 'sets a given :env var even if empty' do
     data['config']['env'] = 'FOO=""'
-    should set 'FOO', '""'
+    should set 'FOO', ''
   end
 
   it 'sets multiple :env vars (space separated)' do
@@ -67,7 +67,7 @@ shared_examples_for 'a build script' do
   end
 
   it 'sets TRAVIS_TEST_RESULT' do
-    should set 'TRAVIS_TEST_RESULT', '$?'
+    should set 'TRAVIS_TEST_RESULT', 0
   end
 
   # TODO after_failure won't be called because the build script never returns 1
