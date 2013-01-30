@@ -77,8 +77,8 @@ module Travis
           end
 
           def dir
-            data.source_url.gsub(/\.git$/, '').split('/')[-2, 2].join('/')
-          end
+            data.slug
+          end          
       end
     end
   end
