@@ -63,4 +63,14 @@ describe Travis::Build::Script::Python do
       should install 'pip install -r requirements.txt --use-mirrors'
     end
   end
+  
+  describe 'system site packages should be used' do
+    before(:each) do
+      data['config']['virtualenv'] = { 'system_site_packages' => true }
+    end
+    
+    it 'sets up python with system site packages enabled' do
+      should run "echo $ source ~/virtualenv/python2.7_with_system_site_packages/bin/activate" # TODO can't really capture source, yet
+    end
+  end
 end

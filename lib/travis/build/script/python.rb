@@ -3,7 +3,8 @@ module Travis
     class Script
       class Python < Script
         DEFAULTS = {
-          python: '2.7'
+          python: '2.7',
+          virtualenv: { system_site_packages: false }
         }
 
         NO_REQUIREMENTS = 'Could not locate requirements.txt. Override the install: key in your .travis.yml to install dependencies.'
@@ -40,11 +41,16 @@ module Travis
         private
 
           def virtualenv_activate
-            if config[:python] =~ /pypy/i
-              "~/virtualenv/pypy/bin/activate"
-            else
-              # python2.6, python2.7, python3.2, etc
-              "~/virtualenv/python#{config[:python]}/bin/activate"
+            "~/virtualenv/#{python_version}#{system_site_packages}/bin/activate"
+          end
+          
+          def python_version
+            config[:python] =~ /pypy/i ? "pypy" : "python#{config[:python]}"
+          end
+          
+          def system_site_packages
+            if config[:virtualenv][:system_site_packages]
+              "_with_system_site_packages"
             end
           end
       end
