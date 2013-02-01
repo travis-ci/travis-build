@@ -5,8 +5,8 @@ module Travis
         include Jdk
 
         DEFAULTS = {
-          scala: '2.9.2',
-          jdk:   'default'
+          scala: '2.10.0',
+          jdk: 'default'
         }
 
         def export
@@ -19,8 +19,8 @@ module Travis
         end
 
         def script
-          sh_if   '-d project || -f build.sbt', "sbt ++#{config[:scala]} test"
-          sh_elif   '-f build.gradle', 'gradle check'
+          sh_if '-d project || -f build.sbt', "sbt ++#{config[:scala]} test"
+          sh_elif '-f build.gradle', 'gradle check'
           sh_else 'mvn test'
         end
       end
