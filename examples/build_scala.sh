@@ -109,6 +109,9 @@ travis_start script
 if [[ -d project || -f build.sbt ]]; then
   echo \$\ sbt\ \+\+2.9.2\ test
   sbt ++2.9.2 test
+elif [[ -f build.gradle ]]; then
+  echo \$\ gradle\ check
+  gradle check
 else
   echo \$\ mvn\ test
   mvn test
