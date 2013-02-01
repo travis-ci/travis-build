@@ -19,7 +19,7 @@ module Travis
           stage(stage) do
             Array(config[stage]).each do |command|
               cmd command
-              raw 'export TRAVIS_TEST_RESULT=$?' if stage == :script
+              result if stage == :script
             end
           end
         end
