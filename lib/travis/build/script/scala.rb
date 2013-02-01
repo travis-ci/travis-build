@@ -5,7 +5,7 @@ module Travis
         include Jdk
 
         DEFAULTS = {
-          scala: '2.9.2',
+          scala: '2.10.0',
           jdk:   'default'
         }
 

@@ -53,7 +53,7 @@ export FOO=foo
 echo \$\ export\ BAR\=\[secure\]
 export BAR=bar
 export TRAVIS_JDK_VERSION=default
-export TRAVIS_SCALA_VERSION=2.9.2
+export TRAVIS_SCALA_VERSION=2.10.0
 travis_finish export $?
 
 travis_start checkout
@@ -84,7 +84,7 @@ travis_assert
 travis_finish setup $?
 
 travis_start announce
-echo Using\ Scala\ 2.9.2
+echo Using\ Scala\ 2.10.0
 travis_finish announce $?
 
 travis_start before_install
@@ -107,8 +107,8 @@ travis_finish before_script $?
 
 travis_start script
 if [[ -d project || -f build.sbt ]]; then
-  echo \$\ sbt\ \+\+2.9.2\ test
-  sbt ++2.9.2 test
+  echo \$\ sbt\ \+\+2.10.0\ test
+  sbt ++2.10.0 test
 elif [[ -f build.gradle ]]; then
   echo \$\ gradle\ check
   gradle check
