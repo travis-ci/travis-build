@@ -14,21 +14,21 @@ describe Travis::Build::Script::Scala do
   # it_behaves_like 'a jdk build'
 
   it 'sets TRAVIS_SCALA_VERSION' do
-    should set 'TRAVIS_SCALA_VERSION', '2.9.2'
+    should set 'TRAVIS_SCALA_VERSION', '2.10.0'
   end
 
-  it 'announces Scala 2.9.2' do
-    should run 'echo Using Scala 2.9.2'
+  it 'announces Scala 2.10.0' do
+    should run 'echo Using Scala 2.10.0'
   end
 
-  it 'runs sbt ++2.9.2 test if ./project directory exists' do
+  it 'runs sbt ++2.10.0 test if ./project directory exists' do
     directory('project')
-    should run_script 'sbt ++2.9.2 test'
+    should run_script 'sbt ++2.10.0 test'
   end
 
-  it 'runs sbt ++2.9.2 test if ./build.sbt exists' do
+  it 'runs sbt ++2.10.0 test if ./build.sbt exists' do
     file('build.sbt')
-    should run_script 'sbt ++2.9.2 test'
+    should run_script 'sbt ++2.10.0 test'
   end
 
   it 'runs gradle check if ./build.gradle exists' do
