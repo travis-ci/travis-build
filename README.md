@@ -10,7 +10,6 @@ run test suites and perform other CI build life cycle operations. It was origina
 On JRuby:
 
     bundle exec rspec spec
-    bundle exec cucumber
 
 
 ## License & copyright information
