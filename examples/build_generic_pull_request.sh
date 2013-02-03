@@ -59,8 +59,8 @@ git clone --depth=100 --quiet --branch=master git://github.com/travis-ci/travis-
 travis_assert
 echo \$\ cd\ travis-ci/travis-ci
 cd travis-ci/travis-ci
-echo \$\ git\ checkout\ -qf\ 313f61b
-git checkout -qf 313f61b
+echo \$\ git\ checkout\ -qf\ FETCH_HEAD
+git checkout -qf FETCH_HEAD
 travis_assert
 if [[ -f .gitmodules ]]; then
   echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config

@@ -30,8 +30,14 @@ shared_examples_for 'a git repo' do
     should run %r(rm -f .*\.ssh/source_rsa)
   end
 
-  it 'checks the given commit out' do
+  it 'checks out the given commit for a push request' do
+    data['job']['pull_request'] = false
     should run 'git checkout -qf 313f61b', echo: true, log: true
+  end
+
+  it 'checks out FETCH_HEAD for a pull request' do
+    data['job']['pull_request'] = true
+    should run 'git checkout -qf FETCH_HEAD', echo: true, log: true
   end
 
   # TODO this currently trashes my ~/.ssh/config
