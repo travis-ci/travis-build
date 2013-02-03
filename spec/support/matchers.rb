@@ -37,6 +37,10 @@ def log_for(script)
   File.read('tmp/build.log')
 end
 
+def env_for(script)
+  log_for(script).split('-- env --').last
+end
+
 RSpec::Matchers.define :setup do |cmd, options = {}|
   match do |script|
     options = options.merge(echo: true, log: true, assert: true)
@@ -95,11 +99,13 @@ end
 
 RSpec::Matchers.define :set do |name, value|
   match do |script|
+    env = env_for(script)
+
     failure_message_for_should do
-      "expected script to set #{name} to #{value} but it didn't:\n#{script}"
+      "expected script to set #{name} to #{value} but it didn't:\n#{env}"
     end
 
-    script =~ /^[\s]*export #{name}=#{Regexp.escape(value)}[\s]*$/
+    env.include?("#{name}=#{value}")
   end
 end
 
