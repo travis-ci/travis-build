@@ -49,6 +49,13 @@ module Travis
           [:setup, :before_install, :install, :before_script].include?(stage)
         end
 
+        # This aggregates exit codes by yielding them to either 0 or 1 and
+        # xor'ing them to previous results:
+        #
+        # bash-3.2$ a=0; b=$((${b:-0} ^ $((a != 0)))); echo $b
+        # 0
+        # bash-3.2$ a=1; b=$((${b:-0} ^ $((a != 0)))); echo $b
+        # 1
         def result
           raw 'export TRAVIS_TEST_RESULT=$((${TRAVIS_TEST_RESULT:-0} ^ $(($? != 0))))'
         end
