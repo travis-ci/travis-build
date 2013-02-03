@@ -59,8 +59,8 @@ git clone --depth=100 --quiet --branch=master git://github.com/travis-ci/travis-
 travis_assert
 echo \$\ cd\ travis-ci/travis-ci
 cd travis-ci/travis-ci
-echo \$\ git\ checkout\ -qf\ 313f61b
-git checkout -qf 313f61b
+echo \$\ git\ checkout\ -qf\ FETCH_HEAD
+git checkout -qf FETCH_HEAD
 travis_assert
 if [[ -f .gitmodules ]]; then
   echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
@@ -100,7 +100,7 @@ travis_finish before_script $?
 travis_start script
 
 
-export TRAVIS_TEST_RESULT=$?
+export TRAVIS_TEST_RESULT=$((${TRAVIS_TEST_RESULT:-0} ^ $(($? != 0))))
 travis_finish script $TRAVIS_TEST_RESULT
 
 if [[ $TRAVIS_TEST_RESULT = 0 ]]; then

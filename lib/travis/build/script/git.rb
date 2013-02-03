@@ -55,7 +55,7 @@ module Travis
           end
 
           def git_checkout
-            cmd "git checkout -qf #{data.commit}", assert: true
+            cmd "git checkout -qf #{data.pull_request ? 'FETCH_HEAD' : data.commit}", assert: true
           end
 
           def submodules?
@@ -78,7 +78,7 @@ module Travis
 
           def dir
             data.slug
-          end          
+          end
       end
     end
   end
