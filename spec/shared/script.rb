@@ -43,6 +43,18 @@ shared_examples_for 'a build script' do
     should_not set 'FOO', 'foo'
   end  
 
+  it 'sets the exact value of a given :env var, even if definition is unquoted' do
+    data['config']['env'] = 'UNQUOTED=first second third ... OTHER=ok'
+    should set 'UNQUOTED', 'first'
+    should set 'OTHER', 'ok'
+  end
+
+  it 'it evaluates and sets the exact values of given :env vars, when their definition is encolsed within single or double quotes' do
+    data['config']['env'] = 'SIMPLE_QUOTED=\'foo+bar (are) on a boat!\' DOUBLE_QUOTED="$SIMPLE_QUOTED"'
+    should set 'SIMPLE_QUOTED', 'foo+bar (are) on a boat!'
+    should set 'DOUBLE_QUOTED', 'foo+bar (are) on a boat!'
+  end
+
   it 'sets multiple :env vars (space separated)' do
     data['config']['env'] = 'FOO=foo BAR=bar'
     should set 'FOO', 'foo'
