@@ -105,7 +105,7 @@ RSpec::Matchers.define :set do |name, value|
       "expected script to set #{name} to #{value} but it didn't:\n#{env}"
     end
 
-    env.include?("#{name}=#{value}")
+    env =~ /^#{name}=#{value.is_a?(String) ? Regexp.escape(value) : value}$/
   end
 end
 
