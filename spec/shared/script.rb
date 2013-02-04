@@ -38,6 +38,11 @@ shared_examples_for 'a build script' do
     should set 'FOO', ''
   end
 
+  it 'sets the exact value of a given :env var' do
+    data['config']['env'] = 'FOO=foolish'
+    should_not set 'FOO', 'foo'
+  end  
+
   it 'sets multiple :env vars (space separated)' do
     data['config']['env'] = 'FOO=foo BAR=bar'
     should set 'FOO', 'foo'
