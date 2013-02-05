@@ -63,6 +63,7 @@ module SpecHelpers
     restore_consts
     name = [described_class.name.split('::').last.gsub(/([A-Z]+)/,'_\1').gsub(/^_/, '').downcase, name].compact.join('_').gsub(' ', '_')
     script = described_class.new(data, options).compile
+    FileUtils.mkdir 'examples' unless File.directory?('examples')
     File.open("examples/build_#{name}.sh", 'w+') { |f| f.write(script) }
   end
 end
