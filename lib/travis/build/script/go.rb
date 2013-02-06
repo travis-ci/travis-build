@@ -19,7 +19,7 @@ module Travis
         end
 
         def script
-          uses_make? then: 'make', else: 'go test -v'
+          uses_make? then: 'make', else: 'go test -v ./...'
         end
 
         private
