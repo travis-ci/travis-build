@@ -27,8 +27,8 @@ describe Travis::Build::Script::Go do
       should run 'go build -v ./...', log: true, assert: true, timeout: timeout_for(:install)
     end
 
-    it 'runs go test -v' do
-      should run_script 'go test -v'
+    it 'runs go test' do
+      should run_script 'go test -v ./...'
     end
   end
 

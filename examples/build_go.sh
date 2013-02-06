@@ -121,8 +121,8 @@ if [[ -f Makefile ]]; then
   echo \$\ make
   make
 else
-  echo \$\ go\ test\ -v
-  go test -v
+  echo \$\ go\ test\ -v\ ./...
+  go test -v ./...
 fi
 export TRAVIS_TEST_RESULT=$((${TRAVIS_TEST_RESULT:-0} ^ $(($? != 0))))
 travis_finish script $TRAVIS_TEST_RESULT
