@@ -24,6 +24,7 @@ module Travis
               TRAVIS_SECURE_ENV_VARS: secure_env_vars?,
               TRAVIS_BUILD_ID:        build[:id],
               TRAVIS_BUILD_NUMBER:    build[:number],
+              TRAVIS_BUILD_DIR:       '"' + [ BUILD_DIR, repository[:slug] ].join('/') + '"',
               TRAVIS_JOB_ID:          job[:id],
               TRAVIS_JOB_NUMBER:      job[:number],
               TRAVIS_BRANCH:          job[:branch],
