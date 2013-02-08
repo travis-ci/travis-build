@@ -8,6 +8,7 @@ shared_examples_for 'a build script' do
     should set 'TRAVIS_SECURE_ENV_VARS', 'false'
     should set 'TRAVIS_BUILD_ID',        '1'
     should set 'TRAVIS_BUILD_NUMBER',    '1'
+    should set 'TRAVIS_BUILD_DIR',       "#{Travis::Build::BUILD_DIR}/travis-ci/travis-ci"
     should set 'TRAVIS_JOB_ID',          '1'
     should set 'TRAVIS_JOB_NUMBER',      '1.1'
     should set 'TRAVIS_BRANCH',          'master'
@@ -36,6 +37,23 @@ shared_examples_for 'a build script' do
   it 'sets a given :env var even if empty' do
     data['config']['env'] = 'FOO=""'
     should set 'FOO', ''
+  end
+
+  it 'sets the exact value of a given :env var' do
+    data['config']['env'] = 'FOO=foolish'
+    should_not set 'FOO', 'foo'
+  end  
+
+  it 'sets the exact value of a given :env var, even if definition is unquoted' do
+    data['config']['env'] = 'UNQUOTED=first second third ... OTHER=ok'
+    should set 'UNQUOTED', 'first'
+    should set 'OTHER', 'ok'
+  end
+
+  it 'it evaluates and sets the exact values of given :env vars, when their definition is encolsed within single or double quotes' do
+    data['config']['env'] = 'SIMPLE_QUOTED=\'foo+bar (are) on a boat!\' DOUBLE_QUOTED="$SIMPLE_QUOTED"'
+    should set 'SIMPLE_QUOTED', 'foo+bar (are) on a boat!'
+    should set 'DOUBLE_QUOTED', 'foo+bar (are) on a boat!'
   end
 
   it 'sets multiple :env vars (space separated)' do

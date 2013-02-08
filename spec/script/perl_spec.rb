@@ -32,6 +32,16 @@ describe Travis::Build::Script::Perl do
     should install 'cpanm --quiet --installdeps --notest .'
   end
 
+  describe 'if perl version is 5.10' do
+    before(:each) do
+      data['config']['perl'] = 5.1
+    end
+
+    it 'converts 5.1 to 5.10' do
+      should setup 'perlbrew use 5.10'
+    end
+  end
+
   describe 'if no Build.PL or Makefile.PL exists' do
     it 'runs make test' do
       should run_script 'make test'

@@ -8,12 +8,12 @@ module Travis
 
         def export
           super
-          set 'TRAVIS_PERL_VERSION', config[:perl], echo: false
+          set 'TRAVIS_PERL_VERSION', perl_version, echo: false
         end
 
         def setup
           super
-          cmd "perlbrew use #{config[:perl]}"
+          cmd "perlbrew use #{perl_version}"
         end
 
         def announce
@@ -30,6 +30,11 @@ module Travis
           sh_if   '-f Build.PL',    'perl Build.PL && ./Build test'
           sh_elif '-f Makefile.PL', 'perl Makefile.PL && make test'
           sh_else                   'make test'
+        end
+
+        def perl_version
+          # this check is needed because safe_yaml parses the string 5.10 to 5.1
+          config[:perl] == 5.1 ? "5.10" : config[:perl]
         end
       end
     end

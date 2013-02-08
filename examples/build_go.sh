@@ -42,6 +42,7 @@ export TRAVIS_PULL_REQUEST=false
 export TRAVIS_SECURE_ENV_VARS=true
 export TRAVIS_BUILD_ID=1
 export TRAVIS_BUILD_NUMBER=1
+export TRAVIS_BUILD_DIR="~/build/travis-ci/travis-ci"
 export TRAVIS_JOB_ID=1
 export TRAVIS_JOB_NUMBER=1.1
 export TRAVIS_BRANCH=master
@@ -121,8 +122,8 @@ if [[ -f Makefile ]]; then
   echo \$\ make
   make
 else
-  echo \$\ go\ test\ -v
-  go test -v
+  echo \$\ go\ test\ -v\ ./...
+  go test -v ./...
 fi
 export TRAVIS_TEST_RESULT=$((${TRAVIS_TEST_RESULT:-0} | $(($? != 0))))
 travis_finish script $TRAVIS_TEST_RESULT
