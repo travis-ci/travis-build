@@ -66,8 +66,14 @@ shared_examples_for 'a build script' do
     should_not set 'BAR', 'bar'
   end
 
-  it 'sets TRAVIS_TEST_RESULT' do
+  it 'sets TRAVIS_TEST_RESULT to 0 if all scripts exited with 0' do
+    data['config']['script'] = ['true', 'true', 'true', 'true']
     should set 'TRAVIS_TEST_RESULT', 0
+  end
+
+  it 'sets TRAVIS_TEST_RESULT to 1 if any command exited with 1' do
+    data['config']['script'] = ['false', 'true', 'false', 'true']
+    should set 'TRAVIS_TEST_RESULT', 1
   end
 
   # TODO after_failure won't be called because the build script never returns 1

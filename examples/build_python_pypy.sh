@@ -125,7 +125,7 @@ travis_finish before_script $?
 travis_start script
 echo Please\ override\ the\ script:\ key\ in\ your\ .travis.yml\ to\ run\ tests.
 false
-export TRAVIS_TEST_RESULT=$((${TRAVIS_TEST_RESULT:-0} ^ $(($? != 0))))
+export TRAVIS_TEST_RESULT=$((${TRAVIS_TEST_RESULT:-0} | $(($? != 0))))
 travis_finish script $TRAVIS_TEST_RESULT
 
 if [[ $TRAVIS_TEST_RESULT = 0 ]]; then
