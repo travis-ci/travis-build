@@ -25,6 +25,11 @@ describe Travis::Build::Script::Ruby do
     should setup 'rvm use rbx'
   end
 
+  it 'handles float values correctly for rvm values' do
+    data['config']['rvm'] = 2.0
+    should setup 'rvm use 2.0'
+  end
+
   it 'sets BUNDLE_GEMFILE if the gemfile exists' do
     gemfile 'Gemfile.ci'
     should set 'BUNDLE_GEMFILE', File.expand_path('Gemfile.ci', 'tmp')
