@@ -68,7 +68,7 @@ module Travis
           end
           
           def ruby_version
-            ruby_version = config[:rvm].gsub(/-(1[89]|20)mode$/, '-d\1')
+            ruby_version = config[:rvm].to_s.gsub(/-(1[89]|20)mode$/, '-d\1')
             ruby_version.gsub(/^rbx-d(\d{2})$/, 'rbx-weekly-d\1')
           end
       end
