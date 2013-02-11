@@ -19,6 +19,12 @@ travis_assert() {
   fi
 }
 
+travis_result() {
+  local result=$1
+  export TRAVIS_TEST_RESULT=$(( ${TRAVIS_TEST_RESULT:-0} | $(($result != 0)) ))
+  echo -e "\nThe command \"$TRAVIS_CMD\" exited with $result."
+}
+
 travis_terminate() {
   travis_finish build $1
   pkill -9 -P $$ > /dev/null 2>&1
@@ -29,7 +35,6 @@ decrypt() {
   echo $1 | base64 -d | openssl rsautl -decrypt -inkey ~/.ssh/id_rsa.repo
 }
 
-rm -rf   ~/build
 mkdir -p ~/build
 cd       ~/build
 
@@ -101,7 +106,7 @@ travis_finish before_script $?
 travis_start script
 
 
-export TRAVIS_TEST_RESULT=$((${TRAVIS_TEST_RESULT:-0} | $(($? != 0))))
+travis_result $?
 travis_finish script $TRAVIS_TEST_RESULT
 
 if [[ $TRAVIS_TEST_RESULT = 0 ]]; then
@@ -128,7 +133,6 @@ echo \$\ ./after_script_2.sh
 ./after_script_2.sh
 travis_finish after_script $?
 
-echo
-echo "Done. Build script exited with $TRAVIS_TEST_RESULT" 
+echo -e "\nDone. Your build exited with $TRAVIS_TEST_RESULT."
 
 travis_terminate $TRAVIS_TEST_RESULT

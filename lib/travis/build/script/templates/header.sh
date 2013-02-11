@@ -19,6 +19,12 @@ travis_assert() {
   fi
 }
 
+travis_result() {
+  local result=$1
+  export TRAVIS_TEST_RESULT=$(( ${TRAVIS_TEST_RESULT:-0} | $(($result != 0)) ))
+  echo -e "\nThe command \"$TRAVIS_CMD\" exited with $result."<%= " >> #{logs[:log]}" if logs[:log] %>
+}
+
 travis_terminate() {
   travis_finish build $1
   pkill -9 -P $$ > /dev/null 2>&1
@@ -29,7 +35,6 @@ decrypt() {
   echo $1 | base64 -d | openssl rsautl -decrypt -inkey ~/.ssh/id_rsa.repo
 }
 
-rm -rf   <%= BUILD_DIR %>
 mkdir -p <%= BUILD_DIR %>
 cd       <%= BUILD_DIR %>
 

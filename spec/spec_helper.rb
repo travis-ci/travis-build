@@ -25,6 +25,7 @@ module SpecHelpers
     # replace_const 'Travis::Build::LOGS', { build: 'build.log', state: 'state.log' }
     replace_const 'Travis::Build::LOGS', {}
     replace_const 'Travis::Build::HOME_DIR', '.'
+    replace_const 'Travis::Build::BUILD_DIR', './tmp'
   end
 
   def replace_const(const, value)

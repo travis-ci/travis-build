@@ -1,7 +1,4 @@
-echo
-echo "Done. Build script exited with $TRAVIS_TEST_RESULT" <%= ">> #{logs[:build]}" if logs[:build] %>
-
-travis_terminate $TRAVIS_TEST_RESULT
+<%= ERB.new(File.read('lib/travis/build/script/templates/footer.sh')).result(binding) %>
 
 echo '-- env --'
 env

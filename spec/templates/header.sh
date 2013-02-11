@@ -1,10 +1,4 @@
-mkdir -p tmp
-cd tmp
-
-travis_timeout() {
-  wait $!
-  builtin echo travis_timeout $1
-}
+<%= ERB.new(File.read('lib/travis/build/script/templates/header.sh')).result(binding) %>
 
 stubs=(
   before_install install before_script script after_script after_success after_failure
