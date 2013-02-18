@@ -35,8 +35,8 @@ decrypt() {
   echo $1 | base64 -d | openssl rsautl -decrypt -inkey ~/.ssh/id_rsa.repo
 }
 
-mkdir -p ~/build
-cd       ~/build
+mkdir -p $HOME/build
+cd       $HOME/build
 
 trap 'travis_finish build 1' TERM
 trap 'TRAVIS_CMD=$TRAVIS_NEXT_CMD; TRAVIS_NEXT_CMD=$BASH_COMMAND' DEBUG
@@ -47,7 +47,7 @@ export TRAVIS_PULL_REQUEST=false
 export TRAVIS_SECURE_ENV_VARS=true
 export TRAVIS_BUILD_ID=1
 export TRAVIS_BUILD_NUMBER=1
-export TRAVIS_BUILD_DIR="~/build/travis-ci/travis-ci"
+export TRAVIS_BUILD_DIR="$HOME/build/travis-ci/travis-ci"
 export TRAVIS_JOB_ID=1
 export TRAVIS_JOB_NUMBER=1.1
 export TRAVIS_BRANCH=master
@@ -58,8 +58,8 @@ echo \$\ export\ FOO\=foo
 export FOO=foo
 echo \$\ export\ BAR\=\[secure\]
 export BAR=bar
-echo \$\ export\ GOPATH\=\~/gopath
-export GOPATH=~/gopath
+echo \$\ export\ GOPATH\=\$HOME/gopath
+export GOPATH=$HOME/gopath
 travis_finish export $?
 
 travis_start checkout
