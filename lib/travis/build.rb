@@ -7,12 +7,12 @@ module Travis
     autoload :Services, 'travis/build/services'
     autoload :Shell,    'travis/build/shell'
 
-    HOME_DIR  = '~'
-    BUILD_DIR = '~/build'
+    HOME_DIR  = '$HOME'
+    BUILD_DIR = File.join(HOME_DIR, 'build')
 
     LOGS = {
-      build: '~/build.log',
-      state: '~/state.log'
+      build: File.join(HOME_DIR, 'build.log'),
+      state: File.join(HOME_DIR, 'state.log')
     }
 
     class << self
