@@ -19,5 +19,15 @@ describe Travis::Build::Script::Generic do
     subject.should_not =~ />> build.log/
     store_example 'no_logs'
   end
+
+  describe 'an error is raised during compilation' do
+    before do
+      described_class.any_instance.stubs(:raw).raises(StandardError, 'boom')
+    end
+
+    it 'wraps the error in a CompileError' do
+      lambda { subject }.should raise_error(Travis::Build::Script::CompileError)
+    end
+  end
 end
 
