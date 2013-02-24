@@ -103,8 +103,8 @@ travis_finish before_install $?
 
 travis_start install
 if [[ -f Makefile ]]; then
-  echo \$\ /usr/bin/true
-  /usr/bin/true
+  echo \$\ true \#\ \(using\ Makefile\)
+  true
   travis_assert
 else
   echo \$\ go\ get\ -d\ -v\ ./...\ \&\&\ go\ build\ -v\ ./...
