@@ -15,7 +15,7 @@ module Travis
         end
 
         def install
-          uses_make? then: '/usr/bin/true', else: 'go get -d -v ./... && go build -v ./...'
+          uses_make? then: 'true', else: 'go get -d -v ./... && go build -v ./...'
         end
 
         def script
