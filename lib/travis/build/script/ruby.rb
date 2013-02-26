@@ -25,6 +25,7 @@ module Travis
           super
           cmd 'ruby --version'
           cmd 'gem --version'
+          cmd 'rvm --version'
         end
 
         def install
@@ -66,7 +67,7 @@ module Travis
           def uses_jdk?
             uses_java? && super
           end
-          
+
           def ruby_version
             ruby_version = config[:rvm].to_s.gsub(/-(1[89]|20)mode$/, '-d\1')
             ruby_version.gsub(/^rbx-d(\d{2})$/, 'rbx-weekly-d\1')

@@ -106,6 +106,8 @@ echo \$\ ruby\ --version
 ruby --version
 echo \$\ gem\ --version
 gem --version
+echo \$\ rvm\ --version
+rvm --version
 travis_finish announce $?
 
 travis_start before_install
