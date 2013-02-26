@@ -1,4 +1,4 @@
-source :rubygems
+source 'https://rubygems.org'
 
 gem 'travis-core',     github: 'travis-ci/travis-core'
 gem 'travis-sidekiqs', github: 'travis-ci/travis-sidekiqs' # siggggghhhhh ......
