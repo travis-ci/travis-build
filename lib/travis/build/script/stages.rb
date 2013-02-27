@@ -39,10 +39,16 @@ module Travis
         def stage(stage = nil)
           sh.script &stacking {
             sh.options.update(timeout: data.timeouts[stage], assert: assert_stage?(stage))
+            raw "echo travis_fold:start:#{stage}\r" if fold_stage?(stage)
             raw "travis_start #{stage}" if announce?(stage)
             yield
             raw "travis_finish #{stage} #{stage == :script ? '$TRAVIS_TEST_RESULT' : '$?'}" if announce?(stage)
+            raw "echo travis_fold:end:#{stage}\r" if fold_stage?(stage)
           }
+        end
+
+        def fold_stage?(stage)
+          stage != :script
         end
 
         def assert_stage?(stage)
