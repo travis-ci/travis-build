@@ -90,12 +90,10 @@ travis_start setup
 travis_finish setup $?
 echo travis_fold:end:setup
 
-echo travis_fold:start:announce
 travis_start announce
 echo \$\ xcodebuild\ -version\ -sdk
 xcodebuild -version -sdk
 travis_finish announce $?
-echo travis_fold:end:announce
 
 echo travis_fold:start:before_install
 travis_start before_install
@@ -135,7 +133,6 @@ xcodebuild  -scheme MyApp clean test
 travis_result $?
 travis_finish script $TRAVIS_TEST_RESULT
 
-echo travis_fold:start:after_result
 if [[ $TRAVIS_TEST_RESULT = 0 ]]; then
   echo travis_fold:start:after_success
   travis_start after_success
@@ -156,7 +153,6 @@ if [[ $TRAVIS_TEST_RESULT != 0 ]]; then
   travis_finish after_failure $?
   echo travis_fold:end:after_failure
 fi
-echo travis_fold:end:after_result
 
 echo travis_fold:start:after_script
 travis_start after_script

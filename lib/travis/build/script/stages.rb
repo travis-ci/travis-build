@@ -48,7 +48,7 @@ module Travis
         end
 
         def fold_stage?(stage)
-          stage != :script
+          not [:announce, :script, :after_result].include?(stage)
         end
 
         def assert_stage?(stage)
