@@ -39,7 +39,7 @@ module Travis
           @options = args.last.is_a?(Hash) ? args.pop : {}
           @level = options.delete(:level) || 0
           @nodes = []
-          args.map { |node| cmd(node) }
+          args.map { |node| cmd(node, options) }
           yield(self) if block_given?
         end
 
@@ -76,9 +76,9 @@ module Travis
       end
 
       class Conditional < Block
-        def initialize(condition, *args)
+        def initialize(condition, *args, &block)
           args.unshift(args.last.delete(:then)) if args.last.is_a?(Hash) && args.last[:then]
-          super(*args)
+          super(*args, &block)
           @open = Node.new("#{name} [[ #{condition} ]]; then", options)
         end
       end

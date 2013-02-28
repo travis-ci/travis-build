@@ -25,7 +25,7 @@ module Travis
         private
 
           def uses_make?(*args)
-            sh_if '-f Makefile', *args
+            self.if '-f Makefile', *args
           end
       end
     end

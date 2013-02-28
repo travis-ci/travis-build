@@ -34,7 +34,7 @@ module Travis
         private
 
           def uses_npm?(*args)
-            sh_if '-f package.json', *args
+            self.if '-f package.json', *args
           end
       end
     end

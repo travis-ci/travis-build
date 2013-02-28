@@ -25,7 +25,7 @@ module Travis
         private
 
         def uses_cocoapods?(*args)
-          sh_if '-f Podfile', *args
+          self.if '-f Podfile', *args
         end
       end
     end

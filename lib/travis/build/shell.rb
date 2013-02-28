@@ -12,8 +12,8 @@ module Travis
       Cmd.send(:include, Filters::Echoize)
 
       class InvalidParent < RuntimeError
-        def initialize(node, parent)
-          super("Node #{node.class.name} requires to be added to a node #{parent.class.name}")
+        def initialize(node, required, actual)
+          super("Node #{node.name} requires to be added to a #{required.name}, but is a #{actual.name}")
         end
       end
     end

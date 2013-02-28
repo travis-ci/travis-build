@@ -10,10 +10,6 @@ module Travis
           end
         end
 
-        alias :sh_if :if
-        alias :sh_elif :elif
-        alias :sh_else :else
-
         def sh
           stack.last
         end
@@ -26,7 +22,7 @@ module Travis
         def stacking
           ->(sh) {
             stack.push(sh)
-            yield if block_given?
+            yield(sh) if block_given?
             stack.pop
           }
         end

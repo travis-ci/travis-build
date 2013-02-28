@@ -19,9 +19,9 @@ module Travis
         end
 
         def script
-          sh_if   '-d project || -f build.sbt', "sbt ++#{config[:scala]} test"
-          sh_elif   '-f build.gradle', 'gradle check'
-          sh_else 'mvn test'
+          self.if   '-d project || -f build.sbt', "sbt ++#{config[:scala]} test"
+          self.elif '-f build.gradle', 'gradle check'
+          self.else 'mvn test'
         end
       end
     end

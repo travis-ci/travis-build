@@ -17,14 +17,14 @@ module Travis
         end
 
         def install
-          sh_if   "#{rebar_configured} && -f ./rebar", install_rebar('./')
-          sh_elif rebar_configured, install_rebar
+          self.if   "#{rebar_configured} && -f ./rebar", install_rebar('./')
+          self.elif rebar_configured, install_rebar
         end
 
         def script
-          sh_if   "#{rebar_configured} && -f ./rebar", run_rebar('./')
-          sh_elif rebar_configured, run_rebar
-          sh_else 'make test'
+          self.if   "#{rebar_configured} && -f ./rebar", run_rebar('./')
+          self.elif rebar_configured, run_rebar
+          self.else 'make test'
         end
 
         private

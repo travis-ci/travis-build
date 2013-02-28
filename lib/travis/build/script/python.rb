@@ -26,9 +26,9 @@ module Travis
         end
 
         def install
-          sh_if   '-f Requirements.txt', "pip install -r Requirements.txt --use-mirrors"
-          sh_elif '-f requirements.txt', "pip install -r requirements.txt --use-mirrors"
-          sh_else { echo NO_REQUIREMENTS }
+          self.if   '-f Requirements.txt', "pip install -r Requirements.txt --use-mirrors"
+          self.elif '-f requirements.txt', "pip install -r requirements.txt --use-mirrors"
+          self.else { echo NO_REQUIREMENTS }
         end
 
         def script
@@ -43,11 +43,11 @@ module Travis
           def virtualenv_activate
             "~/virtualenv/#{python_version}#{system_site_packages}/bin/activate"
           end
-          
+
           def python_version
             config[:python] =~ /pypy/i ? "pypy" : "python#{config[:python]}"
           end
-          
+
           def system_site_packages
             if config[:virtualenv][:system_site_packages]
               "_with_system_site_packages"

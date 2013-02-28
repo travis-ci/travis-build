@@ -17,8 +17,9 @@ module Travis
 
         def run_custom_stage(stage)
           stage(stage) do
-            Array(config[stage]).each do |command|
-              cmd command
+            cmds = Array(config[stage])
+            cmds.each_with_index do |command, ix|
+              cmd command, fold: fold_stage?(stage) && "#{stage}#{"-#{ix}" if cmds.length > 1}"
               result if stage == :script
             end
           end
@@ -37,18 +38,13 @@ module Travis
         end
 
         def stage(stage = nil)
+          @stage = stage
           sh.script &stacking {
             sh.options.update(timeout: data.timeouts[stage], assert: assert_stage?(stage))
-            raw "echo travis_fold:start:#{stage}\r" if fold_stage?(stage)
             raw "travis_start #{stage}" if announce?(stage)
             yield
             raw "travis_finish #{stage} #{stage == :script ? '$TRAVIS_TEST_RESULT' : '$?'}" if announce?(stage)
-            raw "echo travis_fold:end:#{stage}\r" if fold_stage?(stage)
           }
-        end
-
-        def fold_stage?(stage)
-          not [:announce, :script, :after_result].include?(stage)
         end
 
         def assert_stage?(stage)
@@ -57,6 +53,10 @@ module Travis
 
         def result
           raw 'travis_result $?'
+        end
+
+        def fold_stage?(stage)
+          stage != :script
         end
       end
     end

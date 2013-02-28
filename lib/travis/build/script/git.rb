@@ -39,7 +39,8 @@ module Travis
           end
 
           def ch_dir
-            cmd "cd #{dir}", timeout: false
+            echo "cd #{dir}"
+            raw "cd #{dir}", timeout: false
           end
 
           def rm_key
@@ -63,7 +64,7 @@ module Travis
           end
 
           def submodules
-            sh_if '-f .gitmodules' do
+            self.if '-f .gitmodules' do
               cmd 'echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config', echo: false
               cmd 'git submodule init'
               cmd 'git submodule update', assert: true, timeout: :git_submodules

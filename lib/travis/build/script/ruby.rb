@@ -16,7 +16,6 @@ module Travis
 
         def setup
           super
-          # update_rvm
           setup_ruby
           setup_bundler
         end
@@ -29,7 +28,7 @@ module Travis
         end
 
         def install
-          gemfile? then: "bundle install #{config[:bundler_args]}"
+          gemfile? then: "bundle install #{config[:bundler_args]}", fold: 'install'
         end
 
         def script
@@ -37,14 +36,6 @@ module Travis
         end
 
         private
-
-          def update_rvm
-            echo "Updating RVM, this should just take a sec"
-            echo "$ rvm get head"
-            cmd "rvm get head >/dev/null 2>&1", echo: false, log: false
-            echo "$ rvm reload"
-            cmd "rvm reload >/dev/null 2>&1",   echo: false, log: false
-          end
 
           def setup_ruby
             cmd "rvm use #{ruby_version} --install --binary --fuzzy"
@@ -57,7 +48,7 @@ module Travis
           end
 
           def gemfile?(*args, &block)
-            sh_if "-f #{config[:gemfile]}", *args, &block
+            self.if "-f #{config[:gemfile]}", *args, &block
           end
 
           def uses_java?

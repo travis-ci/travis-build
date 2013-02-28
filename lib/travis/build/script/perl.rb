@@ -27,9 +27,9 @@ module Travis
         end
 
         def script
-          sh_if   '-f Build.PL',    'perl Build.PL && ./Build test'
-          sh_elif '-f Makefile.PL', 'perl Makefile.PL && make test'
-          sh_else                   'make test'
+          self.if   '-f Build.PL',    'perl Build.PL && ./Build test'
+          self.elif '-f Makefile.PL', 'perl Makefile.PL && make test'
+          self.else                   'make test'
         end
 
         def perl_version

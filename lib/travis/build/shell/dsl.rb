@@ -8,11 +8,16 @@ module Travis
         end
 
         def cmd(code, *args)
-          raw Cmd.new(code, *merge_options(args))
+          options = args.last.is_a?(Hash) ? args.last : {}
+          node = Cmd.new(code, *merge_options(args))
+          options[:fold] ? fold(options[:fold]) { raw(node) } : raw(node)
         end
 
         def raw(code, *args)
-          nodes << (code.is_a?(Node) ? code : Node.new(code, *merge_options(args)))
+          args = merge_options(args)
+          pos = args.last.delete(:pos) || -1
+          node = code.is_a?(Node) ? code : Node.new(code, *args)
+          nodes.insert(pos, node)
         end
 
         def set(var, value, options = {})
@@ -36,7 +41,7 @@ module Travis
         end
 
         def elif(*args, &block)
-          raise InvalidParent(Elif, If) unless nodes.last.is_a?(If)
+          raise InvalidParent.new(Elif, If, nodes.last.class) unless nodes.last.is_a?(If)
           args = merge_options(args)
           els_ = args.last.delete(:else)
           nodes.last.raw Elif.new(*args, &block)
@@ -45,12 +50,19 @@ module Travis
         end
 
         def else(*args, &block)
-          raise InvalidParent(Else, If) unless nodes.last.is_a?(If)
+          raise InvalidParent.new(Else, If) unless nodes.last.is_a?(If)
           nodes.last.raw Else.new(*merge_options(args), &block)
           nodes.last
         end
 
         private
+
+          def fold(name)
+            raw "echo \"travis_fold:start:#{name}\\r\""
+            result = yield
+            raw "echo \"travis_fold:end:#{name}\\r\""
+            result
+          end
 
           def merge_options(args, options = {})
             options = (args.last.is_a?(Hash) ? args.pop : {}).merge(options)
