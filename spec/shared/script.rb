@@ -42,7 +42,7 @@ shared_examples_for 'a build script' do
   it 'sets the exact value of a given :env var' do
     data['config']['env'] = 'FOO=foolish'
     should_not set 'FOO', 'foo'
-  end  
+  end
 
   it 'sets the exact value of a given :env var, even if definition is unquoted' do
     data['config']['env'] = 'UNQUOTED=first second third ... OTHER=ok'
@@ -96,11 +96,19 @@ shared_examples_for 'a build script' do
 
   # TODO after_failure won't be called because the build script never returns 1
   %w(before_install install before_script script after_script after_success).each do |script|
-    it "runs the given :#{script} script" do
+    it "runs the given :#{script} command" do
       data['config'][script] = script
       timeout = Travis::Build::Data::DEFAULTS[:timeouts][script.to_sym]
       assert = %w(before_install install before_script).include?(script)
       should run script, echo: true, log: true, assert: assert, timeout: timeout
+    end
+
+    next if script == 'script'
+
+    it "adds fold markers for each of the :#{script} commands" do
+      data['config'][script] = [script, script]
+      should fold script, "#{script}.1"
+      should fold script, "#{script}.2"
     end
   end
 end

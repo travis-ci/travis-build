@@ -19,7 +19,7 @@ module Travis
           stage(stage) do
             cmds = Array(config[stage])
             cmds.each_with_index do |command, ix|
-              cmd command, fold: fold_stage?(stage) && "#{stage}#{"-#{ix}" if cmds.length > 1}"
+              cmd command, fold: fold_stage?(stage) && "#{stage}#{".#{ix + 1}" if cmds.size > 1}"
               result if stage == :script
             end
           end

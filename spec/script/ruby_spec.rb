@@ -10,7 +10,7 @@ describe Travis::Build::Script::Ruby do
     store_example
   end
 
-  # it_behaves_like 'a build script'
+  it_behaves_like 'a build script'
 
   it 'sets TRAVIS_RUBY_VERSION' do
     should set 'TRAVIS_RUBY_VERSION', 'default'
@@ -30,7 +30,7 @@ describe Travis::Build::Script::Ruby do
     should setup 'rvm use 2.0'
   end
 
-  it 'sets BUNDLE_GEMFILE if the gemfile exists' do
+  it 'sets BUNDLE_GEMFILE if a gemfile exists' do
     gemfile 'Gemfile.ci'
     should set 'BUNDLE_GEMFILE', File.expand_path('Gemfile.ci', 'tmp')
   end
@@ -43,17 +43,22 @@ describe Travis::Build::Script::Ruby do
     should announce 'rvm --version'
   end
 
-  it 'installs with bundle install with the given bundler_args if the gemfile exists' do
+  it 'installs with bundle install with the given bundler_args if a gemfile exists' do
     gemfile 'Gemfile.ci'
     should install 'bundle install'
   end
 
-  it 'runs bundle exec rake if the gemfile exists' do
+  it 'folds bundle install if a gemfile exists' do
+    gemfile 'Gemfile.ci'
+    should fold 'bundle install', 'install'
+  end
+
+  it 'runs bundle exec rake if a gemfile exists' do
     gemfile 'Gemfile.ci'
     should run_script 'bundle exec rake'
   end
 
-  it 'runs rake if the gemfile does not exist' do
+  it 'runs rake if a gemfile does not exist' do
     should run_script 'rake'
   end
 

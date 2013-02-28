@@ -86,29 +86,29 @@ travis_start announce
 travis_finish announce $?
 
 travis_start before_install
-echo "travis_fold:start:before_install-0\r"
+echo "travis_fold:start:before_install.1\r"
 echo \$\ ./before_install_1.sh
 ./before_install_1.sh
 travis_assert
-echo "travis_fold:end:before_install-0\r"
-echo "travis_fold:start:before_install-1\r"
+echo "travis_fold:end:before_install.1\r"
+echo "travis_fold:start:before_install.2\r"
 echo \$\ ./before_install_2.sh
 ./before_install_2.sh
 travis_assert
-echo "travis_fold:end:before_install-1\r"
+echo "travis_fold:end:before_install.2\r"
 travis_finish before_install $?
 
 travis_start before_script
-echo "travis_fold:start:before_script-0\r"
+echo "travis_fold:start:before_script.1\r"
 echo \$\ ./before_script_1.sh
 ./before_script_1.sh
 travis_assert
-echo "travis_fold:end:before_script-0\r"
-echo "travis_fold:start:before_script-1\r"
+echo "travis_fold:end:before_script.1\r"
+echo "travis_fold:start:before_script.2\r"
 echo \$\ ./before_script_2.sh
 ./before_script_2.sh
 travis_assert
-echo "travis_fold:end:before_script-1\r"
+echo "travis_fold:end:before_script.2\r"
 travis_finish before_script $?
 
 travis_start script
@@ -119,38 +119,38 @@ travis_finish script $TRAVIS_TEST_RESULT
 
 if [[ $TRAVIS_TEST_RESULT = 0 ]]; then
   travis_start after_success
-  echo "travis_fold:start:after_success-0\r"
+  echo "travis_fold:start:after_success.1\r"
   echo \$\ ./after_success_1.sh
   ./after_success_1.sh
-  echo "travis_fold:end:after_success-0\r"
-  echo "travis_fold:start:after_success-1\r"
+  echo "travis_fold:end:after_success.1\r"
+  echo "travis_fold:start:after_success.2\r"
   echo \$\ ./after_success_2.sh
   ./after_success_2.sh
-  echo "travis_fold:end:after_success-1\r"
+  echo "travis_fold:end:after_success.2\r"
   travis_finish after_success $?
 fi
 if [[ $TRAVIS_TEST_RESULT != 0 ]]; then
   travis_start after_failure
-  echo "travis_fold:start:after_failure-0\r"
+  echo "travis_fold:start:after_failure.1\r"
   echo \$\ ./after_failure_1.sh
   ./after_failure_1.sh
-  echo "travis_fold:end:after_failure-0\r"
-  echo "travis_fold:start:after_failure-1\r"
+  echo "travis_fold:end:after_failure.1\r"
+  echo "travis_fold:start:after_failure.2\r"
   echo \$\ ./after_failure_2.sh
   ./after_failure_2.sh
-  echo "travis_fold:end:after_failure-1\r"
+  echo "travis_fold:end:after_failure.2\r"
   travis_finish after_failure $?
 fi
 
 travis_start after_script
-echo "travis_fold:start:after_script-0\r"
+echo "travis_fold:start:after_script.1\r"
 echo \$\ ./after_script_1.sh
 ./after_script_1.sh
-echo "travis_fold:end:after_script-0\r"
-echo "travis_fold:start:after_script-1\r"
+echo "travis_fold:end:after_script.1\r"
+echo "travis_fold:start:after_script.2\r"
 echo \$\ ./after_script_2.sh
 ./after_script_2.sh
-echo "travis_fold:end:after_script-1\r"
+echo "travis_fold:end:after_script.2\r"
 travis_finish after_script $?
 
 echo -e "\nDone. Your build exited with $TRAVIS_TEST_RESULT."

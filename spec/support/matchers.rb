@@ -11,6 +11,12 @@ def echoes?(lines, cmd)
   runs? lines, "echo $ #{cmd}"
 end
 
+def folds?(lines, cmd, name)
+  ix_start = lines.index { |line| line =~ /^echo travis_fold:start:#{Regexp.escape(name)}/ }
+  ix_end   = lines.index { |line| line =~ /^echo travis_fold:end:#{Regexp.escape(name)}/ }
+  ix_start && ix_end && lines[ix_start..ix_end].index { |line| line == cmd }
+end
+
 def logs?(lines, cmd)
   # cmd = /^output from #{Regexp.escape(cmd)}/
   # lines = File.read('tmp/build.log').split("\n")
@@ -118,5 +124,17 @@ RSpec::Matchers.define :echo do |string|
     end
 
     echoes?(lines, string)
+  end
+end
+
+RSpec::Matchers.define :fold do |cmd, name|
+  match do |script|
+    lines = log_for(script).split("\n")
+
+    failure_message_for_should do
+      "expected the script to mark #{cmd} with fold markers named #{name.inspect}"
+    end
+
+    folds?(lines, cmd, name)
   end
 end
