@@ -58,9 +58,9 @@ module Travis
         private
 
           def fold(name)
-            raw "echo -e 'travis_fold:start:#{name}\\r'"
+            raw "echo -en 'travis_fold:start:#{name}\\r'"
             result = yield
-            raw "echo -e 'travis_fold:end:#{name}\\r'"
+            raw "echo -en 'travis_fold:end:#{name}\\r'"
             result
           end
 

@@ -12,8 +12,8 @@ def echoes?(lines, cmd)
 end
 
 def folds?(lines, cmd, name)
-  ix_start = lines.index { |line| line =~ /^echo -e travis_fold:start:#{Regexp.escape(name)}/ }
-  ix_end   = lines.index { |line| line =~ /^echo -e travis_fold:end:#{Regexp.escape(name)}/ }
+  ix_start = lines.index { |line| line =~ /^echo -en travis_fold:start:#{Regexp.escape(name)}/ }
+  ix_end   = lines.index { |line| line =~ /^echo -en travis_fold:end:#{Regexp.escape(name)}/ }
   ix_start && ix_end && lines[ix_start..ix_end].index { |line| line == cmd }
 end
 
