@@ -36,14 +36,6 @@ module Travis
         custom:  [:before_install, :install, :before_script, :script, :after_result, :after_script]
       }
 
-      class CompileError < StandardError
-        attr_reader :original
-        def initialize(msg, original=$!)
-          super(msg)
-          @original = original
-        end
-      end
-
       class << self
         def defaults
           Git::DEFAULTS.merge(self::DEFAULTS)
@@ -65,8 +57,6 @@ module Travis
         run_stages
         raw template 'footer.sh'
         sh.to_s
-      rescue StandardError => e
-        raise CompileError, "An error occured while compiling the build script"
       end
 
       private
