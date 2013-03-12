@@ -39,8 +39,7 @@ module Travis
           end
 
           def ch_dir
-            echo "cd #{dir}"
-            raw "cd #{dir}", timeout: false
+            cmd "cd #{dir}", timeout: false
           end
 
           def rm_key

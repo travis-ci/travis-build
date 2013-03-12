@@ -66,7 +66,7 @@ export GIT_ASKPASS=echo
 echo \$\ git\ clone\ --depth\=100\ --quiet\ --branch\=master\ git://github.com/travis-ci/travis-ci.git\ travis-ci/travis-ci
 git clone --depth=100 --quiet --branch=master git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci
 travis_assert
-echo cd\ travis-ci/travis-ci
+echo \$\ cd\ travis-ci/travis-ci
 cd travis-ci/travis-ci
 echo \$\ git\ checkout\ -qf\ 313f61b
 git checkout -qf 313f61b
