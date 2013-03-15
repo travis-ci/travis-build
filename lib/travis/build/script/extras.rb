@@ -1,8 +1,12 @@
+require 'travis/build/script/extras/sauce_connect'
+
 module Travis
   module Build
     class Script
       module Extras
-        MAP = {}
+        MAP = {
+          :sauce_connect => SauceConnect
+        }
 
         def run_extras
           extras.each do |extra|
