@@ -10,6 +10,7 @@ module Travis
       autoload :Cpp,        'travis/build/script/cpp'
       autoload :Clojure,    'travis/build/script/clojure'
       autoload :Erlang,     'travis/build/script/erlang'
+      autoload :Extras,     'travis/build/script/extras'
       autoload :Git,        'travis/build/script/git'
       autoload :Go,         'travis/build/script/go'
       autoload :Groovy,     'travis/build/script/groovy'
@@ -42,7 +43,7 @@ module Travis
         end
       end
 
-      include Git, Helpers, Services, Stages
+      include Extras, Git, Helpers, Services, Stages
 
       attr_reader :stack, :data, :options
 
@@ -73,6 +74,7 @@ module Travis
 
         def setup
           start_services
+          run_extras
         end
 
         def announce
