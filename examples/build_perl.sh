@@ -109,9 +109,11 @@ echo -en 'travis_fold:end:before_install.2\r'
 travis_finish before_install $?
 
 travis_start install
+echo -en 'travis_fold:start:install\r'
 echo \$\ cpanm\ --quiet\ --installdeps\ --notest\ .
 cpanm --quiet --installdeps --notest .
 travis_assert
+echo -en 'travis_fold:end:install\r'
 travis_finish install $?
 
 travis_start before_script

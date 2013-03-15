@@ -106,13 +106,17 @@ travis_finish before_install $?
 
 travis_start install
 if [[ (-f rebar.config || -f Rebar.config) && -f ./rebar ]]; then
+  echo -en 'travis_fold:start:install\r'
   echo \$\ ./rebar\ get-deps
   ./rebar get-deps
   travis_assert
+  echo -en 'travis_fold:end:install\r'
 elif [[ (-f rebar.config || -f Rebar.config) ]]; then
+  echo -en 'travis_fold:start:install\r'
   echo \$\ rebar\ get-deps
   rebar get-deps
   travis_assert
+  echo -en 'travis_fold:end:install\r'
 fi
 travis_finish install $?
 

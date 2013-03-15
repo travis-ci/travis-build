@@ -106,13 +106,17 @@ travis_finish before_install $?
 
 travis_start install
 if [[ -f build.gradle ]]; then
+  echo -en 'travis_fold:start:install\r'
   echo \$\ gradle\ assemble
   gradle assemble
   travis_assert
+  echo -en 'travis_fold:end:install\r'
 elif [[ -f pom.xml ]]; then
+  echo -en 'travis_fold:start:install\r'
   echo \$\ mvn\ install\ --quiet\ -DskipTests\=true
   mvn install --quiet -DskipTests=true
   travis_assert
+  echo -en 'travis_fold:end:install\r'
 fi
 travis_finish install $?
 

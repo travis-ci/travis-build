@@ -110,9 +110,11 @@ travis_finish before_install $?
 
 travis_start install
 if [[ -f package.json ]]; then
+  echo -en 'travis_fold:start:install\r'
   echo \$\ npm\ install\ 
   npm install 
   travis_assert
+  echo -en 'travis_fold:end:install\r'
 fi
 travis_finish install $?
 

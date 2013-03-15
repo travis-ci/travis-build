@@ -107,13 +107,17 @@ travis_finish before_install $?
 
 travis_start install
 if [[ -f Makefile ]]; then
+  echo -en 'travis_fold:start:install\r'
   echo \$\ true
   true
   travis_assert
+  echo -en 'travis_fold:end:install\r'
 else
+  echo -en 'travis_fold:start:install\r'
   echo \$\ go\ get\ -d\ -v\ ./...\ \&\&\ go\ build\ -v\ ./...
   go get -d -v ./... && go build -v ./...
   travis_assert
+  echo -en 'travis_fold:end:install\r'
 fi
 travis_finish install $?
 

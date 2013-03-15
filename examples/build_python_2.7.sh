@@ -110,13 +110,17 @@ travis_finish before_install $?
 
 travis_start install
 if [[ -f Requirements.txt ]]; then
+  echo -en 'travis_fold:start:install\r'
   echo \$\ pip\ install\ -r\ Requirements.txt\ --use-mirrors
   pip install -r Requirements.txt --use-mirrors
   travis_assert
+  echo -en 'travis_fold:end:install\r'
 elif [[ -f requirements.txt ]]; then
+  echo -en 'travis_fold:start:install\r'
   echo \$\ pip\ install\ -r\ requirements.txt\ --use-mirrors
   pip install -r requirements.txt --use-mirrors
   travis_assert
+  echo -en 'travis_fold:end:install\r'
 else
   echo Could\ not\ locate\ requirements.txt.\ Override\ the\ install:\ key\ in\ your\ .travis.yml\ to\ install\ dependencies.
   travis_assert
