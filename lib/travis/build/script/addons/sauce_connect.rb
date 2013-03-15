@@ -1,7 +1,7 @@
 module Travis
   module Build
     class Script
-      module Extras
+      module Addons
         class SauceConnect
           def initialize(script, config)
             @script = script

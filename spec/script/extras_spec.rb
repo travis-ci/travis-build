@@ -7,7 +7,7 @@ describe Travis::Build::Script::Generic do
   subject { described_class.new(data, options).compile }
 
   it 'sets up Sauce Connect correctly' do
-    data['config']['extras'] = {
+    data['config']['addons'] = {
       'sauce_connect' => {
         'username' => 'johndoe',
         'access_key' => '0123456789abcdef',
@@ -15,6 +15,6 @@ describe Travis::Build::Script::Generic do
     }
 
     subject
-    store_example 'extras_sauce_connect'
+    store_example 'addons_sauce_connect'
   end
 end

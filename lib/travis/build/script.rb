@@ -6,11 +6,11 @@ require 'erb'
 module Travis
   module Build
     class Script
+      autoload :Addons,     'travis/build/script/addons'
       autoload :C,          'travis/build/script/c'
       autoload :Cpp,        'travis/build/script/cpp'
       autoload :Clojure,    'travis/build/script/clojure'
       autoload :Erlang,     'travis/build/script/erlang'
-      autoload :Extras,     'travis/build/script/extras'
       autoload :Git,        'travis/build/script/git'
       autoload :Go,         'travis/build/script/go'
       autoload :Groovy,     'travis/build/script/groovy'
@@ -43,7 +43,7 @@ module Travis
         end
       end
 
-      include Extras, Git, Helpers, Services, Stages
+      include Addons, Git, Helpers, Services, Stages
 
       attr_reader :stack, :data, :options
 
@@ -74,7 +74,7 @@ module Travis
 
         def setup
           start_services
-          run_extras
+          run_addons
         end
 
         def announce
