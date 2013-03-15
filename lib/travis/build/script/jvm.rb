@@ -9,8 +9,8 @@ module Travis
         }
 
         def install
-          self.if   '-f build.gradle', 'gradle assemble'
-          self.elif '-f pom.xml',      'mvn install --quiet -DskipTests=true' # Otherwise mvn install will run tests which. Suggestion from Charles Nutter. MK.
+          self.if   '-f build.gradle', 'gradle assemble', fold: 'install'
+          self.elif '-f pom.xml',      'mvn install --quiet -DskipTests=true', fold: 'install' # Otherwise mvn install will run tests which. Suggestion from Charles Nutter. MK.
         end
 
         def script

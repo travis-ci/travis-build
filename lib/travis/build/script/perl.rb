@@ -23,7 +23,7 @@ module Travis
         end
 
         def install
-          cmd 'cpanm --quiet --installdeps --notest .'
+          cmd 'cpanm --quiet --installdeps --notest .', fold: 'install'
         end
 
         def script

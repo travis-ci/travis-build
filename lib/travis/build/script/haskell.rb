@@ -11,7 +11,7 @@ module Travis
         end
 
         def install
-          cmd 'cabal install --only-dependencies --enable-tests'
+          cmd 'cabal install --only-dependencies --enable-tests', fold: 'install'
         end
 
         def script

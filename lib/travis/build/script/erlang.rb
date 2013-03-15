@@ -17,8 +17,8 @@ module Travis
         end
 
         def install
-          self.if   "#{rebar_configured} && -f ./rebar", install_rebar('./')
-          self.elif rebar_configured, install_rebar
+          self.if   "#{rebar_configured} && -f ./rebar", install_rebar('./'), fold: 'install'
+          self.elif rebar_configured, install_rebar, fold: 'install'
         end
 
         def script
