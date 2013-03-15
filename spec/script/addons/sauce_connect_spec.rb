@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Travis::Build::Script::Extras::SauceConnect do
+describe Travis::Build::Script::Addons::SauceConnect do
   let(:script) { stub_everything('script') }
 
   subject { described_class.new(script, config).run }
