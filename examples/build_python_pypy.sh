@@ -70,20 +70,22 @@ travis_assert
 echo -en 'travis_fold:end:git.1\r'
 echo \$\ cd\ travis-ci/travis-ci
 cd travis-ci/travis-ci
+echo -en 'travis_fold:start:git.2\r'
 echo \$\ git\ checkout\ -qf\ 313f61b
 git checkout -qf 313f61b
 travis_assert
+echo -en 'travis_fold:end:git.2\r'
 if [[ -f .gitmodules ]]; then
   echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
-  echo -en 'travis_fold:start:git.2\r'
+  echo -en 'travis_fold:start:git.3\r'
   echo \$\ git\ submodule\ init
   git submodule init
-  echo -en 'travis_fold:end:git.2\r'
-  echo -en 'travis_fold:start:git.3\r'
+  echo -en 'travis_fold:end:git.3\r'
+  echo -en 'travis_fold:start:git.4\r'
   echo \$\ git\ submodule\ update
   git submodule update
   travis_assert
-  echo -en 'travis_fold:end:git.3\r'
+  echo -en 'travis_fold:end:git.4\r'
 fi
 rm -f ~/.ssh/source_rsa
 travis_finish checkout $?
