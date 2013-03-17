@@ -66,9 +66,11 @@ travis_finish export $?
 
 travis_start checkout
 export GIT_ASKPASS=echo
-echo \$\ git\ clone\ --depth\=100\ --quiet\ --branch\=master\ git://github.com/travis-ci/travis-ci.git\ travis-ci/travis-ci
-git clone --depth=100 --quiet --branch=master git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci
+echo -en 'travis_fold:start:git.1\r'
+echo \$\ git\ clone\ --depth\=100\ --branch\=master\ git://github.com/travis-ci/travis-ci.git\ travis-ci/travis-ci
+git clone --depth=100 --branch=master git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci
 travis_assert
+echo -en 'travis_fold:end:git.1\r'
 echo \$\ cd\ travis-ci/travis-ci
 cd travis-ci/travis-ci
 echo \$\ git\ checkout\ -qf\ 313f61b
@@ -76,11 +78,15 @@ git checkout -qf 313f61b
 travis_assert
 if [[ -f .gitmodules ]]; then
   echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+  echo -en 'travis_fold:start:git.2\r'
   echo \$\ git\ submodule\ init
   git submodule init
+  echo -en 'travis_fold:end:git.2\r'
+  echo -en 'travis_fold:start:git.3\r'
   echo \$\ git\ submodule\ update
   git submodule update
   travis_assert
+  echo -en 'travis_fold:end:git.3\r'
 fi
 rm -f ~/.ssh/source_rsa
 travis_finish checkout $?

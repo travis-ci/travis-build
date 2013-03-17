@@ -35,7 +35,7 @@ module Travis
 
           def clone
             set 'GIT_ASKPASS', 'echo', :echo => false # this makes git interactive auth fail
-            cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, timeout: :git_clone
+            cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, timeout: :git_clone, fold: 'git.1'
           end
 
           def ch_dir
@@ -65,13 +65,13 @@ module Travis
           def submodules
             self.if '-f .gitmodules' do
               cmd 'echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config', echo: false
-              cmd 'git submodule init'
-              cmd 'git submodule update', assert: true, timeout: :git_submodules
+              cmd 'git submodule init', fold: 'git.2'
+              cmd 'git submodule update', assert: true, timeout: :git_submodules, fold: 'git.3'
             end
           end
 
           def clone_args
-            args = "--depth=#{config[:git][:depth]} --quiet"
+            args = "--depth=#{config[:git][:depth]}"
             args << " --branch=#{data.branch}" unless data.ref
             args
           end
