@@ -3,7 +3,7 @@ module Travis
     class Script
       module Git
         DEFAULTS = {
-          git: { depth: 100, submodules: true }
+          git: { depth: 50, submodules: true }
         }
 
         def checkout
