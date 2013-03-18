@@ -9,7 +9,7 @@ describe Travis::Build::Script::Addons::SauceConnect do
     let(:config) { true }
 
     it 'runs the command' do
-      script.expects(:cmd).with('curl https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash', assert: false)
+      script.expects(:cmd).with('curl https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash', assert: false, fold: 'sauce_connect')
       subject
     end
 
@@ -33,7 +33,7 @@ describe Travis::Build::Script::Addons::SauceConnect do
     end
 
     it 'runs the command' do
-      script.expects(:cmd).with('curl https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash', assert: false)
+      script.expects(:cmd).with('curl https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash', assert: false, fold: 'sauce_connect')
       subject
     end
 
