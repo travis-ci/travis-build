@@ -18,8 +18,9 @@ module Travis
 
             info_echo = 'echo -e "\033[33;1mStarting Sauce Connect\033[0m"'
             command = "curl https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash"
+            command_echo = "echo \"#{command}\""
 
-            @script.cmd "#{info_echo}; #{command}", assert: false, fold: 'sauce_connect', echo: false
+            @script.cmd "#{info_echo}; #{command_echo}; #{command}", assert: false, fold: 'sauce_connect', echo: false
             @script.set 'TRAVIS_SAUCE_CONNECT', 'true', echo: false, assert: false
           end
         end

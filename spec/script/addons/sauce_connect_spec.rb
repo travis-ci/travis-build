@@ -2,7 +2,11 @@ require 'spec_helper'
 
 describe Travis::Build::Script::Addons::SauceConnect do
   let(:script) { stub_everything('script') }
-  let(:command) { 'echo -e "\033[33;1mStarting Sauce Connect\033[0m"; curl https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash' }
+  let(:command) do
+    'echo -e "\033[33;1mStarting Sauce Connect\033[0m"; ' +
+    'echo "curl https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash"; ' +
+    'curl https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash'
+  end
 
   subject { described_class.new(script, config).run }
 
