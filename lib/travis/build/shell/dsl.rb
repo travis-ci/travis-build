@@ -55,14 +55,14 @@ module Travis
           nodes.last
         end
 
-        private
+        def fold(name, &block)
+          raw "echo -en 'travis_fold:start:#{name}\\r'"
+          result = yield(self)
+          raw "echo -en 'travis_fold:end:#{name}\\r'"
+          result
+        end
 
-          def fold(name)
-            raw "echo -en 'travis_fold:start:#{name}\\r'"
-            result = yield
-            raw "echo -en 'travis_fold:end:#{name}\\r'"
-            result
-          end
+        private
 
           def merge_options(args, options = {})
             options = (args.last.is_a?(Hash) ? args.pop : {}).merge(options)
