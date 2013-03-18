@@ -16,7 +16,10 @@ module Travis
               @script.set 'SAUCE_ACCESS_KEY', @config[:access_key], echo: false, assert: false
             end
 
-            @script.cmd 'curl https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash', assert: false, fold: 'sauce_connect'
+            info_echo = 'echo -e "\033[33;1mStarting Sauce Connect\033[0m"'
+            command = "curl https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash"
+
+            @script.cmd "#{info_echo}; #{command}", assert: false, fold: 'sauce_connect', echo: false
             @script.set 'TRAVIS_SAUCE_CONNECT', 'true', echo: false, assert: false
           end
         end
