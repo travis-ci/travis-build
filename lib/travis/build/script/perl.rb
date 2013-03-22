@@ -27,7 +27,7 @@ module Travis
         end
 
         def script
-          self.if   '-f Build.PL',    'perl Build.PL && ./Build test'
+          self.if   '-f Build.PL',    'perl Build.PL && ./Build && ./Build test'
           self.elif '-f Makefile.PL', 'perl Makefile.PL && make test'
           self.else                   'make test'
         end

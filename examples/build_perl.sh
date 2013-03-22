@@ -139,8 +139,8 @@ travis_finish before_script $?
 
 travis_start script
 if [[ -f Build.PL ]]; then
-  echo \$\ perl\ Build.PL\ \&\&\ ./Build\ test
-  perl Build.PL && ./Build test
+  echo \$\ perl\ Build.PL\ \&\&\ ./Build\ \&\&\ ./Build\ test
+  perl Build.PL && ./Build && ./Build test
 elif [[ -f Makefile.PL ]]; then
   echo \$\ perl\ Makefile.PL\ \&\&\ make\ test
   perl Makefile.PL && make test
