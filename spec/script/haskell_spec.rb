@@ -12,6 +12,8 @@ describe Travis::Build::Script::Haskell do
 
   it_behaves_like 'a build script'
 
+  it {should run 'cabal update'}
+
   it 'announces ghc --version' do
     should announce 'ghc --version'
   end
