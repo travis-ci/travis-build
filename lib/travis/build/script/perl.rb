@@ -23,14 +23,14 @@ module Travis
         end
 
         def install
-          self.if   '-f dist.ini',    'cpanm Dist::Zilla && (dzil authordeps | cpanm) && (dzil listdeps | cpanm)'
+          self.if   '-f dist.ini',    'cpanm Dist::Zilla && (dzil authordeps | cpanm) && (dzil listdeps | cpanm)', fold: 'install'
           self.else                   'cpanm --quiet --installdeps --notest .', fold: 'install'
         end
 
         def script
           self.if   '-f Build.PL',    'perl Build.PL && ./Build && ./Build test'
           self.elif '-f Makefile.PL', 'perl Makefile.PL && make test'
-          self.elif '-f dist.ini'     'dzil test'
+          self.elif '-f dist.ini',    'dzil test'
           self.else                   'make test'
         end
 

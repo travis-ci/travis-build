@@ -72,4 +72,20 @@ describe Travis::Build::Script::Perl do
       should run 'make test', log: true, timeout: timeout_for(:script)
     end
   end
+
+  describe 'if dist.ini exists' do
+    before(:each) do
+      file('dist.ini')
+    end
+
+    it 'installs with ' do
+      should run 'echo $ cpanm Dist::Zilla && (dzil authordeps | cpanm) && (dzil listdeps | cpanm)'
+      should run 'cpanm Dist::Zilla'
+    end
+
+    it 'runs dzil test' do
+      should run 'echo $ dzil test'
+      should run 'dzil test', log: true, timeout: timeout_for(:script)
+    end
+  end
 end

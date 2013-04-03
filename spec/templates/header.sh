@@ -12,7 +12,7 @@ stubs=(
   gradle mvn ant
   ghc cabal
   node nvm npm
-  perl perlbrew cpanm
+  perl perlbrew cpanm dzil
   php phpenv phpunit
   python pip
   ruby rvm gem bundle rake
