@@ -93,8 +93,10 @@ travis_start setup
 travis_finish setup $?
 
 travis_start announce
+echo -en 'travis_fold:start:announce\r'
 echo \$\ xcodebuild\ -version\ -sdk
 xcodebuild -version -sdk
+echo -en 'travis_fold:end:announce\r'
 travis_finish announce $?
 
 travis_start before_install
@@ -112,9 +114,11 @@ travis_finish before_install $?
 
 travis_start install
 if [[ -f Podfile ]]; then
+  echo -en 'travis_fold:start:install\r'
   echo \$\ pod\ install
   pod install
   travis_assert
+  echo -en 'travis_fold:end:install\r'
 fi
 travis_finish install $?
 

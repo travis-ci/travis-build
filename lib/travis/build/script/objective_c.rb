@@ -4,7 +4,7 @@ module Travis
       class ObjectiveC < Script
         def announce
           super
-          cmd 'xcodebuild -version -sdk'
+          cmd 'xcodebuild -version -sdk', fold: 'announce'
         end
 
         def setup
@@ -14,7 +14,7 @@ module Travis
         end
 
         def install
-          uses_cocoapods? 'pod install'
+          uses_cocoapods? 'pod install', fold: 'install'
         end
 
         def script

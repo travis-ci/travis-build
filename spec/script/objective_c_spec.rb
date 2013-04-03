@@ -14,6 +14,10 @@ describe Travis::Build::Script::ObjectiveC do
     should announce 'xcodebuild -version -sdk'
   end
 
+  it 'folds announce' do
+    should fold 'xcodebuild -version -sdk', 'announce'
+  end
+
   context 'if Podfile exists' do
     before(:each) do
       file('Podfile')
@@ -22,6 +26,10 @@ describe Travis::Build::Script::ObjectiveC do
     it 'runs pod install' do
       should install 'pod install'
       store_example 'cocoapods'
+    end
+
+    it 'folds pod install' do
+      should fold 'pod install', 'install'
     end
   end
 
