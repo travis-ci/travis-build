@@ -7,19 +7,12 @@ module Travis
           cmd 'xcodebuild -version -sdk', fold: 'announce'
         end
 
-        def setup
-          super
-          # TODO: Uncomment this once the template has a working xcodebuild wrapper
-          # raw template 'xcode.sh'
-        end
-
         def install
           uses_cocoapods? 'pod install', fold: 'install'
         end
 
         def script
-          workspace = config[:xcode_workspace] ? "-workspace #{config[:xcode_workspace]}.xcworkspace" : ''
-          cmd "xcodebuild #{workspace} -scheme #{config[:xcode_scheme]} clean test"
+          '~/travis-utils/osx-cibuild.sh'
         end
 
         private
