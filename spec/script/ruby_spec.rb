@@ -32,7 +32,7 @@ describe Travis::Build::Script::Ruby do
 
   it 'sets BUNDLE_GEMFILE if a gemfile exists' do
     gemfile 'Gemfile.ci'
-    should set 'BUNDLE_GEMFILE', File.expand_path('Gemfile.ci', 'tmp')
+    should set 'BUNDLE_GEMFILE', File.join(ENV['PWD'], 'tmp/Gemfile.ci')
   end
 
   it 'announces ruby --version' do
