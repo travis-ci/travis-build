@@ -54,6 +54,10 @@ export TRAVIS_BRANCH=master
 export TRAVIS_COMMIT=313f61b
 export TRAVIS_COMMIT_RANGE=313f61b..313f61a
 export TRAVIS_REPO_SLUG=travis-ci/travis-ci
+echo \$\ export\ FOO\=foo
+export FOO=foo
+echo \$\ export\ BAR\=\[secure\]
+export BAR=bar
 echo \$\ export\ BAR\=\[secure\]
 export BAR=bar
 travis_finish export $?

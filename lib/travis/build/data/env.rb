@@ -34,10 +34,14 @@ module Travis
             )
           end
 
-          def config_vars
-            vars = to_vars(Array(config[:env]).compact.reject(&:empty?))
+          def extract_config_vars(vars)
+            vars = to_vars(Array(vars).compact.reject(&:empty?))
             vars.reject!(&:secure?) if pull_request
             vars
+          end
+
+          def config_vars
+            extract_config_vars(config[:env]) + extract_config_vars(config[:global_env])
           end
 
           def to_vars(args)
