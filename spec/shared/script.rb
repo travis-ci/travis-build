@@ -1,6 +1,14 @@
 shared_examples_for 'a build script' do
   it_behaves_like 'a git repo'
 
+  it_behaves_like "a script with env vars" do
+    let(:env_type) { 'env' }
+  end
+
+  it_behaves_like "a script with env vars" do
+    let(:env_type) { 'global_env' }
+  end
+
   it 'sets TRAVIS_* env vars' do
     data['config']['env'].delete_if { |var| var =~ /SECURE / }
 
@@ -21,67 +29,6 @@ shared_examples_for 'a build script' do
     data['job']['pull_request'] = 1
     should set 'TRAVIS_PULL_REQUEST', '1'
     store_example 'pull_request' if described_class == Travis::Build::Script::Generic
-  end
-
-  it 'sets TRAVIS_SECURE_ENV_VARS to true when using secure env vars' do
-    data['config']['env'] = 'SECURE BAR=bar'
-    should set 'TRAVIS_SECURE_ENV_VARS', 'true'
-    store_example 'secure_var' if described_class == Travis::Build::Script::Generic
-  end
-
-  it 'sets a given :env var' do
-    data['config']['env'] = 'FOO=foo'
-    should set 'FOO', 'foo'
-  end
-
-  it 'sets a given :env var even if empty' do
-    data['config']['env'] = 'FOO=""'
-    should set 'FOO', ''
-  end
-
-  it 'sets the exact value of a given :env var' do
-    data['config']['env'] = 'FOO=foolish'
-    should_not set 'FOO', 'foo'
-  end
-
-  it 'sets the exact value of a given :env var, even if definition is unquoted' do
-    data['config']['env'] = 'UNQUOTED=first second third ... OTHER=ok'
-    should set 'UNQUOTED', 'first'
-    should set 'OTHER', 'ok'
-  end
-
-  it 'it evaluates and sets the exact values of given :env vars, when their definition is encolsed within single or double quotes' do
-    data['config']['env'] = 'SIMPLE_QUOTED=\'foo+bar (are) on a boat!\' DOUBLE_QUOTED="$SIMPLE_QUOTED"'
-    should set 'SIMPLE_QUOTED', 'foo+bar (are) on a boat!'
-    should set 'DOUBLE_QUOTED', 'foo+bar (are) on a boat!'
-  end
-
-  it 'sets multiple :env vars (space separated)' do
-    data['config']['env'] = 'FOO=foo BAR=bar'
-    should set 'FOO', 'foo'
-    should set 'BAR', 'bar'
-  end
-
-  it 'sets multiple :env vars (array)' do
-    data['config']['env'] = ['FOO=foo', 'BAR=bar']
-    should set 'FOO', 'foo'
-    should set 'BAR', 'bar'
-  end
-
-  it 'sets a given secure :env var' do
-    data['config']['env'] = 'SECURE BAR=bar'
-    should set 'BAR', 'bar'
-  end
-
-  it 'echoes obfuscated secure env vars' do
-    data['config']['env'] = 'SECURE BAR=bar'
-    should echo 'export BAR=[secure]'
-  end
-
-  it 'does not set secure :env vars on pull requests' do
-    data['job']['pull_request'] = 1
-    data['config']['env'] = 'SECURE BAR=bar'
-    should_not set 'BAR', 'bar'
   end
 
   it 'sets TRAVIS_TEST_RESULT to 0 if all scripts exited with 0' do
