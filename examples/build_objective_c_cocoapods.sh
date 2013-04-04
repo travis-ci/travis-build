@@ -136,8 +136,8 @@ echo -en 'travis_fold:end:before_script.2\r'
 travis_finish before_script $?
 
 travis_start script
-echo \$\ xcodebuild\ \ -scheme\ MyApp\ clean\ test
-xcodebuild  -scheme MyApp clean test
+echo \$\ /Users/travis/travis-utils/osx-cibuild.sh
+/Users/travis/travis-utils/osx-cibuild.sh
 travis_result $?
 travis_finish script $TRAVIS_TEST_RESULT
 

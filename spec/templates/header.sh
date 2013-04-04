@@ -17,7 +17,7 @@ stubs=(
   python pip
   ruby rvm gem bundle rake
   sbt
-  xcodebuild pod
+  /Users/travis/travis-utils/osx-cibuild.sh xcodebuild pod
 )
 for stub in ${stubs[*]}; do
   eval "$stub() { builtin echo $stub \$@; }"

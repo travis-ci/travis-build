@@ -12,7 +12,7 @@ module Travis
         end
 
         def script
-          '~/travis-utils/osx-cibuild.sh'
+          cmd '/Users/travis/travis-utils/osx-cibuild.sh'
         end
 
         private

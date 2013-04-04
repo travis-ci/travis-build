@@ -4,10 +4,6 @@ describe Travis::Build::Script::ObjectiveC do
   let(:options) { { logs: { build: false, state: false } } }
   let(:data)    { PAYLOADS[:push].deep_clone }
 
-  before(:each) do
-    data['config']['xcode_scheme'] = 'MyApp'
-  end
-
   subject { described_class.new(data, options).compile }
 
   it 'announces xcodebuild -version -sdk' do
@@ -35,18 +31,8 @@ describe Travis::Build::Script::ObjectiveC do
 
   context 'if no Podfile exists' do
     it 'runs xcode tests' do
-      should run_script 'xcodebuild -scheme MyApp clean test'
+      should run_script '/Users/travis/travis-utils/osx-cibuild.sh'
       store_example
-    end
-  end
-
-  context 'when a workspace is given' do
-    before(:each) do
-      data['config']['xcode_workspace'] = 'MyWorkspace'
-    end
-
-    it 'runs xcode tests with workspace' do
-      should run_script 'xcodebuild -workspace MyWorkspace.xcworkspace -scheme MyApp clean test'
     end
   end
 end
