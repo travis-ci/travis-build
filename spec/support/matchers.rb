@@ -111,6 +111,9 @@ RSpec::Matchers.define :set do |name, value|
       "expected script to set #{name} to #{value} but it didn't:\n#{env}"
     end
 
+    # match only the last occurance of given env var, to make sure that
+    # it's actually what's been set
+    env = env.scan(/^(#{name}=.*?)$/).flatten.last
     env =~ /^#{name}=#{value.is_a?(String) ? Regexp.escape(value) : value}$/
   end
 end

@@ -11,13 +11,13 @@ shared_examples_for 'a script with env vars' do
   end
 
   it 'sets a given :env var even if empty' do
-    data['config'][env_type] = 'FOO=""'
-    should set 'FOO', ''
+    data['config'][env_type] = 'SOMETHING_EMPTY=""'
+    should set 'SOMETHING_EMPTY', ''
   end
 
   it 'sets the exact value of a given :env var' do
-    data['config'][env_type] = 'FOO=foolish'
-    should_not set 'FOO', 'foo'
+    data['config'][env_type] = 'BAR=foolish'
+    should_not set 'BAR', 'foo'
   end
 
   it 'sets the exact value of a given :env var, even if definition is unquoted' do
@@ -67,5 +67,12 @@ shared_examples_for 'a script with env vars' do
     should set 'BAR', 'bar'
     should set 'BAZ', 'baz'
     should set 'QUX', 'qux'
+  end
+
+  it 'sets matrix env vars with bigger priority (ie. after global env vars)' do
+    data['config']['env'] = ['FOO=foo']
+    data['config']['global_env'] = ['FOO=bar']
+
+    should set 'FOO', 'foo'
   end
 end

@@ -41,7 +41,7 @@ module Travis
           end
 
           def config_vars
-            extract_config_vars(config[:env]) + extract_config_vars(config[:global_env])
+            extract_config_vars(config[:global_env]) + extract_config_vars(config[:env])
           end
 
           def to_vars(args)
