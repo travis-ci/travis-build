@@ -8,6 +8,7 @@ require 'shared/git'
 require 'shared/jdk'
 require 'shared/jvm'
 require 'shared/script'
+require 'shared/env_vars'
 
 STDOUT.sync = true
 
