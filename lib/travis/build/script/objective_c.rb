@@ -8,8 +8,8 @@ module Travis
         end
 
         def install
-          self.if uses_cocoapods?, then: 'pod install', fold: 'install'
-          self.elif uses_rubymotion?, then: 'bundle install', fold: 'install'
+          has_podfile? then: 'pod install', fold: 'install.cocoapods'
+          has_gemfile? then: 'bundle install', fold: 'install.bundler'
         end
 
         def script
@@ -19,8 +19,12 @@ module Travis
 
         private
 
-        def uses_cocoapods?(*args)
-          '-f Podfile'
+        def has_podfile?(*args)
+          self.if '-f Podfile', *args
+        end
+
+        def has_gemfile?(*args)
+          self.if '-f Gemfile', *args
         end
 
         def uses_rubymotion?(*args)

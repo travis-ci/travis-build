@@ -38,6 +38,8 @@ describe Travis::Build::Script::ObjectiveC do
 
   context 'if project is a RubyMotion project' do
     before(:each) do
+      file('Podfile')
+      file('Gemfile')
       file('Rakefile', "require 'motion/project'")
     end
 
@@ -46,8 +48,16 @@ describe Travis::Build::Script::ObjectiveC do
       store_example 'rubymotion'
     end
 
+    it 'runs pod install' do
+      should install 'pod install'
+    end
+
     it 'folds bundle install' do
-      should fold 'bundle install', 'install'
+      should fold 'bundle install', 'install.bundler'
+    end
+
+    it 'folds pod install' do
+      should fold 'pod install', 'install.cocoapods'
     end
 
     it 'runs specs' do

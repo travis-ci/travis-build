@@ -114,17 +114,18 @@ travis_finish before_install $?
 
 travis_start install
 if [[ -f Podfile ]]; then
-  echo -en 'travis_fold:start:install\r'
+  echo -en 'travis_fold:start:install.cocoapods\r'
   echo \$\ pod\ install
   pod install
   travis_assert
-  echo -en 'travis_fold:end:install\r'
-elif [[ -f Rakefile && "$(cat Rakefile)" =~ "require 'motion/project'" ]]; then
-  echo -en 'travis_fold:start:install\r'
+  echo -en 'travis_fold:end:install.cocoapods\r'
+fi
+if [[ -f Gemfile ]]; then
+  echo -en 'travis_fold:start:install.bundler\r'
   echo \$\ bundle\ install
   bundle install
   travis_assert
-  echo -en 'travis_fold:end:install\r'
+  echo -en 'travis_fold:end:install.bundler\r'
 fi
 travis_finish install $?
 
