@@ -8,9 +8,9 @@ module Travis
           :sauce_connect => SauceConnect
         }
 
-        def run_addons
+        def run_addons(stage)
           addons.each do |addon|
-            addon.run
+            addon.send(stage) if addon.respond_to?(stage)
           end
         end
 

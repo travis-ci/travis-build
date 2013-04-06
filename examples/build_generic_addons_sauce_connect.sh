@@ -90,14 +90,6 @@ rm -f ~/.ssh/source_rsa
 travis_finish checkout $?
 
 travis_start setup
-export SAUCE_USERNAME=johndoe
-export SAUCE_ACCESS_KEY=0123456789abcdef
-echo -en 'travis_fold:start:sauce_connect\r'
-echo -e "\033[33;1mStarting Sauce Connect\033[0m"
-echo \$\ curl\ https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh\ \|\ bash
-curl https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash
-export TRAVIS_SAUCE_CONNECT=true
-echo -en 'travis_fold:end:sauce_connect\r'
 travis_finish setup $?
 
 travis_start announce
@@ -117,6 +109,14 @@ echo -en 'travis_fold:end:before_install.2\r'
 travis_finish before_install $?
 
 travis_start before_script
+export SAUCE_USERNAME=johndoe
+export SAUCE_ACCESS_KEY=0123456789abcdef
+echo -en 'travis_fold:start:sauce_connect\r'
+echo -e "\033[33;1mStarting Sauce Connect\033[0m"
+echo \$\ curl\ https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh\ \|\ bash
+curl https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash
+export TRAVIS_SAUCE_CONNECT=true
+echo -en 'travis_fold:end:sauce_connect\r'
 echo -en 'travis_fold:start:before_script.1\r'
 echo \$\ ./before_script_1.sh
 ./before_script_1.sh

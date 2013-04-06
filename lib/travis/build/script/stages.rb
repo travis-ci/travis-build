@@ -17,6 +17,7 @@ module Travis
 
         def run_custom_stage(stage)
           stage(stage) do
+            run_addon_stage(stage)
             cmds = Array(config[stage])
             cmds.each_with_index do |command, ix|
               cmd command, fold: fold_stage?(stage) && "#{stage}#{".#{ix + 1}" if cmds.size > 1}"
@@ -27,9 +28,14 @@ module Travis
 
         def run_builtin_stage(stage)
           stage(stage) do
+            run_addon_stage(stage)
             send(stage)
             result if stage == :script
           end
+        end
+
+        def run_addon_stage(stage)
+          run_addons(stage)
         end
 
         def after_result

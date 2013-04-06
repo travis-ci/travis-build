@@ -8,7 +8,7 @@ module Travis
             @config = config.respond_to?(:to_hash) ? config.to_hash : {}
           end
 
-          def run
+          def before_script
             if @config[:username]
               @script.set 'SAUCE_USERNAME', @config[:username], echo: false, assert: false
             end

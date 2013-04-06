@@ -10,7 +10,7 @@ describe Travis::Build::Script::Addons::SauceConnect do
 
   before(:each) { script.stubs(:fold).yields(script) }
 
-  subject { described_class.new(script, config).run }
+  subject { described_class.new(script, config).before_script }
 
   context 'without credentials' do
     let(:config) { true }
