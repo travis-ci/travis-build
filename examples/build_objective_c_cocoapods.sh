@@ -119,6 +119,12 @@ if [[ -f Podfile ]]; then
   pod install
   travis_assert
   echo -en 'travis_fold:end:install\r'
+elif [[ -f Rakefile && "$(cat Rakefile)" =~ "require 'motion/project'" ]]; then
+  echo -en 'travis_fold:start:install\r'
+  echo \$\ bundle\ install
+  bundle install
+  travis_assert
+  echo -en 'travis_fold:end:install\r'
 fi
 travis_finish install $?
 
@@ -136,8 +142,13 @@ echo -en 'travis_fold:end:before_script.2\r'
 travis_finish before_script $?
 
 travis_start script
-echo \$\ /Users/travis/travis-utils/osx-cibuild.sh
-/Users/travis/travis-utils/osx-cibuild.sh
+if [[ -f Rakefile && "$(cat Rakefile)" =~ "require 'motion/project'" ]]; then
+  echo \$\ bundle\ exec\ rake\ spec
+  bundle exec rake spec
+else
+  echo \$\ /Users/travis/travis-utils/osx-cibuild.sh
+  /Users/travis/travis-utils/osx-cibuild.sh
+fi
 travis_result $?
 travis_finish script $TRAVIS_TEST_RESULT
 

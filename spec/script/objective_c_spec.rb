@@ -35,4 +35,23 @@ describe Travis::Build::Script::ObjectiveC do
       store_example
     end
   end
+
+  context 'if project is a RubyMotion project' do
+    before(:each) do
+      file('Rakefile', "require 'motion/project'")
+    end
+
+    it 'runs bundle install' do
+      should install 'bundle install'
+      store_example 'rubymotion'
+    end
+
+    it 'folds bundle install' do
+      should fold 'bundle install', 'install'
+    end
+
+    it 'runs specs' do
+      should run_script 'bundle exec rake spec'
+    end
+  end
 end
