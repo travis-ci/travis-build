@@ -104,10 +104,10 @@ travis_finish setup $?
 travis_start announce
 echo \$\ ruby\ --version
 ruby --version
-echo \$\ gem\ --version
-gem --version
 echo \$\ rvm\ --version
 rvm --version
+echo \$\ gem\ --version
+gem --version
 travis_finish announce $?
 
 travis_start before_install

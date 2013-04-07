@@ -8,23 +8,16 @@ module Travis
         }
 
         include Jdk
-
-        def export
-          super
-          set 'TRAVIS_RUBY_VERSION', config[:rvm], echo: false
-        end
+        include RVM
 
         def setup
           super
-          setup_ruby
           setup_bundler
         end
 
         def announce
           super
-          cmd 'ruby --version'
           cmd 'gem --version'
-          cmd 'rvm --version'
         end
 
         def install
@@ -36,10 +29,6 @@ module Travis
         end
 
         private
-
-          def setup_ruby
-            cmd "rvm use #{ruby_version} --install --binary --fuzzy"
-          end
 
           def setup_bundler
             gemfile? do |sh|
@@ -57,11 +46,6 @@ module Travis
 
           def uses_jdk?
             uses_java? && super
-          end
-
-          def ruby_version
-            ruby_version = config[:rvm].to_s.gsub(/-(1[89]|20)mode$/, '-d\1')
-            ruby_version.gsub(/^rbx-d(\d{2})$/, 'rbx-weekly-d\1')
           end
       end
     end
