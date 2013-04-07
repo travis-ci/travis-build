@@ -72,7 +72,7 @@ module Travis
 
           def clone_args
             args = "--depth=#{config[:git][:depth]}"
-            args << " --branch=#{data.branch}" unless data.ref
+            args << " --branch=\"#{data.branch}\"" unless data.ref
             args
           end
 
