@@ -23,7 +23,7 @@ module Travis
             return unless config[:source_key]
 
             echo "\nInstalling an SSH key\n"
-            cmd "echo '#{config[:source_key]}' | base64 -d > ~/.ssh/id_rsa", echo: false, log: false
+            cmd "echo '#{config[:source_key]}' | base64 --decode > ~/.ssh/id_rsa", echo: false, log: false
             cmd 'chmod 600 ~/.ssh/id_rsa',                echo: false, log: false
             cmd 'eval `ssh-agent` > /dev/null 2>&1',      echo: false, log: false
             cmd 'ssh-add ~/.ssh/id_rsa > /dev/null 2>&1', echo: false, log: false
@@ -79,7 +79,7 @@ module Travis
           def dir
             data.slug
           end
-          
+
           def next_git_fold_number
             @git_fold_number ||= 0
             @git_fold_number  += 1
