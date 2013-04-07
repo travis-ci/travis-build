@@ -14,6 +14,11 @@ describe Travis::Build::Script::ObjectiveC do
     should fold 'xcodebuild -version -sdk', 'announce'
   end
 
+  it 'handles ruby version being set' do
+    data['config']['rvm'] = '1.8.7'
+    should setup 'rvm use 1.8.7'
+  end
+
   context 'if Podfile exists' do
     before(:each) do
       file('Podfile')

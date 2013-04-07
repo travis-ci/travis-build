@@ -2,6 +2,12 @@ module Travis
   module Build
     class Script
       class ObjectiveC < Script
+        DEFAULTS = {
+          rvm:     'default'
+        }
+
+        include RVM
+
         def announce
           super
           cmd 'xcodebuild -version -sdk', fold: 'announce'

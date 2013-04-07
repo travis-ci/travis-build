@@ -58,6 +58,7 @@ echo \$\ export\ FOO\=foo
 export FOO=foo
 echo \$\ export\ BAR\=\[secure\]
 export BAR=bar
+export TRAVIS_RUBY_VERSION=default
 travis_finish export $?
 
 travis_start checkout
@@ -90,9 +91,16 @@ rm -f ~/.ssh/source_rsa
 travis_finish checkout $?
 
 travis_start setup
+echo \$\ rvm\ use\ default\ --install\ --binary\ --fuzzy
+rvm use default --install --binary --fuzzy
+travis_assert
 travis_finish setup $?
 
 travis_start announce
+echo \$\ ruby\ --version
+ruby --version
+echo \$\ rvm\ --version
+rvm --version
 echo -en 'travis_fold:start:announce\r'
 echo \$\ xcodebuild\ -version\ -sdk
 xcodebuild -version -sdk
