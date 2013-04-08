@@ -17,4 +17,11 @@ describe Travis::Build::Script::Generic do
     subject
     store_example 'addons_sauce_connect'
   end
+
+  it 'sets up Firefox correctly' do
+    data['config']['addons'] = { 'firefox' => '20.0' }
+
+    subject
+    store_example 'addons_firefox'
+  end
 end
