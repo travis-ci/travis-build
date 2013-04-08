@@ -12,12 +12,12 @@ describe Travis::Build::Script::Addons::Firefox do
   it 'runs the command' do
     script.expects(:fold).with('install_firefox').yields(script)
     script.expects(:cmd).with("echo -e \"\033[33;1mInstalling Firefox v20.0\033[0m\"; ", assert: false, echo: false)
-    script.expects(:cmd).with("pushd", assert: false)
-    script.expects(:cmd).with("mkdir -p /tmp/firefox_install", assert: false)
-    script.expects(:cmd).with("cd /tmp/firefox_install", assert: false)
-    script.expects(:cmd).with("wget ftp://ftp.mozilla.org/pub/firefox/releases/20.0/linux-x86_64/en-US/firefox-20.0.tar.bz2", assert: false)
-    script.expects(:cmd).with("tar xf firefox-20.0.tar.bz2", assert: false)
-    script.expects(:cmd).with("sudo ln -s /tmp/firefox_install/firefox/firefox /usr/local/bin/firefox", assert: false)
+    script.expects(:cmd).with("mkdir -p ~/usr/firefox ~/bin", assert: false)
+    script.expects(:cmd).with("wget -O /tmp/firefox.tar.bz2 ftp://ftp.mozilla.org/pub/firefox/releases/20.0/linux-x86_64/en-US/firefox-20.0.tar.bz2", assert: false)
+    script.expects(:cmd).with("pushd ~/usr/firefox", assert: false)
+    script.expects(:cmd).with("tar xf /tmp/firefox.tar.bz2", assert: false)
+    script.expects(:cmd).with("sudo ln -s ~/usr/firefox/firefox ~/bin/firefox", assert: false)
+    script.expects(:set).with('PATH', '~/bin:$PATH', echo: false, assert: false)
     script.expects(:cmd).with("popd", assert: false)
     subject
   end

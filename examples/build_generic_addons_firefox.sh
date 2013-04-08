@@ -98,16 +98,19 @@ travis_finish announce $?
 travis_start before_install
 echo -en 'travis_fold:start:install_firefox\r'
 echo -e "[33;1mInstalling Firefox v20.0[0m"; 
-echo \$\ mkdir\ -p\ /tmp/firefox_install
-mkdir -p /tmp/firefox_install
-echo \$\ cd\ /tmp/firefox_install
-cd /tmp/firefox_install
-echo \$\ wget\ ftp://ftp.mozilla.org/pub/firefox/releases/20.0/linux-x86_64/en-US/firefox-20.0.tar.bz2
-wget ftp://ftp.mozilla.org/pub/firefox/releases/20.0/linux-x86_64/en-US/firefox-20.0.tar.bz2
-echo \$\ tar\ xf\ firefox-20.0.tar.bz2
-tar xf firefox-20.0.tar.bz2
-echo \$\ sudo\ ln\ -s\ /tmp/firefox_install/firefox/firefox\ /usr/local/bin/firefox
-sudo ln -s /tmp/firefox_install/firefox/firefox /usr/local/bin/firefox
+echo \$\ mkdir\ -p\ \~/usr/firefox\ \~/bin
+mkdir -p ~/usr/firefox ~/bin
+echo \$\ wget\ -O\ /tmp/firefox.tar.bz2\ ftp://ftp.mozilla.org/pub/firefox/releases/20.0/linux-x86_64/en-US/firefox-20.0.tar.bz2
+wget -O /tmp/firefox.tar.bz2 ftp://ftp.mozilla.org/pub/firefox/releases/20.0/linux-x86_64/en-US/firefox-20.0.tar.bz2
+echo \$\ pushd\ \~/usr/firefox
+pushd ~/usr/firefox
+echo \$\ tar\ xf\ /tmp/firefox.tar.bz2
+tar xf /tmp/firefox.tar.bz2
+echo \$\ sudo\ ln\ -s\ \~/usr/firefox/firefox\ \~/bin/firefox
+sudo ln -s ~/usr/firefox/firefox ~/bin/firefox
+export PATH=~/bin:$PATH
+echo \$\ popd
+popd
 echo -en 'travis_fold:end:install_firefox\r'
 echo -en 'travis_fold:start:before_install.1\r'
 echo \$\ ./before_install_1.sh
