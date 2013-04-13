@@ -117,19 +117,11 @@ echo -en 'travis_fold:end:before_install.2\r'
 travis_finish before_install $?
 
 travis_start install
-if [[ -f dist.ini ]]; then
-  echo -en 'travis_fold:start:install\r'
-  echo \$\ cpanm\ Dist::Zilla\ \&\&\ \(dzil\ authordeps\ \|\ cpanm\)\ \&\&\ \(dzil\ listdeps\ \|\ cpanm\)
-  cpanm Dist::Zilla && (dzil authordeps | cpanm) && (dzil listdeps | cpanm)
-  travis_assert
-  echo -en 'travis_fold:end:install\r'
-else
-  echo -en 'travis_fold:start:install\r'
-  echo \$\ cpanm\ --quiet\ --installdeps\ --notest\ .
-  cpanm --quiet --installdeps --notest .
-  travis_assert
-  echo -en 'travis_fold:end:install\r'
-fi
+echo -en 'travis_fold:start:install\r'
+echo \$\ cpanm\ --quiet\ --installdeps\ --notest\ .
+cpanm --quiet --installdeps --notest .
+travis_assert
+echo -en 'travis_fold:end:install\r'
 travis_finish install $?
 
 travis_start before_script
@@ -152,9 +144,6 @@ if [[ -f Build.PL ]]; then
 elif [[ -f Makefile.PL ]]; then
   echo \$\ perl\ Makefile.PL\ \&\&\ make\ test
   perl Makefile.PL && make test
-elif [[ -f dist.ini ]]; then
-  echo \$\ dzil\ test
-  dzil test
 else
   echo \$\ make\ test
   make test
