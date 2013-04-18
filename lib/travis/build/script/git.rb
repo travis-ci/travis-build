@@ -1,3 +1,5 @@
+require 'shellwords'
+
 module Travis
   module Build
     class Script
@@ -72,7 +74,7 @@ module Travis
 
           def clone_args
             args = "--depth=#{config[:git][:depth]}"
-            args << " --branch=\"#{data.branch}\"" unless data.ref
+            args << " --branch=#{data.branch.shellescape.shellescape}" unless data.ref
             args
           end
 

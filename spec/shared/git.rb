@@ -1,14 +1,20 @@
 shared_examples_for 'a git repo' do
   it 'clones the git repo' do
-    cmd = 'git clone --depth=50 --branch="master" git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci'
+    cmd = 'git clone --depth=50 --branch=master git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci'
     timeout = Travis::Build::Data::DEFAULTS[:timeouts][:git_clone]
     should run cmd, echo: true, log: true, assert: true, timeout: timeout
   end
 
   it 'clones with a custom depth if given' do
     data['config']['git'] = { depth: 1 }
-    cmd = 'git clone --depth=1 --branch="master" git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci'
+    cmd = 'git clone --depth=1 --branch=master git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci'
     should run cmd, echo: true
+  end
+
+  it 'escapes the branch name if necessary' do
+    data['job']['branch'] = 'a->b'
+    cmd = "git clone --depth=50 --branch=a-\\>b"
+    should run cmd
   end
 
   it 'changes to the git repo dir' do
