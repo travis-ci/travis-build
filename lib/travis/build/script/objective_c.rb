@@ -30,7 +30,7 @@ module Travis
 
         def script
           self.if uses_rubymotion?, then: 'bundle exec rake spec'
-          self.else '/Users/travis/travis-utils/osx-cibuild.sh'
+          self.else "/Users/travis/travis-utils/osx-cibuild.sh#{scheme}"
         end
 
         private
@@ -45,6 +45,10 @@ module Travis
 
         def uses_rubymotion?(*args)
           '-f Rakefile && "$(cat Rakefile)" =~ "require \'motion/project\'"'
+        end
+
+        def scheme
+          " #{config[:xcode_scheme]}" if config[:xcode_scheme]
         end
       end
     end

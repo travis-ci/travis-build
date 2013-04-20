@@ -51,6 +51,16 @@ describe Travis::Build::Script::ObjectiveC do
     end
   end
 
+  context 'if xcode_scheme is set' do
+    before(:each) do
+      data['config']['xcode_scheme'] = 'MyProjectTests'
+    end
+
+    it 'passes the scheme on to the build script' do
+      should run_script '/Users/travis/travis-utils/osx-cibuild.sh MyProjectTests'
+    end
+  end
+
   context 'if project is a RubyMotion project' do
     before(:each) do
       file('Podfile')
