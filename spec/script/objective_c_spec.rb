@@ -15,8 +15,8 @@ describe Travis::Build::Script::ObjectiveC do
   end
 
   it 'handles ruby version being set' do
-    data['config']['rvm'] = '1.8.7'
-    should setup 'rvm use 1.8.7'
+    data['config']['rvm'] = 'system'
+    should setup 'rvm use system'
   end
 
   context 'if Podfile exists' do
