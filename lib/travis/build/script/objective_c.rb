@@ -1,3 +1,5 @@
+require 'shellwords'
+
 module Travis
   module Build
     class Script
@@ -11,6 +13,14 @@ module Travis
         def announce
           super
           cmd 'xcodebuild -version -sdk', fold: 'announce'
+        end
+
+        def setup
+          super
+
+          if config[:xcode_sdk]
+            set 'XCODEBUILD_SETTINGS', "-sdk #{config[:xcode_sdk]} TEST_AFTER_BUILD=YES".shellescape
+          end
         end
 
         def install

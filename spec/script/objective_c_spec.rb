@@ -41,6 +41,16 @@ describe Travis::Build::Script::ObjectiveC do
     end
   end
 
+  context 'if xcode_sdk is set' do
+    before(:each) do
+      data['config']['xcode_sdk'] = 'iphonesimulator6.0'
+    end
+
+    it 'exports XCODEBUILD_SETTINGS' do
+      should set 'XCODEBUILD_SETTINGS', '-sdk iphonesimulator6.0 TEST_AFTER_BUILD=YES'
+    end
+  end
+
   context 'if project is a RubyMotion project' do
     before(:each) do
       file('Podfile')
