@@ -13,7 +13,7 @@ shared_examples_for 'a git repo' do
 
   it 'escapes the branch name if necessary' do
     data['job']['branch'] = 'a->b'
-    cmd = "git clone --depth=50 --branch=a-\\>b"
+    cmd = "git clone --depth=50 --branch=a-\>b"
     should run cmd
   end
 
