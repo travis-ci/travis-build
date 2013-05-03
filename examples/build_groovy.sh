@@ -121,8 +121,8 @@ if [[ -f build.gradle ]]; then
   echo -en 'travis_fold:end:install\r'
 elif [[ -f pom.xml ]]; then
   echo -en 'travis_fold:start:install\r'
-  echo \$\ mvn\ install\ --quiet\ -DskipTests\=true
-  mvn install --quiet -DskipTests=true
+  echo \$\ mvn\ install\ --quiet\ -DskipTests\=true\ -B
+  mvn install --quiet -DskipTests=true -B
   travis_assert
   echo -en 'travis_fold:end:install\r'
 fi
@@ -146,8 +146,8 @@ if [[ -f build.gradle ]]; then
   echo \$\ gradle\ check
   gradle check
 elif [[ -f pom.xml ]]; then
-  echo \$\ mvn\ test
-  mvn test
+  echo \$\ mvn\ test\ -B
+  mvn test -B
 else
   echo \$\ ant\ test
   ant test
