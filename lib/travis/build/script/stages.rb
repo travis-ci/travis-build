@@ -12,6 +12,8 @@ module Travis
             run_custom_stage(stage)
           elsif respond_to?(stage, false) || stage == :after_result
             run_builtin_stage(stage)
+          else
+            stage(stage) { run_addon_stage(stage) }
           end
         end
 

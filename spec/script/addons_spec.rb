@@ -24,4 +24,18 @@ describe Travis::Build::Script::Generic do
     subject
     store_example 'addons_firefox'
   end
+
+  it "runs the addons even if the stage isn't specified in the config" do
+    data['config'].delete('before_script')
+    data['config']['addons'] = {
+      'sauce_connect' => {
+        'username' => 'johndoe',
+        'access_key' => '0123456789abcdef',
+      }
+    }
+
+    subject
+
+    should set 'SAUCE_USERNAME', 'johndoe'
+  end
 end
