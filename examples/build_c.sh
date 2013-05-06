@@ -112,6 +112,9 @@ travis_assert
 echo -en 'travis_fold:end:before_install.2\r'
 travis_finish before_install $?
 
+travis_start install
+travis_finish install $?
+
 travis_start before_script
 echo -en 'travis_fold:start:before_script.1\r'
 echo \$\ ./before_script_1.sh
