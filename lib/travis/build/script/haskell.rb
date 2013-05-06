@@ -4,6 +4,11 @@ module Travis
       class Haskell < Script
         DEFAULTS = {}
 
+        def setup
+          super
+          cmd 'cabal update'
+        end
+
         def announce
           super
           cmd 'ghc --version'
