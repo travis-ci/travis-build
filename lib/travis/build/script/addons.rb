@@ -1,13 +1,15 @@
-require 'travis/build/script/addons/sauce_connect'
 require 'travis/build/script/addons/firefox'
+require 'travis/build/script/addons/hosts'
+require 'travis/build/script/addons/sauce_connect'
 
 module Travis
   module Build
     class Script
       module Addons
         MAP = {
-          :sauce_connect => SauceConnect,
           :firefox => Firefox,
+          :hosts => Hosts,
+          :sauce_connect => SauceConnect,
         }
 
         def run_addons(stage)
