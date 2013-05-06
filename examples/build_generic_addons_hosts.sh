@@ -90,17 +90,17 @@ rm -f ~/.ssh/source_rsa
 travis_finish checkout $?
 
 travis_start setup
-echo \$\ sudo\ sed\ -e\ \'s/\^\\\(127\\.0\\.0\\.1.\*\\\)\$/\\1\ johndoe.local/\'\ -i\ \'\'\ /etc/hosts
-sudo sed -e 's/^\(127\.0\.0\.1.*\)$/\1 johndoe.local/' -i '' /etc/hosts
+echo \$\ sudo\ sed\ -e\ \'s/\^\\\(127\\.0\\.0\\.1.\*\\\)\$/\\1\ johndoe.local/\'\ --in-place\ /etc/hosts
+sudo sed -e 's/^\(127\.0\.0\.1.*\)$/\1 johndoe.local/' --in-place /etc/hosts
 travis_assert
-echo \$\ sudo\ sed\ -e\ \'s/\^\\\(::1.\*\\\)\$/\\1\ johndoe.local/\'\ -i\ \'\'\ /etc/hosts
-sudo sed -e 's/^\(::1.*\)$/\1 johndoe.local/' -i '' /etc/hosts
+echo \$\ sudo\ sed\ -e\ \'s/\^\\\(::1.\*\\\)\$/\\1\ johndoe.local/\'\ --in-place\ /etc/hosts
+sudo sed -e 's/^\(::1.*\)$/\1 johndoe.local/' --in-place /etc/hosts
 travis_assert
-echo \$\ sudo\ sed\ -e\ \'s/\^\\\(127\\.0\\.0\\.1.\*\\\)\$/\\1\ johndoe.local/\'\ -i\ \'\'\ /etc/hosts
-sudo sed -e 's/^\(127\.0\.0\.1.*\)$/\1 johndoe.local/' -i '' /etc/hosts
+echo \$\ sudo\ sed\ -e\ \'s/\^\\\(127\\.0\\.0\\.1.\*\\\)\$/\\1\ johndoe.local/\'\ --in-place\ /etc/hosts
+sudo sed -e 's/^\(127\.0\.0\.1.*\)$/\1 johndoe.local/' --in-place /etc/hosts
 travis_assert
-echo \$\ sudo\ sed\ -e\ \'s/\^\\\(::1.\*\\\)\$/\\1\ johndoe.local/\'\ -i\ \'\'\ /etc/hosts
-sudo sed -e 's/^\(::1.*\)$/\1 johndoe.local/' -i '' /etc/hosts
+echo \$\ sudo\ sed\ -e\ \'s/\^\\\(::1.\*\\\)\$/\\1\ johndoe.local/\'\ --in-place\ /etc/hosts
+sudo sed -e 's/^\(::1.*\)$/\1 johndoe.local/' --in-place /etc/hosts
 travis_assert
 travis_finish setup $?
 

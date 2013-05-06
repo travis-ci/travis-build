@@ -9,8 +9,8 @@ module Travis
           end
 
           def setup
-            @script.cmd("sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 #{@config.join(' ')}/' -i '' /etc/hosts")
-            @script.cmd("sudo sed -e 's/^\\(::1.*\\)$/\\1 #{@config.join(' ')}/' -i '' /etc/hosts")
+            @script.cmd("sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 #{@config.join(' ')}/' --in-place /etc/hosts")
+            @script.cmd("sudo sed -e 's/^\\(::1.*\\)$/\\1 #{@config.join(' ')}/' --in-place /etc/hosts")
           end
         end
       end
