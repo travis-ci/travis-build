@@ -6,7 +6,7 @@ module Travis
 
         def setup
           super
-          cmd 'cabal update'
+          cmd 'cabal update', fold: 'cabal'
         end
 
         def announce

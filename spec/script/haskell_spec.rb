@@ -12,6 +12,14 @@ describe Travis::Build::Script::Haskell do
 
   it_behaves_like 'a build script'
 
+  it 'runs cabal update' do
+    should run 'cabal update'
+  end
+
+  it 'folds cabal update' do
+    should fold 'cabal update', 'cabal'
+  end
+
   it {should run 'cabal update'}
 
   it 'announces ghc --version' do

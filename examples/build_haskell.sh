@@ -90,9 +90,11 @@ rm -f ~/.ssh/source_rsa
 travis_finish checkout $?
 
 travis_start setup
+echo -en 'travis_fold:start:cabal\r'
 echo \$\ cabal\ update
 cabal update
 travis_assert
+echo -en 'travis_fold:end:cabal\r'
 travis_finish setup $?
 
 travis_start announce
