@@ -90,18 +90,22 @@ rm -f ~/.ssh/source_rsa
 travis_finish checkout $?
 
 travis_start setup
+echo -en 'travis_fold:start:hosts\r'
 echo \$\ sudo\ sed\ -e\ \'s/\^\\\(127\\.0\\.0\\.1.\*\\\)\$/\\1\ johndoe.local/\'\ --in-place\ /etc/hosts
 sudo sed -e 's/^\(127\.0\.0\.1.*\)$/\1 johndoe.local/' --in-place /etc/hosts
 travis_assert
 echo \$\ sudo\ sed\ -e\ \'s/\^\\\(::1.\*\\\)\$/\\1\ johndoe.local/\'\ --in-place\ /etc/hosts
 sudo sed -e 's/^\(::1.*\)$/\1 johndoe.local/' --in-place /etc/hosts
 travis_assert
+echo -en 'travis_fold:end:hosts\r'
+echo -en 'travis_fold:start:hosts\r'
 echo \$\ sudo\ sed\ -e\ \'s/\^\\\(127\\.0\\.0\\.1.\*\\\)\$/\\1\ johndoe.local/\'\ --in-place\ /etc/hosts
 sudo sed -e 's/^\(127\.0\.0\.1.*\)$/\1 johndoe.local/' --in-place /etc/hosts
 travis_assert
 echo \$\ sudo\ sed\ -e\ \'s/\^\\\(::1.\*\\\)\$/\\1\ johndoe.local/\'\ --in-place\ /etc/hosts
 sudo sed -e 's/^\(::1.*\)$/\1 johndoe.local/' --in-place /etc/hosts
 travis_assert
+echo -en 'travis_fold:end:hosts\r'
 travis_finish setup $?
 
 travis_start announce
