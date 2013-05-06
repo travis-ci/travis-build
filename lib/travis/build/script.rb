@@ -75,7 +75,6 @@ module Travis
 
         def setup
           start_services
-          run_addons(:setup)
         end
 
         def announce
