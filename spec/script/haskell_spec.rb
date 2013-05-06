@@ -20,8 +20,6 @@ describe Travis::Build::Script::Haskell do
     should fold 'cabal update', 'cabal'
   end
 
-  it {should run 'cabal update'}
-
   it 'announces ghc --version' do
     should announce 'ghc --version'
   end
