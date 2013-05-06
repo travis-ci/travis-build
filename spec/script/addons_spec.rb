@@ -25,6 +25,13 @@ describe Travis::Build::Script::Generic do
     store_example 'addons_firefox'
   end
 
+  it "sets up the hosts file" do
+    data["config"]["addons"] = { "hosts" => "johndoe.local" }
+
+    subject
+    store_example "addons_hosts"
+  end
+
   it "runs the addons even if the stage isn't specified in the config" do
     data['config'].delete('before_script')
     data['config']['addons'] = {
