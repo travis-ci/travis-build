@@ -10,6 +10,7 @@ describe Travis::Build::Script::Addons::Hosts do
 
   it "runs the commands" do
     script.expects(:cmd).with("sudo sed -e 's/^\(127.0.0.1.*\)$/\\1 #{config}/' -i '' /etc/hosts")
+    script.expects(:cmd).with("sudo sed -e 's/^\(::1.*\)$/\\1 #{config}/' -i '' /etc/hosts")
     subject
   end
 
@@ -18,6 +19,7 @@ describe Travis::Build::Script::Addons::Hosts do
 
     it "runs the command" do
       script.expects(:cmd).with("sudo sed -e 's/^\(127.0.0.1.*\)$/\\1 johndoe.local example.local/' -i '' /etc/hosts")
+      script.expects(:cmd).with("sudo sed -e 's/^\(::1.*\)$/\\1 johndoe.local example.local/' -i '' /etc/hosts")
 
       subject
     end

@@ -93,6 +93,15 @@ travis_start setup
 echo \$\ sudo\ sed\ -e\ \'s/\^\(127.0.0.1.\*\)\$/\\1\ johndoe.local/\'\ -i\ \'\'\ /etc/hosts
 sudo sed -e 's/^(127.0.0.1.*)$/\1 johndoe.local/' -i '' /etc/hosts
 travis_assert
+echo \$\ sudo\ sed\ -e\ \'s/\^\(::1.\*\)\$/\\1\ johndoe.local/\'\ -i\ \'\'\ /etc/hosts
+sudo sed -e 's/^(::1.*)$/\1 johndoe.local/' -i '' /etc/hosts
+travis_assert
+echo \$\ sudo\ sed\ -e\ \'s/\^\(127.0.0.1.\*\)\$/\\1\ johndoe.local/\'\ -i\ \'\'\ /etc/hosts
+sudo sed -e 's/^(127.0.0.1.*)$/\1 johndoe.local/' -i '' /etc/hosts
+travis_assert
+echo \$\ sudo\ sed\ -e\ \'s/\^\(::1.\*\)\$/\\1\ johndoe.local/\'\ -i\ \'\'\ /etc/hosts
+sudo sed -e 's/^(::1.*)$/\1 johndoe.local/' -i '' /etc/hosts
+travis_assert
 travis_finish setup $?
 
 travis_start announce
