@@ -65,7 +65,7 @@ describe Travis::Build::Script::ObjectiveC do
     before(:each) do
       file('Podfile')
       file('Gemfile')
-      file('Rakefile', "require 'motion/project'")
+      file('Rakefile', "require 'motion/project/template/ios'")
     end
 
     it 'runs bundle install' do
