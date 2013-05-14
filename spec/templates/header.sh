@@ -18,7 +18,7 @@ stubs=(
   ruby rvm gem bundle rake
   sbt
   curl
-  /Users/travis/travis-utils/osx-cibuild.sh xcodebuild pod
+  /Users/travis/travis-utils/osx-cibuild.sh xcodebuild pod motion
 )
 for stub in ${stubs[*]}; do
   eval "$stub() { builtin echo $stub \$@; }"

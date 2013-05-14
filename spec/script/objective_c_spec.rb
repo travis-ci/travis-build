@@ -24,6 +24,10 @@ describe Travis::Build::Script::ObjectiveC do
       file('Podfile')
     end
 
+    it 'announces CocoaPods version' do
+      should announce 'pod --version'
+    end
+
     it 'runs pod install' do
       should install 'pod install'
       store_example 'cocoapods'
@@ -66,6 +70,10 @@ describe Travis::Build::Script::ObjectiveC do
       file('Podfile')
       file('Gemfile')
       file('Rakefile', "require 'motion/project/template/ios'")
+    end
+
+    it 'announces RubyMotion version' do
+      should announce 'motion --version'
     end
 
     it 'runs bundle install' do

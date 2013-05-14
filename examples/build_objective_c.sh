@@ -105,6 +105,14 @@ echo -en 'travis_fold:start:announce\r'
 echo \$\ xcodebuild\ -version\ -sdk
 xcodebuild -version -sdk
 echo -en 'travis_fold:end:announce\r'
+if [[ -f Rakefile && "$(cat Rakefile)" =~ require\ [\"\']motion/project ]]; then
+  echo \$\ motion\ --version
+  motion --version
+fi
+if [[ -f Podfile ]]; then
+  echo \$\ pod\ --version
+  pod --version
+fi
 travis_finish announce $?
 
 travis_start before_install

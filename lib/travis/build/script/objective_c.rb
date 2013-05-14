@@ -13,6 +13,8 @@ module Travis
         def announce
           super
           cmd 'xcodebuild -version -sdk', fold: 'announce'
+          uses_rubymotion? then: 'motion --version'
+          has_podfile? then: 'pod --version'
         end
 
         def setup
