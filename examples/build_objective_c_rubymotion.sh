@@ -159,9 +159,12 @@ echo -en 'travis_fold:end:before_script.2\r'
 travis_finish before_script $?
 
 travis_start script
-if [[ -f Rakefile && "$(cat Rakefile)" =~ require\ [\"\']motion/project ]]; then
+if [[ -f Rakefile && "$(cat Rakefile)" =~ require\ [\"\']motion/project && -f Gemfile ]]; then
   echo \$\ bundle\ exec\ rake\ spec
   bundle exec rake spec
+elif [[ -f Rakefile && "$(cat Rakefile)" =~ require\ [\"\']motion/project ]]; then
+  echo \$\ rake\ spec
+  rake spec
 else
   echo \$\ /Users/travis/travis-utils/osx-cibuild.sh
   /Users/travis/travis-utils/osx-cibuild.sh

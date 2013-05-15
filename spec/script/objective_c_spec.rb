@@ -67,8 +67,6 @@ describe Travis::Build::Script::ObjectiveC do
 
   context 'if project is a RubyMotion project' do
     before(:each) do
-      file('Podfile')
-      file('Gemfile')
       file('Rakefile', "require 'motion/project/template/ios'")
     end
 
@@ -76,25 +74,27 @@ describe Travis::Build::Script::ObjectiveC do
       should announce 'motion --version'
     end
 
-    it 'runs bundle install' do
-      should install 'bundle install'
+    it 'runs specs' do
+      should run_script 'rake spec'
       store_example 'rubymotion'
     end
 
-    it 'runs pod install' do
-      should install 'pod install'
-    end
+    context 'with a Gemfile' do
+      before(:each) do
+        file('Gemfile')
+      end
 
-    it 'folds bundle install' do
-      should fold 'bundle install', 'install.bundler'
-    end
+      it 'runs bundle install' do
+        should install 'bundle install'
+      end
 
-    it 'folds pod install' do
-      should fold 'pod install', 'install.cocoapods'
-    end
+      it 'folds bundle install' do
+        should fold 'bundle install', 'install.bundler'
+      end
 
-    it 'runs specs' do
-      should run_script 'bundle exec rake spec'
+      it 'runs specs with Bundler' do
+        should run_script 'bundle exec rake spec'
+      end
     end
   end
 end

@@ -31,7 +31,8 @@ module Travis
         end
 
         def script
-          uses_rubymotion? then: 'bundle exec rake spec'
+          uses_rubymotion?(with_bundler: true, then: 'bundle exec rake spec')
+          uses_rubymotion?(elif: true, then: 'rake spec')
           self.else "/Users/travis/travis-utils/osx-cibuild.sh#{scheme}"
         end
 
@@ -46,7 +47,13 @@ module Travis
         end
 
         def uses_rubymotion?(*args)
-          self.if '-f Rakefile && "$(cat Rakefile)" =~ require\ [\\"\\\']motion/project', *args
+          conditional = '-f Rakefile && "$(cat Rakefile)" =~ require\ [\\"\\\']motion/project'
+          conditional << ' && -f Gemfile' if args.first && args.first.is_a?(Hash) && args.first.delete(:with_bundler)
+          if args.first && args.first.is_a?(Hash) && args.first.delete(:elif)
+            self.elif conditional, *args
+          else
+            self.if conditional, *args
+          end
         end
 
         def scheme
