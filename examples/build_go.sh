@@ -92,8 +92,17 @@ rm -f ~/.ssh/source_rsa
 travis_finish checkout $?
 
 travis_start setup
-echo \$\ mkdir\ -p\ \$GOPATH/src
-mkdir -p $GOPATH/src
+echo \$\ mkdir\ -p\ \$GOPATH/src/github.com/travis-ci/travis-ci
+mkdir -p $GOPATH/src/github.com/travis-ci/travis-ci
+travis_assert
+echo \$\ cp\ -r\ \$TRAVIS_BUILD_DIR/\ \$GOPATH/src/github.com/travis-ci/travis-ci
+cp -r $TRAVIS_BUILD_DIR/ $GOPATH/src/github.com/travis-ci/travis-ci
+travis_assert
+echo \$\ export\ TRAVIS_BUILD_DIR\=\$GOPATH/src/github.com/travis-ci/travis-ci
+export TRAVIS_BUILD_DIR=$GOPATH/src/github.com/travis-ci/travis-ci
+travis_assert
+echo \$\ cd\ \$GOPATH
+cd $GOPATH
 travis_assert
 travis_finish setup $?
 

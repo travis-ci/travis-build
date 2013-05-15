@@ -17,7 +17,19 @@ describe Travis::Build::Script::Go do
   end
 
   it 'creates the src dir' do
-    should run "mkdir -p #{Travis::Build::HOME_DIR}/gopath/src"
+    should run "mkdir -p #{Travis::Build::HOME_DIR}/gopath/src/github.com/travis-ci/travis-ci"
+  end
+
+  it "copies the repository to the GOPATH" do
+    should run "cp -r #{Travis::Build::BUILD_DIR}/travis-ci/travis-ci/ #{Travis::Build::HOME_DIR}/gopath/src/github.com/travis-ci/travis-ci"
+  end
+
+  it "updates TRAVIS_BUILD_DIR" do
+    should set "TRAVIS_BUILD_DIR", "#{Travis::Build::HOME_DIR}/gopath/src/github.com/travis-ci/travis-ci"
+  end
+
+  it "cds to the GOPATH" do
+    should run "cd #{Travis::Build::HOME_DIR}/gopath"
   end
 
   describe 'if no makefile exists' do
