@@ -20,8 +20,8 @@ shared_examples_for 'a jvm build' do
       file('pom.xml')
     end
 
-    it 'installs with mvn install --quiet -DskipTests=true -B' do
-      should run 'mvn install --quiet -DskipTests=true -B', echo: true, log: true, assert: true, timeout: timeout_for(:install)
+    it 'installs with mvn install -DskipTests=true -B' do
+      should run 'mvn install -DskipTests=true -B', echo: true, log: true, assert: true, timeout: timeout_for(:install)
     end
 
     it 'runs mvn test -B' do
