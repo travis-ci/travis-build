@@ -21,7 +21,7 @@ module Travis
         end
 
         def install
-          gemfile? then: "bundle install #{config[:bundler_args]}", fold: 'install'
+          gemfile? then: "bundle install #{config[:bundler_args]}", fold: 'install', retry: true
         end
 
         def script

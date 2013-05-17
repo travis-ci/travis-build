@@ -8,6 +8,7 @@ module Travis
 
       Cmd.send(:include, Filters::Logging)
       Cmd.send(:include, Filters::Timeout)
+      Cmd.send(:include, Filters::Retry)
       Cmd.send(:include, Filters::Assertion)
       Cmd.send(:include, Filters::Echoize)
 

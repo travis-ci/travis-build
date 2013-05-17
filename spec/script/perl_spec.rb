@@ -29,7 +29,7 @@ describe Travis::Build::Script::Perl do
   end
 
   it 'installs with ' do
-    should install 'cpanm --quiet --installdeps --notest .'
+    should install 'cpanm --quiet --installdeps --notest .', retry: true
   end
 
   describe 'if perl version is 5.10' do

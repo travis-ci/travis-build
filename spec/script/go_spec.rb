@@ -35,7 +35,7 @@ describe Travis::Build::Script::Go do
   describe 'if no makefile exists' do
     it 'installs with go get and go build' do
       should run 'echo $ go get -d -v ./... && go build -v ./...'
-      should run 'go get -d -v ./...'
+      should run 'go get -d -v ./...', retry: true
       should run 'go build -v ./...', log: true, assert: true, timeout: timeout_for(:install)
     end
 

@@ -24,7 +24,7 @@ module Travis
         end
 
         def install
-          uses_npm? then: "npm install #{config[:npm_args]}", fold: 'install'
+          uses_npm? then: "npm install #{config[:npm_args]}", fold: 'install', retry: true
         end
 
         def script

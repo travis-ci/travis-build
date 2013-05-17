@@ -3,7 +3,7 @@ def timeout_for(stage)
 end
 
 def runs?(lines, cmd)
-  cmd = /^#{Regexp.escape(cmd)}/ if cmd.is_a?(String)
+  cmd = /^(?:travis_retry )?#{Regexp.escape(cmd)}/ if cmd.is_a?(String)
   lines.detect { |line| line =~ cmd }
 end
 
@@ -12,9 +12,10 @@ def echoes?(lines, cmd)
 end
 
 def folds?(lines, cmd, name)
+  cmd = /^(?:travis_retry )?#{Regexp.escape(cmd)}/ if cmd.is_a?(String)
   ix_start = lines.index { |line| line =~ /^echo -en travis_fold:start:#{Regexp.escape(name)}/ }
   ix_end   = lines.index { |line| line =~ /^echo -en travis_fold:end:#{Regexp.escape(name)}/ }
-  ix_start && ix_end && lines[ix_start..ix_end].index { |line| line == cmd }
+  ix_start && ix_end && lines[ix_start..ix_end].index { |line| line =~ cmd }
 end
 
 def logs?(lines, cmd)
@@ -24,14 +25,19 @@ def logs?(lines, cmd)
   true
 end
 
+def retries?(lines, cmd)
+  cmd = /^#{Regexp.escape("travis_retry #{cmd}")}/ if cmd.is_a?(String)
+  lines.detect { |line| line =~ cmd }
+end
+
 def timeouts?(lines, cmd, timeout = '')
-  cmd = /^#{Regexp.escape(cmd)}/ if cmd.is_a?(String)
+  cmd = /^(?:travis_retry )?#{Regexp.escape(cmd)}/ if cmd.is_a?(String)
   ix = lines.index { |line| line =~ cmd }
   ix && lines[ix + 1] =~ /^travis_timeout #{timeout}/
 end
 
 def asserts?(lines, cmd)
-  cmd = /^#{Regexp.escape(cmd)}/ if cmd.is_a?(String)
+  cmd = /^(?:travis_retry )?#{Regexp.escape(cmd)}/ if cmd.is_a?(String)
   ix = lines.index { |line| line =~ cmd }
   ix = ix + 1 if timeouts?(lines, cmd)
   ix && lines[ix + 1] == "travis_assert"
@@ -98,6 +104,7 @@ RSpec::Matchers.define :run do |cmd, options = {}|
     runs?(lines, cmd) &&
     (!options[:log]     || logs?(lines, cmd)) &&
     (!options[:echo]    || echoes?(lines, cmd)) &&
+    (!options[:retry]   || retries?(lines, cmd)) &&
     (!options[:assert]  || asserts?(lines, cmd)) &&
     (!options[:timeout] || timeouts?(lines, cmd, options[:timeout]))
   end
@@ -127,6 +134,18 @@ RSpec::Matchers.define :echo do |string|
     end
 
     echoes?(lines, string)
+  end
+end
+
+RSpec::Matchers.define :retry_script do |cmd|
+  match do |script|
+    lines = log_for(script).split("\n")
+
+    failure_message_for_should do
+      "expected script to retry #{cmd} but it didn't:\n#{script}"
+    end
+
+    retries?(lines, cmd)
   end
 end
 

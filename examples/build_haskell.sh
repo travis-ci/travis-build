@@ -31,6 +31,25 @@ travis_terminate() {
   exit $1
 }
 
+travis_retry() {
+  local result=0
+  local count=3
+  while [ $count -gt 0 ]; do
+    "$@"
+    result=$?
+    [[ "$result" == "0" ]] && break
+    count=$(($count - 1))
+    echo "Command ($@) failed. Retrying: $((3 - $count))" >&2
+    sleep 1
+  done
+
+  [ $count -eq 0 ] && {
+    echo "Retry failed: $@" >&2
+  }
+
+  return $result
+}
+
 decrypt() {
   echo $1 | base64 -d | openssl rsautl -decrypt -inkey ~/.ssh/id_rsa.repo
 }
@@ -92,7 +111,7 @@ travis_finish checkout $?
 travis_start setup
 echo -en 'travis_fold:start:cabal\r'
 echo \$\ cabal\ update
-cabal update
+travis_retry cabal update
 travis_assert
 echo -en 'travis_fold:end:cabal\r'
 travis_finish setup $?
@@ -120,7 +139,7 @@ travis_finish before_install $?
 travis_start install
 echo -en 'travis_fold:start:install\r'
 echo \$\ cabal\ install\ --only-dependencies\ --enable-tests
-cabal install --only-dependencies --enable-tests
+travis_retry cabal install --only-dependencies --enable-tests
 travis_assert
 echo -en 'travis_fold:end:install\r'
 travis_finish install $?

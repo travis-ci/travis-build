@@ -53,6 +53,11 @@ describe Travis::Build::Script::Ruby do
     should fold 'bundle install', 'install'
   end
 
+  it "retries bundle install if a Gemfile exists" do
+    gemfile "Gemfile.ci"
+    should retry_script 'bundle install'
+  end
+
   it 'runs bundle exec rake if a gemfile exists' do
     gemfile 'Gemfile.ci'
     should run_script 'bundle exec rake'

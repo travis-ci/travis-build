@@ -29,7 +29,7 @@ describe Travis::Build::Script::ObjectiveC do
     end
 
     it 'runs pod install' do
-      should install 'pod install'
+      should install 'pod install', retry: true
       store_example 'cocoapods'
     end
 
@@ -85,7 +85,7 @@ describe Travis::Build::Script::ObjectiveC do
       end
 
       it 'runs bundle install' do
-        should install 'bundle install'
+        should install 'bundle install', retry: true
       end
 
       it 'folds bundle install' do

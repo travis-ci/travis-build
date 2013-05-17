@@ -6,7 +6,7 @@ module Travis
 
         def setup
           super
-          cmd 'cabal update', fold: 'cabal'
+          cmd 'cabal update', fold: 'cabal', retry: true
         end
 
         def announce
@@ -16,7 +16,7 @@ module Travis
         end
 
         def install
-          cmd 'cabal install --only-dependencies --enable-tests', fold: 'install'
+          cmd 'cabal install --only-dependencies --enable-tests', fold: 'install', retry: true
         end
 
         def script
