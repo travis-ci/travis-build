@@ -26,8 +26,8 @@ module Travis
         end
 
         def install
-          self.if   '-f Requirements.txt', "pip install -r Requirements.txt --use-mirrors", fold: 'install'
-          self.elif '-f requirements.txt', "pip install -r requirements.txt --use-mirrors", fold: 'install'
+          self.if   '-f Requirements.txt', "pip install -r Requirements.txt --use-mirrors", fold: 'install', retry: true
+          self.elif '-f requirements.txt', "pip install -r requirements.txt --use-mirrors", fold: 'install', retry: true
           self.else { echo NO_REQUIREMENTS }
         end
 

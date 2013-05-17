@@ -26,8 +26,8 @@ module Travis
         end
 
         def install
-          has_podfile? then: 'pod install', fold: 'install.cocoapods'
-          has_gemfile? then: 'bundle install', fold: 'install.bundler'
+          has_podfile? then: 'pod install', fold: 'install.cocoapods', retry: true
+          has_gemfile? then: 'bundle install', fold: 'install.bundler', retry: true
         end
 
         def script

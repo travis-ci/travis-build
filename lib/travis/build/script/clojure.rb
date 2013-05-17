@@ -15,7 +15,7 @@ module Travis
         end
 
         def install
-          cmd "#{config[:lein]} deps", fold: 'install'
+          cmd "#{config[:lein]} deps", fold: 'install', retry: true
         end
 
         def script

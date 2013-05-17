@@ -22,6 +22,10 @@ describe Travis::Build::Script::Clojure do
       should install 'lein deps'
     end
 
+    it 'retries len deps' do
+      should retry_script 'lein deps'
+    end
+
     it 'runs lein test' do
       should run_script 'lein test'
     end
@@ -42,6 +46,10 @@ describe Travis::Build::Script::Clojure do
 
     it 'installs lein2 deps if lein: lein2 given' do
       should install 'lein2 deps'
+    end
+
+    it 'retries lein2 deps if lein: lein2 given' do
+      should retry_script 'lein2 deps'
     end
 
     it 'runs lein2 test if lein: lein2 given' do
