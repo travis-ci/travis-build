@@ -1,4 +1,5 @@
 require 'travis/build/script/addons/app_engine'
+require 'travis/build/script/addons/cloud_control'
 require 'travis/build/script/addons/cloud_foundry'
 require 'travis/build/script/addons/dot_cloud'
 require 'travis/build/script/addons/engine_yard'
@@ -13,6 +14,7 @@ module Travis
       module Addons
         MAP = {
           app_engine:    AppEngine,
+          cloud_control: CloudControl,
           cloud_foundry: CloudFoundry,
           dotcloud:      DotCloud,
           engine_yard:   EngineYard,
