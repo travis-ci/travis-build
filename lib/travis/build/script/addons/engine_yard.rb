@@ -1,5 +1,4 @@
 require 'travis/build/script/addons/deploy'
-require 'yaml'
 
 module Travis
   module Build
