@@ -15,8 +15,7 @@ module Travis
 
             def deploy
               silent do
-                `[ $TRAVIS_JAVA_VERSION ] && export gae=~/appengine-java-sdk/bin/appcfg.sh || export gae=~/google-appengine/appcfg.py`
-                `echo #{option(:password)} | $gae update --email=#{option(:email)} --passin .`
+                `echo #{option(:password)} | ~/google-appengine/appcfg.py update --email=#{option(:email)} --passin .`
               end
             end
         end
