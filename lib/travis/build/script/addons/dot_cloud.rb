@@ -11,7 +11,7 @@ module Travis
             end
 
             def deploy
-              silent { "echo #{option(:api_key)} | dotcloud setup --api-key" }
+              silent { `echo #{option(:api_key)} | dotcloud setup --api-key` }
               `dotcloud push #{app}`
             end
 
