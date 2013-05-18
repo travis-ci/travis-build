@@ -33,18 +33,20 @@ travis_terminate() {
 
 travis_retry() {
   local result=0
-  local count=3
-  while [ $count -gt 0 ]; do
+  local count=1
+  while [ $count -le 3 ]; do
+    [ $result -ne 0 ] && {
+      echo -e "\n\033[33;1mThe command \"$@\" failed. Retrying, $count of 3.\033[0m\n" >&2
+    }
     "$@"
     result=$?
-    [[ "$result" == "0" ]] && break
-    count=$(($count - 1))
-    echo "Command ($@) failed. Retrying: $((3 - $count))" >&2
+    [ $result -eq 0 ] && break
+    count=$(($count + 1))
     sleep 1
   done
 
-  [ $count -eq 0 ] && {
-    echo "Retry failed: $@" >&2
+  [ $count -eq 3 ] && {
+    echo "\n\033[33;1mThe command \"$@\" failed 3 times.\033[0m\n" >&2
   }
 
   return $result
@@ -58,7 +60,7 @@ mkdir -p $HOME/build
 cd       $HOME/build
 
 trap 'travis_finish build 1' TERM
-trap 'TRAVIS_CMD=$TRAVIS_NEXT_CMD; TRAVIS_NEXT_CMD=$BASH_COMMAND' DEBUG
+trap 'TRAVIS_CMD=$TRAVIS_NEXT_CMD; TRAVIS_NEXT_CMD=${BASH_COMMAND#travis_retry }' DEBUG
 
 travis_start build
 travis_start export
@@ -121,8 +123,8 @@ echo \$\ sudo\ mkdir\ -p\ /usr/local/firefox/20.0
 sudo mkdir -p /usr/local/firefox/20.0
 echo \$\ sudo\ chown\ -R\ travis\ /usr/local/firefox
 sudo chown -R travis /usr/local/firefox
-echo \$\ wget\ -O\ /tmp/firefox.tar.bz2\ ftp://ftp.mozilla.org/pub/firefox/releases/20.0/linux-x86_64/en-US/firefox-20.0.tar.bz2
-wget -O /tmp/firefox.tar.bz2 ftp://ftp.mozilla.org/pub/firefox/releases/20.0/linux-x86_64/en-US/firefox-20.0.tar.bz2
+echo \$\ wget\ -O\ /tmp/firefox.tar.bz2\ http://ftp.mozilla.org/pub/firefox/releases/20.0/linux-x86_64/en-US/firefox-20.0.tar.bz2
+wget -O /tmp/firefox.tar.bz2 http://ftp.mozilla.org/pub/firefox/releases/20.0/linux-x86_64/en-US/firefox-20.0.tar.bz2
 echo \$\ pushd\ /usr/local/firefox/20.0
 pushd /usr/local/firefox/20.0
 echo \$\ tar\ xf\ /tmp/firefox.tar.bz2
