@@ -1,4 +1,5 @@
 require 'travis/build/script/addons/cloud_foundry'
+require 'travis/build/script/addons/dot_cloud'
 require 'travis/build/script/addons/engine_yard'
 require 'travis/build/script/addons/firefox'
 require 'travis/build/script/addons/heroku'
@@ -11,6 +12,7 @@ module Travis
       module Addons
         MAP = {
           cloud_foundry: CloudFoundry,
+          dotcloud:      DotCloud,
           engine_yard:   EngineYard,
           firefox:       Firefox,
           heroku:        Heroku,
