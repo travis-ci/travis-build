@@ -13,7 +13,7 @@ describe Travis::Build::Script::Haskell do
   it_behaves_like 'a build script'
 
   it 'runs cabal update' do
-    should run 'cabal update'
+    should run 'cabal update', retry: true
   end
 
   it 'folds cabal update' do
@@ -30,7 +30,7 @@ describe Travis::Build::Script::Haskell do
 
   it 'installs with cabal install --only-dependencies --enable-tests' do
     should run 'echo $ cabal install --only-dependencies --enable-tests'
-    should run 'cabal install --only-dependencies --enable-tests', log: true, assert: true, timeout: timeout_for(:install)
+    should run 'cabal install --only-dependencies --enable-tests', log: true, assert: true, timeout: timeout_for(:install), retry: true
   end
 
   it 'runs cabal configure --enable-tests && cabal build && cabal test' do

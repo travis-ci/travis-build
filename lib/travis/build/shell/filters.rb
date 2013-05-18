@@ -42,6 +42,16 @@ module Travis
             "echo #{escape("$ #{echo || @code}")}\n#{code}"
           end
         end
+
+        module Retry
+          def code
+            options[:retry] ? add_retry(super) : super
+          end
+
+          def add_retry(code)
+            "travis_retry #{code}"
+          end
+        end
       end
     end
   end

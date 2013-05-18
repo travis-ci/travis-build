@@ -31,6 +31,25 @@ travis_terminate() {
   exit $1
 }
 
+travis_retry() {
+  local result=0
+  local count=3
+  while [ $count -gt 0 ]; do
+    "$@"
+    result=$?
+    [[ "$result" == "0" ]] && break
+    count=$(($count - 1))
+    echo "Command ($@) failed. Retrying: $((3 - $count))" >&2
+    sleep 1
+  done
+
+  [ $count -eq 0 ] && {
+    echo "Retry failed: $@" >&2
+  }
+
+  return $result
+}
+
 decrypt() {
   echo $1 | base64 -d | openssl rsautl -decrypt -inkey ~/.ssh/id_rsa.repo
 }
@@ -116,13 +135,13 @@ travis_start install
 if [[ -f build.gradle ]]; then
   echo -en 'travis_fold:start:install\r'
   echo \$\ gradle\ assemble
-  gradle assemble
+  travis_retry gradle assemble
   travis_assert
   echo -en 'travis_fold:end:install\r'
 elif [[ -f pom.xml ]]; then
   echo -en 'travis_fold:start:install\r'
   echo \$\ mvn\ install\ --quiet\ -DskipTests\=true\ -B
-  mvn install --quiet -DskipTests=true -B
+  travis_retry mvn install --quiet -DskipTests=true -B
   travis_assert
   echo -en 'travis_fold:end:install\r'
 fi

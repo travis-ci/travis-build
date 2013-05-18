@@ -31,6 +31,25 @@ travis_terminate() {
   exit $1
 }
 
+travis_retry() {
+  local result=0
+  local count=3
+  while [ $count -gt 0 ]; do
+    "$@"
+    result=$?
+    [[ "$result" == "0" ]] && break
+    count=$(($count - 1))
+    echo "Command ($@) failed. Retrying: $((3 - $count))" >&2
+    sleep 1
+  done
+
+  [ $count -eq 0 ] && {
+    echo "Retry failed: $@" >&2
+  }
+
+  return $result
+}
+
 decrypt() {
   echo $1 | base64 -d | openssl rsautl -decrypt -inkey ~/.ssh/id_rsa.repo
 }
@@ -116,13 +135,13 @@ travis_start install
 if [[ (-f rebar.config || -f Rebar.config) && -f ./rebar ]]; then
   echo -en 'travis_fold:start:install\r'
   echo \$\ ./rebar\ get-deps
-  ./rebar get-deps
+  travis_retry ./rebar get-deps
   travis_assert
   echo -en 'travis_fold:end:install\r'
 elif [[ (-f rebar.config || -f Rebar.config) ]]; then
   echo -en 'travis_fold:start:install\r'
   echo \$\ rebar\ get-deps
-  rebar get-deps
+  travis_retry rebar get-deps
   travis_assert
   echo -en 'travis_fold:end:install\r'
 fi

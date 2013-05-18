@@ -36,7 +36,7 @@ describe Travis::Build::Script::NodeJs do
     end
 
     it 'installs with npm install --npm-args' do
-      should install 'npm install --npm-args'
+      should install 'npm install --npm-args', retry: true
       store_example 'npm_args'
     end
 

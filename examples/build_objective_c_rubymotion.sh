@@ -31,6 +31,25 @@ travis_terminate() {
   exit $1
 }
 
+travis_retry() {
+  local result=0
+  local count=3
+  while [ $count -gt 0 ]; do
+    "$@"
+    result=$?
+    [[ "$result" == "0" ]] && break
+    count=$(($count - 1))
+    echo "Command ($@) failed. Retrying: $((3 - $count))" >&2
+    sleep 1
+  done
+
+  [ $count -eq 0 ] && {
+    echo "Retry failed: $@" >&2
+  }
+
+  return $result
+}
+
 decrypt() {
   echo $1 | base64 -d | openssl rsautl -decrypt -inkey ~/.ssh/id_rsa.repo
 }
@@ -132,14 +151,14 @@ travis_start install
 if [[ -f Podfile ]]; then
   echo -en 'travis_fold:start:install.cocoapods\r'
   echo \$\ pod\ install
-  pod install
+  travis_retry pod install
   travis_assert
   echo -en 'travis_fold:end:install.cocoapods\r'
 fi
 if [[ -f Gemfile ]]; then
   echo -en 'travis_fold:start:install.bundler\r'
   echo \$\ bundle\ install
-  bundle install
+  travis_retry bundle install
   travis_assert
   echo -en 'travis_fold:end:install.bundler\r'
 fi
