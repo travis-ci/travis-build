@@ -33,17 +33,19 @@ travis_terminate() {
 
 travis_retry() {
   local result=0
-  local count=3
-  while [ $count -gt 0 ]; do
+  local count=1
+  while [ $count -le 3 ]; do
+    [ $result -ne 0 ] && {
+      echo -e "\n\033[33;1mThe command \"$@\" failed. Retrying, $count of 3.\033[0m\n" >&2
+    }
     "$@"
     result=$?
-    [[ "$result" == "0" ]] && break
-    count=$(($count - 1))
-    echo -e "\n\033[33;1mThe command \"$@\" failed. Retrying, $((3 - $count)) of 3.\033[0m\n" >&2
+    [ $result -eq 0 ] && break
+    count=$(($count + 1))
     sleep 1
   done
 
-  [ $count -eq 0 ] && {
+  [ $count -eq 3 ] && {
     echo "\n\033[33;1mThe command \"$@\" failed 3 times.\033[0m\n" >&2
   }
 
@@ -58,6 +60,6 @@ mkdir -p <%= BUILD_DIR %>
 cd       <%= BUILD_DIR %>
 
 trap 'travis_finish build 1' TERM
-trap 'TRAVIS_CMD=$TRAVIS_NEXT_CMD; TRAVIS_NEXT_CMD=$BASH_COMMAND' DEBUG
+trap 'TRAVIS_CMD=$TRAVIS_NEXT_CMD; TRAVIS_NEXT_CMD=${BASH_COMMAND#travis_retry }' DEBUG
 
 travis_start build
