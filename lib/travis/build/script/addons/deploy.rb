@@ -3,6 +3,7 @@ module Travis
     class Script
       module Addons
         class Deploy
+          VERSIONED_RUNTIMES = [:jdk, :node, :perl, :php, :python, :ruby, :scala, :node]
           attr_accessor :script, :config
 
           def initialize(script, config)
@@ -11,26 +12,58 @@ module Travis
           end
 
           def after_success
-            export.each do |key, value|
-              script.set(key, value, echo: false, assert: false) if value
-            end
-
-            before = Array(conf[:before]).compact
-            if before.any?
-              fold("Preparing deploy to %s") do
-                before.each { |cmd| `#{cmd}` }
-              end
-            end
-
-            fold("Installing tools for %s deploy") { tools } if respond_to?(:tools, true)
-            fold("Deploying to %s") { deploy }
-
-            Array(config[:run]).each do |cmd|
-              fold { run(cmd) }
-            end
+            script.if(want) { run_all }
           end
 
           private
+            def want
+              on         = config[:on] || {}
+              on         = { branch: on.to_str } if on.respond_to? :to_str
+              conditions = [ want_push(on), want_repo(on), want_branch(on), want_runtime(on) ]
+              conditions.flatten.compact.map { |c| "(#{c})" }.join(" && ")
+            end
+
+            def want_push(on)
+              '$TRAVIS_PULL_REQUEST = false'
+            end
+
+            def want_repo(on)
+              "$TRAVIS_REPO_SLUG = \"#{on[:repo]}\"" if on[:repo]
+            end
+
+            def want_branch(on)
+              return if on[:all_branches]
+              branches  = Array(on[:branch] || 'master')
+              branches.map { |b| "$TRAVIS_BRANCH = #{b}" }.join(' || ')
+            end
+
+            def want_runtime(on)
+              VERSIONED_RUNTIMES.map do |runtime|
+                next unless on.include? runtime
+                "$TRAVIS_#{runtime.to_s.upcase}_VERSION = \"#{on[runtime]}\""
+              end
+            end
+
+            def run_all
+              export.each do |key, value|
+                script.set(key, value, echo: false, assert: false) if value
+              end
+
+              before = Array(conf[:before]).compact
+              if before.any?
+                fold("Preparing deploy to %s") do
+                  before.each { |cmd| `#{cmd}` }
+                end
+              end
+
+              fold("Installing tools for %s deploy") { tools } if respond_to?(:tools, true)
+              fold("Deploying to %s") { deploy }
+
+              Array(config[:run]).each do |cmd|
+                fold { run(cmd) }
+              end
+            end
+
             def export
               {}
             end
