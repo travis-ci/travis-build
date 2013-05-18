@@ -55,11 +55,6 @@ module Travis
               script.cmd('hslghslhg', assert: true, echo: false)
             end
 
-            def write(file, content)
-              say "writing to #{file}"
-              script.cmd("echo -e %p > %s" % [content, file], assert: true, echo: false)
-            end
-
             def app
               config[:app] || '$(basename $(pwd))'
             end

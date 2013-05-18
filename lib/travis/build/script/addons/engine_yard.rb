@@ -7,12 +7,15 @@ module Travis
       module Addons
         class EngineYard < Deploy
           private
+            def export
+              { 'ENGINEYARD_API_TOKEN' => config[:api_key] }
+            end
+
             def tools
               `gem install engineyard`
             end
 
             def deploy
-              write('~/.eyrc', { 'api_token' => config[:api_key] }.to_yaml)
               ey 'web disable' if config[:maintenance_page]
               ey 'deploy --ref $TRAVIS_COMMIT' << migrate
               ey 'web enable' if config[:maintenance_page]
