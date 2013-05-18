@@ -39,12 +39,12 @@ travis_retry() {
     result=$?
     [[ "$result" == "0" ]] && break
     count=$(($count - 1))
-    echo "Command ($@) failed. Retrying: $((3 - $count))" >&2
+    echo -e "\n\033[33;1mThe command \"$@\" failed. Retrying, $((3 - $count)) of 3.\033[0m\n" >&2
     sleep 1
   done
 
   [ $count -eq 0 ] && {
-    echo "Retry failed: $@" >&2
+    echo "\n\033[33;1mThe command \"$@\" failed 3 times.\033[0m\n" >&2
   }
 
   return $result
