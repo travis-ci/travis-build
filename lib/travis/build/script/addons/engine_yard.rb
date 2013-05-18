@@ -7,7 +7,7 @@ module Travis
         class EngineYard < Deploy
           private
             def export
-              { 'ENGINEYARD_API_TOKEN' => config[:api_key] }
+              { 'ENGINEYARD_API_TOKEN' => option(:api_key) }
             end
 
             def tools

@@ -64,8 +64,27 @@ module Travis
               script.cmd("echo -e \"#{message}\"", assert: false, echo: false)
             end
 
+            def silent?
+              @silent ||= false
+            end
+
+            def silent
+              silent_was = silent?
+              @silent    = true
+              yield
+            ensure
+              @silent    = silent_was
+            end
+
+            def option(key)
+              config.fetch(key) do
+                die "#{service_name} addon needs #{key} option"
+                "MISSING"
+              end
+            end
+
             def `(cmd)
-              script.cmd(cmd, assert: true, echo: true)
+              script.cmd(cmd, assert: true, echo: !!silent?)
             end
         end
       end

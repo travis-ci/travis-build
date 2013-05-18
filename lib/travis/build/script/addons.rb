@@ -1,3 +1,4 @@
+require 'travis/build/script/addons/cloud_foundry'
 require 'travis/build/script/addons/engine_yard'
 require 'travis/build/script/addons/firefox'
 require 'travis/build/script/addons/heroku'
@@ -9,6 +10,7 @@ module Travis
     class Script
       module Addons
         MAP = {
+          cloud_foundry: CloudFoundry,
           engine_yard:   EngineYard,
           firefox:       Firefox,
           heroku:        Heroku,

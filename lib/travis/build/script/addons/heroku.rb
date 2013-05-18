@@ -7,7 +7,7 @@ module Travis
         class Heroku < Deploy
           private
             def export
-              { 'HEROKU_API_KEY' => config[:api_key] }
+              { 'HEROKU_API_KEY' => option(:api_key) }
             end
 
             def tools
