@@ -15,6 +15,13 @@ module Travis
               script.set(key, value, echo: false, assert: false) if value
             end
 
+            before = Array(conf[:before]).compact
+            if before.any?
+              fold("Preparing deploy to %s") do
+                before.each { |cmd| `#{cmd}` }
+              end
+            end
+
             fold("Installing tools for %s deploy") { tools } if respond_to?(:tools, true)
             fold("Deploying to %s") { deploy }
 
