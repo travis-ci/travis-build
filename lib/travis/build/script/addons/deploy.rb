@@ -7,6 +7,7 @@ module Travis
           attr_accessor :script, :config
 
           def initialize(script, config)
+            @silent = false
             @script = script
             @config = config.respond_to?(:to_hash) ? config.to_hash : {}
           end
@@ -105,15 +106,14 @@ module Travis
             end
 
             def silent?
-              @silent ||= false
+              @silent
             end
 
             def silent
-              silent_was = silent?
-              @silent    = true
+              @silent = true
               yield
             ensure
-              @silent    = silent_was
+              @silent = false
             end
 
             def option(key)
@@ -124,7 +124,7 @@ module Travis
             end
 
             def `(cmd)
-              script.cmd(cmd, assert: true, echo: !!silent?)
+              script.cmd(cmd, assert: true, echo: !silent?)
             end
         end
       end
