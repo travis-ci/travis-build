@@ -15,7 +15,7 @@ module Travis
                 `mkdir ~/.cloudControl`
                 `echo '{"token": "#{option(:api_key)}"}' > ~/.cloudControl/token.json`
               end
-              fail "magic deploy key code goes here" # TODO: FIXME
+              #fail "magic deploy key code goes here" # TODO: FIXME
               `cctrlapp #{app} push`
             end
 
