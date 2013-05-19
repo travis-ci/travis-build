@@ -49,7 +49,7 @@ module Travis
                 script.set(key, value, echo: false, assert: false) if value
               end
 
-              before = Array(conf[:before]).compact
+              before = Array(config[:before]).compact
               if before.any?
                 fold("Preparing deploy to %s") do
                   before.each { |cmd| `#{cmd}` }
