@@ -11,8 +11,8 @@ module Travis
 
         def setup
           super
-          cmd "mkdir -p $GOPATH/src/github.com/#{data.slug}"
-          cmd "cp -r $TRAVIS_BUILD_DIR/ $GOPATH/src/github.com/#{data.slug}"
+          cmd "mkdir -p $GOPATH/src/github.com/#{data.slug.split('/').first}"
+          cmd "cp -r $TRAVIS_BUILD_DIR $GOPATH/src/github.com/#{data.slug}"
           set "TRAVIS_BUILD_DIR", "$GOPATH/src/github.com/#{data.slug}"
           cd "$GOPATH"
         end
