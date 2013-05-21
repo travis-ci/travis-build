@@ -32,11 +32,11 @@ describe Travis::Build::Script::Go do
     should run "cd #{Travis::Build::HOME_DIR}/gopath/src/github.com/travis-ci/travis-ci"
   end
 
-  describe 'if no makefile exists' do
-    it 'installs with go get and go build' do
-      should run 'echo $ go get -d -v ./... && go build -v ./...'
+  describe 'if no Makefile exists' do
+    it 'installs with go get and go install' do
+      should run 'echo $ go get -d -v ./... && go install -v ./...'
       should run 'go get -d -v ./...', retry: true
-      should run 'go build -v ./...', log: true, assert: true, timeout: timeout_for(:install)
+      should run 'go install -v ./...', log: true, assert: true, timeout: timeout_for(:install)
     end
 
     it 'runs go test' do
@@ -44,7 +44,7 @@ describe Travis::Build::Script::Go do
     end
   end
 
-  describe 'if rebar.config exists' do
+  describe 'if Makefile exists' do
     before(:each) do
       file('Makefile')
     end
