@@ -28,8 +28,8 @@ describe Travis::Build::Script::Go do
     should set "TRAVIS_BUILD_DIR", "#{Travis::Build::HOME_DIR}/gopath/src/github.com/travis-ci/travis-ci"
   end
 
-  it "cds to the GOPATH" do
-    should run "cd #{Travis::Build::HOME_DIR}/gopath"
+  it "cds to the GOPATH version of the project" do
+    should run "cd #{Travis::Build::HOME_DIR}/gopath/src/github.com/travis-ci/travis-ci"
   end
 
   describe 'if no makefile exists' do

@@ -14,7 +14,7 @@ module Travis
           cmd "mkdir -p $GOPATH/src/github.com/#{data.slug.split('/').first}"
           cmd "cp -r $TRAVIS_BUILD_DIR $GOPATH/src/github.com/#{data.slug}"
           set "TRAVIS_BUILD_DIR", "$GOPATH/src/github.com/#{data.slug}"
-          cd "$GOPATH"
+          cd "$GOPATH/src/github.com/#{data.slug}"
         end
 
         def install

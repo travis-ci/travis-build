@@ -122,8 +122,8 @@ travis_assert
 echo \$\ export\ TRAVIS_BUILD_DIR\=\$GOPATH/src/github.com/travis-ci/travis-ci
 export TRAVIS_BUILD_DIR=$GOPATH/src/github.com/travis-ci/travis-ci
 travis_assert
-echo \$\ cd\ \$GOPATH
-cd $GOPATH
+echo \$\ cd\ \$GOPATH/src/github.com/travis-ci/travis-ci
+cd $GOPATH/src/github.com/travis-ci/travis-ci
 travis_assert
 travis_finish setup $?
 
