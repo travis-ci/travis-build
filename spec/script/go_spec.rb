@@ -40,6 +40,10 @@ describe Travis::Build::Script::Go do
     should announce 'go env'
   end
 
+  it 'folds go env' do
+    should fold 'go env', 'go.env'
+  end
+
   describe 'if no makefile exists' do
     it 'installs with go get and go build' do
       should run 'echo $ go get -d -v ./... && go build -v ./...'

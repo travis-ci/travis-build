@@ -12,7 +12,7 @@ module Travis
         def announce
           super
           cmd 'go version'
-          cmd 'go env'
+          cmd 'go env', fold: 'go.env'
         end
 
         def setup

@@ -130,8 +130,10 @@ travis_finish setup $?
 travis_start announce
 echo \$\ go\ version
 go version
+echo -en 'travis_fold:start:go.env\r'
 echo \$\ go\ env
 go env
+echo -en 'travis_fold:end:go.env\r'
 travis_finish announce $?
 
 travis_start before_install
