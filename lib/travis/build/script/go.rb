@@ -9,6 +9,12 @@ module Travis
           set 'GOPATH', "#{HOME_DIR}/gopath"
         end
 
+        def announce
+          super
+          cmd 'go version'
+          cmd 'go env'
+        end
+
         def setup
           super
           cmd "mkdir -p $GOPATH/src/github.com/#{data.slug.split('/').first}"
