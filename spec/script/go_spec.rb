@@ -32,6 +32,14 @@ describe Travis::Build::Script::Go do
     should run "cd #{Travis::Build::HOME_DIR}/gopath/src/github.com/travis-ci/travis-ci"
   end
 
+  it 'announces go version' do
+    should announce 'go version'
+  end
+
+  it 'announces go env' do
+    should announce 'go env'
+  end
+
   describe 'if no makefile exists' do
     it 'installs with go get and go build' do
       should run 'echo $ go get -d -v ./... && go build -v ./...'

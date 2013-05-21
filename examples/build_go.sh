@@ -128,6 +128,10 @@ travis_assert
 travis_finish setup $?
 
 travis_start announce
+echo \$\ go\ version
+go version
+echo \$\ go\ env
+go env
 travis_finish announce $?
 
 travis_start before_install
