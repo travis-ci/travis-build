@@ -150,7 +150,7 @@ echo -en 'travis_fold:end:before_install.2\r'
 travis_finish before_install $?
 
 travis_start install
-if [[ -f Makefile ]]; then
+if [[ -f GNUmakefile || -f makefile || -f Makefile || -f BSDmakefile ]]; then
   echo -en 'travis_fold:start:install\r'
   echo \$\ true
   travis_retry true
@@ -179,7 +179,7 @@ echo -en 'travis_fold:end:before_script.2\r'
 travis_finish before_script $?
 
 travis_start script
-if [[ -f Makefile ]]; then
+if [[ -f GNUmakefile || -f makefile || -f Makefile || -f BSDmakefile ]]; then
   echo \$\ make
   make
 else

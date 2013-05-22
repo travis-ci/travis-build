@@ -56,17 +56,19 @@ describe Travis::Build::Script::Go do
     end
   end
 
-  describe 'if rebar.config exists' do
-    before(:each) do
-      file('Makefile')
-    end
+  %w(GNUmakefile makefile Makefile BSDmakefile).each do |makefile_name|
+    describe "if #{makefile_name} exists" do
+      before(:each) do
+        file(makefile_name)
+      end
 
-    it 'does not install with go get' do
-      should_not run 'go get'
-    end
+      it 'does not install with go get' do
+        should_not run 'go get'
+      end
 
-    it 'runs make' do
-      should run_script 'make'
+      it 'runs make' do
+        should run_script 'make'
+      end
     end
   end
 end
