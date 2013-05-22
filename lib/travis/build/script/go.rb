@@ -20,7 +20,7 @@ module Travis
         end
 
         def install
-          uses_make? then: 'true', else: "go get -d #{config[:gobuild_args]} ./... && go install #{config[:gobuild_args]} ./...", fold: 'install', retry: true
+          uses_make? then: 'true', else: "go get #{config[:gobuild_args]} ./...", fold: 'install', retry: true
         end
 
         def script
