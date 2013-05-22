@@ -34,7 +34,7 @@ module Travis
         private
 
           def uses_make?(*args)
-            self.if '-f Makefile', *args
+            self.if '-f GNUmakefile || -f makefile || -f Makefile || -f BSDmakefile', *args
           end
       end
     end
