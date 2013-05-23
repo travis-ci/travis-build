@@ -187,6 +187,7 @@ elif [[ -f Rakefile && "$(cat Rakefile)" =~ require\ [\"\']motion/project ]]; th
   echo \$\ rake\ spec
   rake spec
 else
+  echo -e "\033[33;1mWARNING:\033[33m Using Objective-C testing without specifying a scheme and either a workspace or a project is deprecated."
   echo \$\ /Users/travis/travis-utils/osx-cibuild.sh
   /Users/travis/travis-utils/osx-cibuild.sh
 fi
