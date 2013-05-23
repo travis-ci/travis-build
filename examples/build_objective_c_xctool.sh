@@ -187,8 +187,8 @@ elif [[ -f Rakefile && "$(cat Rakefile)" =~ require\ [\"\']motion/project ]]; th
   echo \$\ rake\ spec
   rake spec
 else
-  echo \$\ xctool\ \ -workspace\ YourWorkspace.xcworkspace\ -scheme\ YourScheme\ build\ test
-  xctool  -workspace YourWorkspace.xcworkspace -scheme YourScheme build test
+  echo \$\ xctool\ -workspace\ YourWorkspace.xcworkspace\ -scheme\ YourScheme\ build\ test
+  xctool -workspace YourWorkspace.xcworkspace -scheme YourScheme build test
 fi
 travis_result $?
 travis_finish script $TRAVIS_TEST_RESULT

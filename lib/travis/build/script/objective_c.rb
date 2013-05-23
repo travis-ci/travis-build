@@ -57,10 +57,10 @@ module Travis
 
         def xctool_args
           config[:xctool_args].to_s.tap do |xctool_args|
-            xctool_args << " -project #{config[:project]}" if config[:project]
-            xctool_args << " -workspace #{config[:workspace]}" if config[:workspace]
-            xctool_args << " -scheme #{config[:scheme]}"
-          end
+            xctool_args << " -project #{config[:project].shellescape}" if config[:project]
+            xctool_args << " -workspace #{config[:workspace].shellescape}" if config[:workspace]
+            xctool_args << " -scheme #{config[:scheme].shellescape}"
+          end.strip
         end
       end
     end
