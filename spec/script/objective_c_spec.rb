@@ -47,8 +47,8 @@ describe Travis::Build::Script::ObjectiveC do
 
   context 'if workspace and scheme is given' do
     before(:each) do
-      data['config']['workspace'] = 'YourWorkspace.xcworkspace'
-      data['config']['scheme'] = 'YourScheme'
+      data['config']['xcode_workspace'] = 'YourWorkspace.xcworkspace'
+      data['config']['xcode_scheme'] = 'YourScheme'
     end
 
     it 'runs xctool' do
@@ -59,8 +59,8 @@ describe Travis::Build::Script::ObjectiveC do
 
   context 'if project and scheme is given' do
     before(:each) do
-      data['config']['project'] = 'YourProject.xcodeproj'
-      data['config']['scheme'] = 'YourScheme'
+      data['config']['xcode_project'] = 'YourProject.xcodeproj'
+      data['config']['xcode_scheme'] = 'YourScheme'
     end
 
     it 'runs xctool' do

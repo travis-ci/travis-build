@@ -26,7 +26,7 @@ module Travis
           uses_rubymotion?(with_bundler: true, then: 'bundle exec rake spec')
           uses_rubymotion?(elif: true, then: 'rake spec')
           self.else do |script|
-            if config[:scheme]
+            if config[:xcode_scheme]
               script.cmd "xctool #{xctool_args} build test"
             else
               script.cmd "echo -e \"\\033[33;1mWARNING:\\033[33m Using Objective-C testing without specifying a scheme and either a workspace or a project is deprecated.\"", echo: false
@@ -57,9 +57,9 @@ module Travis
 
         def xctool_args
           config[:xctool_args].to_s.tap do |xctool_args|
-            xctool_args << " -project #{config[:project].shellescape}" if config[:project]
-            xctool_args << " -workspace #{config[:workspace].shellescape}" if config[:workspace]
-            xctool_args << " -scheme #{config[:scheme].shellescape}"
+            %w[project workspace scheme sdk].each do |var|
+              xctool_args << " -#{var} #{config[:"xcode_#{var}"].shellescape}" if config[:"xcode_#{var}"]
+            end
           end.strip
         end
       end
