@@ -2,12 +2,11 @@ module Travis
   module Build
     class Script
       class Go < Script
-        DEFAULTS = {}
+        DEFAULTS = {
+          gvm: 'go1.0.3'
+        }
 
-        def export
-          super
-          set 'GOPATH', "#{HOME_DIR}/gopath"
-        end
+        include GVM
 
         def announce
           super
@@ -17,10 +16,11 @@ module Travis
 
         def setup
           super
-          cmd "mkdir -p $GOPATH/src/github.com/#{data.slug.split('/').first}"
-          cmd "cp -r $TRAVIS_BUILD_DIR $GOPATH/src/github.com/#{data.slug}"
-          set "TRAVIS_BUILD_DIR", "$GOPATH/src/github.com/#{data.slug}"
-          cd "$GOPATH/src/github.com/#{data.slug}"
+          set 'GOPATH', "#{HOME_DIR}/gopath:$GOPATH"
+          cmd "mkdir -p #{HOME_DIR}/gopath/src/github.com/#{data.slug.split('/').first}"
+          cmd "cp -r $TRAVIS_BUILD_DIR #{HOME_DIR}/gopath/src/github.com/#{data.slug}"
+          set "TRAVIS_BUILD_DIR", "#{HOME_DIR}/gopath/src/github.com/#{data.slug}"
+          cd "#{HOME_DIR}/gopath/src/github.com/#{data.slug}"
         end
 
         def install

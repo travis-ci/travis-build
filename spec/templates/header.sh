@@ -8,7 +8,7 @@ stubs=(
   jdk_switcher
   lein lein2
   rebar
-  go
+  go gvm
   gradle mvn ant
   ghc cabal
   node nvm npm
