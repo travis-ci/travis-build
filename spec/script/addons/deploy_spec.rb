@@ -8,7 +8,7 @@ describe Travis::Build::Script::Addons::Deploy do
   it 'runs the command' do
     script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script)
     script.expects(:cmd).with('gem install dpl', assert: true, echo: false)
-    script.expects(:cmd).with('dpl --provider="heroku" --password="foo" --email="user@host"', assert: true, echo: false)
+    script.expects(:cmd).with('dpl --provider="heroku" --password="foo" --email="user@host" --fold', assert: true, echo: false)
     subject.after_success
   end
 end
