@@ -13,12 +13,12 @@ module Travis
           end
 
           def after_success
-            script.if(want) { run_all }
+            script.if(want) { run }
           end
 
           private
             def want
-              on         = config[:on] || {}
+              on         = config.delete(:on) || {}
               on         = { branch: on.to_str } if on.respond_to? :to_str
               conditions = [ want_push(on), want_repo(on), want_branch(on), want_runtime(on) ]
               conditions.flatten.compact.map { |c| "(#{c})" }.join(" && ")
@@ -45,86 +45,13 @@ module Travis
               end
             end
 
-            def run_all
-              export.each do |key, value|
-                script.set(key, value, echo: false, assert: false) if value
-              end
-
-              before = Array(config[:before]).compact
-              if before.any?
-                fold("Preparing deploy to %s") do
-                  before.each { |cmd| `#{cmd}` }
-                end
-              end
-
-              fold("Installing tools for %s deploy") { tools } if respond_to?(:tools, true)
-              fold("Deploying to %s") { deploy }
-
-              Array(config[:run]).each do |cmd|
-                fold { run(cmd) }
-              end
+            def run
+              script.cmd("gem install dpl", echo: false, assert: true)
+              script.cmd("dpl #{options} --fold", echo: false, assert: true)
             end
 
-            def export
-              {}
-            end
-
-            def fold(message = nil)
-              @fold_count ||= 0
-              @fold_count  += 1
-              script.fold("#{fold_name}.#{@fold_count}") do
-                say(message % service_name, 33) if message
-                yield
-              end
-            end
-
-            def fold_name
-              service_name.split(" ").map(&:downcase).join("_")
-            end
-
-            def service_name
-              self.class.name[/[^:]+$/].split(/(?=[A-Z])/).join(" ")
-            end
-
-            def run(cmd)
-              die("Don't know how to execute custom commands on #{service_name}, send help!")
-            end
-
-            def die(message)
-              say(message, 31)
-              # call non-existing function, name recommended by josh
-              script.cmd('hslghslhg', assert: true, echo: false)
-            end
-
-            def app
-              config[:app] || '$(basename $(pwd))'
-            end
-
-            def say(message, color = nil)
-              return say('\033[%d;1m%s\033[0m' % [color, message]) if color
-              script.cmd("echo -e \"#{message}\"", assert: false, echo: false)
-            end
-
-            def silent?
-              @silent
-            end
-
-            def silent
-              @silent = true
-              yield
-            ensure
-              @silent = false
-            end
-
-            def option(key)
-              config.fetch(key) do
-                die "#{service_name} addon needs #{key} option"
-                "MISSING"
-              end
-            end
-
-            def `(cmd)
-              script.cmd(cmd, assert: true, echo: !silent?)
+            def options
+              config.flat_map { |k,v| Array(v).map { |e| "--%s=%p" % [k,e] } }.join(" ")
             end
         end
       end

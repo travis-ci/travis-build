@@ -1,10 +1,5 @@
-require 'travis/build/script/addons/app_engine'
-require 'travis/build/script/addons/cloud_control'
-require 'travis/build/script/addons/cloud_foundry'
-require 'travis/build/script/addons/dot_cloud'
-require 'travis/build/script/addons/engine_yard'
+require 'travis/build/script/addons/deploy'
 require 'travis/build/script/addons/firefox'
-require 'travis/build/script/addons/heroku'
 require 'travis/build/script/addons/hosts'
 require 'travis/build/script/addons/sauce_connect'
 
@@ -13,13 +8,8 @@ module Travis
     class Script
       module Addons
         MAP = {
-          app_engine:    AppEngine,
-          cloud_control: CloudControl,
-          cloud_foundry: CloudFoundry,
-          dotcloud:      DotCloud,
-          engine_yard:   EngineYard,
+          deploy:        Deploy,
           firefox:       Firefox,
-          heroku:        Heroku,
           hosts:         Hosts,
           sauce_connect: SauceConnect,
         }
