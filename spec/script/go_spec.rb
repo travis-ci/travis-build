@@ -25,7 +25,7 @@ describe Travis::Build::Script::Go do
   end
 
   it 'sets the go version from config :gvm' do
-    data['config']['gvm'] = 'go1.1'
+    data['config']['go'] = 'go1.1'
     should setup 'gvm use go1.1'
   end
 
@@ -46,7 +46,7 @@ describe Travis::Build::Script::Go do
   end
 
   it 'installs the gvm version' do
-    data['config']['gvm'] = 'go1.1'
+    data['config']['go'] = 'go1.1'
     should run 'gvm install go1.1'
   end
 
