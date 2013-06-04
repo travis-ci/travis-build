@@ -11,6 +11,12 @@ module Travis
           set 'GOPATH', "#{HOME_DIR}/gopath"
         end
 
+        def announce
+          super
+          cmd 'go version'
+          cmd 'go env', fold: 'go.env'
+        end
+
         def setup
           super
           cmd "mkdir -p $GOPATH/src/github.com/#{data.slug.split('/').first}"
@@ -30,7 +36,7 @@ module Travis
         private
 
           def uses_make?(*args)
-            self.if '-f Makefile', *args
+            self.if '-f GNUmakefile || -f makefile || -f Makefile || -f BSDmakefile', *args
           end
       end
     end

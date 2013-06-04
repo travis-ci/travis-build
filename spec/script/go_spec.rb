@@ -32,6 +32,18 @@ describe Travis::Build::Script::Go do
     should run "cd #{Travis::Build::HOME_DIR}/gopath/src/github.com/travis-ci/travis-ci"
   end
 
+  it 'announces go version' do
+    should announce 'go version'
+  end
+
+  it 'announces go env' do
+    should announce 'go env'
+  end
+
+  it 'folds go env' do
+    should fold 'go env', 'go.env'
+  end
+
   describe 'if no Makefile exists' do
     it 'installs with go get' do
       should run 'echo $ go get -v ./...'
@@ -43,17 +55,19 @@ describe Travis::Build::Script::Go do
     end
   end
 
-  describe 'if Makefile exists' do
-    before(:each) do
-      file('Makefile')
-    end
+  %w(GNUmakefile makefile Makefile BSDmakefile).each do |makefile_name|
+    describe "if #{makefile_name} exists" do
+      before(:each) do
+        file(makefile_name)
+      end
 
-    it 'does not install with go get' do
-      should_not run 'go get'
-    end
+      it 'does not install with go get' do
+        should_not run 'go get'
+      end
 
-    it 'runs make' do
-      should run_script 'make'
+      it 'runs make' do
+        should run_script 'make'
+      end
     end
   end
 end
