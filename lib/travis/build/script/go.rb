@@ -2,25 +2,34 @@ module Travis
   module Build
     class Script
       class Go < Script
-        DEFAULTS = {}
+        DEFAULTS = {
+          go: 'go1.0.3'
+        }
 
         def export
           super
-          set 'GOPATH', "#{HOME_DIR}/gopath"
+          set 'TRAVIS_GO_VERSION', go_version, echo: false
         end
 
         def announce
           super
+          cmd 'gvm version'
           cmd 'go version'
           cmd 'go env', fold: 'go.env'
         end
 
         def setup
           super
-          cmd "mkdir -p $GOPATH/src/github.com/#{data.slug.split('/').first}"
-          cmd "cp -r $TRAVIS_BUILD_DIR $GOPATH/src/github.com/#{data.slug}"
-          set "TRAVIS_BUILD_DIR", "$GOPATH/src/github.com/#{data.slug}"
-          cd "$GOPATH/src/github.com/#{data.slug}"
+          cmd "gvm install #{go_version}", fold: "gvm.install"
+          cmd "gvm use #{go_version}"
+          # Prepend *our* GOPATH entry so that built binaries and packages are
+          # easier to find and our `git clone`'d libraries are found by the
+          # `go` commands.
+          set 'GOPATH', "#{HOME_DIR}/gopath:$GOPATH"
+          cmd "mkdir -p #{HOME_DIR}/gopath/src/github.com/#{data.slug.split('/').first}"
+          cmd "cp -r $TRAVIS_BUILD_DIR #{HOME_DIR}/gopath/src/github.com/#{data.slug}"
+          set "TRAVIS_BUILD_DIR", "#{HOME_DIR}/gopath/src/github.com/#{data.slug}"
+          cd "#{HOME_DIR}/gopath/src/github.com/#{data.slug}"
         end
 
         def install
@@ -35,6 +44,10 @@ module Travis
 
           def uses_make?(*args)
             self.if '-f GNUmakefile || -f makefile || -f Makefile || -f BSDmakefile', *args
+          end
+
+          def go_version
+            config[:go].to_s
           end
       end
     end
