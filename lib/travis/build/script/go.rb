@@ -20,8 +20,11 @@ module Travis
 
         def setup
           super
-          cmd "gvm install #{go_version} || true", fold: "gvm.install"
+          cmd "gvm install #{go_version}", fold: "gvm.install"
           cmd "gvm use #{go_version}"
+          # Prepend *our* GOPATH entry so that built binaries and packages are
+          # easier to find and our `git clone`'d libraries are found by the
+          # `go` commands.
           set 'GOPATH', "#{HOME_DIR}/gopath:$GOPATH"
           cmd "mkdir -p #{HOME_DIR}/gopath/src/github.com/#{data.slug.split('/').first}"
           cmd "cp -r $TRAVIS_BUILD_DIR #{HOME_DIR}/gopath/src/github.com/#{data.slug}"

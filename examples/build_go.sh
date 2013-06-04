@@ -113,8 +113,8 @@ travis_finish checkout $?
 
 travis_start setup
 echo -en 'travis_fold:start:gvm.install\r'
-echo \$\ gvm\ install\ go1.0.3\ \|\|\ true
-gvm install go1.0.3 || true
+echo \$\ gvm\ install\ go1.0.3
+gvm install go1.0.3
 travis_assert
 echo -en 'travis_fold:end:gvm.install\r'
 echo \$\ gvm\ use\ go1.0.3
