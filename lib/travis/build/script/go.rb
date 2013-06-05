@@ -20,6 +20,7 @@ module Travis
 
         def setup
           super
+          cmd "gvm get", fold: "gvm.update"
           cmd "gvm install #{go_version}", fold: "gvm.install"
           cmd "gvm use #{go_version}"
           # Prepend *our* GOPATH entry so that built binaries and packages are
