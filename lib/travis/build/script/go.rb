@@ -3,7 +3,7 @@ module Travis
     class Script
       class Go < Script
         DEFAULTS = {
-          go: 'go1.0.3'
+          go: '1.0.3'
         }
 
         def export
@@ -47,7 +47,7 @@ module Travis
           end
 
           def go_version
-            config[:go].to_s
+            "go#{config[:go]}"
           end
       end
     end
