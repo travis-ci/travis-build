@@ -48,7 +48,11 @@ module Travis
           end
 
           def go_version
-            "go#{config[:go]}"
+            if config[:go] == "tip"
+              config[:go]
+            else
+              "go#{config[:go]}"
+            end
           end
       end
     end
