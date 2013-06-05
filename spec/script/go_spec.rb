@@ -13,7 +13,20 @@ describe Travis::Build::Script::Go do
   it_behaves_like 'a build script'
 
   it 'sets GOPATH' do
-    should set 'GOPATH', "#{Travis::Build::HOME_DIR}/gopath"
+    should set 'GOPATH', %r@[^:]*#{Travis::Build::HOME_DIR}/gopath:.*@
+  end
+
+  it 'sets TRAVIS_GO_VERSION' do
+    should set 'TRAVIS_GO_VERSION', 'go1.0.3'
+  end
+
+  it 'sets the default go version if not :gvm config given' do
+    should setup 'gvm use go1.0.3'
+  end
+
+  it 'sets the go version from config :gvm' do
+    data['config']['go'] = 'go1.1'
+    should setup 'gvm use go1.1'
   end
 
   it 'creates the src dir' do
@@ -32,8 +45,17 @@ describe Travis::Build::Script::Go do
     should run "cd #{Travis::Build::HOME_DIR}/gopath/src/github.com/travis-ci/travis-ci"
   end
 
+  it 'installs the gvm version' do
+    data['config']['go'] = 'go1.1'
+    should run 'gvm install go1.1'
+  end
+
   it 'announces go version' do
     should announce 'go version'
+  end
+
+  it 'announces gvm version' do
+    should announce 'gvm version'
   end
 
   it 'announces go env' do
@@ -42,6 +64,10 @@ describe Travis::Build::Script::Go do
 
   it 'folds go env' do
     should fold 'go env', 'go.env'
+  end
+
+  it 'folds gvm install' do
+    should fold 'gvm install', 'gvm.install'
   end
 
   describe 'if no Makefile exists' do

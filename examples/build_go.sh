@@ -79,8 +79,7 @@ echo \$\ export\ FOO\=foo
 export FOO=foo
 echo \$\ export\ BAR\=\[secure\]
 export BAR=bar
-echo \$\ export\ GOPATH\=\$HOME/gopath
-export GOPATH=$HOME/gopath
+export TRAVIS_GO_VERSION=go1.0.3
 travis_finish export $?
 
 travis_start checkout
@@ -113,21 +112,34 @@ rm -f ~/.ssh/source_rsa
 travis_finish checkout $?
 
 travis_start setup
-echo \$\ mkdir\ -p\ \$GOPATH/src/github.com/travis-ci
-mkdir -p $GOPATH/src/github.com/travis-ci
+echo -en 'travis_fold:start:gvm.install\r'
+echo \$\ gvm\ install\ go1.0.3
+gvm install go1.0.3
 travis_assert
-echo \$\ cp\ -r\ \$TRAVIS_BUILD_DIR\ \$GOPATH/src/github.com/travis-ci/travis-ci
-cp -r $TRAVIS_BUILD_DIR $GOPATH/src/github.com/travis-ci/travis-ci
+echo -en 'travis_fold:end:gvm.install\r'
+echo \$\ gvm\ use\ go1.0.3
+gvm use go1.0.3
 travis_assert
-echo \$\ export\ TRAVIS_BUILD_DIR\=\$GOPATH/src/github.com/travis-ci/travis-ci
-export TRAVIS_BUILD_DIR=$GOPATH/src/github.com/travis-ci/travis-ci
+echo \$\ export\ GOPATH\=\$HOME/gopath:\$GOPATH
+export GOPATH=$HOME/gopath:$GOPATH
 travis_assert
-echo \$\ cd\ \$GOPATH/src/github.com/travis-ci/travis-ci
-cd $GOPATH/src/github.com/travis-ci/travis-ci
+echo \$\ mkdir\ -p\ \$HOME/gopath/src/github.com/travis-ci
+mkdir -p $HOME/gopath/src/github.com/travis-ci
+travis_assert
+echo \$\ cp\ -r\ \$TRAVIS_BUILD_DIR\ \$HOME/gopath/src/github.com/travis-ci/travis-ci
+cp -r $TRAVIS_BUILD_DIR $HOME/gopath/src/github.com/travis-ci/travis-ci
+travis_assert
+echo \$\ export\ TRAVIS_BUILD_DIR\=\$HOME/gopath/src/github.com/travis-ci/travis-ci
+export TRAVIS_BUILD_DIR=$HOME/gopath/src/github.com/travis-ci/travis-ci
+travis_assert
+echo \$\ cd\ \$HOME/gopath/src/github.com/travis-ci/travis-ci
+cd $HOME/gopath/src/github.com/travis-ci/travis-ci
 travis_assert
 travis_finish setup $?
 
 travis_start announce
+echo \$\ gvm\ version
+gvm version
 echo \$\ go\ version
 go version
 echo -en 'travis_fold:start:go.env\r'
