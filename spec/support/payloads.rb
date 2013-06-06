@@ -22,7 +22,8 @@ PAYLOADS = {
       'number' => '1.1',
       'commit' => '313f61b',
       'branch' => 'master',
-      'commit_range' => '313f61b..313f61a'
+      'commit_range' => '313f61b..313f61a',
+      'secure_env_enabled' => true
     }
   }
 }
