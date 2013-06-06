@@ -4,7 +4,7 @@ module Travis
       class Go < Script
         DEFAULTS = {
           gobuild_args: '-v',
-          go: 'go1.0.3'
+          go: '1.0.3'
         }
 
         def export
@@ -21,6 +21,7 @@ module Travis
 
         def setup
           super
+          cmd "gvm get", fold: "gvm.update"
           cmd "gvm install #{go_version}", fold: "gvm.install"
           cmd "gvm use #{go_version}"
           # Prepend *our* GOPATH entry so that built binaries and packages are
@@ -48,7 +49,14 @@ module Travis
           end
 
           def go_version
-            config[:go].to_s
+            version = config[:go].to_s
+            if version == '1.0'
+              'go1.0.3'
+            elsif version =~ /^[0-9]\.[0-9\.]+/
+              "go#{config[:go]}"
+            else
+              config[:go]
+            end
           end
       end
     end
