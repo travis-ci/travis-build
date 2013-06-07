@@ -3,6 +3,7 @@ module Travis
     class Script
       class Go < Script
         DEFAULTS = {
+          gobuild_args: '-v',
           go: '1.0.3'
         }
 
@@ -34,11 +35,11 @@ module Travis
         end
 
         def install
-          uses_make? then: 'true', else: 'go get -d -v ./... && go build -v ./...', fold: 'install', retry: true
+          uses_make? then: 'true', else: "go get #{config[:gobuild_args]} ./...", fold: 'install', retry: true
         end
 
         def script
-          uses_make? then: 'make', else: 'go test -v ./...'
+          uses_make? then: 'make', else: "go test #{config[:gobuild_args]} ./..."
         end
 
         private

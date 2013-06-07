@@ -82,11 +82,10 @@ describe Travis::Build::Script::Go do
     should fold 'gvm install', 'gvm.install'
   end
 
-  describe 'if no makefile exists' do
-    it 'installs with go get and go build' do
-      should run 'echo $ go get -d -v ./... && go build -v ./...'
-      should run 'go get -d -v ./...', retry: true
-      should run 'go build -v ./...', log: true, assert: true, timeout: timeout_for(:install)
+  describe 'if no Makefile exists' do
+    it 'installs with go get' do
+      should run 'echo $ go get -v ./...'
+      should run 'go get -v ./...', log: true, assert: true, timeout: timeout_for(:install)
     end
 
     it 'runs go test' do
