@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Travis::Build::Data::Env do
-  let(:data) { stub('data', pull_request: '100', config: { env: 'FOO=foo' }, build: { id: '1', number: '1' }, job: { id: '1', number: '1.1', branch: 'master', commit: '313f61b', commit_range: '313f61b..313f61a' }, repository: { slug: 'travis-ci/travis-ci' }) }
+  let(:data) { stub('data', secure_env_enabled?: false, pull_request: '100', config: { env: 'FOO=foo' }, build: { id: '1', number: '1' }, job: { id: '1', number: '1.1', branch: 'master', commit: '313f61b', commit_range: '313f61b..313f61a' }, repository: { slug: 'travis-ci/travis-ci' }) }
   let(:env)  { described_class.new(data) }
 
   it 'vars respond to :key' do

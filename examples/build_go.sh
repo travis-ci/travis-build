@@ -112,6 +112,11 @@ rm -f ~/.ssh/source_rsa
 travis_finish checkout $?
 
 travis_start setup
+echo -en 'travis_fold:start:gvm.update\r'
+echo \$\ gvm\ get
+gvm get
+travis_assert
+echo -en 'travis_fold:end:gvm.update\r'
 echo -en 'travis_fold:start:gvm.install\r'
 echo \$\ gvm\ install\ go1.0.3
 gvm install go1.0.3
@@ -170,8 +175,8 @@ if [[ -f GNUmakefile || -f makefile || -f Makefile || -f BSDmakefile ]]; then
   echo -en 'travis_fold:end:install\r'
 else
   echo -en 'travis_fold:start:install\r'
-  echo \$\ go\ get\ -d\ -v\ ./...\ \&\&\ go\ build\ -v\ ./...
-  travis_retry go get -d -v ./... && go build -v ./...
+  echo \$\ go\ get\ -v\ ./...
+  travis_retry go get -v ./...
   travis_assert
   echo -en 'travis_fold:end:install\r'
 fi

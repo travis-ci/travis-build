@@ -50,6 +50,18 @@ describe Travis::Build::Script::Go do
     should run 'gvm install go1.1'
   end
 
+  {'1.1' => 'go1.1', '1.0' => 'go1.0.3', '1.0.2' => 'go1.0.2'}.each do |version_alias,version|
+    it "sets version #{version.inspect} for alias #{version_alias.inspect}" do
+      data['config']['go'] = version_alias
+      should run "gvm install #{version}"
+    end
+  end
+
+  it 'passes through arbitrary tag versions' do
+    data['config']['go'] = 'release9000'
+    should run 'gvm install release9000'
+  end
+
   it 'announces go version' do
     should announce 'go version'
   end
@@ -70,11 +82,10 @@ describe Travis::Build::Script::Go do
     should fold 'gvm install', 'gvm.install'
   end
 
-  describe 'if no makefile exists' do
-    it 'installs with go get and go build' do
-      should run 'echo $ go get -d -v ./... && go build -v ./...'
-      should run 'go get -d -v ./...', retry: true
-      should run 'go build -v ./...', log: true, assert: true, timeout: timeout_for(:install)
+  describe 'if no Makefile exists' do
+    it 'installs with go get' do
+      should run 'echo $ go get -v ./...'
+      should run 'go get -v ./...', log: true, assert: true, timeout: timeout_for(:install)
     end
 
     it 'runs go test' do

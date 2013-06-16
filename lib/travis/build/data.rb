@@ -53,6 +53,10 @@ module Travis
         job[:pull_request]
       end
 
+      def secure_env_enabled?
+        job[:secure_env_enabled]
+      end
+
       def source_url
         repository[:source_url]
       end
