@@ -20,6 +20,14 @@ describe Travis::Build::Script::Go do
     should set 'TRAVIS_GO_VERSION', 'go1.0.3'
   end
 
+  it 'updates GVM' do
+    should setup 'gvm get'
+  end
+
+  it 'fetches the latest Go code' do
+    should setup 'gvm update'
+  end
+
   it 'sets the default go version if not :gvm config given' do
     should setup 'gvm use go1.0.3'
   end
