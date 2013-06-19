@@ -119,6 +119,9 @@ if [[ -f Gemfile ]]; then
   echo \$\ export\ BUNDLE_GEMFILE\=\$PWD/Gemfile
   export BUNDLE_GEMFILE=$PWD/Gemfile
   travis_assert
+  echo \$\ gem\ install\ bundler
+  gem install bundler
+  travis_assert
 fi
 travis_finish setup $?
 

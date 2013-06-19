@@ -35,6 +35,11 @@ describe Travis::Build::Script::Ruby do
     should set 'BUNDLE_GEMFILE', File.join(ENV['PWD'], 'tmp/Gemfile.ci')
   end
 
+  it 'installs bundler if a gemfile exists' do
+    gemfile 'Gemfile.ci'
+    should setup 'gem install bundler'
+  end
+
   it 'announces ruby --version' do
     should announce 'ruby --version'
   end

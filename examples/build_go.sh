@@ -112,9 +112,14 @@ rm -f ~/.ssh/source_rsa
 travis_finish checkout $?
 
 travis_start setup
-echo -en 'travis_fold:start:gvm.update\r'
+echo -en 'travis_fold:start:gvm.get\r'
 echo \$\ gvm\ get
 gvm get
+travis_assert
+echo -en 'travis_fold:end:gvm.get\r'
+echo -en 'travis_fold:start:gvm.update\r'
+echo \$\ gvm\ update
+gvm update
 travis_assert
 echo -en 'travis_fold:end:gvm.update\r'
 echo -en 'travis_fold:start:gvm.install\r'
