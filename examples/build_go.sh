@@ -118,8 +118,8 @@ gvm get
 travis_assert
 echo -en 'travis_fold:end:gvm.get\r'
 echo -en 'travis_fold:start:gvm.update\r'
-echo \$\ gvm\ update
-gvm update
+echo \$\ gvm\ update\ \&\&\ source\ \$HOME/.gvm/scripts/gvm
+gvm update && source $HOME/.gvm/scripts/gvm
 travis_assert
 echo -en 'travis_fold:end:gvm.update\r'
 echo -en 'travis_fold:start:gvm.install\r'
