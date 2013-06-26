@@ -8,7 +8,7 @@ stubs=(
   jdk_switcher
   lein lein2
   rebar
-  go
+  go gvm
   gradle mvn ant
   ghc cabal
   node nvm npm
@@ -17,7 +17,7 @@ stubs=(
   python pip
   ruby rvm gem bundle rake
   sbt
-  curl cp
+  curl cp bash
   /Users/travis/travis-utils/osx-cibuild.sh xcodebuild pod motion
 )
 for stub in ${stubs[*]}; do

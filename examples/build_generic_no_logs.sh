@@ -85,7 +85,7 @@ travis_start checkout
 export GIT_ASKPASS=echo
 echo -en 'travis_fold:start:git.1\r'
 echo \$\ git\ clone\ --depth\=50\ --branch\=master\ git://github.com/travis-ci/travis-ci.git\ travis-ci/travis-ci
-git clone --depth=50 --branch=master git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci
+travis_retry git clone --depth=50 --branch=master git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci
 travis_assert
 echo -en 'travis_fold:end:git.1\r'
 echo \$\ cd\ travis-ci/travis-ci

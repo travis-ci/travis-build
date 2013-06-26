@@ -2,7 +2,7 @@ shared_examples_for 'a git repo' do
   it 'clones the git repo' do
     cmd = 'git clone --depth=50 --branch=master git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci'
     timeout = Travis::Build::Data::DEFAULTS[:timeouts][:git_clone]
-    should run cmd, echo: true, log: true, assert: true, timeout: timeout
+    should run cmd, echo: true, log: true, assert: true, timeout: timeout, retry: true
   end
 
   it 'clones with a custom depth if given' do
