@@ -129,8 +129,10 @@ echo \$\ pushd\ /usr/local/firefox/20.0
 pushd /usr/local/firefox/20.0
 echo \$\ tar\ xf\ /tmp/firefox.tar.bz2
 tar xf /tmp/firefox.tar.bz2
-echo \$\ sudo\ ln\ -s\ /usr/local/firefox/20.0/firefox/firefox\ /usr/local/bin/firefox
-sudo ln -s /usr/local/firefox/20.0/firefox/firefox /usr/local/bin/firefox
+echo \$\ sudo\ ln\ -sf\ /usr/local/firefox/20.0/firefox/firefox\ /usr/local/bin/firefox
+sudo ln -sf /usr/local/firefox/20.0/firefox/firefox /usr/local/bin/firefox
+echo \$\ sudo\ ln\ -sf\ /usr/local/firefox/20.0/firefox/firefox-bin\ /usr/local/bin/firefox-bin
+sudo ln -sf /usr/local/firefox/20.0/firefox/firefox-bin /usr/local/bin/firefox-bin
 echo \$\ popd
 popd
 echo -en 'travis_fold:end:install_firefox\r'

@@ -17,7 +17,8 @@ describe Travis::Build::Script::Addons::Firefox do
     script.expects(:cmd).with("wget -O /tmp/firefox.tar.bz2 http://ftp.mozilla.org/pub/firefox/releases/20.0/linux-x86_64/en-US/firefox-20.0.tar.bz2", assert: false)
     script.expects(:cmd).with("pushd /usr/local/firefox/20.0", assert: false)
     script.expects(:cmd).with("tar xf /tmp/firefox.tar.bz2", assert: false)
-    script.expects(:cmd).with("sudo ln -s /usr/local/firefox/20.0/firefox/firefox /usr/local/bin/firefox", assert: false)
+    script.expects(:cmd).with("sudo ln -sf /usr/local/firefox/20.0/firefox/firefox /usr/local/bin/firefox", assert: false)
+    script.expects(:cmd).with("sudo ln -sf /usr/local/firefox/20.0/firefox/firefox-bin /usr/local/bin/firefox-bin", assert: false)
     script.expects(:cmd).with("popd", assert: false)
     subject
   end
