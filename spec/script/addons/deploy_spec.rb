@@ -3,6 +3,8 @@ require 'spec_helper'
 describe Travis::Build::Script::Addons::Deploy do
   let(:config) {{ provider: "heroku", password: 'foo', email: 'user@host' }}
   let(:script) { stub('script') }
+
+  before(:each) { script.stubs(:fold).yields(script) }
   subject { described_class.new(script, config) }
 
   it 'runs the command' do

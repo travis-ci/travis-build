@@ -46,7 +46,7 @@ module Travis
             end
 
             def run
-              script.cmd("gem install dpl", echo: false, assert: true)
+              script.fold('dpl.0') { script.cmd("gem install dpl", echo: false, assert: true) }
               script.cmd("dpl #{options} --fold || (#{die})", echo: false, assert: false)
             end
 
