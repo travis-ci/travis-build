@@ -123,6 +123,9 @@ if [[ -f Gemfile ]]; then
   echo \$\ export\ BUNDLE_GEMFILE\=\$PWD/Gemfile
   export BUNDLE_GEMFILE=$PWD/Gemfile
   travis_assert
+  echo \$\ gem\ query\ --local\ \|\ grep\ bundler\ \>/dev/null\ \|\|\ gem\ install\ bundler
+  gem query --local | grep bundler >/dev/null || gem install bundler
+  travis_assert
 fi
 travis_finish setup $?
 

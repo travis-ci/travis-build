@@ -25,14 +25,14 @@ describe Travis::Build::Script::Go do
   end
 
   it 'fetches the latest Go code' do
-    should setup 'gvm update'
+    should run %r|gvm update && source #{Travis::Build::HOME_DIR}/.gvm/scripts/gvm|
   end
 
-  it 'sets the default go version if not :gvm config given' do
+  it 'sets the default go version if not :go config given' do
     should setup 'gvm use go1.0.3'
   end
 
-  it 'sets the go version from config :gvm' do
+  it 'sets the go version from config :go' do
     data['config']['go'] = 'go1.1'
     should setup 'gvm use go1.1'
   end
