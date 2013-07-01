@@ -47,7 +47,11 @@ module Travis
 
             def run
               script.cmd("gem install dpl", echo: false, assert: true)
-              script.cmd("dpl #{options} --fold", echo: false, assert: true)
+              script.cmd("dpl #{options} --fold || (#{die})", echo: false, assert: false)
+            end
+
+            def die
+              'echo "failed to deploy"; travis_terminate 2'
             end
 
             def options
