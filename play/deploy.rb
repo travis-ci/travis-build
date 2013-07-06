@@ -25,11 +25,9 @@ data = {
   },
   config: {
     rvm: '1.9.3',
-    addons: {
-      deploy: {
-        provider: 'heroku',
-        on: { rvm: '1.9.3' }
-      }
+    deploy: {
+      provider: 'heroku',
+      on: { rvm: '1.9.3' }
     }
   },
   timeouts: {
