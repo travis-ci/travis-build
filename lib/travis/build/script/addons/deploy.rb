@@ -18,7 +18,7 @@ module Travis
 
           private
             def want
-              on          = config.delete(:on) || {}
+              on          = config.delete(:on) || config.delete(:true) || {}
               on          = { branch: on.to_str } if on.respond_to? :to_str
               on[:ruby] ||= on[:rvm] if on.include? :rvm
               conditions  = [ want_push(on), want_repo(on), want_branch(on), want_runtime(on) ]
