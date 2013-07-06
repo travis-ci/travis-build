@@ -18,9 +18,10 @@ module Travis
 
           private
             def want
-              on         = config.delete(:on) || {}
-              on         = { branch: on.to_str } if on.respond_to? :to_str
-              conditions = [ want_push(on), want_repo(on), want_branch(on), want_runtime(on) ]
+              on          = config.delete(:on) || {}
+              on          = { branch: on.to_str } if on.respond_to? :to_str
+              on[:ruby] ||= on[:rvm] if on.include? :rvm
+              conditions  = [ want_push(on), want_repo(on), want_branch(on), want_runtime(on) ]
               conditions.flatten.compact.map { |c| "(#{c})" }.join(" && ")
             end
 
