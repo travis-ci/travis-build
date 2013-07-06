@@ -18,7 +18,7 @@ data = {
   job: {
     id: 1,
     number: '1.1',
-    branch: 'master',
+    branch: 'staging',
     commit: 'a214c21',
     commit_range: 'abcdefg..a214c21',
     pull_request: false
@@ -27,7 +27,11 @@ data = {
     rvm: '1.9.3',
     deploy: {
       provider: 'heroku',
-      on: { rvm: '1.9.3' }
+      on: { rvm: '1.9.3' },
+      app: {
+        production: 'travis-api-production',
+        staging: 'travis-api-staging'
+      }
     }
   },
   timeouts: {

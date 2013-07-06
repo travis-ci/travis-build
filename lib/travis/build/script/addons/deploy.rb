@@ -35,7 +35,7 @@ module Travis
 
             def want_branch(on)
               return if on[:all_branches]
-              branches  = Array(on[:branch] || 'master')
+              branches  = Array(on[:branch] || default_branches)
               branches.map { |b| "$TRAVIS_BRANCH = #{b}" }.join(' || ')
             end
 
@@ -55,8 +55,23 @@ module Travis
               'echo "failed to deploy"; travis_terminate 2'
             end
 
+            def default_branches
+              default_branches = config.values.grep(Hash).map(&:keys).flatten(1).uniq.compact
+              default_branches.any? ? default_branches : 'master'
+            end
+
+            def option(key, value)
+              case value
+              when Array      then value.map { |v| option(key, v) }
+              when Hash       then option(key, value[script.data.branch.to_sym])
+              when true       then "--#{key}"
+              when nil, false then nil
+              else "--%s=%p" % [key, value]
+              end
+            end
+
             def options
-              config.flat_map { |k,v| Array(v).map { |e| "--%s=%p" % [k,e] } }.join(" ")
+              config.flat_map { |k,v| option(k,v) }.compact.join(" ")
             end
         end
       end
