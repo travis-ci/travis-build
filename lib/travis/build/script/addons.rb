@@ -21,10 +21,8 @@ module Travis
         end
 
         def addons
-          @addons ||= begin
-            addons = config[:addons] || {}
-            config.each { |k,v| addons[k] = v if MAP.include? k }
-            addons.map { |name, addon_config| init_addon(name, addon_config) }
+          @addons ||= (config[:addons] || {}).map do |name, addon_config|
+            init_addon(name, addon_config)
           end
         end
 

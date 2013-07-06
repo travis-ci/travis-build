@@ -25,12 +25,14 @@ data = {
   },
   config: {
     rvm: '1.9.3',
-    deploy: {
-      provider: 'heroku',
-      on: { rvm: '1.9.3' },
-      app: {
-        production: 'travis-api-production',
-        staging: 'travis-api-staging'
+    addons: {
+      deploy: {
+        provider: 'heroku',
+        on: { rvm: '1.9.3' },
+        app: {
+          production: 'travis-api-production',
+          staging: 'travis-api-staging'
+        }
       }
     }
   },
