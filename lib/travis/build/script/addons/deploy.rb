@@ -47,8 +47,17 @@ module Travis
             end
 
             def run
-              script.fold('dpl.0') { script.cmd("gem install dpl", echo: false, assert: true) }
+              script.fold('dpl.0') { install }
               script.cmd("dpl #{options} --fold || (#{die})", echo: false, assert: false)
+            end
+
+            def install(edge = config[:edge])
+              return script.cmd("gem install dpl", echo: false, assert: true) unless edge
+              script.cmd("git clone https://github.com/rkh/dpl.git")
+              script.cmd("cd dpl")
+              script.cmd("gem build dpl.gemspec")
+              install(false)
+              script.cmd("cd ../dpl")
             end
 
             def die
