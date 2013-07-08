@@ -17,7 +17,7 @@ stubs=(
   python pip
   ruby rvm gem bundle rake
   sbt
-  curl cp bash
+  curl cp bash mv tar
   /Users/travis/travis-utils/osx-cibuild.sh xcodebuild pod motion
 )
 for stub in ${stubs[*]}; do
