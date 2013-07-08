@@ -10,7 +10,7 @@ describe Travis::Build::Script::Addons::Deploy do
     let(:config) {{ provider: "heroku", password: 'foo', email: 'user@host' }}
 
     it 'runs the command' do
-      script.expects(:if).with('($TRAVIS_TEST_RESULT = 0) && ($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script)
+      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script)
       script.expects(:cmd).with('gem install dpl', assert: true, echo: false)
       script.expects(:cmd).with(<<-DPL.gsub(/\s+/, ' ').strip, assert: false, echo: false)
         dpl --provider="heroku" --password="foo" --email="user@host" --fold ||
@@ -29,7 +29,7 @@ describe Travis::Build::Script::Addons::Deploy do
     end
 
     it 'runs the command' do
-      script.expects(:if).with('($TRAVIS_TEST_RESULT = 0) && ($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = staging || $TRAVIS_BRANCH = production)').yields(script)
+      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = staging || $TRAVIS_BRANCH = production)').yields(script)
       script.expects(:cmd).with('gem install dpl', assert: true, echo: false)
       script.expects(:cmd).with(<<-DPL.gsub(/\s+/, ' ').strip, assert: false, echo: false)
         dpl --provider="heroku" --app="foo" --fold ||

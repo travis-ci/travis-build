@@ -12,7 +12,7 @@ module Travis
             @config = config.respond_to?(:to_hash) ? config.to_hash : {}
           end
 
-          def after_script
+          def after_success
             script.if(want) { run }
           end
 
@@ -21,12 +21,8 @@ module Travis
               on          = config.delete(:on) || config.delete(:true) || {}
               on          = { branch: on.to_str } if on.respond_to? :to_str
               on[:ruby] ||= on[:rvm] if on.include? :rvm
-              conditions  = [ want_success(on), want_push(on), want_repo(on), want_branch(on), want_runtime(on) ]
+              conditions  = [ want_push(on), want_repo(on), want_branch(on), want_runtime(on) ]
               conditions.flatten.compact.map { |c| "(#{c})" }.join(" && ")
-            end
-
-            def want_success(on)
-              '$TRAVIS_TEST_RESULT = 0'
             end
 
             def want_push(on)
