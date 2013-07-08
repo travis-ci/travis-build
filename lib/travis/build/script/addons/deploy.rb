@@ -57,7 +57,7 @@ module Travis
               script.cmd("cd dpl")
               script.cmd("gem build dpl.gemspec")
               install(false)
-              script.cmd("cd ../dpl")
+              script.cmd("cd ..")
             end
 
             def die
