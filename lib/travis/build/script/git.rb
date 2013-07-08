@@ -5,16 +5,20 @@ module Travis
     class Script
       module Git
         DEFAULTS = {
-          git: { depth: 50, submodules: true }
+          git: { depth: 50, submodules: true, stategy: 'clone' }
         }
 
         def checkout
           install_source_key
-          clone
-          ch_dir
-          fetch_ref if fetch_ref?
-          git_checkout
-          submodules if submodules?
+          if tarball_clone?
+            download_tarball
+          else
+            git_clone
+            ch_dir
+            fetch_ref if fetch_ref?
+            git_checkout
+            submodules if submodules?
+          end
           rm_key
           sh.to_s
         end
@@ -35,7 +39,15 @@ module Travis
             cmd 'echo -e "Host github.com\n\tBatchMode yes\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config', echo: false, log: false
           end
 
-          def clone
+          def download_tarball
+            cmd "mkdir -p #{dir}", assert: true
+            cmd "curl -o #{sanitized_slug}.tar.gz -L #{tarball_url}", assert: true, retry: true, fold: "tarball.#{next_git_fold_number}"
+            cmd "tar xfz #{sanitized_slug}.tar.gz", assert: true
+            cmd "mv #{sanitized_slug}-#{data.commit[0..6]}/* #{dir}", assert: true
+            ch_dir
+          end
+
+          def git_clone
             set 'GIT_ASKPASS', 'echo', :echo => false # this makes git interactive auth fail
             cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, timeout: :git_clone, fold: "git.#{next_git_fold_number}", retry: true
           end
@@ -78,8 +90,21 @@ module Travis
             args
           end
 
+          def tarball_clone?
+            config[:git][:stategy] == 'tarball'
+          end
+
           def dir
             data.slug
+          end
+
+          def tarball_url
+            token = data.token ? "?token=#{data.token}" : nil
+            "https://api.github.com/repos/#{data.slug}/tarball/#{data.commit}#{token}"
+          end
+
+          def sanitized_slug
+            data.slug.gsub('/', '-')
           end
 
           def next_git_fold_number
