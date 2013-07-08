@@ -88,6 +88,10 @@ module Travis
       def repository
         data[:repository] || {}
       end
+
+      def token
+        data[:oauth_token]
+      end
     end
   end
 end
