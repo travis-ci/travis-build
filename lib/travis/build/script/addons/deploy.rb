@@ -21,7 +21,7 @@ module Travis
               on          = config.delete(:on) || config.delete(:true) || {}
               on          = { branch: on.to_str } if on.respond_to? :to_str
               on[:ruby] ||= on[:rvm] if on.include? :rvm
-              conditions  = [ want_push(on), want_repo(on), want_branch(on), want_runtime(on) ]
+              conditions  = [ want_push(on), want_repo(on), want_branch(on), want_runtime(on), want_condition(on) ]
               conditions.flatten.compact.map { |c| "(#{c})" }.join(" && ")
             end
 
@@ -37,6 +37,10 @@ module Travis
               return if on[:all_branches]
               branches  = Array(on[:branch] || default_branches)
               branches.map { |b| "$TRAVIS_BRANCH = #{b}" }.join(' || ')
+            end
+
+            def want_condition(on)
+              on[:condition]
             end
 
             def want_runtime(on)
