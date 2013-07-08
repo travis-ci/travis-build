@@ -41,7 +41,7 @@ module Travis
           end
 
           def ch_dir
-            cmd "cd #{dir}", timeout: false
+            cmd "cd #{dir}", assert: true, timeout: false
           end
 
           def rm_key
