@@ -90,7 +90,7 @@ module Travis
       end
 
       def token
-        data[:token]
+        data[:oauth_token]
       end
     end
   end
