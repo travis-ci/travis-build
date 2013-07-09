@@ -5,7 +5,7 @@ module Travis
     class Script
       module Git
         DEFAULTS = {
-          git: { depth: 50, submodules: true, stategy: 'clone' }
+          git: { depth: 50, submodules: true, strategy: 'clone' }
         }
 
         def checkout
@@ -91,7 +91,7 @@ module Travis
           end
 
           def tarball_clone?
-            config[:git][:stategy] == 'tarball'
+            config[:git][:strategy] == 'tarball'
           end
 
           def dir

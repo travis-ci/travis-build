@@ -1,7 +1,7 @@
 shared_examples_for 'a git repo' do
   describe 'using tarball' do
     before :each do
-      data['config']['git'] = { stategy: 'tarball' }
+      data['config']['git'] = { strategy: 'tarball' }
     end
 
     it 'creates the directory structure' do
@@ -32,7 +32,7 @@ shared_examples_for 'a git repo' do
 
   describe 'using clone' do
     before :each do
-      data['config']['git'] = { stategy: 'clone' }
+      data['config']['git'] = { strategy: 'clone' }
     end
 
     it 'clones the git repo' do
