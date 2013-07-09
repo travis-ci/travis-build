@@ -7,12 +7,12 @@ describe Travis::Build::Script::NodeJs do
   subject { described_class.new(data, options).compile }
 
   it 'sets TRAVIS_NODE_VERSION' do
-    should set 'TRAVIS_NODE_VERSION', '0.4'
+    should set 'TRAVIS_NODE_VERSION', '0.10'
     store_example
   end
 
   it 'sets up the node version' do
-    should setup 'nvm use 0.4'
+    should setup 'nvm use 0.10'
   end
 
   it 'announces node --version' do
