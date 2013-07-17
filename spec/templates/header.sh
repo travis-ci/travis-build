@@ -13,7 +13,7 @@ stubs=(
   ghc cabal
   node nvm npm
   perl perlbrew cpanm
-  php phpenv phpunit
+  php phpenv phpunit composer
   python pip
   ruby rvm gem bundle rake
   sbt
