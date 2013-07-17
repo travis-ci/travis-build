@@ -19,6 +19,7 @@ module Travis
         def announce
           super
           cmd 'php --version'
+          cmd 'composer --version'
         end
 
         def install
