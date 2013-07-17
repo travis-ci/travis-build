@@ -121,6 +121,8 @@ travis_finish setup $?
 travis_start announce
 echo \$\ php\ --version
 php --version
+echo \$\ composer\ --version
+composer --version
 travis_finish announce $?
 
 travis_start before_install
