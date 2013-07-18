@@ -21,7 +21,13 @@ module Travis
         end
 
         def install
-          gemfile? then: "bundle install #{config[:bundler_args]}", fold: 'install', retry: true
+          gemfile? do |sh|
+            unless bundler_args.nil?
+              sh.cmd "bundle install #{bundler_args}", fold: 'install', retry: true
+            else
+              sh.if "-f #{config[:gemfile]}.lock", then: 'bundle install --deployment', else: 'bundle install', fold: 'install', retry: true
+            end
+          end
         end
 
         def script
@@ -29,6 +35,10 @@ module Travis
         end
 
         private
+
+          def bundler_args
+            config[:bundler_args]
+          end
 
           def setup_bundler
             gemfile? do |sh|

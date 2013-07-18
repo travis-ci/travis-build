@@ -58,6 +58,18 @@ describe Travis::Build::Script::Ruby do
     should retry_script 'bundle install'
   end
 
+  it 'runs bundle install --deployment if there is a Gemfile.lock' do
+    gemfile('Gemfile')
+    file('Gemfile.lock')
+    should run_script 'bundle install --deployment'
+  end
+
+  it 'runs bundle install --deployment if there is a custom Gemfile.ci.lock' do
+    gemfile('Gemfile.ci')
+    file('Gemfile.ci.lock')
+    should run_script 'bundle install --deployment'
+  end
+
   it 'runs bundle exec rake if a gemfile exists' do
     gemfile 'Gemfile.ci'
     should run_script 'bundle exec rake'
