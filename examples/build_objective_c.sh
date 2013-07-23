@@ -151,19 +151,19 @@ echo -en 'travis_fold:end:before_install.2\r'
 travis_finish before_install $?
 
 travis_start install
-if [[ -f Podfile ]]; then
-  echo -en 'travis_fold:start:install.cocoapods\r'
-  echo \$\ pod\ install
-  travis_retry pod install
-  travis_assert
-  echo -en 'travis_fold:end:install.cocoapods\r'
-fi
 if [[ -f Gemfile ]]; then
   echo -en 'travis_fold:start:install.bundler\r'
   echo \$\ bundle\ install
   travis_retry bundle install
   travis_assert
   echo -en 'travis_fold:end:install.bundler\r'
+fi
+if [[ -f Podfile ]]; then
+  echo -en 'travis_fold:start:install.cocoapods\r'
+  echo \$\ pod\ install
+  travis_retry pod install
+  travis_assert
+  echo -en 'travis_fold:end:install.cocoapods\r'
 fi
 travis_finish install $?
 
