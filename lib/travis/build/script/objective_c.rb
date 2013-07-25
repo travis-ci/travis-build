@@ -17,14 +17,6 @@ module Travis
           has_podfile? then: 'pod --version'
         end
 
-        def setup
-          super
-
-          if config[:xcode_sdk]
-            set 'XCODEBUILD_SETTINGS', "-sdk #{config[:xcode_sdk]} TEST_AFTER_BUILD=YES".shellescape
-          end
-        end
-
         def install
           has_gemfile? then: 'bundle install', fold: 'install.bundler', retry: true
           has_podfile? then: 'pod install', fold: 'install.cocoapods', retry: true
@@ -33,7 +25,14 @@ module Travis
         def script
           uses_rubymotion?(with_bundler: true, then: 'bundle exec rake spec')
           uses_rubymotion?(elif: true, then: 'rake spec')
-          self.else "/Users/travis/travis-utils/osx-cibuild.sh#{scheme}"
+          self.else do |script|
+            if config[:xcode_scheme] && (config[:xcode_project] || config[:xcode_workspace])
+              script.cmd "xctool #{xctool_args} build test"
+            else
+              script.cmd "echo -e \"\\033[33;1mWARNING:\\033[33m Using Objective-C testing without specifying a scheme and either a workspace or a project is deprecated.\"", echo: false
+              script.cmd "/Users/travis/travis-utils/osx-cibuild.sh"
+            end
+          end
         end
 
         private
@@ -56,8 +55,12 @@ module Travis
           end
         end
 
-        def scheme
-          " #{config[:xcode_scheme]}" if config[:xcode_scheme]
+        def xctool_args
+          config[:xctool_args].to_s.tap do |xctool_args|
+            %w[project workspace scheme sdk].each do |var|
+              xctool_args << " -#{var} #{config[:"xcode_#{var}"].shellescape}" if config[:"xcode_#{var}"]
+            end
+          end.strip
         end
       end
     end
