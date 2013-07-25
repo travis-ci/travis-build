@@ -79,8 +79,7 @@ echo \$\ export\ FOO\=foo
 export FOO=foo
 echo \$\ export\ BAR\=\[secure\]
 export BAR=bar
-echo \$\ export\ GOPATH\=\$HOME/gopath
-export GOPATH=$HOME/gopath
+export TRAVIS_GO_VERSION=go1.0.3
 travis_finish export $?
 
 travis_start checkout
@@ -92,6 +91,7 @@ travis_assert
 echo -en 'travis_fold:end:git.1\r'
 echo \$\ cd\ travis-ci/travis-ci
 cd travis-ci/travis-ci
+travis_assert
 echo -en 'travis_fold:start:git.2\r'
 echo \$\ git\ checkout\ -qf\ 313f61b
 git checkout -qf 313f61b
@@ -113,21 +113,44 @@ rm -f ~/.ssh/source_rsa
 travis_finish checkout $?
 
 travis_start setup
-echo \$\ mkdir\ -p\ \$GOPATH/src/github.com/travis-ci
-mkdir -p $GOPATH/src/github.com/travis-ci
+echo -en 'travis_fold:start:gvm.get\r'
+echo \$\ gvm\ get
+gvm get
 travis_assert
-echo \$\ cp\ -r\ \$TRAVIS_BUILD_DIR\ \$GOPATH/src/github.com/travis-ci/travis-ci
-cp -r $TRAVIS_BUILD_DIR $GOPATH/src/github.com/travis-ci/travis-ci
+echo -en 'travis_fold:end:gvm.get\r'
+echo -en 'travis_fold:start:gvm.update\r'
+echo \$\ gvm\ update\ \&\&\ source\ \$HOME/.gvm/scripts/gvm
+gvm update && source $HOME/.gvm/scripts/gvm
 travis_assert
-echo \$\ export\ TRAVIS_BUILD_DIR\=\$GOPATH/src/github.com/travis-ci/travis-ci
-export TRAVIS_BUILD_DIR=$GOPATH/src/github.com/travis-ci/travis-ci
+echo -en 'travis_fold:end:gvm.update\r'
+echo -en 'travis_fold:start:gvm.install\r'
+echo \$\ gvm\ install\ go1.0.3
+gvm install go1.0.3
 travis_assert
-echo \$\ cd\ \$GOPATH/src/github.com/travis-ci/travis-ci
-cd $GOPATH/src/github.com/travis-ci/travis-ci
+echo -en 'travis_fold:end:gvm.install\r'
+echo \$\ gvm\ use\ go1.0.3
+gvm use go1.0.3
+travis_assert
+echo \$\ export\ GOPATH\=\$HOME/gopath:\$GOPATH
+export GOPATH=$HOME/gopath:$GOPATH
+travis_assert
+echo \$\ mkdir\ -p\ \$HOME/gopath/src/github.com/travis-ci
+mkdir -p $HOME/gopath/src/github.com/travis-ci
+travis_assert
+echo \$\ cp\ -r\ \$TRAVIS_BUILD_DIR\ \$HOME/gopath/src/github.com/travis-ci/travis-ci
+cp -r $TRAVIS_BUILD_DIR $HOME/gopath/src/github.com/travis-ci/travis-ci
+travis_assert
+echo \$\ export\ TRAVIS_BUILD_DIR\=\$HOME/gopath/src/github.com/travis-ci/travis-ci
+export TRAVIS_BUILD_DIR=$HOME/gopath/src/github.com/travis-ci/travis-ci
+travis_assert
+echo \$\ cd\ \$HOME/gopath/src/github.com/travis-ci/travis-ci
+cd $HOME/gopath/src/github.com/travis-ci/travis-ci
 travis_assert
 travis_finish setup $?
 
 travis_start announce
+echo \$\ gvm\ version
+gvm version
 echo \$\ go\ version
 go version
 echo -en 'travis_fold:start:go.env\r'
@@ -150,7 +173,7 @@ echo -en 'travis_fold:end:before_install.2\r'
 travis_finish before_install $?
 
 travis_start install
-if [[ -f Makefile ]]; then
+if [[ -f GNUmakefile || -f makefile || -f Makefile || -f BSDmakefile ]]; then
   echo -en 'travis_fold:start:install\r'
   echo \$\ true
   travis_retry true
@@ -158,8 +181,8 @@ if [[ -f Makefile ]]; then
   echo -en 'travis_fold:end:install\r'
 else
   echo -en 'travis_fold:start:install\r'
-  echo \$\ go\ get\ -d\ -v\ ./...\ \&\&\ go\ build\ -v\ ./...
-  travis_retry go get -d -v ./... && go build -v ./...
+  echo \$\ go\ get\ -v\ ./...
+  travis_retry go get -v ./...
   travis_assert
   echo -en 'travis_fold:end:install\r'
 fi
@@ -179,7 +202,7 @@ echo -en 'travis_fold:end:before_script.2\r'
 travis_finish before_script $?
 
 travis_start script
-if [[ -f Makefile ]]; then
+if [[ -f GNUmakefile || -f makefile || -f Makefile || -f BSDmakefile ]]; then
   echo \$\ make
   make
 else

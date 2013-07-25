@@ -4,7 +4,7 @@ module Travis
   module Build
     class Data
       class Env
-        delegate :pull_request, :config, :build, :job, :repository, to: :data
+        delegate :secure_env_enabled?, :pull_request, :config, :build, :job, :repository, to: :data
 
         attr_reader :data
 
@@ -36,7 +36,7 @@ module Travis
 
           def extract_config_vars(vars)
             vars = to_vars(Array(vars).compact.reject(&:empty?))
-            vars.reject!(&:secure?) if pull_request
+            vars.reject!(&:secure?) unless secure_env_enabled?
             vars
           end
 
@@ -49,7 +49,7 @@ module Travis
           end
 
           def secure_env_vars?
-            !pull_request && config_vars.any?(&:secure?)
+            secure_env_enabled? && config_vars.any?(&:secure?)
           end
       end
     end

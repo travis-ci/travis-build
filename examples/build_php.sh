@@ -91,6 +91,7 @@ travis_assert
 echo -en 'travis_fold:end:git.1\r'
 echo \$\ cd\ travis-ci/travis-ci
 cd travis-ci/travis-ci
+travis_assert
 echo -en 'travis_fold:start:git.2\r'
 echo \$\ git\ checkout\ -qf\ 313f61b
 git checkout -qf 313f61b
@@ -120,6 +121,8 @@ travis_finish setup $?
 travis_start announce
 echo \$\ php\ --version
 php --version
+echo \$\ composer\ --version
+composer --version
 travis_finish announce $?
 
 travis_start before_install

@@ -53,6 +53,10 @@ module Travis
         job[:pull_request]
       end
 
+      def secure_env_enabled?
+        job[:secure_env_enabled]
+      end
+
       def source_url
         repository[:source_url]
       end
@@ -83,6 +87,10 @@ module Travis
 
       def repository
         data[:repository] || {}
+      end
+
+      def token
+        data[:oauth_token]
       end
     end
   end

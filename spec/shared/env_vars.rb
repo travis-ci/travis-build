@@ -54,8 +54,8 @@ shared_examples_for 'a script with env vars' do
     should echo 'export BAR=[secure]'
   end
 
-  it 'does not set secure :env vars on pull requests' do
-    data['job']['pull_request'] = 1
+  it 'does not set secure :env vars if they\'re disabled' do
+    data['job']['secure_env_enabled'] = false
     data['config'][env_type] = 'SECURE BAR=bar'
     should_not set 'BAR', 'bar'
   end

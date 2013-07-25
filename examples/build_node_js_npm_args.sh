@@ -79,7 +79,7 @@ echo \$\ export\ FOO\=foo
 export FOO=foo
 echo \$\ export\ BAR\=\[secure\]
 export BAR=bar
-export TRAVIS_NODE_VERSION=0.4
+export TRAVIS_NODE_VERSION=0.10
 travis_finish export $?
 
 travis_start checkout
@@ -91,6 +91,7 @@ travis_assert
 echo -en 'travis_fold:end:git.1\r'
 echo \$\ cd\ travis-ci/travis-ci
 cd travis-ci/travis-ci
+travis_assert
 echo -en 'travis_fold:start:git.2\r'
 echo \$\ git\ checkout\ -qf\ 313f61b
 git checkout -qf 313f61b
@@ -112,8 +113,8 @@ rm -f ~/.ssh/source_rsa
 travis_finish checkout $?
 
 travis_start setup
-echo \$\ nvm\ use\ 0.4
-nvm use 0.4
+echo \$\ nvm\ use\ 0.10
+nvm use 0.10
 travis_assert
 travis_finish setup $?
 

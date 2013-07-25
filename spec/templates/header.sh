@@ -8,16 +8,16 @@ stubs=(
   jdk_switcher
   lein lein2
   rebar
-  go
+  go gvm
   gradle mvn ant
   ghc cabal
   node nvm npm
   perl perlbrew cpanm
-  php phpenv phpunit
+  php phpenv phpunit composer
   python pip
   ruby rvm gem bundle rake
   sbt
-  curl cp bash
+  curl cp bash mv tar
   /Users/travis/travis-utils/osx-cibuild.sh xcodebuild pod motion xctool
 )
 for stub in ${stubs[*]}; do

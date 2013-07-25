@@ -90,6 +90,7 @@ travis_assert
 echo -en 'travis_fold:end:git.1\r'
 echo \$\ cd\ travis-ci/travis-ci
 cd travis-ci/travis-ci
+travis_assert
 echo -en 'travis_fold:start:git.2\r'
 echo \$\ git\ checkout\ -qf\ 313f61b
 git checkout -qf 313f61b
@@ -119,18 +120,20 @@ travis_finish announce $?
 travis_start before_install
 echo -en 'travis_fold:start:install_firefox\r'
 echo -e "[33;1mInstalling Firefox v20.0[0m"; 
-echo \$\ sudo\ mkdir\ -p\ /usr/local/firefox/20.0
-sudo mkdir -p /usr/local/firefox/20.0
-echo \$\ sudo\ chown\ -R\ travis\ /usr/local/firefox
-sudo chown -R travis /usr/local/firefox
+echo \$\ sudo\ mkdir\ -p\ /usr/local/firefox-20.0
+sudo mkdir -p /usr/local/firefox-20.0
+echo \$\ sudo\ chown\ -R\ travis\ /usr/local/firefox-20.0
+sudo chown -R travis /usr/local/firefox-20.0
 echo \$\ wget\ -O\ /tmp/firefox.tar.bz2\ http://ftp.mozilla.org/pub/firefox/releases/20.0/linux-x86_64/en-US/firefox-20.0.tar.bz2
 wget -O /tmp/firefox.tar.bz2 http://ftp.mozilla.org/pub/firefox/releases/20.0/linux-x86_64/en-US/firefox-20.0.tar.bz2
-echo \$\ pushd\ /usr/local/firefox/20.0
-pushd /usr/local/firefox/20.0
+echo \$\ pushd\ /usr/local/firefox-20.0
+pushd /usr/local/firefox-20.0
 echo \$\ tar\ xf\ /tmp/firefox.tar.bz2
 tar xf /tmp/firefox.tar.bz2
-echo \$\ sudo\ ln\ -s\ /usr/local/firefox/20.0/firefox/firefox\ /usr/local/bin/firefox
-sudo ln -s /usr/local/firefox/20.0/firefox/firefox /usr/local/bin/firefox
+echo \$\ sudo\ ln\ -sf\ /usr/local/firefox-20.0/firefox/firefox\ /usr/local/bin/firefox
+sudo ln -sf /usr/local/firefox-20.0/firefox/firefox /usr/local/bin/firefox
+echo \$\ sudo\ ln\ -sf\ /usr/local/firefox-20.0/firefox/firefox-bin\ /usr/local/bin/firefox-bin
+sudo ln -sf /usr/local/firefox-20.0/firefox/firefox-bin /usr/local/bin/firefox-bin
 echo \$\ popd
 popd
 echo -en 'travis_fold:end:install_firefox\r'

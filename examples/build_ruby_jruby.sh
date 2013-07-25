@@ -92,6 +92,7 @@ travis_assert
 echo -en 'travis_fold:end:git.1\r'
 echo \$\ cd\ travis-ci/travis-ci
 cd travis-ci/travis-ci
+travis_assert
 echo -en 'travis_fold:start:git.2\r'
 echo \$\ git\ checkout\ -qf\ 313f61b
 git checkout -qf 313f61b
@@ -122,6 +123,9 @@ travis_assert
 if [[ -f Gemfile ]]; then
   echo \$\ export\ BUNDLE_GEMFILE\=\$PWD/Gemfile
   export BUNDLE_GEMFILE=$PWD/Gemfile
+  travis_assert
+  echo \$\ gem\ query\ --local\ \|\ grep\ bundler\ \>/dev/null\ \|\|\ gem\ install\ bundler
+  gem query --local | grep bundler >/dev/null || gem install bundler
   travis_assert
 fi
 travis_finish setup $?
@@ -154,11 +158,19 @@ travis_finish before_install $?
 
 travis_start install
 if [[ -f Gemfile ]]; then
+if [[ -f Gemfile.lock ]]; then
   echo -en 'travis_fold:start:install\r'
-  echo \$\ bundle\ install\ 
-  travis_retry bundle install 
+  echo \$\ bundle\ install\ --deployment
+  travis_retry bundle install --deployment
   travis_assert
   echo -en 'travis_fold:end:install\r'
+else
+  echo -en 'travis_fold:start:install\r'
+  echo \$\ bundle\ install
+  travis_retry bundle install
+  travis_assert
+  echo -en 'travis_fold:end:install\r'
+fi
 fi
 travis_finish install $?
 

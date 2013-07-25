@@ -24,6 +24,10 @@ describe Travis::Build::Script::Php do
     should announce 'php --version'
   end
 
+  it 'announces composer --version' do
+    should announce 'composer --version'
+  end
+
   it 'runs phpunit' do
     should run_script 'phpunit'
   end

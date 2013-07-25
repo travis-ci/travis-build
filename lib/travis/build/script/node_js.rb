@@ -3,7 +3,7 @@ module Travis
     class Script
       class NodeJs < Script
         DEFAULTS = {
-          :node_js => '0.4'
+          :node_js => '0.10'
         }
 
         def export
