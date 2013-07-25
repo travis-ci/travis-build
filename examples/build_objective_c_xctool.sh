@@ -79,7 +79,7 @@ echo \$\ export\ FOO\=foo
 export FOO=foo
 echo \$\ export\ BAR\=\[secure\]
 export BAR=bar
-export TRAVIS_PERL_VERSION=5.14
+export TRAVIS_RUBY_VERSION=default
 travis_finish export $?
 
 travis_start checkout
@@ -91,7 +91,6 @@ travis_assert
 echo -en 'travis_fold:end:git.1\r'
 echo \$\ cd\ travis-ci/travis-ci
 cd travis-ci/travis-ci
-travis_assert
 echo -en 'travis_fold:start:git.2\r'
 echo \$\ git\ checkout\ -qf\ 313f61b
 git checkout -qf 313f61b
@@ -113,16 +112,28 @@ rm -f ~/.ssh/source_rsa
 travis_finish checkout $?
 
 travis_start setup
-echo \$\ perlbrew\ use\ 5.14
-perlbrew use 5.14
+echo \$\ rvm\ use\ default\ --install\ --binary\ --fuzzy
+rvm use default --install --binary --fuzzy
 travis_assert
 travis_finish setup $?
 
 travis_start announce
-echo \$\ perl\ --version
-perl --version
-echo \$\ cpanm\ --version
-cpanm --version
+echo \$\ ruby\ --version
+ruby --version
+echo \$\ rvm\ --version
+rvm --version
+echo -en 'travis_fold:start:announce\r'
+echo \$\ xcodebuild\ -version\ -sdk
+xcodebuild -version -sdk
+echo -en 'travis_fold:end:announce\r'
+if [[ -f Rakefile && "$(cat Rakefile)" =~ require\ [\"\']motion/project ]]; then
+  echo \$\ motion\ --version
+  motion --version
+fi
+if [[ -f Podfile ]]; then
+  echo \$\ pod\ --version
+  pod --version
+fi
 travis_finish announce $?
 
 travis_start before_install
@@ -139,11 +150,20 @@ echo -en 'travis_fold:end:before_install.2\r'
 travis_finish before_install $?
 
 travis_start install
-echo -en 'travis_fold:start:install\r'
-echo \$\ cpanm\ --quiet\ --installdeps\ --notest\ .
-travis_retry cpanm --quiet --installdeps --notest .
-travis_assert
-echo -en 'travis_fold:end:install\r'
+if [[ -f Podfile ]]; then
+  echo -en 'travis_fold:start:install.cocoapods\r'
+  echo \$\ pod\ install
+  travis_retry pod install
+  travis_assert
+  echo -en 'travis_fold:end:install.cocoapods\r'
+fi
+if [[ -f Gemfile ]]; then
+  echo -en 'travis_fold:start:install.bundler\r'
+  echo \$\ bundle\ install
+  travis_retry bundle install
+  travis_assert
+  echo -en 'travis_fold:end:install.bundler\r'
+fi
 travis_finish install $?
 
 travis_start before_script
@@ -160,15 +180,15 @@ echo -en 'travis_fold:end:before_script.2\r'
 travis_finish before_script $?
 
 travis_start script
-if [[ -f Build.PL ]]; then
-  echo \$\ perl\ Build.PL\ \&\&\ ./Build\ \&\&\ ./Build\ test
-  perl Build.PL && ./Build && ./Build test
-elif [[ -f Makefile.PL ]]; then
-  echo \$\ perl\ Makefile.PL\ \&\&\ make\ test
-  perl Makefile.PL && make test
+if [[ -f Rakefile && "$(cat Rakefile)" =~ require\ [\"\']motion/project && -f Gemfile ]]; then
+  echo \$\ bundle\ exec\ rake\ spec
+  bundle exec rake spec
+elif [[ -f Rakefile && "$(cat Rakefile)" =~ require\ [\"\']motion/project ]]; then
+  echo \$\ rake\ spec
+  rake spec
 else
-  echo \$\ make\ test
-  make test
+  echo \$\ xctool\ -workspace\ YourWorkspace.xcworkspace\ -scheme\ YourScheme\ build\ test
+  xctool -workspace YourWorkspace.xcworkspace -scheme YourScheme build test
 fi
 travis_result $?
 travis_finish script $TRAVIS_TEST_RESULT

@@ -38,30 +38,33 @@ describe Travis::Build::Script::ObjectiveC do
     end
   end
 
-  context 'if no Podfile exists' do
+  context 'if no settings are specified' do
     it 'runs xcode tests' do
       should run_script '/Users/travis/travis-utils/osx-cibuild.sh'
       store_example
     end
   end
 
-  context 'if xcode_sdk is set' do
+  context 'if workspace and scheme is given' do
     before(:each) do
-      data['config']['xcode_sdk'] = 'iphonesimulator6.0'
+      data['config']['xcode_workspace'] = 'YourWorkspace.xcworkspace'
+      data['config']['xcode_scheme'] = 'YourScheme'
     end
 
-    it 'exports XCODEBUILD_SETTINGS' do
-      should set 'XCODEBUILD_SETTINGS', '-sdk iphonesimulator6.0 TEST_AFTER_BUILD=YES'
+    it 'runs xctool' do
+      should run_script 'xctool -workspace YourWorkspace.xcworkspace -scheme YourScheme build test'
+      store_example 'xctool'
     end
   end
 
-  context 'if xcode_scheme is set' do
+  context 'if project and scheme is given' do
     before(:each) do
-      data['config']['xcode_scheme'] = 'MyProjectTests'
+      data['config']['xcode_project'] = 'YourProject.xcodeproj'
+      data['config']['xcode_scheme'] = 'YourScheme'
     end
 
-    it 'passes the scheme on to the build script' do
-      should run_script '/Users/travis/travis-utils/osx-cibuild.sh MyProjectTests'
+    it 'runs xctool' do
+      should run_script 'xctool -project YourProject.xcodeproj -scheme YourScheme build test'
     end
   end
 
