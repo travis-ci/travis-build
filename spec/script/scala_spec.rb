@@ -39,4 +39,10 @@ describe Travis::Build::Script::Scala do
   it 'runs mvn test if no project directory or build file exists' do
     should run_script 'mvn test'
   end
+
+  it "runs sbt with sbt_args if they are given" do
+    file("build.sbt")
+    data["config"]["sbt_args"] = "-Dsbt.log.noformat=true"
+    should run_script "sbt -Dsbt.log.noformat=true ++2.10.0 test"
+  end
 end

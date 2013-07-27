@@ -19,12 +19,17 @@ module Travis
         end
 
         def script
-          self.if   '-d project || -f build.sbt', "sbt ++#{config[:scala]} test"
+          self.if   '-d project || -f build.sbt', "sbt#{sbt_args} ++#{config[:scala]} test"
           self.elif '-f build.gradle', 'gradle check'
           self.else 'mvn test'
+        end
+
+        private
+
+        def sbt_args
+          config[:sbt_args] && " #{config[:sbt_args]}"
         end
       end
     end
   end
 end
-
