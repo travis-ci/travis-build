@@ -38,4 +38,18 @@ describe Travis::Build::Script::Addons::Deploy do
       subject.after_success
     end
   end
+
+  describe 'on tags' do
+    let(:config) {{ provider: "heroku", on: { tags: true } }}
+
+    it 'runs the command' do
+      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master) && ($(git describe --exact-match))').yields(script)
+      script.expects(:cmd).with('gem install dpl', assert: true, echo: false)
+      script.expects(:cmd).with(<<-DPL.gsub(/\s+/, ' ').strip, assert: false, echo: false)
+        dpl --provider="heroku" --fold ||
+        (echo "failed to deploy"; travis_terminate 2)
+      DPL
+      subject.after_success
+    end
+  end
 end
