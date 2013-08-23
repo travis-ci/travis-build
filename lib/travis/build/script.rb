@@ -7,6 +7,7 @@ module Travis
   module Build
     class Script
       autoload :Addons,         'travis/build/script/addons'
+      autoload :Android,        'travis/build/script/android'
       autoload :C,              'travis/build/script/c'
       autoload :Cpp,            'travis/build/script/cpp'
       autoload :Clojure,        'travis/build/script/clojure'
