@@ -61,12 +61,9 @@ module Travis
             end
 
             def install(edge = config[:edge])
-              return cmd("gem install dpl", echo: false, assert: true) unless edge
-              script.cmd("git clone https://github.com/rkh/dpl.git")
-              script.cmd("cd dpl")
-              script.cmd("gem build dpl.gemspec")
-              install(false)
-              script.cmd("cd ..")
+              command = "gem install dpl"
+              command << " --pre" if edge
+              cmd(command, echo: false, assert: true)
             end
 
             def die
