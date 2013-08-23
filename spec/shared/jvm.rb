@@ -6,12 +6,28 @@ shared_examples_for 'a jvm build' do
       file('build.gradle')
     end
 
-    it 'installs with gradle assemble' do
-      should run 'gradle assemble', echo: true, log: true, assert: true, timeout: timeout_for(:install)
+    context 'without a gradle wrapper' do
+      it 'installs with gradle assemble' do
+        should run 'gradle assemble', echo: true, log: true, assert: true, timeout: timeout_for(:install)
+      end
+
+      it 'runs gradle check' do
+        should run 'gradle check', echo: true, log: true, timeout: timeout_for(:script)
+      end
     end
 
-    it 'runs gradle check' do
-      should run 'gradle check', echo: true, log: true, timeout: timeout_for(:script)
+    context 'with a gradle wrapper present' do
+      before do
+        executable('./gradlew')
+      end
+
+      it 'installs with ./gradlew assemble' do
+        should run './gradlew assemble', echo: true, log: true, assert: true, timeout: timeout_for(:install)
+      end
+
+      it 'runs ./gradlew check' do
+        should run './gradlew check', echo: true, log: true, timeout: timeout_for(:script)
+      end
     end
   end
 
