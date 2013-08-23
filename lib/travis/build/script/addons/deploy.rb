@@ -4,6 +4,7 @@ module Travis
       module Addons
         class Deploy
           VERSIONED_RUNTIMES = [:jdk, :node, :perl, :php, :python, :ruby, :scala, :node]
+          USE_RUBY           = '1.9.3'
           attr_accessor :script, :config
 
           def initialize(script, config)
@@ -56,16 +57,13 @@ module Travis
 
             def run
               script.fold('dpl.0') { install }
-              script.cmd("dpl #{options} --fold || (#{die})", echo: false, assert: false)
+              cmd("dpl #{options} --fold || (#{die})", echo: false, assert: false)
             end
 
             def install(edge = config[:edge])
-              return script.cmd("gem install dpl", echo: false, assert: true) unless edge
-              script.cmd("git clone https://github.com/rkh/dpl.git")
-              script.cmd("cd dpl")
-              script.cmd("gem build dpl.gemspec")
-              install(false)
-              script.cmd("cd ..")
+              command = "gem install dpl"
+              command << " --pre" if edge
+              cmd(command, echo: false, assert: true)
             end
 
             def die
@@ -85,6 +83,10 @@ module Travis
               when nil, false then nil
               else "--%s=%p" % [key, value]
               end
+            end
+
+            def cmd(cmd, *args)
+              script.cmd("rvm #{USE_RUBY} do #{cmd}", *args)
             end
 
             def options
