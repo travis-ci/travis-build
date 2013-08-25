@@ -135,7 +135,7 @@ echo -en 'travis_fold:end:before_install.2\r'
 travis_finish before_install $?
 
 travis_start install
-if [[ -f ./gradlew ]]; then
+if [[ -f gradlew ]]; then
   echo -en 'travis_fold:start:install\r'
   echo \$\ ./gradlew\ assemble
   travis_retry ./gradlew assemble
@@ -170,7 +170,7 @@ echo -en 'travis_fold:end:before_script.2\r'
 travis_finish before_script $?
 
 travis_start script
-if [[ -f ./gradlew ]]; then
+if [[ -f gradlew ]]; then
   echo \$\ ./gradlew\ check
   ./gradlew check
 elif [[ -f build.gradle ]]; then
