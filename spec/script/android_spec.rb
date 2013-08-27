@@ -18,12 +18,28 @@ describe Travis::Build::Script::Android do
       file('build.gradle')
     end
 
-    it 'installs with gradle assemble' do
-      should run 'gradle assemble', echo: true, log: true, assert: true, timeout: timeout_for(:install)
+    context 'with gradle wrapper present' do
+      before do
+        executable('./gradlew')
+      end
+
+      it 'installs with ./gradlew assemble' do
+        should run './gradlew assemble', echo: true, log: true, assert: true, timeout: timeout_for(:install)
+      end
+
+      it 'runs ./gradlew check connectedCheck' do
+        should run './gradlew check connectedCheck', echo: true, log: true, timeout: timeout_for(:script)
+      end
     end
 
-    it 'runs gradle check connectedCheck' do
-      should run 'gradle check connectedCheck', echo: true, log: true, timeout: timeout_for(:script)
+    context 'without gradle wrapper' do
+      it 'installs with gradle assemble' do
+        should run 'gradle assemble', echo: true, log: true, assert: true, timeout: timeout_for(:install)
+      end
+
+      it 'runs gradle check connectedCheck' do
+        should run 'gradle check connectedCheck', echo: true, log: true, timeout: timeout_for(:script)
+      end
     end
   end
 
