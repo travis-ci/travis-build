@@ -75,6 +75,7 @@ module Travis
 
         def setup
           start_services
+          setup_apt_cache if Array(config[:cache]).include?(:apt)
         end
 
         def announce
@@ -90,6 +91,10 @@ module Travis
             logs[type] = log if options[:logs][type] rescue nil
             logs
           end
+        end
+
+        def setup_apt_cache
+          cmd "echo 'Acquire::http { Proxy #{config[:apt_cache]}; };' | sudo tee /etc/apt/apt.conf.d/01proxy", log: false, assert: false
         end
     end
   end
