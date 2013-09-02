@@ -75,7 +75,7 @@ module Travis
 
         def setup
           start_services
-          setup_apt_cache if Array(config[:cache]).include?(:apt)
+          setup_apt_cache if Array(config[:cache]).include?('apt')
         end
 
         def announce
@@ -95,7 +95,7 @@ module Travis
 
         def setup_apt_cache
           if config[:apt_cache]
-            cmd "echo 'Acquire::http { Proxy #{config[:apt_cache]}; };' | sudo tee /etc/apt/apt.conf.d/01proxy", log: false, assert: false 
+            cmd %Q{echo 'Acquire::http { Proxy "#{config[:apt_cache]}"; };' | sudo tee /etc/apt/apt.conf.d/01proxy"}
           end
         end
     end
