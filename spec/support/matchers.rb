@@ -3,8 +3,11 @@ def timeout_for(stage)
 end
 
 def runs?(lines, cmd)
-  cmd = /^(?:travis_retry )?#{Regexp.escape(cmd)}/ if cmd.is_a?(String)
-  lines.detect { |line| line =~ cmd }
+  if cmd.is_a?(String)
+    lines.detect { |line| line.include?(cmd) }
+  else
+    lines.detect { |line| line =~ cmd }
+  end
 end
 
 def echoes?(lines, cmd)
