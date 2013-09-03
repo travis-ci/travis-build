@@ -41,8 +41,14 @@ module Travis
         end
 
         def after_result
-          self.if('$TRAVIS_TEST_RESULT = 0')  { run_stage(:after_success) }
-          self.if('$TRAVIS_TEST_RESULT != 0') { run_stage(:after_failure) }
+          self.if('$TRAVIS_TEST_RESULT = 0') do
+            run_stage(:after_success)
+            run_stage(:deploy)
+          end
+
+          self.if('$TRAVIS_TEST_RESULT != 0') do
+            run_stage(:after_failure)
+          end
         end
 
         def stage(stage = nil)
