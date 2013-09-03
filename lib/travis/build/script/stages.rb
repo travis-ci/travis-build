@@ -62,7 +62,7 @@ module Travis
         end
 
         def assert_stage?(stage)
-          [:setup, :before_install, :install, :before_script].include?(stage)
+          [:setup, :before_install, :install, :before_script, :before_deploy].include?(stage)
         end
 
         def result
