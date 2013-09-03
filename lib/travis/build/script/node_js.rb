@@ -15,6 +15,7 @@ module Travis
         def setup
           super
           cmd "nvm use #{config[:node_js]}"
+          setup_npm_cache if npm_cache_required?
         end
 
         def announce
@@ -29,6 +30,17 @@ module Travis
 
         def script
           uses_npm? then: 'npm test', else: 'make test'
+        end
+
+        def npm_cache_required?
+          Array(config[:cache]).include?('npm')
+        end
+
+        def setup_npm_cache
+          if config[:hosts] && config[:hosts][:npm_cache]
+            cmd 'npm config set registry http://registry.npmjs.org/', echo: false, assert: false
+            cmd "npm config set proxy #{config[:hosts][:npm_cache]}", echo: false, assert: false
+          end
         end
 
         private
