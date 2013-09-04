@@ -61,7 +61,6 @@ module Travis
           [open, super, close].compact.join("\n")
         end
 
-        # TODO hrmmmm ... :/
         def script(*args)
           super(*merge_options(args, level: 1))
         end

@@ -67,7 +67,6 @@ describe Travis::Build::Script::NodeJs do
       data['config']['cache'] = 'npm'
       should_not run 'npm config set registry http://registry.npmjs.org', echo: false, assert: false
       should_not run 'npm config set proxy http://npm.cache.com', echo: false, assert: false
-
     end
   end
 end
