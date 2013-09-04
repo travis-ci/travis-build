@@ -63,17 +63,17 @@ shared_examples_for 'a build script' do
   it "sets up an apt cache if the option is enabled" do
     data['config']['cache'] = ['apt']
     data['config']['apt_cache'] = 'http://cache.example.com:80'
-    should run %Q{echo 'Acquire::http { Proxy "http://cache.example.com:80"; };' | sudo tee /etc/apt/apt.conf.d/01proxy}
+    subject.should include(%Q{echo 'Acquire::http { Proxy "http://cache.example.com:80"; };' | sudo tee /etc/apt/apt.conf.d/01proxy})
   end
 
   it "doesn't set up an apt cache when the cache list is empty" do
     data['config']['apt_cache'] = 'http://cache.example.com:80'
-    should_not run %Q{echo 'Acquire::http { Proxy "http://cache.example.com:80"; };' | sudo tee /etc/apt/apt.conf.d/01proxy}
+    subject.should_not include(%Q{echo 'Acquire::http { Proxy "http://cache.example.com:80"; };' | sudo tee /etc/apt/apt.conf.d/01proxy})
   end
 
   it "doesn't set up an apt cache when the host isn't set" do
     data['config']['cache'] = ['apt']
     data['config']['apt_cache']
-    should_not run %Q{echo 'Acquire::http { Proxy "http://cache.example.com:80"; };' | sudo tee /etc/apt/apt.conf.d/01proxy}
+    subject.should_not include(%Q{echo 'Acquire::http { Proxy "http://cache.example.com:80"; };' | sudo tee /etc/apt/apt.conf.d/01proxy})
   end
 end
