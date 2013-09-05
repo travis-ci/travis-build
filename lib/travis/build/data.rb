@@ -57,6 +57,10 @@ module Travis
         job[:secure_env_enabled]
       end
 
+      def source_host
+        source_url =~ %r(^(?:https?|git)(?:://|@)([^/]*?)(?:/|:)) && $1
+      end
+
       def source_url
         repository[:source_url]
       end
