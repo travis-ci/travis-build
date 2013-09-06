@@ -94,8 +94,8 @@ module Travis
         end
 
         def setup_apt_cache
-          if config[:apt_cache]
-            cmd %Q{echo 'Acquire::http { Proxy "#{config[:apt_cache]}"; };' | sudo tee /etc/apt/apt.conf.d/01proxy  > /dev/null 2>&1}, echo: false, assert: false, log: false
+          if config[:hosts] && config[:hosts][:apt_cache]
+            cmd %Q{echo 'Acquire::http { Proxy "#{config[:hosts][:apt_cache]}"; };' | sudo tee /etc/apt/apt.conf.d/01proxy  > /dev/null 2>&1}, echo: false, assert: false, log: false
           end
         end
     end
