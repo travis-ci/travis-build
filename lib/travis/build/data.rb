@@ -45,6 +45,10 @@ module Travis
         data[:config]
       end
 
+      def hosts
+        data[:hosts] || {}
+      end
+
       def env_vars
         @env_vars ||= Env.new(self).vars
       end

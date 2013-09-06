@@ -51,14 +51,14 @@ describe Travis::Build::Script::NodeJs do
     end
 
     it 'installs an npm proxy and registry' do
-      data['config']['hosts'] = {'npm_cache' => 'http://npm.cache.com'}
+      data['hosts'] = {'npm_cache' => 'http://npm.cache.com'}
       data['config']['cache'] = 'npm'
       should run 'npm config set registry http://registry.npmjs.org', echo: false, assert: false
       should run 'npm config set proxy http://npm.cache.com', echo: false, assert: false
     end
 
     it "doesn't install a proxy when caching is disabled" do
-      data['config']['hosts'] = {'npm_cache' => 'http://npm.cache.com'}
+      data['hosts'] = {'npm_cache' => 'http://npm.cache.com'}
       should_not run 'npm config set registry http://registry.npmjs.org', echo: false, assert: false
       should_not run 'npm config set proxy http://npm.cache.com', echo: false, assert: false
     end

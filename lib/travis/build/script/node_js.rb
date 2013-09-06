@@ -37,9 +37,9 @@ module Travis
         end
 
         def setup_npm_cache
-          if config[:hosts] && config[:hosts][:npm_cache]
+          if data.hosts && data.hosts[:npm_cache]
             cmd 'npm config set registry http://registry.npmjs.org/', echo: false, assert: false
-            cmd "npm config set proxy #{config[:hosts][:npm_cache]}", echo: false, assert: false
+            cmd "npm config set proxy #{data.hosts[:npm_cache]}", echo: false, assert: false
           end
         end
 
