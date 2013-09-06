@@ -2,24 +2,26 @@ require 'spec_helper'
 
 describe Travis::Build::Data do
   describe 'parse' do
-    it 'extracts the source_host from an authenticated git url' do
-      data = Travis::Build::Data.new(repository: { source_url: 'git@localhost:foo/bar.git' })
-      data.source_host.should == 'localhost'
-    end
+    %w(github.com localhost some.custom.endpoint.io).each do |host|
+      it "extracts the source_host from an authenticated git url #{host}" do
+        data = Travis::Build::Data.new(repository: { source_url: "git@#{host}:foo/bar.git" })
+        data.source_host.should == host
+      end
 
-    it 'extracts the source_host from an anonymous git url' do
-      data = Travis::Build::Data.new(repository: { source_url: 'git://localhost/foo/bar.git' })
-      data.source_host.should == 'localhost'
-    end
+      it "extracts the source_host from an anonymous git url #{host}" do
+        data = Travis::Build::Data.new(repository: { source_url: "git://#{host}/foo/bar.git" })
+        data.source_host.should == host
+      end
 
-    it 'extracts the source_host from an http url' do
-      data = Travis::Build::Data.new(repository: { source_url: 'http://localhost/foo/bar.git' })
-      data.source_host.should == 'localhost'
-    end
+      it "extracts the source_host from an http url #{host}" do
+        data = Travis::Build::Data.new(repository: { source_url: "http://#{host}/foo/bar.git" })
+        data.source_host.should == host
+      end
 
-    it 'extracts the source_host from an https url' do
-      data = Travis::Build::Data.new(repository: { source_url: 'https://localhost/foo/bar.git' })
-      data.source_host.should == 'localhost'
+      it "extracts the source_host from an https url #{host}" do
+        data = Travis::Build::Data.new(repository: { source_url: "https://#{host}/foo/bar.git" })
+        data.source_host.should == host
+      end
     end
   end
 end
