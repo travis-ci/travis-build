@@ -201,6 +201,17 @@ if [[ $TRAVIS_TEST_RESULT = 0 ]]; then
   ./after_success_2.sh
   echo -en 'travis_fold:end:after_success.2\r'
   travis_finish after_success $?
+
+  travis_start deploy
+  echo -en 'travis_fold:start:deploy.1\r'
+  echo \$\ ./deploy_1.sh
+  ./deploy_1.sh
+  echo -en 'travis_fold:end:deploy.1\r'
+  echo -en 'travis_fold:start:deploy.2\r'
+  echo \$\ ./deploy_2.sh
+  ./deploy_2.sh
+  echo -en 'travis_fold:end:deploy.2\r'
+  travis_finish deploy $?
 fi
 if [[ $TRAVIS_TEST_RESULT != 0 ]]; then
   travis_start after_failure

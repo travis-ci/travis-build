@@ -25,6 +25,7 @@ data = {
   },
   config: {
     rvm: '1.9.3',
+    before_deploy: "foo bar",
     addons: {
       deploy: {
         provider: 'heroku',
