@@ -13,8 +13,12 @@ module Travis
             @config = config.respond_to?(:to_hash) ? config.to_hash : {}
           end
 
-          def after_success
-            script.if(want) { run }
+          def deploy
+            script.if(want) do
+              script.run_stage(:before_deploy)
+              run
+              script.run_stage(:after_deploy)
+            end
           end
 
           private

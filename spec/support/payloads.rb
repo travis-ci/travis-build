@@ -4,10 +4,11 @@ PAYLOADS = {
     'config' => {
       'env' => ['FOO=foo', 'SECURE BAR=bar'],
       'before_install' => ['./before_install_1.sh', './before_install_2.sh'],
-      'before_script'  => ['./before_script_1.sh', './before_script_2.sh'],
-      'after_script'   => ['./after_script_1.sh', './after_script_2.sh'],
-      'after_success'  => ['./after_success_1.sh', './after_success_2.sh'],
-      'after_failure'  => ['./after_failure_1.sh', './after_failure_2.sh']
+      'before_script'  => ['./before_script_1.sh',  './before_script_2.sh'],
+      'after_script'   => ['./after_script_1.sh',   './after_script_2.sh'],
+      'after_success'  => ['./after_success_1.sh',  './after_success_2.sh'],
+      'after_failure'  => ['./after_failure_1.sh',  './after_failure_2.sh'],
+      'deploy'         => ['./deploy_1.sh',         './deploy_2.sh']
     },
     'repository' => {
       'slug' => 'travis-ci/travis-ci',
