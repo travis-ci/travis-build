@@ -9,12 +9,10 @@ describe Travis::Build::Script::Addons::CodeClimate do
 
   context 'without credentials' do
     let(:config) { true }
-
-
   end
 
   context 'with a token' do
-    let(:config) { { :token => '1234' } }
+    let(:config) { { :repo_token => '1234' } }
 
     it 'exports CODECLIMATE_REPO_TOKEN' do
       script.expects(:set).with('CODECLIMATE_REPO_TOKEN', '1234', echo: false, assert: false)
@@ -23,7 +21,7 @@ describe Travis::Build::Script::Addons::CodeClimate do
   end
 
   context 'without a token' do
-    let(:config) { {}}
+    let(:config) { {} }
 
     it "doesn't export CODECLIMATE_REPO_TOKEN" do
       script.expects(:set).with('CODECLIMATE_REPO_TOKEN', '1234', echo: false, assert: false).never
