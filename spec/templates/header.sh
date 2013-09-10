@@ -19,6 +19,7 @@ stubs=(
   sbt
   curl cp bash mv tar
   /Users/travis/travis-utils/osx-cibuild.sh xcodebuild pod motion xctool
+  sudo
 )
 for stub in ${stubs[*]}; do
   eval "$stub() { builtin echo $stub \$@; }"
