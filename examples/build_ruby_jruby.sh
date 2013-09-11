@@ -158,19 +158,19 @@ travis_finish before_install $?
 
 travis_start install
 if [[ -f Gemfile ]]; then
+if [[ -f Gemfile.lock ]]; then
   echo -en 'travis_fold:start:install\r'
   echo \$\ bundle\ install\ --deployment
   travis_retry bundle install --deployment
   travis_assert
   echo -en 'travis_fold:end:install\r'
-if [[ -f Gemfile.lock ]]; then
 else
-fi
   echo -en 'travis_fold:start:install\r'
   echo \$\ bundle\ install
   travis_retry bundle install
   travis_assert
   echo -en 'travis_fold:end:install\r'
+fi
 fi
 travis_finish install $?
 

@@ -22,12 +22,12 @@ module Travis
 
         def install
           gemfile? do |sh|
-            sh.if "-f #{config[:gemfile]}.lock" do
-              sh.cmd bundler_command("--deployment"), fold: 'install', retry: true
+            sh.if "-f #{config[:gemfile]}.lock" do |sub|
+              sub.cmd bundler_command("--deployment"), fold: 'install', retry: true
             end
 
-            sh.else do
-              sh.cmd bundler_command, fold: 'install', retry: true
+            sh.else do |sub|
+              sub.cmd bundler_command, fold: 'install', retry: true
             end
           end
         end
