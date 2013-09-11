@@ -45,6 +45,10 @@ module Travis
         data[:config]
       end
 
+      def hosts
+        data[:hosts] || {}
+      end
+
       def env_vars
         @env_vars ||= Env.new(self).vars
       end
@@ -55,6 +59,10 @@ module Travis
 
       def secure_env_enabled?
         job[:secure_env_enabled]
+      end
+
+      def source_host
+        source_url =~ %r(^(?:https?|git)(?:://|@)([^/]*?)(?:/|:)) && $1
       end
 
       def source_url

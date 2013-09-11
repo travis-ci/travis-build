@@ -2,6 +2,7 @@ require 'travis/build/script/addons/deploy'
 require 'travis/build/script/addons/firefox'
 require 'travis/build/script/addons/hosts'
 require 'travis/build/script/addons/sauce_connect'
+require 'travis/build/script/addons/code_climate'
 
 module Travis
   module Build
@@ -12,6 +13,7 @@ module Travis
           firefox:       Firefox,
           hosts:         Hosts,
           sauce_connect: SauceConnect,
+          code_climate:  CodeClimate,
         }
 
         def run_addons(stage)
