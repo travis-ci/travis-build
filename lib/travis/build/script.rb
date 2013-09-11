@@ -6,30 +6,31 @@ require 'erb'
 module Travis
   module Build
     class Script
-      autoload :Addons,     'travis/build/script/addons'
-      autoload :C,          'travis/build/script/c'
-      autoload :Cpp,        'travis/build/script/cpp'
-      autoload :Clojure,    'travis/build/script/clojure'
-      autoload :Erlang,     'travis/build/script/erlang'
-      autoload :Git,        'travis/build/script/git'
-      autoload :Go,         'travis/build/script/go'
-      autoload :Groovy,     'travis/build/script/groovy'
-      autoload :Generic,    'travis/build/script/generic'
-      autoload :Haskell,    'travis/build/script/haskell'
-      autoload :Helpers,    'travis/build/script/helpers'
-      autoload :Jdk,        'travis/build/script/jdk'
-      autoload :Jvm,        'travis/build/script/jvm'
-      autoload :NodeJs,     'travis/build/script/node_js'
-      autoload :ObjectiveC, 'travis/build/script/objective_c'
-      autoload :Perl,       'travis/build/script/perl'
-      autoload :Php,        'travis/build/script/php'
-      autoload :PureJava,   'travis/build/script/pure_java'
-      autoload :Python,     'travis/build/script/python'
-      autoload :Ruby,       'travis/build/script/ruby'
-      autoload :RVM,        'travis/build/script/rvm'
-      autoload :Scala,      'travis/build/script/scala'
-      autoload :Services,   'travis/build/script/services'
-      autoload :Stages,     'travis/build/script/stages'
+      autoload :Addons,         'travis/build/script/addons'
+      autoload :C,              'travis/build/script/c'
+      autoload :Cpp,            'travis/build/script/cpp'
+      autoload :Clojure,        'travis/build/script/clojure'
+      autoload :DirectoryCache, 'travis/build/script/directory_cache'
+      autoload :Erlang,         'travis/build/script/erlang'
+      autoload :Git,            'travis/build/script/git'
+      autoload :Go,             'travis/build/script/go'
+      autoload :Groovy,         'travis/build/script/groovy'
+      autoload :Generic,        'travis/build/script/generic'
+      autoload :Haskell,        'travis/build/script/haskell'
+      autoload :Helpers,        'travis/build/script/helpers'
+      autoload :Jdk,            'travis/build/script/jdk'
+      autoload :Jvm,            'travis/build/script/jvm'
+      autoload :NodeJs,         'travis/build/script/node_js'
+      autoload :ObjectiveC,     'travis/build/script/objective_c'
+      autoload :Perl,           'travis/build/script/perl'
+      autoload :Php,            'travis/build/script/php'
+      autoload :PureJava,       'travis/build/script/pure_java'
+      autoload :Python,         'travis/build/script/python'
+      autoload :Ruby,           'travis/build/script/ruby'
+      autoload :RVM,            'travis/build/script/rvm'
+      autoload :Scala,          'travis/build/script/scala'
+      autoload :Services,       'travis/build/script/services'
+      autoload :Stages,         'travis/build/script/stages'
 
       TEMPLATES_PATH = File.expand_path('../script/templates', __FILE__)
 
@@ -44,7 +45,7 @@ module Travis
         end
       end
 
-      include Addons, Git, Helpers, Services, Stages
+      include Addons, Git, Helpers, Services, Stages, DirectoryCache
 
       attr_reader :stack, :data, :options
 
@@ -74,6 +75,7 @@ module Travis
         end
 
         def setup
+          setup_directory_cache
           start_services
           setup_apt_cache if Array(config[:cache]).include?('apt')
         end

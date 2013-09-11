@@ -24,6 +24,7 @@ module Travis
           gemfile? do |sh|
             sh.if "-f #{config[:gemfile]}.lock" do |sub|
               sub.cmd bundler_command("--deployment"), fold: 'install', retry: true
+              directory_cache.add(sh, "vendor/bundle") unless bundler_args
             end
 
             sh.else do |sub|

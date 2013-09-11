@@ -49,6 +49,10 @@ module Travis
         data[:hosts] || {}
       end
 
+      def cache_options
+        data[:cache_options] || {}
+      end
+
       def env_vars
         @env_vars ||= Env.new(self).vars
       end
