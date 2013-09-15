@@ -10,14 +10,18 @@ module Travis
           def initialize(script, config)
             @silent = false
             @script = script
-            @config = config.respond_to?(:to_hash) ? config.to_hash : {}
+            @config_orig = config.respond_to?(:to_hash) ? config.to_hash : {} unless config.is_a? Array
+            @config_orig = config.is_a?(Array) ? config : [config]
           end
 
           def deploy
-            script.if(want) do
-              script.run_stage(:before_deploy)
-              run
-              script.run_stage(:after_deploy)
+            @config_orig.each do |c|
+              @config = c
+              script.if(want) do
+                script.run_stage(:before_deploy)
+                run
+                script.run_stage(:after_deploy)
+              end
             end
           end
 
