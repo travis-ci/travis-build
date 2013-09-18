@@ -17,11 +17,15 @@ module Travis
           end
 
           def add(sh, path)
-            run(sh, "add", path)
+            run(sh, "add", path) if path
           end
 
           def fetch(sh)
             run(sh, "fetch", fetch_url)
+          end
+
+          def push(sh)
+            run(sh, "push", push_url)
           end
 
           def fetch_url
@@ -50,15 +54,24 @@ module Travis
         end
 
         def directory_cache
-          @directory_cache ||= data.config[:cache_directories] ? S3.new(data.cache_options) : Dummy.new
+          @directory_cache ||= case type = data.cache_options[:type]
+                               when :s3 then S3.new(data.cache_options)
+                               when nil then Dummy.new
+                               else raise ArgumentError, "unknown caching mode %p" % type
+                               end
+        end
+
+        def cache_directories
+          return [] unless cache? :directories
+          config[:cache]
         end
 
         def setup_directory_cache
           directory_cache.install(self)
           directory_cache.fetch(self)
-          Array(data.config[:cache_directories]).each do |entry|
-            directory_cache.add(self, entry) if entry.is_a? String
-          end
+          Array(data.cache[:directories]).each do |entry|
+            directory_cache.add(self, entry)
+          end if data.cache? :directories
         end
       end
     end

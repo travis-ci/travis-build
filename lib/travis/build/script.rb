@@ -77,7 +77,7 @@ module Travis
         def setup
           setup_directory_cache
           start_services
-          setup_apt_cache if Array(config[:cache]).include?('apt')
+          setup_apt_cache if data.cache? :apt
         end
 
         def announce

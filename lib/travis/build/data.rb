@@ -25,6 +25,11 @@ module Travis
         }
       }
 
+      DEFAULT_CACHES = {
+        apt:     false,
+        bundler: false
+      }
+
       attr_reader :data
 
       def initialize(data, defaults = {})
@@ -51,6 +56,20 @@ module Travis
 
       def cache_options
         data[:cache_options] || {}
+      end
+
+      def cache(input = config[:cache])
+        case input
+        when Hash           then input
+        when Array          then input.map { |e| cache(e) }.inject(:merge)
+        when String, Symbol then { input.to_s => true }
+        else input.to_h
+        end
+      end
+
+      def cache?(type)
+        type &&= type.to_s
+        !!cache.fetch(type) { DEFAULT_CACHES[type] }
       end
 
       def env_vars

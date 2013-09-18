@@ -24,7 +24,7 @@ module Travis
           gemfile? do |sh|
             sh.if "-f #{config[:gemfile]}.lock" do |sub|
               sub.cmd bundler_command("--deployment"), fold: 'install', retry: true
-              directory_cache.add(sh, "vendor/bundle") unless bundler_args
+              directory_cache.add(sh, bundler_path) if data.cache? :bundler
             end
 
             sh.else do |sub|
@@ -38,6 +38,10 @@ module Travis
         end
 
         private
+
+          def bundler_path
+            "vendor/bundle" unless bundler_args # TODO
+          end
 
           def bundler_command(args = nil)
             args = bundler_args if bundler_args
