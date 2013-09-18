@@ -29,6 +29,8 @@ module Travis
 
             sh.else do |sub|
               sub.cmd bundler_command, fold: 'install', retry: true
+              # cache bundler if it has been explicitely enabled
+              directory_cache.add(sh, bundler_path) if data.cache? :bundler, false
             end
           end
         end

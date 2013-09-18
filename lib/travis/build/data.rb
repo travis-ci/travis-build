@@ -67,9 +67,9 @@ module Travis
         end
       end
 
-      def cache?(type)
+      def cache?(type, default = DEFAULT_CACHES[type])
         type &&= type.to_s
-        !!cache.fetch(type) { DEFAULT_CACHES[type] }
+        !!cache.fetch(type) { default }
       end
 
       def env_vars
