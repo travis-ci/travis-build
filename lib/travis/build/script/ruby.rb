@@ -28,7 +28,8 @@ module Travis
             end
 
             sh.else do |sub|
-              sub.cmd bundler_command, fold: 'install', retry: true
+              path_arg = "--path=#{bundler_path}" if bundler_path
+              sub.cmd bundler_command(path_arg), fold: 'install', retry: true
               # cache bundler if it has been explicitely enabled
               directory_cache.add(sh, bundler_path) if data.cache? :bundler, false
             end
@@ -42,7 +43,11 @@ module Travis
         private
 
           def bundler_path
-            "vendor/bundle" unless bundler_args # TODO
+            if bundler_args
+              bundler_args.join(" ")[/--path[= ](/\s+/)/, 1]
+            else
+              "${BUNDLE_PATH:-vendor/bundle}"
+            end
           end
 
           def bundler_command(args = nil)
