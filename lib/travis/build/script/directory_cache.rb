@@ -1,3 +1,7 @@
+require 'openssl'
+require 'digest/sha1'
+require 'addressable/uri'
+
 module Travis
   module Build
     class Script
@@ -6,7 +10,17 @@ module Travis
           # TODO: Switch to different branch from master?
           CASHER_URL = "https://raw.github.com/rkh/casher/master/bin/casher"
 
+          attr_accessor :digest, :fetch_timeout, :push_timeout, :bucket, :secret_access_key, :access_key_id, :uri_parser, :host, :scheme
+
           def initialize(options)
+            @digest            = OpenSSL::Digest::Digest.new('sha1')
+            @fetch_timeout     = options.fetch(:fetch_timeout)
+            @push_timeout      = options.fetch(:push_timeout)
+            @bucket            = options[:s3].fetch(:bucket)
+            @secret_access_key = options[:s3].fetch(:secret_access_key)
+            @access_key_id     = options[:s3].fetch(:access_key_id)
+            @scheme            = options[:s3][:scheme] || "https"
+            @host              = options[:s3][:host]   || "s3.amazonaws.com"
           end
 
           def install(sh)
@@ -29,14 +43,27 @@ module Travis
           end
 
           def fetch_url
-            raise NotImplementedError
+            url("GET", slug, expires: Time.now + fetch_timeout)
           end
 
           def push_url
-            raise NotImplementedError
+            url("PUT", slug, expires: Time.now + push_timeout)
           end
 
           private
+
+            def slug
+              raise NotImplementedError
+            end
+
+            def url(verb, path, options = {})
+              path    = bucket + path
+              expires = Integer(options[:expires])
+              string  = [ verb, options[:md5], options[:content_type], expires, path ].join("\n")
+              hmac    = OpenSSL::HMAC.digest(digest, secret_access_key, string)
+              Addressable::URI.new(host: host, scheme: scheme, path: path, query_values: {
+                AWSAccessKeyId: access_key_id, Expires: expires, Signature: [hmac].pack("m0") })
+            end
 
             def binary
               "$CASHER_DIR/bin/casher"

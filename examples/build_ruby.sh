@@ -158,8 +158,8 @@ if [[ -f Gemfile.lock ]]; then
   echo -en 'travis_fold:end:install\r'
 else
   echo -en 'travis_fold:start:install\r'
-  echo \$\ bundle\ install
-  travis_retry bundle install
+  echo \$\ bundle\ install\ --path\=\$\{BUNDLE_PATH:-vendor/bundle\}
+  travis_retry bundle install --path=${BUNDLE_PATH:-vendor/bundle}
   travis_assert
   echo -en 'travis_fold:end:install\r'
 fi
