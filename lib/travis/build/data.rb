@@ -63,6 +63,7 @@ module Travis
         when Hash           then input
         when Array          then input.map { |e| cache(e) }.inject(:merge)
         when String, Symbol then { input.to_s => true }
+        when nil            then {} # for ruby 1.9
         else input.to_h
         end
       end
