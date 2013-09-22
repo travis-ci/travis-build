@@ -120,6 +120,10 @@ travis_assert
 travis_finish setup $?
 
 travis_start announce
+echo \$\ java\ -version
+java -version
+echo \$\ javac\ -version
+javac -version
 echo Using\ Scala\ 2.10.0
 travis_finish announce $?
 
@@ -137,6 +141,21 @@ echo -en 'travis_fold:end:before_install.2\r'
 travis_finish before_install $?
 
 travis_start install
+if [[ ! -d project && ! -f build.sbt ]]; then
+if [[ -f build.gradle ]]; then
+  echo -en 'travis_fold:start:install\r'
+  echo \$\ gradle\ assemble
+  travis_retry gradle assemble
+  travis_assert
+  echo -en 'travis_fold:end:install\r'
+elif [[ -f pom.xml ]]; then
+  echo -en 'travis_fold:start:install\r'
+  echo \$\ mvn\ install\ -DskipTests\=true\ -B
+  travis_retry mvn install -DskipTests=true -B
+  travis_assert
+  echo -en 'travis_fold:end:install\r'
+fi
+fi
 travis_finish install $?
 
 travis_start before_script
@@ -156,12 +175,17 @@ travis_start script
 if [[ -d project || -f build.sbt ]]; then
   echo \$\ sbt\ \+\+2.10.0\ test
   sbt ++2.10.0 test
-elif [[ -f build.gradle ]]; then
+else
+if [[ -f build.gradle ]]; then
   echo \$\ gradle\ check
   gradle check
+elif [[ -f pom.xml ]]; then
+  echo \$\ mvn\ test\ -B
+  mvn test -B
 else
-  echo \$\ mvn\ test
-  mvn test
+  echo \$\ ant\ test
+  ant test
+fi
 fi
 travis_result $?
 travis_finish script $TRAVIS_TEST_RESULT
