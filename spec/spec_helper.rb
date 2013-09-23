@@ -79,6 +79,8 @@ RSpec.configure do |c|
   c.before :each do
     FileUtils.rm_rf 'tmp'
     FileUtils.mkdir 'tmp'
+    FileUtils.rm_rf 'examples'
+    FileUtils.mkdir 'examples'
   end
 
   c.before :each do
