@@ -78,6 +78,6 @@ shared_examples_for 'a build script' do
   end
 
   it "fixed the DNS entries in /etc/resolv.conf" do
-    subject.should include(%Q{echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf})
+    subject.should include(%Q{echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf 2>&1 > /dev/null})
   end
 end
