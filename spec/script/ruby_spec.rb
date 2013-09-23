@@ -16,6 +16,10 @@ describe Travis::Build::Script::Ruby do
     should set 'TRAVIS_RUBY_VERSION', 'default'
   end
 
+  it 'tries to update RVM' do
+    should setup 'rvm get latest-minor'
+  end
+
   it 'sets the default ruby if no :rvm config given' do
     should setup 'rvm use default'
   end
