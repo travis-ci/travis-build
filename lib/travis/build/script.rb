@@ -102,7 +102,7 @@ module Travis
         end
 
         def fix_resolv_conf
-          cmd %Q{echo 'nameserver 199.91.168.70\\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf}, assert: false
+          cmd %Q{echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf}, assert: false
         end
     end
   end
