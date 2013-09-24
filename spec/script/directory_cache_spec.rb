@@ -13,7 +13,7 @@ describe Travis::Build::Script::DirectoryCache do
   }}
 
   subject(:directory_cache) do
-    Travis::Build::Script::DirectoryCache::S3.new(cache_options, repository, job, 10)
+    Travis::Build::Script::DirectoryCache::S3.new(cache_options, repository, job, Time.at(10))
   end
 
   specify :install do
