@@ -5,7 +5,7 @@ module Travis
         class Deploy
           VERSIONED_RUNTIMES = [:jdk, :node, :perl, :php, :python, :ruby, :scala, :node]
           USE_RUBY           = '1.9.3'
-          attr_accessor :script, :config
+          attr_accessor :script, :config, :allow_failure
 
           def initialize(script, config)
             @silent = false
@@ -17,6 +17,7 @@ module Travis
           def deploy
             @config_orig.each do |c|
               @config = c
+              allow_failure = config.delete(:allow_failure)
               script.if(want) do
                 script.run_stage(:before_deploy)
                 run
@@ -65,13 +66,13 @@ module Travis
 
             def run
               script.fold('dpl.0') { install }
-              cmd("dpl #{options} --fold || (#{die})", echo: false, assert: false)
+              cmd("dpl #{options} --fold || (#{die})", echo: false, assert: !allow_failure)
             end
 
             def install(edge = config[:edge])
               command = "gem install dpl"
               command << " --pre" if edge
-              cmd(command, echo: false, assert: true)
+              cmd(command, echo: false, assert: !allow_failure)
             end
 
             def die
