@@ -10,9 +10,9 @@ module Travis
           # TODO: Switch to different branch from master?
           CASHER_URL = "https://raw.github.com/rkh/casher/master/bin/casher"
 
-          attr_accessor :digest, :fetch_timeout, :push_timeout, :bucket, :secret_access_key, :access_key_id, :uri_parser, :host, :scheme
+          attr_accessor :digest, :fetch_timeout, :push_timeout, :bucket, :secret_access_key, :access_key_id, :uri_parser, :host, :scheme, :job, :repository, :start
 
-          def initialize(options)
+          def initialize(options, repository, job, start = Time.now)
             @digest            = OpenSSL::Digest::Digest.new('sha1')
             @fetch_timeout     = options.fetch(:fetch_timeout)
             @push_timeout      = options.fetch(:push_timeout)
@@ -21,6 +21,9 @@ module Travis
             @access_key_id     = options[:s3].fetch(:access_key_id)
             @scheme            = options[:s3][:scheme] || "https"
             @host              = options[:s3][:host]   || "s3.amazonaws.com"
+            @job               = job
+            @repository        = repository
+            @start             = start
           end
 
           def install(sh)
@@ -43,17 +46,18 @@ module Travis
           end
 
           def fetch_url
-            url("GET", slug, expires: Time.now + fetch_timeout)
+            url("GET", slug, expires: start + fetch_timeout)
           end
 
           def push_url
-            url("PUT", slug, expires: Time.now + push_timeout)
+            url("PUT", slug, expires: start + push_timeout)
           end
 
           private
 
             def slug
-              raise NotImplementedError
+              # this assumes that the job number is deterministic depending on the configuration
+              repository.fetch(:github_id).to_s + "-" + job[:number].to_s
             end
 
             def url(verb, path, options = {})
@@ -82,7 +86,7 @@ module Travis
 
         def directory_cache
           @directory_cache ||= case type = data.cache_options[:type]
-                               when :s3 then S3.new(data.cache_options)
+                               when :s3 then S3.new(data.cache_options, data.repository, data.job)
                                when nil then Dummy.new
                                else raise ArgumentError, "unknown caching mode %p" % type
                                end

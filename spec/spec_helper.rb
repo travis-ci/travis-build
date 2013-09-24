@@ -2,6 +2,7 @@ require 'fileutils'
 require 'travis/build'
 
 require 'support/matchers'
+require 'support/mock_shell'
 require 'support/payloads'
 
 require 'shared/git'
