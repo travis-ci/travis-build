@@ -76,4 +76,8 @@ shared_examples_for 'a build script' do
     data['hosts'] = nil
     subject.should_not include(%Q{echo 'Acquire::http { Proxy "http://cache.example.com:80"; };' | sudo tee /etc/apt/apt.conf.d/01proxy})
   end
+
+  it "fixed the DNS entries in /etc/resolv.conf" do
+    subject.should include(%Q{echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf 2>&1 > /dev/null})
+  end
 end
