@@ -11,6 +11,7 @@ module Travis
             @silent = false
             @script = script
             @config = config.respond_to?(:to_hash) ? config.to_hash : {}
+            @allow_failure = config.delete(:allow_failure)
           end
 
           def deploy
@@ -61,13 +62,13 @@ module Travis
 
             def run
               script.fold('dpl.0') { install }
-              cmd("dpl #{options} --fold || (#{die})", echo: false, assert: !config[:allow_failure])
+              cmd("dpl #{options} --fold || (#{die})", echo: false, assert: !@allow_failure)
             end
 
             def install(edge = config[:edge])
               command = "gem install dpl"
               command << " --pre" if edge
-              cmd(command, echo: false, assert: !config[:allow_failure])
+              cmd(command, echo: false, assert: !@allow_failure)
             end
 
             def die
