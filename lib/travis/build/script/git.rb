@@ -36,7 +36,7 @@ module Travis
 
             # BatchMode - If set to 'yes', passphrase/password querying will be disabled.
             # TODO ... how to solve StrictHostKeyChecking correctly? deploy a knownhosts file?
-            cmd 'echo -e "Host github.com\n\tBatchMode yes\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config', echo: false, log: false
+            cmd %(echo -e "Host #{data.source_host}\n\tBatchMode yes\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config), echo: false, log: false
           end
 
           def download_tarball

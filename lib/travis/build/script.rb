@@ -75,6 +75,8 @@ module Travis
 
         def setup
           start_services
+          setup_apt_cache if Array(config[:cache]).include?('apt')
+          fix_resolv_conf
         end
 
         def announce
@@ -90,6 +92,17 @@ module Travis
             logs[type] = log if options[:logs][type] rescue nil
             logs
           end
+        end
+
+        def setup_apt_cache
+          if data.hosts && data.hosts[:apt_cache]
+            cmd 'echo -e "\033[33;1mSetting up APT cache\033[0m"', assert: false, echo: false
+            cmd %Q{echo 'Acquire::http { Proxy "#{data.hosts[:apt_cache]}"; };' | sudo tee /etc/apt/apt.conf.d/01proxy  > /dev/null 2>&1}, echo: false, assert: false, log: false
+          end
+        end
+
+        def fix_resolv_conf
+          cmd %Q{echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf 2>&1 > /dev/null}, assert: false, echo: false, log: false
         end
     end
   end

@@ -19,6 +19,22 @@ what commands are run. The examples are generated when the test suite is run.
 
     bundle exec rspec spec
 
+## Use as addon for CLI
+
+You can set travis-build up as a plugin for the [command line client](https://github.com/travis-ci/travis):
+
+    ln -s PATH_TO_TRAVIS_BUILD ~/.travis/travis-build
+
+Now you can run one or many stages locally (defaults to script stage):
+
+    $ travis run
+    ... executes test ...
+    $ travis run install
+    ... installs dependencies ...
+    $ travis run install script
+    ... installs dependencies ...
+    ... executes test ...
+
 ## License & copyright information
 
 See LICENSE file.

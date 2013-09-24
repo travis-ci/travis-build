@@ -135,7 +135,13 @@ echo -en 'travis_fold:end:before_install.2\r'
 travis_finish before_install $?
 
 travis_start install
-if [[ -f build.gradle ]]; then
+if [[ -f ./gradlew ]]; then
+  echo -en 'travis_fold:start:install\r'
+  echo \$\ ./gradlew\ assemble
+  travis_retry ./gradlew assemble
+  travis_assert
+  echo -en 'travis_fold:end:install\r'
+elif [[ -f build.gradle ]]; then
   echo -en 'travis_fold:start:install\r'
   echo \$\ gradle\ assemble
   travis_retry gradle assemble
@@ -164,7 +170,10 @@ echo -en 'travis_fold:end:before_script.2\r'
 travis_finish before_script $?
 
 travis_start script
-if [[ -f build.gradle ]]; then
+if [[ -f ./gradlew ]]; then
+  echo \$\ ./gradlew\ check
+  ./gradlew check
+elif [[ -f build.gradle ]]; then
   echo \$\ gradle\ check
   gradle check
 elif [[ -f pom.xml ]]; then
@@ -188,6 +197,17 @@ if [[ $TRAVIS_TEST_RESULT = 0 ]]; then
   ./after_success_2.sh
   echo -en 'travis_fold:end:after_success.2\r'
   travis_finish after_success $?
+
+  travis_start deploy
+  echo -en 'travis_fold:start:deploy.1\r'
+  echo \$\ ./deploy_1.sh
+  ./deploy_1.sh
+  echo -en 'travis_fold:end:deploy.1\r'
+  echo -en 'travis_fold:start:deploy.2\r'
+  echo \$\ ./deploy_2.sh
+  ./deploy_2.sh
+  echo -en 'travis_fold:end:deploy.2\r'
+  travis_finish deploy $?
 fi
 if [[ $TRAVIS_TEST_RESULT != 0 ]]; then
   travis_start after_failure

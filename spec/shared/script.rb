@@ -59,4 +59,25 @@ shared_examples_for 'a build script' do
       should fold script, "#{script}.2"
     end
   end
+
+  it "sets up an apt cache if the option is enabled" do
+    data['config']['cache'] = ['apt']
+    data['hosts']= {'apt_cache' => 'http://cache.example.com:80'}
+    subject.should include(%Q{echo 'Acquire::http { Proxy "http://cache.example.com:80"; };' | sudo tee /etc/apt/apt.conf.d/01proxy})
+  end
+
+  it "doesn't set up an apt cache when the cache list is empty" do
+    data['hosts'] = {'apt_cache' => 'http://cache.example.com:80'}
+    subject.should_not include(%Q{echo 'Acquire::http { Proxy "http://cache.example.com:80"; };' | sudo tee /etc/apt/apt.conf.d/01proxy})
+  end
+
+  it "doesn't set up an apt cache when the host isn't set" do
+    data['config']['cache'] = ['apt']
+    data['hosts'] = nil
+    subject.should_not include(%Q{echo 'Acquire::http { Proxy "http://cache.example.com:80"; };' | sudo tee /etc/apt/apt.conf.d/01proxy})
+  end
+
+  it "fixed the DNS entries in /etc/resolv.conf" do
+    subject.should include(%Q{echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf 2>&1 > /dev/null})
+  end
 end
