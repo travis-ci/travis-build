@@ -74,6 +74,10 @@ module Travis
           end
         end
 
+        def finish
+          push_directory_cache
+        end
+
         def setup
           setup_directory_cache
           start_services

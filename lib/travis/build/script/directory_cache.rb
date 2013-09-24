@@ -104,6 +104,12 @@ module Travis
             directory_cache.add(self, entry)
           end if data.cache? :directories
         end
+
+        def push_directory_cache
+          # only publish cache from master
+          return if data.branch != 'master'
+          directory_cache.push(self)
+        end
       end
     end
   end
