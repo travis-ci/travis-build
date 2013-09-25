@@ -17,7 +17,7 @@ module Travis
           def deploy
             @config_orig.each do |c|
               @config = c
-              allow_failure = config.delete(:allow_failure)
+              @allow_failure = config.delete(:allow_failure)
               script.if(want) do
                 script.run_stage(:before_deploy)
                 run
