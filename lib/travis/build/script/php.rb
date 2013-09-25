@@ -6,6 +6,10 @@ module Travis
           php: '5.3'
         }
 
+        def cache_slug
+          super << "--php-" << config[:php].to_s
+        end
+
         def export
           super
           set 'TRAVIS_PHP_VERSION', config[:php], echo: false

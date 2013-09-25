@@ -7,6 +7,10 @@ module Travis
           go: '1.0.3'
         }
 
+        def cache_slug
+          super << "--go-" << config[:go].to_s
+        end
+
         def export
           super
           set 'TRAVIS_GO_VERSION', go_version, echo: false
