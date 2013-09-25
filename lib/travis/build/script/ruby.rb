@@ -10,6 +10,11 @@ module Travis
         include Jdk
         include RVM
 
+        def cache_slug
+          # ruby version is added by RVM]
+          super << "--gemfile-" << config[:gemfile].to_s
+        end
+
         def setup
           super
           setup_bundler

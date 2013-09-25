@@ -62,6 +62,10 @@ module Travis
         sh.to_s
       end
 
+      def cache_slug
+        "cache"
+      end
+
       private
 
         def config

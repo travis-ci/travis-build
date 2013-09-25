@@ -1,10 +1,11 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::DirectoryCache do
-  let(:fetch_url) { "https://s3.amazonaws.com/s3_bucket42/0bf86aaf197f65ea3aef09f3aab73f96?AWSAccessKeyId=s3_access_key_id&Expires=30&Signature=KhHvrAnK25xATKu%2F%2B2iFlaACKEE%3D" }
-  let(:push_url) { "https://s3.amazonaws.com/s3_bucket42/0bf86aaf197f65ea3aef09f3aab73f96?AWSAccessKeyId=s3_access_key_id&Expires=40&Signature=jkO%2BCGjUzYo0rAhNngxOLHIFXLw%3D" }
+  let(:url) { "https://s3.amazonaws.com/s3_bucket/42/example.tbz?AWSAccessKeyId=s3_access_key_id" }
+  let(:fetch_url) { "#{url}&Expires=30&Signature=R%2FJ%2B7kPMmMCPWC15qqv7DFpAK0c%3D" }
+  let(:push_url) { "#{url}&Expires=40&Signature=SDuLvBYHMJXYhK50hQFI%2BiZcUJ4%3D" }
   let(:repository) {{ github_id: 42 }}
-  let(:config) {{ rvm: "2.0.0" }}
+  let(:slug) { "example" }
   let(:sh) { MockShell.new }
   let(:cache_options) {{
     fetch_timeout: 20,
@@ -13,7 +14,7 @@ describe Travis::Build::Script::DirectoryCache do
   }}
 
   subject(:directory_cache) do
-    Travis::Build::Script::DirectoryCache::S3.new(cache_options, repository, config, Time.at(10))
+    Travis::Build::Script::DirectoryCache::S3.new(cache_options, repository, slug, Time.at(10))
   end
 
   specify :install do

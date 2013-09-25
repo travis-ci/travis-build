@@ -2,6 +2,10 @@ module Travis
   module Build
     class Script
       module RVM
+        def cache_slug
+          super << "--rvm-" << ruby_version.to_s
+        end
+
         def export
           super
           set 'TRAVIS_RUBY_VERSION', config[:rvm], echo: false

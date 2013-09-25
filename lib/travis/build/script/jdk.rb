@@ -20,6 +20,11 @@ module Travis
           end
         end
 
+        def cache_slug
+          return super unless uses_jdk?
+          super << "--jdk-" << config[:jdk].to_s
+        end
+
         private
 
           def uses_java?
