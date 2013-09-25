@@ -1,5 +1,6 @@
 require 'openssl'
 require 'digest/sha1'
+require 'digest/md5'
 require 'addressable/uri'
 
 module Travis
@@ -10,9 +11,9 @@ module Travis
           # TODO: Switch to different branch from master?
           CASHER_URL = "https://raw.github.com/rkh/casher/master/bin/casher"
 
-          attr_accessor :digest, :fetch_timeout, :push_timeout, :bucket, :secret_access_key, :access_key_id, :uri_parser, :host, :scheme, :job, :repository, :start
+          attr_accessor :digest, :fetch_timeout, :push_timeout, :bucket, :secret_access_key, :access_key_id, :uri_parser, :host, :scheme, :config, :repository, :start
 
-          def initialize(options, repository, job, start = Time.now)
+          def initialize(options, repository, config, start = Time.now)
             @digest            = OpenSSL::Digest::Digest.new('sha1')
             @fetch_timeout     = options.fetch(:fetch_timeout)
             @push_timeout      = options.fetch(:push_timeout)
@@ -21,7 +22,7 @@ module Travis
             @access_key_id     = options[:s3].fetch(:access_key_id)
             @scheme            = options[:s3][:scheme] || "https"
             @host              = options[:s3][:host]   || "s3.amazonaws.com"
-            @job               = job
+            @config            = config
             @repository        = repository
             @start             = start
           end
@@ -57,7 +58,21 @@ module Travis
 
             def slug
               # this assumes that the job number is deterministic depending on the configuration
-              repository.fetch(:github_id).to_s + "-" + job[:number].to_s
+              @slug ||= File.join(repository.fetch(:github_id).to_s, config_hash)
+            end
+
+            def config_hash
+              digest = Digest::MD5.new
+              in_order(config) { |part| digest << part }
+              digest.hexdigest
+            end
+
+            def in_order(object, prefix = "", &block)
+              case object
+              when Hash  then object.keys.sort.each { |k| in_order(object[k], "#{prefix} #{k}", &block) }
+              when Array then object.each { |k| in_order(k, prefix, &block) }
+              else yield "#{prefix} #{object}"
+              end
             end
 
             def url(verb, path, options = {})
@@ -86,7 +101,7 @@ module Travis
 
         def directory_cache
           @directory_cache ||= case type = data.cache_options[:type]
-                               when :s3 then S3.new(data.cache_options, data.repository, data.job)
+                               when :s3 then S3.new(data.cache_options, data.repository, data.config)
                                when nil then Dummy.new
                                else raise ArgumentError, "unknown caching mode %p" % type
                                end
