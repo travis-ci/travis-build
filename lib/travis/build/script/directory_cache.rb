@@ -121,8 +121,8 @@ module Travis
         end
 
         def push_directory_cache
-          # only publish cache from master
-          return if data.branch != 'master'
+          # only publish cache from pushes to master
+          return if data.pull_request or data.branch != 'master'
           directory_cache.push(self)
         end
       end
