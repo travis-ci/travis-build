@@ -84,9 +84,9 @@ module Travis
         end
 
         def directory_cache
-          @directory_cache ||= case type = data.cache_options[:type]
-                               when :s3 then S3.new(data.cache_options, data.repository, cache_slug)
-                               when nil then Dummy.new
+          @directory_cache ||= case type = data.cache_options[:type].to_s
+                               when 's3' then S3.new(data.cache_options, data.repository, cache_slug)
+                               when ''   then Dummy.new
                                else raise ArgumentError, "unknown caching mode %p" % type
                                end
         end
