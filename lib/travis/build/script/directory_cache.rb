@@ -8,7 +8,7 @@ module Travis
       module DirectoryCache
         class S3
           # TODO: Switch to different branch from master?
-          CASHER_URL = "https://raw.github.com/rkh/casher/master/bin/casher"
+          CASHER_URL = "https://raw.github.com/travis-ci/casher/master/bin/casher"
 
           attr_accessor :digest, :fetch_timeout, :push_timeout, :bucket, :secret_access_key, :access_key_id, :uri_parser, :host, :scheme, :slug, :repository, :start
 
