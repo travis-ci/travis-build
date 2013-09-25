@@ -45,6 +45,10 @@ module Travis
           gemfile? then: 'bundle exec rake', else: 'rake'
         end
 
+        def prepare_cache
+          "bundle clean" if bundler_path
+        end
+
         private
 
           def bundler_path
