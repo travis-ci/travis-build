@@ -6,6 +6,10 @@ module Travis
           compiler: 'gcc'
         }
 
+        def cache_slug
+          super << "--compiler-" << config[:compiler].to_s
+        end
+
         def export
           super
           set 'CC', config[:compiler]
