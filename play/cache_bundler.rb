@@ -19,7 +19,7 @@ data = {
   job: {
     id: 1,
     number: '1.1',
-    branch: 'staging',
+    branch: 'master',
     commit: 'a214c21',
     commit_range: 'abcdefg..a214c21',
     pull_request: false
