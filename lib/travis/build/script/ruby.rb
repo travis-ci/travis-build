@@ -28,15 +28,15 @@ module Travis
         def install
           gemfile? do |sh|
             sh.if "-f #{config[:gemfile]}.lock" do |sub|
-              sub.cmd bundler_command("--deployment"), fold: 'install', retry: true
               directory_cache.add(sub, bundler_path) if data.cache? :bundler
+              sub.cmd bundler_command("--deployment"), fold: 'install', retry: true
             end
 
             sh.else do |sub|
-              path_arg = "--path=#{bundler_path}" if bundler_path
-              sub.cmd bundler_command(path_arg), fold: 'install', retry: true
               # cache bundler if it has been explicitely enabled
               directory_cache.add(sub, bundler_path) if data.cache? :bundler, false
+              path_arg = "--path=#{bundler_path}" if bundler_path
+              sub.cmd bundler_command(path_arg), fold: 'install', retry: true
             end
           end
         end
