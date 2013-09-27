@@ -39,11 +39,11 @@ module Travis
           end
 
           def fetch(sh)
-            run(sh, "fetch", Shellwords.escape(fetch_url))
+            run(sh, "fetch", Shellwords.escape(fetch_url.to_s))
           end
 
           def push(sh)
-            run(sh, "push", Shellwords.escape(push_url))
+            run(sh, "push", Shellwords.escape(push_url.to_s))
           end
 
           def fetch_url
@@ -74,7 +74,7 @@ module Travis
             end
 
             def run(sh, command, argument)
-              sh.cmd("#{binary} #{command} #{argument.to_s}")
+              sh.cmd("#{binary} #{command} #{argument}")
             end
         end
 
