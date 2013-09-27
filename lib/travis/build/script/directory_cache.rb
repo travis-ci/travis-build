@@ -74,7 +74,7 @@ module Travis
             end
 
             def run(sh, command, argument)
-              sh.cmd("#{binary} #{command} #{Shellwords.escape(argument)}")
+              sh.cmd("#{binary} #{command} #{Shellwords.escape(argument.to_s)}")
             end
         end
 
