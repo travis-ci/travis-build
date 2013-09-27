@@ -2,8 +2,8 @@ require 'spec_helper'
 
 describe Travis::Build::Script::DirectoryCache do
   let(:url) { "https://s3.amazonaws.com/s3_bucket/42/example.tbz?AWSAccessKeyId=s3_access_key_id" }
-  let(:fetch_url) { "#{url}&Expires=30&Signature=R%2FJ%2B7kPMmMCPWC15qqv7DFpAK0c%3D" }
-  let(:push_url) { "#{url}&Expires=40&Signature=SDuLvBYHMJXYhK50hQFI%2BiZcUJ4%3D" }
+  let(:fetch_url) { Shellwords.escape "#{url}&Expires=30&Signature=R%2FJ%2B7kPMmMCPWC15qqv7DFpAK0c%3D" }
+  let(:push_url) { Shellwords.escape "#{url}&Expires=40&Signature=SDuLvBYHMJXYhK50hQFI%2BiZcUJ4%3D" }
   let(:repository) {{ github_id: 42 }}
   let(:slug) { "example" }
   let(:sh) { MockShell.new }
