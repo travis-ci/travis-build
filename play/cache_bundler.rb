@@ -26,8 +26,8 @@ data = {
   },
   cache_options: {
     type: "s3",
-    fetch_timeout: 20,
-    push_timeout: 30,
+    fetch_timeout: 10*60,
+    push_timeout: 80*60,
     s3: { bucket: 's3_bucket', secret_access_key: 's3_secret_access_key', access_key_id: 's3_access_key_id' }
   },
   config: {

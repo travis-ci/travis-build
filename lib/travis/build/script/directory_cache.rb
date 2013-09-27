@@ -1,6 +1,7 @@
 require 'openssl'
 require 'digest/sha1'
 require 'addressable/uri'
+require 'shellwords'
 
 module Travis
   module Build
@@ -73,7 +74,7 @@ module Travis
             end
 
             def run(sh, command, argument)
-              sh.cmd("#{binary} #{command} #{argument}")
+              sh.cmd("#{binary} #{command} #{Shellwords.escape(argument)}")
             end
         end
 
