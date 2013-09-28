@@ -1,4 +1,5 @@
 require 'openssl'
+require 'base64'
 require 'digest/sha1'
 require 'addressable/uri'
 require 'shellwords'
@@ -11,10 +12,9 @@ module Travis
           # TODO: Switch to different branch from master?
           CASHER_URL = "https://raw.github.com/travis-ci/casher/master/bin/casher"
 
-          attr_accessor :digest, :fetch_timeout, :push_timeout, :bucket, :secret_access_key, :access_key_id, :uri_parser, :host, :scheme, :slug, :repository, :start
+          attr_accessor :fetch_timeout, :push_timeout, :bucket, :secret_access_key, :access_key_id, :uri_parser, :host, :scheme, :slug, :repository, :start
 
           def initialize(options, repository, slug, start = Time.now)
-            @digest            = OpenSSL::Digest::Digest.new('sha1')
             @fetch_timeout     = options.fetch(:fetch_timeout)
             @push_timeout      = options.fetch(:push_timeout)
             @bucket            = options[:s3].fetch(:bucket)
@@ -64,9 +64,9 @@ module Travis
               path    = File.join(bucket, path)
               expires = Integer(options[:expires])
               string  = [ verb, options[:md5], options[:content_type], expires, path ].join("\n")
-              hmac    = OpenSSL::HMAC.digest(digest, secret_access_key, string)
+              hmac    = OpenSSL::HMAC.digest('sha1', secret_access_key, string)
               Addressable::URI.new(host: host, scheme: scheme, path: path, query_values: {
-                AWSAccessKeyId: access_key_id, Expires: expires, Signature: [hmac].pack("m0") })
+                AWSAccessKeyId: access_key_id, Expires: expires, Signature: Base64.encode64(hmac).strip })
             end
 
             def binary
