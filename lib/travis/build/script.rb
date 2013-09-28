@@ -83,10 +83,10 @@ module Travis
         end
 
         def setup
-          setup_directory_cache
           start_services
           setup_apt_cache if data.cache? :apt
           fix_resolv_conf
+          setup_directory_cache
         end
 
         def announce
