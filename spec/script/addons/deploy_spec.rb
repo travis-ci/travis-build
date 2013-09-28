@@ -13,7 +13,7 @@ describe Travis::Build::Script::Addons::Deploy do
       script.expects(:run_stage).with(:before_deploy)
       script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script)
       script.expects(:cmd).with('rvm 1.9.3 do gem install dpl', assert: true, echo: false)
-      script.expects(:cmd).with(<<-DPL.gsub(/\s+/, ' ').strip, assert: true, echo: false)
+      script.expects(:cmd).with(<<-DPL.gsub(/\s+/, ' ').strip, assert: false, echo: false)
         rvm 1.9.3 do dpl --provider="heroku" --password="foo" --email="user@host" --fold ||
         (echo "failed to deploy"; travis_terminate 2)
       DPL
@@ -34,7 +34,7 @@ describe Travis::Build::Script::Addons::Deploy do
       script.expects(:run_stage).with(:before_deploy)
       script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = staging || $TRAVIS_BRANCH = production)').yields(script)
       script.expects(:cmd).with('rvm 1.9.3 do gem install dpl', assert: true, echo: false)
-      script.expects(:cmd).with(<<-DPL.gsub(/\s+/, ' ').strip, assert: true, echo: false)
+      script.expects(:cmd).with(<<-DPL.gsub(/\s+/, ' ').strip, assert: false, echo: false)
         rvm 1.9.3 do dpl --provider="heroku" --app="foo" --fold ||
         (echo "failed to deploy"; travis_terminate 2)
       DPL
@@ -50,7 +50,7 @@ describe Travis::Build::Script::Addons::Deploy do
       script.expects(:run_stage).with(:before_deploy)
       script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master) && ($(git describe --exact-match))').yields(script)
       script.expects(:cmd).with('rvm 1.9.3 do gem install dpl', assert: true, echo: false)
-      script.expects(:cmd).with(<<-DPL.gsub(/\s+/, ' ').strip, assert: true, echo: false)
+      script.expects(:cmd).with(<<-DPL.gsub(/\s+/, ' ').strip, assert: false, echo: false)
         rvm 1.9.3 do dpl --provider="heroku" --fold ||
         (echo "failed to deploy"; travis_terminate 2)
       DPL
@@ -67,8 +67,7 @@ describe Travis::Build::Script::Addons::Deploy do
       script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script)
       script.expects(:cmd).with('rvm 1.9.3 do gem install dpl', assert: false, echo: false)
       script.expects(:cmd).with(<<-DPL.gsub(/\s+/, ' ').strip, assert: false, echo: false)
-        rvm 1.9.3 do dpl --provider="heroku" --password="foo" --email="user@host" --fold ||
-        (echo "failed to deploy"; travis_terminate 2)
+        rvm 1.9.3 do dpl --provider="heroku" --password="foo" --email="user@host" --fold
       DPL
       script.expects(:run_stage).with(:after_deploy)
       subject.deploy

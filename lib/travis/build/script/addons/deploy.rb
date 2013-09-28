@@ -62,13 +62,18 @@ module Travis
 
             def run
               script.fold('dpl.0') { install }
-              cmd("dpl #{options} --fold || (#{die})", echo: false, assert: !allow_failure)
+              cmd(run_command, echo: false, assert: false)
             end
 
             def install(edge = config[:edge])
               command = "gem install dpl"
               command << " --pre" if edge
               cmd(command, echo: false, assert: !allow_failure)
+            end
+
+            def run_command(assert = !allow_failure)
+              return "dpl #{options} --fold" unless assert
+              run_command(false) + " || (#{die})"
             end
 
             def die
