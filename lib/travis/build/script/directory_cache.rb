@@ -74,7 +74,7 @@ module Travis
             end
 
             def run(sh, command, argument)
-              sh.cmd("#{binary} #{command} #{argument}")
+              sh.cmd("#{binary} #{command} #{argument}", echo: false)
             end
         end
 
