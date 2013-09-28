@@ -6,6 +6,10 @@ module Travis
           otp_release: 'R14B04'
         }
 
+        def cache_slug
+          super << "--otp-" << config[:otp_release].to_s
+        end
+
         def export
           super
           set 'TRAVIS_OTP_RELEASE', config[:otp_release], echo: false

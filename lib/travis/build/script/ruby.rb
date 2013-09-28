@@ -10,6 +10,11 @@ module Travis
         include Jdk
         include RVM
 
+        def cache_slug
+          # ruby version is added by RVM]
+          super << "--gemfile-" << config[:gemfile].to_s
+        end
+
         def setup
           super
           setup_bundler
@@ -22,10 +27,16 @@ module Travis
 
         def install
           gemfile? do |sh|
-            unless bundler_args.nil?
-              sh.cmd "bundle install #{bundler_args}", fold: 'install', retry: true
-            else
-              sh.if "-f #{config[:gemfile]}.lock", then: 'bundle install --deployment', else: 'bundle install', fold: 'install', retry: true
+            sh.if "-f #{config[:gemfile]}.lock" do |sub|
+              directory_cache.add(sub, bundler_path) if data.cache? :bundler
+              sub.cmd bundler_command("--deployment"), fold: 'install', retry: true
+            end
+
+            sh.else do |sub|
+              # cache bundler if it has been explicitely enabled
+              directory_cache.add(sub, bundler_path) if data.cache? :bundler, false
+              path_arg = "--path=#{bundler_path}" if bundler_path
+              sub.cmd bundler_command(path_arg), fold: 'install', retry: true
             end
           end
         end
@@ -34,7 +45,24 @@ module Travis
           gemfile? then: 'bundle exec rake', else: 'rake'
         end
 
+        def prepare_cache
+          "bundle clean" if bundler_path
+        end
+
         private
+
+          def bundler_path
+            if bundler_args
+              bundler_args.join(" ")[/--path[= ](\S+)/, 1]
+            else
+              "${BUNDLE_PATH:-vendor/bundle}"
+            end
+          end
+
+          def bundler_command(args = nil)
+            args = bundler_args if bundler_args
+            ["bundle install", args].compact.join(" ")
+          end
 
           def bundler_args
             config[:bundler_args]

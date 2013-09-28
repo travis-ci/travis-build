@@ -10,6 +10,10 @@ module Travis
         NO_REQUIREMENTS = 'Could not locate requirements.txt. Override the install: key in your .travis.yml to install dependencies.'
         NO_SCRIPT       = 'Please override the script: key in your .travis.yml to run tests.'
 
+        def cache_slug
+          super << "--python-" << config[:python].to_s
+        end
+
         def export
           super
           set 'TRAVIS_PYTHON_VERSION', config[:python], echo: false

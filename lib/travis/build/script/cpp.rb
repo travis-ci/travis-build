@@ -6,6 +6,10 @@ module Travis
           compiler: 'g++'
         }
 
+        def cache_slug
+          super << "--compiler-" << config[:compiler].to_s.tr('+', 'p')
+        end
+
         def export
           super
           set 'CXX', cxx

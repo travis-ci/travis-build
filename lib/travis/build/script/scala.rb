@@ -8,6 +8,10 @@ module Travis
           jdk:   'default'
         }
 
+        def cache_slug
+          super << "--scala-" << config[:scala].to_s
+        end
+
         def export
           super
           set 'TRAVIS_SCALA_VERSION', config[:scala], echo: false

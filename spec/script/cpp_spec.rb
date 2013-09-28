@@ -97,4 +97,9 @@ describe Travis::Build::Script::Cpp do
     should run 'make', log: true
     should run 'make test', log: true, timeout: timeout_for(:script)
   end
+
+  describe :cache_slug do
+    subject { described_class.new(data, options) }
+    its(:cache_slug) { should be == 'cache--compiler-gpp' }
+  end
 end

@@ -1,18 +1,15 @@
-# TODO : merge this with Mocks::Shell
 class MockShell
-  attr_accessor :echo
+  include Travis::Build::Shell::Dsl
 
-  def initialize(echo)
-    @echo = echo
+  def cmd(*args)
+    commands_with_args << args
   end
 
-  def echo(line, opts)
-    @echo << line
+  def commands
+    commands_with_args.map(&:first)
   end
 
-  def chdir(*);        true; end
-  def export_line(*);  true; end
-  def execute(*);      true; end
-  def file_exists?(*); true; end
-  def cmd(*);          '~/builds' end
+  def commands_with_args
+    @commands_with_args ||= []
+  end
 end
