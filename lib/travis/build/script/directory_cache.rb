@@ -61,7 +61,7 @@ module Travis
             end
 
             def url(verb, path, options = {})
-              path    = File.join(bucket, path)
+              path    = File.join("/", bucket, path)
               expires = Integer(options[:expires])
               string  = [ verb, options[:md5], options[:content_type], expires, path ].join("\n")
               hmac    = OpenSSL::HMAC.digest('sha1', secret_access_key, string)
