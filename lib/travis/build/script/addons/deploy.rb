@@ -5,19 +5,24 @@ module Travis
         class Deploy
           VERSIONED_RUNTIMES = [:jdk, :node, :perl, :php, :python, :ruby, :scala, :node]
           USE_RUBY           = '1.9.3'
-          attr_accessor :script, :config
+          attr_accessor :script, :config, :allow_failure
 
           def initialize(script, config)
             @silent = false
             @script = script
-            @config = config.respond_to?(:to_hash) ? config.to_hash : {}
+            @config_orig = config.respond_to?(:to_hash) ? config.to_hash : {} unless config.is_a? Array
+            @config_orig = config.is_a?(Array) ? config : [config]
           end
 
           def deploy
-            script.if(want) do
-              script.run_stage(:before_deploy)
-              run
-              script.run_stage(:after_deploy)
+            @config_orig.each do |c|
+              @config = c
+              @allow_failure = config.delete(:allow_failure)
+              script.if(want) do
+                script.run_stage(:before_deploy)
+                run
+                script.run_stage(:after_deploy)
+              end
             end
           end
 
@@ -61,13 +66,18 @@ module Travis
 
             def run
               script.fold('dpl.0') { install }
-              cmd("dpl #{options} --fold || (#{die})", echo: false, assert: false)
+              cmd(run_command, echo: false, assert: false)
             end
 
             def install(edge = config[:edge])
               command = "gem install dpl"
               command << " --pre" if edge
-              cmd(command, echo: false, assert: true)
+              cmd(command, echo: false, assert: !allow_failure)
+            end
+
+            def run_command(assert = !allow_failure)
+              return "dpl #{options} --fold" unless assert
+              run_command(false) + " || (#{die})"
             end
 
             def die
