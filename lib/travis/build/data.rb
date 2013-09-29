@@ -62,14 +62,14 @@ module Travis
         case input
         when Hash           then input
         when Array          then input.map { |e| cache(e) }.inject(:merge)
-        when String, Symbol then { input.to_s => true }
+        when String, Symbol then { input.to_sym => true }
         when nil            then {} # for ruby 1.9
         else input.to_h
         end
       end
 
       def cache?(type, default = DEFAULT_CACHES[type])
-        type &&= type.to_s
+        type &&= type.to_sym
         !!cache.fetch(type) { default }
       end
 
