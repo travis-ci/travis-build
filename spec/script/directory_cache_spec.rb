@@ -27,7 +27,7 @@ describe Travis::Build::Script::DirectoryCache do
     describe "casher branch" do
       describe "normal mode" do
         let(:cache) {{ }}
-        its(:casher_branch) { should be == 'production'}
+        its(:casher_branch) { should be == 'production' }
       end
 
       describe "edge mode" do
