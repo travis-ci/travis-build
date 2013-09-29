@@ -13,6 +13,7 @@ module Travis
 
         def setup
           super
+          cmd "rvm get latest-minor"
           cmd "rvm use #{ruby_version} --install --binary --fuzzy"
         end
 
