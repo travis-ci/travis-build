@@ -23,6 +23,18 @@ describe Travis::Build::Script::DirectoryCache do
       it { should be_use_directory_cache }
       its(:cache_class) { should be == Travis::Build::Script::DirectoryCache::S3 }
     end
+
+    describe "casher branch" do
+      describe "normal mode" do
+        let(:cache) {{ }}
+        its(:casher_branch) { should be == 'production'}
+      end
+
+      describe "edge mode" do
+        let(:cache) {{ edge: true }}
+        its(:casher_branch) { should be == 'master' }
+      end
+    end
   end
 
   describe "s3 caching" do
@@ -34,7 +46,7 @@ describe Travis::Build::Script::DirectoryCache do
     let(:sh) { MockShell.new }
 
     subject(:directory_cache) do
-      Travis::Build::Script::DirectoryCache::S3.new(cache_options, repository, slug, Time.at(10))
+      Travis::Build::Script::DirectoryCache::S3.new(cache_options, repository, slug, 'production', Time.at(10))
     end
 
     specify :install do
@@ -42,7 +54,7 @@ describe Travis::Build::Script::DirectoryCache do
       expect(sh.commands).to be == [
         "export CASHER_DIR=$HOME/.casher",
         "mkdir -p $CASHER_DIR/bin",
-        "curl https://raw.github.com/travis-ci/casher/master/bin/casher -o $CASHER_DIR/bin/casher",
+        "curl https://raw.github.com/travis-ci/casher/production/bin/casher -o $CASHER_DIR/bin/casher",
         "chmod +x $CASHER_DIR/bin/casher"
       ]
     end
