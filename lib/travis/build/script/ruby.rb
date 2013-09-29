@@ -53,7 +53,7 @@ module Travis
 
           def bundler_path
             if bundler_args
-              Array(bundler_args)join(" ")[/--path[= ](\S+)/, 1]
+              Array(bundler_args).join(" ")[/--path[= ](\S+)/, 1]
             else
               "${BUNDLE_PATH:-vendor/bundle}"
             end
