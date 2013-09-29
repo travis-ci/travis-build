@@ -6,6 +6,10 @@ module Travis
           perl: '5.14'
         }
 
+        def cache_slug
+          super << "--perl-" << config[:perl].to_s
+        end
+
         def export
           super
           set 'TRAVIS_PERL_VERSION', perl_version, echo: false

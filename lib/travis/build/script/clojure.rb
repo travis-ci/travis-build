@@ -9,6 +9,10 @@ module Travis
           jdk:  'default'
         }
 
+        def cache_slug
+          super << "--lein-" << config[:lein].to_s
+        end
+
         def announce
           super
           cmd "#{config[:lein]} version"

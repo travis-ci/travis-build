@@ -101,4 +101,27 @@ describe Travis::Build::Script::Ruby do
       should_not announce 'javac'
     end
   end
+
+  describe :cache_slug do
+    subject { described_class.new(data, options) }
+    its(:cache_slug) { should be == 'cache--rvm-default--gemfile-Gemfile' }
+
+    describe 'with custom gemfile' do
+      before { gemfile 'foo' }
+      its(:cache_slug) { should be == 'cache--rvm-default--gemfile-foo' }
+    end
+
+    describe 'with custom ruby version' do
+      before { data['config']['rvm'] = 'jruby' }
+      its(:cache_slug) { should be == 'cache--rvm-jruby--gemfile-Gemfile' }
+    end
+
+    describe 'with custom jdk version' do
+      before do
+        data['config']['rvm'] = 'jruby'
+        data['config']['jdk'] = 'openjdk7'
+      end
+      its(:cache_slug) { should be == 'cache--jdk-openjdk7--rvm-jruby--gemfile-Gemfile' }
+    end
+  end
 end

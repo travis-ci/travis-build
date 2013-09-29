@@ -5,6 +5,7 @@ module Travis
         def run_stages
           STAGES[:builtin].each { |stage| run_builtin_stage(stage) }
           STAGES[:custom].each  { |stage| run_stage(stage) }
+          run_builtin_stage(:finish)
         end
 
         def run_stage(stage)

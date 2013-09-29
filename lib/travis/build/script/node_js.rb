@@ -6,6 +6,10 @@ module Travis
           :node_js => '0.10'
         }
 
+        def cache_slug
+          super << "--node-" << config[:node_js].to_s
+        end
+
         def export
           super
           config[:node_js] ||= config[:nodejs] # some old projects use language: nodejs. MK.

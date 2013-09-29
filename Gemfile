@@ -5,6 +5,6 @@ gem 'travis-sidekiqs', github: 'travis-ci/travis-sidekiqs' # siggggghhhhh ......
 
 group :test do
   gem 'mocha',       '~> 0.10.0'
-  gem 'rspec',       '~> 2.7.0'
+  gem 'rspec',       '~> 2.14'
 end
 

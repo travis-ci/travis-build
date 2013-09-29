@@ -56,4 +56,9 @@ describe Travis::Build::Script::Clojure do
       should run_script 'lein2 test'
     end
   end
+
+  describe :cache_slug do
+    subject { described_class.new(data, options) }
+    its(:cache_slug) { should be == 'cache--jdk-default--lein-lein' }
+  end
 end
