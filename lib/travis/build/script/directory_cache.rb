@@ -79,22 +79,27 @@ module Travis
         end
 
         class Dummy
+          def initialize(*)
+          end
+
           def method_missing(*)
             self
           end
         end
 
         def directory_cache
-          @directory_cache ||= case type = data.cache_options[:type].to_s
-                               when 's3' then S3.new(data.cache_options, data.repository, cache_slug)
-                               when ''   then Dummy.new
-                               else raise ArgumentError, "unknown caching mode %p" % type
-                               end
+          @directory_cache ||= cache_class.new(data.cache_options, data.repository, cache_slug)
         end
 
-        def cache_directories
-          return [] unless cache? :directories
-          config[:cache]
+        def cache_class
+          type = data.cache_options[:type].to_s.capitalize
+          type = "Dummy" if type.empty? or !use_directory_cache?
+          raise ArgumentError, "unknown caching mode %p" % type unless DirectoryCache.const_defined?(type)
+          DirectoryCache.const_get(type)
+        end
+
+        def use_directory_cache?
+          data.cache?(:directories)
         end
 
         def setup_directory_cache

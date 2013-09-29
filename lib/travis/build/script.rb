@@ -86,7 +86,7 @@ module Travis
           start_services
           setup_apt_cache if data.cache? :apt
           fix_resolv_conf
-          setup_directory_cache if data.cache? :bundler
+          setup_directory_cache
         end
 
         def announce

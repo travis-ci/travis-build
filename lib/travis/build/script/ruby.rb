@@ -15,6 +15,10 @@ module Travis
           super << "--gemfile-" << config[:gemfile].to_s
         end
 
+        def use_directory_cache?
+          super or data.cache?(:bundler)
+        end
+
         def setup
           super
           setup_bundler
