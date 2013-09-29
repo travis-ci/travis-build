@@ -10,11 +10,11 @@ module Travis
       module DirectoryCache
         class S3
           # TODO: Switch to different branch from master?
-          CASHER_URL = "https://raw.github.com/travis-ci/casher/master/bin/casher"
+          CASHER_URL = "https://raw.github.com/travis-ci/casher/%s/bin/casher"
 
-          attr_accessor :fetch_timeout, :push_timeout, :bucket, :secret_access_key, :access_key_id, :uri_parser, :host, :scheme, :slug, :repository, :start
+          attr_accessor :fetch_timeout, :push_timeout, :bucket, :secret_access_key, :access_key_id, :uri_parser, :host, :scheme, :slug, :repository, :start, :casher_url
 
-          def initialize(options, repository, slug, start = Time.now)
+          def initialize(options, repository, slug, casher_branch, start = Time.now)
             @fetch_timeout     = options.fetch(:fetch_timeout)
             @push_timeout      = options.fetch(:push_timeout)
             @bucket            = options[:s3].fetch(:bucket)
@@ -25,12 +25,13 @@ module Travis
             @slug              = slug
             @repository        = repository
             @start             = start
+            @casher_url        = CASHER_URL % casher_branch
           end
 
           def install(sh)
             sh.cmd "export CASHER_DIR=$HOME/.casher", log: false, echo: false
             sh.cmd "mkdir -p $CASHER_DIR/bin", log: false, echo: false
-            sh.cmd "curl #{CASHER_URL} -o #{binary}", echo: false
+            sh.cmd "curl #{casher_url} -o #{binary}", echo: false
             sh.cmd "chmod +x #{binary}", log: false, echo: false
           end
 
@@ -88,7 +89,7 @@ module Travis
         end
 
         def directory_cache
-          @directory_cache ||= cache_class.new(data.cache_options, data.repository, cache_slug)
+          @directory_cache ||= cache_class.new(data.cache_options, data.repository, cache_slug, casher_branch)
         end
 
         def cache_class
@@ -111,6 +112,10 @@ module Travis
         end
 
         def prepare_cache
+        end
+
+        def casher_branch
+          data.cache?(:edge) ? 'master' : 'production'
         end
 
         def push_directory_cache
