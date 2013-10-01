@@ -11,6 +11,7 @@ module Travis
         class S3
           # TODO: Switch to different branch from master?
           CASHER_URL = "https://raw.github.com/travis-ci/casher/%s/bin/casher"
+          USE_RUBY   = "1.9.3"
 
           attr_accessor :fetch_timeout, :push_timeout, :bucket, :secret_access_key, :access_key_id, :uri_parser, :host, :scheme, :slug, :repository, :start, :casher_url
 
@@ -75,7 +76,7 @@ module Travis
             end
 
             def run(sh, command, argument)
-              sh.cmd("#{binary} #{command} #{argument}", echo: false)
+              sh.cmd("rvm #{USE_RUBY} do #{binary} #{command} #{argument}", echo: false)
             end
         end
 

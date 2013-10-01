@@ -61,17 +61,17 @@ describe Travis::Build::Script::DirectoryCache do
 
     specify :fetch do
       directory_cache.fetch(sh)
-      expect(sh.commands).to be == ["$CASHER_DIR/bin/casher fetch #{fetch_url}"]
+      expect(sh.commands).to be == ["rvm 1.9.3 do $CASHER_DIR/bin/casher fetch #{fetch_url}"]
     end
 
     specify :add do
       directory_cache.add(sh, "/foo/bar")
-      expect(sh.commands).to be == ["$CASHER_DIR/bin/casher add /foo/bar"]
+      expect(sh.commands).to be == ["rvm 1.9.3 do $CASHER_DIR/bin/casher add /foo/bar"]
     end
 
     specify :push do
       directory_cache.push(sh)
-      expect(sh.commands).to be == ["$CASHER_DIR/bin/casher push #{push_url}"]
+      expect(sh.commands).to be == ["rvm 1.9.3 do $CASHER_DIR/bin/casher push #{push_url}"]
     end
   end
 end
