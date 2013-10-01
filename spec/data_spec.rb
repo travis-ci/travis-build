@@ -24,4 +24,36 @@ describe Travis::Build::Data do
       end
     end
   end
+
+  describe 'cache' do
+    subject(:data) { Travis::Build::Data.new(config: { cache: cache }) }
+
+    describe "single value" do
+      let(:cache) { 'bundler' }
+      its(:cache) { should be == { bundler: true } }
+      it { should be_cache(:bundler) }
+      it { should_not be_cache(:edge) }
+    end
+
+    describe "array value" do
+      let(:cache) { ['bundler', 'edge'] }
+      its(:cache) { should be == { bundler: true, edge: true } }
+      it { should be_cache(:bundler) }
+      it { should be_cache(:edge) }
+    end
+
+    describe "hash value" do
+      let(:cache) {{ bundler: true, edge: false }}
+      its(:cache) { should be == { bundler: true, edge: false } }
+      it { should be_cache(:bundler) }
+      it { should_not be_cache(:edge) }
+    end
+
+    describe "hash value with strings" do
+      let(:cache) {{ "bundler" => true, "edge" => false }}
+      its(:cache) { should be == { bundler: true, edge: false } }
+      it { should be_cache(:bundler) }
+      it { should_not be_cache(:edge) }
+    end
+  end
 end
