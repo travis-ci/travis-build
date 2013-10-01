@@ -56,6 +56,15 @@ module Travis
             url("PUT", prefixed, expires: start + push_timeout)
           end
 
+          def fold(sh, message = nil)
+            @fold_count ||= 0
+            @fold_count  += 1
+            sh.fold("cache.#{@fold_count}") do
+              sh.echo message if message
+              yield
+            end
+          end
+
           private
 
             def prefixed
@@ -105,11 +114,13 @@ module Travis
         end
 
         def setup_directory_cache
-          directory_cache.install(self)
-          directory_cache.fetch(self)
-          Array(data.cache[:directories]).each do |entry|
-            directory_cache.add(self, entry)
-          end if data.cache? :directories
+          directory_cache.fold(self, "setup build cache") do
+            directory_cache.install(self)
+            directory_cache.fetch(self)
+            Array(data.cache[:directories]).each do |entry|
+              directory_cache.add(self, entry)
+            end if data.cache? :directories
+          end
         end
 
         def prepare_cache
@@ -122,8 +133,10 @@ module Travis
         def push_directory_cache
           # only publish cache from pushes to master
           return if data.pull_request or data.branch != 'master'
-          prepare_cache
-          directory_cache.push(self)
+          directory_cache.fold(self, "store build cache") do
+            prepare_cache
+            directory_cache.push(self)
+          end
         end
       end
     end
