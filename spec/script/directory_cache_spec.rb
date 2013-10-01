@@ -54,7 +54,7 @@ describe Travis::Build::Script::DirectoryCache do
       expect(sh.commands).to be == [
         "export CASHER_DIR=$HOME/.casher",
         "mkdir -p $CASHER_DIR/bin",
-        "curl https://raw.github.com/travis-ci/casher/production/bin/casher -o $CASHER_DIR/bin/casher",
+        "curl https://raw.github.com/travis-ci/casher/production/bin/casher -o $CASHER_DIR/bin/casher -s",
         "chmod +x $CASHER_DIR/bin/casher"
       ]
     end
