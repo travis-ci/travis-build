@@ -55,5 +55,12 @@ describe Travis::Build::Data do
       it { should be_cache(:bundler) }
       it { should_not be_cache(:edge) }
     end
+
+    describe "false" do
+      let(:cache) { false }
+      its(:cache) { should be == { bundler: false, apt: false } }
+      it { should_not be_cache(:bundler) }
+      it { should_not be_cache(:edge) }
+    end
   end
 end

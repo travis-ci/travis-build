@@ -64,6 +64,7 @@ module Travis
         when Array          then input.map { |e| cache(e) }.inject(:merge)
         when String, Symbol then { input.to_sym => true }
         when nil            then {} # for ruby 1.9
+        when false          then Hash[DEFAULT_CACHES.each_key.with_object(false).to_a]
         else input.to_h
         end
       end
