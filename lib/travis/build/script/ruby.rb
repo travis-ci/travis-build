@@ -39,8 +39,7 @@ module Travis
             sh.else do |sub|
               # cache bundler if it has been explicitely enabled
               directory_cache.add(sub, bundler_path) if data.cache? :bundler, false
-              path_arg = "--path=#{bundler_path}" if bundler_path
-              sub.cmd bundler_command(path_arg), fold: 'install', retry: true
+              sub.cmd bundler_command, fold: 'install', retry: true
             end
           end
         end
@@ -55,17 +54,21 @@ module Travis
 
         private
 
+          def bundler_args_path
+            args = Array(bundler_args).join(" ")
+            path = args[/--path[= ](\S+)/, 1]
+            path ||= 'vendor/bundle' if args.include?('--deployment')
+            path
+          end
+
           def bundler_path
-            if bundler_args
-              Array(bundler_args).join(" ")[/--path[= ](\S+)/, 1]
-            else
-              "${BUNDLE_PATH:-vendor/bundle}"
-            end
+            bundler_args_path || "${BUNDLE_PATH:-vendor/bundle}"
           end
 
           def bundler_command(args = nil)
             args = bundler_args if bundler_args
-            ["bundle install", args].compact.join(" ")
+            args = [args].flatten << "--path=#{bundler_path}" unless bundler_args_path
+            ["bundle install", *args].compact.join(" ")
           end
 
           def bundler_args

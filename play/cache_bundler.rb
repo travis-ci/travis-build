@@ -32,6 +32,7 @@ data = {
   },
   config: {
     rvm: '1.9.3',
+    bundler_args: '--without foo --deployment',
     before_deploy: "foo bar",
     cache: "bundler",
     addons: {
