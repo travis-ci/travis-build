@@ -28,6 +28,13 @@ describe Travis::Build::Data do
   describe 'cache' do
     subject(:data) { Travis::Build::Data.new(config: { cache: cache }) }
 
+    describe "default" do
+      let(:cache) { nil }
+      its(:cache) { should be == { } }
+      it { should be_cache(:bundler) }
+      it { should_not be_cache(:edge) }
+    end
+
     describe "single value" do
       let(:cache) { 'bundler' }
       its(:cache) { should be == { bundler: true } }
