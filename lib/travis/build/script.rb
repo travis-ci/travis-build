@@ -57,7 +57,7 @@ module Travis
 
       def compile
         raw template 'header.sh'
-        run_stages
+        run_stages if check_config
         raw template 'footer.sh'
         sh.to_s
       end
@@ -67,6 +67,22 @@ module Travis
       end
 
       private
+
+        def check_config
+          case data.config[:".result"]
+          when 'not_found'
+            cmd 'echo -e "\033[31;1mCould not find .travis.yml, using standard configuration.\033[0m"', assert: false, echo: false
+            true
+          when 'server_error'
+            cmd 'echo -e "\033[31;1mCould not fetch .travis.yml from GitHub.\033[0m"', assert: false, echo: false
+            cmd 'travis_terminate 2', assert: false, echo: false
+            false
+          when nil
+            true
+          else
+            raise "unknown result %p" % data.config[:".result"]
+          end
+        end
 
         def config
           data.config
