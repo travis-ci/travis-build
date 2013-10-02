@@ -13,18 +13,18 @@ module Travis
           CASHER_URL = "https://raw.github.com/travis-ci/casher/%s/bin/casher"
           USE_RUBY   = "1.9.3"
 
-          attr_accessor :fetch_timeout, :push_timeout, :bucket, :secret_access_key, :access_key_id, :uri_parser, :host, :scheme, :slug, :repository, :start, :casher_url
+          attr_accessor :fetch_timeout, :push_timeout, :bucket, :secret_access_key, :access_key_id, :uri_parser, :host, :scheme, :slug, :data, :start, :casher_url
 
-          def initialize(options, repository, slug, casher_branch, start = Time.now)
-            @fetch_timeout     = options.fetch(:fetch_timeout)
-            @push_timeout      = options.fetch(:push_timeout)
-            @bucket            = options[:s3].fetch(:bucket)
-            @secret_access_key = options[:s3].fetch(:secret_access_key)
-            @access_key_id     = options[:s3].fetch(:access_key_id)
-            @scheme            = options[:s3][:scheme] || "https"
-            @host              = options[:s3][:host]   || "s3.amazonaws.com"
+          def initialize(data, slug, casher_branch, start = Time.now)
+            @fetch_timeout     = data.cache_options.fetch(:fetch_timeout)
+            @push_timeout      = data.cache_options.fetch(:push_timeout)
+            @bucket            = data.cache_options[:s3].fetch(:bucket)
+            @secret_access_key = data.cache_options[:s3].fetch(:secret_access_key)
+            @access_key_id     = data.cache_options[:s3].fetch(:access_key_id)
+            @scheme            = data.cache_options[:s3][:scheme] || "https"
+            @host              = data.cache_options[:s3][:host]   || "s3.amazonaws.com"
             @slug              = slug
-            @repository        = repository
+            @data              = data
             @start             = start
             @casher_url        = CASHER_URL % casher_branch
           end
@@ -69,7 +69,7 @@ module Travis
 
             def prefixed
               escaped_slug = slug.gsub(/[^\w\.\_\-]+/, '')
-              File.join(repository.fetch(:github_id).to_s, escaped_slug) << ".tbz"
+              File.join(data.repository.fetch(:github_id).to_s, escaped_slug) << ".tbz"
             end
 
             def url(verb, path, options = {})
@@ -100,7 +100,7 @@ module Travis
         end
 
         def directory_cache
-          @directory_cache ||= cache_class.new(data.cache_options, data.repository, cache_slug, casher_branch)
+          @directory_cache ||= cache_class.new(data, cache_slug, casher_branch)
         end
 
         def cache_class

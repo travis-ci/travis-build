@@ -41,12 +41,13 @@ describe Travis::Build::Script::DirectoryCache do
     let(:url) { "https://s3.amazonaws.com/s3_bucket/42/example.tbz?AWSAccessKeyId=s3_access_key_id" }
     let(:fetch_url) { Shellwords.escape "#{url}&Expires=30&Signature=rqO9wdTuwwSKUIx0lOfll1qooHw%3D" }
     let(:push_url) { Shellwords.escape "#{url}&Expires=40&Signature=n6HDsKG7qJbWnss3cXMPknrDq4c%3D" }
+    let(:data) { Travis::Build::Data.new(config: {}, repository: repository, cache_options: cache_options) }
     let(:repository) {{ github_id: 42 }}
     let(:slug) { "ex a/mple" }
     let(:sh) { MockShell.new }
 
     subject(:directory_cache) do
-      Travis::Build::Script::DirectoryCache::S3.new(cache_options, repository, slug, 'production', Time.at(10))
+      Travis::Build::Script::DirectoryCache::S3.new(data, slug, 'production', Time.at(10))
     end
 
     specify :install do
