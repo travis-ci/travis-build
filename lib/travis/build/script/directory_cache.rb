@@ -43,6 +43,7 @@ module Travis
           def fetch(sh)
             urls = [Shellwords.escape(fetch_url.to_s)]
             urls << Shellwords.escape(fetch_url('master').to_s) if data.branch != 'master'
+            urls << Shellwords.escape(fetch_url(nil).to_s)
             run(sh, "fetch", *urls)
           end
 

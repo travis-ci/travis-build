@@ -40,6 +40,7 @@ describe Travis::Build::Script::DirectoryCache do
   describe "s3 caching" do
     url_pattern = "https://s3.amazonaws.com/s3_bucket/42/%s/example.tbz?AWSAccessKeyId=s3_access_key_id"
     let(:url) { url_pattern % branch }
+    let(:global_fallback) { "https://s3.amazonaws.com/s3_bucket/42/example.tbz\\?AWSAccessKeyId\\=s3_access_key_id\\&Expires\\=30\\&Signature\\=rqO9wdTuwwSKUIx0lOfll1qooHw\\%3D" }
     let(:master_fetch_signature) { "qYxqzLotOvHutJy1jvyaGm%2F2BlE%3D" }
     let(:fetch_signature) { master_fetch_signature }
     let(:push_signature) { "OE1irmu2XzZqIAiSSfWjeslNq%2B8%3D" }
@@ -67,7 +68,7 @@ describe Travis::Build::Script::DirectoryCache do
 
     specify :fetch do
       directory_cache.fetch(sh)
-      expect(sh.commands).to be == ["rvm 1.9.3 do $CASHER_DIR/bin/casher fetch #{fetch_url}"]
+      expect(sh.commands).to be == ["rvm 1.9.3 do $CASHER_DIR/bin/casher fetch #{fetch_url} #{global_fallback}"]
     end
 
     specify :add do
@@ -88,7 +89,7 @@ describe Travis::Build::Script::DirectoryCache do
 
       specify :fetch do
         directory_cache.fetch(sh)
-        expect(sh.commands).to be == ["rvm 1.9.3 do $CASHER_DIR/bin/casher fetch #{fetch_url} #{fallback_url}"]
+        expect(sh.commands).to be == ["rvm 1.9.3 do $CASHER_DIR/bin/casher fetch #{fetch_url} #{fallback_url} #{global_fallback}"]
       end
 
       specify :add do
