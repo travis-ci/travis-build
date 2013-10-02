@@ -67,9 +67,10 @@ module Travis
 
           private
 
-            def prefixed
-              escaped_slug = slug.gsub(/[^\w\.\_\-]+/, '')
-              File.join(data.repository.fetch(:github_id).to_s, escaped_slug) << ".tbz"
+            def prefixed(branch = data.branch)
+              args = [data.repository.fetch(:github_id), branch, slug].compact
+              args.map! { |a| a.to_s.gsub(/[^\w\.\_\-]+/, '') }
+              File.join(*args)<< ".tbz"
             end
 
             def url(verb, path, options = {})
@@ -85,8 +86,8 @@ module Travis
               "$CASHER_DIR/bin/casher"
             end
 
-            def run(sh, command, argument)
-              sh.cmd("rvm #{USE_RUBY} do #{binary} #{command} #{argument}", echo: false)
+            def run(sh, command, *arguments)
+              sh.cmd("rvm #{USE_RUBY} do #{binary} #{command} #{arguments.join(" ")}", echo: false)
             end
         end
 
