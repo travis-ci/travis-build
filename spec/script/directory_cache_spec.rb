@@ -38,15 +38,22 @@ describe Travis::Build::Script::DirectoryCache do
   end
 
   describe "s3 caching" do
-    let(:url) { "https://s3.amazonaws.com/s3_bucket/42/example.tbz?AWSAccessKeyId=s3_access_key_id" }
-    let(:fetch_url) { Shellwords.escape "#{url}&Expires=30&Signature=rqO9wdTuwwSKUIx0lOfll1qooHw%3D" }
-    let(:push_url) { Shellwords.escape "#{url}&Expires=40&Signature=n6HDsKG7qJbWnss3cXMPknrDq4c%3D" }
+    url_pattern = "https://s3.amazonaws.com/s3_bucket/42/%s/example.tbz?AWSAccessKeyId=s3_access_key_id"
+    let(:url) { url_pattern % branch }
+    let(:global_fallback) { "https://s3.amazonaws.com/s3_bucket/42/example.tbz\\?AWSAccessKeyId\\=s3_access_key_id\\&Expires\\=30\\&Signature\\=rqO9wdTuwwSKUIx0lOfll1qooHw\\%3D" }
+    let(:master_fetch_signature) { "qYxqzLotOvHutJy1jvyaGm%2F2BlE%3D" }
+    let(:fetch_signature) { master_fetch_signature }
+    let(:push_signature) { "OE1irmu2XzZqIAiSSfWjeslNq%2B8%3D" }
+    let(:fetch_url) { Shellwords.escape "#{url}&Expires=30&Signature=#{fetch_signature}" }
+    let(:push_url) { Shellwords.escape "#{url}&Expires=40&Signature=#{push_signature}" }
+    let(:data) { Travis::Build::Data.new(config: {}, repository: repository, cache_options: cache_options, job: { branch: branch }) }
     let(:repository) {{ github_id: 42 }}
     let(:slug) { "ex a/mple" }
     let(:sh) { MockShell.new }
+    let(:branch) { 'master' }
 
     subject(:directory_cache) do
-      Travis::Build::Script::DirectoryCache::S3.new(cache_options, repository, slug, 'production', Time.at(10))
+      Travis::Build::Script::DirectoryCache::S3.new(data, slug, 'production', Time.at(10))
     end
 
     specify :install do
@@ -61,7 +68,7 @@ describe Travis::Build::Script::DirectoryCache do
 
     specify :fetch do
       directory_cache.fetch(sh)
-      expect(sh.commands).to be == ["rvm 1.9.3 do $CASHER_DIR/bin/casher fetch #{fetch_url}"]
+      expect(sh.commands).to be == ["rvm 1.9.3 do $CASHER_DIR/bin/casher fetch #{fetch_url} #{global_fallback}"]
     end
 
     specify :add do
@@ -72,6 +79,28 @@ describe Travis::Build::Script::DirectoryCache do
     specify :push do
       directory_cache.push(sh)
       expect(sh.commands).to be == ["rvm 1.9.3 do $CASHER_DIR/bin/casher push #{push_url}"]
+    end
+
+    describe "on a different branch" do
+      let(:branch) { "featurefoo" }
+      let(:fetch_signature) { "Y6Thq%2B%2BUyBhfqW5RJwaZL3zc4Ds%3D" }
+      let(:push_signature) { "d55mUsXtHhHi2Wgxf6ftKqE52jA%3D" }
+      let(:fallback_url) { Shellwords.escape "#{url_pattern % 'master'}&Expires=30&Signature=#{master_fetch_signature}" }
+
+      specify :fetch do
+        directory_cache.fetch(sh)
+        expect(sh.commands).to be == ["rvm 1.9.3 do $CASHER_DIR/bin/casher fetch #{fetch_url} #{fallback_url} #{global_fallback}"]
+      end
+
+      specify :add do
+        directory_cache.add(sh, "/foo/bar")
+        expect(sh.commands).to be == ["rvm 1.9.3 do $CASHER_DIR/bin/casher add /foo/bar"]
+      end
+
+      specify :push do
+        directory_cache.push(sh)
+        expect(sh.commands).to be == ["rvm 1.9.3 do $CASHER_DIR/bin/casher push #{push_url}"]
+      end
     end
   end
 end
