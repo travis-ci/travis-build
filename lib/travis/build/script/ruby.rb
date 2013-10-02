@@ -67,7 +67,7 @@ module Travis
 
           def bundler_command(args = nil)
             args = bundler_args if bundler_args
-            args = [args].flatten << "--path=#{bundler_path}" unless bundler_args_path
+            args = [args].flatten << "--path=#{bundler_path}" if data.cache?(:bundler) and !bundler_args_path
             ["bundle install", *args].compact.join(" ")
           end
 
