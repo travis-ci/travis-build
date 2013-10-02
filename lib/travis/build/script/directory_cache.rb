@@ -41,19 +41,21 @@ module Travis
           end
 
           def fetch(sh)
-            run(sh, "fetch", Shellwords.escape(fetch_url.to_s))
+            urls = [Shellwords.escape(fetch_url.to_s)]
+            urls << Shellwords.escape(fetch_url('master').to_s) if data.branch != 'master'
+            run(sh, "fetch", *urls)
           end
 
           def push(sh)
             run(sh, "push", Shellwords.escape(push_url.to_s))
           end
 
-          def fetch_url
-            url("GET", prefixed, expires: start + fetch_timeout)
+          def fetch_url(branch = data.branch)
+            url("GET", prefixed(branch), expires: start + fetch_timeout)
           end
 
-          def push_url
-            url("PUT", prefixed, expires: start + push_timeout)
+          def push_url(branch = data.branch)
+            url("PUT", prefixed(branch), expires: start + push_timeout)
           end
 
           def fold(sh, message = nil)
@@ -67,7 +69,7 @@ module Travis
 
           private
 
-            def prefixed(branch = data.branch)
+            def prefixed(branch)
               args = [data.repository.fetch(:github_id), branch, slug].compact
               args.map! { |a| a.to_s.gsub(/[^\w\.\_\-]+/, '') }
               File.join(*args)<< ".tbz"

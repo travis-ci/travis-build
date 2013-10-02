@@ -38,8 +38,10 @@ describe Travis::Build::Script::DirectoryCache do
   end
 
   describe "s3 caching" do
-    let(:url) { "https://s3.amazonaws.com/s3_bucket/42/#{branch}/example.tbz?AWSAccessKeyId=s3_access_key_id" }
-    let(:fetch_signature) { "qYxqzLotOvHutJy1jvyaGm%2F2BlE%3D" }
+    url_pattern = "https://s3.amazonaws.com/s3_bucket/42/%s/example.tbz?AWSAccessKeyId=s3_access_key_id"
+    let(:url) { url_pattern % branch }
+    let(:master_fetch_signature) { "qYxqzLotOvHutJy1jvyaGm%2F2BlE%3D" }
+    let(:fetch_signature) { master_fetch_signature }
     let(:push_signature) { "OE1irmu2XzZqIAiSSfWjeslNq%2B8%3D" }
     let(:fetch_url) { Shellwords.escape "#{url}&Expires=30&Signature=#{fetch_signature}" }
     let(:push_url) { Shellwords.escape "#{url}&Expires=40&Signature=#{push_signature}" }
@@ -82,10 +84,11 @@ describe Travis::Build::Script::DirectoryCache do
       let(:branch) { "featurefoo" }
       let(:fetch_signature) { "Y6Thq%2B%2BUyBhfqW5RJwaZL3zc4Ds%3D" }
       let(:push_signature) { "d55mUsXtHhHi2Wgxf6ftKqE52jA%3D" }
+      let(:fallback_url) { Shellwords.escape "#{url_pattern % 'master'}&Expires=30&Signature=#{master_fetch_signature}" }
 
       specify :fetch do
         directory_cache.fetch(sh)
-        expect(sh.commands).to be == ["rvm 1.9.3 do $CASHER_DIR/bin/casher fetch #{fetch_url}"]
+        expect(sh.commands).to be == ["rvm 1.9.3 do $CASHER_DIR/bin/casher fetch #{fetch_url} #{fallback_url}"]
       end
 
       specify :add do
