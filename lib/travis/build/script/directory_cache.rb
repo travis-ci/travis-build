@@ -13,18 +13,18 @@ module Travis
           CASHER_URL = "https://raw.github.com/travis-ci/casher/%s/bin/casher"
           USE_RUBY   = "1.9.3"
 
-          attr_accessor :fetch_timeout, :push_timeout, :bucket, :secret_access_key, :access_key_id, :uri_parser, :host, :scheme, :slug, :repository, :start, :casher_url
+          attr_accessor :fetch_timeout, :push_timeout, :bucket, :secret_access_key, :access_key_id, :uri_parser, :host, :scheme, :slug, :data, :start, :casher_url
 
-          def initialize(options, repository, slug, casher_branch, start = Time.now)
-            @fetch_timeout     = options.fetch(:fetch_timeout)
-            @push_timeout      = options.fetch(:push_timeout)
-            @bucket            = options[:s3].fetch(:bucket)
-            @secret_access_key = options[:s3].fetch(:secret_access_key)
-            @access_key_id     = options[:s3].fetch(:access_key_id)
-            @scheme            = options[:s3][:scheme] || "https"
-            @host              = options[:s3][:host]   || "s3.amazonaws.com"
+          def initialize(data, slug, casher_branch, start = Time.now)
+            @fetch_timeout     = data.cache_options.fetch(:fetch_timeout)
+            @push_timeout      = data.cache_options.fetch(:push_timeout)
+            @bucket            = data.cache_options[:s3].fetch(:bucket)
+            @secret_access_key = data.cache_options[:s3].fetch(:secret_access_key)
+            @access_key_id     = data.cache_options[:s3].fetch(:access_key_id)
+            @scheme            = data.cache_options[:s3][:scheme] || "https"
+            @host              = data.cache_options[:s3][:host]   || "s3.amazonaws.com"
             @slug              = slug
-            @repository        = repository
+            @data              = data
             @start             = start
             @casher_url        = CASHER_URL % casher_branch
           end
@@ -41,19 +41,22 @@ module Travis
           end
 
           def fetch(sh)
-            run(sh, "fetch", Shellwords.escape(fetch_url.to_s))
+            urls = [Shellwords.escape(fetch_url.to_s)]
+            urls << Shellwords.escape(fetch_url('master').to_s) if data.branch != 'master'
+            urls << Shellwords.escape(fetch_url(nil).to_s)
+            run(sh, "fetch", *urls)
           end
 
           def push(sh)
             run(sh, "push", Shellwords.escape(push_url.to_s))
           end
 
-          def fetch_url
-            url("GET", prefixed, expires: start + fetch_timeout)
+          def fetch_url(branch = data.branch)
+            url("GET", prefixed(branch), expires: start + fetch_timeout)
           end
 
-          def push_url
-            url("PUT", prefixed, expires: start + push_timeout)
+          def push_url(branch = data.branch)
+            url("PUT", prefixed(branch), expires: start + push_timeout)
           end
 
           def fold(sh, message = nil)
@@ -67,9 +70,10 @@ module Travis
 
           private
 
-            def prefixed
-              escaped_slug = slug.gsub(/[^\w\.\_\-]+/, '')
-              File.join(repository.fetch(:github_id).to_s, escaped_slug) << ".tbz"
+            def prefixed(branch)
+              args = [data.repository.fetch(:github_id), branch, slug].compact
+              args.map! { |a| a.to_s.gsub(/[^\w\.\_\-]+/, '') }
+              File.join(*args)<< ".tbz"
             end
 
             def url(verb, path, options = {})
@@ -85,8 +89,8 @@ module Travis
               "$CASHER_DIR/bin/casher"
             end
 
-            def run(sh, command, argument)
-              sh.cmd("rvm #{USE_RUBY} do #{binary} #{command} #{argument}", echo: false)
+            def run(sh, command, *arguments)
+              sh.cmd("rvm #{USE_RUBY} do #{binary} #{command} #{arguments.join(" ")}", echo: false)
             end
         end
 
@@ -100,7 +104,7 @@ module Travis
         end
 
         def directory_cache
-          @directory_cache ||= cache_class.new(data.cache_options, data.repository, cache_slug, casher_branch)
+          @directory_cache ||= cache_class.new(data, cache_slug, casher_branch)
         end
 
         def cache_class
@@ -133,7 +137,7 @@ module Travis
 
         def push_directory_cache
           # only publish cache from pushes to master
-          return if data.pull_request or data.branch != 'master'
+          return if data.pull_request
           directory_cache.fold(self, "store build cache") do
             prepare_cache
             directory_cache.push(self)
