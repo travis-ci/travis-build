@@ -42,7 +42,7 @@ describe Travis::Build::Script::DirectoryCache do
     let(:fetch_url) { Shellwords.escape "#{url}&Expires=30&Signature=rqO9wdTuwwSKUIx0lOfll1qooHw%3D" }
     let(:push_url) { Shellwords.escape "#{url}&Expires=40&Signature=n6HDsKG7qJbWnss3cXMPknrDq4c%3D" }
     let(:repository) {{ github_id: 42 }}
-    let(:slug) { "example" }
+    let(:slug) { "ex a/mple" }
     let(:sh) { MockShell.new }
 
     subject(:directory_cache) do

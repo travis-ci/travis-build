@@ -68,7 +68,8 @@ module Travis
           private
 
             def prefixed
-              File.join(repository.fetch(:github_id).to_s, slug) << ".tbz"
+              escaped_slug = slug.gsub(/[^\w\.\_\-]+/, '')
+              File.join(repository.fetch(:github_id).to_s, escaped_slug) << ".tbz"
             end
 
             def url(verb, path, options = {})
