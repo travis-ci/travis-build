@@ -80,4 +80,23 @@ shared_examples_for 'a build script' do
   it "fixed the DNS entries in /etc/resolv.conf" do
     subject.should include(%Q{echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf 2>&1 > /dev/null})
   end
+
+  describe "result" do
+    before do
+      data['config']['.result'] = result
+      data['config']['script'] = 'echo "THE SCIPT"'
+    end
+
+    describe "server error" do
+      let(:result) { "server_error" }
+      it { should include("echo -e \"\\033[31;1mCould not fetch .travis.yml from GitHub.\\033[0m\"\ntravis_terminate 2") }
+      it { should_not include('echo "THE SCIPT"') }
+    end
+
+    describe "not found" do
+      let(:result) { "not_found" }
+      it { should include("echo -e \"\\033[31;1mCould not find .travis.yml, using standard configuration.\\033[0m\"") }
+      it { should include('echo "THE SCIPT"') }
+    end
+  end
 end
