@@ -35,7 +35,7 @@ module Travis
       TEMPLATES_PATH = File.expand_path('../script/templates', __FILE__)
 
       STAGES = {
-        builtin: [:export, :checkout, :setup, :announce],
+        builtin: [:export, :fix_resolv_conf, :checkout, :setup, :announce],
         custom:  [:before_install, :install, :before_script, :script, :after_result, :after_script]
       }
 
@@ -99,7 +99,6 @@ module Travis
         def setup
           start_services
           setup_apt_cache if data.cache? :apt
-          fix_resolv_conf
           setup_directory_cache
         end
 
