@@ -28,8 +28,8 @@ module Travis
               cmd "rvm remove ${ruby_alias:-#{ruby_version}} --gems", assert: false
               cmd "rvm remove #{ruby_version} --gems --fuzzy", assert: false
               cmd "rvm install #{ruby_version} --binary"
-              cmd "rvm use #{ruby_version}"
             end
+            cmd "rvm use #{ruby_version}"
           else
             cmd "rvm use #{ruby_version} --install --binary --fuzzy"
           end
