@@ -24,7 +24,7 @@ data = {
     pull_request: false
   },
   config: {
-    rvm: '1.9.3',
+    rvm: 'ruby-head',
     # jdk: 'jdk-foo',
     # language: 'c',
     # services: ['redis'],
