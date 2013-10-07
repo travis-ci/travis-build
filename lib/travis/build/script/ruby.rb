@@ -78,7 +78,6 @@ module Travis
           def setup_bundler
             gemfile? do |sh|
               set 'BUNDLE_GEMFILE', "$PWD/#{config[:gemfile]}"
-              cmd 'gem query --local | grep bundler >/dev/null || gem install bundler'
             end
           end
 
