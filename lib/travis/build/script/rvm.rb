@@ -20,7 +20,7 @@ module Travis
         def setup
           super
           cmd "echo '#{USER_DB}' > $rvm_path/user/db", echo: false
-          cmd "rvm remove #{ruby_version}", assert: false if ruby_version =~ /ruby-head/
+          cmd "rvm remove #{ruby_version} --gems", assert: false if ruby_version =~ /ruby-head/
           cmd "rvm use #{ruby_version} --install --binary --fuzzy"
         end
 
