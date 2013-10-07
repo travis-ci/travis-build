@@ -22,9 +22,13 @@ module Travis
           cmd "echo '#{USER_DB}' > $rvm_path/user/db", echo: false
           if ruby_version =~ /ruby-head/
             fold("rvm.1") do
+              cmd 'echo -e "\033[33;1mSetting up latest %s\033[0m"' % ruby_version, assert: false, echo: false
+              cmd "export ruby_alias=`rvm alias show #{ruby_version} 2>/dev/null`", assert: false
               cmd "rvm alias delete #{ruby_version}", assert: false
-              cmd "rvm remove #{ruby_version} --gems", assert: false
-              cmd "rvm use #{ruby_version} --install --binary --fuzzy"
+              cmd "rvm remove ${ruby_alias:-#{ruby_version}} --gems", assert: false
+              cmd "rvm remove #{ruby_version} --gems --fuzzy", assert: false
+              cmd "rvm install #{ruby_version} --binary"
+              cmd "rvm use #{ruby_version}"
             end
           else
             cmd "rvm use #{ruby_version} --install --binary --fuzzy"
