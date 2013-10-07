@@ -20,8 +20,15 @@ module Travis
         def setup
           super
           cmd "echo '#{USER_DB}' > $rvm_path/user/db", echo: false
-          cmd "rvm remove #{ruby_version} --gems", assert: false if ruby_version =~ /ruby-head/
-          cmd "rvm use #{ruby_version} --install --binary --fuzzy"
+          if ruby_version =~ /ruby-head/
+            fold("rvm.1") do
+              cmd "rvm alias delete #{ruby_version}", assert: false
+              cmd "rvm remove #{ruby_version} --gems", assert: false
+              cmd "rvm use #{ruby_version} --install --binary --fuzzy"
+            end
+          else
+            cmd "rvm use #{ruby_version} --install --binary --fuzzy"
+          end
         end
 
         def announce
