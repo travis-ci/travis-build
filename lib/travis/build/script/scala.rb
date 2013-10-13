@@ -4,7 +4,7 @@ module Travis
       class Scala < Jvm
 
         DEFAULTS = {
-          scala: '2.10.0',
+          scala: '2.10.3',
           jdk:   'default'
         }
 
