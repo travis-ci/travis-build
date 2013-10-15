@@ -15,6 +15,10 @@ module Travis
         def export
           super
           set 'TRAVIS_SCALA_VERSION', config[:scala], echo: false
+          self.if ('-d project || -f build.sbt') {
+            set 'JVM_OPTS', '@/etc/sbt/jvmopts', echo: false
+            set 'SBT_OPTS', '@/etc/sbt/sbtopts', echo: false
+          }
         end
 
         def announce

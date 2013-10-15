@@ -21,7 +21,23 @@ describe Travis::Build::Script::Scala do
     should run 'echo Using Scala 2.10.3'
   end
 
+  it 'does not set JVM_OPTS' do
+    should_not set 'JVM_OPTS'
+  end
+
+  it 'does not set SBT_OPTS' do
+    should_not set 'SBT_OPTS'
+  end
+
   shared_examples_for 'an sbt build' do
+
+    it "sets JVM_OPTS" do
+      should set 'JVM_OPTS', '@/etc/sbt/jvmopts'
+    end
+
+    it "sets SBT_OPTS" do
+      should set 'SBT_OPTS', '@/etc/sbt/sbtopts'
+    end
 
     context "without any sbt_args" do
       it "runs sbt with default arguments" do
