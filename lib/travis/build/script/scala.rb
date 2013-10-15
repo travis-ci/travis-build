@@ -15,10 +15,10 @@ module Travis
         def export
           super
           set 'TRAVIS_SCALA_VERSION', config[:scala], echo: false
-          self.if ('-d project || -f build.sbt') {
+          self.if '-d project || -f build.sbt' do
             set 'JVM_OPTS', '@/etc/sbt/jvmopts', echo: false
             set 'SBT_OPTS', '@/etc/sbt/sbtopts', echo: false
-          }
+          end
         end
 
         def announce
@@ -27,12 +27,16 @@ module Travis
         end
 
         def install
-          self.if  ('! -d project && ! -f build.sbt') { super }
+          self.if '! -d project && ! -f build.sbt' do
+            super
+          end
         end
 
         def script
-          self.if   '-d project || -f build.sbt', "sbt#{sbt_args} ++#{config[:scala]} test"
-          self.else { super }
+          self.if '-d project || -f build.sbt', "sbt#{sbt_args} ++#{config[:scala]} test"
+          self.else do
+            super
+          end
         end
 
         private
