@@ -54,6 +54,10 @@ module Travis
         data[:hosts] || {}
       end
 
+      def skip_resolv_updates?
+        !!data[:skip_resolv_updates]
+      end
+
       def cache_options
         data[:cache_options] || {}
       end
