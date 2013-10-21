@@ -4,7 +4,7 @@ shared_examples_for 'a jdk build' do
       data['config']['jdk'] = nil
     end
 
-    xit 'does not set TRAVIS_JDK_VERSION' do
+    it 'does not set TRAVIS_JDK_VERSION' do
       should_not set 'TRAVIS_JDK_VERSION'
     end
 

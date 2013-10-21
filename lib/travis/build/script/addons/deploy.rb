@@ -77,11 +77,11 @@ module Travis
 
             def run_command(assert = !allow_failure)
               return "dpl #{options} --fold" unless assert
-              run_command(false) + " || (#{die})"
+              run_command(false) + "; " + die("failed to deploy")
             end
 
-            def die
-              'echo "failed to deploy"; travis_terminate 2'
+            def die(message)
+              'if [ $? -ne 0 ]; then echo %p; travis_terminate 2; fi' % message
             end
 
             def default_branches

@@ -23,6 +23,7 @@ module Travis
           if ruby_version =~ /ruby-head/
             fold("rvm.1") do
               cmd 'echo -e "\033[33;1mSetting up latest %s\033[0m"' % ruby_version, assert: false, echo: false
+              cmd "rvm get stable", assert: false if ruby_version == 'jruby-head'
               cmd "export ruby_alias=`rvm alias show #{ruby_version} 2>/dev/null`", assert: false
               cmd "rvm alias delete #{ruby_version}", assert: false
               cmd "rvm remove ${ruby_alias:-#{ruby_version}} --gems", assert: false

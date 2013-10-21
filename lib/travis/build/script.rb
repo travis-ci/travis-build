@@ -93,7 +93,7 @@ module Travis
         end
 
         def finish
-          push_directory_cache if data.cache? :bundler
+          push_directory_cache
         end
 
         def setup
