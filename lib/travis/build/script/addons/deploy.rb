@@ -50,7 +50,7 @@ module Travis
             end
 
             def want_tags(on)
-              '$(git describe --exact-match)' if on[:tags]
+              '$(git describe --tags --exact-match)' if on[:tags]
             end
 
             def want_condition(on)
