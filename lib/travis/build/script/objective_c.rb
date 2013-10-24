@@ -17,6 +17,13 @@ module Travis
           has_podfile? then: 'pod --version'
         end
 
+        def setup
+          super
+
+          cmd "echo '#!/bin/bash\n# no-op' > /usr/local/bin/actool", echo: false
+          cmd "chmod +x /usr/local/bin/actool", echo: false
+        end
+
         def install
           has_gemfile? then: 'bundle install', fold: 'install.bundler', retry: true
           has_podfile? then: 'pod install', fold: 'install.cocoapods', retry: true
