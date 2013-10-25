@@ -86,11 +86,7 @@ module Travis
           end
 
           def uses_java?
-            config[:rvm] =~ /jruby/i
-          end
-
-          def uses_jdk?
-            uses_java? && super
+            uses_jdk?
           end
       end
     end

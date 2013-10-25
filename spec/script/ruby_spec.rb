@@ -79,20 +79,19 @@ describe Travis::Build::Script::Ruby do
     should run_script 'rake'
   end
 
-  describe 'using jruby' do
+  describe 'using a jdk' do
     before :each do
-      data['config']['rvm'] = 'jruby'
       data['config']['jdk'] = 'openjdk7'
     end
 
     after :each do
-      store_example 'jruby'
+      store_example 'ruby_with_jdk'
     end
 
     it_behaves_like 'a jdk build'
   end
 
-  describe 'not using jruby' do
+  describe 'not using a jdk' do
     it 'does not announce java' do
       should_not announce 'java'
     end
