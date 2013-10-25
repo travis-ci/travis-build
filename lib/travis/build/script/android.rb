@@ -4,6 +4,24 @@ module Travis
       class Android < Script
         include Jdk
 
+        DEFAULTS = {
+          sdk_components: %w[
+            build-tools-18.1.1
+            platform-tools
+            android-18
+            sysimg-18
+            extra-android-support
+            extra-android-m2repository
+            extra-google-m2repository
+            extra-google-google_play_services
+          ]
+        }
+
+        def setup
+          super
+          install_components config[:sdk_components]
+        end
+
         def install
           self.if   '-f gradlew',      './gradlew assemble', fold: 'install', retry: true
           self.elif '-f build.gradle', 'gradle assemble', fold: 'install', retry: true
@@ -14,6 +32,18 @@ module Travis
           self.if   '-f gradlew',      './gradlew check connectedCheck'
           self.if   '-f build.gradle', 'gradle check connectedCheck'
           self.elif '-f pom.xml',      'mvn test -B'
+        end
+
+        private
+
+        def install_components(components)
+          components.each do |component_name|
+            install_sdk_component(component_name)
+          end
+        end
+
+        def install_sdk_component(component_name)
+          cmd "echo yes | android update sdk --filter #{component_name} --no-ui --force > /dev/null", fold: "android.install"
         end
       end
     end
