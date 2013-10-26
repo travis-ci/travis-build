@@ -49,7 +49,7 @@ describe Travis::Build::Script::Python do
     end
 
     it 'installs with pip' do
-      should install 'pip install -r Requirements.txt --use-mirrors', retry: true
+      should install 'pip install -r Requirements.txt', retry: true
     end
   end
 
@@ -60,7 +60,7 @@ describe Travis::Build::Script::Python do
 
     # TODO [[ -f file ]] matches case insensitive on mac osx but doesn't on ubuntu?
     xit 'installs with pip' do
-      should install 'pip install -r requirements.txt --use-mirrors', retry: true
+      should install 'pip install -r requirements.txt', retry: true
     end
   end
   
