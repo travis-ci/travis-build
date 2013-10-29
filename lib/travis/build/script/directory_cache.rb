@@ -32,7 +32,8 @@ module Travis
           def install(sh)
             sh.cmd "export CASHER_DIR=$HOME/.casher", log: false, echo: false
             sh.cmd "mkdir -p $CASHER_DIR/bin", log: false, echo: false
-            sh.cmd "curl #{casher_url} -o #{binary} -s", echo: false, log: false
+            sh.cmd "curl #{casher_url} -o #{binary} -s --fail", echo: false, log: false, retry: true, assert: false
+            sh.cmd "[ $? -ne 0 ] && echo 'Failed fetch casher from GitHub, disabling cache.' && echo > #{binary}", echo: false, log: false, assert: false
             sh.cmd "chmod +x #{binary}", log: false, echo: false
           end
 
