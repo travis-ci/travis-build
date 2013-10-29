@@ -61,7 +61,8 @@ describe Travis::Build::Script::DirectoryCache do
       expect(sh.commands).to be == [
         "export CASHER_DIR=$HOME/.casher",
         "mkdir -p $CASHER_DIR/bin",
-        "curl https://raw.github.com/travis-ci/casher/production/bin/casher -o $CASHER_DIR/bin/casher -s",
+        "curl https://raw.github.com/travis-ci/casher/production/bin/casher -o $CASHER_DIR/bin/casher -s --fail",
+        "[ $? -ne 0 ] && echo 'Failed to fetch casher from GitHub, disabling cache.' && echo > $CASHER_DIR/bin/casher",
         "chmod +x $CASHER_DIR/bin/casher"
       ]
     end
