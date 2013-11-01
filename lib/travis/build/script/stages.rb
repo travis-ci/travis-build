@@ -5,7 +5,6 @@ module Travis
         def run_stages
           STAGES[:builtin].each { |stage| run_builtin_stage(stage) }
           STAGES[:custom].each  { |stage| run_stage(stage) }
-          run_builtin_stage(:finish)
         end
 
         def run_stage(stage)
@@ -42,6 +41,8 @@ module Travis
         end
 
         def after_result
+          run_builtin_stage(:finish)
+
           self.if('$TRAVIS_TEST_RESULT = 0') do
             run_stage(:after_success)
             run_stage(:deploy)
