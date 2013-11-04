@@ -13,6 +13,15 @@ describe Travis::Build::Script::Android do
   it_behaves_like 'a build script'
   it_behaves_like 'a jdk build'
 
+  it 'installs the provided sdk components on setup' do
+    data['config']['sdk_components'] = [
+      'platform-tools',
+      'android-18',
+    ]
+    should setup "echo yes | android update sdk --filter platform-tools --no-ui --force > /dev/null", fold: true
+    should setup "echo yes | android update sdk --filter android-18 --no-ui --force > /dev/null", fold: true
+  end
+
   describe 'if build.gradle exists' do
     before :each do
       file('build.gradle')
