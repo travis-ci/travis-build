@@ -43,7 +43,10 @@ module Travis
         end
 
         def install_sdk_component(component_name)
-          cmd "echo yes | android update sdk --filter #{component_name} --no-ui --force > /dev/null", fold: "android.install"
+          cmd %{spawn android update sdk --filter #{component_name} --no-ui --force}, fold: "android.install"
+          cmd %{expect "Do you accept the license"}, echo: false
+          cmd %{send "y\r"}, echo: false
+          cmd %{interact},   echo: false
         end
       end
     end

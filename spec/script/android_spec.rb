@@ -18,8 +18,8 @@ describe Travis::Build::Script::Android do
       'platform-tools',
       'android-18',
     ]
-    should setup "echo yes | android update sdk --filter platform-tools --no-ui --force > /dev/null", fold: true
-    should setup "echo yes | android update sdk --filter android-18 --no-ui --force > /dev/null", fold: true
+    should setup "spawn android update sdk --filter platform-tools --no-ui --force", fold: true
+    should setup "spawn android update sdk --filter android-18 --no-ui --force", fold: true
   end
 
   describe 'if build.gradle exists' do
