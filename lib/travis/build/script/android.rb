@@ -6,10 +6,10 @@ module Travis
 
         DEFAULTS = {
           sdk_components: %w[
-            build-tools-18.1.1
+            build-tools-19.0.0
             platform-tools
-            android-18
-            sysimg-18
+            android-19
+            sysimg-19
             extra-android-support
             extra-android-m2repository
             extra-google-m2repository
