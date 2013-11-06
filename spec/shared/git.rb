@@ -2,6 +2,7 @@ shared_examples_for 'a git repo' do
   describe 'using tarball' do
     before :each do
       data['config']['git'] = { strategy: 'tarball' }
+      data['repository']['api_url'] = "https://api.github.com/repos/travis-ci/travis-ci"
     end
 
     it 'creates the directory structure' do
@@ -47,7 +48,7 @@ shared_examples_for 'a git repo' do
 
     context "with a custom api_endpoint" do
       before do
-        data['repository']['api_endpoint'] = 'https://foo.bar.baz/api'
+        data['repository']['api_url'] = 'https://foo.bar.baz/api/repos/travis-ci/travis-ci'
       end
 
       it 'downloads the tarball from the custom endpoint' do

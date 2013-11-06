@@ -30,8 +30,6 @@ module Travis
         bundler: false
       }
 
-      DEFAULT_GITHUB_ENDPOINT = "https://api.github.com"
-
       attr_reader :data
 
       def initialize(data, defaults = {})
@@ -96,8 +94,8 @@ module Travis
         source_url =~ %r(^(?:https?|git)(?:://|@)([^/]*?)(?:/|:)) && $1
       end
 
-      def api_endpoint
-        repository[:api_endpoint] || DEFAULT_GITHUB_ENDPOINT
+      def api_url
+        repository[:api_url]
       end
 
       def source_url
