@@ -44,6 +44,17 @@ shared_examples_for 'a git repo' do
         should echo cmd
       end
     end
+
+    context "with a custom api_endpoint" do
+      before do
+        data['repository']['api_endpoint'] = 'https://foo.bar.baz/api'
+      end
+
+      it 'downloads the tarball from the custom endpoint' do
+        cmd = 'curl -o travis-ci-travis-ci.tar.gz -L https://foo.bar.baz/api/repos/travis-ci/travis-ci/tarball/313f61b'
+        should run cmd, echo: true, assert: true, retry: true, fold: "tarball.1"
+      end
+    end
   end
 
   describe 'using clone' do

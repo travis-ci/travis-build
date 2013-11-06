@@ -106,7 +106,7 @@ module Travis
 
           def tarball_url
             token = data.token ? "?token=#{data.token}" : nil
-            "https://api.github.com/repos/#{data.slug}/tarball/#{data.commit}#{token}"
+            "#{data.api_endpoint}/repos/#{data.slug}/tarball/#{data.commit}#{token}"
           end
 
           def sanitized_slug
