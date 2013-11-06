@@ -8,22 +8,22 @@ shared_examples_for 'a git repo' do
       cmd = 'mkdir -p travis-ci/travis-ci'
       should run cmd, echo: true, assert: true
     end
-    
+
     it 'downloads the tarball from github' do
       cmd = 'curl -o travis-ci-travis-ci.tar.gz -L https://api.github.com/repos/travis-ci/travis-ci/tarball/313f61b'
       should run cmd, echo: true, assert: true, retry: true, fold: "tarball.1"
     end
-    
+
     it 'untars the tarball' do
       cmd = 'tar xfz travis-ci-travis-ci.tar.gz'
       should run cmd, echo: true, assert: true
     end
-    
+
     it 'corrects the directory structure' do
       cmd = 'mv travis-ci-travis-ci-313f61b/* travis-ci/travis-ci'
       should run cmd, echo: true, assert: true
     end
-    
+
     it 'changes to the correct directory' do
       cmd = 'cd travis-ci/travis-ci'
       should run cmd, echo: true, assert: true
@@ -51,6 +51,20 @@ shared_examples_for 'a git repo' do
       data['job']['branch'] = 'a->b'
       cmd = "git clone --depth=50 --branch=a-\>b"
       should run cmd
+    end
+
+    context 'when the repository is already cloned' do
+      before do
+        directory 'travis-ci/travis-ci/.git'
+      end
+
+      it 'does not clone again' do
+        should_not run 'git clone'
+      end
+
+      it 'fetches the changes' do
+        should run 'git fetch'
+      end
     end
 
     it 'changes to the git repo dir' do
