@@ -94,6 +94,10 @@ module Travis
         source_url =~ %r(^(?:https?|git)(?:://|@)([^/]*?)(?:/|:)) && $1
       end
 
+      def api_url
+        repository[:api_url]
+      end
+
       def source_url
         repository[:source_url]
       end

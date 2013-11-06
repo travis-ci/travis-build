@@ -2,6 +2,7 @@ shared_examples_for 'a git repo' do
   describe 'using tarball' do
     before :each do
       data['config']['git'] = { strategy: 'tarball' }
+      data['repository']['api_url'] = "https://api.github.com/repos/travis-ci/travis-ci"
     end
 
     it 'creates the directory structure' do
@@ -27,6 +28,33 @@ shared_examples_for 'a git repo' do
     it 'changes to the correct directory' do
       cmd = 'cd travis-ci/travis-ci'
       should run cmd, echo: true, assert: true
+    end
+
+    context "with a token" do
+      before do
+        data['oauth_token'] = 'foobarbaz'
+      end
+
+      it "downloads using token" do
+        cmd = 'curl -o travis-ci-travis-ci.tar.gz -L https://api.github.com/repos/travis-ci/travis-ci/tarball/313f61b?token=foobarbaz'
+        should run cmd, echo: false, assert: true, retry: true, fold: "tarball.1"
+      end
+
+      it "does not print token" do
+        cmd = 'curl -o travis-ci-travis-ci.tar.gz -L https://api.github.com/repos/travis-ci/travis-ci/tarball/313f61b?token=[SECURE]'
+        should echo cmd
+      end
+    end
+
+    context "with a custom api_endpoint" do
+      before do
+        data['repository']['api_url'] = 'https://foo.bar.baz/api/repos/travis-ci/travis-ci'
+      end
+
+      it 'downloads the tarball from the custom endpoint' do
+        cmd = 'curl -o travis-ci-travis-ci.tar.gz -L https://foo.bar.baz/api/repos/travis-ci/travis-ci/tarball/313f61b'
+        should run cmd, echo: true, assert: true, retry: true, fold: "tarball.1"
+      end
     end
   end
 
