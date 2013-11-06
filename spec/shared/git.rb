@@ -61,6 +61,10 @@ shared_examples_for 'a git repo' do
       it 'does not clone again' do
         should_not run 'git clone'
       end
+
+      it 'fetches the changes' do
+        should run 'git fetch'
+      end
     end
 
     it 'changes to the git repo dir' do
