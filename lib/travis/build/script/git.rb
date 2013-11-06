@@ -49,7 +49,9 @@ module Travis
 
           def git_clone
             set 'GIT_ASKPASS', 'echo', :echo => false # this makes git interactive auth fail
-            cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, timeout: :git_clone, fold: "git.#{next_git_fold_number}", retry: true
+            self.if '! -d #{dir}/.git' do
+              cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, timeout: :git_clone, fold: "git.#{next_git_fold_number}", retry: true
+            end
           end
 
           def ch_dir

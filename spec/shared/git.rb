@@ -53,6 +53,16 @@ shared_examples_for 'a git repo' do
       should run cmd
     end
 
+    context 'when the repository is already cloned' do
+      before do
+        directory 'travis-ci/travis-ci/.git'
+      end
+
+      it 'does not clone again' do
+        should_not run 'git clone'
+      end
+    end
+
     it 'changes to the git repo dir' do
       should run 'cd travis-ci/travis-ci', timeout: false
     end
