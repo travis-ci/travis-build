@@ -28,6 +28,22 @@ shared_examples_for 'a git repo' do
       cmd = 'cd travis-ci/travis-ci'
       should run cmd, echo: true, assert: true
     end
+
+    context "with a token" do
+      before do
+        data['oauth_token'] = 'foobarbaz'
+      end
+
+      it "downloads using token" do
+        cmd = 'curl -o travis-ci-travis-ci.tar.gz -L https://api.github.com/repos/travis-ci/travis-ci/tarball/313f61b?token=foobarbaz'
+        should run cmd, echo: false, assert: true, retry: true, fold: "tarball.1"
+      end
+
+      it "does not print token" do
+        cmd = 'curl -o travis-ci-travis-ci.tar.gz -L https://api.github.com/repos/travis-ci/travis-ci/tarball/313f61b?token=[SECURE]'
+        should echo cmd
+      end
+    end
   end
 
   describe 'using clone' do

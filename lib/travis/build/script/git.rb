@@ -41,7 +41,8 @@ module Travis
 
           def download_tarball
             cmd "mkdir -p #{dir}", assert: true
-            cmd "curl -o #{sanitized_slug}.tar.gz -L #{tarball_url}", assert: true, retry: true, fold: "tarball.#{next_git_fold_number}"
+            curl_cmd = "curl -o #{sanitized_slug}.tar.gz -L #{tarball_url}"
+            cmd curl_cmd, echo: curl_cmd.gsub(data.token || /\Za/, '[SECURE]'), assert: true, retry: true, fold: "tarball.#{next_git_fold_number}"
             cmd "tar xfz #{sanitized_slug}.tar.gz", assert: true
             cmd "mv #{sanitized_slug}-#{data.commit[0..6]}/* #{dir}", assert: true
             ch_dir
