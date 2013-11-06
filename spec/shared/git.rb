@@ -8,22 +8,22 @@ shared_examples_for 'a git repo' do
       cmd = 'mkdir -p travis-ci/travis-ci'
       should run cmd, echo: true, assert: true
     end
-    
+
     it 'downloads the tarball from github' do
       cmd = 'curl -o travis-ci-travis-ci.tar.gz -L https://api.github.com/repos/travis-ci/travis-ci/tarball/313f61b'
       should run cmd, echo: true, assert: true, retry: true, fold: "tarball.1"
     end
-    
+
     it 'untars the tarball' do
       cmd = 'tar xfz travis-ci-travis-ci.tar.gz'
       should run cmd, echo: true, assert: true
     end
-    
+
     it 'corrects the directory structure' do
       cmd = 'mv travis-ci-travis-ci-313f61b/* travis-ci/travis-ci'
       should run cmd, echo: true, assert: true
     end
-    
+
     it 'changes to the correct directory' do
       cmd = 'cd travis-ci/travis-ci'
       should run cmd, echo: true, assert: true
