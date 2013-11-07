@@ -41,7 +41,7 @@ module Travis
 
           def download_tarball
             cmd "mkdir -p #{dir}", assert: true
-            curl_cmd = "curl -o #{sanitized_slug}.tar.gz -L #{tarball_url}"
+            curl_cmd = "curl -o #{sanitized_slug}.tar.gz #{oauth_token}-L #{tarball_url}"
             cmd curl_cmd, echo: curl_cmd.gsub(data.token || /\Za/, '[SECURE]'), assert: true, retry: true, fold: "tarball.#{next_git_fold_number}"
             cmd "tar xfz #{sanitized_slug}.tar.gz", assert: true
             cmd "mv #{sanitized_slug}-#{data.commit[0..6]}/* #{dir}", assert: true
@@ -105,8 +105,11 @@ module Travis
           end
 
           def tarball_url
-            token = data.token ? "?token=#{data.token}" : nil
-            "#{data.api_url}/tarball/#{data.commit}#{token}"
+            "#{data.api_url}/tarball/#{data.commit}"
+          end
+
+          def oauth_token
+            data.token ? "-H \"Authorization: token #{data.token}\" " : nil
           end
 
           def sanitized_slug

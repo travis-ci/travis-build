@@ -36,13 +36,13 @@ shared_examples_for 'a git repo' do
       end
 
       it "downloads using token" do
-        cmd = 'curl -o travis-ci-travis-ci.tar.gz -L https://api.github.com/repos/travis-ci/travis-ci/tarball/313f61b?token=foobarbaz'
-        should run cmd, echo: false, assert: true, retry: true, fold: "tarball.1"
+        cmd = 'curl -o travis-ci-travis-ci.tar.gz -H "Authorization: token foobarbaz" -L https://api.github.com/repos/travis-ci/travis-ci/tarball/313f61b'
+        subject.should include(cmd)
       end
 
       it "does not print token" do
-        cmd = 'curl -o travis-ci-travis-ci.tar.gz -L https://api.github.com/repos/travis-ci/travis-ci/tarball/313f61b?token=[SECURE]'
-        should echo cmd
+        cmd = 'curl -o travis-ci-travis-ci.tar.gz -H "Authorization: token [SECURE]" -L https://api.github.com/repos/travis-ci/travis-ci/tarball/313f61b'
+        subject.should include(cmd.shellescape)
       end
     end
 
