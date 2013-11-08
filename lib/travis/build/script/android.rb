@@ -32,6 +32,7 @@ module Travis
           self.if   '-f gradlew',      './gradlew check connectedCheck'
           self.if   '-f build.gradle', 'gradle check connectedCheck'
           self.elif '-f pom.xml',      'mvn test -B'
+          self.else                    'ant debug installt test'
         end
 
         private

@@ -65,4 +65,10 @@ describe Travis::Build::Script::Android do
       should run 'mvn test -B', echo: true, log: true, timeout: timeout_for(:script)
     end
   end
+
+  describe 'if neither gradle nor mvn are used' do
+    it 'runs default android ant tasks' do
+      should run 'ant debug installt test', echo: true, log: true, timeout: timeout_for(:script)
+    end
+  end
 end
