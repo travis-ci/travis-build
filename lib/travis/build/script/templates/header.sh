@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash --login
 source /etc/profile
 
 travis_start() {
