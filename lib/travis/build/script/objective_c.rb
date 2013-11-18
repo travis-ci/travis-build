@@ -37,7 +37,7 @@ module Travis
               script.cmd "xctool #{xctool_args} build test"
             else
               script.cmd "echo -e \"\\033[33;1mWARNING:\\033[33m Using Objective-C testing without specifying a scheme and either a workspace or a project is deprecated.\"", echo: false
-              script.cmd "/Users/travis/travis-utils/osx-cibuild.sh"
+              script.cmd "echo \"  Check out our documentation for more information: http://about.travis-ci.org/docs/user/languages/objective-c/\"", echo: false
             end
           end
         end
