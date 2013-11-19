@@ -21,19 +21,47 @@ describe Travis::Build::Script::Scala do
     should run 'echo Using Scala 2.10.3'
   end
 
-  it 'runs sbt ++2.10.3 test if ./project directory exists' do
-    directory('project')
-    should run_script 'sbt ++2.10.3 test'
+  it 'does not set JVM_OPTS' do
+    should_not set 'JVM_OPTS'
   end
 
-  it 'runs sbt ++2.10.3 test if ./build.sbt exists' do
-    file('build.sbt')
-    should run_script 'sbt ++2.10.3 test'
+  it 'does not set SBT_OPTS' do
+    should_not set 'SBT_OPTS'
   end
 
-  it "runs sbt with sbt_args if they are given" do
-    file("build.sbt")
-    data["config"]["sbt_args"] = "-Dsbt.log.noformat=true"
-    should run_script "sbt -Dsbt.log.noformat=true ++2.10.3 test"
+  shared_examples_for 'an sbt build' do
+
+    it "sets JVM_OPTS" do
+      should set 'JVM_OPTS', '@/etc/sbt/jvmopts'
+    end
+
+    it "sets SBT_OPTS" do
+      should set 'SBT_OPTS', '@/etc/sbt/sbtopts'
+    end
+
+    context "without any sbt_args" do
+      it "runs sbt with default arguments" do
+        should run "sbt ++2.10.3 test", echo: true, log: true, timeout: timeout_for(:script)
+      end
+    end
+
+    context "with some sbt_args defined" do
+      before(:each) { data["config"]["sbt_args"] = "-Dsbt.log.noformat=true" }
+      it "runs sbt with additional arguments" do
+        should run "sbt -Dsbt.log.noformat=true ++2.10.3 test", echo: true, log: true, timeout: timeout_for(:script)
+      end
+    end
+
   end
+
+  describe 'if ./project directory exists' do
+    before(:each) { directory('project') }
+    it_behaves_like 'an sbt build'
+  end
+
+  describe 'if ./build.sbt file exists' do
+    before(:each) { file('build.sbt') }
+    it_behaves_like 'an sbt build'
+  end
+
 end
