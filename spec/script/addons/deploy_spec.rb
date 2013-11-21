@@ -48,7 +48,7 @@ describe Travis::Build::Script::Addons::Deploy do
 
     it 'runs the command' do
       script.expects(:run_stage).with(:before_deploy)
-      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master) && ($(git fetch --tags && git describe --tags --exact-match 2>/dev/null)" != "")').yields(script)
+      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master) && ($(git describe --tags --exact-match))').yields(script)
       script.expects(:cmd).with('rvm 1.9.3 do gem install dpl', assert: true, echo: false)
       script.expects(:cmd).with(<<-DPL.gsub(/\s+/, ' ').strip, assert: false, echo: false)
         rvm 1.9.3 do dpl --provider="heroku" --fold;
