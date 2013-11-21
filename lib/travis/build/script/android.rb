@@ -47,10 +47,16 @@ module Travis
         end
 
         def install_sdk_component(script, component_name)
-          script.cmd %{spawn android update sdk --filter #{component_name} --no-ui --force}
-          script.cmd %{expect "Do you accept the license"}, echo: false
-          script.cmd %{send "y\r"}, echo: false
-          script.cmd %{interact},   echo: false
+          script.echo %{$ android update sdk --filter #{component_name} --no-ui --force}
+          expectations = %Q{
+            spawn -noecho android update sdk --filter #{component_name} --no-ui --force
+            log_user 0
+            expect "Do you accept the license" {
+              send "y\\r"
+              interact
+            }
+          }
+          script.cmd %{expect -c #{script.escape(expectations)}}, echo: false
         end
       end
     end
