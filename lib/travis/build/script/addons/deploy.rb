@@ -18,6 +18,7 @@ module Travis
             @config_orig.each do |c|
               @config = c
               @allow_failure = config.delete(:allow_failure)
+              script.cmd("git fetch --tags") if on[:tags]
               script.if(want) do
                 script.run_stage(:before_deploy)
                 run
@@ -27,11 +28,17 @@ module Travis
           end
 
           private
+            def on
+              @on ||= begin
+                on = config.delete(:on) || config.delete(:true) || {}
+                on = { branch: on.to_str } if on.respond_to? :to_str
+                on[:ruby] ||= on[:rvm] if on.include? :rvm
+                on
+              end
+            end
+
             def want
-              on          = config.delete(:on) || config.delete(:true) || {}
-              on          = { branch: on.to_str } if on.respond_to? :to_str
-              on[:ruby] ||= on[:rvm] if on.include? :rvm
-              conditions  = [ want_push(on), want_repo(on), want_branch(on), want_runtime(on), want_condition(on), want_tags(on) ]
+              conditions = [ want_push(on), want_repo(on), want_branch(on), want_runtime(on), want_condition(on), want_tags(on) ]
               conditions.flatten.compact.map { |c| "(#{c})" }.join(" && ")
             end
 
@@ -50,7 +57,7 @@ module Travis
             end
 
             def want_tags(on)
-              '$(git fetch --tags && git describe --tags --exact-match 2>/dev/null)" != ""' if on[:tags]
+              '$(git describe --tags --exact-match 2>/dev/null)' if on[:tags]
             end
 
             def want_condition(on)
