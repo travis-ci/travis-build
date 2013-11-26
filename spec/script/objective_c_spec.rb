@@ -66,6 +66,16 @@ describe Travis::Build::Script::ObjectiveC do
     it 'runs xctool' do
       should run_script 'xctool -project YourProject.xcodeproj -scheme YourScheme build test'
     end
+
+    context 'if an SDK version is passed' do
+      before do
+        data['config']['xcode_sdk'] = '7.0'
+      end
+
+      it 'passes it to xctool' do
+        should run_script 'xctool -project YourProject.xcodeproj -scheme YourScheme -sdk 7.0 build test'
+      end
+    end
   end
 
   context 'if project is a RubyMotion project' do

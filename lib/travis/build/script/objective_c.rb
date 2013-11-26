@@ -65,7 +65,7 @@ module Travis
         def xctool_args
           config[:xctool_args].to_s.tap do |xctool_args|
             %w[project workspace scheme sdk].each do |var|
-              xctool_args << " -#{var} #{config[:"xcode_#{var}"].shellescape}" if config[:"xcode_#{var}"]
+              xctool_args << " -#{var} #{config[:"xcode_#{var}"].to_s.shellescape}" if config[:"xcode_#{var}"]
             end
           end.strip
         end
