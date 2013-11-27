@@ -30,7 +30,7 @@ module Travis
           private
             def on
               @on ||= begin
-                on = config.delete(:on) || config.delete(:true) || {}
+                on = config.delete(:on) || config.delete(true) || config.delete(:true) || {}
                 on = { branch: on.to_str } if on.respond_to? :to_str
                 on[:ruby] ||= on[:rvm] if on.include? :rvm
                 on
