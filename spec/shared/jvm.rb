@@ -36,8 +36,8 @@ shared_examples_for 'a jvm build' do
       file('pom.xml')
     end
 
-    it 'installs with mvn install -DskipTests=true -B' do
-      should run 'mvn install -DskipTests=true -B', echo: true, log: true, assert: true
+    it 'installs with mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V' do
+      should run 'mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V', echo: true, log: true, assert: true
     end
 
     it 'runs mvn test -B' do
