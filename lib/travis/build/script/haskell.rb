@@ -27,7 +27,8 @@ module Travis
         private
 
         def ghc_version
-          config[:ghc].to_s
+          version = config[:ghc]
+          version ? version.to_s : "7.6.3"
         end
       end
     end
