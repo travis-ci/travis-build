@@ -39,9 +39,8 @@ describe Travis::Build::Script::ObjectiveC do
   end
 
   context 'if no settings are specified' do
-    it 'runs xcode tests' do
-      should run_script '/Users/travis/travis-utils/osx-cibuild.sh'
-      store_example
+    it 'prints a warning' do
+      should run /WARNING/
     end
   end
 
