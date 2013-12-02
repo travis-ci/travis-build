@@ -1,5 +1,4 @@
 #!/bin/bash --login
-source /etc/profile
 
 travis_start() {
   TRAVIS_STAGE=$1
