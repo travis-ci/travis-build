@@ -16,4 +16,9 @@ describe Travis::Build::Script::Addons::Postgresql do
     script.expects(:cmd).with("sudo service postgresql start 9.3", assert: false)
     subject
   end
+
+  it "updates the PATH with the right version for the psql tools" do
+    script.expects(:set).with('PATH', '/usr/lib/postgresql/9.3/bin:$PATH', echo: false, assert: false)
+    subject
+  end
 end
