@@ -12,7 +12,7 @@ stubs=(
   rebar
   go gvm
   gradle mvn ant
-  ghc cabal
+  ghc cabal ghc_find
   node nvm npm
   perl perlbrew cpanm
   php phpenv phpunit composer
