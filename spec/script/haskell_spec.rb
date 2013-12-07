@@ -15,7 +15,7 @@ describe Travis::Build::Script::Haskell do
   it "exports PATH variable" do
     version = "version"
     data['config']['ghc'] = version
-    should run "/usr/local/ghc/$(ghc_finc #{version})/bin/:$PATH"
+    should run "/usr/local/ghc/$(ghc_find #{version})/bin/:$PATH"
   end
 
   it 'runs cabal update' do
