@@ -12,6 +12,12 @@ describe Travis::Build::Script::Haskell do
 
   it_behaves_like 'a build script'
 
+  it "exports PATH variable" do
+    version = "version"
+    data['config']['ghc'] = version
+    should run "/usr/local/ghc/$(ghc_finc #{version})/bin/:$PATH"
+  end
+
   it 'runs cabal update' do
     should run 'cabal update', retry: true
   end
