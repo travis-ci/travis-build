@@ -131,7 +131,7 @@ module Travis
         end
 
         def fix_etc_hosts
-          cmd %Q{echo "127.0.0.1 "`hostname` | sudo tee /etc/hosts}
+          cmd %Q{echo "127.0.0.1 "`hostname` | sudo tee -a /etc/hosts}
         end
     end
   end

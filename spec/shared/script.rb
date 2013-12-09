@@ -87,7 +87,7 @@ shared_examples_for 'a build script' do
   end
 
   it "adds an entry to /etc/hosts for localhost" do
-    subject.should include('echo "127.0.0.1 "`hostname` | sudo tee /etc/hosts')
+    subject.should include('echo "127.0.0.1 "`hostname` | sudo tee -a /etc/hosts')
   end
 
   describe "result" do
