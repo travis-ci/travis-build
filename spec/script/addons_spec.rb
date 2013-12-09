@@ -45,4 +45,12 @@ describe Travis::Build::Script::Generic do
 
     should set 'SAUCE_USERNAME', 'johndoe'
   end
+
+  it "works with addons as a list" do
+    data['config']['addons'] = [
+      { 'firefox' => '20.0' }
+    ]
+    subject
+    store_example "addons_hosts"
+  end
 end
