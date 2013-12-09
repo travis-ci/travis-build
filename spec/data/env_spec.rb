@@ -25,5 +25,26 @@ describe Travis::Build::Data::Env do
   it 'escapes TRAVIS_ vars as needed' do
     env.vars.find { |var| var.key == 'TRAVIS_BRANCH' }.value.should == "foo-\\(dev\\)"
   end
+
+  context "with TRAVIS_BUILD_DIR including $HOME" do
+    before do
+      replace_const 'Travis::Build::BUILD_DIR', '$HOME'
+    end
+
+    after do
+      replace_const 'Travis::Build::BUILD_DIR', './tmp'
+    end
+
+    it "shouldn't escape $HOME" do
+      env.vars.find {|var| var.key == 'TRAVIS_BUILD_DIR'}.value.should == "$HOME/travis-ci/travis-ci"
+    end
+
+    it "should escape the repository slug" do
+      data.stubs(:repository).returns(slug: 'travis-ci/travis-ci ci')
+      env.vars.find {|var| var.key == 'TRAVIS_BUILD_DIR'}.value.should == "$HOME/travis-ci/travis-ci\\ ci"
+    end
+  end
+
+
 end
 
