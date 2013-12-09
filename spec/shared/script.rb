@@ -86,6 +86,10 @@ shared_examples_for 'a build script' do
     subject.should_not include(%Q{echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf 2>&1 > /dev/null})
   end
 
+  it "adds an entry to /etc/hosts for localhost" do
+    subject.should include('echo "127.0.0.1 "`hostname` | sudo tee /etc/hosts')
+  end
+
   describe "result" do
     before do
       data['config']['.result'] = result
