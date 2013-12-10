@@ -131,7 +131,7 @@ module Travis
         end
 
         def fix_etc_hosts
-          cmd %Q{echo "127.0.0.1 "`hostname` | sudo tee -a /etc/hosts 2>&1 > /dev/null}, assert: false, echo: false, log: false
+          cmd %Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' --in-place /etc/hosts}, assert: false, echo: false, log: false
         end
     end
   end
