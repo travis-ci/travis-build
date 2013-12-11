@@ -25,7 +25,7 @@ module Travis
         end
 
         def addons
-          @addons ||= (config[:addons] || {}).map(&:flatten).map do |name, addon_config|
+          @addons ||= (config[:addons] || {}).map do |name, addon_config|
             init_addon(name, addon_config)
           end
         end
