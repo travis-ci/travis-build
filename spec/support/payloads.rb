@@ -24,6 +24,7 @@ PAYLOADS = {
       'commit' => '313f61b',
       'branch' => 'master',
       'commit_range' => '313f61b..313f61a',
+      'os' => 'linux',
       'secure_env_enabled' => true
     }
   }
