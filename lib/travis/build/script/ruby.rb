@@ -27,6 +27,7 @@ module Travis
         def announce
           super
           cmd 'gem --version'
+          cmd 'bundle --version'
         end
 
         def install

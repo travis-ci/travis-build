@@ -43,6 +43,10 @@ describe Travis::Build::Script::Ruby do
     should announce 'rvm --version'
   end
 
+  it 'announces bundle --version' do
+    should announce 'bundle --version'
+  end
+
   it 'installs with bundle install with the given bundler_args if a gemfile exists' do
     gemfile 'Gemfile.ci'
     should install 'bundle install'
