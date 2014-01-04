@@ -19,6 +19,9 @@ module Travis
         def setup
           super
           cmd "nvm use #{config[:node_js]}"
+          if node_0_6?
+            cmd 'npm conf set strict-ssl false'
+          end
           setup_npm_cache if npm_cache_required?
         end
 
@@ -51,6 +54,13 @@ module Travis
 
           def uses_npm?(*args)
             self.if '-f package.json', *args
+          end
+
+          def node_0_6?
+            @node_0_6 ||= Gem::Version.new('0.6')
+            @node_0_7 ||= Gem::Version.new('0.7')
+            this_node = Gem::Version.new(config[:node_js])
+            @node_0_6 <= this_node && this_node < @node_0_7
           end
       end
     end
