@@ -20,6 +20,7 @@ module Travis
           super
           cmd "nvm use #{config[:node_js]}"
           if node_0_6?
+            cmd 'echo "### Disabling strict SSL for node 0.6 ###"'
             cmd 'npm conf set strict-ssl false'
           end
           setup_npm_cache if npm_cache_required?
