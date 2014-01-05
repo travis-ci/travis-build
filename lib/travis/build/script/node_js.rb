@@ -58,10 +58,7 @@ module Travis
           end
 
           def node_0_6?
-            @node_0_6 ||= Gem::Version.new('0.6')
-            @node_0_7 ||= Gem::Version.new('0.7')
-            this_node = Gem::Version.new(config[:node_js])
-            @node_0_6 <= this_node && this_node < @node_0_7
+            (config[:node_js] || '').split('.')[0..1] == %w(0 6)
           end
 
           def npm_should_disable_strict_ssl?
