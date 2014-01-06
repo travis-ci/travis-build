@@ -69,4 +69,20 @@ describe Travis::Build::Script::NodeJs do
       should_not run 'npm config set proxy http://npm.cache.com', echo: false, assert: false
     end
   end
+
+  describe 'node 0.6.x' do
+    it 'sets strict-ssl to false for node 0.6.x' do
+      ['0.6', '0.6.1', '0.6.99'].each do |version|
+        data['config']['node_js'] = version
+        should run 'npm conf set strict-ssl false'
+      end
+    end
+
+    it 'does not set strict-ssl to false for not node 0.6.x' do
+      ['0.5.99', '0.7', '0.10'].each do |version|
+        data['config']['node_js'] = version
+        should_not run 'npm conf set strict-ssl false'
+      end
+    end
+  end
 end

@@ -19,6 +19,10 @@ module Travis
         def setup
           super
           cmd "nvm use #{config[:node_js]}"
+          if npm_should_disable_strict_ssl?
+            cmd 'echo "### Disabling strict SSL ###"'
+            cmd 'npm conf set strict-ssl false'
+          end
           setup_npm_cache if npm_cache_required?
         end
 
@@ -51,6 +55,14 @@ module Travis
 
           def uses_npm?(*args)
             self.if '-f package.json', *args
+          end
+
+          def node_0_6?
+            (config[:node_js] || '').split('.')[0..1] == %w(0 6)
+          end
+
+          def npm_should_disable_strict_ssl?
+            node_0_6?
           end
       end
     end
