@@ -6,7 +6,7 @@ describe Travis::Build::Data::Env do
     pull_request: '100',
     config: { env: 'FOO=foo' },
     build: { id: '1', number: '1' },
-    job: { id: '1', number: '1.1', branch: 'foo-(dev)', commit: '313f61b', commit_range: '313f61b..313f61a', os: 'linux' },
+    job: { id: '1', number: '1.1', branch: 'foo-(dev)', commit: '313f61b', commit_range: '313f61b..313f61a', commit_message: 'the commit message', os: 'linux' },
     repository: { slug: 'travis-ci/travis-ci' }
     ) }
   let(:env)  { described_class.new(data) }
@@ -17,7 +17,7 @@ describe Travis::Build::Data::Env do
 
   it 'includes all travis env vars' do
     travis_vars = env.vars.select { |v| v.key =~ /^TRAVIS_/ && v.value && v.value.length > 0 }
-    travis_vars.length.should == 12
+    travis_vars.length.should == 13
   end
 
   it 'includes config env vars' do
