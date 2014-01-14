@@ -50,7 +50,7 @@ module Travis
         end
 
         def else(*args, &block)
-          raise InvalidParent.new(Else, If) unless nodes.last.is_a?(If)
+          raise InvalidParent.new(Else, If, nodes.last.class) unless nodes.last.is_a?(If)
           nodes.last.raw Else.new(*merge_options(args), &block)
           nodes.last
         end
