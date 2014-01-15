@@ -18,6 +18,7 @@ module Travis
             @config_orig.each do |c|
               @config = c
               @allow_failure = config.delete(:allow_failure)
+              @on = nil
               script.cmd("git fetch --tags") if on[:tags]
               script.if(want) do
                 script.run_stage(:before_deploy)
