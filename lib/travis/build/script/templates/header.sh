@@ -27,7 +27,7 @@ travis_result() {
 
 travis_terminate() {
   travis_finish build $1
-  pkill -9 -P $$ > /dev/null 2>&1
+  pkill -9 -P $$ > /dev/null 2>&1 || true
   exit $1
 }
 
