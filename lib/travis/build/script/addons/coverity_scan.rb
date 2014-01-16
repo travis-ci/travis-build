@@ -69,7 +69,7 @@ module Travis
           private
 
           def download_url
-            "https://scan.coverity.com/download/$PLATFORM"
+            "https://scan.coverity.com/download/$COVERITY_PLATFORM"
           end
 
           def download_build_utility
@@ -105,11 +105,11 @@ module Travis
           end
 
           def cov_analysis_dir
-            "#{cov_analysis_base_dir}/cov-analysis-$PLATFORM"
+            "#{cov_analysis_base_dir}/cov-analysis-$COVERITY_PLATFORM"
           end
 
           def export_env
-            %q{export PLATFORM=`uname`}
+            %q{export COVERITY_PLATFORM=`uname`}
           end
 
         end
