@@ -61,11 +61,13 @@ describe Travis::Build::Script::Addons::Deploy do
   end
 
   describe 'multiple providers' do
-    let(:config) { [{provider: "heroku", password: "foo", email: "foo@blah.com"}, {provider: "nodejitsu", user: "foo", api_key: "bar"}] }
+    let(:config) { [{provider: "heroku", password: "foo", email: "foo@blah.com", on: { condition: "$ENV_1 = 1"}},
+                    {provider: "nodejitsu", user: "foo", api_key: "bar", on: { condition: "$ENV_2 = 2"}}] }
 
     it 'runs the command' do
       script.expects(:run_stage).with(:before_deploy).twice
-      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).twice
+      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master) && ($ENV_1 = 1)').yields(script).once
+      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master) && ($ENV_2 = 2)').yields(script).once
       script.expects(:cmd).with('rvm 1.9.3 do ruby -S gem install dpl', assert: true, echo: false).twice
       script.expects(:cmd).with(<<-DPL.gsub(/\s+/, ' ').strip, assert: false, echo: false)
         rvm 1.9.3 do ruby -S dpl --provider="heroku" --password="foo" --email="foo@blah.com" --fold;
