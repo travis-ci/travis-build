@@ -4,6 +4,7 @@ require 'travis/build/script/addons/firefox'
 require 'travis/build/script/addons/hosts'
 require 'travis/build/script/addons/postgresql'
 require 'travis/build/script/addons/sauce_connect'
+require 'travis/build/script/addons/coverity_scan'
 
 module Travis
   module Build
@@ -16,6 +17,7 @@ module Travis
           hosts:         Hosts,
           postgresql:    Postgresql,
           sauce_connect: SauceConnect,
+          coverity_scan: CoverityScan,
         }
 
         def run_addons(stage)
