@@ -67,13 +67,6 @@ module Travis
         "cache"
       end
 
-      # Remove the current script contents
-      # This is useful for an addon, to (conditionally) replace the script with another.
-      # See the coverity_scan addon.
-      def delete_script
-        config[:script] = nil
-      end
-
       private
 
         def check_config

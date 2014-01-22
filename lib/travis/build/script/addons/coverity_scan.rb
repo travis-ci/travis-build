@@ -16,18 +16,14 @@ module Travis
           # The Coverity Scan build therefore overrides the default script, but only on the
           #   coverity_scan branch.
           def script
-            extract_original_script
-            #@script.raw "set -x"
+            @script.raw "if [ $COVERITY_VERBOSE = 1 ]; then set -x; fi"
             @script.raw "echo -en 'coverity_scan script override:start\\r'"
             authorize_branch
-            @script.if "\"$COVERITY_SCAN_BRANCH\" = \"true\"", echo: true do
+            @script.if "\"$COVERITY_SCAN_BRANCH\" = 1", echo: true do
+                @script.raw "export TRAVIS_BYPASS=1"
                 @script.raw "echo -e \"\033[33;1mCoverity Scan analysis selected for branch \"$TRAVIS_BRANCH\".\033[0m\""
               authorize_quota
               build_command
-            end
-            @script.else echo: true do
-              @script.raw "echo -e \"\033[33;1mCoverity Scan analysis NOT slected for branch \"$TRAVIS_BRANCH\"\033[0m\""
-              @script.fold('original_script') { |_| @original_script.script }
             end
             @script.raw "echo -en 'coverity_scan script override:end\\r'"
           end
@@ -57,14 +53,9 @@ SH
 
           def authorize_branch
             scr = <<SH
-export COVERITY_SCAN_BRANCH=`ruby -e "puts '$TRAVIS_BRANCH' =~ /\\A#{@config[:branch_pattern]}\\z/ ? 'true' : 'false'"`
+export COVERITY_SCAN_BRANCH=`ruby -e "puts '$TRAVIS_BRANCH' =~ /\\A#{@config[:branch_pattern]}\\z/ ? 1 : 0"`
 SH
             @script.raw(scr, echo: true)
-          end
-
-          def extract_original_script
-            @original_script = @script.dup
-            @script.delete_script
           end
 
           def build_command
