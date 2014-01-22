@@ -20,12 +20,19 @@ module Travis
         def run_custom_stage(stage)
           stage(stage) do
             run_addon_stage(stage)
-            self.if('$TRAVIS_BYPASS != 1') do
+            blk = -> {
               cmds = Array(config[stage])
               cmds.each_with_index do |command, ix|
                 cmd command, fold: fold_stage?(stage) && "#{stage}#{".#{ix + 1}" if cmds.size > 1}"
                 result if stage == :script
               end
+            }
+            if @enable_bypass_main_stage
+              self.if('$TRAVIS_BYPASS_MAIN_STAGE != 1') do
+                blk.call
+              end
+            else
+              blk.call
             end
           end
         end
@@ -33,7 +40,11 @@ module Travis
         def run_builtin_stage(stage)
           stage(stage) do
             run_addon_stage(stage)
-            self.if('$TRAVIS_BYPASS != 1') do
+            if @enable_bypass_main_stage
+              self.if('$TRAVIS_BYPASS_MAIN_STAGE != 1') do
+                send(stage)
+              end
+            else
               send(stage)
             end
             result if stage == :script
