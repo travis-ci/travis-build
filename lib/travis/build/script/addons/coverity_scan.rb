@@ -9,7 +9,7 @@ module Travis
             @script = script
             @config = config.respond_to?(:to_hash) ? config.to_hash : {}
             @config[:build_script_url] ||= "#{SCAN_URL}/scripts/travisci_build_coverity_scan.sh"
-            @enable_bypass_main_stage = true
+            @script.enable_bypass_main_stage = true
           end
 
           # This method consumes the script method of the caller, calling it or the Coverity Scan
