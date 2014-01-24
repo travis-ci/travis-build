@@ -3,21 +3,12 @@ module Travis
     class Script
       module Addons
         class CoverityScan
-          UPLOAD_URL    = 'http://scan5.coverity.com/cgi-bin/upload.py'
-          TMP_TAR       = '/tmp/cov-analysis.tar.gz'
-          INSTALL_DIR   = '/usr/local'
+          SCAN_URL      = 'https://scan.coverity.com'
 
           def initialize(script, config)
             @script = script
             @config = config.respond_to?(:to_hash) ? config.to_hash : {}
-          end
-
-          def install
-            @script.fold('install_coverity') do |script|
-              script.cmd "if [ \"$TRAVIS_BRANCH\" == \"coverity_scan\" ]; then"
-              script.cmd download_build_utility, assert: false, echo: false
-              script.cmd "fi"
-            end
+            @config[:build_script_url] ||= "#{SCAN_URL}/scripts/travisci_build_coverity_scan.sh"
           end
 
           # This method consumes the script method of the caller, calling it or the Coverity Scan
@@ -25,91 +16,62 @@ module Travis
           # The Coverity Scan build therefore overrides the default script, but only on the
           #   coverity_scan branch.
           def script
-            @script.raw "echo -en 'coverity_scan script override:start\\r'"
-            @script.if "\"$TRAVIS_BRANCH\" == \"coverity_scan\"" do
-              @script.fold('build_coverity') do |script|
-                script.cmd build_command, assert: false, echo: true
-              end
-              @script.fold('submit_coverity_results') do |script|
-                script.cmd submit_results, assert: false, echo: true
-              end
+            @script.raw "if [ $COVERITY_VERBOSE = 1 ]; then set -x; fi"
+            @script.raw "echo -en 'coverity_scan:start\\r'"
+            authorize_branch
+            @script.if "\"$COVERITY_SCAN_BRANCH\" = 1", echo: true do
+                @script.raw "echo -e \"\033[33;1mCoverity Scan analysis selected for branch \"$TRAVIS_BRANCH\".\033[0m\""
+              authorize_quota
+              build_command
             end
-            _script = @script
-            @script.else do
-              @script.fold('original_script') { |_| _script.script }
-            end
-            @script.raw "echo -en 'coverity_scan script override:end\\r'"
-            @script.define_singleton_method(:script) {}
+            @script.raw "echo -en 'coverity_scan:end\\r'"
           end
 
           private
+
+          def authorize_quota
+            scr = <<SH
+export SCAN_URL=#{SCAN_URL}
+AUTH_RES=`curl -s --form project="$PROJECT_NAME" --form token="$COVERITY_SCAN_TOKEN" $SCAN_URL/api/upload_permitted`
+if [[ "$AUTH_RES" = "Access denied" ]]; then
+  echo -e "\033[33;1mCoverity Scan API access denied. Check \\$PROJECT_NAME and \\$COVERITY_SCAN_TOKEN.\033[0m"
+  exit 1
+else
+  AUTH=`echo $AUTH_RES | ruby -e "require 'rubygems'; require 'json'; puts JSON[STDIN.read]['upload_permitted']"`
+  if [[ "$AUTH" = "true" ]]; then
+    echo -e "\033[33;1mCoverity Scan analysis authorized per quota.\033[0m"
+  else
+    WHEN=`echo $AUTH_RES | ruby -e "require 'rubygems'; require 'json'; puts JSON[STDIN.read]['next_upload_permitted_at']"`
+    echo -e "\033[33;1mCoverity Scan analysis NOT authorized until $WHEN.\033[0m"
+    exit 1
+  fi
+fi
+SH
+            @script.raw(scr, echo: true)
+          end
+
+          def authorize_branch
+            scr = <<SH
+export COVERITY_SCAN_BRANCH=`ruby -e "puts '$TRAVIS_BRANCH' =~ /\\A#{@config[:branch_pattern]}\\z/ ? 1 : 0"`
+SH
+            @script.raw(scr, echo: true)
+          end
 
           def build_command
-            <<-BASH.squeeze(' ').lines.map { |s| s.strip }.join("\n") << "\n"
-              #{export_env}
-              export PATH=#{cov_analysis_dir}/bin:$PATH
-              COVERITY_UNSUPPORTED=1 cov-build --dir cov-int #{@config[:build_command]}
-            BASH
-          end
-
-          def submit_results
-            <<-BASH.squeeze(' ').lines.map { |s| s.strip }.join("\n") << "\n"
-              tar czf cov-int.tgz cov-int
-              curl \
-              --form project="#{@config[:project][:name]}" \
-              --form token=$COVERITY_SCAN_TOKEN \
-              --form email="#{@config[:email]}" \
-              --form file=@cov-int.tgz \
-              --form version="#{@config[:project][:version]}" \
-              --form description="#{@config[:project][:description]}" \
-              #{UPLOAD_URL}
-            BASH
-          end
-
-          private
-
-          def download_url
-            "https://scan.coverity.com/download/$COVERITY_PLATFORM"
-          end
-
-          def download_build_utility
-            <<-BASH.squeeze(' ').lines.map { |s| s.strip }.join("\n") << "\n"
-              #{export_env}
-              echo -e \"\033[33;1mLooking for #{cov_analysis_dir}...\033[0m\"
-              if [ -d #{cov_analysis_dir} ]
-              then
-                echo -e \"\033[33;1mUsing existing Coverity Build Utility\033[0m\"
-              else
-                sudo mkdir -p #{cov_analysis_base_dir}/versions
-                sudo chown -R $USER #{cov_analysis_base_dir}
-                if [ ! -f #{TMP_TAR} ]; then
-                  echo -e \"\033[33;1mDownloading Coverity Build Utility\033[0m\"
-                  wget -O #{TMP_TAR} #{download_url} --post-data "token=$COVERITY_SCAN_TOKEN&project=#{@config[:project][:name]}"
-                  if [ $? -ne 0 ]; then
-                    echo -e \"\033[33;1mError downloading Coverity Build Utility\033[0m\"
-                    exit
-                  fi
-                fi
-                pushd #{cov_analysis_base_dir}/versions
-                echo -e \"\033[33;1mExtracting Coverity Build Utility\033[0m\"
-                tar xf #{TMP_TAR}
-                DIR=`tar tf #{TMP_TAR} | head -1`
-                ln -s #{cov_analysis_base_dir}/versions/$DIR #{cov_analysis_dir}
-                popd
-              fi
-            BASH
-          end
-
-          def cov_analysis_base_dir
-            "#{INSTALL_DIR}/cov-analysis"
-          end
-
-          def cov_analysis_dir
-            "#{cov_analysis_base_dir}/cov-analysis-$COVERITY_PLATFORM"
-          end
-
-          def export_env
-            %q{export COVERITY_PLATFORM=`uname`}
+            @script.if "\"$TRAVIS_TEST_RESULT\" = 0", echo: true do |script|
+              script.fold('build_coverity') do |script|
+                env = []
+                env << "PROJECT_SLUG=\"#{@config[:project][:slug]}\""
+                env << "PROJECT_NAME=\"#{@config[:project][:name]}\""
+                env << "OWNER_EMAIL=\"#{@config[:email]}\""
+                env << "BUILD_COMMAND=\"#{@config[:build_command]}\""
+                env << "COVERITY_SCAN_BRANCH_PATTERN=#{@config[:branch_pattern]}"
+                script.cmd "curl -s #{@config[:build_script_url]} | #{env.join(' ')} bash", echo: true
+              end
+            end
+            @script.else echo:true do |script|
+              script.raw "echo -e \"\033[33;1mSkipping build_coverity due to previous error\033[0m\""
+            end
           end
 
         end
