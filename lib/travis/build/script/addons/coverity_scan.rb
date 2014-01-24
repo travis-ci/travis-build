@@ -9,7 +9,6 @@ module Travis
             @script = script
             @config = config.respond_to?(:to_hash) ? config.to_hash : {}
             @config[:build_script_url] ||= "#{SCAN_URL}/scripts/travisci_build_coverity_scan.sh"
-            @script.enable_bypass_main_stage = true
           end
 
           # This method consumes the script method of the caller, calling it or the Coverity Scan
@@ -18,15 +17,14 @@ module Travis
           #   coverity_scan branch.
           def script
             @script.raw "if [ $COVERITY_VERBOSE = 1 ]; then set -x; fi"
-            @script.raw "echo -en 'coverity_scan script override:start\\r'"
+            @script.raw "echo -en 'coverity_scan:start\\r'"
             authorize_branch
             @script.if "\"$COVERITY_SCAN_BRANCH\" = 1", echo: true do
-                @script.set 'TRAVIS_BYPASS_MAIN_STAGE', 1, echo: false, assert: false
                 @script.raw "echo -e \"\033[33;1mCoverity Scan analysis selected for branch \"$TRAVIS_BRANCH\".\033[0m\""
               authorize_quota
               build_command
             end
-            @script.raw "echo -en 'coverity_scan script override:end\\r'"
+            @script.raw "echo -en 'coverity_scan:end\\r'"
           end
 
           private
