@@ -16,9 +16,12 @@ module Travis
           # The Coverity Scan build therefore overrides the default script, but only on the
           #   coverity_scan branch.
           def script
-            @script.raw "if [ $COVERITY_VERBOSE = 1 ]; then set -x; fi"
             @script.raw "echo -en 'coverity_scan:start\\r'"
-            authorize_branch
+            @script.if "\"${COVERITY_VERBOSE}\" = 1", echo: true do
+              @script.raw "set -x"
+            end
+            @script.set 'PROJECT_NAME', @config[:project][:name], echo: true
+            set_coverity_scan_branch
             @script.if "\"$COVERITY_SCAN_BRANCH\" = 1", echo: true do
                 @script.raw "echo -e \"\033[33;1mCoverity Scan analysis selected for branch \"$TRAVIS_BRANCH\".\033[0m\""
               authorize_quota
@@ -33,12 +36,12 @@ module Travis
             scr = <<SH
 export SCAN_URL=#{SCAN_URL}
 AUTH_RES=`curl -s --form project="$PROJECT_NAME" --form token="$COVERITY_SCAN_TOKEN" $SCAN_URL/api/upload_permitted`
-if [[ "$AUTH_RES" = "Access denied" ]]; then
+if [ "$AUTH_RES" = "Access denied" ]; then
   echo -e "\033[33;1mCoverity Scan API access denied. Check \\$PROJECT_NAME and \\$COVERITY_SCAN_TOKEN.\033[0m"
   exit 1
 else
   AUTH=`echo $AUTH_RES | ruby -e "require 'rubygems'; require 'json'; puts JSON[STDIN.read]['upload_permitted']"`
-  if [[ "$AUTH" = "true" ]]; then
+  if [ "$AUTH" = "true" ]; then
     echo -e "\033[33;1mCoverity Scan analysis authorized per quota.\033[0m"
   else
     WHEN=`echo $AUTH_RES | ruby -e "require 'rubygems'; require 'json'; puts JSON[STDIN.read]['next_upload_permitted_at']"`
@@ -50,7 +53,7 @@ SH
             @script.raw(scr, echo: true)
           end
 
-          def authorize_branch
+          def set_coverity_scan_branch
             scr = <<SH
 export COVERITY_SCAN_BRANCH=`ruby -e "puts '$TRAVIS_BRANCH' =~ /\\A#{@config[:branch_pattern]}\\z/ ? 1 : 0"`
 SH
