@@ -67,7 +67,8 @@ SH
                 env << "PROJECT_SLUG=\"#{@config[:project][:slug]}\""
                 env << "PROJECT_NAME=\"#{@config[:project][:name]}\""
                 env << "OWNER_EMAIL=\"#{@config[:email]}\""
-                env << "BUILD_COMMAND=\"#{@config[:build_command]}\""
+                env << "COVERITY_SCAN_BUILD_COMMAND=\"#{@config[:build_command]}\""
+                env << "COVERITY_SCAN_BUILD_COMMAND_PREPEND=\"#{@config[:build_command_prepend]}\""
                 env << "COVERITY_SCAN_BRANCH_PATTERN=#{@config[:branch_pattern]}"
                 script.cmd "curl -s #{@config[:build_script_url]} | #{env.join(' ')} bash", echo: true
               end
