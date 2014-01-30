@@ -58,7 +58,7 @@ module Travis
           end
 
           def node_0_6?
-            (config[:node_js] || '').split('.')[0..1] == %w(0 6)
+            (config[:node_js] || '').to_s.split('.')[0..1] == %w(0 6)
           end
 
           def npm_should_disable_strict_ssl?
