@@ -52,7 +52,7 @@ shared_examples_for 'a build script' do
     it "runs the given :#{script} command" do
       data['config'][script] = script
       assert = %w(before_install install before_script).include?(script)
-      is_expected.to run script, echo: true, log: true, assert: assert
+      is_expected.to run script, echo: true, log: true, assert: assert, timing: true
     end
 
     next if script == 'script'
