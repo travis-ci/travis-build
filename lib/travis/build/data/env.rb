@@ -31,7 +31,6 @@ module Travis
               TRAVIS_BRANCH:          job[:branch].shellescape,
               TRAVIS_COMMIT:          job[:commit],
               TRAVIS_COMMIT_RANGE:    job[:commit_range],
-              TRAVIS_COMMIT_MESSAGE:  job[:commit_message].shellescape,
               TRAVIS_REPO_SLUG:       repository[:slug].shellescape,
               TRAVIS_OS_NAME:         job[:os],
             )
