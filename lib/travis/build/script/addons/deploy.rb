@@ -10,15 +10,22 @@ module Travis
           def initialize(script, config)
             @silent = false
             @script = script
-            @config_orig = config.respond_to?(:to_hash) ? config.to_hash : {} unless config.is_a? Array
-            @config_orig = config.is_a?(Array) ? config : [config]
+            if config.is_a?(Array)
+              @configs = config
+              @config = {}
+            else
+              @configs = [config]
+              @config = config
+            end
           end
 
           def deploy
-            @config_orig.each do |c|
-              @config = c
+            if @configs.length > 1
+              @configs.each do |config|
+                Deploy.new(script, config).deploy
+              end
+            else
               @allow_failure = config.delete(:allow_failure)
-              @on = nil
               script.cmd("git fetch --tags") if on[:tags]
               script.if(want) do
                 script.run_stage(:before_deploy)
