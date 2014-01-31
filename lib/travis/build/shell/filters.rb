@@ -12,6 +12,18 @@ module Travis
           end
         end
 
+        module Timing
+          def code
+            timing = options[:timing]
+            echo = options[:echo]
+            timing && echo ? measure(super) : super
+          end
+
+          def measure(code)
+            "travis_time_start\n#{code}\ntravis_time_finish"
+          end
+        end
+
         module Echoize
           def code
             echo = options[:echo]
