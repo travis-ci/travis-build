@@ -7,6 +7,11 @@ module Travis
       autoload :Cmd,     'travis/build/shell/node'
       autoload :Script,  'travis/build/shell/node'
 
+      Cmd.send(:include, Filters::Retry)
+      Cmd.send(:include, Filters::Timing)
+      Cmd.send(:include, Filters::Assertion)
+      Cmd.send(:include, Filters::Echoize)
+
       class InvalidParent < RuntimeError
         def initialize(node, required, actual)
           super("Node #{node.name} requires to be added to a #{required.name}, but is a #{actual.name}")

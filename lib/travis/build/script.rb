@@ -53,7 +53,7 @@ module Travis
       def initialize(data, options = {})
         @data = Data.new({ config: self.class.defaults }.deep_merge(data.deep_symbolize_keys))
         @options = options
-        @stack = [Shell::Script.new(log: true, echo: true)]
+        @stack = [Shell::Script.new(log: true, echo: true, timing: true)]
       end
 
       def compile
