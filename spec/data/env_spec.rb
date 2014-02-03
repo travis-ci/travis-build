@@ -17,7 +17,7 @@ describe Travis::Build::Data::Env do
 
   it 'includes all travis env vars' do
     travis_vars = env.vars.select { |v| v.key =~ /^TRAVIS_/ && v.value && v.value.length > 0 }
-    travis_vars.length.should == 13
+    travis_vars.length.should == 12
   end
 
   it 'includes config env vars' do
