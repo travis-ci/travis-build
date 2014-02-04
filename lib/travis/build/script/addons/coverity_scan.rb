@@ -64,9 +64,8 @@ SH
             @script.if "\"$TRAVIS_TEST_RESULT\" = 0", echo: true do |script|
               script.fold('build_coverity') do |script|
                 env = []
-                env << "PROJECT_SLUG=\"#{@config[:project][:slug]}\""
-                env << "PROJECT_NAME=\"#{@config[:project][:name]}\""
-                env << "OWNER_EMAIL=\"#{@config[:email]}\""
+                env << "COVERITY_SCAN_PROJECT_NAME=\"$TRAVIS_REPO_SLUG\""
+                env << "COVERITY_SCAN_NOTIFICATION_EMAIL=\"#{@config[:email]}\""
                 env << "COVERITY_SCAN_BUILD_COMMAND=\"#{@config[:build_command]}\""
                 env << "COVERITY_SCAN_BUILD_COMMAND_PREPEND=\"#{@config[:build_command_prepend]}\""
                 env << "COVERITY_SCAN_BRANCH_PATTERN=#{@config[:branch_pattern]}"
