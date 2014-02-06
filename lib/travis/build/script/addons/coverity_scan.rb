@@ -17,12 +17,12 @@ module Travis
           #   coverity_scan branch.
           def script
             @script.raw "echo -en 'coverity_scan:start\\r'"
-            @script.if "\"${COVERITY_VERBOSE}\" = 1", echo: true do
+            @script.if "${COVERITY_VERBOSE} = 1", echo: true do
               @script.raw "set -x"
             end
             @script.set 'PROJECT_NAME', @config[:project][:name], echo: true
             set_coverity_scan_branch
-            @script.if "\"$COVERITY_SCAN_BRANCH\" = 1", echo: true do
+            @script.if "${COVERITY_SCAN_BRANCH} = 1", echo: true do
                 @script.raw "echo -e \"\033[33;1mCoverity Scan analysis selected for branch \"$TRAVIS_BRANCH\".\033[0m\""
               authorize_quota
               build_command
@@ -61,11 +61,12 @@ SH
           end
 
           def build_command
-            @script.if "\"$TRAVIS_TEST_RESULT\" = 0", echo: true do |script|
+            @script.raw "export TRAVIS_TEST_RESULT=$(( ${TRAVIS_TEST_RESULT:-0} ))"
+            @script.if "${TRAVIS_TEST_RESULT} = 0", echo: true do |script|
               script.fold('build_coverity') do |script|
                 env = []
                 env << "COVERITY_SCAN_PROJECT_NAME=\"$TRAVIS_REPO_SLUG\""
-                env << "COVERITY_SCAN_NOTIFICATION_EMAIL=\"#{@config[:email]}\""
+                env << "COVERITY_SCAN_NOTIFICATION_EMAIL=\"#{@config[:notification_email]}\""
                 env << "COVERITY_SCAN_BUILD_COMMAND=\"#{@config[:build_command]}\""
                 env << "COVERITY_SCAN_BUILD_COMMAND_PREPEND=\"#{@config[:build_command_prepend]}\""
                 env << "COVERITY_SCAN_BRANCH_PATTERN=#{@config[:branch_pattern]}"
