@@ -3,7 +3,7 @@ module Travis
     class Script
       module Addons
         class Deploy
-          VERSIONED_RUNTIMES = [:jdk, :node, :perl, :php, :python, :ruby, :scala, :node, :go]
+          VERSIONED_RUNTIMES = [:jdk, :node, :perl, :php, :python, :ruby, :scala, :node]
           USE_RUBY           = '1.9.3'
           HASH_CONFIG_KEYS = [:s3_options]
           attr_accessor :script, :hash_config, :config, :allow_failure
