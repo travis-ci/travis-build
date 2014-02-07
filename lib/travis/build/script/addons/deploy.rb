@@ -11,13 +11,13 @@ module Travis
           def initialize(script, config)
             @silent = false
             @script = script
+            @hash_config = {}
             if config.is_a?(Array)
               @configs = config
               @config = {}
             else
               @configs = [config]
               @config = config
-              @hash_config = {}
             end
           end
 
@@ -29,7 +29,7 @@ module Travis
             else
               @allow_failure = config.delete(:allow_failure)
               HASH_CONFIG_KEYS.each do |k|
-                @hash_config.merge!(k => config.delete(k)) if config.key?(k)
+                hash_config.merge!(k => config.delete(k)) if config.key?(k)
               end
               script.cmd("git fetch --tags") if on[:tags]
               script.if(want) do
@@ -126,12 +126,12 @@ module Travis
 
             def options
               require 'json'
-              "".tap do |opts|
-                opts << config.flat_map { |k,v| option(k,v) }.compact.join(" ")
-                unless hash_config.empty?
-                  opts << " " << hash_config.flat_map { |k,v| "--%s=%p" % [k, URI.escape(JSON.dump(v))] }.compact.join(" ")
-                end
+              opts = ""
+              opts << config.flat_map { |k,v| option(k,v) }.compact.join(" ")
+              unless hash_config.empty?
+                opts << " " << hash_config.flat_map { |k,v| "--%s=%p" % [k, URI.escape(JSON.dump(v))] }.compact.join(" ")
               end
+              opts
             end
         end
       end
