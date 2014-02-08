@@ -29,6 +29,10 @@ describe Travis::Build::Data::Env do
     env.vars.last.key.should_not == 'FOO'
   end
 
+  it 'includes a var for PS4' do
+    env.vars.find { |var| var.key == 'PS4' }.value.should == "+ "
+  end
+
   it 'escapes TRAVIS_ vars as needed' do
     env.vars.find { |var| var.key == 'TRAVIS_BRANCH' }.value.should == "foo-\\(dev\\)"
   end
