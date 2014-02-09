@@ -14,7 +14,7 @@ module Travis
         end
 
         def vars
-          travis_vars + custom_vars + config_vars
+          travis_vars + config_vars
         end
 
         private
@@ -33,12 +33,6 @@ module Travis
               TRAVIS_COMMIT_RANGE:    job[:commit_range],
               TRAVIS_REPO_SLUG:       repository[:slug].shellescape,
               TRAVIS_OS_NAME:         job[:os],
-            )
-          end
-
-          def custom_vars
-            to_vars(
-              PS4: '+ '
             )
           end
 
