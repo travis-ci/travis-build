@@ -5,9 +5,5 @@ env:
     - RUBY_FREE_MIN=200000
 rvm:
   - 1.9.3
-  - jruby-19mode
-  - jruby-head
-matrix:
-  allow_failures:
-    - rvm: jruby-head
+  - jruby-1.7.9
 script: "bundle exec rspec spec"
