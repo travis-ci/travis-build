@@ -26,6 +26,10 @@ shared_examples_for 'a build script' do
     should set 'TRAVIS_OS_NAME',         'linux'
   end
 
+  it "sets PS4 to fix an rvm issue" do
+    subject.should include("export PS4=+ ")
+  end
+
   it 'sets TRAVIS_PULL_REQUEST to the given number when running a pull_request' do
     data['job']['pull_request'] = 1
     data['job']['secure_env_enabled'] = false

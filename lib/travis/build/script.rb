@@ -36,7 +36,7 @@ module Travis
       TEMPLATES_PATH = File.expand_path('../script/templates', __FILE__)
 
       STAGES = {
-        builtin: [:export, :fix_resolv_conf, :fix_etc_hosts, :checkout, :setup, :announce],
+        builtin: [:export, :fix_resolv_conf, :fix_etc_hosts, :checkout, :setup, :announce, :fix_ps4],
         custom:  [:before_install, :install, :before_script, :script, :after_result, :after_script]
       }
 
@@ -132,6 +132,10 @@ module Travis
 
         def fix_etc_hosts
           cmd %Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' --in-place /etc/hosts}, assert: false, echo: false, log: false
+        end
+
+        def fix_ps4
+          set "PS4", "+ ", echo: false
         end
     end
   end
