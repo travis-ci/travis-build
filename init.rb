@@ -18,10 +18,20 @@ module Travis
           script.run_stage(stage.to_sym)
         end
         source = File.read(__FILE__).split("\n__END__\n", 2)[1] + script.sh.to_s
-        print? ? puts(source) : exec(source)
+        print? ? puts(source) : run_script(source, *stages)
       end
 
       private
+
+        def run_script(source, *stages)
+          script = File.expand_path(
+            "~/.travis/.build/#{find_slug}/travis-build-" << stages.join('-')
+          )
+          FileUtils.mkdir_p(File.dirname(script))
+          File.open(script, 'w') { |f| f.write(source) }
+          FileUtils.chmod(0755, script)
+          exec(script)
+        end
 
         def data
           {
@@ -33,6 +43,7 @@ module Travis
 end
 
 __END__
+#!/bin/bash
 
 travis_start()  { return; }
 travis_finish() { return; }
