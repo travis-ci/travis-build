@@ -41,7 +41,7 @@ travis_result() { return; }
 travis_assert() {
   local result=$?
   if [ $result -ne 0 ]; then
-    echo -e "\nThe command \"$TRAVIS_CMD\" failed and exited with $result during $TRAVIS_STAGE.\n\nYour build has been stopped."
+    echo -e "\n\033[33;1mThe command \"$TRAVIS_CMD\" failed and exited with $result during $TRAVIS_STAGE.\e[0m\n\nYour build has been stopped."
     travis_terminate 2
   fi
 }
