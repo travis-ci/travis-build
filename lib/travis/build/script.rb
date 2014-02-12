@@ -131,7 +131,7 @@ module Travis
         end
 
         def fix_etc_hosts
-          cmd %Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' --in-place /etc/hosts}, assert: false, echo: false, log: false
+          cmd %Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'' /etc/hosts}, assert: false, echo: false, log: false
         end
 
         def fix_ps4
