@@ -33,10 +33,10 @@ module Travis
           # easier to find and our `git clone`'d libraries are found by the
           # `go` commands.
           set 'GOPATH', "#{HOME_DIR}/gopath:$GOPATH"
-          cmd "mkdir -p #{HOME_DIR}/gopath/src/github.com/#{data.slug.split('/').first}"
-          cmd "cp -r $TRAVIS_BUILD_DIR #{HOME_DIR}/gopath/src/github.com/#{data.slug}"
-          set "TRAVIS_BUILD_DIR", "#{HOME_DIR}/gopath/src/github.com/#{data.slug}"
-          cd "#{HOME_DIR}/gopath/src/github.com/#{data.slug}"
+          cmd "mkdir -p #{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug.split('/').first}"
+          cmd "cp -r $TRAVIS_BUILD_DIR #{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}"
+          set "TRAVIS_BUILD_DIR", "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}"
+          cd "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}"
         end
 
         def install

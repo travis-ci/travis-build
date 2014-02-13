@@ -53,6 +53,28 @@ describe Travis::Build::Script::Go do
     should run "cd #{Travis::Build::HOME_DIR}/gopath/src/github.com/travis-ci/travis-ci"
   end
 
+  context "on a GHE instance" do
+    before do
+      data['repository']['source_url'] = 'git@ghe.example.com:travis-ci/travis-ci.git'
+    end
+
+    it 'creates the src dir' do
+      should run "mkdir -p #{Travis::Build::HOME_DIR}/gopath/src/ghe.example.com/travis-ci"
+    end
+
+    it "copies the repository to the GOPATH" do
+      should run "cp -r #{Travis::Build::BUILD_DIR}/travis-ci/travis-ci #{Travis::Build::HOME_DIR}/gopath/src/ghe.example.com/travis-ci/travis-ci"
+    end
+
+    it "updates TRAVIS_BUILD_DIR" do
+      should set "TRAVIS_BUILD_DIR", "#{Travis::Build::HOME_DIR}/gopath/src/ghe.example.com/travis-ci/travis-ci"
+    end
+
+    it "cds to the GOPATH version of the project" do
+      should run "cd #{Travis::Build::HOME_DIR}/gopath/src/ghe.example.com/travis-ci/travis-ci"
+    end
+  end
+
   it 'installs the gvm version' do
     data['config']['go'] = 'go1.1'
     should run 'gvm install go1.1'
