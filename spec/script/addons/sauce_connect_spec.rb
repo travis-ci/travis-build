@@ -4,7 +4,7 @@ describe Travis::Build::Script::Addons::SauceConnect do
   let(:script) { stub_everything('script') }
   let(:command) do
     'echo -e "\033[33;1mStarting Sauce Connect\033[0m"; ' +
-    'echo "curl https://gist.github.com/santiycr/5139567/raw/sauce_connect_setup.sh | bash"; ' +
+    'echo "curl -L https://gist.github.com/santiycr/5139567/raw/sauce_connect_setup.sh | bash"; ' +
     'curl -L https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash'
   end
 
