@@ -5,7 +5,7 @@ describe Travis::Build::Script::Addons::SauceConnect do
   let(:command) do
     'echo -e "\033[33;1mStarting Sauce Connect\033[0m"; ' +
     'echo "curl https://gist.github.com/santiycr/5139567/raw/sauce_connect_setup.sh | bash"; ' +
-    'curl https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash'
+    'curl -L https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash'
   end
 
   before(:each) { script.stubs(:fold).yields(script) }
@@ -18,7 +18,7 @@ describe Travis::Build::Script::Addons::SauceConnect do
     it 'runs the command' do
       script.expects(:fold).with('sauce_connect').yields(script)
       script.expects(:cmd).with('echo -e "\033[33;1mStarting Sauce Connect\033[0m"', assert: false, echo: false)
-      script.expects(:cmd).with('curl https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash', assert: false)
+      script.expects(:cmd).with('curl -L https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash', assert: false)
       subject
     end
 
@@ -44,7 +44,7 @@ describe Travis::Build::Script::Addons::SauceConnect do
     it 'runs the command' do
       script.expects(:fold).with('sauce_connect').yields(script)
       script.expects(:cmd).with('echo -e "\033[33;1mStarting Sauce Connect\033[0m"', assert: false, echo: false)
-      script.expects(:cmd).with('curl https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash', assert: false)
+      script.expects(:cmd).with('curl -L https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash', assert: false)
       subject
     end
 
