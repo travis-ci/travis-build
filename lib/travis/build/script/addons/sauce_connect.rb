@@ -18,7 +18,7 @@ module Travis
 
             @script.fold('sauce_connect') do |script|
               script.cmd 'echo -e "\033[33;1mStarting Sauce Connect\033[0m"', assert: false, echo: false
-              script.cmd "curl -L https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash", assert: false
+              script.cmd "curl -L https://gist.githubusercontent.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash", assert: false
               script.set 'TRAVIS_SAUCE_CONNECT', 'true', echo: false, assert: false
             end
           end
