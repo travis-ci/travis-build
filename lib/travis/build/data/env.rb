@@ -33,6 +33,9 @@ module Travis
               TRAVIS_COMMIT_RANGE:    job[:commit_range],
               TRAVIS_REPO_SLUG:       repository[:slug].shellescape,
               TRAVIS_OS_NAME:         job[:os],
+              TRAVIS:                 'true',
+              CI:                     'true',
+              CONTINUOUS_INTEGRATION: 'true'
             )
           end
 
