@@ -36,7 +36,7 @@ module Travis
       TEMPLATES_PATH = File.expand_path('../script/templates', __FILE__)
 
       STAGES = {
-        builtin: [:export, :fix_resolv_conf, :fix_etc_hosts, :checkout, :setup, :announce, :fix_ps4],
+        builtin: [:export, :fix_resolv_conf, :fix_etc_hosts, :checkout, :setup, :announce, :fix_ps4, :fix_npm],
         custom:  [:before_install, :install, :before_script, :script, :after_result, :after_script]
       }
 
@@ -136,6 +136,11 @@ module Travis
 
         def fix_ps4
           set "PS4", "+ ", echo: false
+        end
+
+        def fix_npm
+          cmd 'echo -e "\033[33;1mApplying fix for NPM certificates\033[0m"', assert: false, echo: false
+          cmd 'npm config set ca ""', assert: false, echo: false, log: false
         end
     end
   end
