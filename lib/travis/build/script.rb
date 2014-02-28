@@ -140,7 +140,7 @@ module Travis
 
         def fix_npm
           cmd 'echo -e "\033[33;1mApplying fix for NPM certificates\033[0m"', assert: false, echo: false
-          cmd 'npm config set ca ""', assert: false, echo: false, log: false
+          cmd 'which npm && npm config set ca ""', assert: false, echo: false, log: false
         end
     end
   end
