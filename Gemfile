@@ -1,8 +1,8 @@
 source 'https://rubygems.org'
 
 gem 'travis-support',  github: 'travis-ci/travis-support'
-gem 'activesupport', '~> 3.2'
-gem 'addressable'
+gem 'activesupport', '~> 4.0'
+gem 'addressable', '~> 2.3'
 
 group :test do
   gem 'mocha',       '~> 0.10.0'
