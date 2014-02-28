@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
-gem 'travis-core',     github: 'travis-ci/travis-core'
-gem 'travis-sidekiqs', github: 'travis-ci/travis-sidekiqs' # siggggghhhhh ......
+gem 'activesupport', '~> 4.0'
+gem 'addressable', '~> 2.3'
 
 group :test do
   gem 'mocha',       '~> 0.10.0'
