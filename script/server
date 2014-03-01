@@ -4,5 +4,5 @@ cd "$(dirname "$0")/.."
 [ $RACK_ENV ] || RACK_ENV=development
 
 cmd="bundle exec puma -I lib -p $PORT -t ${PUMA_MIN_THREADS:-8}:${PUMA_MAX_THREADS:-12} -w ${PUMA_WORKERS:-2}"
-[[ $RACK_ENV == "development" ]] && exec rerun -p '**/*.{rb,ru}' "$cmd -o 127.0.0.1"
+[[ $RACK_ENV == "development" ]] && exec rerun -p '**/*.{rb,ru}' "$cmd"
 exec $cmd
