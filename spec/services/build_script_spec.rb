@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'travis/testing/stubs'
 
 describe Travis::Build::Services::BuildScript do
   include Travis::Testing::Stubs
