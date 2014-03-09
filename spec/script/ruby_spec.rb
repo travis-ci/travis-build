@@ -17,7 +17,7 @@ describe Travis::Build::Script::Ruby do
   end
 
   it 'sets the default ruby if no :rvm config given' do
-    should setup 'rvm use default'
+    should setup 'rvm use . || rvm use default'
   end
 
   it 'sets the ruby from config :rvm' do
