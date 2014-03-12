@@ -28,15 +28,17 @@ module Travis
           def install_source_key
             return unless config[:source_key]
 
-            echo "\nInstalling an SSH key\n"
-            cmd "echo '#{config[:source_key]}' | base64 --decode > ~/.ssh/id_rsa", echo: false, log: false
-            cmd 'chmod 600 ~/.ssh/id_rsa',                echo: false, log: false
-            cmd 'eval `ssh-agent` > /dev/null 2>&1',      echo: false, log: false
-            cmd 'ssh-add ~/.ssh/id_rsa > /dev/null 2>&1', echo: false, log: false
+            keys = Array(config[:source_key])
 
-            # BatchMode - If set to 'yes', passphrase/password querying will be disabled.
-            # TODO ... how to solve StrictHostKeyChecking correctly? deploy a knownhosts file?
+            echo "\nInstalling #{keys.size} SSH key(s)\n"
+            cmd 'eval `ssh-agent` > /dev/null 2>&1',      echo: false, log: false
             cmd %(echo -e "Host #{data.source_host}\n\tBatchMode yes\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config), echo: false, log: false
+
+            Array(config[:source_key]).each_with_index do |key, index|
+              cmd "echo '#{key}' | base64 --decode > ~/.ssh/id_rsa_#{index}", echo: false, log: false
+              cmd "chmod 600 ~/.ssh/id_rsa_#{index}",                echo: false, log: false
+              cmd "ssh-add ~/.ssh/id_rsa_#{index} > /dev/null 2>&1", echo: false, log: false
+            end
           end
 
           def download_tarball
