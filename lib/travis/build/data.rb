@@ -54,8 +54,16 @@ module Travis
         data[:hosts] || {}
       end
 
+      def disallow_sudo?
+        !!data[:disallow_sudo]
+      end
+
       def skip_resolv_updates?
         !!data[:skip_resolv_updates]
+      end
+
+      def skip_etc_hosts_fix?
+        !!data[:skip_etc_hosts_fix]
       end
 
       def cache_options

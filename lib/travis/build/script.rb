@@ -1,6 +1,7 @@
 require 'core_ext/hash/deep_merge'
 require 'core_ext/hash/deep_symbolize_keys'
 require 'core_ext/object/false'
+require 'active_support/core_ext/module/delegation'
 require 'erb'
 
 module Travis
@@ -36,7 +37,7 @@ module Travis
       TEMPLATES_PATH = File.expand_path('../script/templates', __FILE__)
 
       STAGES = {
-        builtin: [:export, :fix_resolv_conf, :fix_etc_hosts, :checkout, :setup, :announce, :fix_ps4, :fix_npm],
+        builtin: [:configure, :checkout, :setup],
         custom:  [:before_install, :install, :before_script, :script, :after_result, :after_script]
       }
 
@@ -49,6 +50,8 @@ module Travis
       include Addons, Git, Helpers, Services, Stages, DirectoryCache
 
       attr_reader :stack, :data, :options
+
+      delegate :config, to: :data
 
       def initialize(data, options)
         @data = Data.new({ config: self.class.defaults }.deep_merge(data.deep_symbolize_keys))
@@ -83,14 +86,11 @@ module Travis
           end
         end
 
-        def config
-          data.config
-        end
-
-        def export
-          data.env_vars.each do |var|
-            set var.key, var.value, echo: var.to_s
-          end
+        def configure
+          fix_resolv_conf
+          fix_etc_hosts
+          disallow_sudo
+          export # needs to go last because it contains user data
         end
 
         def finish
@@ -101,6 +101,9 @@ module Travis
           start_services
           setup_apt_cache if data.cache? :apt
           setup_directory_cache
+          announce
+          fix_ps4
+          fix_npm
         end
 
         def announce
@@ -125,22 +128,28 @@ module Travis
           end
         end
 
+        def export
+          data.env_vars.each { |var| set var.key, var.value, echo: var.to_s }
+        end
+
+        def disallow_sudo
+          raw template 'header/disallow_sudo.sh' if data.disallow_sudo? || options[:disallow_sudo]
+        end
+
         def fix_resolv_conf
-          return if data.skip_resolv_updates?
-          cmd %Q{grep '199.91.168' /etc/resolv.conf > /dev/null || echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf &> /dev/null}, assert: false, echo: false, log: false
+          raw template 'header/fix_resolv_conf.sh' unless data.skip_resolv_updates? || options[:skip_resolv_updates]
         end
 
         def fix_etc_hosts
-          cmd %Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i '' /etc/hosts}, assert: false, echo: false, log: false
+          raw template 'header/fix_etc_hosts.sh' unless data.skip_etc_hosts_fix? || options[:skip_etc_hosts_fix]
         end
 
         def fix_ps4
-          set "PS4", "+ ", echo: false
+          set 'PS4', '+ ', echo: false
         end
 
         def fix_npm
-          cmd 'echo -e "\033[33;1mApplying fix for NPM certificates\033[0m"', assert: false, echo: false
-          cmd 'which npm >/dev/null && npm config set ca ""', assert: false, echo: false, log: false
+          raw template 'header/fix_npm.sh'
         end
     end
   end

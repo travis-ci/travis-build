@@ -1,4 +1,4 @@
-<%= ERB.new(File.read('lib/travis/build/script/templates/header.sh')).result(binding) %>
+<%= ERB.new(File.read("lib/travis/build/script/templates/#{filename}")).result(binding) %>
 
 stubs=(
   before_install install before_script script after_script after_success after_failure
