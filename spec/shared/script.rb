@@ -92,12 +92,12 @@ shared_examples_for 'a build script' do
   end
 
   it "fixed the DNS entries in /etc/resolv.conf" do
-    subject.should include(%Q{echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf &> /dev/null})
+    subject.should include('| sudo tee /etc/resolv.conf &> /dev/null')
   end
 
   it "skips fixing the DNS entries in /etc/resolv.conf if told to" do
     data['skip_resolv_updates'] = true
-    subject.should_not include(%Q{echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf &> /dev/null})
+    subject.should_not include('| sudo tee /etc/resolv.conf &> /dev/null')
   end
 
   it "adds an entry to /etc/hosts for localhost" do
