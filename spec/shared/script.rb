@@ -82,6 +82,15 @@ shared_examples_for 'a build script' do
     subject.should_not include(%Q{echo 'Acquire::http { Proxy "http://cache.example.com:80"; };' | sudo tee /etc/apt/apt.conf.d/01proxy})
   end
 
+  it "removes sudo access if :disallow_sudo was given as an option" do
+    options.merge! disallow_sudo: true
+    subject.should include(%Q{sudo rm -f /etc/sudoers.d/travis})
+  end
+
+  it "does not remove sudo access by default" do
+    subject.should_not include(%Q{sudo rm -f /etc/sudoers.d/travis})
+  end
+
   it "fixed the DNS entries in /etc/resolv.conf" do
     subject.should include(%Q{echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf &> /dev/null})
   end

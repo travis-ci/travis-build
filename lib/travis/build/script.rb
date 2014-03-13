@@ -36,7 +36,7 @@ module Travis
       TEMPLATES_PATH = File.expand_path('../script/templates', __FILE__)
 
       STAGES = {
-        builtin: [:export, :fix_resolv_conf, :fix_etc_hosts, :checkout, :setup, :announce, :fix_ps4, :fix_npm],
+        builtin: [:export, :disallow_sudo, :fix_resolv_conf, :fix_etc_hosts, :checkout, :setup, :announce, :fix_ps4, :fix_npm],
         custom:  [:before_install, :install, :before_script, :script, :after_result, :after_script]
       }
 
@@ -123,6 +123,10 @@ module Travis
             cmd 'echo -e "\033[33;1mSetting up APT cache\033[0m"', assert: false, echo: false
             cmd %Q{echo 'Acquire::http { Proxy "#{data.hosts[:apt_cache]}"; };' | sudo tee /etc/apt/apt.conf.d/01proxy  > /dev/null 2>&1}, echo: false, assert: false, log: false
           end
+        end
+
+        def disallow_sudo
+          cmd 'sudo rm -f /etc/sudoers.d/travis; if sudo ls > /dev/null 2>&1; then echo "Failed to remove sudo access."; travis_terminate 2; fi', assert: false, echo: false if options[:disallow_sudo]
         end
 
         def fix_resolv_conf
