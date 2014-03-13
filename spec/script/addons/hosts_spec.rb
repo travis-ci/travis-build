@@ -3,6 +3,7 @@ require "spec_helper"
 describe Travis::Build::Script::Addons::Hosts do
   let(:script) { stub_everything("script") }
   let(:config) { "johndoe.local" }
+  let(:bin_path) { Travis::Build::Script::Addons::BIN_PATH }
 
   before(:each) { script.stubs(:fold).yields(script) }
 
@@ -10,8 +11,7 @@ describe Travis::Build::Script::Addons::Hosts do
 
   it "runs the commands" do
     script.expects(:fold).with("hosts").yields(script)
-    script.expects(:cmd).with("sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 #{config}/' -i '' /etc/hosts")
-    script.expects(:cmd).with("sudo sed -e 's/^\\(::1.*\\)$/\\1 #{config}/' -i '' /etc/hosts")
+    script.expects(:cmd).with("sudo #{bin_path}/travis-addon-hosts #{config}", assert: true, echo: false)
     subject
   end
 
@@ -20,9 +20,7 @@ describe Travis::Build::Script::Addons::Hosts do
 
     it "runs the command" do
       script.expects(:fold).with("hosts").yields(script)
-      script.expects(:cmd).with("sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 johndoe.local example.local/' -i '' /etc/hosts")
-      script.expects(:cmd).with("sudo sed -e 's/^\\(::1.*\\)$/\\1 johndoe.local example.local/' -i '' /etc/hosts")
-
+      script.expects(:cmd).with("sudo #{bin_path}/travis-addon-hosts johndoe.local example.local", assert: true, echo: false)
       subject
     end
   end

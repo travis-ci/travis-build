@@ -94,6 +94,11 @@ decrypt() {
   echo $1 | base64 -d | openssl rsautl -decrypt -inkey ~/.ssh/id_rsa.repo
 }
 
+if sudo -n ls > /dev/null 2>&1; then
+  # TODO should eventually be moved to the cookbooks
+  sudo -n mkdir -p <%= Addons::BIN_PATH %>
+fi
+
 mkdir -p <%= BUILD_DIR %>
 cd       <%= BUILD_DIR %>
 

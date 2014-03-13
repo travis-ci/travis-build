@@ -2,6 +2,7 @@ module SpecHelpers
   CONST = {}
 
   def replace_consts
+    replace_const 'Travis::Build::Script::Addons::BIN_PATH', 'tmp'
     replace_const 'Travis::Build::Script::TEMPLATES_PATH', 'spec/templates'
     # replace_const 'Travis::Build::LOGS', { build: 'build.log', state: 'state.log' }
     replace_const 'Travis::Build::LOGS', {}

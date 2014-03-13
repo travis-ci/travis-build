@@ -2,6 +2,22 @@ module Travis
   module Build
     class Script
       module Services
+        KNOWN_SERVICES = %w(
+          cassandra
+          couchdb
+          elasticsearch
+          hbase-master
+          memcached
+          mongodb
+          mysql
+          neo4j
+          postgresql
+          rabbitmq-server
+          redis-server
+          riak
+          xvfb
+        )
+
         MAP = {
           'hbase'        => 'hbase-master', # for HBase status, see travis-ci/travis-cookbooks#40. MK.
           'memcache'     => 'memcached',
@@ -12,7 +28,7 @@ module Travis
 
         def start_services
           services.each do |name|
-            cmd "sudo service #{name} start", timeout: :start_service, assert: false
+            cmd "sudo /usr/local/travis/bin/service #{name}", timeout: :start_service, assert: false, echo: false
           end
           cmd 'sleep 3', log: false, assert: false if services.any? # give services a moment to start
         end
