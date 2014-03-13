@@ -87,10 +87,10 @@ module Travis
         end
 
         def configure
-          export
-          disallow_sudo
           fix_resolv_conf
           fix_etc_hosts
+          disallow_sudo
+          export # needs to go last because it contains user data
         end
 
         def finish
