@@ -133,15 +133,15 @@ module Travis
         end
 
         def disallow_sudo
-          raw template 'header/disallow_sudo.sh' if options[:disallow_sudo]
+          raw template 'header/disallow_sudo.sh' if data.disallow_sudo? || options[:disallow_sudo]
         end
 
         def fix_resolv_conf
-          raw template 'header/fix_resolv_conf.sh' unless data.skip_resolv_updates?
+          raw template 'header/fix_resolv_conf.sh' unless data.skip_resolv_updates? || options[:skip_resolv_updates]
         end
 
         def fix_etc_hosts
-          raw template 'header/fix_etc_hosts.sh' unless options[:skip_etc_hosts_fix]
+          raw template 'header/fix_etc_hosts.sh' unless data.skip_etc_hosts_fix? || options[:skip_etc_hosts_fix]
         end
 
         def fix_ps4
