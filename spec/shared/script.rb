@@ -95,10 +95,6 @@ shared_examples_for 'a build script' do
     subject.should include(%Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i '' /etc/hosts})
   end
 
-  it "fixes NPM's certificate chain" do
-    subject.should include(%Q{npm config set ca ""})
-  end
-
   describe "result" do
     before do
       data['config']['.result'] = result

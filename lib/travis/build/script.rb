@@ -137,11 +137,6 @@ module Travis
         def fix_ps4
           set "PS4", "+ ", echo: false
         end
-
-        def fix_npm
-          cmd 'echo -e "\033[33;1mApplying fix for NPM certificates\033[0m"', assert: false, echo: false
-          cmd 'which npm >/dev/null && npm config set ca ""', assert: false, echo: false, log: false
-        end
     end
   end
 end
