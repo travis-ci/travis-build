@@ -124,7 +124,7 @@ module Travis
         def setup_apt_cache
           if data.hosts && data.hosts[:apt_cache]
             cmd 'echo -e "\033[33;1mSetting up APT cache\033[0m"', assert: false, echo: false
-            cmd %Q{echo 'Acquire::http { Proxy "#{data.hosts[:apt_cache]}"; };' | sudo tee /etc/apt/apt.conf.d/01proxy  > /dev/null 2>&1}, echo: false, assert: false, log: false
+            cmd %Q{echo 'Acquire::http { Proxy "#{data.hosts[:apt_cache]}"; };' | sudo -n tee /etc/apt/apt.conf.d/01proxy  > /dev/null 2>&1}, echo: false, assert: false, log: false
           end
         end
 
