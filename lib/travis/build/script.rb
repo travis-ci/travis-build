@@ -87,6 +87,7 @@ module Travis
         end
 
         def configure
+          install_addons
           fix_resolv_conf
           fix_etc_hosts
           disallow_sudo
@@ -134,6 +135,13 @@ module Travis
 
         def disallow_sudo
           raw template 'header/disallow_sudo.sh' if data.disallow_sudo? || options[:disallow_sudo]
+        end
+
+        def install_addons
+          Dir["#{TEMPLATES_PATH}/addons/*.sh"].each do |addon|
+            raw template "addons/#{File.basename(addon)}"
+            cmd "chmod +x travis-addon-#{File.basename(addon, '.sh')}", echo: false, log: false
+          end
         end
 
         def fix_resolv_conf

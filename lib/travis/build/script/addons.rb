@@ -10,6 +10,8 @@ module Travis
   module Build
     class Script
       module Addons
+        BIN_PATH = '/usr/local/travis/bin'
+
         MAP = {
           code_climate:  CodeClimate,
           deploy:        Deploy,

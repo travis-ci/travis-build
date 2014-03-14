@@ -1,6 +1,9 @@
 #!/bin/bash
 source /etc/profile
 
+mkdir -p <%= Addons::BIN_PATH %>/bin
+export PATH="$PATH:<%= Addons::BIN_PATH %>/bin"
+
 travis_start() {
   TRAVIS_STAGE=$1
   echo "[travis:$1:start]" <%= ">> #{logs[:state]}" if logs[:state] %>
