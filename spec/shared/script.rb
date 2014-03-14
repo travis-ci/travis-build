@@ -68,65 +68,65 @@ shared_examples_for 'a build script' do
   it "sets up an apt cache if the option is enabled" do
     data['config']['cache'] = ['apt']
     data['hosts']= {'apt_cache' => 'http://cache.example.com:80'}
-    subject.should include(%Q{echo 'Acquire::http { Proxy "http://cache.example.com:80"; };' | sudo -n tee /etc/apt/apt.conf.d/01proxy})
+    subject.should include(%Q{echo 'Acquire::http { Proxy "http://cache.example.com:80"; };' | sudo tee /etc/apt/apt.conf.d/01proxy})
   end
 
   it "doesn't set up an apt cache when the cache list is empty" do
     data['hosts'] = {'apt_cache' => 'http://cache.example.com:80'}
-    subject.should_not include(%Q{echo 'Acquire::http { Proxy "http://cache.example.com:80"; };' | sudo -n tee /etc/apt/apt.conf.d/01proxy})
+    subject.should_not include(%Q{echo 'Acquire::http { Proxy "http://cache.example.com:80"; };' | sudo tee /etc/apt/apt.conf.d/01proxy})
   end
 
   it "doesn't set up an apt cache when the host isn't set" do
     data['config']['cache'] = ['apt']
     data['hosts'] = nil
-    subject.should_not include(%Q{echo 'Acquire::http { Proxy "http://cache.example.com:80"; };' | sudo -n tee /etc/apt/apt.conf.d/01proxy})
+    subject.should_not include(%Q{echo 'Acquire::http { Proxy "http://cache.example.com:80"; };' | sudo tee /etc/apt/apt.conf.d/01proxy})
   end
 
   describe 'disallow_sudo_access' do
     it "removes sudo access if :disallow_sudo was given as an option" do
       options.merge! disallow_sudo: true
-      subject.should include(%Q{sudo -n rm -f /etc/sudoers.d/travis})
+      subject.should include(%Q{sudo rm -f /etc/sudoers.d/travis})
     end
 
     it "removes sudo access if 'disallow_sudo' was given via payload" do
       data['disallow_sudo'] = true
-      subject.should include(%Q{sudo -n rm -f /etc/sudoers.d/travis})
+      subject.should include(%Q{sudo rm -f /etc/sudoers.d/travis})
     end
 
     it "does not remove sudo access by default" do
-      subject.should_not include(%Q{sudo -n rm -f /etc/sudoers.d/travis})
+      subject.should_not include(%Q{sudo rm -f /etc/sudoers.d/travis})
     end
   end
 
   describe 'fix_resolv_conf' do
     it "fixes the DNS entries in /etc/resolv.conf" do
-      subject.should include('| sudo -n tee /etc/resolv.conf &> /dev/null')
+      subject.should include('| sudo tee /etc/resolv.conf &> /dev/null')
     end
 
     it "skips fixing the DNS entries in /etc/resolv.conf if :skip_resolve_updates was given as an option" do
       options.merge! skip_resolv_updates: true
-      subject.should_not include('| sudo -n tee /etc/resolv.conf &> /dev/null')
+      subject.should_not include('| sudo tee /etc/resolv.conf &> /dev/null')
     end
 
     it "skips fixing the DNS entries in /etc/resolv.conf if 'skip_resolve_updates' was given via payload" do
       data['skip_resolv_updates'] = true
-      subject.should_not include('| sudo -n tee /etc/resolv.conf &> /dev/null')
+      subject.should_not include('| sudo tee /etc/resolv.conf &> /dev/null')
     end
   end
 
   describe 'fix_etc_hosts' do
     it "adds an entry to /etc/hosts for localhost" do
-      subject.should include(%Q{sudo -n sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i.bak /etc/hosts})
+      subject.should include(%Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i.bak /etc/hosts})
     end
 
     it "skips adding an entry to /etc/hosts if :skip_etc_hosts_fix was given as an option" do
       options.merge! skip_etc_hosts_fix: true
-      subject.should_not include(%Q{sudo -n sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i.bak /etc/hosts})
+      subject.should_not include(%Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i.bak /etc/hosts})
     end
 
     it "skips adding an entry to /etc/hosts if 'skip_resolve_updates' was given via payload" do
       data['skip_etc_hosts_fix'] = true
-      subject.should_not include(%Q{sudo -n sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i.bak /etc/hosts})
+      subject.should_not include(%Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i.bak /etc/hosts})
     end
   end
 
