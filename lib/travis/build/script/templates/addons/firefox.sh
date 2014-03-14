@@ -1,4 +1,4 @@
-cat << sh > <%= Addons::BIN_PATH %>/travis-addon-<%= File.basename(filename, '.sh') %>
+sudo su -c "cat > <%= Addons::BIN_PATH %>/travis-addon-<%= File.basename(filename, '.sh') %>" << sh
   #!/bin/bash -e
 
   echo -e \"\033[33;1mInstalling Firefox v$version\033[0m\";

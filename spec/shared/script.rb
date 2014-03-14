@@ -85,16 +85,16 @@ shared_examples_for 'a build script' do
   describe 'disallow_sudo_access' do
     it "removes sudo access if :disallow_sudo was given as an option" do
       options.merge! disallow_sudo: true
-      subject.should include(%Q{sudo rm -f /etc/sudoers.d/travis})
+      subject.should include(%Q{echo 'travis ALL=(ALL) NOPASSWD: /usr/sbin/service'})
     end
 
     it "removes sudo access if 'disallow_sudo' was given via payload" do
       data['disallow_sudo'] = true
-      subject.should include(%Q{sudo rm -f /etc/sudoers.d/travis})
+      subject.should include(%Q{echo 'travis ALL=(ALL) NOPASSWD: /usr/sbin/service'})
     end
 
     it "does not remove sudo access by default" do
-      subject.should_not include(%Q{sudo rm -f /etc/sudoers.d/travis})
+      subject.should_not include(%Q{echo 'travis ALL=(ALL) NOPASSWD: /usr/sbin/service'})
     end
   end
 

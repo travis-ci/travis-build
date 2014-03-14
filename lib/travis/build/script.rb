@@ -140,7 +140,7 @@ module Travis
         def install_addons
           Dir["#{TEMPLATES_PATH}/addons/*.sh"].each do |addon|
             raw template "addons/#{File.basename(addon)}"
-            cmd "chmod +x travis-addon-#{File.basename(addon, '.sh')}", echo: false, log: false
+            cmd "sudo chmod +x #{Addons::BIN_PATH}/travis-addon-#{File.basename(addon, '.sh')}", echo: false, log: false
           end
         end
 

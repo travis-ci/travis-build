@@ -1,9 +1,7 @@
-sudo sed -e 's/^%sudo.*//' -i.bak /etc/sudoers
-sudo rm /etc/sudoers.bak
-sudo rm -f /etc/sudoers.d/travis
-# sudo echo 'travis ALL=NOPASSWD: service /usr/local/travis/bin/*' > /etc/sudoers.d/travis
+sudo -n su -c "echo 'travis ALL=(ALL) NOPASSWD: /usr/sbin/service'        > /etc/sudoers.d/travis"
+sudo -n su -c "echo 'travis ALL=(ALL) NOPASSWD: /usr/local/travis/bin/*' >> /etc/sudoers.d/travis"
 
-if sudo ls > /dev/null 2>&1; then
-  echo "Failed to remove sudo access."
+if sudo -n ls > /dev/null 2>&1; then
+  echo "Failed to restrict sudo access."
   travis_terminate 2
 fi

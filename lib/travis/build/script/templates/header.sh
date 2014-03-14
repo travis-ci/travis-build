@@ -1,8 +1,11 @@
 #!/bin/bash
 source /etc/profile
 
-mkdir -p <%= Addons::BIN_PATH %>/bin
-export PATH="$PATH:<%= Addons::BIN_PATH %>/bin"
+# TODO should eventually be moved to the cookbooks
+if sudo -n ls > /dev/null 2>&1; then
+  sudo -n mkdir -p <%= Addons::BIN_PATH %>
+  export PATH="$PATH:<%= Addons::BIN_PATH %>"
+fi
 
 travis_start() {
   TRAVIS_STAGE=$1
