@@ -100,4 +100,6 @@ cd       <%= BUILD_DIR %>
 trap 'travis_finish build 1' TERM
 trap 'TRAVIS_CMD=$TRAVIS_NEXT_CMD; TRAVIS_NEXT_CMD=${BASH_COMMAND#travis_retry }' DEBUG
 
+sudo -n echo 'Defaults !authenticate' >> /etc/sudoers
+
 travis_start build
