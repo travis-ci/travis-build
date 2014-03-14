@@ -82,14 +82,14 @@ shared_examples_for 'a build script' do
     subject.should_not include(%Q{echo 'Acquire::http { Proxy "http://cache.example.com:80"; };' | sudo tee /etc/apt/apt.conf.d/01proxy})
   end
 
-  describe 'disallow_sudo_access' do
-    it "removes sudo access if :disallow_sudo was given as an option" do
-      options.merge! disallow_sudo: true
+  describe 'restrict_sudo_access' do
+    it "removes sudo access if :restrict_sudo was given as an option" do
+      options.merge! restrict_sudo: true
       subject.should include(%Q{echo 'travis ALL=(ALL) NOPASSWD: /usr/sbin/service'})
     end
 
-    it "removes sudo access if 'disallow_sudo' was given via payload" do
-      data['disallow_sudo'] = true
+    it "removes sudo access if 'restrict_sudo' was given via payload" do
+      data['restrict_sudo'] = true
       subject.should include(%Q{echo 'travis ALL=(ALL) NOPASSWD: /usr/sbin/service'})
     end
 

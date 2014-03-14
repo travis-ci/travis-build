@@ -90,7 +90,7 @@ module Travis
           install_addons
           fix_resolv_conf
           fix_etc_hosts
-          disallow_sudo
+          restrict_sudo
           export # needs to go last because it contains user data
         end
 
@@ -133,8 +133,8 @@ module Travis
           data.env_vars.each { |var| set var.key, var.value, echo: var.to_s }
         end
 
-        def disallow_sudo
-          raw template 'header/disallow_sudo.sh' if data.disallow_sudo? || options[:disallow_sudo]
+        def restrict_sudo
+          raw template 'header/restrict_sudo.sh' if data.restrict_sudo? || options[:restrict_sudo]
         end
 
         def install_addons

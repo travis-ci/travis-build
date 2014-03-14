@@ -54,8 +54,8 @@ module Travis
         data[:hosts] || {}
       end
 
-      def disallow_sudo?
-        !!data[:disallow_sudo]
+      def restrict_sudo?
+        !!data[:restrict_sudo]
       end
 
       def skip_resolv_updates?
