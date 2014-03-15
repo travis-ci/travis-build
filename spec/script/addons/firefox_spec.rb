@@ -12,7 +12,7 @@ describe Travis::Build::Script::Addons::Firefox do
 
   it 'runs the command' do
     script.expects(:fold).with('install_firefox').yields(script)
-    script.expects(:cmd).with("sudo #{bin_path}/travis-addon-firefox 20.0", assert: true, echo: false)
+    script.expects(:cmd).with("sudo #{bin_path}/travis-firefox 20.0", assert: true, echo: false)
     subject
   end
 end

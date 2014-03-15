@@ -1,4 +1,4 @@
-sudo su -c "cat > <%= Addons::BIN_PATH %>/travis-addon-<%= File.basename(filename, '.sh') %>" << "sh"
+sudo su -c "cat > <%= Addons::BIN_PATH %>/travis-<%= File.basename(filename, '.sh') %>" << "sh"
 #!/bin/bash -e
 
 hosts=$@

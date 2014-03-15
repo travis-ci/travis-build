@@ -138,9 +138,9 @@ module Travis
         end
 
         def install_addons
-          Dir["#{TEMPLATES_PATH}/addons/*.sh"].each do |addon|
-            raw template "addons/#{File.basename(addon)}"
-            cmd "sudo chmod +x #{Addons::BIN_PATH}/travis-addon-#{File.basename(addon, '.sh')}", echo: false, log: false
+          Dir["#{TEMPLATES_PATH}/install/*.sh"].each do |addon|
+            raw template "install/#{File.basename(addon)}"
+            cmd "sudo chmod +x #{Addons::BIN_PATH}/travis-#{File.basename(addon, '.sh')}", echo: false, log: false
           end
         end
 

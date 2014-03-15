@@ -12,7 +12,7 @@ describe Travis::Build::Script::Addons::Postgresql do
 
   it 'runs the command' do
     script.expects(:fold).with('postgresql').yields(script)
-    script.expects(:cmd).with("sudo #{bin_path}/travis-addon-postgresql 9.3", assert: true, echo: false)
+    script.expects(:cmd).with("sudo #{bin_path}/travis-postgresql 9.3", assert: true, echo: false)
     subject
   end
 end

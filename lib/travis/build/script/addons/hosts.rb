@@ -10,7 +10,7 @@ module Travis
 
           def setup
             @script.fold("hosts") do |script|
-              script.cmd "sudo #{BIN_PATH}/travis-addon-hosts #{@config.join(' ')}", assert: true, echo: false
+              script.cmd "sudo #{BIN_PATH}/travis-hosts #{@config.join(' ')}", assert: true, echo: false
             end
           end
         end
