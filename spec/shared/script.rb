@@ -85,16 +85,16 @@ shared_examples_for 'a build script' do
   describe 'restrict_sudo_access' do
     it "removes sudo access if :restrict_sudo was given as an option" do
       options.merge! restrict_sudo: true
-      subject.should include(%Q{echo 'travis ALL=(ALL) NOPASSWD: /usr/sbin/service'})
+      subject.should include(%Q{echo 'travis ALL=(ALL) NOPASSWD: /usr/sbin/service,/usr/local/travis/bin/*'})
     end
 
     it "removes sudo access if 'restrict_sudo' was given via payload" do
       data['restrict_sudo'] = true
-      subject.should include(%Q{echo 'travis ALL=(ALL) NOPASSWD: /usr/sbin/service'})
+      subject.should include(%Q{echo 'travis ALL=(ALL) NOPASSWD: /usr/sbin/service,/usr/local/travis/bin/*'})
     end
 
     it "does not remove sudo access by default" do
-      subject.should_not include(%Q{echo 'travis ALL=(ALL) NOPASSWD: /usr/sbin/service'})
+      subject.should_not include(%Q{echo 'travis ALL=(ALL) NOPASSWD: /usr/sbin/service,/usr/local/travis/bin/*'})
     end
   end
 

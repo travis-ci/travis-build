@@ -10,7 +10,7 @@ module Travis
 
           def before_install
             @script.fold('postgresql') do |script|
-              script.cmd "sudo #{BIN_PATH}/travis-addon-postgresql #{@postgresql_version}", assert: true, echo: false, log: false
+              script.cmd "sudo #{BIN_PATH}/travis-addon-postgresql #{@postgresql_version}", assert: true, echo: false
             end
           end
         end

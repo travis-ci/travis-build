@@ -11,7 +11,7 @@ describe Travis::Build::Script::Addons::Hosts do
 
   it "runs the commands" do
     script.expects(:fold).with("hosts").yields(script)
-    script.expects(:cmd).with("sudo #{bin_path}/travis-addon-hosts #{config}", assert: true, log: false, echo: false)
+    script.expects(:cmd).with("sudo #{bin_path}/travis-addon-hosts #{config}", assert: true, echo: false)
     subject
   end
 
@@ -20,7 +20,7 @@ describe Travis::Build::Script::Addons::Hosts do
 
     it "runs the command" do
       script.expects(:fold).with("hosts").yields(script)
-      script.expects(:cmd).with("sudo #{bin_path}/travis-addon-hosts johndoe.local example.local", assert: true, log: false, echo: false)
+      script.expects(:cmd).with("sudo #{bin_path}/travis-addon-hosts johndoe.local example.local", assert: true, echo: false)
       subject
     end
   end
