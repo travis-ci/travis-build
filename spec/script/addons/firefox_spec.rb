@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe Travis::Build::Script::Addons::Firefox do
   let(:script) { stub_everything('script') }
+  let(:bin_path) { Travis::Build::Script::Addons::BIN_PATH }
 
   before(:each) { script.stubs(:fold).yields(script) }
 
@@ -11,7 +12,7 @@ describe Travis::Build::Script::Addons::Firefox do
 
   it 'runs the command' do
     script.expects(:fold).with('install_firefox').yields(script)
-    script.expects(:cmd).with("sudo travis-addon-firefox 20.0", assert: true, log: false, echo: false)
+    script.expects(:cmd).with("sudo #{bin_path}/travis-addon-firefox 20.0", assert: true, log: false, echo: false)
     subject
   end
 end

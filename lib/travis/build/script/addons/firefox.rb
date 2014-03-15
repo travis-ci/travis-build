@@ -10,7 +10,7 @@ module Travis
 
           def before_install
             @script.fold('install_firefox') do |script|
-              script.cmd "sudo travis-addon-firefox #{@firefox_version}", assert: true, log: false, echo: false
+              script.cmd "sudo #{BIN_PATH}/travis-addon-firefox #{@firefox_version}", assert: true, log: false, echo: false
             end
           end
         end
