@@ -75,7 +75,7 @@ module Travis
           end
 
           def git_checkout
-            cmd "git checkout -qf #{data.pull_request ? 'FETCH_HEAD' : data.commit}", assert: true, fold: "git.#{next_git_fold_number}", retry: true
+            cmd "git checkout -qf #{data.pull_request ? 'FETCH_HEAD' : data.commit}", assert: true, fold: "git.#{next_git_fold_number}"
           end
 
           def submodules?
@@ -85,7 +85,7 @@ module Travis
           def submodules
             self.if '-f .gitmodules' do
               cmd 'echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config', echo: false
-              cmd 'git submodule init', fold: "git.#{next_git_fold_number}", retry: true
+              cmd 'git submodule init', fold: "git.#{next_git_fold_number}"
               cmd 'git submodule update', assert: true, timeout: :git_submodules, fold: "git.#{next_git_fold_number}", retry: true
             end
           end
