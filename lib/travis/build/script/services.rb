@@ -28,7 +28,7 @@ module Travis
 
         def start_services
           services.each do |name|
-            cmd "sudo /usr/local/travis/bin/travis-service #{name}", timeout: :start_service, assert: false, echo: false
+            cmd "sudo /usr/local/travis/bin/travis-service #{name} start", timeout: :start_service, assert: false, echo: false
           end
           cmd 'sleep 3', log: false, assert: false if services.any? # give services a moment to start
         end
