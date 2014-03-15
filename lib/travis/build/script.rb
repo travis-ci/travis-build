@@ -36,7 +36,7 @@ module Travis
       TEMPLATES_PATH = File.expand_path('../script/templates', __FILE__)
 
       STAGES = {
-        builtin: [:export, :fix_resolv_conf, :fix_etc_hosts, :checkout, :setup, :announce, :fix_ps4, :fix_npm],
+        builtin: [:export, :fix_resolv_conf, :fix_etc_hosts, :checkout, :setup, :announce, :fix_ps4],
         custom:  [:before_install, :install, :before_script, :script, :after_result, :after_script]
       }
 
