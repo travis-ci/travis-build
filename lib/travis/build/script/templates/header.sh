@@ -46,9 +46,9 @@ travis_wait() {
     wait $cmd_pid 2>/dev/null
     result=$?
     ps -p$jigger_pid 2>&1>/dev/null && kill $jigger_pid
-  } || exit 1
+  } || return 1
 
-  exit $result
+  return $result
 }
 
 travis_jigger() {
