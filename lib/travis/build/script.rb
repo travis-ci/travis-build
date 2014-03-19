@@ -127,11 +127,11 @@ module Travis
 
         def fix_resolv_conf
           return if data.skip_resolv_updates?
-          cmd %Q{grep '199.91.168' /etc/resolv.conf > /dev/null || echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf 2>&1 > /dev/null}, assert: false, echo: false, log: false
+          cmd %Q{grep '199.91.168' /etc/resolv.conf > /dev/null || echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf &> /dev/null}, assert: false, echo: false, log: false
         end
 
         def fix_etc_hosts
-          cmd %Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'' /etc/hosts}, assert: false, echo: false, log: false
+          cmd %Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i '' /etc/hosts}, assert: false, echo: false, log: false
         end
 
         def fix_ps4

@@ -10,7 +10,7 @@ module Travis
       module DirectoryCache
         class S3
           # TODO: Switch to different branch from master?
-          CASHER_URL = "https://raw.github.com/travis-ci/casher/%s/bin/casher"
+          CASHER_URL = "https://raw.githubusercontent.com/travis-ci/casher/%s/bin/casher"
           USE_RUBY   = "1.9.3"
 
           attr_accessor :fetch_timeout, :push_timeout, :bucket, :secret_access_key, :access_key_id, :uri_parser, :host, :scheme, :slug, :data, :start, :casher_url
@@ -32,7 +32,7 @@ module Travis
           def install(sh)
             sh.cmd "export CASHER_DIR=$HOME/.casher", log: false, echo: false
             sh.cmd "mkdir -p $CASHER_DIR/bin", log: false, echo: false
-            sh.cmd "curl #{casher_url} -o #{binary} -s --fail", echo: false, log: false, retry: true, assert: false
+            sh.cmd "curl #{casher_url} -L -o #{binary} -s --fail", echo: false, log: false, retry: true, assert: false
             sh.cmd "[ $? -ne 0 ] && echo 'Failed to fetch casher from GitHub, disabling cache.' && echo > #{binary}", echo: false, log: false, assert: false
             sh.if("-f #{binary}") { sh.cmd "chmod +x #{binary}", log: false, echo: false }
           end

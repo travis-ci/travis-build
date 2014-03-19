@@ -46,9 +46,13 @@ travis_wait() {
     wait $cmd_pid 2>/dev/null
     result=$?
     ps -p$jigger_pid 2>&1>/dev/null && kill $jigger_pid
-  } || exit 1
+  } || return 1
 
-  exit $result
+  echo "\nThe command \"$cmd\" exited with $result."
+  echo "\n\033[32;1mLog:\033[0m\n"
+  cat $log_file
+
+  return $result
 }
 
 travis_jigger() {
@@ -58,6 +62,9 @@ travis_jigger() {
 
   local cmd_pid=$1
   shift
+
+  # clear the line
+  echo -e "\n"
 
   while [ $count -lt $timeout ]; do
     count=$(($count + 1))
