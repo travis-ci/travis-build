@@ -42,13 +42,6 @@ travis_wait() {
     timeout=20
   fi
 
-  travis_wait_impl $timeout "$@"
-}
-
-travis_wait_impl() {
-  local timeout=$1
-  shift
-
   local cmd="$@"
   local log_file=travis_wait_$$.log
 
