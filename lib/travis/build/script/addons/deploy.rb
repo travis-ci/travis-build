@@ -1,3 +1,5 @@
+require 'json'
+
 module Travis
   module Build
     class Script
@@ -125,7 +127,6 @@ module Travis
             end
 
             def options
-              require 'json'
               opts = ""
               opts << config.flat_map { |k,v| option(k,v) }.compact.join(" ")
               unless hash_config.empty?
