@@ -22,7 +22,8 @@ travis_assert() {
 travis_result() {
   local result=$1
   export TRAVIS_TEST_RESULT=$(( ${TRAVIS_TEST_RESULT:-0} | $(($result != 0)) ))
-  echo -e "\nThe command \"$TRAVIS_CMD\" exited with $result."<%= " >> #{logs[:log]}" if logs[:log] %>
+
+  travis_print_color_coded_result $result $TRAVIS_CMD
 }
 
 travis_terminate() {
@@ -32,13 +33,23 @@ travis_terminate() {
 }
 
 travis_wait() {
+  local timeout=$1
+
+  if [[ $timeout =~ ^[0-9]+$ ]]; then
+    # looks like an integer, so we assume it's a timeout
+    shift
+  else
+    # default value
+    timeout=20
+  fi
+
   local cmd="$@"
   local log_file=travis_wait_$$.log
 
   $cmd 2>&1 >$log_file &
   local cmd_pid=$!
 
-  travis_jigger $! $cmd &
+  travis_jigger $! $timeout $cmd &
   local jigger_pid=$!
   local result
 
@@ -48,8 +59,9 @@ travis_wait() {
     ps -p$jigger_pid 2>&1>/dev/null && kill $jigger_pid
   } || return 1
 
-  echo "\nThe command \"$cmd\" exited with $result."
-  echo "\n\033[32;1mLog:\033[0m\n"
+  travis_print_color_coded_result $result $cmd
+
+  echo -e "\n\033[32;1mLog:\033[0m\n"
   cat $log_file
 
   return $result
@@ -57,11 +69,12 @@ travis_wait() {
 
 travis_jigger() {
   # helper method for travis_wait()
-  local timeout=20 # in minutes
-  local count=0
-
   local cmd_pid=$1
   shift
+  local timeout=$1 # in minutes
+  shift
+  local count=0
+
 
   # clear the line
   echo -e "\n"
@@ -72,7 +85,7 @@ travis_jigger() {
     sleep 60
   done
 
-  echo -e "\n\033[31;1mTimeout reached. Terminating $@\033[0m\n"
+  echo -e "\n\033[31;1mTimeout (${timeout} minutes) reached. Terminating \"$@\"\033[0m\n"
   kill -9 $cmd_pid
 }
 
@@ -95,6 +108,20 @@ travis_retry() {
   }
 
   return $result
+}
+
+travis_print_color_coded_result() {
+  local result=$1
+  shift
+  local cmd=$@
+
+  message="The command \"$cmd\" exited with status $result"
+
+  if [ $result -eq 0 ]; then
+    echo -e "\n\033[32;1m${message}\033[0m"
+  else
+    echo -e "\n\033[31;1m${message}\033[0m"
+  fi
 }
 
 decrypt() {
