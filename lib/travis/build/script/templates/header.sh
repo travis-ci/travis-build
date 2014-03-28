@@ -27,8 +27,11 @@ travis_result() {
   local result=$1
   export TRAVIS_TEST_RESULT=$(( ${TRAVIS_TEST_RESULT:-0} | $(($result != 0)) ))
 
-  travis_print_color_coded_result $result $TRAVIS_CMD
-  echo '<%= " >> #{logs[:log]}" if logs[:log] %>'
+  if [ $result -eq 0 ]; then
+    echo -e "\n${GREEN}The command \"$TRAVIS_CMD\" exited with $result."<%= " >> #{logs[:log]}" if logs[:log] %>"${RESET}"
+  else
+    echo -e "\n${RED}The command \"$TRAVIS_CMD\" exited with $result."<%= " >> #{logs[:log]}" if logs[:log] %>"${RESET}"
+  fi
 }
 
 travis_terminate() {
@@ -64,7 +67,11 @@ travis_wait() {
     ps -p$jigger_pid 2>&1>/dev/null && kill $jigger_pid
   } || return 1
 
-  travis_print_color_coded_result $result $cmd
+  if [ $result -eq 0 ]; then
+    echo -e "\nThe command \"$TRAVIS_CMD\" exited with $result."
+  else
+    echo -e "\nThe command \"$TRAVIS_CMD\" exited with $result."
+  fi
 
   echo -e "\n${GREEN}Log:${RESET}\n"
   cat $log_file
@@ -113,20 +120,6 @@ travis_retry() {
   }
 
   return $result
-}
-
-travis_print_color_coded_result() {
-  local result=$1
-  shift
-  local cmd=$@
-
-  message="The command \"$cmd\" exited with status $result"
-
-  if [ $result -eq 0 ]; then
-    echo -ne "\n${GREEN}${message}${RESET}"
-  else
-    echo -ne "\n${RED}${message}${RESET}"
-  fi
 }
 
 decrypt() {
