@@ -1,6 +1,10 @@
 #!/bin/bash
 source /etc/profile
 
+RED="\033[31;1m"
+GREEN="\033[32;1m"
+RESET="\033[0m"
+
 travis_start() {
   TRAVIS_STAGE=$1
   echo "[travis:$1:start]" <%= ">> #{logs[:state]}" if logs[:state] %>
@@ -14,7 +18,7 @@ travis_finish() {
 travis_assert() {
   local result=$?
   if [ $result -ne 0 ]; then
-    echo -e "\n\033[33;1mThe command \"$TRAVIS_CMD\" failed and exited with $result during $TRAVIS_STAGE.\e[0m\n\nYour build has been stopped." <%= ">> #{logs[:log]}" if logs[:log] %>
+    echo -e "\n${RED}The command \"$TRAVIS_CMD\" failed and exited with $result during $TRAVIS_STAGE.${RESET}\n\nYour build has been stopped." <%= ">> #{logs[:log]}" if logs[:log] %>
     travis_terminate 2
   fi
 }
@@ -24,6 +28,7 @@ travis_result() {
   export TRAVIS_TEST_RESULT=$(( ${TRAVIS_TEST_RESULT:-0} | $(($result != 0)) ))
 
   travis_print_color_coded_result $result $TRAVIS_CMD
+  echo '<%= " >> #{logs[:log]}" if logs[:log] %>'
 }
 
 travis_terminate() {
@@ -61,7 +66,7 @@ travis_wait() {
 
   travis_print_color_coded_result $result $cmd
 
-  echo -e "\n\033[32;1mLog:\033[0m\n"
+  echo -e "\n${GREEN}Log:${RESET}\n"
   cat $log_file
 
   return $result
@@ -85,7 +90,7 @@ travis_jigger() {
     sleep 60
   done
 
-  echo -e "\n\033[31;1mTimeout (${timeout} minutes) reached. Terminating \"$@\"\033[0m\n"
+  echo -e "\n${RED}Timeout (${timeout} minutes) reached. Terminating \"$@\"${RESET}\n"
   kill -9 $cmd_pid
 }
 
@@ -94,7 +99,7 @@ travis_retry() {
   local count=1
   while [ $count -le 3 ]; do
     [ $result -ne 0 ] && {
-      echo -e "\n\033[33;1mThe command \"$@\" failed. Retrying, $count of 3.\033[0m\n" >&2
+      echo -e "\n${RED}The command \"$@\" failed. Retrying, $count of 3.${RESET}\n" >&2
     }
     "$@"
     result=$?
@@ -104,7 +109,7 @@ travis_retry() {
   done
 
   [ $count -eq 3 ] && {
-    echo "\n\033[33;1mThe command \"$@\" failed 3 times.\033[0m\n" >&2
+    echo "\n${RED}The command \"$@\" failed 3 times.${RESET}\n" >&2
   }
 
   return $result
@@ -118,9 +123,9 @@ travis_print_color_coded_result() {
   message="The command \"$cmd\" exited with status $result"
 
   if [ $result -eq 0 ]; then
-    echo -e "\n\033[32;1m${message}\033[0m"
+    echo -ne "\n${GREEN}${message}${RESET}"
   else
-    echo -e "\n\033[31;1m${message}\033[0m"
+    echo -ne "\n${RED}${message}${RESET}"
   fi
 }
 
