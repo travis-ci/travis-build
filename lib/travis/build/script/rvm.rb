@@ -3,8 +3,8 @@ module Travis
     class Script
       module RVM
         USER_DB = %w[
-          rvm_remote_server_url3=https://s3.amazonaws.com/travis-rubies
-          rvm_remote_server_path3=binary
+          rvm_remote_server_url3=https://s3.amazonaws.com/travis-rubies/binaries
+          rvm_remote_server_type3=rubies
           rvm_remote_server_verify_downloads3=1
         ].join("\n")
 
