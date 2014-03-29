@@ -92,7 +92,7 @@ shared_examples_for 'a build script' do
   end
 
   it "adds an entry to /etc/hosts for localhost" do
-    subject.should include(%Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i '' /etc/hosts})
+    subject.should include(%Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'.bak' /etc/hosts})
   end
 
   describe "result" do
