@@ -35,7 +35,8 @@ module Travis
               TRAVIS_OS_NAME:         job[:os],
               TRAVIS:                 'true',
               CI:                     'true',
-              CONTINUOUS_INTEGRATION: 'true'
+              CONTINUOUS_INTEGRATION: 'true',
+              HAS_JOSH_K_SEAL_OF_APPROVAL: 'true'
             )
           end
 
