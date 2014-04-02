@@ -13,7 +13,7 @@ describe Travis::Build::Script::Android do
   it_behaves_like 'a build script'
   it_behaves_like 'a jdk build'
 
-  it 'installs the provided sdk components on setup' do
+  xit 'installs the provided sdk components on setup' do
     data['config']['sdk_components'] = [
       'platform-tools',
       'android-18',
