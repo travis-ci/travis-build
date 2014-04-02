@@ -14,6 +14,6 @@ class MockShell
   end
 
   def if(*)
-    yield
+    yield(self)
   end
 end
