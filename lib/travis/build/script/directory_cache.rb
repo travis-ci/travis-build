@@ -34,7 +34,7 @@ module Travis
             sh.cmd "mkdir -p $CASHER_DIR/bin", log: false, echo: false
             sh.cmd "curl #{casher_url} -L -o #{binary} -s --fail", echo: false, log: false, retry: true, assert: false
             sh.cmd "[ $? -ne 0 ] && echo 'Failed to fetch casher from GitHub, disabling cache.' && echo > #{binary}", echo: false, log: false, assert: false
-            sh.if("-f #{binary}") { sh.cmd "chmod +x #{binary}", log: false, echo: false }
+            sh.if("-f #{binary}") { |sh| sh.cmd "chmod +x #{binary}", log: false, echo: false }
           end
 
           def add(sh, path)
@@ -91,7 +91,7 @@ module Travis
             end
 
             def run(sh, command, *arguments)
-              sh.if("-f #{binary}") do
+              sh.if("-f #{binary}") do |sh|
                 sh.cmd("rvm #{USE_RUBY} do #{binary} #{command} #{arguments.join(" ")}", echo: false)
               end
             end
