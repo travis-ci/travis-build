@@ -19,6 +19,26 @@ describe Travis::Build::Script::ObjectiveC do
     should setup 'rvm use system'
   end
 
+  it 'sets TRAVIS_XCODE_SDK' do
+    data['config']['xcode_sdk'] = 'iphonesimulator7.0'
+    should set 'TRAVIS_XCODE_SDK', 'iphonesimulator7.0'
+  end
+
+  it 'sets TRAVIS_XCODE_SCHEME' do
+    data['config']['xcode_scheme'] = 'MyTests'
+    should set 'TRAVIS_XCODE_SCHEME', 'MyTests'
+  end
+
+  it 'sets TRAVIS_XCODE_PROJECT' do
+    data['config']['xcode_project'] = 'MyProject.xcodeproj'
+    should set 'TRAVIS_XCODE_PROJECT', 'MyProject.xcodeproj'
+  end
+
+  it 'sets TRAVIS_XCODE_WORKSPACE' do
+    data['config']['xcode_workspace'] = 'MyWorkspace.xcworkspace'
+    should set 'TRAVIS_XCODE_WORKSPACE', 'MyWorkspace.xcworkspace'
+  end
+
   context 'if Podfile exists' do
     before(:each) do
       file('Podfile')
