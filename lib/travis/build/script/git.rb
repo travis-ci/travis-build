@@ -31,8 +31,8 @@ module Travis
             echo "\nInstalling an SSH key\n"
             cmd "echo '#{config[:source_key]}' | base64 --decode > ~/.ssh/id_rsa", echo: false, log: false
             cmd 'chmod 600 ~/.ssh/id_rsa',                echo: false, log: false
-            cmd 'eval `ssh-agent` > /dev/null 2>&1',      echo: false, log: false
-            cmd 'ssh-add ~/.ssh/id_rsa > /dev/null 2>&1', echo: false, log: false
+            cmd 'eval `ssh-agent` &> /dev/null',      echo: false, log: false
+            cmd 'ssh-add ~/.ssh/id_rsa &> /dev/null', echo: false, log: false
 
             # BatchMode - If set to 'yes', passphrase/password querying will be disabled.
             # TODO ... how to solve StrictHostKeyChecking correctly? deploy a knownhosts file?

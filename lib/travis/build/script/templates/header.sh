@@ -36,7 +36,7 @@ travis_result() {
 
 travis_terminate() {
   travis_finish build $1
-  pkill -9 -P $$ > /dev/null 2>&1 || true
+  pkill -9 -P $$ &> /dev/null || true
   exit $1
 }
 
@@ -54,7 +54,7 @@ travis_wait() {
   local cmd="$@"
   local log_file=travis_wait_$$.log
 
-  $cmd 2>&1 >$log_file &
+  $cmd &>$log_file &
   local cmd_pid=$!
 
   travis_jigger $! $timeout $cmd &
@@ -64,7 +64,7 @@ travis_wait() {
   {
     wait $cmd_pid 2>/dev/null
     result=$?
-    ps -p$jigger_pid 2>&1>/dev/null && kill $jigger_pid
+    ps -p$jigger_pid &>/dev/null && kill $jigger_pid
   } || return 1
 
   if [ $result -eq 0 ]; then
