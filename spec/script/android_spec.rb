@@ -13,13 +13,35 @@ describe Travis::Build::Script::Android do
   it_behaves_like 'a build script'
   it_behaves_like 'a jdk build'
 
-  it 'installs the provided sdk components on setup' do
-    data['config']['sdk_components'] = [
-      'platform-tools',
-      'android-18',
-    ]
-    should setup "spawn android update sdk --filter platform-tools --no-ui --force", fold: true
-    should setup "spawn android update sdk --filter android-18 --no-ui --force", fold: true
+  context 'on setup' do
+    it 'does not install any sdk component by default' do
+      should_not setup "android-update-sdk"
+    end
+
+    it 'installs the provided sdk components accepting provided license patterns' do
+      data['config']['sdk_components'] = %w[build-tools-19.0.3 android-19 sysimg-19 sysimg-18]
+      data['config']['sdk_licenses']   = %w[android-sdk-license-.+ intel-.+]
+
+      should setup "android-update-sdk --components=build-tools-19.0.3 --accept-licenses='android-sdk-license-.+|intel-.+'", fold: true
+      should setup "android-update-sdk --components=android-19 --accept-licenses='android-sdk-license-.+|intel-.+'", fold: true
+      should setup "android-update-sdk --components=sysimg-19 --accept-licenses='android-sdk-license-.+|intel-.+'", fold: true
+      should setup "android-update-sdk --components=sysimg-18 --accept-licenses='android-sdk-license-.+|intel-.+'", fold: true
+    end
+
+    it 'installs the provided sdk components accepting a single license' do
+      data['config']['sdk_components'] = %w[sysimg-14 sysimg-8]
+      data['config']['sdk_licenses']   = %w[mips-android-sysimage-license-15de68cc]
+
+      should setup "android-update-sdk --components=sysimg-14 --accept-licenses='mips-android-sysimage-license-15de68cc'", fold: true
+      should setup "android-update-sdk --components=sysimg-8 --accept-licenses='mips-android-sysimage-license-15de68cc'", fold: true
+    end
+
+    it 'installs the provided sdk component using license defaults' do
+      data['config']['sdk_components'] = %w[build-tools-18.1.0]
+
+      should setup "android-update-sdk --components=build-tools-18.1.0", fold: true
+      should_not setup "android-update-sdk --components=build-tools-18.1.0 --accept-licenses", fold: true
+    end
   end
 
   describe 'if build.gradle exists' do
