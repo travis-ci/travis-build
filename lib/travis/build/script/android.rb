@@ -5,13 +5,15 @@ module Travis
         include Jdk
 
         DEFAULTS = {
-          sdk_components: [],
-          sdk_licenses: []
+          android: { 
+            components: [],
+            licenses: []
+          }
         }
 
         def setup
           super
-          install_sdk_components(config[:sdk_components]) unless config[:sdk_components].empty?
+          install_sdk_components(config[:android][:components]) unless config[:android][:components].empty?
         end
 
         def install
@@ -40,8 +42,8 @@ module Travis
 
         def install_sdk_component(script, component_name)
           install_cmd = "android-update-sdk --components=#{component_name}"
-          unless config[:sdk_licenses].empty?
-            install_cmd += " --accept-licenses='#{config[:sdk_licenses].join('|')}'"
+          unless config[:android][:licenses].empty?
+            install_cmd += " --accept-licenses='#{config[:android][:licenses].join('|')}'"
           end
           script.cmd install_cmd
         end
