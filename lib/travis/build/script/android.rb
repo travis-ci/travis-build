@@ -5,21 +5,15 @@ module Travis
         include Jdk
 
         DEFAULTS = {
-          sdk_components: %w[
-            build-tools-19.0.0
-            platform-tools
-            android-19
-            sysimg-19
-            extra-android-support
-            extra-android-m2repository
-            extra-google-m2repository
-            extra-google-google_play_services
-          ]
+          android: { 
+            components: [],
+            licenses: []
+          }
         }
 
         def setup
           super
-          install_components config[:sdk_components]
+          install_sdk_components(config[:android][:components]) unless config[:android][:components].empty?
         end
 
         def install
@@ -37,7 +31,7 @@ module Travis
 
         private
 
-        def install_components(components)
+        def install_sdk_components(components)
           fold("android.install") do |script|
             echo "Installing Android dependencies"
             components.each do |component_name|
@@ -47,10 +41,11 @@ module Travis
         end
 
         def install_sdk_component(script, component_name)
-          script.cmd %{spawn android update sdk --filter #{component_name} --no-ui --force}
-          script.cmd %{expect "Do you accept the license"}, echo: false
-          script.cmd %{send "y\r"}, echo: false
-          script.cmd %{interact},   echo: false
+          install_cmd = "android-update-sdk --components=#{component_name}"
+          unless config[:android][:licenses].empty?
+            install_cmd += " --accept-licenses='#{config[:android][:licenses].join('|')}'"
+          end
+          script.cmd install_cmd
         end
       end
     end
