@@ -23,6 +23,7 @@ module Travis
             cmd 'echo "### Disabling strict SSL ###"'
             cmd 'npm conf set strict-ssl false'
           end
+          cmd 'npm install -g npm'
           setup_npm_cache if npm_cache_required?
         end
 
