@@ -23,16 +23,16 @@ shared_examples_for 'a jdk build' do
     end
 
     it 'runs jdk_switcher' do
-      should run 'jdk_switcher use openjdk7', log: true, assert: true
+      should setup 'jdk_switcher use openjdk7'
     end
   end
 
   it 'runs java -version' do
-    should run 'java -version', echo: true, log: true
+    should announce 'java -version'
   end
 
   it 'runs javac -version' do
-    should run 'javac -version', echo: true, log: true
+    should announce 'javac -version'
   end
 end
 
