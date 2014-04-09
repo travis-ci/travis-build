@@ -31,6 +31,9 @@ module Travis
               cmd "rvm install #{ruby_version} --binary"
             end
             cmd "rvm use #{ruby_version}"
+          elsif ruby_version == 'default'
+            self.if "-f .ruby-version", then: "rvm use . --install --binary --fuzzy"
+            self.else "rvm use default"
           else
             cmd "rvm use #{ruby_version} --install --binary --fuzzy"
           end
