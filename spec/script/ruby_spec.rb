@@ -26,7 +26,7 @@ describe Travis::Build::Script::Ruby do
     end
 
     it 'sets up rvm with .ruby-version' do
-      should setup 'rvm use . || rvm use default'
+      should setup 'rvm use . --install --binary --fuzzy'
     end
   end
 
