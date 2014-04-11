@@ -88,6 +88,10 @@ module Travis
         end
 
         def export
+          set 'TRAVIS', 'true', echo: false
+          set 'CI', 'true', echo: false
+          set 'CONTINUOUS_INTEGRATION', 'true', echo: false
+          set 'HAS_JOSH_K_SEAL_OF_APPROVAL', 'true', echo: false
           data.env_vars.each do |var|
             set var.key, var.value, echo: var.to_s
           end
