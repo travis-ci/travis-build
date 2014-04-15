@@ -36,7 +36,7 @@ module Travis
       TEMPLATES_PATH = File.expand_path('../script/templates', __FILE__)
 
       STAGES = {
-        builtin: [:export, :fix_resolv_conf, :fix_etc_hosts, :fix_ssl, :checkout, :setup, :announce, :fix_ps4],
+        builtin: [:export, :fix_resolv_conf, :fix_etc_hosts, :fix_ssl, :paranoid_mode, :checkout, :setup, :announce, :fix_ps4],
         custom:  [:before_install, :install, :before_script, :script, :after_result, :after_script]
       }
 
@@ -126,6 +126,12 @@ module Travis
           echo 'Applying updates'
           cmd 'sudo apt-get update -qq > /dev/null', echo: false, assert: false
           cmd 'sudo apt-get install -qqqq -y libssl1.0.0 openssl > /dev/null', echo: false, assert: false
+        end
+
+        def paranoid_mode
+          if data.paranoid_mode?
+            cmd 'sudo -n sh -c "sed -e \'s/^%.*//\' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis && chmod -R a-s /"', echo: false, assert: false, log: false
+          end
         end
 
         def setup_apt_cache
