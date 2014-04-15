@@ -55,7 +55,7 @@ module Travis
       end
 
       def paranoid_mode?
-        data.fetch(:paranoid_mode, false)
+        data.fetch(:paranoid, false)
       end
 
       def skip_resolv_updates?
