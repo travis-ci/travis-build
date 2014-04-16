@@ -36,7 +36,7 @@ module Travis
       TEMPLATES_PATH = File.expand_path('../script/templates', __FILE__)
 
       STAGES = {
-        builtin: [:export, :fix_resolv_conf, :fix_etc_hosts, :fix_ssl, :paranoid_mode, :checkout, :setup, :announce, :fix_ps4],
+        builtin: [:configure, :checkout, :setup],
         custom:  [:before_install, :install, :before_script, :script, :after_result, :after_script]
       }
 
@@ -87,6 +87,16 @@ module Travis
           data.config
         end
 
+        def configure
+          fix_resolv_conf
+          fix_etc_hosts
+          fix_ssl
+          paranoid_mode
+
+          # export needs to go after paranoid_mode since it can execute code
+          export
+        end
+
         def export
           set 'TRAVIS', 'true', echo: false
           set 'CI', 'true', echo: false
@@ -105,6 +115,8 @@ module Travis
           start_services
           setup_apt_cache if data.cache? :apt
           setup_directory_cache
+          announce
+          fix_ps4
         end
 
         def announce
