@@ -14,25 +14,41 @@ describe Travis::Build::Script::DirectoryCache do
 
     describe "with no caching enabled" do
       let(:cache) {{ }}
-      it { should_not be_use_directory_cache }
-      its(:cache_class) { should be == Travis::Build::Script::DirectoryCache::Dummy }
+      it { is_expected.not_to be_use_directory_cache }
+
+      describe '#cache_class' do
+        subject { super().cache_class }
+        it { is_expected.to eq(Travis::Build::Script::DirectoryCache::Dummy) }
+      end
     end
 
     describe "with caching enabled" do
       let(:cache) {{ directories: ["foo"] }}
-      it { should be_use_directory_cache }
-      its(:cache_class) { should be == Travis::Build::Script::DirectoryCache::S3 }
+      it { is_expected.to be_use_directory_cache }
+
+      describe '#cache_class' do
+        subject { super().cache_class }
+        it { is_expected.to eq(Travis::Build::Script::DirectoryCache::S3) }
+      end
     end
 
     describe "casher branch" do
       describe "normal mode" do
         let(:cache) {{ }}
-        its(:casher_branch) { should be == 'production' }
+
+        describe '#casher_branch' do
+          subject { super().casher_branch }
+          it { is_expected.to eq('production') }
+        end
       end
 
       describe "edge mode" do
         let(:cache) {{ edge: true }}
-        its(:casher_branch) { should be == 'master' }
+
+        describe '#casher_branch' do
+          subject { super().casher_branch }
+          it { is_expected.to eq('master') }
+        end
       end
     end
   end

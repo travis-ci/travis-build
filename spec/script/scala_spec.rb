@@ -14,41 +14,41 @@ describe Travis::Build::Script::Scala do
   it_behaves_like 'a jvm build'
 
   it 'sets TRAVIS_SCALA_VERSION' do
-    should set 'TRAVIS_SCALA_VERSION', '2.10.3'
+    is_expected.to set 'TRAVIS_SCALA_VERSION', '2.10.3'
   end
 
   it 'announces Scala 2.10.3' do
-    should run 'echo Using Scala 2.10.3'
+    is_expected.to run 'echo Using Scala 2.10.3'
   end
 
   it 'does not set JVM_OPTS' do
-    should_not set 'JVM_OPTS'
+    is_expected.not_to set 'JVM_OPTS'
   end
 
   it 'does not set SBT_OPTS' do
-    should_not set 'SBT_OPTS'
+    is_expected.not_to set 'SBT_OPTS'
   end
 
   shared_examples_for 'an sbt build' do
 
     it "sets JVM_OPTS" do
-      should set 'JVM_OPTS', '@/etc/sbt/jvmopts'
+      is_expected.to set 'JVM_OPTS', '@/etc/sbt/jvmopts'
     end
 
     it "sets SBT_OPTS" do
-      should set 'SBT_OPTS', '@/etc/sbt/sbtopts'
+      is_expected.to set 'SBT_OPTS', '@/etc/sbt/sbtopts'
     end
 
     context "without any sbt_args" do
       it "runs sbt with default arguments" do
-        should run "sbt ++2.10.3 test", echo: true, log: true, timeout: timeout_for(:script)
+        is_expected.to run "sbt ++2.10.3 test", echo: true, log: true, timeout: timeout_for(:script)
       end
     end
 
     context "with some sbt_args defined" do
       before(:each) { data["config"]["sbt_args"] = "-Dsbt.log.noformat=true" }
       it "runs sbt with additional arguments" do
-        should run "sbt -Dsbt.log.noformat=true ++2.10.3 test", echo: true, log: true, timeout: timeout_for(:script)
+        is_expected.to run "sbt -Dsbt.log.noformat=true ++2.10.3 test", echo: true, log: true, timeout: timeout_for(:script)
       end
     end
 

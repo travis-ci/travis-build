@@ -18,8 +18,8 @@ describe Travis::Build::Script::Android do
       'platform-tools',
       'android-18',
     ]
-    should setup "spawn android update sdk --filter platform-tools --no-ui --force", fold: true
-    should setup "spawn android update sdk --filter android-18 --no-ui --force", fold: true
+    is_expected.to setup "spawn android update sdk --filter platform-tools --no-ui --force", fold: true
+    is_expected.to setup "spawn android update sdk --filter android-18 --no-ui --force", fold: true
   end
 
   describe 'if build.gradle exists' do
@@ -33,21 +33,21 @@ describe Travis::Build::Script::Android do
       end
 
       it 'installs with ./gradlew assemble' do
-        should run './gradlew assemble', echo: true, log: true, assert: true, timeout: timeout_for(:install)
+        is_expected.to run './gradlew assemble', echo: true, log: true, assert: true, timeout: timeout_for(:install)
       end
 
       it 'runs ./gradlew check connectedCheck' do
-        should run './gradlew check connectedCheck', echo: true, log: true, timeout: timeout_for(:script)
+        is_expected.to run './gradlew check connectedCheck', echo: true, log: true, timeout: timeout_for(:script)
       end
     end
 
     context 'without gradle wrapper' do
       it 'installs with gradle assemble' do
-        should run 'gradle assemble', echo: true, log: true, assert: true, timeout: timeout_for(:install)
+        is_expected.to run 'gradle assemble', echo: true, log: true, assert: true, timeout: timeout_for(:install)
       end
 
       it 'runs gradle check connectedCheck' do
-        should run 'gradle check connectedCheck', echo: true, log: true, timeout: timeout_for(:script)
+        is_expected.to run 'gradle check connectedCheck', echo: true, log: true, timeout: timeout_for(:script)
       end
     end
   end
@@ -58,17 +58,17 @@ describe Travis::Build::Script::Android do
     end
 
     it 'installs with mvn install -DskipTests=true -B' do
-      should run 'mvn install -DskipTests=true -B', echo: true, log: true, assert: true, timeout: timeout_for(:install)
+      is_expected.to run 'mvn install -DskipTests=true -B', echo: true, log: true, assert: true, timeout: timeout_for(:install)
     end
 
     it 'runs mvn test -B' do
-      should run 'mvn test -B', echo: true, log: true, timeout: timeout_for(:script)
+      is_expected.to run 'mvn test -B', echo: true, log: true, timeout: timeout_for(:script)
     end
   end
 
   describe 'if neither gradle nor mvn are used' do
     it 'runs default android ant tasks' do
-      should run 'ant debug installt test', echo: true, log: true, timeout: timeout_for(:script)
+      is_expected.to run 'ant debug installt test', echo: true, log: true, timeout: timeout_for(:script)
     end
   end
 end

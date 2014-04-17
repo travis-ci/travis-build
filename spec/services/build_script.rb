@@ -10,6 +10,6 @@ describe Travis::Build::Services::BuildScript do
   end
 
   it 'generates the build script for the given job' do
-    service.run.should include('travis_start')
+    expect(service.run).to include('travis_start')
   end
 end

@@ -92,6 +92,10 @@ RSpec.configure do |c|
   c.after :each do
     restore_consts
   end
+
+  c.mock_with :rspec do |config|
+    config.yield_receiver_to_any_instance_implementation_blocks = true
+  end
 end
 
 class RSpec::Core::Example

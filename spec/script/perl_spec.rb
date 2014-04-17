@@ -13,23 +13,23 @@ describe Travis::Build::Script::Perl do
   it_behaves_like 'a build script'
 
   it 'sets TRAVIS_PERL_VERSION' do
-    should set 'TRAVIS_PERL_VERSION', '5.14'
+    is_expected.to set 'TRAVIS_PERL_VERSION', '5.14'
   end
 
   it 'sets up the perl version' do
-    should setup 'perlbrew use 5.14'
+    is_expected.to setup 'perlbrew use 5.14'
   end
 
   it 'announces perl --version' do
-    should announce 'perl --version'
+    is_expected.to announce 'perl --version'
   end
 
   it 'announces cpanm --version' do
-    should announce 'cpanm --version'
+    is_expected.to announce 'cpanm --version'
   end
 
   it 'installs with ' do
-    should install 'cpanm --quiet --installdeps --notest .', retry: true
+    is_expected.to install 'cpanm --quiet --installdeps --notest .', retry: true
   end
 
   describe 'if perl version is 5.10' do
@@ -38,13 +38,13 @@ describe Travis::Build::Script::Perl do
     end
 
     it 'converts 5.1 to 5.10' do
-      should setup 'perlbrew use 5.10'
+      is_expected.to setup 'perlbrew use 5.10'
     end
   end
 
   describe 'if no Build.PL or Makefile.PL exists' do
     it 'runs make test' do
-      should run_script 'make test'
+      is_expected.to run_script 'make test'
     end
   end
 
@@ -54,8 +54,8 @@ describe Travis::Build::Script::Perl do
     end
 
     it 'runs perl Build.PL && ./Build test' do
-      should run 'echo $ perl Build.PL && ./Build && ./Build test'
-      should run 'perl Build.PL'
+      is_expected.to run 'echo $ perl Build.PL && ./Build && ./Build test'
+      is_expected.to run 'perl Build.PL'
       # TODO can't really capture this yet
       # should run './Build test', log: true, timeout: timeout_for(:script)
     end
@@ -67,9 +67,9 @@ describe Travis::Build::Script::Perl do
     end
 
     it 'runs perl Makefile.PL && make test' do
-      should run 'echo $ perl Makefile.PL && make test'
-      should run 'perl Makefile.PL'
-      should run 'make test', log: true, timeout: timeout_for(:script)
+      is_expected.to run 'echo $ perl Makefile.PL && make test'
+      is_expected.to run 'perl Makefile.PL'
+      is_expected.to run 'make test', log: true, timeout: timeout_for(:script)
     end
   end
 end

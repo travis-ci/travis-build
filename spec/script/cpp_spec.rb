@@ -22,11 +22,11 @@ describe Travis::Build::Script::Cpp do
     end
 
     it 'sets CXX to g++' do
-      should set 'CXX', 'g++'
+      is_expected.to set 'CXX', 'g++'
     end
 
     it 'sets CC to gcc' do
-      should set 'CC', 'gcc'
+      is_expected.to set 'CC', 'gcc'
     end
   end
 
@@ -36,11 +36,11 @@ describe Travis::Build::Script::Cpp do
     end
 
     it 'sets CXX to g++' do
-      should set 'CXX', 'g++'
+      is_expected.to set 'CXX', 'g++'
     end
 
     it 'sets CC to gcc' do
-      should set 'CC', 'gcc'
+      is_expected.to set 'CC', 'gcc'
     end
   end
 
@@ -50,11 +50,11 @@ describe Travis::Build::Script::Cpp do
     end
 
     it 'sets CXX to g++' do
-      should set 'CXX', 'g++'
+      is_expected.to set 'CXX', 'g++'
     end
 
     it 'sets CC to gcc' do
-      should set 'CC', 'gcc'
+      is_expected.to set 'CC', 'gcc'
     end
   end
 
@@ -64,11 +64,11 @@ describe Travis::Build::Script::Cpp do
     end
 
     it 'sets CXX to clang' do
-      should set 'CXX', 'clang++'
+      is_expected.to set 'CXX', 'clang++'
     end
 
     it 'sets CC to clang if clang given as compiler' do
-      should set 'CC', 'clang'
+      is_expected.to set 'CC', 'clang'
     end
   end
 
@@ -78,28 +78,32 @@ describe Travis::Build::Script::Cpp do
     end
 
     it 'sets CXX to clang' do
-      should set 'CXX', 'clang++'
+      is_expected.to set 'CXX', 'clang++'
     end
 
     it 'sets CC to clang' do
-      should set 'CC', 'clang'
+      is_expected.to set 'CC', 'clang'
     end
   end
 
   it 'runs gcc --version' do
     data['config']['compiler'] = 'gcc'
-    should announce 'gcc --version'
+    is_expected.to announce 'gcc --version'
   end
 
   it 'runs ./configure && make && make test' do
-    should run 'echo $ ./configure && make && make test'
-    should run 'configure', log: true
-    should run 'make', log: true
-    should run 'make test', log: true, timeout: timeout_for(:script)
+    is_expected.to run 'echo $ ./configure && make && make test'
+    is_expected.to run 'configure', log: true
+    is_expected.to run 'make', log: true
+    is_expected.to run 'make test', log: true, timeout: timeout_for(:script)
   end
 
   describe :cache_slug do
     subject { described_class.new(data, options) }
-    its(:cache_slug) { should be == 'cache--compiler-gpp' }
+
+    describe '#cache_slug' do
+      subject { super().cache_slug }
+      it { is_expected.to eq('cache--compiler-gpp') }
+    end
   end
 end

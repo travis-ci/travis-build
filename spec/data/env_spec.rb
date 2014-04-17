@@ -12,25 +12,25 @@ describe Travis::Build::Data::Env do
   let(:env)  { described_class.new(data) }
 
   it 'vars respond to :key' do
-    env.vars.first.should respond_to(:key)
+    expect(env.vars.first).to respond_to(:key)
   end
 
   it 'includes all travis env vars' do
     travis_vars = env.vars.select { |v| v.key =~ /^TRAVIS_/ && v.value && v.value.length > 0 }
-    travis_vars.length.should == 12
+    expect(travis_vars.length).to eq(12)
   end
 
   it 'includes config env vars' do
-    env.vars.last.key.should == 'FOO'
+    expect(env.vars.last.key).to eq('FOO')
   end
 
   it 'does not export secure env vars for pull requests' do
     data.stubs(:config).returns(env: 'SECURE FOO=foo')
-    env.vars.last.key.should_not == 'FOO'
+    expect(env.vars.last.key).not_to eq('FOO')
   end
 
   it 'escapes TRAVIS_ vars as needed' do
-    env.vars.find { |var| var.key == 'TRAVIS_BRANCH' }.value.should == "foo-\\(dev\\)"
+    expect(env.vars.find { |var| var.key == 'TRAVIS_BRANCH' }.value).to eq("foo-\\(dev\\)")
   end
 
   context "with TRAVIS_BUILD_DIR including $HOME" do
@@ -43,12 +43,12 @@ describe Travis::Build::Data::Env do
     end
 
     it "shouldn't escape $HOME" do
-      env.vars.find {|var| var.key == 'TRAVIS_BUILD_DIR'}.value.should == "$HOME/travis-ci/travis-ci"
+      expect(env.vars.find {|var| var.key == 'TRAVIS_BUILD_DIR'}.value).to eq("$HOME/travis-ci/travis-ci")
     end
 
     it "should escape the repository slug" do
       data.stubs(:repository).returns(slug: 'travis-ci/travis-ci ci')
-      env.vars.find {|var| var.key == 'TRAVIS_BUILD_DIR'}.value.should == "$HOME/travis-ci/travis-ci\\ ci"
+      expect(env.vars.find {|var| var.key == 'TRAVIS_BUILD_DIR'}.value).to eq("$HOME/travis-ci/travis-ci\\ ci")
     end
   end
 

@@ -43,6 +43,6 @@ describe Travis::Build::Script::Generic do
 
     subject
 
-    should set 'SAUCE_USERNAME', 'johndoe'
+    is_expected.to set 'SAUCE_USERNAME', 'johndoe'
   end
 end

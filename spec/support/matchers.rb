@@ -62,7 +62,7 @@ RSpec::Matchers.define :setup do |cmd, options = {}|
     failure_message_for_should do
       "expected script to setup #{cmd.inspect} with #{options} but it didn't:\n#{log_for(script)}"
     end
-    script.should run cmd, options
+    expect(script).to run cmd, options
   end
 end
 
@@ -72,7 +72,7 @@ RSpec::Matchers.define :announce do |cmd, options = {}|
     failure_message_for_should do
       "expected script to announce #{cmd.inspect} with #{options} but it didn't:\n#{log_for(script)}"
     end
-    script.should run cmd, options
+    expect(script).to run cmd, options
   end
 end
 
@@ -82,7 +82,7 @@ RSpec::Matchers.define :install do |cmd, options = {}|
     failure_message_for_should do
       "expected script to install #{cmd.inspect} with #{options} but it didn't:\n#{log_for(script)}"
     end
-    script.should run cmd, options
+    expect(script).to run cmd, options
   end
 end
 
@@ -92,7 +92,7 @@ RSpec::Matchers.define :run_script do |cmd, options = {}|
     failure_message_for_should do
       "expected script to run the script #{cmd.inspect} with #{options} but it didn't:\n#{log_for(script)}"
     end
-    script.should run cmd, options
+    expect(script).to run cmd, options
   end
 end
 
