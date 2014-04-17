@@ -7,3 +7,4 @@ bin/*
 tmp
 play/*.sh
 examples
+rspec.log
