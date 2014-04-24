@@ -92,7 +92,7 @@ module Travis
 
             def run(sh, command, *arguments)
               sh.if("-f #{binary}") do |sh|
-                sh.cmd("rvm #{USE_RUBY} do #{binary} #{command} #{arguments.join(" ")}", echo: false)
+                sh.cmd("rvm #{USE_RUBY} --fuzzy do #{binary} #{command} #{arguments.join(" ")}", echo: false)
               end
             end
         end
