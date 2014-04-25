@@ -1,4 +1,4 @@
-# Travis Build [![Build Status](https://travis-ci.org/travis-ci/travis-build.svg?branch=master)](https://travis-ci.org/travis-ci/travis-build)
+# Travis Build [![Build Status](https://travis-ci.org/travis-ci/travis-build.png?branch=master)](https://travis-ci.org/travis-ci/travis-build)
 
 Travis Build is a library that [Travis
 Workers](https://github.com/travis-ci/travis-worker) use to generate a shell
@@ -16,6 +16,10 @@ they're just meant to serve as an example of the order the commands are run and
 what commands are run. The examples are generated when the test suite is run.
 
 ## Running test suites
+
+### Note
+Currently, the specs actually runs generated build scripts. We recommend
+running them inside a virtual machine.
 
     bundle exec rspec spec
 
