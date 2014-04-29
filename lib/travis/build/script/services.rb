@@ -12,7 +12,8 @@ module Travis
 
         def start_services
           services.each do |name|
-            cmd "sudo service #{name} start", timeout: :start_service, assert: false
+            self.if "hash brew 2>/dev/null", "brew services start #{name}", timeout: :start_service, assert: false
+            self.else                        "sudo service #{name} start", timeout: :start_service, assert: false
           end
           cmd 'sleep 3', log: false, assert: false if services.any? # give services a moment to start
         end
