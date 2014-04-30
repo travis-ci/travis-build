@@ -29,6 +29,11 @@ describe Travis::Build::Script::Python do
     store_example '2.7'
   end
 
+  it 'does not set up the python version on OS X' do
+    data['config']['os'] = 'osx'
+    should_not run 'echo $ source ~/virtualenv/python2.7/bin/activate' # TODO can't really capture source, yet
+  end
+
   it 'announces python --version' do
     should announce 'python --version'
   end
