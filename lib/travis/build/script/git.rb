@@ -13,9 +13,13 @@ module Travis
           if tarball_clone?
             download_tarball
           else
-            git_clone
-            cd dir
-            fetch_ref if fetch_ref?
+            if fetch_ref?
+              git_init
+              fetch_ref
+            else
+              git_clone
+              cd dir
+            end
             git_checkout
             submodules if submodules?
           end
@@ -67,6 +71,13 @@ module Travis
             end
           end
 
+          def git_init
+            cmd "mkdir -p #{dir}", assert: true
+            cd dir
+            cmd "git init"
+            cmd "git remote add origin #{data.source_url}"
+          end
+
           def rm_key
             raw 'rm -f ~/.ssh/source_rsa'
           end
@@ -76,7 +87,7 @@ module Travis
           end
 
           def fetch_ref
-            cmd "git fetch origin +#{data.ref}:", assert: true, fold: "git.#{next_git_fold_number}", retry: true
+            cmd "git fetch --depth=1 origin +#{data.ref}:", assert: true, fold: "git.#{next_git_fold_number}", retry: true
           end
 
           def git_checkout
