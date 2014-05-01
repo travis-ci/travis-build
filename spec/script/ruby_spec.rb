@@ -137,4 +137,18 @@ describe Travis::Build::Script::Ruby do
       its(:cache_slug) { should be == 'cache--jdk-openjdk7--rvm-jruby--gemfile-Gemfile' }
     end
   end
+
+  context 'with the ruby key set' do
+    before do
+      data['config']['ruby'] = '2.1.1'
+    end
+
+    it 'uses chruby to set the version' do
+      should setup 'chruby 2.1.1'
+    end
+
+    it 'announces the chruby version' do
+      should announce 'chruby --version'
+    end
+  end
 end

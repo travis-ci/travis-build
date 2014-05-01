@@ -19,6 +19,11 @@ module Travis
 
         def setup
           super
+
+          if config[:ruby]
+            return setup_chruby
+          end
+
           cmd "echo '#{USER_DB}' > $rvm_path/user/db", echo: false
           if ruby_version =~ /ruby-head/
             fold("rvm.1") do
@@ -45,7 +50,11 @@ module Travis
         def announce
           super
           cmd 'ruby --version'
-          cmd 'rvm --version'
+          if config[:ruby]
+            cmd 'chruby --version'
+          else
+            cmd 'rvm --version'
+          end
         end
 
         private
@@ -53,6 +62,14 @@ module Travis
         def ruby_version
           config[:rvm].to_s.
             gsub(/-(1[89]|2[01])mode$/, '-d\1')
+        end
+
+        def setup_chruby
+          cmd 'echo -e "\033[33mBETA:\033[0m Using chruby to select Ruby version. This is currently a beta feature and may change at any time."', echo: false, assert: false
+
+          raw template 'chruby.sh'
+
+          cmd "chruby #{config[:ruby]}"
         end
       end
     end
