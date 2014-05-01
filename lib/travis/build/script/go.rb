@@ -55,9 +55,12 @@ module Travis
 
           def go_version
             version = config[:go].to_s
-            if version == '1'
+            case version
+            when '1'
               'go1.2'
-            elsif version =~ /^[0-9]\.[0-9\.]+/
+            when '1.0'
+              'go1.0.3'
+            when /^[0-9]\.[0-9\.]+/
               "go#{config[:go]}"
             else
               config[:go]
