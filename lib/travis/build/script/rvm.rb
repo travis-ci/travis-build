@@ -66,9 +66,8 @@ module Travis
 
         def setup_chruby
           cmd 'echo -e "\033[33mBETA:\033[0m Using chruby to select Ruby version. This is currently a beta feature and may change at any time."', echo: false, assert: false
-
-          raw template 'chruby.sh'
-
+          cmd "curl -sLo ~/chruby.sh https://gist.githubusercontent.com/henrikhodne/a01cd7367b12a59ee051/raw/40973799521b5e0ea9790abece4a72bd352b83f3/chruby.sh", echo: false
+          cmd "source ~/chruby.sh", echo: false
           cmd "chruby #{config[:ruby]}"
         end
       end
