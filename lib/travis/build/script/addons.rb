@@ -29,11 +29,11 @@ module Travis
         def addons
           @addons ||= (config[:addons] || {}).map do |name, addon_config|
             init_addon(name, addon_config)
-          end
+          end.compact
         end
 
         def init_addon(name, config)
-          MAP[name].new(self, config)
+          MAP[name] && MAP[name].new(self, config)
         end
       end
     end

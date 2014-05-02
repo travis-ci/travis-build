@@ -45,4 +45,11 @@ describe Travis::Build::Script::Generic do
 
     should set 'SAUCE_USERNAME', 'johndoe'
   end
+
+  it "doesn't fail with an unknown addon" do
+    data['config']['addons'] = { 'empty' => 'something' }
+    expect {
+      subject
+    }.not_to raise_error
+  end
 end
