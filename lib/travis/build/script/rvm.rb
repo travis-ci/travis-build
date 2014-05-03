@@ -39,11 +39,11 @@ module Travis
           elsif ruby_version == 'default'
             self.if "-f .ruby-version" do |script|
               script.cmd 'echo -e "\033[33mBETA:\033[0m Using Ruby version from .ruby-version. This is a beta feature and may be removed in the future."', echo: false, assert: false
-              script.cmd "rvm use . --install --binary --fuzzy"
+              fold("rvm.1") { script.cmd "rvm use . --install --binary --fuzzy" }
             end
             self.else "rvm use default"
           else
-            cmd "rvm use #{ruby_version} --install --binary --fuzzy"
+            fold("rvm.1") { cmd "rvm use #{ruby_version} --install --binary --fuzzy" }
           end
         end
 
