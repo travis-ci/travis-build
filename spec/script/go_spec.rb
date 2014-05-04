@@ -17,7 +17,7 @@ describe Travis::Build::Script::Go do
   end
 
   it 'sets TRAVIS_GO_VERSION' do
-    should set 'TRAVIS_GO_VERSION', 'go1.2'
+    should set 'TRAVIS_GO_VERSION', 'go1.2.1'
   end
 
   it 'updates GVM' do
@@ -29,7 +29,7 @@ describe Travis::Build::Script::Go do
   end
 
   it 'sets the default go version if not :go config given' do
-    should setup 'gvm use go1.2'
+    should setup 'gvm use go1.2.1'
   end
 
   it 'sets the go version from config :go' do
@@ -80,7 +80,7 @@ describe Travis::Build::Script::Go do
     should run 'gvm install go1.1'
   end
 
-  {'1.1' => 'go1.1', '1' => 'go1.2', '1.0' => 'go1.0.3', '1.0.2' => 'go1.0.2'}.each do |version_alias,version|
+  {'1.1' => 'go1.1', '1' => 'go1.2.1', '1.0' => 'go1.0.3', '1.0.2' => 'go1.0.2'}.each do |version_alias,version|
     it "sets version #{version.inspect} for alias #{version_alias.inspect}" do
       data['config']['go'] = version_alias
       should run "gvm install #{version}"
