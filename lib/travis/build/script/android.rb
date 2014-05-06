@@ -5,7 +5,7 @@ module Travis
         include Jdk
 
         DEFAULTS = {
-          android: { 
+          android: {
             components: [],
             licenses: []
           }
