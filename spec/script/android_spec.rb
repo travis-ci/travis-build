@@ -63,22 +63,13 @@ describe Travis::Build::Script::Android do
         executable('./gradlew')
       end
 
-      it 'does not execute gradle wrapper during install phase' do
-        should_not install './gradlew'
-      end
-
       it 'runs ./gradlew check connectedCheck' do
         should run_script './gradlew check connectedCheck'
         should_not run_script 'gradle check connectedCheck'
-        should_not run_script 'gradle'
       end
     end
 
     context 'without gradle wrapper' do
-      it 'does not execute gradle during install phase' do
-        should_not install 'gradle'
-      end
-
       it 'runs gradle check connectedCheck' do
         should run_script 'gradle check connectedCheck'
       end
@@ -90,20 +81,12 @@ describe Travis::Build::Script::Android do
       file('pom.xml')
     end
 
-    it 'does not execute maven during install phase' do
-      should_not install 'mvn'
-    end
-
     it 'runs mvn install -B' do
       should run_script 'mvn install -B'
     end
   end
 
   describe 'if neither gradle nor mvn are used' do
-    it 'does not execute ant during install phase' do
-      should_not install 'ant'
-    end
-
     it 'runs default android ant tasks' do
       should run_script 'ant debug installt test'
     end
