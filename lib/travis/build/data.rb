@@ -62,8 +62,8 @@ module Travis
         data.fetch(:skip_resolv_updates, false)
       end
 
-      def skip_hosts_updates?
-        data.fetch(:skip_hosts_updates, false)
+      def skip_etc_hosts_fix?
+        data.fetch(:skip_etc_hosts_fix, false)
       end
 
       def cache_options

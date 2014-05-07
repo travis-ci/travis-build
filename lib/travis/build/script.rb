@@ -153,7 +153,7 @@ module Travis
         end
 
         def fix_etc_hosts
-          return if data.skip_hosts_updates?
+          return if data.skip_etc_hosts_fix?
           cmd %Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'.bak' /etc/hosts}, assert: false, echo: false, log: false
         end
 
