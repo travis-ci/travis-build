@@ -20,6 +20,16 @@ describe Travis::Build::Script::Ruby do
     should setup 'rvm use default'
   end
 
+  context 'with a .ruby-version' do
+    before do
+      file '.ruby-version'
+    end
+
+    it 'sets up rvm with .ruby-version' do
+      should setup 'rvm use . --install --binary --fuzzy'
+    end
+  end
+
   it 'sets the ruby from config :rvm' do
     data['config']['rvm'] = 'rbx'
     should setup 'rvm use rbx'
@@ -125,6 +135,20 @@ describe Travis::Build::Script::Ruby do
         data['config']['jdk'] = 'openjdk7'
       end
       its(:cache_slug) { should be == 'cache--jdk-openjdk7--rvm-jruby--gemfile-Gemfile' }
+    end
+  end
+
+  context 'with the ruby key set' do
+    before do
+      data['config']['ruby'] = '2.1.1'
+    end
+
+    it 'uses chruby to set the version' do
+      should setup 'chruby 2.1.1'
+    end
+
+    it 'announces the chruby version' do
+      should announce 'chruby --version'
     end
   end
 end

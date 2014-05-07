@@ -12,4 +12,8 @@ class MockShell
   def commands_with_args
     @commands_with_args ||= []
   end
+
+  def if(*)
+    yield(self)
+  end
 end

@@ -83,20 +83,16 @@ shared_examples_for 'a build script' do
   end
 
   it "fixed the DNS entries in /etc/resolv.conf" do
-    subject.should include(%Q{echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf 2>&1 > /dev/null})
+    subject.should include(%Q{echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf &> /dev/null})
   end
 
   it "skips fixing the DNS entries in /etc/resolv.conf if told to" do
     data['skip_resolv_updates'] = true
-    subject.should_not include(%Q{echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf 2>&1 > /dev/null})
+    subject.should_not include(%Q{echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf &> /dev/null})
   end
 
   it "adds an entry to /etc/hosts for localhost" do
-    subject.should include(%Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'' /etc/hosts})
-  end
-
-  it "fixes NPM's certificate chain" do
-    subject.should include(%Q{npm config set ca ""})
+    subject.should include(%Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'.bak' /etc/hosts})
   end
 
   describe "result" do

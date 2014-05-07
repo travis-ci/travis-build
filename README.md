@@ -17,6 +17,10 @@ what commands are run. The examples are generated when the test suite is run.
 
 ## Running test suites
 
+### Note
+Currently, the specs actually runs generated build scripts. We recommend
+running them inside a virtual machine.
+
     bundle exec rspec spec
 
 ## Use as addon for CLI

@@ -3,7 +3,7 @@ module Travis
     class Script
       module Addons
         class Deploy
-          VERSIONED_RUNTIMES = [:jdk, :node, :perl, :php, :python, :ruby, :scala, :node]
+          VERSIONED_RUNTIMES = [:jdk, :node, :perl, :php, :python, :ruby, :scala, :node, :go]
           USE_RUBY           = '1.9.3'
           attr_accessor :script, :config, :allow_failure
 
@@ -116,7 +116,7 @@ module Travis
             end
 
             def cmd(cmd, *args)
-              script.cmd("rvm #{USE_RUBY} do ruby -S #{cmd}", *args)
+              script.cmd("rvm #{USE_RUBY} --fuzzy do ruby -S #{cmd}", *args)
             end
 
             def options

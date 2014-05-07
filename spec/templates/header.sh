@@ -2,8 +2,7 @@
 
 stubs=(
   before_install install before_script script after_script after_success after_failure
-  spawn expect interact
-  android
+  android-update-sdk
   git
   gcc make
   java javac
@@ -22,6 +21,7 @@ stubs=(
   curl cp bash mv tar
   /Users/travis/travis-utils/osx-cibuild.sh xcodebuild pod motion xctool osascript
   sudo
+  chruby
 )
 for stub in ${stubs[*]}; do
   eval "$stub() { builtin echo $stub \$@; }"

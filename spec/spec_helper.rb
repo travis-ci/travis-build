@@ -72,6 +72,7 @@ end
 
 RSpec.configure do |c|
   c.include SpecHelpers
+  c.deprecation_stream = 'rspec.log'
   c.mock_with :mocha
   c.filter_run focus: true
   c.run_all_when_everything_filtered = true

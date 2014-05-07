@@ -31,8 +31,8 @@ module Travis
             echo "\nInstalling an SSH key\n"
             cmd "echo '#{config[:source_key]}' | base64 --decode > ~/.ssh/id_rsa", echo: false, log: false
             cmd 'chmod 600 ~/.ssh/id_rsa',                echo: false, log: false
-            cmd 'eval `ssh-agent` > /dev/null 2>&1',      echo: false, log: false
-            cmd 'ssh-add ~/.ssh/id_rsa > /dev/null 2>&1', echo: false, log: false
+            cmd 'eval `ssh-agent` &> /dev/null',      echo: false, log: false
+            cmd 'ssh-add ~/.ssh/id_rsa &> /dev/null', echo: false, log: false
 
             # BatchMode - If set to 'yes', passphrase/password querying will be disabled.
             # TODO ... how to solve StrictHostKeyChecking correctly? deploy a knownhosts file?
@@ -71,7 +71,7 @@ module Travis
           end
 
           def fetch_ref
-            cmd "git fetch origin +#{data.ref}: ", assert: true, timeout: :git_fetch_ref, fold: "git.#{next_git_fold_number}"
+            cmd "git fetch origin +#{data.ref}: ", assert: true, timeout: :git_fetch_ref, fold: "git.#{next_git_fold_number}", retry: true
           end
 
           def git_checkout
@@ -86,7 +86,7 @@ module Travis
             self.if '-f .gitmodules' do
               cmd 'echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config', echo: false
               cmd 'git submodule init', fold: "git.#{next_git_fold_number}"
-              cmd 'git submodule update', assert: true, timeout: :git_submodules, fold: "git.#{next_git_fold_number}"
+              cmd 'git submodule update', assert: true, timeout: :git_submodules, fold: "git.#{next_git_fold_number}", retry: true
             end
           end
 

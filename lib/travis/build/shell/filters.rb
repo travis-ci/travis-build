@@ -8,7 +8,7 @@ module Travis
           end
 
           def log(code)
-            "#{code} >> #{options[:log_file]} 2>&1"
+            "#{code} &>> #{options[:log_file]}"
           end
         end
 

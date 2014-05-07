@@ -14,11 +14,11 @@ describe Travis::Build::Script::Scala do
   it_behaves_like 'a jvm build'
 
   it 'sets TRAVIS_SCALA_VERSION' do
-    should set 'TRAVIS_SCALA_VERSION', '2.10.3'
+    should set 'TRAVIS_SCALA_VERSION', '2.10.4'
   end
 
-  it 'announces Scala 2.10.3' do
-    should run 'echo Using Scala 2.10.3'
+  it 'announces Scala 2.10.4' do
+    should run 'echo Using Scala 2.10.4'
   end
 
   it 'does not set JVM_OPTS' do
@@ -41,14 +41,14 @@ describe Travis::Build::Script::Scala do
 
     context "without any sbt_args" do
       it "runs sbt with default arguments" do
-        should run "sbt ++2.10.3 test", echo: true, log: true, timeout: timeout_for(:script)
+        should run_script "sbt ++2.10.4 test"
       end
     end
 
     context "with some sbt_args defined" do
       before(:each) { data["config"]["sbt_args"] = "-Dsbt.log.noformat=true" }
       it "runs sbt with additional arguments" do
-        should run "sbt -Dsbt.log.noformat=true ++2.10.3 test", echo: true, log: true, timeout: timeout_for(:script)
+        should run_script "sbt -Dsbt.log.noformat=true ++2.10.4 test"
       end
     end
 

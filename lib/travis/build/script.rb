@@ -36,7 +36,7 @@ module Travis
       TEMPLATES_PATH = File.expand_path('../script/templates', __FILE__)
 
       STAGES = {
-        builtin: [:export, :fix_resolv_conf, :fix_etc_hosts, :checkout, :setup, :announce, :fix_ps4, :fix_npm],
+        builtin: [:export, :fix_resolv_conf, :fix_etc_hosts, :fix_ssl, :checkout, :setup, :announce, :fix_ps4],
         custom:  [:before_install, :install, :before_script, :script, :after_result, :after_script]
       }
 
@@ -88,6 +88,10 @@ module Travis
         end
 
         def export
+          set 'TRAVIS', 'true', echo: false
+          set 'CI', 'true', echo: false
+          set 'CONTINUOUS_INTEGRATION', 'true', echo: false
+          set 'HAS_JOSH_K_SEAL_OF_APPROVAL', 'true', echo: false
           data.env_vars.each do |var|
             set var.key, var.value, echo: var.to_s
           end
@@ -118,29 +122,30 @@ module Travis
           end
         end
 
+        def fix_ssl
+          echo 'Applying updates'
+          cmd 'sudo apt-get update -qq > /dev/null', echo: false, assert: false
+          cmd 'sudo apt-get install -qqqq -y libssl1.0.0 openssl > /dev/null', echo: false, assert: false
+        end
+
         def setup_apt_cache
           if data.hosts && data.hosts[:apt_cache]
             cmd 'echo -e "\033[33;1mSetting up APT cache\033[0m"', assert: false, echo: false
-            cmd %Q{echo 'Acquire::http { Proxy "#{data.hosts[:apt_cache]}"; };' | sudo tee /etc/apt/apt.conf.d/01proxy  > /dev/null 2>&1}, echo: false, assert: false, log: false
+            cmd %Q{echo 'Acquire::http { Proxy "#{data.hosts[:apt_cache]}"; };' | sudo tee /etc/apt/apt.conf.d/01proxy &> /dev/null}, echo: false, assert: false, log: false
           end
         end
 
         def fix_resolv_conf
           return if data.skip_resolv_updates?
-          cmd %Q{grep '199.91.168' /etc/resolv.conf > /dev/null || echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf 2>&1 > /dev/null}, assert: false, echo: false, log: false
+          cmd %Q{grep '199.91.168' /etc/resolv.conf > /dev/null || echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf &> /dev/null}, assert: false, echo: false, log: false
         end
 
         def fix_etc_hosts
-          cmd %Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'' /etc/hosts}, assert: false, echo: false, log: false
+          cmd %Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'.bak' /etc/hosts}, assert: false, echo: false, log: false
         end
 
         def fix_ps4
           set "PS4", "+ ", echo: false
-        end
-
-        def fix_npm
-          cmd 'echo -e "\033[33;1mApplying fix for NPM certificates\033[0m"', assert: false, echo: false
-          cmd 'which npm >/dev/null && npm config set ca ""', assert: false, echo: false, log: false
         end
     end
   end
