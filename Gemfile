@@ -6,6 +6,6 @@ gem 'addressable'
 
 group :test do
   gem 'mocha',       '~> 0.10.0'
-  gem 'rspec',       '~> 2.14'
+  gem 'rspec',       '~> 2.99.beta2'
 end
 

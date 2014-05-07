@@ -116,7 +116,7 @@ module Travis
             end
 
             def cmd(cmd, *args)
-              script.cmd("rvm #{USE_RUBY} do ruby -S #{cmd}", *args)
+              script.cmd("rvm #{USE_RUBY} --fuzzy do ruby -S #{cmd}", *args)
             end
 
             def options

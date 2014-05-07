@@ -69,17 +69,17 @@ describe Travis::Build::Script::DirectoryCache do
 
     specify :fetch do
       directory_cache.fetch(sh)
-      expect(sh.commands).to be == ["rvm 1.9.3 do $CASHER_DIR/bin/casher fetch #{fetch_url} #{global_fallback}"]
+      expect(sh.commands).to be == ["rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url} #{global_fallback}"]
     end
 
     specify :add do
       directory_cache.add(sh, "/foo/bar")
-      expect(sh.commands).to be == ["rvm 1.9.3 do $CASHER_DIR/bin/casher add /foo/bar"]
+      expect(sh.commands).to be == ["rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher add /foo/bar"]
     end
 
     specify :push do
       directory_cache.push(sh)
-      expect(sh.commands).to be == ["rvm 1.9.3 do $CASHER_DIR/bin/casher push #{push_url}"]
+      expect(sh.commands).to be == ["rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher push #{push_url}"]
     end
 
     describe "on a different branch" do
@@ -90,17 +90,17 @@ describe Travis::Build::Script::DirectoryCache do
 
       specify :fetch do
         directory_cache.fetch(sh)
-        expect(sh.commands).to be == ["rvm 1.9.3 do $CASHER_DIR/bin/casher fetch #{fetch_url} #{fallback_url} #{global_fallback}"]
+        expect(sh.commands).to be == ["rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url} #{fallback_url} #{global_fallback}"]
       end
 
       specify :add do
         directory_cache.add(sh, "/foo/bar")
-        expect(sh.commands).to be == ["rvm 1.9.3 do $CASHER_DIR/bin/casher add /foo/bar"]
+        expect(sh.commands).to be == ["rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher add /foo/bar"]
       end
 
       specify :push do
         directory_cache.push(sh)
-        expect(sh.commands).to be == ["rvm 1.9.3 do $CASHER_DIR/bin/casher push #{push_url}"]
+        expect(sh.commands).to be == ["rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher push #{push_url}"]
       end
     end
   end
