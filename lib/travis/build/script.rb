@@ -90,7 +90,6 @@ module Travis
         def configure
           fix_resolv_conf
           fix_etc_hosts
-          fix_ssl
           paranoid_mode
 
           # export needs to go after paranoid_mode since it can execute code
@@ -134,12 +133,6 @@ module Travis
           end
         end
 
-        def fix_ssl
-          echo 'Applying updates'
-          cmd 'sudo apt-get update -qq > /dev/null', echo: false, assert: false
-          cmd 'sudo apt-get install -qqqq -y libssl1.0.0 openssl > /dev/null', echo: false, assert: false
-        end
-
         def paranoid_mode
           if data.paranoid_mode?
             cmd 'echo -e "\033[33mNOTE:\033[0m Sudo, services, addons, setuid and setgid have been disabled."', echo: false, assert: false, log: false
@@ -160,6 +153,7 @@ module Travis
         end
 
         def fix_etc_hosts
+          return if data.skip_hosts_updates?
           cmd %Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'.bak' /etc/hosts}, assert: false, echo: false, log: false
         end
 
