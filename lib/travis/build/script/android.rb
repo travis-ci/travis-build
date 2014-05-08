@@ -17,8 +17,8 @@ module Travis
         end
 
         def script
-          self.if   '-f gradlew',      './gradlew check connectedCheck'
-          self.elif '-f build.gradle', 'gradle check connectedCheck'
+          self.if   '-f gradlew',      './gradlew build connectedCheck'
+          self.elif '-f build.gradle', 'gradle build connectedCheck'
           self.elif '-f pom.xml',      'mvn install -B'
           self.else                    'ant debug installt test'
         end
