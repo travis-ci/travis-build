@@ -64,14 +64,14 @@ describe Travis::Build::Script::Android do
       end
 
       it 'runs ./gradlew check connectedCheck' do
-        should run_script './gradlew check connectedCheck'
-        should_not run_script 'gradle check connectedCheck'
+        should run_script './gradlew build connectedCheck'
+        should_not run_script 'gradle build connectedCheck'
       end
     end
 
     context 'without gradle wrapper' do
-      it 'runs gradle check connectedCheck' do
-        should run_script 'gradle check connectedCheck'
+      it 'runs gradle build connectedCheck' do
+        should run_script 'gradle build connectedCheck'
       end
     end
   end
