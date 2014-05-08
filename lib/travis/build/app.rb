@@ -15,6 +15,11 @@ module Travis
         end
       end
 
+      if ENV["SENTRY_DSN"]
+        require "raven"
+        use Raven::Rack
+      end
+
       post "/script" do
         data = JSON.parse(request.body.read)
 

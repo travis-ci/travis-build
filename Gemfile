@@ -6,6 +6,7 @@ gem 'addressable'
 
 gem 'sinatra', '~> 1.4'
 gem 'puma'
+gem 'sentry-raven'
 
 group :development do
   gem 'rerun'
