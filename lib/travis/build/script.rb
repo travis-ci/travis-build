@@ -36,7 +36,7 @@ module Travis
       TEMPLATES_PATH = File.expand_path('../script/templates', __FILE__)
 
       STAGES = {
-        builtin: [:export, :fix_resolv_conf, :fix_etc_hosts, :fix_ssl, :checkout, :setup, :announce, :fix_ps4],
+        builtin: [:export, :fix_resolv_conf, :fix_etc_hosts, :checkout, :setup, :announce, :fix_ps4],
         custom:  [:before_install, :install, :before_script, :script, :after_result, :after_script]
       }
 
@@ -120,12 +120,6 @@ module Travis
             logs[type] = log if options[:logs][type] rescue nil
             logs
           end
-        end
-
-        def fix_ssl
-          echo 'Applying updates'
-          cmd 'sudo apt-get update -qq > /dev/null', echo: false, assert: false
-          cmd 'sudo apt-get install -qqqq -y libssl1.0.0 openssl > /dev/null', echo: false, assert: false
         end
 
         def setup_apt_cache
