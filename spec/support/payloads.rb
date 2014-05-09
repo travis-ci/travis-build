@@ -8,7 +8,8 @@ PAYLOADS = {
       'after_script'   => ['./after_script_1.sh',   './after_script_2.sh'],
       'after_success'  => ['./after_success_1.sh',  './after_success_2.sh'],
       'after_failure'  => ['./after_failure_1.sh',  './after_failure_2.sh'],
-      'deploy'         => ['./deploy_1.sh',         './deploy_2.sh']
+      'deploy'         => ['./deploy_1.sh',         './deploy_2.sh'],
+      'os' => 'linux',
     },
     'repository' => {
       'slug' => 'travis-ci/travis-ci',
@@ -25,7 +26,6 @@ PAYLOADS = {
       'branch' => 'master',
       'commit_range' => '313f61b..313f61a',
       'commit_message' => 'the commit message',
-      'os' => 'linux',
       'secure_env_enabled' => true
     }
   }
