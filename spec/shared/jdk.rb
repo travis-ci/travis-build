@@ -4,6 +4,10 @@ shared_examples_for 'a jdk build' do
       data['config']['jdk'] = nil
     end
 
+    it 'does not set TERM' do
+      should_not set 'TERM'
+    end
+
     it 'does not set TRAVIS_JDK_VERSION' do
       should_not set 'TRAVIS_JDK_VERSION'
     end
@@ -33,6 +37,17 @@ shared_examples_for 'a jdk build' do
 
   it 'runs javac -version' do
     should announce 'javac -version'
+  end
+
+  describe 'if build.gradle exists' do
+    before :each do
+      file('build.gradle')
+    end
+
+    it "sets TERM to 'dumb'" do
+      should set 'TERM', 'dumb'
+    end
+
   end
 end
 

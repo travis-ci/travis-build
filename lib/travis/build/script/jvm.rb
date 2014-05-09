@@ -21,10 +21,6 @@ module Travis
           self.else                    'ant test'
         end
 
-        def export
-          super
-          set 'TERM', 'dumb', echo: false
-        end
       end
     end
   end
