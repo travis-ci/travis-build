@@ -50,4 +50,8 @@ shared_examples_for 'a jvm build' do
       should run 'ant test', echo: true, log: true, timeout: timeout_for(:script)
     end
   end
+
+  it "sets TERM to 'dumb'" do
+    should set 'TERM', 'dumb'
+  end
 end
