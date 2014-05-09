@@ -51,7 +51,4 @@ shared_examples_for 'a jvm build' do
     end
   end
 
-  it "sets TERM to 'dumb'" do
-    should set 'TERM', 'dumb'
-  end
 end
