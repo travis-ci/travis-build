@@ -26,6 +26,7 @@ module Travis
             script.fold('artifacts.0') { install }
             script.fold('artifacts.0') { configure_env }
             script.fold('artifacts.1') do
+              script.set('PATH', '$HOME/bin:$PATH', echo: false, assert: false)
               script.cmd(
                 "artifacts upload #{options}",
                 echo: false,

@@ -56,6 +56,12 @@ describe Travis::Build::Script::Addons::Artifacts do
       subject.after_script
     end
 
+    it 'prefixes $PATH with $HOME/bin' do
+      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
+      script.expects(:set).with('PATH', '$HOME/bin:$PATH', echo: false, assert: false).once
+      subject.after_script
+    end
+
     it 'runs the command' do
       script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
       script.expects(:cmd).with('artifacts upload ', echo: false, assert: false).once
