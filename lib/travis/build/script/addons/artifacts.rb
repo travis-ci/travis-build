@@ -23,9 +23,10 @@ module Travis
 
           def run
             options = config.delete(:options)
+            script.cmd('echo "Uploading Artifacts (beta)"', echo: false, assert: false)
             script.fold('artifacts.0') { install }
-            script.fold('artifacts.0') { configure_env }
-            script.fold('artifacts.1') do
+            script.fold('artifacts.1') { configure_env }
+            script.fold('artifacts.2') do
               script.set('PATH', '$HOME/bin:$PATH', echo: false, assert: false)
               script.cmd(
                 "artifacts upload #{options}",
