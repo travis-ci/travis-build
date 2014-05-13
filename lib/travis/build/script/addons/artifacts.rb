@@ -4,6 +4,7 @@ module Travis
       module Addons
         class Artifacts
           attr_accessor :script, :config
+          attr_writer :concurrency, :max_size
 
           def initialize(script, config)
             @script = script
@@ -22,10 +23,15 @@ module Travis
           end
 
           def run
+            override_controlled_params
             options = config.delete(:options)
+
+            return unless validate!
+
             script.cmd('echo "Uploading Artifacts (beta)"', echo: false, assert: false)
             script.fold('artifacts.0') { install }
             script.fold('artifacts.1') { configure_env }
+
             script.fold('artifacts.2') do
               script.set('PATH', '$HOME/bin:$PATH', echo: false, assert: false)
               script.cmd(
@@ -48,6 +54,22 @@ module Travis
             )
           end
 
+          def override_controlled_params
+            %w(max_size concurrency).map(&:to_sym).each do |k|
+              config.delete(k)
+            end
+            config[:concurrency] = concurrency
+            config[:max_size] = max_size
+          end
+
+          def concurrency
+            @concurrency ||= Integer(ENV['ARTIFACTS_CONCURRENCY'] || 5)
+          end
+
+          def max_size
+            @max_size ||= Float(ENV['ARTIFACTS_MAX_SIZE'] || 1024 * 1024 * 5)
+          end
+
           def configure_env
             config.each { |key, value| setenv(key, value) }
           end
@@ -57,6 +79,23 @@ module Travis
             script.set(
               "#{prefix}#{key.upcase}", "#{value}", echo: false, assert: false
             )
+          end
+
+          def validate!
+            valid = true
+            unless config[:key]
+              script.cmd('echo "Artifacts config missing :key param"', echo: false, assert: false)
+              valid = false
+            end
+            unless config[:secret]
+              script.cmd('echo "Artifacts config missing :secret param"', echo: false, assert: false)
+              valid = false
+            end
+            unless config[:bucket]
+              script.cmd('echo "Artifacts config missing :bucket param"', echo: false, assert: false)
+              valid = false
+            end
+            valid
           end
         end
       end
