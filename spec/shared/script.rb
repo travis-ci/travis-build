@@ -100,13 +100,16 @@ shared_examples_for 'a build script' do
     subject.should_not include(%Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'.bak' /etc/hosts})
   end
 
-  it "does not remove access to sudo by default" do
-    subject.should_not include(%Q{sudo -n sh -c "sed -e 's/^%.*//' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis && find / -perm -4000 -exec chmod a-s {} \; 2>/dev/null"})
-  end
+  # further specs for not allowing services should be added
+  describe "paranoid mode" do
+    it "does not remove access to sudo by default" do
+      subject.should_not include(%Q{sudo -n sh -c "sed -e 's/^%.*//' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis && find / -perm -4000 -exec chmod a-s {} \; 2>/dev/null"})
+    end
 
-  it "removes access to sudo if in paranoid mode" do
-    data['paranoid'] = true
-    subject.should include(%Q{sudo -n sh -c "sed -e 's/^%.*//' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis && find / -perm -4000 -exec chmod a-s {} \; 2>/dev/null"})
+    it "removes access to sudo if enabled in the config" do
+      data['paranoid'] = true
+      subject.should include(%Q{sudo -n sh -c "sed -e 's/^%.*//' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis && find / -perm -4000 -exec chmod a-s {} \; 2>/dev/null"})
+    end
   end
 
   describe "result" do
