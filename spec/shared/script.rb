@@ -95,6 +95,11 @@ shared_examples_for 'a build script' do
     subject.should include(%Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'.bak' /etc/hosts})
   end
 
+  it "skips adding an entry to /etc/hosts for localhost" do
+    data['skip_etc_hosts_fix'] = true
+    subject.should_not include(%Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'.bak' /etc/hosts})
+  end
+
   describe "result" do
     before do
       data['config']['.result'] = result
