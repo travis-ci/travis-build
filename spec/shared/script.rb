@@ -106,7 +106,7 @@ shared_examples_for 'a build script' do
 
   it "removes access to sudo if in paranoid mode" do
     data['paranoid'] = true
-    subject.should include(%Q{sudo -n sh -c "sed -e \'s/^%.*//\' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis && find / -perm -4000 -exec chmod a-s {} \; 2>/dev/null"})
+    subject.should include(%Q{sudo -n sh -c "sed -e 's/^%.*//' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis && find / -perm -4000 -exec chmod a-s {} \; 2>/dev/null"})
   end
 
   describe "result" do
