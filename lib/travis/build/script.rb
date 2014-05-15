@@ -36,7 +36,7 @@ module Travis
       TEMPLATES_PATH = File.expand_path('../script/templates', __FILE__)
 
       STAGES = {
-        builtin: [:export, :fix_resolv_conf, :fix_etc_hosts, :checkout, :setup, :announce, :fix_ps4],
+        builtin: [:configure, :checkout, :setup],
         custom:  [:before_install, :install, :before_script, :script, :after_result, :after_script]
       }
 
@@ -87,6 +87,15 @@ module Travis
           data.config
         end
 
+        def configure
+          fix_resolv_conf
+          fix_etc_hosts
+          paranoid_mode
+
+          # export needs to go after paranoid_mode since it can execute code
+          export
+        end
+
         def export
           set 'TRAVIS', 'true', echo: false
           set 'CI', 'true', echo: false
@@ -105,6 +114,8 @@ module Travis
           start_services
           setup_apt_cache if data.cache? :apt
           setup_directory_cache
+          announce
+          fix_ps4
         end
 
         def announce
@@ -122,6 +133,13 @@ module Travis
           end
         end
 
+        def paranoid_mode
+          if data.paranoid_mode?
+            cmd 'echo -e "\033[33mNOTE:\033[0m Sudo, services, addons, setuid and setgid have been disabled."', echo: false, assert: false, log: false
+            cmd 'sudo -n sh -c "sed -e \'s/^%.*//\' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis && find / -perm -4000 -exec chmod a-s {} ; 2>/dev/null"', echo: false, assert: false, log: false
+          end
+        end
+
         def setup_apt_cache
           if data.hosts && data.hosts[:apt_cache]
             cmd 'echo -e "\033[33;1mSetting up APT cache\033[0m"', assert: false, echo: false
@@ -135,6 +153,7 @@ module Travis
         end
 
         def fix_etc_hosts
+          return if data.skip_etc_hosts_fix?
           cmd %Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'.bak' /etc/hosts}, assert: false, echo: false, log: false
         end
 
