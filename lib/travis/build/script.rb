@@ -136,7 +136,7 @@ module Travis
         def paranoid_mode
           if data.paranoid_mode?
             cmd 'echo -e "\033[33mNOTE:\033[0m Sudo, services, addons, setuid and setgid have been disabled."', echo: false, assert: false, log: false
-            cmd 'sudo -n sh -c "sed -e \'s/^%.*//\' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis && find / -perm -4000 -exec chmod a-s {} ; 2>/dev/null"', echo: false, assert: false, log: false
+            cmd 'sudo -n sh -c "sed -e \'s/^%.*//\' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis && find / -perm -4000 -exec chmod a-s {} \; 2>/dev/null"', echo: false, assert: false, log: false
           end
         end
 
