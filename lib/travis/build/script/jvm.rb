@@ -20,6 +20,7 @@ module Travis
           self.elif '-f pom.xml',      'mvn test -B'
           self.else                    'ant test'
         end
+
       end
     end
   end

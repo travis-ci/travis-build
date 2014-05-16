@@ -21,6 +21,8 @@ module Travis
         }
 
         def run_addons(stage)
+          return if data.paranoid_mode?
+
           addons.each do |addon|
             addon.send(stage) if addon.respond_to?(stage)
           end
