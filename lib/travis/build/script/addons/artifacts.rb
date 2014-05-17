@@ -48,7 +48,7 @@ module Travis
 
           def install
             script.cmd(
-              'artifacts -v || ' \
+              'artifacts -v 2>/dev/null || ' \
               'curl -sL https://raw.githubusercontent.com/meatballhat/artifacts/master/install | bash',
               echo: false, assert: false
             )
