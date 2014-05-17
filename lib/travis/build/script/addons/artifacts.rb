@@ -13,12 +13,12 @@ module Travis
 
           def after_script
             return if config.empty?
-            script.if(want) { run }
+            script.if(runnable?) { run }
           end
 
           private
 
-          def want
+          def runnable?
             "($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = #{branch})"
           end
 
@@ -48,18 +48,24 @@ module Travis
           end
 
           def install
-            script.cmd(
-              'curl -sL https://raw.githubusercontent.com/meatballhat/artifacts/master/install | bash',
-              echo: false, assert: false
-            )
+            script.cmd(install_script, echo: false, assert: false)
+          end
+
+          def install_script
+            @install_script ||= <<-EOF.gsub(/^\s{14}/, '')
+              ARTIFACTS_DEST=$HOME/bin/artifacts
+              mkdir -p $(dirname "$ARTIFACTS_DEST")
+              curl -sL -o "$ARTIFACTS_DEST" \
+                https://s3.amazonaws.com/meatballhat/artifacts/linux/amd64/meatballhat/artifacts/stable/artifacts
+              chmod +x "$ARTIFACTS_DEST"
+              PATH="$(dirname "$ARTIFACTS_DEST"):$PATH" artifacts -v
+            EOF
           end
 
           def override_controlled_params
-            %w(max_size concurrency).map(&:to_sym).each do |k|
-              config.delete(k)
+            %w(max_size concurrency target_paths).map(&:to_sym).each do |k|
+              config[k] = send(k)
             end
-            config[:concurrency] = concurrency
-            config[:max_size] = max_size
           end
 
           def concurrency
@@ -70,7 +76,14 @@ module Travis
             @max_size ||= Float(ENV['ARTIFACTS_MAX_SIZE'] || 1024 * 1024 * 5)
           end
 
+          def target_paths
+            @target_paths ||= '$TRAVIS_REPO_SLUG/$TRAVIS_BUILD_NUMBER/$TRAVIS_JOB_NUMBER'
+          end
+
           def configure_env
+            config[:paths] ||= '$(git ls-files -o | tr "\n" ";")'
+            config[:log_format] ||= 'multiline'
+
             config.each { |key, value| setenv(key.to_s.upcase, value) }
           end
 

@@ -18,9 +18,7 @@ describe Travis::Build::Script::Addons::Artifacts, focus: true do
         concurrency: 1000,
         target_paths: [
           'artifacts/$(go env GOOS)/$(go env GOARCH)/$TRAVIS_REPO_SLUG/' \
-            '$TRAVIS_BUILD_NUMBER/$TRAVIS_JOB_NUMBER',
-          'artifacts/$(go env GOOS)/$(go env GOARCH)/$TRAVIS_REPO_SLUG/' \
-            '$TRAVIS_COMMIT'
+            '$TRAVIS_BUILD_NUMBER/$TRAVIS_JOB_NUMBER'
         ]
       }
     end
@@ -39,24 +37,49 @@ describe Travis::Build::Script::Addons::Artifacts, focus: true do
       subject.after_script
     end
 
-    it 'exports ARTIFACTS_TARGET_PATHS' do
+    it 'overrides ARTIFACTS_TARGET_PATHS' do
       script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
       script.expects(:set).with(
         'ARTIFACTS_TARGET_PATHS',
-        'artifacts/$(go env GOOS)/$(go env GOARCH)/$TRAVIS_REPO_SLUG/' \
-          '$TRAVIS_BUILD_NUMBER/$TRAVIS_JOB_NUMBER;' \
-        'artifacts/$(go env GOOS)/$(go env GOARCH)/$TRAVIS_REPO_SLUG/' \
-          '$TRAVIS_COMMIT',
+        '$TRAVIS_REPO_SLUG/$TRAVIS_BUILD_NUMBER/$TRAVIS_JOB_NUMBER',
         echo: false, assert: false
       )
       subject.after_script
     end
 
+    it 'overrides ARTIFACTS_CONCURRENCY' do
+      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
+      script.expects(:set).with(
+        'ARTIFACTS_CONCURRENCY', "#{subject.send(:concurrency)}",
+        echo: false, assert: false
+      )
+      subject.after_script
+    end
+
+    it 'overrides ARTIFACTS_MAX_SIZE' do
+      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
+      script.expects(:set).with(
+        'ARTIFACTS_MAX_SIZE', "#{subject.send(:max_size)}",
+        echo: false, assert: false
+      )
+      subject.after_script
+    end
+
+    it 'defaults ARTIFACTS_PATHS' do
+      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
+      script.expects(:set).with('ARTIFACTS_PATHS', '$(git ls-files -o | tr "\n" ";")', echo: true, assert: false)
+      subject.after_script
+    end
+
+    it 'defaults ARTIFACTS_LOG_FORMAT' do
+      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
+      script.expects(:set).with('ARTIFACTS_LOG_FORMAT', 'multiline', echo: false, assert: false)
+      subject.after_script
+    end
+
     it 'installs artifacts' do
       script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
-      script.expects(:cmd).with(<<-EOS.strip.gsub(/\s+/, ' '), echo: false, assert: false).once
-        curl -sL https://raw.githubusercontent.com/meatballhat/artifacts/master/install | bash
-      EOS
+      script.expects(:cmd).with(subject.send(:install_script), echo: false, assert: false).once
       subject.after_script
     end
 
