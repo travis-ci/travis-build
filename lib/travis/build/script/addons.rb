@@ -21,10 +21,8 @@ module Travis
         }
 
         def run_addons(stage)
-          return if data.paranoid_mode?
-
           addons.each do |addon|
-            addon.send(stage) if addon.respond_to?(stage)
+            addon.send(stage) if can_run?(addon)
           end
         end
 
@@ -36,6 +34,18 @@ module Travis
 
         def init_addon(name, config)
           MAP[name] && MAP[name].new(self, config)
+        end
+
+        def can_run?(addon)
+          return false if !addon.respond_to?(stage)
+
+          if !data.paranoid_mode?
+            true
+          elsif data.paranoid_mode? && !addon::REQUIRES_SUPER_USER
+            true
+          else
+            false
+          end
         end
       end
     end

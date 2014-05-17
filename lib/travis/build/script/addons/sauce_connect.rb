@@ -3,6 +3,8 @@ module Travis
     class Script
       module Addons
         class SauceConnect
+          REQUIRES_SUPER_USER = false
+
           def initialize(script, config)
             @script = script
             @config = config.respond_to?(:to_hash) ? config.to_hash : {}

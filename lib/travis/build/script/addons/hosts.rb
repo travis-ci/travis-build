@@ -3,6 +3,8 @@ module Travis
     class Script
       module Addons
         class Hosts
+          REQUIRES_SUPER_USER = true
+
           def initialize(script, config)
             @script = script
             @config = [config].flatten

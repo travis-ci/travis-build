@@ -3,6 +3,8 @@ module Travis
     class Script
       module Addons
         class CoverityScan
+          REQUIRES_SUPER_USER = false
+
           SCAN_URL      = 'https://scan.coverity.com'
 
           def initialize(script, config)
