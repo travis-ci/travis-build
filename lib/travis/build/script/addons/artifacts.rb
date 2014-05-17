@@ -29,17 +29,18 @@ module Travis
             return unless validate!
 
             script.cmd('echo "Uploading Artifacts (beta)"', echo: false, assert: false)
-            script.fold('artifacts.0') { install }
-            script.fold('artifacts.1') { configure_env }
-
-            script.fold('artifacts.2') do
+            script.fold('artifacts.0') do
+              install
+              configure_env
               script.set('PATH', '$HOME/bin:$PATH', echo: false, assert: false)
+            end
+            script.fold('artifacts.1') do
               script.cmd(
                 "artifacts upload #{options}",
-                echo: false,
                 assert: false
               )
             end
+            script.cmd('echo "Done uploading artifacts"', echo: false, assert: false)
           end
 
           def branch

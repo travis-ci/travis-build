@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Travis::Build::Script::Addons::Artifacts do
+describe Travis::Build::Script::Addons::Artifacts, focus: true do
   let(:script) { stub_everything('script') }
 
   before(:each) { script.stubs(:fold).yields(script) }
@@ -55,7 +55,7 @@ describe Travis::Build::Script::Addons::Artifacts do
     it 'installs artifacts' do
       script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
       script.expects(:cmd).with(<<-EOS.strip.gsub(/\s+/, ' '), echo: false, assert: false).once
-        artifacts -v || curl -sL https://raw.githubusercontent.com/meatballhat/artifacts/master/install | bash
+        curl -sL https://raw.githubusercontent.com/meatballhat/artifacts/master/install | bash
       EOS
       subject.after_script
     end
@@ -68,7 +68,7 @@ describe Travis::Build::Script::Addons::Artifacts do
 
     it 'runs the command' do
       script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
-      script.expects(:cmd).with('artifacts upload ', echo: false, assert: false).once
+      script.expects(:cmd).with('artifacts upload ', assert: false).once
       subject.after_script
     end
 
