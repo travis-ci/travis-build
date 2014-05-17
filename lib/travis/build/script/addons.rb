@@ -22,7 +22,7 @@ module Travis
 
         def run_addons(stage)
           addons.each do |addon|
-            addon.send(stage) if can_run?(addon)
+            addon.send(stage) if can_run?(addon, stage)
           end
         end
 
@@ -36,7 +36,7 @@ module Travis
           MAP[name] && MAP[name].new(self, config)
         end
 
-        def can_run?(addon)
+        def can_run?(addon, stage)
           return false if !addon.respond_to?(stage)
 
           if !data.paranoid_mode?
