@@ -71,14 +71,18 @@ module Travis
           end
 
           def configure_env
-            config.each { |key, value| setenv(key, value) }
+            config.each { |key, value| setenv(key.to_s.upcase, value) }
           end
 
           def setenv(key, value, prefix = 'ARTIFACTS_')
             value = value.map(&:to_s).join(';') if value.respond_to?(:each)
             script.set(
-              "#{prefix}#{key.upcase}", "#{value}", echo: false, assert: false
+              "#{prefix}#{key}", "#{value}", echo: setenv_echoable?(key), assert: false
             )
+          end
+
+          def setenv_echoable?(key)
+            %w(PATHS).include?(key)
           end
 
           def validate!
