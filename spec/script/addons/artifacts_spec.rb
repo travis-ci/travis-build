@@ -25,6 +25,43 @@ describe Travis::Build::Script::Addons::Artifacts do
   before(:each) { script.stubs(:fold).yields(script) }
   before(:each) { script.stubs(:data).returns(data) }
 
+  describe '#branch_runnable?' do
+    context 'when no branch is given in the config' do
+      before { config.delete(:branch) }
+
+      it 'returns true' do
+        expect(subject.send(:branch_runnable?)).to be_true
+      end
+    end
+
+    context 'when branch is an array' do
+      before { config[:branch] = ['master', 'develop'] }
+
+      it 'returns true if present' do
+        expect(subject.send(:branch_runnable?)).to be_true
+      end
+
+      it 'returns false if absent' do
+        data.branch = 'plutonium'
+        expect(subject.send(:branch_runnable?)).to be_false
+      end
+    end
+
+    context 'when the branch is a string' do
+      before { config[:branch] = 'production' }
+
+      it 'returns true if equal' do
+        data.branch = 'production'
+        expect(subject.send(:branch_runnable?)).to be_true
+      end
+
+      it 'returns false if not equal' do
+        data.branch = 'plutonium'
+        expect(subject.send(:branch_runnable?)).to be_false
+      end
+    end
+  end
+
   context 'with a config' do
     let(:config) do
       {
@@ -100,12 +137,12 @@ describe Travis::Build::Script::Addons::Artifacts do
     end
 
     it 'overwrites :concurrency' do
-      script.expects(:set).with('ARTIFACTS_CONCURRENCY', '5', echo: false, assert: false).once
+      script.expects(:set).with('ARTIFACTS_CONCURRENCY', "#{subject.class::CONCURRENCY}", echo: false, assert: false).once
       subject.after_script
     end
 
     it 'overwrites :max_size' do
-      script.expects(:set).with('ARTIFACTS_MAX_SIZE', "#{Float(5 * 1024 * 1024)}", echo: false, assert: false).once
+      script.expects(:set).with('ARTIFACTS_MAX_SIZE', "#{subject.class::MAX_SIZE}", echo: false, assert: false).once
       subject.after_script
     end
   end
@@ -171,7 +208,7 @@ describe Travis::Build::Script::Addons::Artifacts do
     before(:each) { subject.stubs(:branch_runnable?).returns(false) }
 
     it 'echoes that artifacts are disabled for the current branch and nothing else' do
-      script.expects(:cmd).with(%Q{echo "Artifacts support disabled for branch \"#{subject.send(:branch)}\""}, echo: false, assert: false).once
+      script.expects(:cmd).with(%Q{echo "Artifacts support disabled for branch(es) #{subject.send(:branch).inspect}"}, echo: false, assert: false).once
       script.expects(:set).never
       script.expects(:fold).never
       subject.after_script

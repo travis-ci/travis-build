@@ -4,7 +4,7 @@ module Travis
       module Addons
         class Artifacts
           CONCURRENCY = 5
-          MAX_SIZE = Float(1024 * 1024 * 5)
+          MAX_SIZE = Float(1024 * 1024 * 50)
 
           attr_accessor :script, :config
 
@@ -15,7 +15,7 @@ module Travis
 
           def after_script
             return if config.empty?
-            script.cmd('echo -en "\n"', echo: false, assert: false)
+            script.cmd('echo', echo: false, assert: false)
 
             if pull_request?
               script.cmd('echo "Artifacts support disabled for pull requests"', echo: false, assert: false)
@@ -23,7 +23,7 @@ module Travis
             end
 
             unless branch_runnable?
-              script.cmd(%Q{echo "Artifacts support disabled for branch \"#{branch}\""}, echo: false, assert: false)
+              script.cmd(%Q{echo "Artifacts support disabled for branch(es) #{branch.inspect}"}, echo: false, assert: false)
               return
             end
 
@@ -54,7 +54,7 @@ module Travis
           end
 
           def branch
-            config[:branch] || 'master'
+            config[:branch]
           end
 
           def pull_request?
@@ -62,7 +62,9 @@ module Travis
           end
 
           def branch_runnable?
-            data.branch == branch
+            return true if branch.nil?
+            return branch.include?(data.branch) if branch.respond_to?(:each)
+            branch == data.branch
           end
 
           def data
