@@ -113,7 +113,7 @@ module Travis
           def setenv(key, value, prefix = 'ARTIFACTS_')
             value = value.map(&:to_s).join(';') if value.respond_to?(:each)
             script.set(
-              "#{prefix}#{key}", "#{value}", echo: setenv_echoable?(key), assert: false
+              "#{prefix}#{key}", %Q{"#{value}"}, echo: setenv_echoable?(key), assert: false
             )
           end
 

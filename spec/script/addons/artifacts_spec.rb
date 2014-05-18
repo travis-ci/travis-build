@@ -79,25 +79,23 @@ describe Travis::Build::Script::Addons::Artifacts do
     end
 
     it 'exports ARTIFACTS_BUCKET' do
-      script.expects(:set).with('ARTIFACTS_BUCKET', 'hambone', echo: false,
-                                assert: false)
+      script.expects(:set).with('ARTIFACTS_BUCKET', '"hambone"', echo: false, assert: false)
       subject.after_script
     end
 
     it 'exports ARTIFACTS_PRIVATE' do
-      script.expects(:set).with('ARTIFACTS_PRIVATE', 'true', echo: false,
-                                assert: false)
+      script.expects(:set).with('ARTIFACTS_PRIVATE', '"true"', echo: false, assert: false)
       subject.after_script
     end
 
     it 'overrides ARTIFACTS_TARGET_PATHS' do
-      script.expects(:set).with('ARTIFACTS_TARGET_PATHS', 'hamster/wheel/123/123.1', echo: false, assert: false)
+      script.expects(:set).with('ARTIFACTS_TARGET_PATHS', '"hamster/wheel/123/123.1"', echo: false, assert: false)
       subject.after_script
     end
 
     it 'overrides ARTIFACTS_CONCURRENCY' do
       script.expects(:set).with(
-        'ARTIFACTS_CONCURRENCY', "#{subject.class::CONCURRENCY}",
+        'ARTIFACTS_CONCURRENCY', %Q{"#{subject.class::CONCURRENCY}"},
         echo: false, assert: false
       )
       subject.after_script
@@ -105,19 +103,19 @@ describe Travis::Build::Script::Addons::Artifacts do
 
     it 'overrides ARTIFACTS_MAX_SIZE' do
       script.expects(:set).with(
-        'ARTIFACTS_MAX_SIZE', "#{subject.class::MAX_SIZE}",
+        'ARTIFACTS_MAX_SIZE', %Q{"#{subject.class::MAX_SIZE}"},
         echo: false, assert: false
       )
       subject.after_script
     end
 
     it 'defaults ARTIFACTS_PATHS' do
-      script.expects(:set).with('ARTIFACTS_PATHS', '$(git ls-files -o | tr "\n" ";")', echo: true, assert: false)
+      script.expects(:set).with('ARTIFACTS_PATHS', '"$(git ls-files -o | tr "\n" ";")"', echo: true, assert: false)
       subject.after_script
     end
 
     it 'defaults ARTIFACTS_LOG_FORMAT' do
-      script.expects(:set).with('ARTIFACTS_LOG_FORMAT', 'multiline', echo: false, assert: false)
+      script.expects(:set).with('ARTIFACTS_LOG_FORMAT', '"multiline"', echo: false, assert: false)
       subject.after_script
     end
 
@@ -137,12 +135,12 @@ describe Travis::Build::Script::Addons::Artifacts do
     end
 
     it 'overwrites :concurrency' do
-      script.expects(:set).with('ARTIFACTS_CONCURRENCY', "#{subject.class::CONCURRENCY}", echo: false, assert: false).once
+      script.expects(:set).with('ARTIFACTS_CONCURRENCY', %Q{"#{subject.class::CONCURRENCY}"}, echo: false, assert: false).once
       subject.after_script
     end
 
     it 'overwrites :max_size' do
-      script.expects(:set).with('ARTIFACTS_MAX_SIZE', "#{subject.class::MAX_SIZE}", echo: false, assert: false).once
+      script.expects(:set).with('ARTIFACTS_MAX_SIZE', %Q{"#{subject.class::MAX_SIZE}"}, echo: false, assert: false).once
       subject.after_script
     end
   end
