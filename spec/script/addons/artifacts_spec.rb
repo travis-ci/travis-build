@@ -110,7 +110,7 @@ describe Travis::Build::Script::Addons::Artifacts do
     end
 
     it 'defaults ARTIFACTS_PATHS' do
-      script.expects(:set).with('ARTIFACTS_PATHS', '"$(git ls-files -o | tr "\n" ";")"', echo: true, assert: false)
+      script.expects(:set).with('ARTIFACTS_PATHS', '"$(git ls-files -o | tr "\n" ":")"', echo: true, assert: false)
       subject.after_script
     end
 

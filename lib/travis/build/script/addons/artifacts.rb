@@ -104,14 +104,14 @@ module Travis
           end
 
           def configure_env
-            config[:paths] ||= '$(git ls-files -o | tr "\n" ";")'
+            config[:paths] ||= '$(git ls-files -o | tr "\n" ":")'
             config[:log_format] ||= 'multiline'
 
             config.each { |key, value| setenv(key.to_s.upcase, value) }
           end
 
           def setenv(key, value, prefix = 'ARTIFACTS_')
-            value = value.map(&:to_s).join(';') if value.respond_to?(:each)
+            value = value.map(&:to_s).join(':') if value.respond_to?(:each)
             script.set(
               "#{prefix}#{key}", %Q{"#{value}"}, echo: setenv_echoable?(key), assert: false
             )
