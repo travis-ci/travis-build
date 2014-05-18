@@ -1,3 +1,4 @@
+require 'travis/build/script/addons/artifacts'
 require 'travis/build/script/addons/code_climate'
 require 'travis/build/script/addons/deploy'
 require 'travis/build/script/addons/firefox'
@@ -11,6 +12,7 @@ module Travis
     class Script
       module Addons
         MAP = {
+          artifacts:     Artifacts,
           code_climate:  CodeClimate,
           deploy:        Deploy,
           firefox:       Firefox,
