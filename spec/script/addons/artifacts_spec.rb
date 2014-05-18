@@ -1,9 +1,20 @@
+require 'ostruct'
 require 'spec_helper'
 
-describe Travis::Build::Script::Addons::Artifacts, focus: true do
+describe Travis::Build::Script::Addons::Artifacts do
   let(:script) { stub_everything('script') }
+  let(:data) do
+    OpenStruct.new.tap do |o|
+      o.pull_request = false
+      o.branch = 'master'
+      o.slug = 'hamster/wheel'
+      o.build = { number: '123' }
+      o.job = { number: '123.1' }
+    end
+  end
 
   before(:each) { script.stubs(:fold).yields(script) }
+  before(:each) { script.stubs(:data).returns(data) }
 
   subject { described_class.new(script, config) }
 
@@ -24,31 +35,23 @@ describe Travis::Build::Script::Addons::Artifacts, focus: true do
     end
 
     it 'exports ARTIFACTS_BUCKET' do
-      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
       script.expects(:set).with('ARTIFACTS_BUCKET', 'hambone', echo: false,
                                 assert: false)
       subject.after_script
     end
 
     it 'exports ARTIFACTS_PRIVATE' do
-      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
       script.expects(:set).with('ARTIFACTS_PRIVATE', 'true', echo: false,
                                 assert: false)
       subject.after_script
     end
 
     it 'overrides ARTIFACTS_TARGET_PATHS' do
-      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
-      script.expects(:set).with(
-        'ARTIFACTS_TARGET_PATHS',
-        '$TRAVIS_REPO_SLUG/$TRAVIS_BUILD_NUMBER/$TRAVIS_JOB_NUMBER',
-        echo: false, assert: false
-      )
+      script.expects(:set).with('ARTIFACTS_TARGET_PATHS', 'hamster/wheel/123/123.1', echo: false, assert: false)
       subject.after_script
     end
 
     it 'overrides ARTIFACTS_CONCURRENCY' do
-      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
       script.expects(:set).with(
         'ARTIFACTS_CONCURRENCY', "#{subject.send(:concurrency)}",
         echo: false, assert: false
@@ -57,7 +60,6 @@ describe Travis::Build::Script::Addons::Artifacts, focus: true do
     end
 
     it 'overrides ARTIFACTS_MAX_SIZE' do
-      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
       script.expects(:set).with(
         'ARTIFACTS_MAX_SIZE', "#{subject.send(:max_size)}",
         echo: false, assert: false
@@ -66,43 +68,36 @@ describe Travis::Build::Script::Addons::Artifacts, focus: true do
     end
 
     it 'defaults ARTIFACTS_PATHS' do
-      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
       script.expects(:set).with('ARTIFACTS_PATHS', '$(git ls-files -o | tr "\n" ";")', echo: true, assert: false)
       subject.after_script
     end
 
     it 'defaults ARTIFACTS_LOG_FORMAT' do
-      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
       script.expects(:set).with('ARTIFACTS_LOG_FORMAT', 'multiline', echo: false, assert: false)
       subject.after_script
     end
 
     it 'installs artifacts' do
-      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
       script.expects(:cmd).with(subject.send(:install_script), echo: false, assert: false).once
       subject.after_script
     end
 
     it 'prefixes $PATH with $HOME/bin' do
-      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
       script.expects(:set).with('PATH', '$HOME/bin:$PATH', echo: false, assert: false).once
       subject.after_script
     end
 
     it 'runs the command' do
-      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
       script.expects(:cmd).with('artifacts upload ', assert: false).once
       subject.after_script
     end
 
     it 'overwrites :concurrency' do
-      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
       script.expects(:set).with('ARTIFACTS_CONCURRENCY', '5', echo: false, assert: false).once
       subject.after_script
     end
 
     it 'overwrites :max_size' do
-      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
       script.expects(:set).with('ARTIFACTS_MAX_SIZE', "#{Float(5 * 1024 * 1024)}", echo: false, assert: false).once
       subject.after_script
     end
@@ -122,25 +117,21 @@ describe Travis::Build::Script::Addons::Artifacts, focus: true do
     end
 
     it 'echoes a message about missing :key' do
-      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
       script.expects(:cmd).with('echo "Artifacts config missing :key param"', echo: false, assert: false).once
       subject.after_script
     end
 
     it 'echoes a message about missing :secret' do
-      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
       script.expects(:cmd).with('echo "Artifacts config missing :secret param"', echo: false, assert: false).once
       subject.after_script
     end
 
     it 'echoes a message about missing :bucket' do
-      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
       script.expects(:cmd).with('echo "Artifacts config missing :bucket param"', echo: false, assert: false).once
       subject.after_script
     end
 
     it 'aborts before running anything' do
-      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script).once
       subject.expects(:install).never
       subject.expects(:configure_env).never
       subject.after_script
@@ -153,7 +144,32 @@ describe Travis::Build::Script::Addons::Artifacts, focus: true do
     it "doesn't do anything" do
       script.expects(:set).never
       script.expects(:cmd).never
-      script.expects(:if).never
+      script.expects(:fold).never
+      subject.after_script
+    end
+  end
+
+  context 'when not runnable' do
+    let(:config) do
+      {
+        key: 'AZ1234',
+        secret: 'BX12345678',
+        bucket: 'hambone'
+      }
+    end
+
+    before(:each) { subject.stubs(:runnable?).returns(false) }
+
+    it 'echoes that artifacts are disabled for pull requests and nothing else' do
+      script.expects(:cmd).with('echo "\nArtifacts support disabled for pull requests"', echo: false, assert: false).once
+      script.expects(:set).never
+      script.expects(:fold).never
+      subject.after_script
+    end
+
+    it 'echoes that artifacts are disabled for the current branch and nothing else' do
+      script.expects(:cmd).with(%Q{echo "Artifacts support disabled for branch \"#{subject.send(:branch)}\""}, echo: false, assert: false).once
+      script.expects(:set).never
       script.expects(:fold).never
       subject.after_script
     end

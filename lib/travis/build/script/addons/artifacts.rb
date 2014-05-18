@@ -13,13 +13,18 @@ module Travis
 
           def after_script
             return if config.empty?
-            script.if(runnable?) { run }
+            if runnable?
+              run
+            else
+              script.cmd('echo "\nArtifacts support disabled for pull requests"', echo: false, assert: false)
+              script.cmd(%Q{echo "Artifacts support disabled for branch \"#{branch}\""}, echo: false, assert: false)
+            end
           end
 
           private
 
           def runnable?
-            "($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = #{branch})"
+            !pull_request? && branch_runnable?
           end
 
           def run
@@ -28,7 +33,7 @@ module Travis
 
             return unless validate!
 
-            script.cmd('echo "Uploading Artifacts (beta)"', echo: false, assert: false)
+            script.cmd('echo "\nUploading Artifacts (\033[33;1mBETA\033[0m)"', echo: false, assert: false)
             script.fold('artifacts.0') do
               install
               configure_env
@@ -45,6 +50,18 @@ module Travis
 
           def branch
             config[:branch] || 'master'
+          end
+
+          def pull_request?
+            data.pull_request
+          end
+
+          def branch_runnable?
+            data.branch == branch
+          end
+
+          def data
+            script.data
           end
 
           def install
@@ -69,15 +86,19 @@ module Travis
           end
 
           def concurrency
-            @concurrency ||= Integer(ENV['ARTIFACTS_CONCURRENCY'] || 5)
+            @concurrency ||= 5
           end
 
           def max_size
-            @max_size ||= Float(ENV['ARTIFACTS_MAX_SIZE'] || 1024 * 1024 * 5)
+            @max_size ||= Float(1024 * 1024 * 5)
           end
 
           def target_paths
-            @target_paths ||= '$TRAVIS_REPO_SLUG/$TRAVIS_BUILD_NUMBER/$TRAVIS_JOB_NUMBER'
+            @target_paths ||= File.join(
+              data.slug,
+              data.build[:number],
+              data.job[:number]
+            )
           end
 
           def configure_env
