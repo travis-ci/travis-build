@@ -23,7 +23,7 @@ module Travis
             end
 
             unless branch_runnable?
-              script.cmd(%Q{echo "Artifacts support disabled for branch(es) #{branch.inspect}"}, echo: false, assert: false)
+              script.cmd(%Q{echo "Artifacts support not enabled for the current branch (#{data.branch.inspect})"}, echo: false, assert: false)
               return
             end
 

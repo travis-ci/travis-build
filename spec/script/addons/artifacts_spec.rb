@@ -208,7 +208,7 @@ describe Travis::Build::Script::Addons::Artifacts do
     before(:each) { subject.stubs(:branch_runnable?).returns(false) }
 
     it 'echoes that artifacts are disabled for the current branch and nothing else' do
-      script.expects(:cmd).with(%Q{echo "Artifacts support disabled for branch(es) #{subject.send(:branch).inspect}"}, echo: false, assert: false).once
+      script.expects(:cmd).with(%Q{echo "Artifacts support not enabled for the current branch (#{data.branch.inspect})"}, echo: false, assert: false).once
       script.expects(:set).never
       script.expects(:fold).never
       subject.after_script
