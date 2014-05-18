@@ -3,8 +3,10 @@ module Travis
     class Script
       module Addons
         class Artifacts
+          CONCURRENCY = 5
+          MAX_SIZE = Float(1024 * 1024 * 5)
+
           attr_accessor :script, :config
-          attr_writer :concurrency, :max_size
 
           def initialize(script, config)
             @script = script
@@ -13,19 +15,22 @@ module Travis
 
           def after_script
             return if config.empty?
-            if runnable?
-              run
-            else
-              script.cmd('echo "\nArtifacts support disabled for pull requests"', echo: false, assert: false)
-              script.cmd(%Q{echo "Artifacts support disabled for branch \"#{branch}\""}, echo: false, assert: false)
+            script.cmd('echo -en "\n"', echo: false, assert: false)
+
+            if pull_request?
+              script.cmd('echo "Artifacts support disabled for pull requests"', echo: false, assert: false)
+              return
             end
+
+            unless branch_runnable?
+              script.cmd(%Q{echo "Artifacts support disabled for branch \"#{branch}\""}, echo: false, assert: false)
+              return
+            end
+
+            run
           end
 
           private
-
-          def runnable?
-            !pull_request? && branch_runnable?
-          end
 
           def run
             override_controlled_params
@@ -33,7 +38,7 @@ module Travis
 
             return unless validate!
 
-            script.cmd('echo "\nUploading Artifacts (\033[33;1mBETA\033[0m)"', echo: false, assert: false)
+            script.cmd('echo -e "Uploading Artifacts (\033[33;1mBETA\033[0m)"', echo: false, assert: false)
             script.fold('artifacts.0') do
               install
               configure_env
@@ -81,16 +86,11 @@ module Travis
 
           def override_controlled_params
             %w(max_size concurrency target_paths).map(&:to_sym).each do |k|
-              config[k] = send(k)
+              config.delete(k)
             end
-          end
-
-          def concurrency
-            @concurrency ||= 5
-          end
-
-          def max_size
-            @max_size ||= Float(1024 * 1024 * 5)
+            config[:max_size] = MAX_SIZE
+            config[:concurrency] = CONCURRENCY
+            config[:target_paths] = target_paths
           end
 
           def target_paths

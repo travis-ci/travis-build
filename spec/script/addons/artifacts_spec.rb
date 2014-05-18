@@ -2,6 +2,8 @@ require 'ostruct'
 require 'spec_helper'
 
 describe Travis::Build::Script::Addons::Artifacts do
+  subject { described_class.new(script, config) }
+
   let(:script) { stub_everything('script') }
   let(:data) do
     OpenStruct.new.tap do |o|
@@ -12,11 +14,16 @@ describe Travis::Build::Script::Addons::Artifacts do
       o.job = { number: '123.1' }
     end
   end
+  let(:config) do
+    {
+      key: 'AZ1234',
+      secret: 'BX12345678',
+      bucket: 'hambone'
+    }
+  end
 
   before(:each) { script.stubs(:fold).yields(script) }
   before(:each) { script.stubs(:data).returns(data) }
-
-  subject { described_class.new(script, config) }
 
   context 'with a config' do
     let(:config) do
@@ -53,7 +60,7 @@ describe Travis::Build::Script::Addons::Artifacts do
 
     it 'overrides ARTIFACTS_CONCURRENCY' do
       script.expects(:set).with(
-        'ARTIFACTS_CONCURRENCY', "#{subject.send(:concurrency)}",
+        'ARTIFACTS_CONCURRENCY', "#{subject.class::CONCURRENCY}",
         echo: false, assert: false
       )
       subject.after_script
@@ -61,7 +68,7 @@ describe Travis::Build::Script::Addons::Artifacts do
 
     it 'overrides ARTIFACTS_MAX_SIZE' do
       script.expects(:set).with(
-        'ARTIFACTS_MAX_SIZE', "#{subject.send(:max_size)}",
+        'ARTIFACTS_MAX_SIZE', "#{subject.class::MAX_SIZE}",
         echo: false, assert: false
       )
       subject.after_script
@@ -149,23 +156,19 @@ describe Travis::Build::Script::Addons::Artifacts do
     end
   end
 
-  context 'when not runnable' do
-    let(:config) do
-      {
-        key: 'AZ1234',
-        secret: 'BX12345678',
-        bucket: 'hambone'
-      }
-    end
-
-    before(:each) { subject.stubs(:runnable?).returns(false) }
+  context 'when a pull request' do
+    before(:each) { subject.stubs(:pull_request?).returns(true) }
 
     it 'echoes that artifacts are disabled for pull requests and nothing else' do
-      script.expects(:cmd).with('echo "\nArtifacts support disabled for pull requests"', echo: false, assert: false).once
+      script.expects(:cmd).with('echo "Artifacts support disabled for pull requests"', echo: false, assert: false).once
       script.expects(:set).never
       script.expects(:fold).never
       subject.after_script
     end
+  end
+
+  context 'when not a runnable branch' do
+    before(:each) { subject.stubs(:branch_runnable?).returns(false) }
 
     it 'echoes that artifacts are disabled for the current branch and nothing else' do
       script.expects(:cmd).with(%Q{echo "Artifacts support disabled for branch \"#{subject.send(:branch)}\""}, echo: false, assert: false).once
