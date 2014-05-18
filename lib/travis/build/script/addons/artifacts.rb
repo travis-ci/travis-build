@@ -3,6 +3,8 @@ module Travis
     class Script
       module Addons
         class Artifacts
+          REQUIRES_SUPER_USER = false
+
           CONCURRENCY = 5
           MAX_SIZE = Float(1024 * 1024 * 50)
 
