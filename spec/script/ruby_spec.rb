@@ -4,7 +4,7 @@ describe Travis::Build::Script::Ruby do
   let(:options) { { logs: { build: false, state: false } } }
   let(:data)    { PAYLOADS[:push].deep_clone }
 
-  subject { described_class.new(data, options).compile }
+  subject(:script) { described_class.new(data, options).compile }
 
   after :all do
     store_example

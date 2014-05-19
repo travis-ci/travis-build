@@ -50,7 +50,7 @@ module Travis
         end
 
         def prepare_cache
-          "bundle clean" if bundler_path
+          sh.cmd("bundle clean") if bundler_path
         end
 
         private
