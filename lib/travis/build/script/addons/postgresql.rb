@@ -3,6 +3,8 @@ module Travis
     class Script
       module Addons
         class Postgresql
+          REQUIRES_SUPER_USER = true
+
           def initialize(script, config)
             @script = script
             @postgresql_version = config.to_s

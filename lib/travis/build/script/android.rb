@@ -5,7 +5,7 @@ module Travis
         include Jdk
 
         DEFAULTS = {
-          android: { 
+          android: {
             components: [],
             licenses: []
           }
@@ -16,16 +16,10 @@ module Travis
           install_sdk_components(config[:android][:components]) unless config[:android][:components].empty?
         end
 
-        def install
-          self.if   '-f gradlew',      './gradlew assemble', fold: 'install', retry: true
-          self.elif '-f build.gradle', 'gradle assemble', fold: 'install', retry: true
-          self.elif '-f pom.xml',      'mvn install -DskipTests=true -B', fold: 'install', retry: true # Otherwise mvn install will run tests which. Suggestion from Charles Nutter. MK.
-        end
-
         def script
-          self.if   '-f gradlew',      './gradlew check connectedCheck'
-          self.if   '-f build.gradle', 'gradle check connectedCheck'
-          self.elif '-f pom.xml',      'mvn test -B'
+          self.if   '-f gradlew',      './gradlew build connectedCheck'
+          self.elif '-f build.gradle', 'gradle build connectedCheck'
+          self.elif '-f pom.xml',      'mvn install -B'
           self.else                    'ant debug installt test'
         end
 

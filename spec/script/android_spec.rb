@@ -63,22 +63,15 @@ describe Travis::Build::Script::Android do
         executable('./gradlew')
       end
 
-      it 'installs with ./gradlew assemble' do
-        should run './gradlew assemble', echo: true, log: true, assert: true, timeout: timeout_for(:install)
-      end
-
       it 'runs ./gradlew check connectedCheck' do
-        should run './gradlew check connectedCheck', echo: true, log: true, timeout: timeout_for(:script)
+        should run_script './gradlew build connectedCheck'
+        should_not run_script 'gradle build connectedCheck'
       end
     end
 
     context 'without gradle wrapper' do
-      it 'installs with gradle assemble' do
-        should run 'gradle assemble', echo: true, log: true, assert: true, timeout: timeout_for(:install)
-      end
-
-      it 'runs gradle check connectedCheck' do
-        should run 'gradle check connectedCheck', echo: true, log: true, timeout: timeout_for(:script)
+      it 'runs gradle build connectedCheck' do
+        should run_script 'gradle build connectedCheck'
       end
     end
   end
@@ -88,18 +81,14 @@ describe Travis::Build::Script::Android do
       file('pom.xml')
     end
 
-    it 'installs with mvn install -DskipTests=true -B' do
-      should run 'mvn install -DskipTests=true -B', echo: true, log: true, assert: true, timeout: timeout_for(:install)
-    end
-
-    it 'runs mvn test -B' do
-      should run 'mvn test -B', echo: true, log: true, timeout: timeout_for(:script)
+    it 'runs mvn install -B' do
+      should run_script 'mvn install -B'
     end
   end
 
   describe 'if neither gradle nor mvn are used' do
     it 'runs default android ant tasks' do
-      should run 'ant debug installt test', echo: true, log: true, timeout: timeout_for(:script)
+      should run_script 'ant debug installt test'
     end
   end
 end

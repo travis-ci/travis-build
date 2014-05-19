@@ -11,6 +11,8 @@ module Travis
         }
 
         def start_services
+          return if data.paranoid_mode?
+
           services.each do |name|
             cmd "sudo service #{name} start", timeout: :start_service, assert: false
           end

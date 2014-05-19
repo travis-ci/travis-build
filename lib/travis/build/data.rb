@@ -54,8 +54,16 @@ module Travis
         data[:hosts] || {}
       end
 
+      def paranoid_mode?
+        data.fetch(:paranoid, false)
+      end
+
       def skip_resolv_updates?
-        !!data[:skip_resolv_updates]
+        data.fetch(:skip_resolv_updates, false)
+      end
+
+      def skip_etc_hosts_fix?
+        data.fetch(:skip_etc_hosts_fix, false)
       end
 
       def cache_options
