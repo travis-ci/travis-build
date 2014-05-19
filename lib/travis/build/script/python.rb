@@ -19,12 +19,8 @@ module Travis
           set 'TRAVIS_PYTHON_VERSION', config[:python], echo: false
         end
 
-        def setup
-          super
-          cmd "source #{virtualenv_activate}"
-        end
-
         def announce
+          cmd "source #{virtualenv_activate}"
           cmd 'python --version'
           cmd 'pip --version'
         end
