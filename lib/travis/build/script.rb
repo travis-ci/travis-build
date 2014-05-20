@@ -36,7 +36,7 @@ module Travis
       TEMPLATES_PATH = File.expand_path('../script/templates', __FILE__)
 
       STAGES = {
-        builtin: [:configure, :checkout, :setup],
+        builtin: [:configure, :checkout, :setup, :announce],
         custom:  [:before_install, :install, :before_script, :script, :after_result, :after_script]
       }
 
@@ -114,7 +114,6 @@ module Travis
           start_services
           setup_apt_cache if data.cache? :apt
           setup_directory_cache
-          announce
           fix_ps4
         end
 
