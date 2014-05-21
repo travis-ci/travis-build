@@ -2,19 +2,21 @@ require 'faraday'
 require 'json'
 
 conn = Faraday.new(:url => ENV['BUILD_API_SERVER_URL']) do |faraday|
-  faraday.response :logger
+  # faraday.response :logger
   faraday.adapter Faraday.default_adapter
 end
 
 data = eval DATA.read
 
-conn.post do |req|
+response = conn.post do |req|
   req.url '/script'
   req.headers['Content-Type'] = 'application/json'
   req.headers['Authorization'] = "token #{ENV['API_TOKEN']}"
 
   req.body = data.to_json
 end
+
+puts response.body
 
 __END__
 {"type"=>"test",
