@@ -1,2 +1,2 @@
 require 'travis/build/app'
-run Sinatra::Application
+run Travis::Build::App
