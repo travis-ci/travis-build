@@ -1,5 +1,4 @@
-#!/bin/bash
-source /etc/profile
+#!/bin/bash --login
 
 RED="\033[31;1m"
 GREEN="\033[32;1m"
