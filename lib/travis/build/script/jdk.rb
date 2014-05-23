@@ -5,14 +5,14 @@ module Travis
         def export
           super
           set('TRAVIS_JDK_VERSION', config[:jdk], echo: false) if uses_jdk?
-          self.if '-f build.gradle' do
-            set('TERM', 'dumb', echo: false)
-          end
         end
 
         def setup
           super
           cmd("jdk_switcher use #{config[:jdk]}", assert: true) if uses_jdk?
+          self.if '-f build.gradle' do
+            set('TERM', 'dumb', echo: false)
+          end
         end
 
         def announce
