@@ -10,11 +10,6 @@ module Travis
     HOME_DIR  = '$HOME'
     BUILD_DIR = File.join(HOME_DIR, 'build')
 
-    LOGS = {
-      build: File.join(HOME_DIR, 'build.log'),
-      state: File.join(HOME_DIR, 'state.log')
-    }
-
     class << self
       def self.register(key)
         Travis.services.add(key, self)

@@ -53,7 +53,7 @@ module Travis
       def initialize(data, options)
         @data = Data.new({ config: self.class.defaults }.deep_merge(data.deep_symbolize_keys))
         @options = options
-        @stack = [Shell::Script.new(log: true, echo: true, log_file: logs[:build])]
+        @stack = [Shell::Script.new(log: true, echo: true)]
       end
 
       def compile
@@ -123,13 +123,6 @@ module Travis
 
         def template(filename)
           ERB.new(File.read(File.expand_path(filename, TEMPLATES_PATH))).result(binding)
-        end
-
-        def logs
-          @logs ||= LOGS.inject({}) do |logs, (type, log)|
-            logs[type] = log if options[:logs][type] rescue nil
-            logs
-          end
         end
 
         def paranoid_mode

@@ -7,18 +7,18 @@ RESET="\033[0m"
 
 travis_start() {
   TRAVIS_STAGE=$1
-  echo "[travis:$1:start]" <%= ">> #{logs[:state]}" if logs[:state] %>
+  echo "[travis:$1:start]"
 }
 
 travis_finish() {
-  echo "[travis:$1:finish:result=$2]" <%= ">> #{logs[:state]}" if logs[:state] %>
+  echo "[travis:$1:finish:result=$2]"
   sleep 1
 }
 
 travis_assert() {
   local result=$?
   if [ $result -ne 0 ]; then
-    echo -e "\n${RED}The command \"$TRAVIS_CMD\" failed and exited with $result during $TRAVIS_STAGE.${RESET}\n\nYour build has been stopped." <%= ">> #{logs[:log]}" if logs[:log] %>
+    echo -e "\n${RED}The command \"$TRAVIS_CMD\" failed and exited with $result during $TRAVIS_STAGE.${RESET}\n\nYour build has been stopped."
     travis_terminate 2
   fi
 }
@@ -28,9 +28,9 @@ travis_result() {
   export TRAVIS_TEST_RESULT=$(( ${TRAVIS_TEST_RESULT:-0} | $(($result != 0)) ))
 
   if [ $result -eq 0 ]; then
-    echo -e "\n${GREEN}The command \"$TRAVIS_CMD\" exited with $result."<%= " >> #{logs[:log]}" if logs[:log] %>"${RESET}"
+    echo -e "\n${GREEN}The command \"$TRAVIS_CMD\" exited with $result."
   else
-    echo -e "\n${RED}The command \"$TRAVIS_CMD\" exited with $result."<%= " >> #{logs[:log]}" if logs[:log] %>"${RESET}"
+    echo -e "\n${RED}The command \"$TRAVIS_CMD\" exited with $result."
   fi
 }
 
