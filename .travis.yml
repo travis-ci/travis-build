@@ -1,9 +1,8 @@
 language: ruby
-env:
-  global:
-    - RUBY_GC_MALLOC_LIMIT=90000000
-    - RUBY_FREE_MIN=200000
+
 rvm:
   - 1.9.3
-  - jruby-1.7.9
+  - jruby-1.7.2
+  - jruby-1.7.12
+
 script: "bundle exec rspec spec"
