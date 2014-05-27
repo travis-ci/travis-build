@@ -43,13 +43,17 @@ module Travis
         def after_result
           run_builtin_stage(:finish)
 
-          self.if('$TRAVIS_TEST_RESULT = 0') do
-            run_stage(:after_success)
-            run_stage(:deploy)
+          if config[:after_success] || config[:deploy]
+            self.if('$TRAVIS_TEST_RESULT = 0') do
+              run_stage(:after_success)
+              run_stage(:deploy)
+            end
           end
 
-          self.if('$TRAVIS_TEST_RESULT != 0') do
-            run_stage(:after_failure)
+          if config[:after_failure]
+            self.if('$TRAVIS_TEST_RESULT != 0') do
+              run_stage(:after_failure)
+            end
           end
         end
 
