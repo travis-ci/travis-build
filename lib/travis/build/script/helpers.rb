@@ -5,7 +5,6 @@ module Travis
         Shell::Dsl.instance_methods(false).each do |name|
           define_method(name) do |*args, &block|
             options = args.last if args.last.is_a?(Hash)
-            args.last[:timeout] = data.timeouts[options[:timeout]] if options && options.key?(:timeout)
             sh.send(name, *args, &stacking(&block))
           end
         end
