@@ -2,16 +2,6 @@ module Travis
   module Build
     module Shell
       module Filters
-        module Timeout
-          def code
-            options[:timeout] ? timeout(super) : super
-          end
-
-          def timeout(code)
-            "tlimit -c #{options[:timeout]} #{code}"
-          end
-        end
-
         module Assertion
           def code
             options[:assert] ? assert(super) : super

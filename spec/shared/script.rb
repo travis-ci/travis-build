@@ -51,9 +51,8 @@ shared_examples_for 'a build script' do
   %w(before_install install before_script script after_script after_success).each do |script|
     it "runs the given :#{script} command" do
       data['config'][script] = script
-      timeout = Travis::Build::Data::DEFAULTS[:timeouts][script.to_sym]
       assert = %w(before_install install before_script).include?(script)
-      should run script, echo: true, log: true, assert: assert, timeout: timeout
+      should run script, echo: true, log: true, assert: assert
     end
 
     next if script == 'script'

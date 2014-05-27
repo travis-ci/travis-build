@@ -14,7 +14,7 @@ module Travis
           return if data.paranoid_mode?
 
           services.each do |name|
-            cmd "sudo service #{name} start", timeout: :start_service, assert: false
+            cmd "sudo service #{name} start", assert: false
           end
           cmd 'sleep 3', log: false, assert: false if services.any? # give services a moment to start
         end

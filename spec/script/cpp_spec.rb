@@ -95,7 +95,7 @@ describe Travis::Build::Script::Cpp do
     should run 'echo $ ./configure && make && make test'
     should run 'configure', log: true
     should run 'make', log: true
-    should run 'make test', log: true, timeout: timeout_for(:script)
+    should run 'make test', log: true
   end
 
   describe :cache_slug do

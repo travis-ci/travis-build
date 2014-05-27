@@ -51,15 +51,15 @@ module Travis
           def git_clone
             set 'GIT_ASKPASS', 'echo', :echo => false # this makes git interactive auth fail
             self.if "! -d #{dir}/.git" do
-              cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, timeout: :git_clone, fold: "git.#{next_git_fold_number}", retry: true
+              cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, fold: "git.#{next_git_fold_number}", retry: true
             end
             self.else do
-              cmd "git fetch origin", assert: true, timeout: :git_clone, fold: "git.#{next_git_fold_number}", retry: true
+              cmd "git fetch origin", assert: true, fold: "git.#{next_git_fold_number}", retry: true
             end
           end
 
           def ch_dir
-            cmd "cd #{dir}", assert: true, timeout: false
+            cmd "cd #{dir}", assert: true
           end
 
           def rm_key
@@ -71,7 +71,7 @@ module Travis
           end
 
           def fetch_ref
-            cmd "git fetch origin +#{data.ref}: ", assert: true, timeout: :git_fetch_ref, fold: "git.#{next_git_fold_number}", retry: true
+            cmd "git fetch origin +#{data.ref}: ", assert: true, fold: "git.#{next_git_fold_number}", retry: true
           end
 
           def git_checkout
@@ -86,7 +86,7 @@ module Travis
             self.if '-f .gitmodules' do
               cmd 'echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config', echo: false
               cmd 'git submodule init', fold: "git.#{next_git_fold_number}"
-              cmd 'git submodule update', assert: true, timeout: :git_submodules, fold: "git.#{next_git_fold_number}", retry: true
+              cmd 'git submodule update', assert: true, fold: "git.#{next_git_fold_number}", retry: true
             end
           end
 

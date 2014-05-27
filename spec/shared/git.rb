@@ -65,8 +65,7 @@ shared_examples_for 'a git repo' do
 
     it 'clones the git repo' do
       cmd = 'git clone --depth=50 --branch=master git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci'
-      timeout = Travis::Build::Data::DEFAULTS[:timeouts][:git_clone]
-      should run cmd, echo: true, log: true, assert: true, timeout: timeout, retry: true
+      should run cmd, echo: true, log: true, assert: true, retry: true
     end
 
     it 'clones with a custom depth if given' do
@@ -96,7 +95,7 @@ shared_examples_for 'a git repo' do
     end
 
     it 'changes to the git repo dir' do
-      should run 'cd travis-ci/travis-ci', timeout: false
+      should run 'cd travis-ci/travis-ci'
     end
 
     it 'does not fetch a ref if not given' do
@@ -106,8 +105,7 @@ shared_examples_for 'a git repo' do
     it 'fetches a ref if given' do
       data['job']['ref'] = 'refs/pull/118/merge'
       cmd = 'git fetch origin +refs/pull/118/merge:'
-      timeout = Travis::Build::Data::DEFAULTS[:timeouts][:git_fetch_ref]
-      should run cmd, echo: true, log: true, assert: true, timeout: timeout
+      should run cmd, echo: true, log: true, assert: true
     end
 
     it 'removes the ssh key' do

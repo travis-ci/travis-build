@@ -57,7 +57,7 @@ describe Travis::Build::Script::Perl do
       should run 'echo $ perl Build.PL && ./Build && ./Build test'
       should run 'perl Build.PL'
       # TODO can't really capture this yet
-      # should run './Build test', log: true, timeout: timeout_for(:script)
+      # should run './Build test', log: true
     end
   end
 
@@ -69,7 +69,7 @@ describe Travis::Build::Script::Perl do
     it 'runs perl Makefile.PL && make test' do
       should run 'echo $ perl Makefile.PL && make test'
       should run 'perl Makefile.PL'
-      should run 'make test', log: true, timeout: timeout_for(:script)
+      should run 'make test', log: true
     end
   end
 end

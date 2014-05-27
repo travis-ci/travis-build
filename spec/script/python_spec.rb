@@ -39,7 +39,7 @@ describe Travis::Build::Script::Python do
 
   describe 'if no requirements file exists' do
     # it 'installs with ' do
-    #   should run '', echo: true, assert: true, log: true, timeout: timeout_for(:install)
+    #   should run '', echo: true, assert: true, log: true
     # end
   end
 

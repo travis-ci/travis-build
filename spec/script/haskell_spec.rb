@@ -36,13 +36,13 @@ describe Travis::Build::Script::Haskell do
 
   it 'installs with cabal install --only-dependencies --enable-tests' do
     should run 'echo $ cabal install --only-dependencies --enable-tests'
-    should run 'cabal install --only-dependencies --enable-tests', log: true, assert: true, timeout: timeout_for(:install), retry: true
+    should run 'cabal install --only-dependencies --enable-tests', log: true, assert: true, retry: true
   end
 
   it 'runs cabal configure --enable-tests && cabal build && cabal test' do
     should run 'echo $ cabal configure --enable-tests && cabal build && cabal test'
     should run 'cabal configure --enable-tests'
     should run 'cabal build'
-    should run 'cabal test', log: true, timeout: timeout_for(:script)
+    should run 'cabal test', log: true
   end
 end

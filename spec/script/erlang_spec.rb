@@ -34,13 +34,13 @@ describe Travis::Build::Script::Erlang do
 
   shared_examples_for 'runs rebar' do |path|
     it "installs #{path}rebar get-deps" do
-      should run "#{path}rebar get-deps", echo: true, log: true, assert: true, timeout: timeout_for(:install), retry: true
+      should run "#{path}rebar get-deps", echo: true, log: true, assert: true, retry: true
     end
 
     it "runs #{path}rebar compile && #{path}rebar skip_deps=true eunit" do
       should run "echo $ #{path}rebar compile && #{path}rebar skip_deps=true eunit"
       should run "#{path}rebar compile"
-      should run "#{path}rebar skip_deps=true eunit", log: true, timeout: timeout_for(:script)
+      should run "#{path}rebar skip_deps=true eunit", log: true
     end
   end
 
