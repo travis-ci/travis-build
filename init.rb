@@ -34,8 +34,6 @@ end
 
 __END__
 
-travis_start()  { return; }
-travis_finish() { return; }
 travis_result() { return; }
 
 travis_assert() {

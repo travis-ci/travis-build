@@ -57,9 +57,7 @@ module Travis
           @stage = stage
           sh.script &stacking {
             sh.options.update(assert: assert_stage?(stage))
-            raw "travis_start #{stage}" if announce?(stage)
             yield
-            raw "travis_finish #{stage} #{stage == :script ? '$TRAVIS_TEST_RESULT' : '$?'}" if announce?(stage)
           }
         end
 
