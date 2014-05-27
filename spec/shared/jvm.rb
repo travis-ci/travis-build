@@ -8,11 +8,11 @@ shared_examples_for 'a jvm build' do
 
     context 'without a gradle wrapper' do
       it 'installs with gradle assemble' do
-        should run 'gradle assemble', echo: true, log: true, assert: true, timeout: timeout_for(:install)
+        should run 'gradle assemble', echo: true, log: true, assert: true
       end
 
       it 'runs gradle check' do
-        should run 'gradle check', echo: true, log: true, timeout: timeout_for(:script)
+        should run 'gradle check', echo: true, log: true
       end
     end
 
@@ -22,11 +22,11 @@ shared_examples_for 'a jvm build' do
       end
 
       it 'installs with ./gradlew assemble' do
-        should run './gradlew assemble', echo: true, log: true, assert: true, timeout: timeout_for(:install)
+        should run './gradlew assemble', echo: true, log: true, assert: true
       end
 
       it 'runs ./gradlew check' do
-        should run './gradlew check', echo: true, log: true, timeout: timeout_for(:script)
+        should run './gradlew check', echo: true, log: true
       end
     end
   end
@@ -37,17 +37,17 @@ shared_examples_for 'a jvm build' do
     end
 
     it 'installs with mvn install -DskipTests=true -B' do
-      should run 'mvn install -DskipTests=true -B', echo: true, log: true, assert: true, timeout: timeout_for(:install)
+      should run 'mvn install -DskipTests=true -B', echo: true, log: true, assert: true
     end
 
     it 'runs mvn test -B' do
-      should run 'mvn test -B', echo: true, log: true, timeout: timeout_for(:script)
+      should run 'mvn test -B', echo: true, log: true
     end
   end
 
   describe 'if neither gradle nor mvn are used' do
     it 'runs ant test' do
-      should run 'ant test', echo: true, log: true, timeout: timeout_for(:script)
+      should run 'ant test', echo: true, log: true
     end
   end
 
