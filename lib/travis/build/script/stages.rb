@@ -43,7 +43,7 @@ module Travis
         def after_result
           run_builtin_stage(:finish)
 
-          if config[:after_success] || config[:deploy]
+          if config[:after_success] || deployment?
             self.if('$TRAVIS_TEST_RESULT = 0') do
               run_stage(:after_success)
               run_stage(:deploy)
@@ -75,6 +75,11 @@ module Travis
 
         def fold_stage?(stage)
           stage != :script
+        end
+
+        def deployment?
+          addons = config.fetch(:addons, {})
+          !!addons[:deploy]
         end
       end
     end
