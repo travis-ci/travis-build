@@ -24,7 +24,7 @@ module Travis
         data = JSON.parse(request.body.read)
 
         content_type :txt
-        Travis::Build.script(data, logs: { build: false, state: true }).compile
+        Travis::Build.script(data).compile
       end
     end
   end
