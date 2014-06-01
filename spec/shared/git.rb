@@ -148,7 +148,7 @@ shared_examples_for 'a git repo' do
       end
 
       it 'does not update submodules' do
-        should_not run 'git submodule update'
+        should_not run /git submodule update/
       end
     end
   end

@@ -86,7 +86,7 @@ module Travis
             self.if '-f .gitmodules' do
               cmd 'echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config', echo: false
               cmd 'git submodule init', fold: "git.#{next_git_fold_number}"
-              cmd 'git submodule update', assert: true, fold: "git.#{next_git_fold_number}", retry: true
+              cmd "git submodule update --depth=#{config[:git][:depth]}", assert: true, fold: "git.#{next_git_fold_number}", retry: true
             end
           end
 
