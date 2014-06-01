@@ -82,7 +82,7 @@ module Travis
               ARTIFACTS_DEST=$HOME/bin/artifacts
               mkdir -p $(dirname "$ARTIFACTS_DEST")
               curl -sL -o "$ARTIFACTS_DEST" \
-                https://s3.amazonaws.com/meatballhat/artifacts/linux/amd64/meatballhat/artifacts/stable/artifacts
+                https://s3.amazonaws.com/meatballhat/artifacts/stable/build/linux/amd64/artifacts
               chmod +x "$ARTIFACTS_DEST"
               PATH="$(dirname "$ARTIFACTS_DEST"):$PATH" artifacts -v
             EOF
