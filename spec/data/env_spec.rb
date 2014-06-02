@@ -7,7 +7,11 @@ describe Travis::Build::Data::Env do
     config: { env: 'FOO=foo' },
     build: { id: '1', number: '1' },
     job: { id: '1', number: '1.1', branch: 'foo-(dev)', commit: '313f61b', commit_range: '313f61b..313f61a', commit_message: 'the commit message', os: 'linux' },
-    repository: { slug: 'travis-ci/travis-ci' }
+    repository: { slug: 'travis-ci/travis-ci' },
+    raw_env_vars: [
+      { name: 'BAR', value: 'bar', public: true },
+      { name: 'BAZ', value: 'baz', public: false },
+    ]
     ) }
   let(:env)  { described_class.new(data) }
 
@@ -21,7 +25,19 @@ describe Travis::Build::Data::Env do
   end
 
   it 'includes config env vars' do
-    env.vars.last.key.should == 'FOO'
+    var = env.vars.find { |v| v.key == 'FOO' }
+    var.value.should == 'foo'
+    var.should_not be_secure
+  end
+
+  it 'includes api env vars' do
+    var = env.vars.find { |v| v.key == 'BAR' }
+    var.value.should == 'bar'
+    var.should_not be_secure
+
+    var = env.vars.find { |v| v.key == 'BAZ' }
+    var.value.should == 'baz'
+    var.should be_secure
   end
 
   it 'does not export secure env vars for pull requests' do

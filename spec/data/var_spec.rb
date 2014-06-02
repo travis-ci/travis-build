@@ -5,8 +5,8 @@ describe Travis::Build::Data::Var do
     described_class.parse(line)
   end
 
-  def var(key, value)
-    described_class.new(key, value)
+  def var(key, value, secure = nil)
+    described_class.new(key, value, secure)
   end
 
   describe 'parse' do
@@ -59,8 +59,14 @@ describe Travis::Build::Data::Var do
     var(:TRAVIS_FOO, 'foo').should be_travis
   end
 
-  it 'secure? returns true if the var name starts with SECURE' do
-    var('SECURE FOO', 'foo').should be_secure
+  describe 'secure?' do
+    it 'returns true if the var name starts with SECURE' do
+      var('SECURE FOO', 'foo').should be_secure
+    end
+
+    it 'returns true if var is created with secure argument' do
+      var('FOO', 'foo', true).should be_secure
+    end
   end
 
   describe 'to_s' do
