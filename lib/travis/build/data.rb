@@ -72,6 +72,10 @@ module Travis
         @env_vars ||= Env.new(self).vars
       end
 
+      def raw_env_vars
+        data[:env_vars] || []
+      end
+
       def pull_request
         job[:pull_request]
       end
