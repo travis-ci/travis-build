@@ -22,6 +22,22 @@ describe Travis::Build::Script::Addons::Deploy do
     end
   end
 
+  describe 'config with hash options' do
+    let(:config) {{ provider: "s3", s3_options: { acl: :public_read } }}
+
+    it 'runs the command' do
+      script.expects(:run_stage).with(:before_deploy)
+      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master)').yields(script)
+      script.expects(:cmd).with('rvm 1.9.3 do ruby -S gem install dpl', assert: true, echo: false)
+      script.expects(:cmd).with(<<-DPL.gsub(/\s+/, ' ').strip, assert: false, echo: false)
+        rvm 1.9.3 do ruby -S dpl --provider="s3" --s3_options="%7B%22acl%22:%22public_read%22%7D" --fold;
+        if [ $? -ne 0 ]; then echo "failed to deploy"; travis_terminate 2; fi
+      DPL
+      script.expects(:run_stage).with(:after_deploy)
+      subject.deploy
+    end
+  end
+
 
   describe 'implicit branches' do
     let(:config) {{ provider: "heroku", app: { staging: "foo", production: "bar" } }}

@@ -1,3 +1,5 @@
+require 'json'
+
 module Travis
   module Build
     class Script
@@ -7,11 +9,13 @@ module Travis
 
           VERSIONED_RUNTIMES = [:jdk, :node, :perl, :php, :python, :ruby, :scala, :node, :go]
           USE_RUBY           = '1.9.3'
-          attr_accessor :script, :config, :allow_failure
+          HASH_CONFIG_KEYS = [:s3_options]
+          attr_accessor :script, :hash_config, :config, :allow_failure
 
           def initialize(script, config)
             @silent = false
             @script = script
+            @hash_config = {}
             if config.is_a?(Array)
               @configs = config
               @config = {}
@@ -28,6 +32,9 @@ module Travis
               end
             else
               @allow_failure = config.delete(:allow_failure)
+              HASH_CONFIG_KEYS.each do |k|
+                hash_config.merge!(k => config.delete(k)) if config.key?(k)
+              end
               script.cmd("git fetch --tags") if on[:tags]
               script.if(want) do
                 script.run_stage(:before_deploy)
@@ -122,7 +129,12 @@ module Travis
             end
 
             def options
-              config.flat_map { |k,v| option(k,v) }.compact.join(" ")
+              opts = ""
+              opts << config.flat_map { |k,v| option(k,v) }.compact.join(" ")
+              unless hash_config.empty?
+                opts << " " << hash_config.flat_map { |k,v| "--%s=%p" % [k, URI.escape(JSON.dump(v))] }.compact.join(" ")
+              end
+              opts
             end
         end
       end
