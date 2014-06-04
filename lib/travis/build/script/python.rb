@@ -21,7 +21,7 @@ module Travis
 
         def setup
           super
-          cmd "source #{virtualenv_activate}"
+          cmd "source #{virtualenv_activate}" if config[:os] == "linux"
         end
 
         def announce
