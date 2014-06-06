@@ -5,7 +5,7 @@ module Travis
         class Deploy
           REQUIRES_SUPER_USER = false
 
-          VERSIONED_RUNTIMES = [:jdk, :node, :perl, :php, :python, :ruby, :scala, :node, :go]
+          VERSIONED_RUNTIMES = [:jdk, :node, :perl, :php, :python, :ruby, :scala, :go]
           USE_RUBY           = '1.9.3'
           attr_accessor :script, :config, :allow_failure
 
