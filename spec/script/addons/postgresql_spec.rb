@@ -5,7 +5,7 @@ describe Travis::Build::Script::Addons::Postgresql do
 
   before(:each) { script.stubs(:fold).yields(script) }
 
-  subject { described_class.new(script, config).before_install }
+  subject { described_class.new(script, config).after_services }
 
   let(:config) { '9.3' }
 
