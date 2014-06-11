@@ -1,4 +1,4 @@
-require 'shellescape'
+require 'shellwords'
 
 module Travis
   module Build
