@@ -3,7 +3,7 @@ module Travis
     class Script
       module Addons
         class SauceConnect
-          REQUIRES_SUPER_USER = false
+          SUPER_USER_SAFE = true
 
           def initialize(script, config)
             @script = script

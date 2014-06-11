@@ -43,7 +43,7 @@ module Travis
 
           if !data.paranoid_mode?
             true
-          elsif data.paranoid_mode? && !addon.class::REQUIRES_SUPER_USER
+          elsif data.paranoid_mode? && addon.class::SUPER_USER_SAFE
             true
           else
             false
