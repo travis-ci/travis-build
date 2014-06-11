@@ -13,8 +13,6 @@ module Travis
         }
 
         def start_services
-          return if data.paranoid_mode?
-
           services.each do |name|
             cmd "sudo service #{name.shellescape} start", assert: false
           end
