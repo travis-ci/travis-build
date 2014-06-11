@@ -111,6 +111,7 @@ module Travis
           setup_apt_cache if data.cache? :apt
           setup_directory_cache
           fix_ps4
+          run_addons(:after_setup)
         end
 
         def announce
