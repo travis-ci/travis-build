@@ -6,7 +6,7 @@ describe Travis::Build::Script::Addons::Hosts do
 
   before(:each) { script.stubs(:fold).yields(script) }
 
-  subject { described_class.new(script, config).setup }
+  subject { described_class.new(script, config).after_pre_setup }
 
   it "runs the commands" do
     script.expects(:fold).with("hosts").yields(script)
