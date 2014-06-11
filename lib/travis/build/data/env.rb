@@ -14,7 +14,7 @@ module Travis
         end
 
         def vars
-          travis_vars + config_vars
+          travis_vars + api_vars + config_vars
         end
 
         private
@@ -45,6 +45,10 @@ module Travis
 
           def config_vars
             extract_config_vars(config[:global_env]) + extract_config_vars(config[:env])
+          end
+
+          def api_vars
+            data.raw_env_vars.map { |var| Var.new(var[:name], var[:value], !var[:public]) }
           end
 
           def to_vars(args)

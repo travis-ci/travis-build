@@ -21,9 +21,10 @@ module Travis
 
         attr_reader :value
 
-        def initialize(key, value)
+        def initialize(key, value, secure = nil)
           @key = key.to_s
           @value = value.to_s
+          @secure = secure
         end
 
         def key
@@ -45,7 +46,7 @@ module Travis
         end
 
         def secure?
-          @key =~ /^SECURE /
+          @secure.nil? ? @key =~ /^SECURE / : @secure
         end
 
         private

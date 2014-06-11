@@ -20,6 +20,11 @@ shared_examples_for 'a script with env vars' do
     should_not set 'BAR', 'foo'
   end
 
+  it 'allows setting an env var to another env var' do
+    data['config'][env_type] = 'BRANCH=$TRAVIS_BRANCH'
+    should set 'BRANCH', 'master'
+  end
+
   it 'sets the exact value of a given :env var, even if definition is unquoted' do
     data['config'][env_type] = 'UNQUOTED=first second third ... OTHER=ok'
     should set 'UNQUOTED', 'first'
