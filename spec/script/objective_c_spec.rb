@@ -54,7 +54,7 @@ describe Travis::Build::Script::ObjectiveC do
     end
 
     it 'folds pod install' do
-      should fold 'pod install', 'install'
+      should fold 'pod install', 'install.cocoapods'
     end
   end
 
