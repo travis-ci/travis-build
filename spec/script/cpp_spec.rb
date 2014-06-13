@@ -98,12 +98,8 @@ describe Travis::Build::Script::Cpp do
     is_expected.to run 'make test', log: true
   end
 
-  describe :cache_slug do
-    subject { described_class.new(data, options) }
-
-    describe '#cache_slug' do
-      subject { super().cache_slug }
-      it { is_expected.to eq('cache--compiler-gpp') }
-    end
+  describe '#cache_slug' do
+    subject { described_class.new(data, options).cache_slug }
+    it { is_expected.to eq('cache--compiler-gpp') }
   end
 end

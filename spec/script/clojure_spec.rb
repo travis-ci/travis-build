@@ -57,12 +57,8 @@ describe Travis::Build::Script::Clojure do
     end
   end
 
-  describe :cache_slug do
-    subject { described_class.new(data, options) }
-
-    describe '#cache_slug' do
-      subject { super().cache_slug }
-      it { is_expected.to eq('cache--jdk-default--lein-lein') }
-    end
+  describe '#cache_slug' do
+    subject { described_class.new(data, options).cache_slug }
+    it { is_expected.to eq('cache--jdk-default--lein-lein') }
   end
 end

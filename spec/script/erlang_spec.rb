@@ -63,12 +63,8 @@ describe Travis::Build::Script::Erlang do
     it_behaves_like 'runs rebar', './'
   end
 
-  describe :cache_slug do
-    subject { described_class.new(data, options) }
-
-    describe '#cache_slug' do
-      subject { super().cache_slug }
-      it { is_expected.to eq('cache--otp-R14B04') }
-    end
+  describe '#cache_slug' do
+    subject { described_class.new(data, options).cache_slug }
+    it { is_expected.to eq('cache--otp-R14B04') }
   end
 end

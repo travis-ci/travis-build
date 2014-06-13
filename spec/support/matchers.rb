@@ -48,7 +48,7 @@ end
 RSpec::Matchers.define :setup do |cmd, options = {}|
   match do |script|
     options = options.merge(echo: true, log: true, assert: true)
-    failure_message_for_should do
+    failure_message do
       "expected script to setup #{cmd.inspect} with #{options} but it didn't:\n#{log_for(script)}"
     end
     expect(script).to run cmd, options
@@ -58,7 +58,7 @@ end
 RSpec::Matchers.define :announce do |cmd, options = {}|
   match do |script|
     options = options.merge(echo: true, log: true)
-    failure_message_for_should do
+    failure_message do
       "expected script to announce #{cmd.inspect} with #{options} but it didn't:\n#{log_for(script)}"
     end
     expect(script).to run cmd, options
@@ -68,7 +68,7 @@ end
 RSpec::Matchers.define :install do |cmd, options = {}|
   match do |script|
     options = options.merge(echo: true, log: true, assert: true)
-    failure_message_for_should do
+    failure_message do
       "expected script to install #{cmd.inspect} with #{options} but it didn't:\n#{log_for(script)}"
     end
     expect(script).to run cmd, options
@@ -78,7 +78,7 @@ end
 RSpec::Matchers.define :run_script do |cmd, options = {}|
   match do |script|
     options = options.merge(echo: true, log: true)
-    failure_message_for_should do
+    failure_message do
       "expected script to run the script #{cmd.inspect} with #{options} but it didn't:\n#{log_for(script)}"
     end
     expect(script).to run cmd, options
@@ -89,7 +89,7 @@ RSpec::Matchers.define :run do |cmd, options = {}|
   match do |script|
     lines = log_for(script).split("\n")
 
-    failure_message_for_should do
+    failure_message do
       "expected script to run #{cmd.inspect} with #{options} but it didn't:\n#{lines.join("\n")}"
     end
 
@@ -105,7 +105,7 @@ RSpec::Matchers.define :set do |name, value|
   match do |script|
     env = env_for(script)
 
-    failure_message_for_should do
+    failure_message do
       "expected script to set #{name} to #{value} but it didn't:\n#{env}"
     end
 
@@ -120,7 +120,7 @@ RSpec::Matchers.define :echo do |string|
   match do |script|
     lines = log_for(script).split("\n")
 
-    failure_message_for_should do
+    failure_message do
       "expected script to echo #{string} but it didn't:\n#{script}"
     end
 
@@ -132,7 +132,7 @@ RSpec::Matchers.define :retry_script do |cmd|
   match do |script|
     lines = log_for(script).split("\n")
 
-    failure_message_for_should do
+    failure_message do
       "expected script to retry #{cmd} but it didn't:\n#{script}"
     end
 
@@ -144,7 +144,7 @@ RSpec::Matchers.define :fold do |cmd, name|
   match do |script|
     lines = log_for(script).split("\n")
 
-    failure_message_for_should do
+    failure_message do
       "expected the script to mark #{cmd} with fold markers named #{name.inspect}"
     end
 

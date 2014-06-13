@@ -30,13 +30,9 @@ describe Travis::Build::Script::C do
     is_expected.to run 'make', log: true
     is_expected.to run 'make test', log: true
   end
-
-  describe :cache_slug do
-    subject { described_class.new(data, options) }
-
-    describe '#cache_slug' do
-      subject { super().cache_slug }
-      it { is_expected.to eq('cache--compiler-gcc') }
-    end
+  
+  describe '#cache_slug' do
+    subject { described_class.new(data, options).cache_slug }
+    it { is_expected.to eq('cache--compiler-gcc') }
   end
 end

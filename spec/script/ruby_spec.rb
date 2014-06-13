@@ -115,7 +115,7 @@ describe Travis::Build::Script::Ruby do
     end
   end
 
-  describe :cache_slug do
+  describe '#cache_slug' do
     subject { described_class.new(data, options) }
 
     describe '#cache_slug' do
