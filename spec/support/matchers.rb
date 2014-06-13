@@ -19,7 +19,7 @@ end
 
 def logs?(lines, cmd)
   # cmd = /^output from #{Regexp.escape(cmd)}/
-  # lines = File.read('tmp/build.log').split("\n")
+  # lines = File.read("#{tmp_folder}/build.log").split("\n")
   # lines.detect { |line| line =~ cmd }
   true
 end
@@ -36,9 +36,9 @@ def asserts?(lines, cmd)
 end
 
 def log_for(script)
-  File.open('tmp/build.sh', 'w+') { |f| f.write(script) } unless File.exists?('tmp/build.sh')
-  system("/bin/bash tmp/build.sh > tmp/build.log 2>&1") unless File.exists?('tmp/build.log')
-  File.read('tmp/build.log')
+  File.open("#{tmp_folder}/build.sh", 'w+') { |f| f.write(script) } unless File.exists?("#{tmp_folder}/build.sh")
+  system("/bin/bash #{tmp_folder}/build.sh > #{tmp_folder}/build.log 2>&1") unless File.exists?("#{tmp_folder}/build.log")
+  File.read("#{tmp_folder}/build.log")
 end
 
 def env_for(script)
