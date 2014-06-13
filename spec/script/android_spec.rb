@@ -20,7 +20,7 @@ describe Travis::Build::Script::Android do
     end
 
     it 'does not install any sdk component by default' do
-      should_not setup "android-update-sdk"
+      is_expected.not_to setup "android-update-sdk"
     end
 
     it 'installs the provided sdk components accepting provided license patterns' do
@@ -29,10 +29,10 @@ describe Travis::Build::Script::Android do
 
       # FIXME: There is a regexp problem with licenses='...' quotes in `asserts?` matcher,
       # so let's "temporary" use 'run' instead of 'setup'
-      should run "android-update-sdk --components=build-tools-19.0.3 --accept-licenses='android-sdk-license-.+|intel-.+'", fold: true
-      should run "android-update-sdk --components=android-19 --accept-licenses='android-sdk-license-.+|intel-.+'", fold: true
-      should run "android-update-sdk --components=sysimg-19 --accept-licenses='android-sdk-license-.+|intel-.+'", fold: true
-      should run "android-update-sdk --components=sysimg-18 --accept-licenses='android-sdk-license-.+|intel-.+'", fold: true
+      is_expected.to run "android-update-sdk --components=build-tools-19.0.3 --accept-licenses='android-sdk-license-.+|intel-.+'", fold: true
+      is_expected.to run "android-update-sdk --components=android-19 --accept-licenses='android-sdk-license-.+|intel-.+'", fold: true
+      is_expected.to run "android-update-sdk --components=sysimg-19 --accept-licenses='android-sdk-license-.+|intel-.+'", fold: true
+      is_expected.to run "android-update-sdk --components=sysimg-18 --accept-licenses='android-sdk-license-.+|intel-.+'", fold: true
     end
 
     it 'installs the provided sdk components accepting a single license' do
@@ -41,15 +41,15 @@ describe Travis::Build::Script::Android do
 
       # FIXME: There is a regexp problem with licenses='...' quotes in `asserts?` matcher,
       # so let's "temporary" use 'run' instead of 'setup'
-      should run "android-update-sdk --components=sysimg-14 --accept-licenses='mips-android-sysimage-license-15de68cc'", fold: true
-      should run "android-update-sdk --components=sysimg-8 --accept-licenses='mips-android-sysimage-license-15de68cc'", fold: true
+      is_expected.to run "android-update-sdk --components=sysimg-14 --accept-licenses='mips-android-sysimage-license-15de68cc'", fold: true
+      is_expected.to run "android-update-sdk --components=sysimg-8 --accept-licenses='mips-android-sysimage-license-15de68cc'", fold: true
     end
 
     it 'installs the provided sdk component using license defaults' do
       data['config']['android']['components'] = %w[build-tools-18.1.0]
 
-      should setup "android-update-sdk --components=build-tools-18.1.0", fold: true
-      should_not setup "android-update-sdk --components=build-tools-18.1.0 --accept-licenses", fold: true
+      is_expected.to setup "android-update-sdk --components=build-tools-18.1.0", fold: true
+      is_expected.not_to setup "android-update-sdk --components=build-tools-18.1.0 --accept-licenses", fold: true
     end
   end
 
@@ -64,14 +64,14 @@ describe Travis::Build::Script::Android do
       end
 
       it 'runs ./gradlew check connectedCheck' do
-        should run_script './gradlew build connectedCheck'
-        should_not run_script 'gradle build connectedCheck'
+        is_expected.to run_script './gradlew build connectedCheck'
+        is_expected.not_to run_script 'gradle build connectedCheck'
       end
     end
 
     context 'without gradle wrapper' do
       it 'runs gradle build connectedCheck' do
-        should run_script 'gradle build connectedCheck'
+        is_expected.to run_script 'gradle build connectedCheck'
       end
     end
   end
@@ -82,13 +82,13 @@ describe Travis::Build::Script::Android do
     end
 
     it 'runs mvn install -B' do
-      should run_script 'mvn install -B'
+      is_expected.to run_script 'mvn install -B'
     end
   end
 
   describe 'if neither gradle nor mvn are used' do
     it 'runs default android ant tasks' do
-      should run_script 'ant debug installt test'
+      is_expected.to run_script 'ant debug installt test'
     end
   end
 end

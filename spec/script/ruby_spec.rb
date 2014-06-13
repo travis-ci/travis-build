@@ -13,11 +13,11 @@ describe Travis::Build::Script::Ruby do
   it_behaves_like 'a build script'
 
   it 'sets TRAVIS_RUBY_VERSION' do
-    should set 'TRAVIS_RUBY_VERSION', 'default'
+    is_expected.to set 'TRAVIS_RUBY_VERSION', 'default'
   end
 
   it 'sets the default ruby if no :rvm config given' do
-    should setup 'rvm use default'
+    is_expected.to setup 'rvm use default'
   end
 
   context 'with a .ruby-version' do
@@ -26,71 +26,71 @@ describe Travis::Build::Script::Ruby do
     end
 
     it 'sets up rvm with .ruby-version' do
-      should setup 'rvm use . --install --binary --fuzzy'
+      is_expected.to setup 'rvm use . --install --binary --fuzzy'
     end
   end
 
   it 'sets the ruby from config :rvm' do
     data['config']['rvm'] = 'rbx'
-    should setup 'rvm use rbx'
+    is_expected.to setup 'rvm use rbx'
   end
 
   it 'handles float values correctly for rvm values' do
     data['config']['rvm'] = 2.0
-    should setup 'rvm use 2.0'
+    is_expected.to setup 'rvm use 2.0'
   end
 
   it 'sets BUNDLE_GEMFILE if a gemfile exists' do
     gemfile 'Gemfile.ci'
-    should set 'BUNDLE_GEMFILE', File.join(ENV['PWD'], 'tmp/Gemfile.ci')
+    is_expected.to set 'BUNDLE_GEMFILE', File.join(ENV['PWD'], 'tmp/Gemfile.ci')
   end
 
   it 'announces ruby --version' do
-    should announce 'ruby --version'
+    is_expected.to announce 'ruby --version'
   end
 
   it 'announces rvm --version' do
-    should announce 'rvm --version'
+    is_expected.to announce 'rvm --version'
   end
 
   it 'announces bundle --version' do
-    should announce 'bundle --version'
+    is_expected.to announce 'bundle --version'
   end
 
   it 'installs with bundle install with the given bundler_args if a gemfile exists' do
     gemfile 'Gemfile.ci'
-    should install 'bundle install'
+    is_expected.to install 'bundle install'
   end
 
   it 'folds bundle install if a gemfile exists' do
     gemfile 'Gemfile.ci'
-    should fold 'bundle install', 'install'
+    is_expected.to fold 'bundle install', 'install'
   end
 
   it "retries bundle install if a Gemfile exists" do
     gemfile "Gemfile.ci"
-    should retry_script 'bundle install'
+    is_expected.to retry_script 'bundle install'
   end
 
   it 'runs bundle install --deployment if there is a Gemfile.lock' do
     gemfile('Gemfile')
     file('Gemfile.lock')
-    should run_script 'bundle install --deployment'
+    is_expected.to run_script 'bundle install --deployment'
   end
 
   it 'runs bundle install --deployment if there is a custom Gemfile.ci.lock' do
     gemfile('Gemfile.ci')
     file('Gemfile.ci.lock')
-    should run_script 'bundle install --deployment'
+    is_expected.to run_script 'bundle install --deployment'
   end
 
   it 'runs bundle exec rake if a gemfile exists' do
     gemfile 'Gemfile.ci'
-    should run_script 'bundle exec rake'
+    is_expected.to run_script 'bundle exec rake'
   end
 
   it 'runs rake if a gemfile does not exist' do
-    should run_script 'rake'
+    is_expected.to run_script 'rake'
   end
 
   describe 'using a jdk' do
@@ -107,26 +107,38 @@ describe Travis::Build::Script::Ruby do
 
   describe 'not using a jdk' do
     it 'does not announce java' do
-      should_not announce 'java'
+      is_expected.not_to announce 'java'
     end
 
     it 'does not announce javac' do
-      should_not announce 'javac'
+      is_expected.not_to announce 'javac'
     end
   end
 
-  describe :cache_slug do
+  describe '#cache_slug' do
     subject { described_class.new(data, options) }
-    its(:cache_slug) { should be == 'cache--rvm-default--gemfile-Gemfile' }
+
+    describe '#cache_slug' do
+      subject { super().cache_slug }
+      it { is_expected.to eq('cache--rvm-default--gemfile-Gemfile') }
+    end
 
     describe 'with custom gemfile' do
       before { gemfile 'foo' }
-      its(:cache_slug) { should be == 'cache--rvm-default--gemfile-foo' }
+
+      describe '#cache_slug' do
+        subject { super().cache_slug }
+        it { is_expected.to eq('cache--rvm-default--gemfile-foo') }
+      end
     end
 
     describe 'with custom ruby version' do
       before { data['config']['rvm'] = 'jruby' }
-      its(:cache_slug) { should be == 'cache--rvm-jruby--gemfile-Gemfile' }
+
+      describe '#cache_slug' do
+        subject { super().cache_slug }
+        it { is_expected.to eq('cache--rvm-jruby--gemfile-Gemfile') }
+      end
     end
 
     describe 'with custom jdk version' do
@@ -134,7 +146,11 @@ describe Travis::Build::Script::Ruby do
         data['config']['rvm'] = 'jruby'
         data['config']['jdk'] = 'openjdk7'
       end
-      its(:cache_slug) { should be == 'cache--jdk-openjdk7--rvm-jruby--gemfile-Gemfile' }
+
+      describe '#cache_slug' do
+        subject { super().cache_slug }
+        it { is_expected.to eq('cache--jdk-openjdk7--rvm-jruby--gemfile-Gemfile') }
+      end
     end
   end
 
@@ -144,11 +160,11 @@ describe Travis::Build::Script::Ruby do
     end
 
     it 'uses chruby to set the version' do
-      should setup 'chruby 2.1.1'
+      is_expected.to setup 'chruby 2.1.1'
     end
 
     it 'announces the chruby version' do
-      should announce 'chruby --version'
+      is_expected.to announce 'chruby --version'
     end
   end
 end
