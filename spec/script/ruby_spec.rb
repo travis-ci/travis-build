@@ -6,10 +6,6 @@ describe Travis::Build::Script::Ruby do
 
   subject(:script) { described_class.new(data, options).compile }
 
-  after :all do
-    store_example
-  end
-
   it_behaves_like 'a build script'
 
   it 'sets TRAVIS_RUBY_VERSION' do

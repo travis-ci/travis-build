@@ -10,10 +10,6 @@ describe Travis::Build::Script::Clojure do
   it_behaves_like 'a jdk build'
 
   describe 'if no lein config given' do
-    after :all do
-      store_example 'no lein config'
-    end
-
     it 'announces lein version' do
       is_expected.to announce 'lein version'
     end
@@ -34,10 +30,6 @@ describe Travis::Build::Script::Clojure do
   describe 'if lein: lein2 given' do
     before :each do
       data['config']['lein'] = 'lein2'
-    end
-
-    after :all do
-      store_example 'lein2 config'
     end
 
     it 'announces lein2 version if lein: lein2 given' do

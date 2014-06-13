@@ -10,10 +10,6 @@ describe Travis::Build::Script::Cpp do
     executable 'configure'
   end
 
-  after :all do
-    store_example
-  end
-
   it_behaves_like 'a build script'
 
   describe 'no compiler set' do
