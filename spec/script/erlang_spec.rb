@@ -13,34 +13,34 @@ describe Travis::Build::Script::Erlang do
   it_behaves_like 'a build script'
 
   it 'sets TRAVIS_OTP_RELEASE' do
-    should set 'TRAVIS_OTP_RELEASE', 'R14B04'
+    is_expected.to set 'TRAVIS_OTP_RELEASE', 'R14B04'
   end
 
   xit 'activates otp' do
     # for some reason the source stub doesn't work. can't source be overwritten in bash?
     executable 'otp/R14B04/activate' # should not be needed?
-    should run "source ~/otp/R14B04/activate"
+    is_expected.to run "source ~/otp/R14B04/activate"
   end
 
   describe 'if no rebar config exists' do
     it 'does not install rebar get-deps' do
-      should_not run 'rebar get-deps'
+      is_expected.not_to run 'rebar get-deps'
     end
 
     it 'runs make test' do
-      should run_script 'make test'
+      is_expected.to run_script 'make test'
     end
   end
 
   shared_examples_for 'runs rebar' do |path|
     it "installs #{path}rebar get-deps" do
-      should run "#{path}rebar get-deps", echo: true, log: true, assert: true, retry: true
+      is_expected.to run "#{path}rebar get-deps", echo: true, log: true, assert: true, retry: true
     end
 
     it "runs #{path}rebar compile && #{path}rebar skip_deps=true eunit" do
-      should run "echo $ #{path}rebar compile && #{path}rebar skip_deps=true eunit"
-      should run "#{path}rebar compile"
-      should run "#{path}rebar skip_deps=true eunit", log: true
+      is_expected.to run "echo $ #{path}rebar compile && #{path}rebar skip_deps=true eunit"
+      is_expected.to run "#{path}rebar compile"
+      is_expected.to run "#{path}rebar skip_deps=true eunit", log: true
     end
   end
 
@@ -65,6 +65,10 @@ describe Travis::Build::Script::Erlang do
 
   describe :cache_slug do
     subject { described_class.new(data, options) }
-    its(:cache_slug) { should be == 'cache--otp-R14B04' }
+
+    describe '#cache_slug' do
+      subject { super().cache_slug }
+      it { is_expected.to eq('cache--otp-R14B04') }
+    end
   end
 end

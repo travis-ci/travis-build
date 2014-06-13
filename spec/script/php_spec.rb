@@ -13,22 +13,22 @@ describe Travis::Build::Script::Php do
   it_behaves_like 'a build script'
 
   it 'sets TRAVIS_PHP_VERSION' do
-    should set 'TRAVIS_PHP_VERSION', '5.3'
+    is_expected.to set 'TRAVIS_PHP_VERSION', '5.3'
   end
 
   it 'sets up the php version' do
-    should setup 'phpenv global 5.3'
+    is_expected.to setup 'phpenv global 5.3'
   end
 
   it 'announces php --version' do
-    should announce 'php --version'
+    is_expected.to announce 'php --version'
   end
 
   it 'announces composer --version' do
-    should announce 'composer --version'
+    is_expected.to announce 'composer --version'
   end
 
   it 'runs phpunit' do
-    should run_script 'phpunit'
+    is_expected.to run_script 'phpunit'
   end
 end

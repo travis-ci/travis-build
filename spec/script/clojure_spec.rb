@@ -15,19 +15,19 @@ describe Travis::Build::Script::Clojure do
     end
 
     it 'announces lein version' do
-      should announce 'lein version'
+      is_expected.to announce 'lein version'
     end
 
     it 'installs lein deps' do
-      should install 'lein deps'
+      is_expected.to install 'lein deps'
     end
 
     it 'retries len deps' do
-      should retry_script 'lein deps'
+      is_expected.to retry_script 'lein deps'
     end
 
     it 'runs lein test' do
-      should run_script 'lein test'
+      is_expected.to run_script 'lein test'
     end
   end
 
@@ -41,24 +41,28 @@ describe Travis::Build::Script::Clojure do
     end
 
     it 'announces lein2 version if lein: lein2 given' do
-      should announce 'lein2 version'
+      is_expected.to announce 'lein2 version'
     end
 
     it 'installs lein2 deps if lein: lein2 given' do
-      should install 'lein2 deps'
+      is_expected.to install 'lein2 deps'
     end
 
     it 'retries lein2 deps if lein: lein2 given' do
-      should retry_script 'lein2 deps'
+      is_expected.to retry_script 'lein2 deps'
     end
 
     it 'runs lein2 test if lein: lein2 given' do
-      should run_script 'lein2 test'
+      is_expected.to run_script 'lein2 test'
     end
   end
 
   describe :cache_slug do
     subject { described_class.new(data, options) }
-    its(:cache_slug) { should be == 'cache--jdk-default--lein-lein' }
+
+    describe '#cache_slug' do
+      subject { super().cache_slug }
+      it { is_expected.to eq('cache--jdk-default--lein-lein') }
+    end
   end
 end
