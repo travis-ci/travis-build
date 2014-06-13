@@ -1,3 +1,5 @@
+require 'shellwords'
+
 module Travis
   module Build
     class Script
@@ -7,7 +9,7 @@ module Travis
 
           def initialize(script, config)
             @script = script
-            @postgresql_version = config.to_s
+            @postgresql_version = config.to_s.shellescape
           end
 
           def after_pre_setup
