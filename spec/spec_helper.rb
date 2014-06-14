@@ -90,9 +90,9 @@ RSpec.configure do |c|
 
   c.before :each do
     FileUtils.rm_rf tmp_folder
-    FileUtils.mkdir tmp_folder
+    FileUtils.mkdir_p tmp_folder
     FileUtils.rm_rf example_folder
-    FileUtils.mkdir example_folder
+    FileUtils.mkdir_p example_folder
   end
 
   c.before :each do
