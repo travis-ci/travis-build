@@ -21,7 +21,7 @@ module Travis
         end
 
         def script
-          cmd 'cabal configure --enable-tests && cabal build && cabal test'
+          cmd 'cabal configure --enable-tests --ghc-options=-Werror && cabal build && cabal test'
         end
       end
     end
