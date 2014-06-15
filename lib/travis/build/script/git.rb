@@ -29,7 +29,7 @@ module Travis
             return unless config[:source_key]
 
             echo "\nInstalling an SSH key\n"
-            cmd "echo '#{config[:source_key]}' | base64 --decode > ~/.ssh/id_rsa", echo: false, log: false
+            cmd "echo #{config[:source_key].shellescape} | base64 --decode > ~/.ssh/id_rsa", echo: false, log: false
             cmd 'chmod 600 ~/.ssh/id_rsa',                echo: false, log: false
             cmd 'eval `ssh-agent` &> /dev/null',      echo: false, log: false
             cmd 'ssh-add ~/.ssh/id_rsa &> /dev/null', echo: false, log: false
@@ -91,7 +91,7 @@ module Travis
           end
 
           def clone_args
-            args = "--depth=#{config[:git][:depth]}"
+            args = "--depth=#{config[:git][:depth].shellescape}"
             args << " --branch=#{data.branch.shellescape}" unless data.ref
             args
           end
