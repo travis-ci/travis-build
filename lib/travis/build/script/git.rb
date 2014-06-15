@@ -91,7 +91,7 @@ module Travis
           end
 
           def clone_args
-            args = "--depth=#{config[:git][:depth].shellescape}"
+            args = "--depth=#{config[:git][:depth].to_s.shellescape}"
             args << " --branch=#{data.branch.shellescape}" unless data.ref
             args
           end
