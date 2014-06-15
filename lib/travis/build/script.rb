@@ -109,13 +109,12 @@ module Travis
         def pre_setup
           start_services
           setup_apt_cache if data.cache? :apt
-          setup_directory_cache
           fix_ps4
           run_addons(:after_pre_setup)
         end
 
         def setup
-          # overwrite
+          setup_directory_cache
         end
 
         def announce
