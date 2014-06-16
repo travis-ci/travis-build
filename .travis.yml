@@ -4,4 +4,4 @@ rvm:
   - 1.9.3
   - jruby-1.7.12
 
-script: "bundle exec rspec spec"
+script: "bundle exec parallel_rspec spec"
