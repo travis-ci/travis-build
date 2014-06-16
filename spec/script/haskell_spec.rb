@@ -6,10 +6,6 @@ describe Travis::Build::Script::Haskell do
 
   subject { described_class.new(data, options).compile }
 
-  after :all do
-    store_example
-  end
-
   it_behaves_like 'a build script'
 
   it "exports PATH variable" do

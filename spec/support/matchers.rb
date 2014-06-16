@@ -19,7 +19,7 @@ end
 
 def logs?(lines, cmd)
   # cmd = /^output from #{Regexp.escape(cmd)}/
-  # lines = File.read('tmp/build.log').split("\n")
+  # lines = File.read("#{tmp_folder}/build.log').split("\n")
   # lines.detect { |line| line =~ cmd }
   true
 end
@@ -36,9 +36,9 @@ def asserts?(lines, cmd)
 end
 
 def log_for(script)
-  File.open('tmp/build.sh', 'w+') { |f| f.write(script) } unless File.exists?('tmp/build.sh')
-  system("/bin/bash tmp/build.sh > tmp/build.log 2>&1") unless File.exists?('tmp/build.log')
-  File.read('tmp/build.log')
+  File.open("#{tmp_folder}/build.sh", 'w+') { |f| f.write(script) } unless File.exists?("#{tmp_folder}/build.sh")
+  system("/bin/bash #{tmp_folder}/build.sh > #{tmp_folder}/build.log 2>&1") unless File.exists?("#{tmp_folder}/build.log")
+  File.read("#{tmp_folder}/build.log")
 end
 
 def env_for(script)
@@ -48,40 +48,40 @@ end
 RSpec::Matchers.define :setup do |cmd, options = {}|
   match do |script|
     options = options.merge(echo: true, log: true, assert: true)
-    failure_message do
-      "expected script to setup #{cmd.inspect} with #{options} but it didn't:\n#{log_for(script)}"
-    end
     expect(script).to run cmd, options
+  end
+  failure_message do |script|
+    "expected script to setup #{cmd.inspect} with #{options} but it didn't:\n#{log_for(script)}"
   end
 end
 
 RSpec::Matchers.define :announce do |cmd, options = {}|
   match do |script|
     options = options.merge(echo: true, log: true)
-    failure_message do
-      "expected script to announce #{cmd.inspect} with #{options} but it didn't:\n#{log_for(script)}"
-    end
     expect(script).to run cmd, options
+  end
+  failure_message do |script|
+    "expected script to announce #{cmd.inspect} with #{options} but it didn't:\n#{log_for(script)}"
   end
 end
 
 RSpec::Matchers.define :install do |cmd, options = {}|
   match do |script|
     options = options.merge(echo: true, log: true, assert: true)
-    failure_message do
-      "expected script to install #{cmd.inspect} with #{options} but it didn't:\n#{log_for(script)}"
-    end
     expect(script).to run cmd, options
+  end
+  failure_message do |script|
+    "expected script to install #{cmd.inspect} with #{options} but it didn't:\n#{log_for(script)}"
   end
 end
 
 RSpec::Matchers.define :run_script do |cmd, options = {}|
   match do |script|
     options = options.merge(echo: true, log: true)
-    failure_message do
-      "expected script to run the script #{cmd.inspect} with #{options} but it didn't:\n#{log_for(script)}"
-    end
     expect(script).to run cmd, options
+  end
+  failure_message do |script|
+    "expected script to run the script #{cmd.inspect} with #{options} but it didn't:\n#{log_for(script)}"
   end
 end
 
@@ -89,15 +89,19 @@ RSpec::Matchers.define :run do |cmd, options = {}|
   match do |script|
     lines = log_for(script).split("\n")
 
-    failure_message do
-      "expected script to run #{cmd.inspect} with #{options} but it didn't:\n#{lines.join("\n")}"
-    end
-
     runs?(lines, cmd) &&
     (!options[:log]     || logs?(lines, cmd)) &&
     (!options[:echo]    || echoes?(lines, cmd)) &&
     (!options[:retry]   || retries?(lines, cmd)) &&
     (!options[:assert]  || asserts?(lines, cmd))
+  end
+  failure_message do |script|
+    lines = log_for(script).split("\n")
+    "expected script to run #{cmd.inspect} with #{options} but it didn't:\n#{lines.join("\n")}"
+  end
+  failure_message_when_negated do |script|
+    lines = log_for(script).split("\n")
+    "expected script to not run #{cmd.inspect} with #{options} but it did:\n#{lines.join("\n")}"
   end
 end
 
@@ -105,49 +109,43 @@ RSpec::Matchers.define :set do |name, value|
   match do |script|
     env = env_for(script)
 
-    failure_message do
-      "expected script to set #{name} to #{value} but it didn't:\n#{env}"
-    end
-
     # match only the last occurance of given env var, to make sure that
     # it's actually what's been set
     env = env.scan(/^(#{name}=.*?)$/).flatten.last
     env =~ /^#{name}=#{value.is_a?(String) ? Regexp.escape(value) : value}$/
+  end
+  failure_message do |script|
+    env = env_for(script)
+    "expected script to set #{name} to #{value} but it didn't:\n#{env}"
   end
 end
 
 RSpec::Matchers.define :echo do |string|
   match do |script|
     lines = log_for(script).split("\n")
-
-    failure_message do
-      "expected script to echo #{string} but it didn't:\n#{script}"
-    end
-
     echoes?(lines, string)
+  end
+  failure_message do |script|
+    "expected script to echo #{string} but it didn't:\n#{script}"
   end
 end
 
 RSpec::Matchers.define :retry_script do |cmd|
   match do |script|
     lines = log_for(script).split("\n")
-
-    failure_message do
-      "expected script to retry #{cmd} but it didn't:\n#{script}"
-    end
-
     retries?(lines, cmd)
+  end
+  failure_message do |script|
+    "expected script to retry #{cmd} but it didn't:\n#{script}"
   end
 end
 
 RSpec::Matchers.define :fold do |cmd, name|
   match do |script|
     lines = log_for(script).split("\n")
-
-    failure_message do
-      "expected the script to mark #{cmd} with fold markers named #{name.inspect}"
-    end
-
     folds?(lines, cmd, name)
+  end
+  failure_message do |script|
+    "expected the script to mark #{cmd} with fold markers named #{name.inspect}"
   end
 end
