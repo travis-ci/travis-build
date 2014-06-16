@@ -5,75 +5,81 @@ describe Travis::Build::Data::Var do
     described_class.parse(line)
   end
 
-  def var(key, value)
-    described_class.new(key, value)
+  def var(key, value, secure = nil)
+    described_class.new(key, value, secure)
   end
 
   describe 'parse' do
     it 'parses SECURE FOO=foo BAR=bar' do
-      parse('SECURE FOO=foo BAR=bar').should == [["SECURE FOO", "foo"], ["SECURE BAR", "bar"]]
+      expect(parse('SECURE FOO=foo BAR=bar')).to eq([["SECURE FOO", "foo"], ["SECURE BAR", "bar"]])
     end
 
     it 'parses FOO=foo BAR=bar' do
-      parse('FOO=foo BAR=bar').should == [['FOO', 'foo'], ['BAR', 'bar']]
+      expect(parse('FOO=foo BAR=bar')).to eq([['FOO', 'foo'], ['BAR', 'bar']])
     end
 
     it 'parses FOO="" BAR=bar' do
-      parse('FOO="" BAR=bar').should == [['FOO', '""'], ['BAR', 'bar']]
+      expect(parse('FOO="" BAR=bar')).to eq([['FOO', '""'], ['BAR', 'bar']])
     end
 
     it 'parses FOO="foo" BAR=bar' do
-      parse('FOO="foo" BAR=bar').should == [['FOO', '"foo"'], ['BAR', 'bar']]
+      expect(parse('FOO="foo" BAR=bar')).to eq([['FOO', '"foo"'], ['BAR', 'bar']])
     end
 
     it 'parses FOO="foo" BAR="bar"' do
-      parse('FOO="foo" BAR="bar"').should == [['FOO', '"foo"'], ['BAR', '"bar"']]
+      expect(parse('FOO="foo" BAR="bar"')).to eq([['FOO', '"foo"'], ['BAR', '"bar"']])
     end
 
     it "parses FOO='' BAR=bar" do
-      parse("FOO='' BAR=bar").should == [['FOO', "''"], ['BAR', 'bar']]
+      expect(parse("FOO='' BAR=bar")).to eq([['FOO', "''"], ['BAR', 'bar']])
     end
 
     it "parses FOO='foo' BAR=bar" do
-      parse("FOO='foo' BAR=bar").should == [['FOO', "'foo'"], ['BAR', 'bar']]
+      expect(parse("FOO='foo' BAR=bar")).to eq([['FOO', "'foo'"], ['BAR', 'bar']])
     end
 
     it "parses FOO='foo' BAR='bar'" do
-      parse("FOO='foo' BAR='bar'").should == [['FOO', "'foo'"], ['BAR', "'bar'"]]
+      expect(parse("FOO='foo' BAR='bar'")).to eq([['FOO', "'foo'"], ['BAR', "'bar'"]])
     end
 
     it "parses FOO='foo' BAR=\"bar\"" do
-      parse("FOO='foo' BAR=\"bar\"").should == [['FOO', "'foo'"], ['BAR', '"bar"']]
+      expect(parse("FOO='foo' BAR=\"bar\"")).to eq([['FOO', "'foo'"], ['BAR', '"bar"']])
     end
 
     it 'parses FOO="foo foo" BAR=bar' do
-      parse('FOO="foo foo" BAR=bar').should == [['FOO', '"foo foo"'], ['BAR', 'bar']]
+      expect(parse('FOO="foo foo" BAR=bar')).to eq([['FOO', '"foo foo"'], ['BAR', 'bar']])
     end
 
     it 'parses FOO="foo foo" BAR="bar bar"' do
-      parse('FOO="foo foo" BAR="bar bar"').should == [['FOO', '"foo foo"'], ['BAR', '"bar bar"']]
+      expect(parse('FOO="foo foo" BAR="bar bar"')).to eq([['FOO', '"foo foo"'], ['BAR', '"bar bar"']])
     end
   end
 
   it 'travis? returns true if the var name starts with TRAVIS_' do
-    var(:TRAVIS_FOO, 'foo').should be_travis
+    expect(var(:TRAVIS_FOO, 'foo')).to be_travis
   end
 
-  it 'secure? returns true if the var name starts with SECURE' do
-    var('SECURE FOO', 'foo').should be_secure
+  describe 'secure?' do
+    it 'returns true if the var name starts with SECURE' do
+      expect(var('SECURE FOO', 'foo')).to be_secure
+    end
+
+    it 'returns true if var is created with secure argument' do
+      expect(var('FOO', 'foo', true)).to be_secure
+    end
   end
 
   describe 'to_s' do
     it 'returns false for internal vars' do
-      var(:TRAVIS_FOO, 'foo').to_s.should be_false
+      expect(var(:TRAVIS_FOO, 'foo').to_s).to be_falsey
     end
 
     it 'obfuscates the value for secure vars' do
-      var('SECURE FOO', 'foo').to_s.should == 'export FOO=[secure]'
+      expect(var('SECURE FOO', 'foo').to_s).to eq('export FOO=[secure]')
     end
 
     it 'returns the normal key=value string for normal vars' do
-      var('FOO', 'foo').to_s.should == 'export FOO=foo'
+      expect(var('FOO', 'foo').to_s).to eq('export FOO=foo')
     end
   end
 end

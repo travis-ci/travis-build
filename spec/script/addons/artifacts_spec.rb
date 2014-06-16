@@ -30,7 +30,7 @@ describe Travis::Build::Script::Addons::Artifacts do
       before { config.delete(:branch) }
 
       it 'returns true' do
-        expect(subject.send(:branch_runnable?)).to be_true
+        expect(subject.send(:branch_runnable?)).to be_truthy
       end
     end
 
@@ -38,12 +38,12 @@ describe Travis::Build::Script::Addons::Artifacts do
       before { config[:branch] = ['master', 'develop'] }
 
       it 'returns true if present' do
-        expect(subject.send(:branch_runnable?)).to be_true
+        expect(subject.send(:branch_runnable?)).to be_truthy
       end
 
       it 'returns false if absent' do
         data.branch = 'plutonium'
-        expect(subject.send(:branch_runnable?)).to be_false
+        expect(subject.send(:branch_runnable?)).to be_falsey
       end
     end
 
@@ -52,12 +52,12 @@ describe Travis::Build::Script::Addons::Artifacts do
 
       it 'returns true if equal' do
         data.branch = 'production'
-        expect(subject.send(:branch_runnable?)).to be_true
+        expect(subject.send(:branch_runnable?)).to be_truthy
       end
 
       it 'returns false if not equal' do
         data.branch = 'plutonium'
-        expect(subject.send(:branch_runnable?)).to be_false
+        expect(subject.send(:branch_runnable?)).to be_falsey
       end
     end
   end
