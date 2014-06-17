@@ -73,7 +73,7 @@ module Travis
           end
 
           def bundler_args
-            config[:bundler_args]
+            config[:bundler_args] || "--jobs=3 --retry=3"
           end
 
           def setup_bundler
