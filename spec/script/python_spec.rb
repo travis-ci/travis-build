@@ -15,26 +15,26 @@ describe Travis::Build::Script::Python do
   end
 
   it 'sets TRAVIS_PYTHON_VERSION' do
-    should set 'TRAVIS_PYTHON_VERSION', '2.7'
+    is_expected.to set 'TRAVIS_PYTHON_VERSION', '2.7'
   end
 
   it 'sets up the python version (pypy)' do
     data['config']['python'] = 'pypy'
-    should run 'echo $ source ~/virtualenv/pypy/bin/activate' # TODO can't really capture source, yet
+    is_expected.to run 'echo $ source ~/virtualenv/pypy/bin/activate' # TODO can't really capture source, yet
     store_example 'pypy'
   end
 
   it 'sets up the python version (2.7)' do
-    should run 'echo $ source ~/virtualenv/python2.7/bin/activate' # TODO can't really capture source, yet
+    is_expected.to run 'echo $ source ~/virtualenv/python2.7/bin/activate' # TODO can't really capture source, yet
     store_example '2.7'
   end
 
   it 'announces python --version' do
-    should announce 'python --version'
+    is_expected.to announce 'python --version'
   end
 
   it 'announces pip --version' do
-    should announce 'pip --version'
+    is_expected.to announce 'pip --version'
   end
 
   describe 'if no requirements file exists' do
@@ -49,7 +49,7 @@ describe Travis::Build::Script::Python do
     end
 
     it 'installs with pip' do
-      should install 'pip install -r Requirements.txt', retry: true
+      is_expected.to install 'pip install -r Requirements.txt', retry: true
     end
   end
 
@@ -60,7 +60,7 @@ describe Travis::Build::Script::Python do
 
     # TODO [[ -f file ]] matches case insensitive on mac osx but doesn't on ubuntu?
     xit 'installs with pip' do
-      should install 'pip install -r requirements.txt', retry: true
+      is_expected.to install 'pip install -r requirements.txt', retry: true
     end
   end
   
@@ -70,7 +70,7 @@ describe Travis::Build::Script::Python do
     end
     
     it 'sets up python with system site packages enabled' do
-      should run "echo $ source ~/virtualenv/python2.7_with_system_site_packages/bin/activate" # TODO can't really capture source, yet
+      is_expected.to run "echo $ source ~/virtualenv/python2.7_with_system_site_packages/bin/activate" # TODO can't really capture source, yet
     end
   end
 end

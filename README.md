@@ -10,11 +10,6 @@ originally extracted from [Travis
 Worker](https://github.com/travis-ci/travis-worker), before taking it's current
 form.
 
-The `examples/` directory will contain several examples on what build scripts look
-like for different projects. Note that they are not intended to be runnable,
-they're just meant to serve as an example of the order the commands are run and
-what commands are run. The examples are generated when the test suite is run.
-
 ## Running test suites
 
 ### Note
