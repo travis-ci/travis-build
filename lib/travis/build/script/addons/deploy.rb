@@ -28,7 +28,6 @@ module Travis
               end
             else
               @allow_failure = config.delete(:allow_failure)
-              script.cmd("git fetch --tags") if on[:tags]
               script.if(want) do
                 script.run_stage(:before_deploy)
                 run
@@ -68,7 +67,10 @@ module Travis
             end
 
             def want_tags(on)
-              '$(git describe --tags --exact-match 2>/dev/null)' if on[:tags]
+              case on[:tags]
+              when true  then '"$TRAVIS_TAG" != ""'
+              when false then '"$TRAVIS_TAG" = ""'
+              end
             end
 
             def want_condition(on)
