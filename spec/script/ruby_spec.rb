@@ -64,24 +64,24 @@ describe Travis::Build::Script::Ruby do
 
   it 'folds bundle install if a gemfile exists' do
     gemfile 'Gemfile.ci'
-    is_expected.to fold 'bundle install', 'install'
+    is_expected.to fold 'bundle install --jobs=3 --retry=3', 'install'
   end
 
   it "retries bundle install if a Gemfile exists" do
     gemfile "Gemfile.ci"
-    is_expected.to retry_script 'bundle install'
+    is_expected.to retry_script 'bundle install --jobs=3 --retry=3'
   end
 
   it 'runs bundle install --deployment if there is a Gemfile.lock' do
     gemfile('Gemfile')
     file('Gemfile.lock')
-    is_expected.to run_script 'bundle install --deployment'
+    is_expected.to run_script 'bundle install --jobs=3 --retry=3 --deployment'
   end
 
   it 'runs bundle install --deployment if there is a custom Gemfile.ci.lock' do
     gemfile('Gemfile.ci')
     file('Gemfile.ci.lock')
-    is_expected.to run_script 'bundle install --deployment'
+    is_expected.to run_script 'bundle install --jobs=3 --retry=3 --deployment'
   end
 
   it 'runs bundle exec rake if a gemfile exists' do
