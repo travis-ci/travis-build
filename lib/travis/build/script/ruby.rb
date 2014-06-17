@@ -10,6 +10,8 @@ module Travis
         include Jdk
         include RVM
 
+        DEFAULT_BUNDLER_ARGS = "--jobs=3 --retry=3"
+
         def cache_slug
           # ruby version is added by RVM]
           super << "--gemfile-" << config[:gemfile].to_s
@@ -67,13 +69,13 @@ module Travis
           end
 
           def bundler_command(args = nil)
-            args = bundler_args if bundler_args
+            args = bundler_args? ? bundler_args : [DEFAULT_BUNDLER_ARGS, args].compat
             args = [args].flatten << "--path=#{bundler_path}" if data.cache?(:bundler) and !bundler_args_path
             ["bundle install", *args].compact.join(" ")
           end
 
           def bundler_args
-            config[:bundler_args] || "--jobs=3 --retry=3"
+            config[:bundler_args]
           end
 
           def setup_bundler
