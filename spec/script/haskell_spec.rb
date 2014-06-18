@@ -39,9 +39,9 @@ describe Travis::Build::Script::Haskell do
     is_expected.to run 'cabal install --only-dependencies --enable-tests', log: true, assert: true, retry: true
   end
 
-  it 'runs cabal configure --enable-tests && cabal build && cabal test' do
-    is_expected.to run 'echo $ cabal configure --enable-tests && cabal build && cabal test'
-    is_expected.to run 'cabal configure --enable-tests'
+  it 'runs cabal configure --enable-tests --ghc-options=-Werror && cabal build && cabal test' do
+    is_expected.to run 'echo $ cabal configure --enable-tests --ghc-options=-Werror && cabal build && cabal test'
+    is_expected.to run 'cabal configure --enable-tests --ghc-options=-Werror'
     is_expected.to run 'cabal build'
     is_expected.to run 'cabal test', log: true
   end
