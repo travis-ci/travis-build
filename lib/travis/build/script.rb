@@ -8,6 +8,7 @@ module Travis
     class Script
       autoload :Addons,         'travis/build/script/addons'
       autoload :Android,        'travis/build/script/android'
+      autoload :Bundler,        'travis/build/script/bundler'
       autoload :C,              'travis/build/script/c'
       autoload :Cpp,            'travis/build/script/cpp'
       autoload :Clojure,        'travis/build/script/clojure'

@@ -129,4 +129,33 @@ describe Travis::Build::Script::ObjectiveC do
       end
     end
   end
+
+  describe '#cache_slug' do
+    subject { described_class.new(data, options) }
+
+    describe '#cache_slug' do
+      subject { super().cache_slug }
+      it { is_expected.to eq('cache--rvm-default--gemfile-Gemfile') }
+    end
+
+    describe 'with custom gemfile' do
+      before do
+        gemfile 'foo'
+      end
+
+      describe '#cache_slug' do
+        subject { super().cache_slug }
+        it { is_expected.to eq('cache--rvm-default--gemfile-foo') }
+      end
+    end
+
+    describe 'with custom ruby version' do
+      before { data['config']['rvm'] = 'jruby' }
+
+      describe '#cache_slug' do
+        subject { super().cache_slug }
+        it { is_expected.to eq('cache--rvm-jruby--gemfile-Gemfile') }
+      end
+    end
+  end
 end
