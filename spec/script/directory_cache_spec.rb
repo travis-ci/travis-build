@@ -54,14 +54,24 @@ describe Travis::Build::Script::DirectoryCache do
   end
 
   describe "s3 caching" do
-    url_pattern = "https://s3.amazonaws.com/s3_bucket/42/%s/example.tbz?AWSAccessKeyId=s3_access_key_id"
+    describe "signatures" do
+      it "works with Amazon's example" do
+        key_pair = Travis::Build::Script::DirectoryCache::S3::KeyPair.new("AKIAIOSFODNN7EXAMPLE", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY")
+        location = Travis::Build::Script::DirectoryCache::S3::Location.new("https", "us-east-1", "examplebucket", "/test.txt")
+        signature = Travis::Build::Script::DirectoryCache::S3::AWS4Signature.new(key_pair, "GET", location, 86400, Time.gm(2013, 5, 24))
+
+        expect(signature.to_uri.query_values['X-Amz-Signature']).to eq("aeeed9bbccd4d02ee5c0109b86d86835f995330da4c265957d157751f604d404")
+      end
+    end
+
+    url_pattern = "https://s3_bucket.s3.amazonaws.com/42/%s/example.tbz?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=s3_access_key_id%%2F19700101%%2Fus-east-1%%2Fs3%%2Faws4_request&X-Amz-Date=19700101T000010Z"
     let(:url) { url_pattern % branch }
-    let(:global_fallback) { "https://s3.amazonaws.com/s3_bucket/42/example.tbz\\?AWSAccessKeyId\\=s3_access_key_id\\&Expires\\=30\\&Signature\\=rqO9wdTuwwSKUIx0lOfll1qooHw\\%3D" }
-    let(:master_fetch_signature) { "qYxqzLotOvHutJy1jvyaGm%2F2BlE%3D" }
+    let(:global_fallback) { "https://s3_bucket.s3.amazonaws.com/42/example.tbz\\?X-Amz-Algorithm\\=AWS4-HMAC-SHA256\\&X-Amz-Credential\\=s3_access_key_id\\%2F19700101\\%2Fus-east-1\\%2Fs3\\%2Faws4_request\\&X-Amz-Date\\=19700101T000010Z\\&X-Amz-Expires\\=20\\&X-Amz-Signature\\=7f206e62deecd81668ca0093f051aeeaaff5c7f53dcf74186c468e4eef3c1e75\\&X-Amz-SignedHeaders\\=host" }
+    let(:master_fetch_signature) { "163b2a236fcfda37d58c1d50c27d86fbd04efb4a6d97219134f71854e3e0383b" }
     let(:fetch_signature) { master_fetch_signature }
-    let(:push_signature) { "OE1irmu2XzZqIAiSSfWjeslNq%2B8%3D" }
-    let(:fetch_url) { Shellwords.escape "#{url}&Expires=30&Signature=#{fetch_signature}" }
-    let(:push_url) { Shellwords.escape "#{url}&Expires=40&Signature=#{push_signature}" }
+    let(:push_signature) { "926885a758f00d51eaad281522a26cf7151fdd530aa1272c1d8c607c2e778570" }
+    let(:fetch_url) { Shellwords.escape "#{url}&X-Amz-Expires=20&X-Amz-Signature=#{fetch_signature}&X-Amz-SignedHeaders=host" }
+    let(:push_url) { Shellwords.escape "#{url}&X-Amz-Expires=30&X-Amz-Signature=#{push_signature}&X-Amz-SignedHeaders=host" }
     let(:data) { Travis::Build::Data.new(config: {}, repository: repository, cache_options: cache_options, job: { branch: branch }) }
     let(:repository) {{ github_id: 42 }}
     let(:slug) { "ex a/mple" }
@@ -100,9 +110,9 @@ describe Travis::Build::Script::DirectoryCache do
 
     describe "on a different branch" do
       let(:branch) { "featurefoo" }
-      let(:fetch_signature) { "Y6Thq%2B%2BUyBhfqW5RJwaZL3zc4Ds%3D" }
-      let(:push_signature) { "d55mUsXtHhHi2Wgxf6ftKqE52jA%3D" }
-      let(:fallback_url) { Shellwords.escape "#{url_pattern % 'master'}&Expires=30&Signature=#{master_fetch_signature}" }
+      let(:fetch_signature) { "cbce59b97e29ba90e1810a9cbedc1d5cd76df8235064c0016a53dea232124d60" }
+      let(:push_signature) { "256ffe8e059f07c9d4e3f2491068fe22ad92722d120590e05671467fb5fda252" }
+      let(:fallback_url) { Shellwords.escape "#{url_pattern % 'master'}&X-Amz-Expires=20&X-Amz-Signature=#{master_fetch_signature}&X-Amz-SignedHeaders=host" }
 
       specify :fetch do
         directory_cache.fetch(sh)
