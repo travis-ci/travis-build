@@ -54,7 +54,7 @@ describe Travis::Build::Script::ObjectiveC do
     end
 
     it 'folds pod install' do
-      is_expected.to fold 'pod install', 'install'
+      is_expected.to fold 'pod install', 'install.cocoapods'
     end
   end
 
