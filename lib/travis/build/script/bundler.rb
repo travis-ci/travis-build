@@ -26,7 +26,6 @@ module Travis
         end
 
         def install
-          super
           gemfile? do |sh|
             sh.if "-f #{config[:gemfile]}.lock" do |sub|
               directory_cache.add(sub, bundler_path) if data.cache?(:bundler)
