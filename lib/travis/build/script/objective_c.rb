@@ -45,8 +45,8 @@ module Travis
           super
 
           podfile? do |sh|
-            # cache cocoapods if it has been explicitely enabled
-            directory_cache.add(sh, 'Pods') if data.cache? :cocoapods, false
+            # cache cocoapods if it has been enabled
+            directory_cache.add(sh, 'Pods') if data.cache?(:cocoapods)
             sh.cmd 'pod install', fold: 'install.cocoapods', retry: true
           end
         end
