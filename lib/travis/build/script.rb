@@ -100,6 +100,10 @@ module Travis
           data.env_vars.each do |var|
             set var.key, var.value, echo: var.to_s
           end
+          if data.env_vars.any?
+            # adds a newline to the log
+            cmd 'echo', echo: false, assert: false, log: false
+          end
         end
 
         def finish
