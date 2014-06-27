@@ -2,6 +2,8 @@ language: ruby
 
 cache: bundler
 
+super_user: false
+
 rvm:
   - 1.9.3
   - jruby-1.7.12
