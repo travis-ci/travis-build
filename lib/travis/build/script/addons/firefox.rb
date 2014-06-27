@@ -3,7 +3,7 @@ module Travis
     class Script
       module Addons
         class Firefox
-          REQUIRES_SUPER_USER = true
+          SUPER_USER_SAFE = false
 
           def initialize(script, config)
             @script = script
