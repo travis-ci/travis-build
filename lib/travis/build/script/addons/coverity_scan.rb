@@ -73,6 +73,7 @@ SH
                 env << "COVERITY_SCAN_BUILD_COMMAND_PREPEND=\"#{@config[:build_command_prepend]}\""
                 env << "COVERITY_SCAN_BRANCH_PATTERN=#{@config[:branch_pattern]}"
                 script.cmd "curl -s #{@config[:build_script_url]} | #{env.join(' ')} bash", echo: true
+                script.raw "export TRAVIS_TEST_RESULT=$(( ${TRAVIS_TEST_RESULT:-0} | $(($? != 0)) ))"
               end
             end
             @script.else echo:true do |script|
