@@ -20,6 +20,16 @@ module Travis
         use Raven::Rack
       end
 
+      error JSON::ParserError do
+        status 400
+        env["sinatra.error"].message
+      end
+
+      error do
+        status 500
+        env["sinatra.error"].message
+      end
+
       post "/script" do
         payload = JSON.parse(request.body.read)
 
