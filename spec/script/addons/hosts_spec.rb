@@ -6,12 +6,12 @@ describe Travis::Build::Script::Addons::Hosts do
 
   before(:each) { script.stubs(:fold).yields(script) }
 
-  subject { described_class.new(script, config).setup }
+  subject { described_class.new(script, config).after_pre_setup }
 
   it "runs the commands" do
     script.expects(:fold).with("hosts").yields(script)
-    script.expects(:cmd).with("sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 #{config}/' -i'.bak' /etc/hosts")
-    script.expects(:cmd).with("sudo sed -e 's/^\\(::1.*\\)$/\\1 #{config}/' -i'.bak' /etc/hosts")
+    script.expects(:cmd).with("sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 'johndoe.local'/' -i'.bak' /etc/hosts")
+    script.expects(:cmd).with("sudo sed -e 's/^\\(::1.*\\)$/\\1 'johndoe.local'/' -i'.bak' /etc/hosts")
     subject
   end
 
@@ -20,8 +20,8 @@ describe Travis::Build::Script::Addons::Hosts do
 
     it "runs the command" do
       script.expects(:fold).with("hosts").yields(script)
-      script.expects(:cmd).with("sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 johndoe.local example.local/' -i'.bak' /etc/hosts")
-      script.expects(:cmd).with("sudo sed -e 's/^\\(::1.*\\)$/\\1 johndoe.local example.local/' -i'.bak' /etc/hosts")
+      script.expects(:cmd).with("sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 'johndoe.local\\ example.local'/' -i'.bak' /etc/hosts")
+      script.expects(:cmd).with("sudo sed -e 's/^\\(::1.*\\)$/\\1 'johndoe.local\\ example.local'/' -i'.bak' /etc/hosts")
 
       subject
     end

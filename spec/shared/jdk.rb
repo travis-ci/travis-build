@@ -5,15 +5,15 @@ shared_examples_for 'a jdk build' do
     end
 
     it 'does not set TERM' do
-      should_not set 'TERM'
+      is_expected.not_to set 'TERM'
     end
 
     it 'does not set TRAVIS_JDK_VERSION' do
-      should_not set 'TRAVIS_JDK_VERSION'
+      is_expected.not_to set 'TRAVIS_JDK_VERSION'
     end
 
     it 'does not run jdk_switcher' do
-      should_not run 'jdk_switcher'
+      is_expected.not_to run 'jdk_switcher'
     end
   end
 
@@ -23,20 +23,20 @@ shared_examples_for 'a jdk build' do
     end
 
     it 'sets TRAVIS_JDK_VERSION' do
-      should set 'TRAVIS_JDK_VERSION', 'openjdk7'
+      is_expected.to set 'TRAVIS_JDK_VERSION', 'openjdk7'
     end
 
     it 'runs jdk_switcher' do
-      should setup 'jdk_switcher use openjdk7'
+      is_expected.to setup 'jdk_switcher use openjdk7'
     end
   end
 
   it 'runs java -version' do
-    should announce 'java -version'
+    is_expected.to announce 'java -version'
   end
 
   it 'runs javac -version' do
-    should announce 'javac -version'
+    is_expected.to announce 'javac -version'
   end
 
   describe 'if build.gradle exists' do
@@ -45,7 +45,7 @@ shared_examples_for 'a jdk build' do
     end
 
     it "sets TERM to 'dumb'" do
-      should set 'TERM', 'dumb'
+      is_expected.to set 'TERM', 'dumb'
     end
 
   end

@@ -15,34 +15,34 @@ describe Travis::Build::Script::Haskell do
   it "exports PATH variable" do
     version = "version"
     data['config']['ghc'] = version
-    should run "/usr/local/ghc/$(ghc_find #{version})/bin/:$PATH"
+    is_expected.to run "/usr/local/ghc/$(ghc_find #{version})/bin/:$PATH"
   end
 
   it 'runs cabal update' do
-    should run 'cabal update', retry: true
+    is_expected.to run 'cabal update', retry: true
   end
 
   it 'folds cabal update' do
-    should fold 'cabal update', 'cabal'
+    is_expected.to fold 'cabal update', 'cabal'
   end
 
   it 'announces ghc --version' do
-    should announce 'ghc --version'
+    is_expected.to announce 'ghc --version'
   end
 
   it 'announces cabal --version' do
-    should announce 'cabal --version'
+    is_expected.to announce 'cabal --version'
   end
 
   it 'installs with cabal install --only-dependencies --enable-tests' do
-    should run 'echo $ cabal install --only-dependencies --enable-tests'
-    should run 'cabal install --only-dependencies --enable-tests', log: true, assert: true, retry: true
+    is_expected.to run 'echo $ cabal install --only-dependencies --enable-tests'
+    is_expected.to run 'cabal install --only-dependencies --enable-tests', log: true, assert: true, retry: true
   end
 
   it 'runs cabal configure --enable-tests && cabal build && cabal test' do
-    should run 'echo $ cabal configure --enable-tests && cabal build && cabal test'
-    should run 'cabal configure --enable-tests'
-    should run 'cabal build'
-    should run 'cabal test', log: true
+    is_expected.to run 'echo $ cabal configure --enable-tests && cabal build && cabal test'
+    is_expected.to run 'cabal configure --enable-tests'
+    is_expected.to run 'cabal build'
+    is_expected.to run 'cabal test', log: true
   end
 end

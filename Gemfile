@@ -14,6 +14,6 @@ end
 
 group :test do
   gem 'mocha',       '~> 0.10.0'
-  gem 'rspec',       '~> 2.99.beta2'
+  gem 'rspec',       '~> 3.0'
 end
 
