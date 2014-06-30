@@ -23,13 +23,6 @@ module Travis
       post "/script" do
         payload = JSON.parse(request.body.read)
 
-        config = { hosts: {} }
-        config[:hosts][:npm_cache] = ENV["NPM_CACHE_HOST"] if ENV.key?("NPM_CACHE_HOST")
-        config[:hosts][:apt_cache] = ENV["APT_CACHE_HOST"] if ENV.key?("APT_CACHE_HOST")
-        config[:paranoid] = true if ENV["PARANOID_MODE"] == "true"
-        config[:skip_resolv_updates] = true if ENV["SKIP_RESOLV_UPDATES"] == "true"
-        config[:skip_etc_hosts_fix] = true if ENV["SKIP_ETC_HOSTS_FIX"] == "true"
-
         content_type :txt
         Travis::Build.script(payload.merge(config)).compile
       end
