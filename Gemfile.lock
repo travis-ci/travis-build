@@ -37,6 +37,8 @@ GEM
     rack (1.5.2)
     rack-protection (1.5.3)
       rack
+    rack-ssl (1.4.1)
+      rack
     rb-fsevent (0.9.4)
     rb-inotify (0.9.4)
       ffi (>= 0.5.0)
@@ -77,6 +79,7 @@ DEPENDENCIES
   addressable (~> 2.3)
   mocha (~> 0.10.0)
   puma
+  rack-ssl (~> 1.4)
   rerun
   rspec (~> 3.0)
   sentry-raven

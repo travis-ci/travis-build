@@ -1,4 +1,5 @@
 require 'json'
+require 'rack/ssl'
 require 'sinatra/base'
 require 'travis/build'
 
@@ -14,6 +15,8 @@ module Travis
           halt 403, "access denied"
         end
       end
+
+      configure(:production, :staging) { use Rack::SSL }
 
       if ENV["SENTRY_DSN"]
         require "raven"
