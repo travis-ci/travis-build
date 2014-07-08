@@ -104,7 +104,7 @@ travis_retry() {
     sleep 1
   done
 
-  [ $count -eq 3 ] && {
+  [ $count -gt 3 ] && {
     echo "\n${RED}The command \"$@\" failed 3 times.${RESET}\n" >&2
   }
 
