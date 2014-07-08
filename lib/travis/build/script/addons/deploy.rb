@@ -12,18 +12,12 @@ module Travis
           def initialize(script, config)
             @silent = false
             @script = script
-            if config.is_a?(Array)
-              @configs = config
-              @config = {}
-            else
-              @configs = [config]
-              @config = config
-            end
+            @config = config
           end
 
           def deploy
-            if @configs.length > 1
-              @configs.each do |config|
+            if config.is_a?(Array)
+              config.each do |config|
                 Deploy.new(script, config).deploy
               end
             else
@@ -145,7 +139,7 @@ module Travis
             end
 
             def failure_message(message)
-              script.cmd("echo -e \"\033[33;1mSkipping deployment with the " << config[:provider] << " provider because "<< message << "\033[0m\"", echo: false, assert: false, fold: 'deployment')
+              script.cmd("echo -e \"\033[33;1mSkipping deployment with the " << config[:provider] << " provider because " << message << "\033[0m\"", echo: false, assert: false, fold: 'deployment')
             end
 
             def negate_condition(condition)
