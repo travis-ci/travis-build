@@ -37,7 +37,7 @@ module Travis
       TEMPLATES_PATH = File.expand_path('../script/templates', __FILE__)
 
       STAGES = {
-        builtin: [:configure, :checkout, :setup, :announce],
+        builtin: [:configure, :checkout, :pre_setup, :paranoid_mode, :export, :setup, :announce],
         custom:  [:before_install, :install, :before_script, :script, :after_result, :after_script]
       }
 
@@ -91,10 +91,6 @@ module Travis
         def configure
           fix_resolv_conf
           fix_etc_hosts
-          paranoid_mode
-
-          # export needs to go after paranoid_mode since it can execute code
-          export
         end
 
         def export
@@ -105,17 +101,25 @@ module Travis
           data.env_vars.each do |var|
             set var.key, var.value, echo: var.to_s
           end
+          if data.env_vars.any?
+            # adds a newline to the log
+            cmd 'echo', echo: false, assert: false, log: false
+          end
         end
 
         def finish
           push_directory_cache
         end
 
-        def setup
+        def pre_setup
           start_services
           setup_apt_cache if data.cache? :apt
-          setup_directory_cache
           fix_ps4
+          run_addons(:after_pre_setup)
+        end
+
+        def setup
+          setup_directory_cache
         end
 
         def announce
@@ -128,7 +132,10 @@ module Travis
 
         def paranoid_mode
           if data.paranoid_mode?
+            cmd 'echo', echo: false, assert: false, log: false
+            cmd 'echo', echo: false, assert: false, log: false
             cmd 'echo -e "\033[33mNOTE:\033[0m Sudo, services, addons, setuid and setgid have been disabled."', echo: false, assert: false, log: false
+            cmd 'echo', echo: false, assert: false, log: false
             cmd 'sudo -n sh -c "sed -e \'s/^%.*//\' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis && find / -perm -4000 -exec chmod a-s {} \; 2>/dev/null"', echo: false, assert: false, log: false
           end
         end

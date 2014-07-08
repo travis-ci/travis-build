@@ -3,7 +3,7 @@ module Travis
     class Script
       module Addons
         class Deploy
-          REQUIRES_SUPER_USER = false
+          SUPER_USER_SAFE = true
 
           VERSIONED_RUNTIMES = [:jdk, :node, :perl, :php, :python, :ruby, :scala, :go]
           USE_RUBY           = '1.9.3'
@@ -28,10 +28,25 @@ module Travis
               end
             else
               @allow_failure = config.delete(:allow_failure)
+
               script.if(want) do
                 script.run_stage(:before_deploy)
                 run
                 script.run_stage(:after_deploy)
+              end
+
+              script.else do
+                script.if(negate_condition(want_push(on))) { failure_message "the current build is a pull request." }
+
+                script.if(negate_condition(want_repo(on))) { failure_message "this is a forked repo." } unless want_repo(on).nil?
+
+                script.if(negate_condition(want_branch(on))) { failure_message "this branch is not permitted to deploy." } unless want_branch(on).nil?
+
+                script.if(negate_condition(want_runtime(on))) { failure_message "this is not on the required runtime." } unless want_runtime(on).nil?
+
+                script.if(negate_condition(want_condition(on))) { failure_message "a custom condition was not met." } unless want_condition(on).nil?
+
+                script.if(negate_condition(want_tags(on))) { failure_message "this is not a tagged commit." } unless want_tags(on).nil?
               end
             end
           end
@@ -78,10 +93,12 @@ module Travis
             end
 
             def want_runtime(on)
-              VERSIONED_RUNTIMES.map do |runtime|
-                next unless on.include? runtime
-                "$TRAVIS_#{runtime.to_s.upcase}_VERSION = \"#{on[runtime]}\""
-              end
+              runtimes = VERSIONED_RUNTIMES.map do |runtime|
+                           next unless on.include? runtime
+                           "$TRAVIS_#{runtime.to_s.upcase}_VERSION = \"#{on[runtime]}\""
+                         end.compact.join(" && ")
+
+              runtimes.empty? ? nil : runtimes
             end
 
             def run
@@ -125,6 +142,14 @@ module Travis
 
             def options
               config.flat_map { |k,v| option(k,v) }.compact.join(" ")
+            end
+
+            def failure_message(message)
+              script.cmd("echo -e \"\033[33;1mSkipping deployment with the " << config[:provider] << " provider because "<< message << "\033[0m\"", echo: false, assert: false, fold: 'deployment')
+            end
+
+            def negate_condition(condition)
+                " ! " << condition.to_s
             end
         end
       end

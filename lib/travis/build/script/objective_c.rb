@@ -26,10 +26,10 @@ module Travis
         def export
           super
 
-          set 'TRAVIS_XCODE_SDK', config[:xcode_sdk], echo: false
-          set 'TRAVIS_XCODE_SCHEME', config[:xcode_scheme], echo: false
-          set 'TRAVIS_XCODE_PROJECT', config[:xcode_project], echo: false
-          set 'TRAVIS_XCODE_WORKSPACE', config[:xcode_workspace], echo: false
+          set 'TRAVIS_XCODE_SDK', config[:xcode_sdk].to_s.shellescape, echo: false
+          set 'TRAVIS_XCODE_SCHEME', config[:xcode_scheme].to_s.shellescape, echo: false
+          set 'TRAVIS_XCODE_PROJECT', config[:xcode_project].to_s.shellescape, echo: false
+          set 'TRAVIS_XCODE_WORKSPACE', config[:xcode_workspace].to_s.shellescape, echo: false
         end
 
         def setup
