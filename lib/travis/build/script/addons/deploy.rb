@@ -35,17 +35,19 @@ module Travis
                 script.run_stage(:after_deploy)
               end
 
-              script.if(negate_condition(want_push(on))) { failure_message "the current build is a pull request." }
+              script.else do
+                script.if(negate_condition(want_push(on))) { failure_message "the current build is a pull request." }
 
-              script.if(negate_condition(want_repo(on))) { failure_message "this is a forked repo." } unless want_repo(on).nil?
+                script.if(negate_condition(want_repo(on))) { failure_message "this is a forked repo." } unless want_repo(on).nil?
 
-              script.if(negate_condition(want_branch(on))) { failure_message "this branch is not permitted to deploy." } unless want_branch(on).nil?
+                script.if(negate_condition(want_branch(on))) { failure_message "this branch is not permitted to deploy." } unless want_branch(on).nil?
 
-              script.if(negate_condition(want_runtime(on))) { failure_message "this is not on the required runtime." } unless want_runtime(on).nil?
+                script.if(negate_condition(want_runtime(on))) { failure_message "this is not on the required runtime." } unless want_runtime(on).nil?
 
-              script.if(negate_condition(want_condition(on))) { failure_message "a custom condition was not met." } unless want_condition(on).nil?
+                script.if(negate_condition(want_condition(on))) { failure_message "a custom condition was not met." } unless want_condition(on).nil?
 
-              script.if(negate_condition(want_tags(on))) { failure_message "this is not a tagged commit." } unless want_tags(on).nil?
+                script.if(negate_condition(want_tags(on))) { failure_message "this is not a tagged commit." } unless want_tags(on).nil?
+              end
             end
           end
 
@@ -96,7 +98,7 @@ module Travis
                            "$TRAVIS_#{runtime.to_s.upcase}_VERSION = \"#{on[runtime]}\""
                          end.compact.join(" && ")
 
-              runtimes.empty? ? nil : runtimes 
+              runtimes.empty? ? nil : runtimes
             end
 
             def run
