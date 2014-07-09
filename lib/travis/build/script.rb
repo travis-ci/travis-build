@@ -28,6 +28,7 @@ module Travis
       autoload :PureJava,       'travis/build/script/pure_java'
       autoload :Python,         'travis/build/script/python'
       autoload :Ruby,           'travis/build/script/ruby'
+      autoload :Rust,           'travis/build/script/rust'
       autoload :RVM,            'travis/build/script/rvm'
       autoload :Scala,          'travis/build/script/scala'
       autoload :Services,       'travis/build/script/services'
