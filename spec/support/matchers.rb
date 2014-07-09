@@ -18,18 +18,16 @@ def folds?(lines, cmd, name)
 end
 
 def measures_time?(lines, cmd)
-  cmd = case cmd
-  when Regexp
-    /^time (?:travis_retry )?.*#{cmd}/
-  when String
-    /^time (?:travis_retry )?#{Regexp.escape(cmd)}/
-  end
+  cmd = /^(?:travis_retry )?#{Regexp.escape(cmd)}/ if cmd.is_a?(String)
 
   icmd = lines.index { |line| line =~ cmd }
 
   return false unless icmd
 
-  lines[icmd - 1] =~ /^#{Regexp.escape('echo -en $\'travis_time:start\r\'')}/
+  x_start = lines[icmd - 2] =~ /^#{Regexp.escape('echo -en $\'travis_time:start\r\'')}/
+  x_end = lines[icmd + 1] =~ /^travis_time:finish:duration=/
+
+  x_start && x_end
 end
 
 def logs?(lines, cmd)
