@@ -18,16 +18,18 @@ def folds?(lines, cmd, name)
 end
 
 def measures_time?(lines, cmd)
-  cmd = /^(?:travis_retry )?#{Regexp.escape(cmd)}/ if cmd.is_a?(String)
+  cmd = case cmd
+  when Regexp
+    /^time (?:travis_retry )?.*#{cmd}/
+  when String
+    /^time (?:travis_retry )?#{Regexp.escape(cmd)}/
+  end
 
   icmd = lines.index { |line| line =~ cmd }
 
   return false unless icmd
 
-  x_start = lines[icmd - 1] =~ /^echo -en travis_time:start/
-  x_end   = lines[icmd + 1] =~ /^echo -en travis_time:finish:/
-
-  x_start && x_end
+  lines[icmd - 1] =~ /^#{Regexp.escape('echo -en $\'travis_time:start\r\'')}/
 end
 
 def logs?(lines, cmd)
@@ -169,8 +171,8 @@ RSpec::Matchers.define :measures_time do |cmd|
   match do |script|
     lines = log_for(script).split("\n")
 
-    failure_message_for_should do
-      "expected the script to mark #{cmd} with fold markers named #{name.inspect}"
+    failure_message do
+      "expected the script to measure the time of #{cmd}"
     end
 
     measures_time?(lines, cmd)

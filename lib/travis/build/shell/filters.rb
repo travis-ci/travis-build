@@ -20,7 +20,7 @@ module Travis
           end
 
           def measure(code)
-            "travis_time_start\n#{code}\ntravis_time_finish"
+            "echo -en $'travis_time:start\\r'\ntime #{code}"
           end
         end
 
