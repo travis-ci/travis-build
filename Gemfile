@@ -14,7 +14,8 @@ group :development do
 end
 
 group :test do
-  gem 'mocha',       '~> 0.10.0'
-  gem 'rspec',       '~> 3.0'
+  gem 'mocha',          '~> 0.10.0'
+  gem 'rspec',          '~> 3.0'
+  gem 'parallel_tests', '~> 1.0'
 end
 
