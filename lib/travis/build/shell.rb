@@ -6,8 +6,8 @@ module Travis
       autoload :Node,    'travis/build/shell/node'
       autoload :Cmd,     'travis/build/shell/node'
 
-      Cmd.send(:include, Filters::Timing)
       Cmd.send(:include, Filters::Retry)
+      Cmd.send(:include, Filters::Timing)
       Cmd.send(:include, Filters::Assertion)
       Cmd.send(:include, Filters::Echoize)
 
