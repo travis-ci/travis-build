@@ -24,7 +24,7 @@ def measures_time?(lines, cmd)
 
   return false unless icmd
 
-  x_start = lines[icmd - 2] =~ /^#{Regexp.escape('echo -en $\'travis_time:start\r\'')}/
+  x_start = lines[icmd - 1] =~ /^#{Regexp.escape('echo -en $\'travis_time:start\r\'')}/
   x_end = lines[icmd + 1] =~ /^travis_time:finish:duration=/
 
   x_start && x_end
