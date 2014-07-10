@@ -15,11 +15,15 @@ module Travis
         def setup
           super
 
+          cmd 'mkdir -p ~/rust', echo: false
+
           cmd 'echo -e "\033[33;1mDownloading Rust\033[0m"', assert: false, echo: false
-          cmd "curl -sL #{rust_url} | sudo tar --strip-components=1 -C /usr -xzf -"
+          cmd "curl -sL #{rust_url} | tar --strip-components=1 -C ~/rust -xzf -"
 
           cmd 'echo -e "\033[33;1mDownloading Cargo\033[0m"', assert: false, echo: false
-          cmd "curl -sL #{cargo_url} | sudo tar --strip-components=1 -C /usr -xzf -"
+          cmd "curl -sL #{cargo_url} | tar --strip-components=1 -C ~/rust -xzf -"
+
+          cmd 'export PATH="$PATH:$HOME/rust/bin"', assert: false, echo: false
         end
 
         def announce
