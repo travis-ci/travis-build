@@ -77,8 +77,11 @@ module Travis
       class Conditional < Block
         def initialize(condition, *args, &block)
           args.unshift(args.last.delete(:then)) if args.last.is_a?(Hash) && args.last[:then]
+          unless args.last.delete(:raw_condition)
+            condition = "[[ #{condition} ]]"
+          end
           super(*args, &block)
-          @open = Node.new("#{name} [[ #{condition} ]]; then", options)
+          @open = Node.new("#{name} #{condition}; then", options)
         end
       end
 
