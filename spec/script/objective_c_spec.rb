@@ -56,6 +56,17 @@ describe Travis::Build::Script::ObjectiveC do
     it 'folds pod install' do
       is_expected.to fold 'pod install', 'install.cocoapods'
     end
+
+    context "if Podfile.lock and Pods/Manifest.lock is the same" do
+      before do
+        file("Podfile.lock", "abcd")
+        file("Pods/Manifest.lock", "abcd")
+      end
+
+      it "does not run pod install" do
+        is_expected.not_to install "pod install"
+      end
+    end
   end
 
   context 'if no settings are specified' do
