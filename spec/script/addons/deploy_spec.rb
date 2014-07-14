@@ -127,7 +127,7 @@ describe Travis::Build::Script::Addons::Deploy do
       script.expects(:run_stage).with(:before_deploy)
       script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master) && ($ENV_2 = 1)').yields(script).once
       script.expects(:else).yields
-      script.expects(:if).with(' ! $TRAVIS_PULL_REQUEST = false').yields
+      script.expects(:if).with(' ! $TRAVIS_PULL_REQUEST = false').yields(script)
       script.expects(:if).with(' ! $TRAVIS_BRANCH = master')
       script.expects(:if).with(' ! $ENV_2 = 1')
       script.expects(:cmd).with('rvm 1.9.3 --fuzzy do ruby -S gem install dpl', assert: true, echo: false).once
@@ -152,7 +152,7 @@ describe Travis::Build::Script::Addons::Deploy do
       script.expects(:else).yields(script)
       script.expects(:if).with(' ! $TRAVIS_PULL_REQUEST = false')
       script.expects(:if).with(' ! $TRAVIS_BRANCH = master')
-      script.expects(:if).with(' ! $ENV_1 = 1 &&  ! $ENV_2 = 2').yields
+      script.expects(:if).with(' ! $ENV_1 = 1 &&  ! $ENV_2 = 2').yields(script)
       script.expects(:cmd).with('rvm 1.9.3 --fuzzy do ruby -S gem install dpl', assert: true, echo: false).once
       script.expects(:cmd).with(<<-DPL.gsub(/\s+/, ' ').strip, assert: false, echo: false)
         rvm 1.9.3 --fuzzy do ruby -S dpl --provider="heroku" --fold;
