@@ -18,9 +18,9 @@ travis_result() {
   export TRAVIS_TEST_RESULT=$(( ${TRAVIS_TEST_RESULT:-0} | $(($result != 0)) ))
 
   if [ $result -eq 0 ]; then
-    echo -e "\n${GREEN}The command \"$TRAVIS_CMD\" exited with $result.\033[0m"
+    echo -e "\n${GREEN}The command \"$TRAVIS_CMD\" exited with $result.${RESET}"
   else
-    echo -e "\n${RED}The command \"$TRAVIS_CMD\" exited with $result.\033[0m"
+    echo -e "\n${RED}The command \"$TRAVIS_CMD\" exited with $result.${RESET}"
   fi
 }
 
