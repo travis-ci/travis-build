@@ -102,19 +102,65 @@ describe Travis::Build::Script::Addons::Deploy do
     end
   end
 
-  describe 'deploy condition fails' do
-    let(:config) {{ provider: "heroku", on: { condition: "$ENV_2 = 1"} }}
+  describe 'multiple conditions match' do
+    let(:config) {{ provider: "heroku", on: { condition: ["$ENV_1 = 1", "$ENV_2 = 2"] } }}
 
     it 'displays non-deploy reason' do
       script.expects(:run_stage).with(:before_deploy)
       script.expects(:else)
-      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master) && ($ENV_2 = 1)').yields(script).once
+      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master) && ($ENV_1 = 1) && ($ENV_2 = 2)').yields(script).once
       script.expects(:cmd).with('rvm 1.9.3 --fuzzy do ruby -S gem install dpl', assert: true, echo: false).once
       script.expects(:cmd).with(<<-DPL.gsub(/\s+/, ' ').strip, assert: false, echo: false)
         rvm 1.9.3 --fuzzy do ruby -S dpl --provider="heroku" --fold;
         if [ $? -ne 0 ]; then echo "failed to deploy"; travis_terminate 2; fi
       DPL
       script.expects(:run_stage).with(:after_deploy).once
+
+      subject.deploy
+    end
+  end
+
+  describe 'deploy condition fails' do
+    let(:config) {{ provider: "heroku", on: { condition: "$ENV_2 = 1"} }}
+
+    it 'displays non-deploy reason' do
+      script.expects(:run_stage).with(:before_deploy)
+      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master) && ($ENV_2 = 1)').yields(script).once
+      script.expects(:else).yields
+      script.expects(:if).with(' ! $TRAVIS_PULL_REQUEST = false').yields
+      script.expects(:if).with(' ! $TRAVIS_BRANCH = master')
+      script.expects(:if).with(' ! $ENV_2 = 1')
+      script.expects(:cmd).with('rvm 1.9.3 --fuzzy do ruby -S gem install dpl', assert: true, echo: false).once
+      script.expects(:cmd).with(<<-DPL.gsub(/\s+/, ' ').strip, assert: false, echo: false)
+        rvm 1.9.3 --fuzzy do ruby -S dpl --provider="heroku" --fold;
+        if [ $? -ne 0 ]; then echo "failed to deploy"; travis_terminate 2; fi
+      DPL
+      script.expects(:run_stage).with(:after_deploy).once
+
+      subject.expects(:failure_message)
+
+      subject.deploy
+    end
+  end
+
+  describe 'deploy condition fails' do
+    let(:config) {{ provider: "heroku", on: { condition: ["$ENV_1 = 1", "$ENV_2 = 2"] } }}
+
+    it 'displays non-deploy reason' do
+      script.expects(:run_stage).with(:before_deploy)
+      script.expects(:if).with('($TRAVIS_PULL_REQUEST = false) && ($TRAVIS_BRANCH = master) && ($ENV_1 = 1) && ($ENV_2 = 2)').yields(script).once
+      script.expects(:else).yields(script)
+      script.expects(:if).with(' ! $TRAVIS_PULL_REQUEST = false')
+      script.expects(:if).with(' ! $TRAVIS_BRANCH = master')
+      script.expects(:if).with(' ! $ENV_1 = 1 &&  ! $ENV_2 = 2').yields
+      script.expects(:cmd).with('rvm 1.9.3 --fuzzy do ruby -S gem install dpl', assert: true, echo: false).once
+      script.expects(:cmd).with(<<-DPL.gsub(/\s+/, ' ').strip, assert: false, echo: false)
+        rvm 1.9.3 --fuzzy do ruby -S dpl --provider="heroku" --fold;
+        if [ $? -ne 0 ]; then echo "failed to deploy"; travis_terminate 2; fi
+      DPL
+      script.expects(:run_stage).with(:after_deploy).once
+
+      subject.expects(:failure_message).with('a custom condition was not met.')
 
       subject.deploy
     end
