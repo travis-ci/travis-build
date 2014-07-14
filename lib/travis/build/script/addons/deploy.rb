@@ -38,7 +38,7 @@ module Travis
 
                 script.if(negate_condition(want_runtime(on))) { failure_message "this is not on the required runtime." } unless want_runtime(on).nil?
 
-                script.if(negate_condition(want_condition(on))) { failure_message "a custom condition was not met." } unless want_condition(on).nil?
+                script.if(not_any(want_condition(on))) { failure_message "a custom condition was not met." } unless want_condition(on).nil?
 
                 script.if(negate_condition(want_tags(on))) { failure_message "this is not a tagged commit." } unless want_tags(on).nil?
               end
@@ -144,6 +144,10 @@ module Travis
 
             def negate_condition(condition)
                 " ! " << condition.to_s
+            end
+
+            def not_any(conditions)
+              Array(conditions).flatten.compact.map { |cond| negate_condition(cond) }.join " && "
             end
         end
       end
