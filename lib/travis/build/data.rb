@@ -72,6 +72,10 @@ module Travis
         @env_vars ||= Env.new(self).vars
       end
 
+      def env_vars_groups
+        @env_vars_groups ||= Env.new(self).vars_groups
+      end
+
       def raw_env_vars
         data[:env_vars] || []
       end
