@@ -25,6 +25,19 @@ describe Travis::Build::Data do
     end
   end
 
+  describe 'ssh_key' do
+    it 'returns nil if there is no ssh_key' do
+      data = Travis::Build::Data.new({})
+      data.ssh_key.should be_nil
+    end
+
+    it 'returns ssh_key from api if it is available' do
+      data = Travis::Build::Data.new(ssh_key: { value: 'foo', source: 'the source' })
+      data.ssh_key.value.should == 'foo'
+      data.ssh_key.source.should == 'the source'
+    end
+  end
+
   describe 'cache' do
     subject(:data) { Travis::Build::Data.new(config: { cache: cache }) }
 

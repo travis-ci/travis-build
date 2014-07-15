@@ -76,6 +76,12 @@ module Travis
         data[:env_vars] || []
       end
 
+      def ssh_key
+        if ssh_key = data[:ssh_key]
+          Struct.new(:value, :source).new(ssh_key[:value], ssh_key[:source])
+        end
+      end
+
       def pull_request
         job[:pull_request]
       end
