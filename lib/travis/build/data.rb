@@ -76,9 +76,15 @@ module Travis
         data[:env_vars] || []
       end
 
+      class SshKey < Struct.new(:value, :source, :encoded)
+        def encoded?
+          encoded
+        end
+      end
+
       def ssh_key
         if ssh_key = data[:ssh_key]
-          Struct.new(:value, :source).new(ssh_key[:value], ssh_key[:source])
+          SshKey.new(ssh_key[:value], ssh_key[:source], ssh_key[:encoded])
         end
       end
 

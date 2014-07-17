@@ -25,12 +25,16 @@ module Travis
 
         private
 
+          def decode_cmd
+            data.ssh_key.encoded? ? ' | base64 --decode ' : ''
+          end
+
           def install_ssh_key
             return unless data.ssh_key
 
-            decode = data.ssh_key.source == 'repo_settings' ? '' : '| base64 --decode'
-            echo "\nInstalling an SSH key\n"
-            cmd "echo #{data.ssh_key.value.shellescape} #{decode} > ~/.ssh/id_rsa", echo: false, log: false
+            source = data.ssh_key.source.gsub(/[_-]+/, ' ')
+            echo "\nInstalling an SSH key from #{soruce}\n"
+            cmd "echo #{data.ssh_key.value.shellescape} #{decode_cmd} > ~/.ssh/id_rsa", echo: false, log: false
             cmd 'chmod 600 ~/.ssh/id_rsa',                echo: false, log: false
             cmd 'eval `ssh-agent` &> /dev/null',      echo: false, log: false
             cmd 'ssh-add ~/.ssh/id_rsa &> /dev/null', echo: false, log: false
