@@ -33,7 +33,7 @@ module Travis
             return unless data.ssh_key
 
             source = data.ssh_key.source.gsub(/[_-]+/, ' ')
-            echo "\nInstalling an SSH key from #{soruce}\n"
+            echo "\nInstalling an SSH key from #{source}\n"
             cmd "echo #{data.ssh_key.value.shellescape} #{decode_cmd} > ~/.ssh/id_rsa", echo: false, log: false
             cmd 'chmod 600 ~/.ssh/id_rsa',                echo: false, log: false
             cmd 'eval `ssh-agent` &> /dev/null',      echo: false, log: false
