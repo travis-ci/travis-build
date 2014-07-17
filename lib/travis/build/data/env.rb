@@ -8,8 +8,12 @@ module Travis
         delegate :secure_env_enabled?, :pull_request, :config, :build, :job, :repository, to: :data
 
         class Group < Struct.new(:source, :vars)
+          def initialize(source, vars)
+            super(source, vars || [])
+          end
+
           def announce?
-            source != 'travis' && vars && vars.length > 0
+            source != 'travis' && vars.length > 0
           end
         end
 
