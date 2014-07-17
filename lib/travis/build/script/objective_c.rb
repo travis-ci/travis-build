@@ -6,7 +6,8 @@ module Travis
       class ObjectiveC < Script
         DEFAULTS = {
           rvm:     'default',
-          gemfile: 'Gemfile'
+          gemfile: 'Gemfile',
+          podfile: 'Podfile',
         }
 
         include RVM
@@ -47,8 +48,12 @@ module Travis
             # cache cocoapods if it has been enabled
             directory_cache.add(sh, 'Pods') if data.cache?(:cocoapods)
 
-            sh.if "! ([[ -f Podfile.lock && -f Pods/Manifest.lock ]] && cmp --silent Podfile.lock Pods/Manifest.lock)", raw_condition: true do |pod_script|
-              pod_script.cmd "pod install", fold: "install.cocoapods", retry: true
+            sh.if "! ([[ -f #{pod_dir}/Podfile.lock && -f #{pod_dir}/Pods/Manifest.lock ]] && cmp --silent #{pod_dir}/Podfile.lock #{pod_dir}/Pods/Manifest.lock)", raw_condition: true do |pod_script|
+              fold("install.cocoapods") do |pod_fold|
+                pod_fold.cmd "pushd #{pod_dir}"
+                pod_script.cmd "pod install", retry: true
+                pod_fold.cmd "popd"
+              end
             end
           end
         end
@@ -70,7 +75,11 @@ module Travis
         private
 
         def podfile?(*args, &block)
-          self.if "-f Podfile", *args, &block
+          self.if "-f #{config[:podfile].to_s.shellescape}", *args, &block
+        end
+
+        def pod_dir
+          File.dirname(config[:podfile]).shellescape
         end
 
         def uses_rubymotion?(*args)

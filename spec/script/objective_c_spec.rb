@@ -69,6 +69,28 @@ describe Travis::Build::Script::ObjectiveC do
     end
   end
 
+  if "custom Podfile exists" do
+    before do
+      file('foo/Podfile')
+      data['config']['podfile'] = 'foo/Podfile'
+    end
+
+    it 'runs Pod install in Podfile directory' do
+      is_expected.to install 'pushd foo'
+    end
+
+    context 'if Podfile.lock and Pods/Manifest.lock is the same' do
+      before do
+        file("foo/Podfile.lock", "abcd")
+        file("foo/Pods/Manifest.lock", "abcd")
+      end
+
+      it "does not run pod install" do
+        is_expected.not_to install "pod install"
+      end
+    end
+  end
+
   context 'if no settings are specified' do
     it 'prints a warning' do
       is_expected.to run /WARNING/
