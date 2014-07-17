@@ -30,7 +30,7 @@ module Travis
         def vars_groups
           [Group.new('travis',   travis_vars),
            Group.new('repository settings', settings_vars),
-           Group.new('config file', config_vars)]
+           Group.new('.travis.yml', config_vars)]
         end
 
         private
