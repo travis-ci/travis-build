@@ -23,6 +23,11 @@ module Travis
             else
               @allow_failure = config.delete(:allow_failure)
 
+              if script.data.pull_request
+                failure_message "the current build is a pull request."
+                return
+              end
+
               script.if(want) do
                 script.run_stage(:before_deploy)
                 run
@@ -30,8 +35,6 @@ module Travis
               end
 
               script.else do
-                script.if(negate_condition(want_push(on))) { failure_message "the current build is a pull request." }
-
                 script.if(negate_condition(want_repo(on))) { failure_message "this is a forked repo." } unless want_repo(on).nil?
 
                 script.if(negate_condition(want_branch(on))) { failure_message "this branch is not permitted to deploy." } unless want_branch(on).nil?
@@ -57,12 +60,8 @@ module Travis
             end
 
             def want
-              conditions = [ want_push(on), want_repo(on), want_branch(on), want_runtime(on), want_condition(on), want_tags(on) ]
+              conditions = [want_repo(on), want_branch(on), want_runtime(on), want_condition(on), want_tags(on) ]
               conditions.flatten.compact.map { |c| "(#{c})" }.join(" && ")
-            end
-
-            def want_push(on)
-              '$TRAVIS_PULL_REQUEST = false'
             end
 
             def want_repo(on)
