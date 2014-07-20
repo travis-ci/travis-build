@@ -17,7 +17,7 @@ describe Travis::Build::Script::Go do
   end
 
   it 'sets TRAVIS_GO_VERSION' do
-    is_expected.to set 'TRAVIS_GO_VERSION', 'go1.2.2'
+    is_expected.to set 'TRAVIS_GO_VERSION', 'go1.3'
   end
 
   it 'updates GVM' do
@@ -29,7 +29,7 @@ describe Travis::Build::Script::Go do
   end
 
   it 'sets the default go version if not :go config given' do
-    is_expected.to setup 'gvm use go1.2.2'
+    is_expected.to setup 'gvm use go1.3'
   end
 
   it 'sets the go version from config :go' do
@@ -77,19 +77,19 @@ describe Travis::Build::Script::Go do
 
   it 'installs the gvm version' do
     data['config']['go'] = 'go1.1'
-    is_expected.to run 'gvm install go1.1'
+    is_expected.to run 'gvm install go1.1 --preferbinary'
   end
 
-  {'1.1' => 'go1.1', '1' => 'go1.2.2', '1.0' => 'go1.0.3', '1.0.2' => 'go1.0.2'}.each do |version_alias,version|
+  {'1.1' => 'go1.1', '1' => 'go1.3', '1.2' => 'go1.2.2', '1.0' => 'go1.0.3', '1.2.2' => 'go1.2.2', '1.0.2' => 'go1.0.2'}.each do |version_alias,version|
     it "sets version #{version.inspect} for alias #{version_alias.inspect}" do
       data['config']['go'] = version_alias
-      is_expected.to run "gvm install #{version}"
+      is_expected.to run "gvm install #{version} --preferbinary"
     end
   end
 
   it 'passes through arbitrary tag versions' do
     data['config']['go'] = 'release9000'
-    is_expected.to run 'gvm install release9000'
+    is_expected.to run 'gvm install release9000 --preferbinary'
   end
 
   it 'announces go version' do
