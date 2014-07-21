@@ -77,19 +77,19 @@ describe Travis::Build::Script::Go do
 
   it 'installs the gvm version' do
     data['config']['go'] = 'go1.1'
-    is_expected.to run 'gvm install go1.1 --preferbinary'
+    is_expected.to run 'gvm install go1.1 --binary || gvm install go1.1'
   end
 
   {'1.1' => 'go1.1', '1' => 'go1.3', '1.2' => 'go1.2.2', '1.0' => 'go1.0.3', '1.2.2' => 'go1.2.2', '1.0.2' => 'go1.0.2'}.each do |version_alias,version|
     it "sets version #{version.inspect} for alias #{version_alias.inspect}" do
       data['config']['go'] = version_alias
-      is_expected.to run "gvm install #{version} --preferbinary"
+      is_expected.to run "gvm install #{version} --binary || gvm install #{version}"
     end
   end
 
   it 'passes through arbitrary tag versions' do
     data['config']['go'] = 'release9000'
-    is_expected.to run 'gvm install release9000 --preferbinary'
+    is_expected.to run 'gvm install release9000 --binary || gvm install release9000'
   end
 
   it 'announces go version' do
