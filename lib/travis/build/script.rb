@@ -99,7 +99,7 @@ module Travis
           set 'HAS_JOSH_K_SEAL_OF_APPROVAL', 'true', echo: false
           data.env_vars_groups.each do |group|
             if group.announce?
-              cmd "echo -e \"\033[33;1mSetting environment variables from #{group.source}\033[0m\"; ", assert: false, echo: false
+              cmd "echo -e \"\n\033[33;1mSetting environment variables from #{group.source}\033[0m\"; ", assert: false, echo: false
             end
             group.vars.each do |var|
               set var.key, var.value, echo: var.to_s
