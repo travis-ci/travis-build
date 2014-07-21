@@ -27,7 +27,7 @@ module Travis
           super
           cmd "gvm get", fold: "gvm.get"
           cmd "gvm update && source #{HOME_DIR}/.gvm/scripts/gvm", fold: "gvm.update"
-          cmd "gvm install #{go_version} --preferbinary", fold: "gvm.install"
+          cmd "gvm install #{go_version} --prefer-binary", fold: "gvm.install"
           cmd "gvm use #{go_version}"
           # Prepend *our* GOPATH entry so that built binaries and packages are
           # easier to find and our `git clone`'d libraries are found by the
