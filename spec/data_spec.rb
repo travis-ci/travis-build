@@ -26,8 +26,15 @@ describe Travis::Build::Data do
   end
 
   describe 'ssh_key' do
+    it 'returns ssh_key from source_key as a fallback' do
+      data = Travis::Build::Data.new(config: { source_key: 'foo' })
+      data.ssh_key.value.should == 'foo'
+      data.ssh_key.source.should be_nil
+      data.ssh_key.should be_encoded
+    end
+
     it 'returns nil if there is no ssh_key' do
-      data = Travis::Build::Data.new({})
+      data = Travis::Build::Data.new({ config: {} })
       data.ssh_key.should be_nil
     end
 
