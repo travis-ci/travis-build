@@ -50,9 +50,7 @@ module Travis
           private
             def check_conditions_and_run
               script.if(conditions) do
-                script.run_stage(:before_deploy)
                 run
-                script.run_stage(:after_deploy)
               end
 
               script.else do
@@ -116,8 +114,10 @@ module Travis
             end
 
             def run
+              script.run_stage(:before_deploy)
               script.fold('dpl.0') { install }
               cmd(run_command, echo: false, assert: false)
+              script.run_stage(:after_deploy)
             end
 
             def install(edge = config[:edge])
