@@ -3,48 +3,59 @@ module Travis
     class Script
       module Addons
         class Deploy
-          SUPER_USER_SAFE = true
+          class Group
+            SUPER_USER_SAFE = true
+
+            def initialize(script, config)
+              @script = script
+              @config = if config.is_a?(Array)
+                          config
+                        else
+                          [config]
+                        end
+            end
+
+            def deploy
+              @config.each do |config|
+                Deploy.new(@script, config).deploy
+              end
+            end
+          end
 
           VERSIONED_RUNTIMES = [:jdk, :node, :perl, :php, :python, :ruby, :scala, :go]
           USE_RUBY           = '1.9.3'
+
           attr_accessor :script, :config, :allow_failure
 
           def initialize(script, config)
             @silent = false
             @script = script
             @config = config
+            @allow_failure = config.delete(:allow_failure)
           end
 
           def deploy
-            if config.is_a?(Array)
-              config.each do |config|
-                Deploy.new(script, config).deploy
-              end
-            else
-              @allow_failure = config.delete(:allow_failure)
+            if script.data.pull_request
+              failure_message "the current build is a pull request."
+              return
+            end
 
-              if script.data.pull_request
-                failure_message "the current build is a pull request."
-                return
-              end
+            script.if(want) do
+              script.run_stage(:before_deploy)
+              run
+              script.run_stage(:after_deploy)
+            end
 
-              script.if(want) do
-                script.run_stage(:before_deploy)
-                run
-                script.run_stage(:after_deploy)
-              end
+            script.else do
+              script.if(negate_condition(want_repo(on))) { failure_message "this is a forked repo." } unless want_repo(on).nil?
 
-              script.else do
-                script.if(negate_condition(want_repo(on))) { failure_message "this is a forked repo." } unless want_repo(on).nil?
+              script.if(negate_condition(want_branch(on))) { failure_message "this branch is not permitted to deploy." } unless want_branch(on).nil?
 
-                script.if(negate_condition(want_branch(on))) { failure_message "this branch is not permitted to deploy." } unless want_branch(on).nil?
+              script.if(negate_condition(want_runtime(on))) { failure_message "this is not on the required runtime." } unless want_runtime(on).nil?
 
-                script.if(negate_condition(want_runtime(on))) { failure_message "this is not on the required runtime." } unless want_runtime(on).nil?
+              script.if(not_any(want_condition(on))) { failure_message "a custom condition was not met." } unless want_condition(on).nil?
 
-                script.if(not_any(want_condition(on))) { failure_message "a custom condition was not met." } unless want_condition(on).nil?
-
-                script.if(negate_condition(want_tags(on))) { failure_message "this is not a tagged commit." } unless want_tags(on).nil?
-              end
+              script.if(negate_condition(want_tags(on))) { failure_message "this is not a tagged commit." } unless want_tags(on).nil?
             end
           end
 
