@@ -31,6 +31,11 @@ module Travis
         include Filters::Retry
         include Filters::Assertion
         include Filters::Echoize
+        include Filters::Store
+
+        def raw_code
+          @code
+        end
       end
 
       class Group < Node

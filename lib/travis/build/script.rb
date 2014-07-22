@@ -76,7 +76,7 @@ module Travis
             true
           when 'server_error'
             cmd 'echo -e "\033[31;1mCould not fetch .travis.yml from GitHub.\033[0m"', assert: false, echo: false
-            cmd 'travis_terminate 2', assert: false, echo: false
+            raw 'travis_terminate 2', assert: false, echo: false
             false
           else
             true

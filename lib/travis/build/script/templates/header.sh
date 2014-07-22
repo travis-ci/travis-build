@@ -76,7 +76,6 @@ travis_jigger() {
   shift
   local count=0
 
-
   # clear the line
   echo -e "\n"
 
@@ -118,4 +117,3 @@ decrypt() {
 mkdir -p <%= BUILD_DIR %>
 cd       <%= BUILD_DIR %>
 
-trap 'TRAVIS_CMD=$TRAVIS_NEXT_CMD; TRAVIS_NEXT_CMD=${BASH_COMMAND#travis_retry }' DEBUG
