@@ -1,7 +1,7 @@
 require 'ostruct'
 require 'spec_helper'
 
-describe Travis::Build::Script::Addons::Deploy do
+describe Travis::Build::Script::Addons::Deploy::Group do
   let(:script) { stub('script') }
   let(:data) do
     OpenStruct.new.tap do |o|
@@ -164,7 +164,7 @@ describe Travis::Build::Script::Addons::Deploy do
       DPL
       script.expects(:run_stage).with(:after_deploy).once
 
-      subject.expects(:failure_message).with('a custom condition was not met.')
+      script.expects(:cmd).with(regexp_matches(/a custom condition was not met/), anything)
 
       subject.deploy
     end
@@ -172,10 +172,10 @@ describe Travis::Build::Script::Addons::Deploy do
 
   describe 'build is a pull request' do
     let(:config) {{ provider: "heroku", password: 'foo', email: 'user@host' }}
-    
+
     it 'displays a error message' do
       data.pull_request = true
-      subject.expects(:failure_message).with("the current build is a pull request.")
+      script.expects(:cmd).with(regexp_matches(/the current build is a pull request/), anything)
 
       subject.deploy
     end
