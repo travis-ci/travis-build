@@ -6,18 +6,31 @@ GREEN="\033[32;1m"
 RESET="\033[0m"
 
 travis_time_start() {
-  travis_start_time=$(date +%s)
+  travis_start_time=$(travis_nanoseconds)
   echo -en "travis_time:start\r\033[0K"
 }
 
 travis_time_finish() {
   local result=$?
-  travis_end_time=$(date +%s)
+  travis_end_time=$(travis_nanoseconds)
   local duration=$(($travis_end_time-$travis_start_time))
   echo -en "travis_time:finish:start=$travis_start_time,finish=$travis_end_time,duration=$duration\r\033[0K"
   return $result
 }
 
+function travis_nanoseconds() {
+  local cmd="date"
+  local format="+%s%N"
+  local os=$(uname)
+
+  if which gdate > /dev/null; then
+    cmd="gdate" # use gdate if available
+  elif [[ "$os" = darwin ]]; then
+    format="+%s000000000" # fallback to second precision on darwin (does not support %N)
+  fi
+
+  $cmd -u $format
+}
 travis_assert() {
   local result=$?
   if [ $result -ne 0 ]; then
