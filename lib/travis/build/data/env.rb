@@ -41,16 +41,20 @@ module Travis
               TRAVIS_SECURE_ENV_VARS: secure_env_vars?,
               TRAVIS_BUILD_ID:        build[:id],
               TRAVIS_BUILD_NUMBER:    build[:number],
-              TRAVIS_BUILD_DIR:       [ BUILD_DIR, repository[:slug].shellescape ].join('/'),
+              TRAVIS_BUILD_DIR:       [ BUILD_DIR, slug.shellescape ].join('/'),
               TRAVIS_JOB_ID:          job[:id],
               TRAVIS_JOB_NUMBER:      job[:number],
               TRAVIS_BRANCH:          job[:branch].shellescape,
               TRAVIS_COMMIT:          job[:commit],
               TRAVIS_COMMIT_RANGE:    job[:commit_range],
-              TRAVIS_REPO_SLUG:       repository[:slug].shellescape,
+              TRAVIS_REPO_SLUG:       slug.shellescape,
               TRAVIS_OS_NAME:         config[:os],
               TRAVIS_TAG:             job[:tag]
             )
+          end
+
+          def slug
+            repository[:slug] || ''
           end
 
           def extract_config_vars(vars)
