@@ -40,26 +40,36 @@ module Travis
               return
             end
 
-            script.if(want) do
-              script.run_stage(:before_deploy)
+            if conditions.empty?
               run
-              script.run_stage(:after_deploy)
-            end
-
-            script.else do
-              script.if(negate_condition(want_repo(on))) { failure_message "this is a forked repo." } unless want_repo(on).nil?
-
-              script.if(negate_condition(want_branch(on))) { failure_message "this branch is not permitted to deploy." } unless want_branch(on).nil?
-
-              script.if(negate_condition(want_runtime(on))) { failure_message "this is not on the required runtime." } unless want_runtime(on).nil?
-
-              script.if(not_any(want_condition(on))) { failure_message "a custom condition was not met." } unless want_condition(on).nil?
-
-              script.if(negate_condition(want_tags(on))) { failure_message "this is not a tagged commit." } unless want_tags(on).nil?
+            else
+              check_conditions_and_run
             end
           end
 
           private
+            def check_conditions_and_run
+              script.if(conditions) do
+                script.run_stage(:before_deploy)
+                run
+                script.run_stage(:after_deploy)
+              end
+
+              script.else do
+                failure_message_unless(repo_condition, "this is a forked repo")
+                failure_message_unless(branch_condition, "this branch is not permitted deploy")
+                failure_message_unless(runtime_conditions, "this is not on the required runtime")
+                failure_message_unless(custom_conditions, "a custom condition was not met")
+                failure_message_unless(tags_condition, "this is not a tagged commit")
+              end
+            end
+
+            def failure_message_unless(condition, message)
+              return if negate_condition(condition) == ""
+
+              script.if(negate_condition(condition)) { failure_message(message) }
+            end
+
             def on
               @on ||= begin
                 on = config.delete(:on) || config.delete(true) || config.delete(:true) || {}
@@ -70,39 +80,39 @@ module Travis
               end
             end
 
-            def want
-              conditions = [want_repo(on), want_branch(on), want_runtime(on), want_condition(on), want_tags(on) ]
-              conditions.flatten.compact.map { |c| "(#{c})" }.join(" && ")
+            def conditions
+              [
+                repo_condition,
+                branch_condition,
+                runtime_conditions,
+                custom_conditions,
+                tags_condition,
+              ].flatten.compact.map { |c| "(#{c})" }.join(" && ")
             end
 
-            def want_repo(on)
+            def repo_condition
               "$TRAVIS_REPO_SLUG = \"#{on[:repo]}\"" if on[:repo]
             end
 
-            def want_branch(on)
+            def branch_condition
               return if on[:all_branches]
               branches  = Array(on[:branch] || default_branches)
               branches.map { |b| "$TRAVIS_BRANCH = #{b}" }.join(' || ')
             end
 
-            def want_tags(on)
+            def tags_condition
               case on[:tags]
               when true  then '"$TRAVIS_TAG" != ""'
               when false then '"$TRAVIS_TAG" = ""'
               end
             end
 
-            def want_condition(on)
+            def custom_conditions
               on[:condition]
             end
 
-            def want_runtime(on)
-              runtimes = VERSIONED_RUNTIMES.map do |runtime|
-                           next unless on.include? runtime
-                           "$TRAVIS_#{runtime.to_s.upcase}_VERSION = \"#{on[runtime]}\""
-                         end.compact.join(" && ")
-
-              runtimes.empty? ? nil : runtimes
+            def runtime_conditions
+              (VERSIONED_RUNTIMES & on.keys).map { |runtime| "$TRAVIS_#{runtime.to_s.upcase}_VERSION = #{on[runtime].shellescape}" }
             end
 
             def run
@@ -152,12 +162,8 @@ module Travis
               script.cmd("echo -e \"\033[33;1mSkipping deployment with the " << config[:provider] << " provider because " << message << "\033[0m\"", echo: false, assert: false, fold: 'deployment')
             end
 
-            def negate_condition(condition)
-                " ! " << condition.to_s
-            end
-
-            def not_any(conditions)
-              Array(conditions).flatten.compact.map { |cond| negate_condition(cond) }.join " && "
+            def negate_condition(conditions)
+              Array(conditions).flatten.compact.map { |condition| " ! #{condition}" }.join(" && ")
             end
         end
       end
