@@ -9,6 +9,22 @@ shared_examples_for 'a build script' do
     let(:env_type) { 'global_env' }
   end
 
+  it 'announces setting environment variables from settings' do
+    data['config']['env'] = nil
+    data['config']['global_env'] = nil
+    data['env_vars'] = [{ 'name' => 'SETTINGS_VAR', 'value' => 'a value', 'public' => false }]
+    is_expected.to echo 'export SETTINGS_VAR=[secure]'
+    is_expected.to run /Setting environment variables from repository settings/
+    is_expected.not_to run /Setting environment variables from .travis.yml/
+  end
+
+  it 'announces setting environment variables from config' do
+    data['config']['global_env'] = 'SECURE CONFIG_VAR=value'
+    is_expected.to echo 'export CONFIG_VAR=[secure]'
+    is_expected.not_to run /Setting environment variables from repository settings/
+    is_expected.to run /Setting environment variables from .travis.yml/
+  end
+
   it 'sets TRAVIS_* env vars' do
     data['config']['env'].delete_if { |var| var =~ /SECURE / }
 

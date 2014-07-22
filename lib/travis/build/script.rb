@@ -97,8 +97,13 @@ module Travis
           set 'CI', 'true', echo: false
           set 'CONTINUOUS_INTEGRATION', 'true', echo: false
           set 'HAS_JOSH_K_SEAL_OF_APPROVAL', 'true', echo: false
-          data.env_vars.each do |var|
-            set var.key, var.value, echo: var.to_s
+          data.env_vars_groups.each do |group|
+            if group.announce?
+              cmd "echo -e \"\n\033[33;1mSetting environment variables from #{group.source}\033[0m\"; ", assert: false, echo: false
+            end
+            group.vars.each do |var|
+              set var.key, var.value, echo: var.to_s
+            end
           end
           if data.env_vars.any?
             # adds a newline to the log
