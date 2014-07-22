@@ -80,6 +80,20 @@ module Travis
         data[:env_vars] || []
       end
 
+      class SshKey < Struct.new(:value, :source, :encoded)
+        def encoded?
+          encoded
+        end
+      end
+
+      def ssh_key
+        if ssh_key = data[:ssh_key]
+          SshKey.new(ssh_key[:value], ssh_key[:source], ssh_key[:encoded])
+        elsif source_key = data[:config][:source_key]
+          SshKey.new(source_key, nil, true)
+        end
+      end
+
       def pull_request
         job[:pull_request]
       end

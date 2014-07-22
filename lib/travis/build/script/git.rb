@@ -9,7 +9,7 @@ module Travis
         }
 
         def checkout
-          install_source_key
+          install_ssh_key
           if tarball_clone?
             download_tarball
           else
@@ -25,11 +25,22 @@ module Travis
 
         private
 
-          def install_source_key
-            return unless config[:source_key]
+          def decode_cmd
+            data.ssh_key.encoded? ? ' | base64 --decode ' : ''
+          end
 
-            echo "\nInstalling an SSH key\n"
-            cmd "echo #{config[:source_key].shellescape} | base64 --decode > ~/.ssh/id_rsa", echo: false, log: false
+          def ssh_key_source
+            return unless data.ssh_key.source
+
+            source = data.ssh_key.source.gsub(/[_-]+/, ' ')
+            " from: #{source}"
+          end
+
+          def install_ssh_key
+            return unless data.ssh_key
+
+            echo "\nInstalling an SSH key#{ssh_key_source}\n"
+            cmd "echo #{data.ssh_key.value.shellescape} #{decode_cmd} > ~/.ssh/id_rsa", echo: false, log: false
             cmd 'chmod 600 ~/.ssh/id_rsa',                echo: false, log: false
             cmd 'eval `ssh-agent` &> /dev/null',      echo: false, log: false
             cmd 'ssh-add ~/.ssh/id_rsa &> /dev/null', echo: false, log: false
