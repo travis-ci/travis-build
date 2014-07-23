@@ -54,7 +54,7 @@ module Travis
               end
 
               script.else do
-                failure_message_unless(repo_condition, "this is a forked repo")
+                failure_message_unless(repo_condition, "this repo's name does not match one specified in .travis.yml's deploy.on.repo: #{on[:repo]}")
                 failure_message_unless(branch_condition, "this branch is not permitted deploy")
                 failure_message_unless(runtime_conditions, "this is not on the required runtime")
                 failure_message_unless(custom_conditions, "a custom condition was not met")
