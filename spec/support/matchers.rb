@@ -23,8 +23,10 @@ def measures_time?(lines, cmd)
 
   return false unless cmd_ix
 
-  start_ix = lines[cmd_ix - 1] =~ /^echo -en travis_time:start/
-  end_ix   = lines[cmd_ix + 1] =~ /^echo -en travis_time:finish:/
+  start_ix   = lines[cmd_ix - 1] =~ /^echo -en travis_time:start/
+  start_ix ||= lines[cmd_ix - 2] =~ /^echo -en travis_time:start/
+  end_ix     = lines[cmd_ix + 1] =~ /^echo -en travis_time:finish:/
+
   start_ix && end_ix
 end
 
