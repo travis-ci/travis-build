@@ -19,15 +19,13 @@ end
 
 def measures_time?(lines, cmd)
   cmd = /^(?:travis_retry )?#{Regexp.escape(cmd)}/ if cmd.is_a?(String)
+  cmd_ix = lines.index { |line| line =~ cmd }
 
-  icmd = lines.index { |line| line =~ cmd }
+  return false unless cmd_ix
 
-  return false unless icmd
-
-  x_start = lines[icmd - 1] =~ /^echo -en travis_time:start/
-  x_end   = lines[icmd + 1] =~ /^echo -en travis_time:finish:/
-
-  x_start && x_end
+  start_ix = lines[cmd_ix - 1] =~ /^echo -en travis_time:start/
+  end_ix   = lines[cmd_ix + 1] =~ /^echo -en travis_time:finish:/
+  start_ix && end_ix
 end
 
 def logs?(lines, cmd)

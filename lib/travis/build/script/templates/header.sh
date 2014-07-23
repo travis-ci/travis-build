@@ -31,6 +31,7 @@ function travis_nanoseconds() {
 
   $cmd -u $format
 }
+
 travis_assert() {
   local result=$?
   if [ $result -ne 0 ]; then

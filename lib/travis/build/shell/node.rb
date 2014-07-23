@@ -29,6 +29,7 @@ module Travis
 
       class Cmd < Node
         include Filters::Retry
+        include Filters::Timing
         include Filters::Assertion
         include Filters::Echoize
         include Filters::Store
