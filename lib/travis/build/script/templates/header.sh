@@ -138,6 +138,12 @@ travis_retry() {
   return $result
 }
 
+travis_fold() {
+  local action=$1
+  local name=$2
+  echo -en "travis_fold:${action}:${name}\r${ANSI_CLEAR}"
+}
+
 decrypt() {
   echo $1 | base64 -d | openssl rsautl -decrypt -inkey ~/.ssh/id_rsa.repo
 }

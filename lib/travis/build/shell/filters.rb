@@ -31,23 +31,28 @@ module Travis
           end
 
           def echoize(code, echo = nil)
-            "echo #{escape("$ #{echo || raw_code}")}\n#{code}"
+            if options[:store]
+              "echo $TRAVIS_CMD\n#{code}"
+            else
+              "echo #{escape("$ #{echo || raw_code}")}\n#{code}"
+            end
           end
         end
 
         module Retry
           def code
-            options[:retry] ? add_retry(super) : super
+            code = options[:store] ? '$TRAVIS_CMD' : super
+            options[:retry] ? retrying(code) : code
           end
 
-          def add_retry(code)
+          def retrying(code)
             "travis_retry #{code}"
           end
         end
 
         module Store
           def code
-            "TRAVIS_CMD=#{escape(raw_code)}\n#{super}"
+            options[:store] ? "TRAVIS_CMD=#{escape(raw_code)}\n#{super}" : super
           end
         end
       end
