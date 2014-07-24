@@ -132,7 +132,7 @@ travis_retry() {
   done
 
   [ $count -gt 3 ] && {
-    echo "\n${ANSI_RED}The command \"$@\" failed 3 times.${ANSI_RESET}\n" >&2
+    echo -e "\n${ANSI_RED}The command \"$@\" failed 3 times.${ANSI_RESET}\n" >&2
   }
 
   return $result
