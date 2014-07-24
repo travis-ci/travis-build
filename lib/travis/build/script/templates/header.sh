@@ -1,20 +1,21 @@
 #!/bin/bash
 source /etc/profile
 
-RED="\033[31;1m"
-GREEN="\033[32;1m"
-RESET="\033[0m"
+ANSI_RED="\033[31;1m"
+ANSI_GREEN="\033[32;1m"
+ANSI_RESET="\033[0m"
+ANSI_CLEAR="\033[0K"
 
 travis_time_start() {
   travis_start_time=$(travis_nanoseconds)
-  echo -en "travis_time:start\r"
+  echo -en "travis_time:start\r${ANSI_CLEAR}"
 }
 
 travis_time_finish() {
   local result=$?
   travis_end_time=$(travis_nanoseconds)
   local duration=$(($travis_end_time-$travis_start_time))
-  echo -en "travis_time:finish:start=$travis_start_time,finish=$travis_end_time,duration=$duration\r"
+  echo -en "travis_time:finish:start=$travis_start_time,finish=$travis_end_time,duration=$duration\r${ANSI_CLEAR}"
   return $result
 }
 
@@ -35,7 +36,7 @@ function travis_nanoseconds() {
 travis_assert() {
   local result=$?
   if [ $result -ne 0 ]; then
-    echo -e "\n${RED}The command \"$TRAVIS_CMD\" failed and exited with $result during $TRAVIS_STAGE.${RESET}\n\nYour build has been stopped."
+    echo -e "\n${ANSI_RED}The command \"$TRAVIS_CMD\" failed and exited with $result during $TRAVIS_STAGE.${ANSI_RESET}\n\nYour build has been stopped."
     travis_terminate 2
   fi
 }
@@ -45,9 +46,9 @@ travis_result() {
   export TRAVIS_TEST_RESULT=$(( ${TRAVIS_TEST_RESULT:-0} | $(($result != 0)) ))
 
   if [ $result -eq 0 ]; then
-    echo -e "\n${GREEN}The command \"$TRAVIS_CMD\" exited with $result.${RESET}"
+    echo -e "\n${ANSI_GREEN}The command \"$TRAVIS_CMD\" exited with $result.${ANSI_RESET}"
   else
-    echo -e "\n${RED}The command \"$TRAVIS_CMD\" exited with $result.${RESET}"
+    echo -e "\n${ANSI_RED}The command \"$TRAVIS_CMD\" exited with $result.${ANSI_RESET}"
   fi
 }
 
@@ -84,12 +85,12 @@ travis_wait() {
   } || return 1
 
   if [ $result -eq 0 ]; then
-    echo -e "\n${GREEN}The command \"$TRAVIS_CMD\" exited with $result.${RESET}"
+    echo -e "\n${ANSI_GREEN}The command \"$TRAVIS_CMD\" exited with $result.${ANSI_RESET}"
   else
-    echo -e "\n${RED}The command \"$TRAVIS_CMD\" exited with $result.${RESET}"
+    echo -e "\n${ANSI_RED}The command \"$TRAVIS_CMD\" exited with $result.${ANSI_RESET}"
   fi
 
-  echo -e "\n${GREEN}Log:${RESET}\n"
+  echo -e "\n${ANSI_GREEN}Log:${ANSI_RESET}\n"
   cat $log_file
 
   return $result
@@ -112,7 +113,7 @@ travis_jigger() {
     sleep 60
   done
 
-  echo -e "\n${RED}Timeout (${timeout} minutes) reached. Terminating \"$@\"${RESET}\n"
+  echo -e "\n${ANSI_RED}Timeout (${timeout} minutes) reached. Terminating \"$@\"${ANSI_RESET}\n"
   kill -9 $cmd_pid
 }
 
@@ -121,7 +122,7 @@ travis_retry() {
   local count=1
   while [ $count -le 3 ]; do
     [ $result -ne 0 ] && {
-      echo -e "\n${RED}The command \"$@\" failed. Retrying, $count of 3.${RESET}\n" >&2
+      echo -e "\n${ANSI_RED}The command \"$@\" failed. Retrying, $count of 3.${ANSI_RESET}\n" >&2
     }
     "$@"
     result=$?
@@ -131,7 +132,7 @@ travis_retry() {
   done
 
   [ $count -gt 3 ] && {
-    echo "\n${RED}The command \"$@\" failed 3 times.${RESET}\n" >&2
+    echo "\n${ANSI_RED}The command \"$@\" failed 3 times.${ANSI_RESET}\n" >&2
   }
 
   return $result
