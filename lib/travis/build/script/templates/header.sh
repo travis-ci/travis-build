@@ -27,7 +27,7 @@ function travis_cmd() {
     esac
   done
 
-  if [[ -n "$time" ]]; then
+  if [[ -n "$timing" ]]; then
     travis_time_start
   fi
 
@@ -42,7 +42,7 @@ function travis_cmd() {
   fi
   result=$?
 
-  if [[ -n "$time" ]]; then
+  if [[ -n "$timing" ]]; then
     travis_time_finish
   fi
 
