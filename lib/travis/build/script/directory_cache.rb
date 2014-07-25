@@ -119,40 +119,40 @@ module Travis
           end
 
           def install(sh)
-            sh.cmd "export CASHER_DIR=$HOME/.casher", log: false, echo: false
-            sh.cmd "mkdir -p $CASHER_DIR/bin", log: false, echo: false
-            sh.cmd "curl #{CASHER_URL % @casher_branch} -L -o #{BIN_PATH} -s --fail", echo: false, log: false, retry: true, assert: false
-            sh.cmd "[ $? -ne 0 ] && echo 'Failed to fetch casher from GitHub, disabling cache.' && echo > #{BIN_PATH}", echo: false, log: false, assert: false
-            sh.if("-f #{BIN_PATH}") { |sh| sh.cmd "chmod +x #{BIN_PATH}", log: false, echo: false }
+            sh.set 'CASHER_DIR', '$HOME/.casher'
+            sh.raw 'mkdir -p $CASHER_DIR/bin'
+            sh.cmd "curl #{CASHER_URL % @casher_branch} -L -o #{BIN_PATH} -s --fail", echo: false, retry: true, assert: false
+            sh.raw "[ $? -ne 0 ] && echo 'Failed to fetch casher from GitHub, disabling cache.' && echo > #{BIN_PATH}"
+            sh.if("-f #{BIN_PATH}") { |sh| sh.raw "chmod +x #{BIN_PATH}" }
           end
 
           def add(sh, path)
-            run(sh, "add", path) if path
+            run(sh, 'add', path) if path
           end
 
           def fetch(sh)
             urls = [Shellwords.escape(fetch_url.to_s)]
             urls << Shellwords.escape(fetch_url('master').to_s) if @data.branch != 'master'
             urls << Shellwords.escape(fetch_url(nil).to_s)
-            run(sh, "fetch", *urls)
+            run(sh, 'fetch', *urls)
           end
 
           def push(sh)
-            run(sh, "push", Shellwords.escape(push_url.to_s))
+            run(sh, 'push', Shellwords.escape(push_url.to_s))
           end
 
           def fetch_url(branch = @data.branch)
-            url("GET", prefixed(branch), expires: fetch_timeout)
+            url('GET', prefixed(branch), expires: fetch_timeout)
           end
 
           def push_url(branch = @data.branch)
-            url("PUT", prefixed(branch), expires: push_timeout)
+            url('PUT', prefixed(branch), expires: push_timeout)
           end
 
           def fold(sh, message = nil)
             @fold_count ||= 0
             @fold_count  += 1
-            sh.fold("cache.#{@fold_count}") do
+            sh.fold "cache.#{@fold_count}" do
               sh.echo message if message
               yield
             end
@@ -220,7 +220,7 @@ module Travis
         end
 
         def setup_directory_cache
-          directory_cache.fold(self, "setup build cache") do
+          directory_cache.fold(self, 'setup build cache') do
             directory_cache.install(self)
             directory_cache.fetch(self)
             Array(data.cache[:directories]).each do |entry|
@@ -239,7 +239,7 @@ module Travis
         def push_directory_cache
           # only publish cache from pushes to master
           return if data.pull_request
-          directory_cache.fold(self, "store build cache") do
+          directory_cache.fold(self, 'store build cache') do
             prepare_cache
             directory_cache.push(self)
           end

@@ -28,14 +28,22 @@ module Travis
       end
 
       class Cmd < Node
-        include Filters::Retry
-        include Filters::Echoize
-        include Filters::Timing
-        include Filters::Assertion
-        include Filters::Store
+        def code
+          if opts.any?
+            ['travis_cmd', escape(super), *opts].join(' ')
+          else
+            super
+          end
+        end
 
-        def raw_code
-          @code
+        def opts
+          opts ||= []
+          opts << '--assert' if options[:assert]
+          opts << '--echo'   if options[:echo]
+          opts << "--display #{escape(options[:echo])}" if options[:echo].is_a?(String)
+          opts << '--retry'  if options[:retry]
+          opts << '--timing' if options[:timing]
+          opts
         end
       end
 

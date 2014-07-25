@@ -31,7 +31,6 @@ module Travis
 
           cmd "echo '#!/bin/bash\n# no-op' > /usr/local/bin/actool", echo: false
           cmd "chmod +x /usr/local/bin/actool", echo: false
-
           cmd "osascript -e 'set simpath to \"/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone Simulator.app/Contents/MacOS/iPhone Simulator\" as POSIX file' -e 'tell application \"Finder\"' -e 'open simpath' -e 'end tell'"
         end
 
@@ -43,6 +42,7 @@ module Travis
         def script
           uses_rubymotion?(with_bundler: true, then: 'bundle exec rake spec')
           uses_rubymotion?(elif: true, then: 'rake spec')
+
           self.else do |script|
             if config[:xcode_scheme] && (config[:xcode_project] || config[:xcode_workspace])
               script.cmd "xctool #{xctool_args} build test"
@@ -66,6 +66,7 @@ module Travis
         def uses_rubymotion?(*args)
           conditional = '-f Rakefile && "$(cat Rakefile)" =~ require\ [\\"\\\']motion/project'
           conditional << ' && -f Gemfile' if args.first && args.first.is_a?(Hash) && args.first.delete(:with_bundler)
+
           if args.first && args.first.is_a?(Hash) && args.first.delete(:elif)
             self.elif conditional, *args
           else

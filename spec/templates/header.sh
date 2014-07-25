@@ -29,7 +29,7 @@ done
 
 stubs=(
   echo cd rm mkdir source
-  travis_assert travis_terminate travis_retry
+  travis_assert travis_terminate travis_retry travis_cmd
 )
 for stub in ${stubs[*]}; do
   eval "$stub() { builtin echo $stub \$@; }"

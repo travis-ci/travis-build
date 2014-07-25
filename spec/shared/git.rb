@@ -7,27 +7,27 @@ shared_examples_for 'a git repo' do
 
     it 'creates the directory structure' do
       cmd = 'mkdir -p travis-ci/travis-ci'
-      is_expected.to run cmd, echo: true, assert: true
+      is_expected.to run cmd
     end
 
     it 'downloads the tarball from github' do
       cmd = 'curl -o travis-ci-travis-ci.tar.gz -L https://api.github.com/repos/travis-ci/travis-ci/tarball/313f61b'
-      is_expected.to run cmd, echo: true, assert: true, retry: true, fold: "tarball.1"
+      is_expected.to travis_cmd cmd, echo: cmd, assert: true, retry: true, timing: true, fold: "tarball.1"
     end
 
     it 'untars the tarball' do
       cmd = 'tar xfz travis-ci-travis-ci.tar.gz'
-      is_expected.to run cmd, echo: true, assert: true
+      is_expected.to travis_cmd cmd, echo: true, assert: true, timing: true
     end
 
     it 'corrects the directory structure' do
       cmd = 'mv travis-ci-travis-ci-313f61b/* travis-ci/travis-ci'
-      is_expected.to run cmd, echo: true, assert: true
+      is_expected.to travis_cmd cmd, echo: true, assert: true, timing: true
     end
 
     it 'changes to the correct directory' do
       cmd = 'cd travis-ci/travis-ci'
-      is_expected.to run cmd, echo: true, assert: true
+      is_expected.to travis_cmd cmd, echo: true
     end
 
     context "with a token" do
@@ -36,7 +36,7 @@ shared_examples_for 'a git repo' do
       end
 
       it "downloads using token" do
-        cmd = 'curl -o travis-ci-travis-ci.tar.gz -H "Authorization: token foobarbaz" -L https://api.github.com/repos/travis-ci/travis-ci/tarball/313f61b'
+        cmd = 'travis_cmd curl\ -o\ travis-ci-travis-ci.tar.gz\ -H\ \"Authorization:\ token\ foobarbaz\"'
         expect(subject).to include(cmd)
       end
 
@@ -53,7 +53,7 @@ shared_examples_for 'a git repo' do
 
       it 'downloads the tarball from the custom endpoint' do
         cmd = 'curl -o travis-ci-travis-ci.tar.gz -L https://foo.bar.baz/api/repos/travis-ci/travis-ci/tarball/313f61b'
-        is_expected.to run cmd, echo: true, assert: true, retry: true, fold: "tarball.1"
+        is_expected.to travis_cmd cmd, echo: cmd, assert: true, retry: true, timing: true, fold: "tarball.1"
       end
     end
   end
@@ -65,19 +65,19 @@ shared_examples_for 'a git repo' do
 
     it 'clones the git repo' do
       cmd = 'git clone --depth=50 --branch=master git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci'
-      is_expected.to run cmd, echo: true, log: true, assert: true, retry: true
+      is_expected.to travis_cmd cmd, echo: true, assert: true, retry: true, timing: true
     end
 
     it 'clones with a custom depth if given' do
       data['config']['git'] = { depth: 1 }
       cmd = 'git clone --depth=1 --branch=master git://github.com/travis-ci/travis-ci.git travis-ci/travis-ci'
-      is_expected.to run cmd, echo: true
+      is_expected.to travis_cmd cmd, echo: true, assert: true, retry: true, timing: true
     end
 
     it 'escapes the branch name if necessary' do
       data['job']['branch'] = 'a->b'
       cmd = "git clone --depth=50 --branch=a-\>b"
-      is_expected.to run cmd
+      expect(subject).to include('git\\ clone\\ --depth\\=50\\ --branch\\=a-\\\\\\>b')
     end
 
     context 'when the repository is already cloned' do
@@ -105,7 +105,7 @@ shared_examples_for 'a git repo' do
     it 'fetches a ref if given' do
       data['job']['ref'] = 'refs/pull/118/merge'
       cmd = 'git fetch origin +refs/pull/118/merge:'
-      is_expected.to run cmd, echo: true, log: true, assert: true
+      is_expected.to travis_cmd cmd, echo: true, assert: true, timing: true, retry: true
     end
 
     it 'removes the ssh key' do
@@ -114,12 +114,12 @@ shared_examples_for 'a git repo' do
 
     it 'checks out the given commit for a push request' do
       data['job']['pull_request'] = false
-      is_expected.to run 'git checkout -qf 313f61b', echo: true, log: true
+      is_expected.to travis_cmd 'git checkout -qf 313f61b', echo: true, assert: true
     end
 
     it 'checks out FETCH_HEAD for a pull request' do
       data['job']['pull_request'] = true
-      is_expected.to run 'git checkout -qf FETCH_HEAD', echo: true, log: true
+      is_expected.to travis_cmd 'git checkout -qf FETCH_HEAD', echo: true, assert: true
     end
 
     # TODO this currently trashes my ~/.ssh/config
@@ -152,7 +152,6 @@ shared_examples_for 'a git repo' do
       end
     end
   end
-
 
   # TODO this currently trashes your local ~/.ssh/id_rsa and known_hosts file
   # describe 'there is a source_key' do

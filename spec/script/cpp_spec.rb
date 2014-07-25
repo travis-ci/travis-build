@@ -22,11 +22,11 @@ describe Travis::Build::Script::Cpp do
     end
 
     it 'sets CXX to g++' do
-      is_expected.to set 'CXX', 'g++'
+      is_expected.to travis_cmd 'export CXX=g++', echo: true
     end
 
     it 'sets CC to gcc' do
-      is_expected.to set 'CC', 'gcc'
+      is_expected.to travis_cmd 'export CC=gcc', echo: true
     end
   end
 
@@ -36,11 +36,11 @@ describe Travis::Build::Script::Cpp do
     end
 
     it 'sets CXX to g++' do
-      is_expected.to set 'CXX', 'g++'
+      is_expected.to travis_cmd 'export CXX=g++', echo: true
     end
 
     it 'sets CC to gcc' do
-      is_expected.to set 'CC', 'gcc'
+      is_expected.to travis_cmd 'export CC=gcc', echo: true
     end
   end
 
@@ -50,11 +50,11 @@ describe Travis::Build::Script::Cpp do
     end
 
     it 'sets CXX to g++' do
-      is_expected.to set 'CXX', 'g++'
+      is_expected.to travis_cmd 'export CXX=g++', echo: true
     end
 
     it 'sets CC to gcc' do
-      is_expected.to set 'CC', 'gcc'
+      is_expected.to travis_cmd 'export CC=gcc', echo: true
     end
   end
 
@@ -64,11 +64,11 @@ describe Travis::Build::Script::Cpp do
     end
 
     it 'sets CXX to clang' do
-      is_expected.to set 'CXX', 'clang++'
+      is_expected.to travis_cmd 'export CXX=clang++', echo: true
     end
 
     it 'sets CC to clang if clang given as compiler' do
-      is_expected.to set 'CC', 'clang'
+      is_expected.to travis_cmd 'export CC=clang', echo: true
     end
   end
 
@@ -78,11 +78,11 @@ describe Travis::Build::Script::Cpp do
     end
 
     it 'sets CXX to clang' do
-      is_expected.to set 'CXX', 'clang++'
+      is_expected.to travis_cmd 'export CXX=clang++', echo: true
     end
 
     it 'sets CC to clang' do
-      is_expected.to set 'CC', 'clang'
+      is_expected.to travis_cmd 'export CC=clang', echo: true
     end
   end
 
@@ -92,10 +92,7 @@ describe Travis::Build::Script::Cpp do
   end
 
   it 'runs ./configure && make && make test' do
-    is_expected.to run 'echo $ ./configure && make && make test'
-    is_expected.to run 'configure', log: true
-    is_expected.to run 'make', log: true
-    is_expected.to run 'make test', log: true
+    is_expected.to travis_cmd './configure && make && make test', echo: true, timing: true
   end
 
   describe '#cache_slug' do

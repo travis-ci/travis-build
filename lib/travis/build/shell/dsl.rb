@@ -20,16 +20,26 @@ module Travis
           nodes.insert(pos, node)
         end
 
-        def set(var, value, options = {})
-          cmd "export #{var}=#{value}", { log: false, timing: false, store: false }.merge(options)
+        def export(name, value, options = {})
+          cmd "export #{name}=#{value}", { assert: false, timing: false }.merge(options)
         end
+        alias set export
 
         def echo(string, options = {})
-          cmd "echo #{escape(string)}", { echo: false, log: true, timing: false }.merge(options)
+          string = ansi(string, options) if options[:ansi]
+          cmd "echo -e #{escape(string)}", { assert: false, echo: false, timing: false }.merge(options)
+        end
+
+        def newline
+          raw 'echo'
         end
 
         def cd(path)
-          cmd "cd #{path}", echo: true, log: false, timing: false
+          cmd "cd #{path}", echo: true, timing: false
+        end
+
+        def file(path, content)
+          raw "echo #{escape(content)} > #{path}"
         end
 
         def if(*args, &block)
@@ -67,6 +77,17 @@ module Travis
           def merge_options(args, options = {})
             options = (args.last.is_a?(Hash) ? args.pop : {}).merge(options)
             args << self.options.merge(options)
+          end
+
+          ANSI = {
+            green: '\033[33;1m',
+            red:   '\033[31;1m',
+            reset: '\033[0m'
+          }
+
+          def ansi(string, options)
+            parts = Array(options[:ansi]).map { |key| ANSI[key] } << string << ANSI[:reset]
+            parts.join
           end
       end
     end

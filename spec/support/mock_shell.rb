@@ -4,6 +4,7 @@ class MockShell
   def cmd(*args)
     commands_with_args << args
   end
+  alias raw cmd
 
   def commands
     commands_with_args.map(&:first)

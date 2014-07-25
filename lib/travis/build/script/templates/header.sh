@@ -6,6 +6,53 @@ ANSI_GREEN="\033[32;1m"
 ANSI_RESET="\033[0m"
 ANSI_CLEAR="\033[0K"
 
+TRAVIS_TEST_RESULT=
+TRAVIS_CMD=
+
+function travis_cmd() {
+  local assert output display retry timing cmd result
+
+  cmd=$1
+  TRAVIS_CMD=$cmd
+  shift
+
+  while true; do
+    case "$1" in
+      --assert)  assert=true; shift ;;
+      --echo)    output=true; shift ;;
+      --display) display=$2;  shift 2;;
+      --retry)   retry=true;  shift ;;
+      --timing)  timing=true; shift ;;
+      *) break ;;
+    esac
+  done
+
+  if [[ -n "$time" ]]; then
+    travis_time_start
+  fi
+
+  if [[ -n "$echo" ]]; then
+    echo "\$ ${display:-$cmd}"
+  fi
+
+  if [[ -n "$retry" ]]; then
+    travis_retry "$cmd"
+  else
+    eval "$cmd"
+  fi
+  result=$?
+
+  if [[ -n "$time" ]]; then
+    travis_time_finish
+  fi
+
+  if [[ -n "$assert" ]]; then
+    travis_assert $result
+  fi
+
+  return $result
+}
+
 travis_time_start() {
   travis_start_time=$(travis_nanoseconds)
   echo -en "travis_time:start\r${ANSI_CLEAR}"
@@ -34,7 +81,7 @@ function travis_nanoseconds() {
 }
 
 travis_assert() {
-  local result=$?
+  local result=${1:-$?}
   if [ $result -ne 0 ]; then
     echo -e "\n${ANSI_RED}The command \"$TRAVIS_CMD\" failed and exited with $result during $TRAVIS_STAGE.${ANSI_RESET}\n\nYour build has been stopped."
     travis_terminate 2
@@ -124,7 +171,7 @@ travis_retry() {
     [ $result -ne 0 ] && {
       echo -e "\n${ANSI_RED}The command \"$@\" failed. Retrying, $count of 3.${ANSI_RESET}\n" >&2
     }
-    "$@"
+    eval "$@"
     result=$?
     [ $result -eq 0 ] && break
     count=$(($count + 1))

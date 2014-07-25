@@ -2,7 +2,6 @@ module Travis
   module Build
     module Shell
       autoload :Dsl,     'travis/build/shell/dsl'
-      autoload :Filters, 'travis/build/shell/filters'
       autoload :Node,    'travis/build/shell/node'
       autoload :Cmd,     'travis/build/shell/node'
       autoload :Script,  'travis/build/shell/node'

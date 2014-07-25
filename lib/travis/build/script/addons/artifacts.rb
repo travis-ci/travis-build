@@ -17,15 +17,15 @@ module Travis
 
           def after_script
             return if config.empty?
-            script.cmd('echo', echo: false, assert: false)
+            script.newline
 
             if pull_request?
-              script.cmd('echo "Artifacts support disabled for pull requests"', echo: false, assert: false)
+              script.echo 'Artifacts support disabled for pull requests'
               return
             end
 
             unless branch_runnable?
-              script.cmd(%Q{echo "Artifacts support not enabled for the current branch (#{data.branch.inspect})"}, echo: false, assert: false)
+              script.echo "Artifacts support not enabled for the current branch (#{data.branch.inspect})"
               return
             end
 
@@ -40,19 +40,16 @@ module Travis
 
             return unless validate!
 
-            script.cmd('echo -e "Uploading Artifacts (\033[33;1mBETA\033[0m)"', echo: false, assert: false)
-            script.fold('artifacts.0') do
+            script.echo 'Uploading Artifacts (BETA)', ansi: :green
+            script.fold 'artifacts.0' do
               install
               configure_env
-              script.set('PATH', '$HOME/bin:$PATH', echo: false, assert: false)
+              script.set 'PATH', '$HOME/bin:$PATH', echo: false
             end
-            script.fold('artifacts.1') do
-              script.cmd(
-                "artifacts upload #{options}",
-                assert: false
-              )
+            script.fold 'artifacts.1' do
+              script.cmd "artifacts upload #{options}", assert: false
             end
-            script.cmd('echo "Done uploading artifacts"', echo: false, assert: false)
+            script.echo 'Done uploading artifacts', ansi: :green
           end
 
           def branch
@@ -74,7 +71,7 @@ module Travis
           end
 
           def install
-            script.cmd(install_script, echo: false, assert: false)
+            script.cmd install_script, echo: false, assert: false
           end
 
           def install_script
@@ -114,14 +111,12 @@ module Travis
             config[:paths] ||= '$(git ls-files -o | tr "\n" ":")'
             config[:log_format] ||= 'multiline'
 
-            config.each { |key, value| setenv(key.to_s.upcase, value) }
+            config.each { |key, value| set_env(key.to_s.upcase, value) }
           end
 
-          def setenv(key, value, prefix = 'ARTIFACTS_')
+          def set_env(key, value, prefix = 'ARTIFACTS_')
             value = value.map(&:to_s).join(':') if value.respond_to?(:each)
-            script.set(
-              "#{prefix}#{key}", %Q{"#{value}"}, echo: setenv_echoable?(key), assert: false
-            )
+            script.set "#{prefix}#{key}", %Q{"#{value}"}, echo: setenv_echoable?(key)
           end
 
           def setenv_echoable?(key)
@@ -131,15 +126,15 @@ module Travis
           def validate!
             valid = true
             unless config[:key]
-              script.cmd('echo "Artifacts config missing :key param"', echo: false, assert: false)
+              script.echo 'Artifacts config missing :key param', ansi: :red
               valid = false
             end
             unless config[:secret]
-              script.cmd('echo "Artifacts config missing :secret param"', echo: false, assert: false)
+              script.echo 'Artifacts config missing :secret param', ansi: :red
               valid = false
             end
             unless config[:bucket]
-              script.cmd('echo "Artifacts config missing :bucket param"', echo: false, assert: false)
+              script.echo 'Artifacts config missing :bucket param', ansi: :red
               valid = false
             end
             valid

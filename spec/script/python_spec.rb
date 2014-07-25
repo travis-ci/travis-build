@@ -20,12 +20,12 @@ describe Travis::Build::Script::Python do
 
   it 'sets up the python version (pypy)' do
     data['config']['python'] = 'pypy'
-    is_expected.to run 'echo $ source ~/virtualenv/pypy/bin/activate' # TODO can't really capture source, yet
+    is_expected.to travis_cmd 'source ~/virtualenv/pypy/bin/activate', echo: true, timing: true, assert: true
     store_example 'pypy'
   end
 
   it 'sets up the python version (2.7)' do
-    is_expected.to run 'echo $ source ~/virtualenv/python2.7/bin/activate' # TODO can't really capture source, yet
+    is_expected.to travis_cmd 'source ~/virtualenv/python2.7/bin/activate', echo: true, timing: true, assert: true
     store_example '2.7'
   end
 
@@ -39,7 +39,7 @@ describe Travis::Build::Script::Python do
 
   describe 'if no requirements file exists' do
     # it 'installs with ' do
-    #   should run '', echo: true, assert: true, log: true
+    #   should run '', echo: true, assert: true
     # end
   end
 
@@ -49,7 +49,7 @@ describe Travis::Build::Script::Python do
     end
 
     it 'installs with pip' do
-      is_expected.to install 'pip install -r Requirements.txt', retry: true
+      is_expected.to travis_cmd 'pip install -r Requirements.txt', echo: true, timing: true, assert: true, retry: true
     end
   end
 
@@ -60,17 +60,17 @@ describe Travis::Build::Script::Python do
 
     # TODO [[ -f file ]] matches case insensitive on mac osx but doesn't on ubuntu?
     xit 'installs with pip' do
-      is_expected.to install 'pip install -r requirements.txt', retry: true
+      is_expected.to travis_cmd 'pip install -r requirements.txt', echo: true, timing: true, assert: true, retry: true
     end
   end
-  
+
   describe 'system site packages should be used' do
     before(:each) do
       data['config']['virtualenv'] = { 'system_site_packages' => true }
     end
-    
+
     it 'sets up python with system site packages enabled' do
-      is_expected.to run "echo $ source ~/virtualenv/python2.7_with_system_site_packages/bin/activate" # TODO can't really capture source, yet
+      is_expected.to travis_cmd "source ~/virtualenv/python2.7_with_system_site_packages/bin/activate", echo: true, timing: true, assert: true
     end
   end
 end

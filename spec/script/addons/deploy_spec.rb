@@ -164,7 +164,7 @@ describe Travis::Build::Script::Addons::Deploy::Group do
       DPL
       script.expects(:run_stage).with(:after_deploy).once
 
-      script.expects(:cmd).with(regexp_matches(/a custom condition was not met/), anything)
+      script.expects(:echo).with(regexp_matches(/a custom condition was not met/), anything)
 
       subject.deploy
     end
@@ -175,7 +175,7 @@ describe Travis::Build::Script::Addons::Deploy::Group do
 
     it 'displays a error message' do
       data.pull_request = true
-      script.expects(:cmd).with(regexp_matches(/the current build is a pull request/), anything)
+      script.expects(:echo).with(regexp_matches(/the current build is a pull request/), anything)
 
       subject.deploy
     end

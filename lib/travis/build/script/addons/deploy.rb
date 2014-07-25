@@ -159,7 +159,7 @@ module Travis
             end
 
             def failure_message(message)
-              script.cmd("echo -e \"\033[33;1mSkipping deployment with the " << config[:provider] << " provider because " << message << "\033[0m\"", echo: false, assert: false, fold: 'deployment')
+              script.echo "Skipping deployment with the #{config[:provider]} provider because #{message}", ansi: :red
             end
 
             def negate_condition(conditions)

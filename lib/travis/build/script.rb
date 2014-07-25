@@ -53,7 +53,7 @@ module Travis
       def initialize(data, options = {})
         @data = Data.new({ config: self.class.defaults }.deep_merge(data.deep_symbolize_keys))
         @options = options
-        @stack = [Shell::Script.new(log: true, echo: true, timing: true, store: true)]
+        @stack = [Shell::Script.new(echo: true, timing: true)]
       end
 
       def compile
@@ -72,11 +72,11 @@ module Travis
         def check_config
           case data.config[:".result"]
           when 'not_found'
-            cmd 'echo -e "\033[31;1mCould not find .travis.yml, using standard configuration.\033[0m"', assert: false, echo: false
+            echo 'Could not find .travis.yml, using standard configuration.', ansi: :red
             true
           when 'server_error'
-            cmd 'echo -e "\033[31;1mCould not fetch .travis.yml from GitHub.\033[0m"', assert: false, echo: false
-            raw 'travis_terminate 2', assert: false, echo: false
+            echo 'Could not fetch .travis.yml from GitHub.', ansi: :red
+            raw 'travis_terminate 2'
             false
           else
             true
@@ -97,18 +97,15 @@ module Travis
           set 'CI', 'true', echo: false
           set 'CONTINUOUS_INTEGRATION', 'true', echo: false
           set 'HAS_JOSH_K_SEAL_OF_APPROVAL', 'true', echo: false
+
           data.env_vars_groups.each do |group|
-            if group.announce?
-              cmd "echo -e \"\n\033[33;1mSetting environment variables from #{group.source}\033[0m\"; ", assert: false, echo: false
-            end
+            echo "Setting environment variables from #{group.source}", ansi: :green if group.announce?
             group.vars.each do |var|
               set var.key, var.value, echo: var.to_s
             end
           end
-          if data.env_vars.any?
-            # adds a newline to the log
-            cmd 'echo', echo: false, assert: false, log: false
-          end
+
+          newline if data.env_vars.any?
         end
 
         def finish
@@ -136,30 +133,27 @@ module Travis
 
         def paranoid_mode
           if data.paranoid_mode?
-            cmd 'echo', echo: false, assert: false, log: false
-            cmd 'echo', echo: false, assert: false, log: false
-            cmd 'echo -e "\033[33mNOTE:\033[0m Sudo, services, addons, setuid and setgid have been disabled."', echo: false, assert: false, log: false
-            cmd 'echo', echo: false, assert: false, log: false
-            cmd 'sudo -n sh -c "sed -e \'s/^%.*//\' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis && find / -perm -4000 -exec chmod a-s {} \; 2>/dev/null"', echo: false, assert: false, log: false
+            echo "\nSudo, services, addons, setuid and setgid have been disabled.\n", ansi: :green
+            raw 'sudo -n sh -c "sed -e \'s/^%.*//\' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis && find / -perm -4000 -exec chmod a-s {} \; 2>/dev/null"'
           end
         end
 
         def setup_apt_cache
           if data.hosts && data.hosts[:apt_cache]
-            cmd 'echo -e "\033[33;1mSetting up APT cache\033[0m"', assert: false, echo: false
-            cmd %Q{echo 'Acquire::http { Proxy "#{data.hosts[:apt_cache]}"; };' | sudo tee /etc/apt/apt.conf.d/01proxy &> /dev/null}, echo: false, assert: false, log: false
+            echo 'Setting up APT cache', ansi: :green
+            raw %(echo 'Acquire::http { Proxy "#{data.hosts[:apt_cache]}"; };' | sudo tee /etc/apt/apt.conf.d/01proxy &> /dev/null)
           end
         end
 
         def fix_resolv_conf
           return if data.skip_resolv_updates?
-          raw %Q{grep '199.91.168' /etc/resolv.conf > /dev/null || echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf &> /dev/null}
+          raw %(grep '199.91.168' /etc/resolv.conf > /dev/null || echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf &> /dev/null)
         end
 
         def fix_etc_hosts
           return if data.skip_etc_hosts_fix?
-          raw %Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'.bak' /etc/hosts}
-          raw %{sudo bash -c 'echo "87.98.253.108 getcomposer.org" >> /etc/hosts'}
+          raw %(sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'.bak' /etc/hosts)
+          raw %(sudo bash -c 'echo "87.98.253.108 getcomposer.org" >> /etc/hosts')
         end
 
         def fix_ps4

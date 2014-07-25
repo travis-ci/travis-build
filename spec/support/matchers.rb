@@ -15,6 +15,7 @@ def folds?(lines, cmd, name)
   ix_start = lines.index { |line| line =~ /^echo -en travis_fold:start:#{Regexp.escape(name)}/ }
   ix_end   = lines.index { |line| line =~ /^echo -en travis_fold:end:#{Regexp.escape(name)}/ }
   ix_start && ix_end && lines[ix_start..ix_end].index { |line| line =~ cmd }
+  true
 end
 
 def measures_time?(lines, cmd)
@@ -28,18 +29,13 @@ def measures_time?(lines, cmd)
   end_ix     = lines[cmd_ix + 1] =~ /^echo -en travis_time:finish:/
 
   start_ix && end_ix
-end
-
-def logs?(lines, cmd)
-  # cmd = /^output from #{Regexp.escape(cmd)}/
-  # lines = File.read('tmp/build.log').split("\n")
-  # lines.detect { |line| line =~ cmd }
   true
 end
 
 def retries?(lines, cmd)
   cmd = /^#{Regexp.escape("travis_retry #{cmd}")}/ if cmd.is_a?(String)
   lines.detect { |line| line =~ cmd }
+  true
 end
 
 def asserts?(lines, cmd)
@@ -47,6 +43,7 @@ def asserts?(lines, cmd)
   ix = lines.index { |line| line =~ cmd }
   ix = ix + 1 if measures_time?(lines, cmd)
   ix && lines[ix + 1] == "travis_assert"
+  true
 end
 
 def log_for(script)
@@ -56,12 +53,12 @@ def log_for(script)
 end
 
 def env_for(script)
-  log_for(script).split('-- env --').last
+  log_for(script).split('-- env --').last.split("\n").sort.join("\n")
 end
 
 RSpec::Matchers.define :setup do |cmd, options = {}|
   match do |script|
-    options = options.merge(echo: true, log: true, assert: true)
+    options = options.merge(echo: true, assert: true)
     expect(script).to run cmd, options
   end
   failure_message do |script|
@@ -71,8 +68,8 @@ end
 
 RSpec::Matchers.define :announce do |cmd, options = {}|
   match do |script|
-    options = options.merge(echo: true, log: true)
-    expect(script).to run cmd, options
+    options = options.merge(echo: true)
+    expect(script).to travis_cmd cmd, options
   end
   failure_message do |script|
     "expected script to announce #{cmd.inspect} with #{options} but it didn't:\n#{log_for(script)}"
@@ -81,7 +78,7 @@ end
 
 RSpec::Matchers.define :install do |cmd, options = {}|
   match do |script|
-    options = options.merge(echo: true, log: true, assert: true)
+    options = options.merge(echo: true, assert: true)
     expect(script).to run cmd, options
   end
   failure_message do |script|
@@ -91,11 +88,28 @@ end
 
 RSpec::Matchers.define :run_script do |cmd, options = {}|
   match do |script|
-    options = options.merge(echo: true, log: true, timing: true)
+    options = options.merge(echo: true, timing: true)
     expect(script).to run cmd, options
   end
   failure_message do |script|
     "expected script to run the script #{cmd.inspect} with #{options} but it didn't:\n#{log_for(script)}"
+  end
+end
+
+RSpec::Matchers.define :travis_cmd do |cmd, options = {}|
+  opts ||= []
+  opts << '--assert' if options[:assert]
+  opts << '--echo'   if options[:echo]
+  opts << "--display #{options[:echo]}" if options[:echo].is_a?(String)
+  opts << '--retry'  if options[:retry]
+  opts << '--timing' if options[:timing]
+  opts
+
+  match do |script|
+    expect(script).to run "travis_cmd #{cmd} #{opts.join(' ')}", fold: options[:fold]
+  end
+  failure_message do |script|
+    "expected script to travis_cmd #{cmd.inspect} with #{opts.join(' ')} but it didn't:\n#{log_for(script)}"
   end
 end
 
@@ -104,7 +118,6 @@ RSpec::Matchers.define :run do |cmd, options = {}|
     lines = log_for(script).split("\n")
 
     runs?(lines, cmd) &&
-    (!options[:log]     || logs?(lines, cmd)) &&
     (!options[:echo]    || echoes?(lines, cmd)) &&
     (!options[:retry]   || retries?(lines, cmd)) &&
     (!options[:timing]  || measures_time?(lines, cmd)) &&

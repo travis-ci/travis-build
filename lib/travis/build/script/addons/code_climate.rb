@@ -12,7 +12,7 @@ module Travis
 
           def before_script
             if @config[:repo_token]
-              @script.set 'CODECLIMATE_REPO_TOKEN', @config[:repo_token], echo: false, assert: false
+              @script.set 'CODECLIMATE_REPO_TOKEN', @config[:repo_token], echo: false
             end
           end
         end

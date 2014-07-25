@@ -34,12 +34,12 @@ module Travis
 
         def install
           self.if "-f #{config[:gemfile]} && -f #{config[:gemfile]}.lock" do |sh|
-            directory_cache.add(sub, bundler_path) if data.cache? :bundler
+            directory_cache.add(sh, bundler_path) if data.cache? :bundler
             sh.cmd bundler_command("--deployment"), fold: 'install', retry: true
           end
           self.elif "-f #{config[:gemfile]}" do |sh|
             # cache bundler if it has been explicitely enabled
-            directory_cache.add(sub, bundler_path) if data.cache? :bundler, false
+            directory_cache.add(sh, bundler_path) if data.cache? :bundler, false
             sh.cmd bundler_command, fold: 'install', retry: true
           end
         end
