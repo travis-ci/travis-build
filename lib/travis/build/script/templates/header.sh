@@ -31,7 +31,7 @@ function travis_cmd() {
     travis_time_start
   fi
 
-  if [[ -n "$echo" ]]; then
+  if [[ -n "$output" ]]; then
     echo "\$ ${display:-$cmd}"
   fi
 
