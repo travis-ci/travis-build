@@ -86,8 +86,12 @@ module Travis
           }
 
           def ansi(string, options)
-            parts = Array(options[:ansi]).map { |key| ANSI[key] } << string << ANSI[:reset]
-            parts.join
+            keys = Array(options[:ansi])
+            prefix = keys.map { |key| ANSI[key] }
+            lines = string.split("\n").map do |line|
+              line.strip.empty? ? line : [prefix, line, ANSI[:reset]].flatten.join
+            end
+            lines.join("\n")
           end
       end
     end

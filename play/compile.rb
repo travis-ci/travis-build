@@ -36,7 +36,10 @@ data = {
   },
   timeouts: {
     # git_clone: 300
-  }
+  },
+  env_vars: [
+    { name: 'FOO', value: 'foo' }
+  ]
 }
 
 # require 'yaml'

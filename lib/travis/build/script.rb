@@ -98,15 +98,14 @@ module Travis
           set 'CONTINUOUS_INTEGRATION', 'true', echo: false
           set 'HAS_JOSH_K_SEAL_OF_APPROVAL', 'true', echo: false
 
+          newline if data.env_vars_groups.any?(&:announce?)
+
           data.env_vars_groups.each do |group|
-            newline
             echo "Setting environment variables from #{group.source}", ansi: :green if group.announce?
-            group.vars.each do |var|
-              set var.key, var.value, echo: var.to_s
-            end
+            group.vars.each { |var| set var.key, var.value, echo: var.to_s }
           end
 
-          newline if data.env_vars.any?
+          newline if data.env_vars_groups.any?(&:announce?)
         end
 
         def finish
@@ -134,7 +133,9 @@ module Travis
 
         def paranoid_mode
           if data.paranoid_mode?
-            echo "\nSudo, services, addons, setuid and setgid have been disabled.\n", ansi: :green
+            newline
+            echo "Sudo, services, addons, setuid and setgid have been disabled.", ansi: :green
+            newline
             raw 'sudo -n sh -c "sed -e \'s/^%.*//\' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis && find / -perm -4000 -exec chmod a-s {} \; 2>/dev/null"'
           end
         end
