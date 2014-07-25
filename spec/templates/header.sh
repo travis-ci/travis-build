@@ -16,7 +16,7 @@ stubs=(
   perl perlbrew cpanm
   php phpenv phpunit composer
   python pip
-  ruby rvm gem bundle rake
+  ruby rvm chruby gem bundle rake
   sbt
   curl cp bash mv tar
   /Users/travis/travis-utils/osx-cibuild.sh xcodebuild pod motion xctool osascript
@@ -29,8 +29,13 @@ done
 
 stubs=(
   echo cd rm mkdir source
-  travis_assert travis_terminate travis_retry travis_cmd
+  travis_assert travis_terminate travis_retry
 )
 for stub in ${stubs[*]}; do
   eval "$stub() { builtin echo $stub \$@; }"
 done
+
+function travis_cmd() {
+  builtin echo travis_cmd $@
+  eval "$1"
+}
