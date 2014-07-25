@@ -99,7 +99,7 @@ module Travis
           set 'HAS_JOSH_K_SEAL_OF_APPROVAL', 'true', echo: false
 
           data.env_vars_groups.each do |group|
-            echo "Setting environment variables from #{group.source}", ansi: :green if group.announce?
+            echo "\nSetting environment variables from #{group.source}", ansi: :green if group.announce?
             group.vars.each do |var|
               set var.key, var.value, echo: var.to_s
             end
