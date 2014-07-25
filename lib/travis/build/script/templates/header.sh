@@ -71,7 +71,7 @@ function travis_nanoseconds() {
   local format="+%s%N"
   local os=$(uname)
 
-  if hash gdate > /dev/null; then
+  if hash gdate > /dev/null 2>&1; then
     cmd="gdate" # use gdate if available
   elif [[ "$os" = Darwin ]]; then
     format="+%s000000000" # fallback to second precision on darwin (does not support %N)
