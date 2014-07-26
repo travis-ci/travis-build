@@ -19,7 +19,7 @@ module Travis
           end
 
           def echoize(code, echo = nil)
-            "echo #{escape("$ #{echo || @code}")}\n#{code}"
+            "echo #{escape("$ #{echo || raw_code}")}\n#{code}"
           end
         end
 
@@ -30,6 +30,12 @@ module Travis
 
           def add_retry(code)
             "travis_retry #{code}"
+          end
+        end
+
+        module Store
+          def code
+            "TRAVIS_CMD=#{escape(raw_code)}\n#{super}"
           end
         end
       end
