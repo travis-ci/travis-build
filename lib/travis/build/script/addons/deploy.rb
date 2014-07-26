@@ -6,18 +6,16 @@ module Travis
           class Group
             SUPER_USER_SAFE = true
 
-            def initialize(script, config)
-              @script = script
-              @config = if config.is_a?(Array)
-                          config
-                        else
-                          [config]
-                        end
+            attr_reader :sh
+
+            def initialize(sh, config)
+              @sh = sh
+              @config = config.is_a?(Array) ? config : [config]
             end
 
             def deploy
               @config.each do |config|
-                Deploy.new(@script, config).deploy
+                Deploy.new(sh, config).deploy
               end
             end
           end
@@ -25,17 +23,17 @@ module Travis
           VERSIONED_RUNTIMES = [:jdk, :node, :perl, :php, :python, :ruby, :scala, :go]
           USE_RUBY           = '1.9.3'
 
-          attr_accessor :script, :config, :allow_failure
+          attr_accessor :sh, :config, :allow_failure
 
-          def initialize(script, config)
+          def initialize(sh, config)
             @silent = false
-            @script = script
+            @sh = sh
             @config = config
             @allow_failure = config.delete(:allow_failure)
           end
 
           def deploy
-            if script.data.pull_request
+            if sh.data.pull_request
               failure_message "the current build is a pull request."
               return
             end
@@ -49,13 +47,13 @@ module Travis
 
           private
             def check_conditions_and_run
-              script.if(conditions) do
-                script.run_stage(:before_deploy)
+              sh.if(conditions) do
+                sh.run_stage(:before_deploy)
                 run
-                script.run_stage(:after_deploy)
+                sh.run_stage(:after_deploy)
               end
 
-              script.else do
+              sh.else do
                 failure_message_unless(repo_condition, "this is a forked repo")
                 failure_message_unless(branch_condition, "this branch is not permitted deploy")
                 failure_message_unless(runtime_conditions, "this is not on the required runtime")
@@ -67,7 +65,7 @@ module Travis
             def failure_message_unless(condition, message)
               return if negate_condition(condition) == ""
 
-              script.if(negate_condition(condition)) { failure_message(message) }
+              sh.if(negate_condition(condition)) { failure_message(message) }
             end
 
             def on
@@ -116,7 +114,7 @@ module Travis
             end
 
             def run
-              script.fold('dpl.0') { install }
+              sh.fold('dpl.0') { install }
               cmd(run_command, echo: false, assert: false)
             end
 
@@ -143,7 +141,7 @@ module Travis
             def option(key, value)
               case value
               when Array      then value.map { |v| option(key, v) }
-              when Hash       then option(key, value[script.data.branch.to_sym])
+              when Hash       then option(key, value[sh.data.branch.to_sym])
               when true       then "--#{key}"
               when nil, false then nil
               else "--%s=%p" % [key, value]
@@ -151,7 +149,7 @@ module Travis
             end
 
             def cmd(cmd, *args)
-              script.cmd("rvm #{USE_RUBY} --fuzzy do ruby -S #{cmd}", *args)
+              sh.cmd("rvm #{USE_RUBY} --fuzzy do ruby -S #{cmd}", *args)
             end
 
             def options
@@ -159,7 +157,7 @@ module Travis
             end
 
             def failure_message(message)
-              script.echo "Skipping deployment with the #{config[:provider]} provider because #{message}", ansi: :red
+              sh.echo "Skipping deployment with the #{config[:provider]} provider because #{message}", ansi: :red
             end
 
             def negate_condition(conditions)

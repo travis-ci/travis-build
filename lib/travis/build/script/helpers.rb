@@ -1,11 +1,35 @@
+require 'travis/shell/dsl'
+
 module Travis
   module Build
     class Script
       module Helpers
+        class AstProxy
+          attr_reader :stack, :node
+
+          def initialize(stack, node)
+            @stack = stack
+            @node = node
+          end
+
+          def method_missing(*args, &block)
+            block = with_node(&block) if block
+            node.send(*args, &block)
+          end
+
+          def with_node
+            ->(node) {
+              stack.push(AstProxy.new(stack, node))
+              result = yield if block_given?
+              stack.pop
+              result
+            }
+          end
+        end
+
         Shell::Dsl.instance_methods(false).each do |name|
           define_method(name) do |*args, &block|
-            options = args.last if args.last.is_a?(Hash)
-            sh.send(name, *args, &stacking(&block))
+            sh.send(name, *args, &block)
           end
         end
 
@@ -15,19 +39,7 @@ module Travis
 
         def failure(message)
           echo message
-          raw 'false'
-        end
-
-        def stacking
-          ->(sh) {
-            stack.push(sh)
-            yield(sh) if block_given?
-            stack.pop
-          }
-        end
-
-        def announce?(stage)
-          stage && stage != :after_result
+          cmd 'false'
         end
       end
     end

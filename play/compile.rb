@@ -4,10 +4,6 @@ $: << 'lib'
 require 'travis/build'
 
 data = {
-  urls: {
-    log:   'http://localhost:3000/jobs/1/log',
-    state: 'http://localhost:3000/jobs/1/state', # not sure about this ...
-  },
   repository: {
     slug: 'travis-ci/travis-support',
     source_url: 'http://github.com/travis-ci/travis-support.git'
@@ -25,13 +21,13 @@ data = {
     pull_request: false
   },
   config: {
+    language: 'scala',
     rvm: 'ruby-head',
-    # jdk: 'jdk-foo',
-    # language: 'c',
-    # services: ['redis'],
+    jdk: 'jdk-foo',
+    services: ['redis'],
     # after_success: 'yo dawg',
     # after_failure: 'yo kaputt',
-    # after_script: 'travis-artifacts upload shit',
+    # after_script: 'travis-artifacts upload this`',
     # script: 'bundle exec rspec'
   },
   timeouts: {
@@ -39,14 +35,13 @@ data = {
   },
   env_vars: [
     { name: 'FOO', value: 'foo' }
-  ]
+  ],
+  ssh_key: {
+    value: 'ssh-key'
+  }
 }
 
 # require 'yaml'
 # data[:config] = YAML.load_file('play/config.yml')
 
-# script = Travis::Build.script(data, logs: { build: false, state: true })
-script = Travis::Build.script(data, logs: { build: false, state: true })
-script = script.compile
-puts script
-
+puts Travis::Build.script(data).compile

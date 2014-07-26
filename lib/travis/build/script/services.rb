@@ -14,9 +14,9 @@ module Travis
 
         def start_services
           services.each do |name|
-            cmd "sudo service #{name.shellescape} start", assert: false
+            cmd "sudo service #{name.shellescape} start"
           end
-          raw 'sleep 3' if services.any? # give services a moment to start
+          cmd 'sleep 3' if services.any? # give services a moment to start
         end
 
         def services

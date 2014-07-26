@@ -22,7 +22,7 @@ module Travis
             run_addon_stage(stage)
             cmds = Array(config[stage])
             cmds.each_with_index do |command, ix|
-              cmd command, fold: fold_stage?(stage) && "#{stage}#{".#{ix + 1}" if cmds.size > 1}"
+              cmd command, echo: true, fold: fold_stage?(stage) && "#{stage}#{".#{ix + 1}" if cmds.size > 1}"
               result if stage == :script
             end
           end
@@ -44,14 +44,14 @@ module Travis
           run_builtin_stage(:finish)
 
           if config[:after_success] || deployment?
-            self.if('$TRAVIS_TEST_RESULT = 0') do
+            self.if('$TRAVIS_TEST_RESULT = 0') do |sh|
               run_stage(:after_success)
               run_stage(:deploy)
             end
           end
 
           if config[:after_failure]
-            self.if('$TRAVIS_TEST_RESULT != 0') do
+            self.if('$TRAVIS_TEST_RESULT != 0') do |sh|
               run_stage(:after_failure)
             end
           end
@@ -59,10 +59,16 @@ module Travis
 
         def stage(stage = nil)
           @stage = stage
-          sh.script &stacking {
-            sh.options.update(assert: assert_stage?(stage))
-            yield
-          }
+          if assert_stage?(stage)
+            sh.options.update(assert: true)
+          else
+            sh.options.delete(:assert)
+          end
+          yield
+        end
+
+        def announce?(stage)
+          stage && stage != :after_result
         end
 
         def assert_stage?(stage)
@@ -70,7 +76,7 @@ module Travis
         end
 
         def result
-          raw 'travis_result $?'
+          cmd 'travis_result $?', timing: false
         end
 
         def fold_stage?(stage)

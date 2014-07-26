@@ -5,14 +5,14 @@ module Travis
         class CodeClimate
           SUPER_USER_SAFE = true
 
-          def initialize(script, config)
-            @script = script
+          def initialize(sh, config)
+            @sh = sh
             @config = config.respond_to?(:to_hash) ? config.to_hash : {}
           end
 
           def before_script
             if @config[:repo_token]
-              @script.set 'CODECLIMATE_REPO_TOKEN', @config[:repo_token], echo: false
+              @sh.set 'CODECLIMATE_REPO_TOKEN', @config[:repo_token], echo: false
             end
           end
         end

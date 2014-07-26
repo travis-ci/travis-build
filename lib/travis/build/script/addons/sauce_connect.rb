@@ -5,23 +5,25 @@ module Travis
         class SauceConnect
           SUPER_USER_SAFE = true
 
-          def initialize(script, config)
-            @script = script
+          attr_reader :sh, :config
+
+          def initialize(sh, config)
+            @sh = sh
             @config = config.respond_to?(:to_hash) ? config.to_hash : {}
           end
 
           def before_script
             if @config[:username]
-              @script.set 'SAUCE_USERNAME', @config[:username], echo: false
+              set 'SAUCE_USERNAME', config[:username]
             end
             if @config[:access_key]
-              @script.set 'SAUCE_ACCESS_KEY', @config[:access_key], echo: false
+              set 'SAUCE_ACCESS_KEY', config[:access_key]
             end
 
-            @script.fold 'sauce_connect' do |sh|
-              sh.echo 'Starting Sauce Connect', ansi: :green
-              sh.cmd "curl -L https://gist.githubusercontent.com/henrikhodne/9322897/raw/sauce-connect.sh | bash", assert: false
-              sh.set 'TRAVIS_SAUCE_CONNECT', 'true', echo: false
+            sh.fold 'sauce_connect' do
+              echo 'Starting Sauce Connect', ansi: :green
+              cmd "curl -L https://gist.githubusercontent.com/henrikhodne/9322897/raw/sauce-connect.sh | bash"
+              set 'TRAVIS_SAUCE_CONNECT', 'true', echo: false
             end
           end
         end

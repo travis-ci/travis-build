@@ -8,24 +8,24 @@ module Travis
           CONCURRENCY = 5
           MAX_SIZE = Float(1024 * 1024 * 50)
 
-          attr_accessor :script, :config
+          attr_accessor :sh, :config
 
-          def initialize(script, config)
-            @script = script
+          def initialize(sh, config)
+            @sh = sh
             @config = config
           end
 
           def after_script
             return if config.empty?
-            script.newline
+            sh.newline
 
             if pull_request?
-              script.echo 'Artifacts support disabled for pull requests'
+              sh.echo 'Artifacts support disabled for pull requests'
               return
             end
 
             unless branch_runnable?
-              script.echo "Artifacts support not enabled for the current branch (#{data.branch.inspect})"
+              sh.echo "Artifacts support not enabled for the current branch (#{data.branch.inspect})"
               return
             end
 
@@ -40,16 +40,16 @@ module Travis
 
             return unless validate!
 
-            script.echo 'Uploading Artifacts (BETA)', ansi: :green
-            script.fold 'artifacts.0' do
+            sh.echo 'Uploading Artifacts (BETA)', ansi: :green
+            sh.fold 'artifacts.0' do
               install
               configure_env
-              script.set 'PATH', '$HOME/bin:$PATH', echo: false
+              sh.set 'PATH', '$HOME/bin:$PATH', echo: false
             end
-            script.fold 'artifacts.1' do
-              script.cmd "artifacts upload #{options}", assert: false
+            sh.fold 'artifacts.1' do
+              sh.cmd "artifacts upload #{options}", assert: false
             end
-            script.echo 'Done uploading artifacts', ansi: :green
+            sh.echo 'Done uploading artifacts', ansi: :green
           end
 
           def branch
@@ -67,11 +67,11 @@ module Travis
           end
 
           def data
-            script.data
+            sh.data
           end
 
           def install
-            script.cmd install_script, echo: false, assert: false
+            sh.cmd install_script, echo: false, assert: false
           end
 
           def install_script
@@ -116,7 +116,7 @@ module Travis
 
           def set_env(key, value, prefix = 'ARTIFACTS_')
             value = value.map(&:to_s).join(':') if value.respond_to?(:each)
-            script.set "#{prefix}#{key}", %Q{"#{value}"}, echo: setenv_echoable?(key)
+            sh.set "#{prefix}#{key}", %Q{"#{value}"}, echo: setenv_echoable?(key)
           end
 
           def setenv_echoable?(key)
@@ -126,15 +126,15 @@ module Travis
           def validate!
             valid = true
             unless config[:key]
-              script.echo 'Artifacts config missing :key param', ansi: :red
+              sh.echo 'Artifacts config missing :key param', ansi: :red
               valid = false
             end
             unless config[:secret]
-              script.echo 'Artifacts config missing :secret param', ansi: :red
+              sh.echo 'Artifacts config missing :secret param', ansi: :red
               valid = false
             end
             unless config[:bucket]
-              script.echo 'Artifacts config missing :bucket param', ansi: :red
+              sh.echo 'Artifacts config missing :bucket param', ansi: :red
               valid = false
             end
             valid

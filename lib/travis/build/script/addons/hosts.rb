@@ -7,15 +7,17 @@ module Travis
         class Hosts
           SUPER_USER_SAFE = true
 
+          attr_reader :sh, :config
+
           def initialize(script, config)
             @script = script
-            @config = [config].flatten
+            @config = [config].flatten.join(' ').shellescape
           end
 
           def after_pre_setup
-            @script.fold 'hosts' do |sh|
-              sh.raw "sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '#{@config.join(' ').shellescape}'/' -i'.bak' /etc/hosts"
-              sh.raw "sudo sed -e 's/^\\(::1.*\\)$/\\1 '#{@config.join(' ').shellescape}'/' -i'.bak' /etc/hosts"
+            sh.fold 'hosts' do
+              sh.cmd "sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '#{config}'/' -i'.bak' /etc/hosts"
+              sh.cmd "sudo sed -e 's/^\\(::1.*\\)$/\\1 '#{config}'/' -i'.bak' /etc/hosts"
             end
           end
         end
