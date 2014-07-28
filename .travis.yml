@@ -2,10 +2,10 @@ language: ruby
 
 cache: bundler
 
-super_user: false
+sudo: false
 
 rvm:
   - 1.9.3
-  - jruby-1.7.12
+  - jruby-19mode
 
 script: "bundle exec rspec spec"

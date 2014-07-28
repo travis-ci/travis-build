@@ -21,15 +21,15 @@ module Travis
         end
 
         def set(var, value, options = {})
-          cmd "export #{var}=#{value}", options.merge(log: false)
+          cmd "export #{var}=#{value}", { log: false, timing: false, store: false }.merge(options)
         end
 
         def echo(string, options = {})
-          cmd "echo #{escape(string)}", echo: false, log: true
+          cmd "echo #{escape(string)}", { echo: false, log: true, timing: false }.merge(options)
         end
 
         def cd(path)
-          cmd "cd #{path}", echo: true, log: false
+          cmd "cd #{path}", echo: true, log: false, timing: false
         end
 
         def if(*args, &block)
@@ -56,9 +56,9 @@ module Travis
         end
 
         def fold(name, &block)
-          raw "echo -en 'travis_fold:start:#{name}\\r'"
+          raw "travis_fold start #{name}"
           result = yield(self)
-          raw "echo -en 'travis_fold:end:#{name}\\r'"
+          raw "travis_fold end #{name}"
           result
         end
 

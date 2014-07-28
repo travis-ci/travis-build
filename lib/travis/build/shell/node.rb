@@ -28,6 +28,15 @@ module Travis
       end
 
       class Cmd < Node
+        include Filters::Retry
+        include Filters::Echoize
+        include Filters::Timing
+        include Filters::Assertion
+        include Filters::Store
+
+        def raw_code
+          @code
+        end
       end
 
       class Group < Node

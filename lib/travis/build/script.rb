@@ -53,7 +53,7 @@ module Travis
       def initialize(data, options = {})
         @data = Data.new({ config: self.class.defaults }.deep_merge(data.deep_symbolize_keys))
         @options = options
-        @stack = [Shell::Script.new(log: true, echo: true)]
+        @stack = [Shell::Script.new(log: true, echo: true, timing: true, store: true)]
       end
 
       def compile
@@ -76,7 +76,7 @@ module Travis
             true
           when 'server_error'
             cmd 'echo -e "\033[31;1mCould not fetch .travis.yml from GitHub.\033[0m"', assert: false, echo: false
-            cmd 'travis_terminate 2', assert: false, echo: false
+            raw 'travis_terminate 2', assert: false, echo: false
             false
           else
             true
@@ -153,13 +153,13 @@ module Travis
 
         def fix_resolv_conf
           return if data.skip_resolv_updates?
-          cmd %Q{grep '199.91.168' /etc/resolv.conf > /dev/null || echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf &> /dev/null}, assert: false, echo: false, log: false
+          raw %Q{grep '199.91.168' /etc/resolv.conf > /dev/null || echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf &> /dev/null}
         end
 
         def fix_etc_hosts
           return if data.skip_etc_hosts_fix?
-          cmd %Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'.bak' /etc/hosts}, assert: false, echo: false, log: false
-          cmd %{sudo bash -c 'echo "87.98.253.108 getcomposer.org" >> /etc/hosts'}, assert: false, echo: false, log: false
+          raw %Q{sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'.bak' /etc/hosts}
+          raw %{sudo bash -c 'echo "87.98.253.108 getcomposer.org" >> /etc/hosts'}
         end
 
         def fix_ps4
