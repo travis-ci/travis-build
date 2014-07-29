@@ -3,9 +3,9 @@ require 'spec_helper'
 
 describe Travis::Build::Script::Addons::Artifacts, :sexp do
   let(:config) { { key: 'key', secret: 'secret', bucket: 'bucket', private: true } }
-  let(:data)   { PAYLOADS[:push].deep_clone }
+  let(:data)   { Travis::Build::Data.new(PAYLOADS[:push].deep_clone) }
   let(:sh)     { Travis::Shell::Builder.new }
-  let(:addon)  { described_class.new(sh, Travis::Build::Data.new(data), config) }
+  let(:addon)  { described_class.new(sh, data, config) }
   subject      { sh.to_sexp }
 
   context 'with a valid config' do
