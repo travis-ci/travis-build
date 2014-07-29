@@ -2,7 +2,7 @@ language: ruby
 
 cache: bundler
 
-super_user: false
+sudo: false
 
 rvm:
   - 1.9.3
