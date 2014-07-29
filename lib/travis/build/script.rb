@@ -15,6 +15,7 @@ module Travis
       autoload :Go,             'travis/build/script/langs/go'
       autoload :Groovy,         'travis/build/script/langs/groovy'
       autoload :Haskell,        'travis/build/script/langs/haskell'
+      autoload :Helpers,        'travis/build/script/helpers'
       autoload :NodeJs,         'travis/build/script/langs/node_js'
       autoload :ObjectiveC,     'travis/build/script/langs/objective_c'
       autoload :Perl,           'travis/build/script/langs/perl'
@@ -31,7 +32,7 @@ module Travis
       autoload :Services,       'travis/build/script/services'
       autoload :Stages,         'travis/build/script/stages'
 
-      TEMPLATES_PATH = File.expand_path('../script/templates', __FILE__)
+      TEMPLATES_PATH = File.expand_path('templates', __FILE__.gsub('.rb', ''))
 
       STAGES = {
         builtin: [:configure, :checkout, :pre_setup, :paranoid_mode, :export, :setup, :announce],
@@ -44,22 +45,18 @@ module Travis
         end
       end
 
-      include Addons, Git, Services, Stages, DirectoryCache
+      include Addons, Git, Helpers, Services, Stages, DirectoryCache
 
       attr_reader :sh, :data
 
       def initialize(data, options = nil) # TODO deprecate options if passed from travis-worker
         @sh = Shell::Builder.new
         @data = Data.new({ config: self.class.defaults }.deep_merge(data.deep_symbolize_keys))
-
-        run_stages if check_config
+        run
       end
 
       def compile
-        code = [template('header.sh')]
-        code << Shell.generate(sexp)
-        code << template('footer.sh')
-        code.join("\n")
+        Shell.generate(sexp)
       end
 
       def sexp
@@ -71,6 +68,12 @@ module Travis
       end
 
       private
+
+        def run
+          sh.raw [template('header.sh')]
+          run_stages if check_config
+          sh.raw template('footer.sh')
+        end
 
         def check_config
           case data.config[:".result"]
@@ -128,10 +131,6 @@ module Travis
 
         def announce
           # overwrite
-        end
-
-        def template(filename)
-          ERB.new(File.read(File.expand_path(filename, TEMPLATES_PATH))).result(binding)
         end
 
         def paranoid_mode

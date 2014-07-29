@@ -39,9 +39,18 @@ module SpecHelpers
     def store_example(name = nil)
       const_name = described_class.name.split('::').last.gsub(/([A-Z]+)/,'_\1').gsub(/^_/, '').downcase
       name = [const_name, name].compact.join('-').gsub(' ', '_')
-      path = "examples/build-#{name}.sh"
+
+      case described_class
+      when Travis::Build::Script
+        type = :build
+        code = script.compile
+      else
+        type = :addon
+        code = Travis::Shell.generate(subject)
+      end
+
       FileUtils.mkdir_p('examples') unless File.directory?('examples')
-      File.open(path, 'w+') { |f| f.write(script.compile) }
+      File.open("examples/#{type}-#{name}.sh", 'w+') { |f| f.write(code) }
     end
   end
 end

@@ -15,12 +15,12 @@ PAYLOADS = {
       'slug' => 'travis-ci/travis-ci',
       'source_url' => 'git://github.com/travis-ci/travis-ci.git'
     },
-    'source' => {
-      'id' => 1,
-      'number' => 1
+    'build' => {
+      'id' => '1',
+      'number' => '1'
     },
     'job' => {
-      'id' => 1,
+      'id' => '1',
       'number' => '1.1',
       'commit' => '313f61b',
       'branch' => 'master',

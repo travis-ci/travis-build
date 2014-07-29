@@ -32,6 +32,10 @@ module Travis
         end
       end
 
+      def raw(code)
+        node :raw, code
+      end
+
       def cmd(data, *args)
         node :cmd, data, *args
       end

@@ -24,6 +24,10 @@ module Travis
           send(:"handle_#{type}", *node)
         end
 
+        def handle_raw(code, *)
+          code
+        end
+
         def handle_script(nodes)
           nodes.map { |node|  handle(node) }
         end
@@ -34,7 +38,7 @@ module Travis
 
         def indent(lines = nil)
           @level += 1
-          lines = Array(lines || yield).flatten.map { |line| "  #{line}" }
+          lines = Array(lines || yield).flatten.map { |line| line.split("\n").map { |line| "  #{line}" }.join("\n") }
           @level -= 1
           lines
         end
