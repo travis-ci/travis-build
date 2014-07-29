@@ -9,6 +9,8 @@ shared_examples_for 'a git repo sexp' do
       data['repository']['api_url'] = api
     end
 
+    it { store_example('git_tarball') }
+
     it 'creates the directory structure' do
       should include_sexp [:mkdir, 'travis-ci/travis-ci', recursive: true]
     end

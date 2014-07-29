@@ -1,15 +1,15 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Clojure, :sexp do
-  let(:data) { PAYLOADS[:push].deep_clone }
-
-  subject { described_class.new(data).sexp }
+  let(:data)   { PAYLOADS[:push].deep_clone }
+  let(:script) { described_class.new(data) }
+  subject      { script.sexp }
 
   it_behaves_like 'a build script sexp'
   it_behaves_like 'a jdk build sexp'
 
   describe 'if no lein config given' do
-    # after(:all) { store_example 'no lein config' }
+    it { store_example 'no lein config' }
 
     it 'announces lein version' do
       should include_sexp [:cmd, 'lein version', echo: true]
@@ -25,7 +25,8 @@ describe Travis::Build::Script::Clojure, :sexp do
   end
 
   describe 'if lein: lein2 given' do
-    # after(:all) { store_example 'lein2 config' }
+    it { store_example 'lein2 config' }
+
     before(:each) { data['config']['lein'] = 'lein2' }
 
     it 'announces lein2 version if lein: lein2 given' do

@@ -1,8 +1,9 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Python, :sexp do
-  let(:data) { PAYLOADS[:push].deep_clone }
-  subject { described_class.new(data).sexp }
+  let(:data)   { PAYLOADS[:push].deep_clone }
+  let(:script) { described_class.new(data) }
+  subject      { script.sexp }
 
   describe 'given a script' do
     before :each do

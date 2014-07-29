@@ -1,9 +1,10 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::ObjectiveC, :sexp do
-  let(:data) { PAYLOADS[:push].deep_clone }
+  let(:data)   { PAYLOADS[:push].deep_clone }
+  let(:script) { described_class.new(data) }
   let(:is_ruby_motion) { "-f Rakefile && \"$(cat Rakefile)\" =~ require\\ [\\\"\\']motion/project" }
-  subject { described_class.new(data).sexp }
+  subject      { script.sexp }
 
   describe 'announce' do
     let(:sexp) { sexp_find(subject, [:if, is_ruby_motion]) }

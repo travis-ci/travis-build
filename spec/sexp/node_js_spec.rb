@@ -1,8 +1,9 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::NodeJs, :sexp do
-  let(:data) { PAYLOADS[:push].deep_clone }
-  subject { described_class.new(data).sexp }
+  let(:data)   { PAYLOADS[:push].deep_clone }
+  let(:script) { described_class.new(data) }
+  subject      { script.sexp }
 
   it 'sets TRAVIS_NODE_VERSION' do
     should include_sexp [:export, ['TRAVIS_NODE_VERSION', '0.10'], echo: true]

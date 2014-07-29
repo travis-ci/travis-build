@@ -13,15 +13,6 @@ module Travis
           Cmd.new(code, options).to_bash
         end
 
-        def handle_cd(path, options = {})
-          handle_cmd("cd #{path}", options)
-        end
-
-        def handle_chmod(data, options = {})
-          mode, path = *data
-          handle_cmd("chmod #{mode} #{path}", options)
-        end
-
         def handle_echo(message = '', options = {})
           message = " #{ansi(escape(message), options.delete(:ansi))}" unless message.empty?
           handle_cmd("echo#{message}", options)
@@ -36,6 +27,10 @@ module Travis
           handle_cmd("export #{data.first}=#{escape(data.last)}", options)
         end
 
+        def handle_cd(path, options = {})
+          handle_cmd("cd #{path}", options)
+        end
+
         def handle_file(data, options = {})
           path, content = *data
           cmd = ['echo', escape(content)]
@@ -43,6 +38,31 @@ module Travis
           cmd << (options[:append] ? '>>' : '>')
           cmd << path
           handle_cmd(cmd.join(' '))
+        end
+
+        def handle_mkdir(path, options = {})
+          opts = []
+          opts << 'r' if options[:recursive]
+          opts = opts.any? ? "-#{opts.join}" : nil
+          handle_cmd(['mkdir', opts, path].compact.join(' '))
+        end
+
+        def handle_chmod(data, options = {})
+          mode, path = *data
+          handle_cmd("chmod #{mode} #{path}", options)
+        end
+
+        def handle_cp(data, options = {})
+          source, target = *data
+          opts = []
+          opts << 'r' if options[:recursive]
+          opts = opts.any? ? "-#{opts.join}" : nil
+          handle_cmd(['cp', opts, source, target].compact.join(' '))
+        end
+
+        def handle_mv(data, options = {})
+          source, target = *data
+          handle_cmd(['cp', source, target].compact.join(' '))
         end
 
         def handle_rm(path, options = {})

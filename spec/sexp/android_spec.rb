@@ -1,9 +1,9 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Android, :sexp do
-  let(:data) { PAYLOADS[:push].deep_clone }
-  subject    { described_class.new(data).sexp }
-  # after(:all) { store_example }
+  let(:data)   { PAYLOADS[:push].deep_clone }
+  let(:script) { described_class.new(data) }
+  subject      { script.sexp }
 
   it_behaves_like 'a build script sexp'
   it_behaves_like 'a jdk build sexp'

@@ -1,3 +1,5 @@
+require 'fileutils'
+
 module SpecHelpers
   module Sexp
     def sexp_fold(fold, sexp)
@@ -32,6 +34,14 @@ module SpecHelpers
       result << sexp if sexp[0, part.length] == part
       sexp.each { |sexp| sexp_filter(sexp, part, result) }
       result
+    end
+
+    def store_example(name = nil)
+      const_name = described_class.name.split('::').last.gsub(/([A-Z]+)/,'_\1').gsub(/^_/, '').downcase
+      name = [const_name, name].compact.join('-').gsub(' ', '_')
+      path = "examples/build-#{name}.sh"
+      FileUtils.mkdir_p('examples') unless File.directory?('examples')
+      File.open(path, 'w+') { |f| f.write(script.compile) }
     end
   end
 end
