@@ -8,11 +8,11 @@ shared_examples_for 'a jvm build' do
 
     context 'without a gradle wrapper' do
       it 'installs with gradle assemble' do
-        is_expected.to run 'gradle assemble', echo: true, log: true, assert: true
+        is_expected.to travis_cmd 'gradle assemble', echo: true, timing: true, assert: true, retry: true
       end
 
       it 'runs gradle check' do
-        is_expected.to run 'gradle check', echo: true, log: true
+        is_expected.to travis_cmd 'gradle check', echo: true, timing: true
       end
     end
 
@@ -22,11 +22,11 @@ shared_examples_for 'a jvm build' do
       end
 
       it 'installs with ./gradlew assemble' do
-        is_expected.to run './gradlew assemble', echo: true, log: true, assert: true
+        is_expected.to travis_cmd './gradlew assemble', echo: true, timing: true, assert: true, retry: true
       end
 
       it 'runs ./gradlew check' do
-        is_expected.to run './gradlew check', echo: true, log: true
+        is_expected.to travis_cmd './gradlew check', echo: true, timing: true
       end
     end
   end
@@ -37,17 +37,17 @@ shared_examples_for 'a jvm build' do
     end
 
     it 'installs with mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V' do
-      is_expected.to run 'mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V', echo: true, log: true, assert: true
+      is_expected.to travis_cmd 'mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V', echo: true, assert: true
     end
 
     it 'runs mvn test -B' do
-      is_expected.to run 'mvn test -B', echo: true, log: true
+      is_expected.to travis_cmd 'mvn test -B', echo: true, timing: true
     end
   end
 
   describe 'if neither gradle nor mvn are used' do
     it 'runs ant test' do
-      is_expected.to run 'ant test', echo: true, log: true
+      is_expected.to travis_cmd 'ant test', echo: true, timing: true
     end
   end
 

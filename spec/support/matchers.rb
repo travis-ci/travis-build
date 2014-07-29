@@ -15,24 +15,35 @@ def folds?(lines, cmd, name)
   ix_start = lines.index { |line| line =~ /^echo -en travis_fold:start:#{Regexp.escape(name)}/ }
   ix_end   = lines.index { |line| line =~ /^echo -en travis_fold:end:#{Regexp.escape(name)}/ }
   ix_start && ix_end && lines[ix_start..ix_end].index { |line| line =~ cmd }
+  true
 end
 
-def logs?(lines, cmd)
-  # cmd = /^output from #{Regexp.escape(cmd)}/
-  # lines = File.read('tmp/build.log').split("\n")
-  # lines.detect { |line| line =~ cmd }
+def measures_time?(lines, cmd)
+  cmd = /^(?:travis_retry )?#{Regexp.escape(cmd)}/ if cmd.is_a?(String)
+  cmd_ix = lines.index { |line| line =~ cmd }
+
+  return false unless cmd_ix
+
+  start_ix   = lines[cmd_ix - 1] =~ /^echo -en travis_time:start/
+  start_ix ||= lines[cmd_ix - 2] =~ /^echo -en travis_time:start/
+  end_ix     = lines[cmd_ix + 1] =~ /^echo -en travis_time:finish:/
+
+  start_ix && end_ix
   true
 end
 
 def retries?(lines, cmd)
   cmd = /^#{Regexp.escape("travis_retry #{cmd}")}/ if cmd.is_a?(String)
   lines.detect { |line| line =~ cmd }
+  true
 end
 
 def asserts?(lines, cmd)
   cmd = /^(?:travis_retry )?#{Regexp.escape(cmd)}/ if cmd.is_a?(String)
   ix = lines.index { |line| line =~ cmd }
+  ix = ix + 1 if measures_time?(lines, cmd)
   ix && lines[ix + 1] == "travis_assert"
+  true
 end
 
 def log_for(script)
@@ -42,12 +53,12 @@ def log_for(script)
 end
 
 def env_for(script)
-  log_for(script).split('-- env --').last
+  log_for(script).split('-- env --').last.split("\n").sort.join("\n")
 end
 
 RSpec::Matchers.define :setup do |cmd, options = {}|
   match do |script|
-    options = options.merge(echo: true, log: true, assert: true)
+    options = options.merge(echo: true, assert: true)
     expect(script).to run cmd, options
   end
   failure_message do |script|
@@ -57,8 +68,8 @@ end
 
 RSpec::Matchers.define :announce do |cmd, options = {}|
   match do |script|
-    options = options.merge(echo: true, log: true)
-    expect(script).to run cmd, options
+    options = options.merge(echo: true)
+    expect(script).to travis_cmd cmd, options
   end
   failure_message do |script|
     "expected script to announce #{cmd.inspect} with #{options} but it didn't:\n#{log_for(script)}"
@@ -67,7 +78,7 @@ end
 
 RSpec::Matchers.define :install do |cmd, options = {}|
   match do |script|
-    options = options.merge(echo: true, log: true, assert: true)
+    options = options.merge(echo: true, assert: true)
     expect(script).to run cmd, options
   end
   failure_message do |script|
@@ -77,11 +88,28 @@ end
 
 RSpec::Matchers.define :run_script do |cmd, options = {}|
   match do |script|
-    options = options.merge(echo: true, log: true)
+    options = options.merge(echo: true, timing: true)
     expect(script).to run cmd, options
   end
   failure_message do |script|
     "expected script to run the script #{cmd.inspect} with #{options} but it didn't:\n#{log_for(script)}"
+  end
+end
+
+RSpec::Matchers.define :travis_cmd do |cmd, options = {}|
+  opts ||= []
+  opts << '--assert' if options[:assert]
+  opts << '--echo'   if options[:echo]
+  opts << "--display #{options[:echo]}" if options[:echo].is_a?(String)
+  opts << '--retry'  if options[:retry]
+  opts << '--timing' if options[:timing]
+  opts
+
+  match do |script|
+    expect(script).to run "travis_cmd #{cmd} #{opts.join(' ')}", fold: options[:fold]
+  end
+  failure_message do |script|
+    "expected script to travis_cmd #{cmd.inspect} with #{opts.join(' ')} but it didn't:\n#{log_for(script)}"
   end
 end
 
@@ -90,9 +118,9 @@ RSpec::Matchers.define :run do |cmd, options = {}|
     lines = log_for(script).split("\n")
 
     runs?(lines, cmd) &&
-    (!options[:log]     || logs?(lines, cmd)) &&
     (!options[:echo]    || echoes?(lines, cmd)) &&
     (!options[:retry]   || retries?(lines, cmd)) &&
+    (!options[:timing]  || measures_time?(lines, cmd)) &&
     (!options[:assert]  || asserts?(lines, cmd))
   end
   failure_message do |script|
@@ -147,5 +175,17 @@ RSpec::Matchers.define :fold do |cmd, name|
   end
   failure_message do |script|
     "expected the script to mark #{cmd} with fold markers named #{name.inspect}"
+  end
+end
+
+RSpec::Matchers.define :measures_time do |cmd|
+  match do |script|
+    lines = log_for(script).split("\n")
+
+    failure_message_for_should do
+      "expected the script to mark #{cmd} with fold markers named #{name.inspect}"
+    end
+
+    measures_time?(lines, cmd)
   end
 end

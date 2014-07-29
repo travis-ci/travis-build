@@ -12,7 +12,7 @@ describe Travis::Build::Script::NodeJs do
   end
 
   it 'sets up the node version' do
-    is_expected.to setup 'nvm use 0.10'
+    is_expected.to travis_cmd 'nvm use 0.10', echo: true, timing: true, assert: true
   end
 
   it 'announces node --version' do
@@ -25,7 +25,7 @@ describe Travis::Build::Script::NodeJs do
 
   describe 'if no package.json exists' do
     it 'runs make test' do
-      is_expected.to run_script 'make test'
+      is_expected.to travis_cmd 'make test', echo: true, timing: true
     end
   end
 
@@ -36,12 +36,12 @@ describe Travis::Build::Script::NodeJs do
     end
 
     it 'installs with npm install --npm-args' do
-      is_expected.to install 'npm install --npm-args', retry: true
+      is_expected.to travis_cmd 'npm install --npm-args', echo: true, timing: true, assert: true, retry: true
       store_example 'npm_args'
     end
 
     it 'runs npm test' do
-      is_expected.to run_script 'npm test'
+      is_expected.to travis_cmd 'npm test', echo: true, timing: true
     end
   end
 

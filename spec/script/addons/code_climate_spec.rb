@@ -15,7 +15,7 @@ describe Travis::Build::Script::Addons::CodeClimate do
     let(:config) { { :repo_token => '1234' } }
 
     it 'exports CODECLIMATE_REPO_TOKEN' do
-      script.expects(:set).with('CODECLIMATE_REPO_TOKEN', '1234', echo: false, assert: false)
+      script.expects(:set).with('CODECLIMATE_REPO_TOKEN', '1234', echo: false)
       subject
     end
   end
@@ -24,7 +24,7 @@ describe Travis::Build::Script::Addons::CodeClimate do
     let(:config) { {} }
 
     it "doesn't export CODECLIMATE_REPO_TOKEN" do
-      script.expects(:set).with('CODECLIMATE_REPO_TOKEN', '1234', echo: false, assert: false).never
+      script.expects(:set).with('CODECLIMATE_REPO_TOKEN', '1234', echo: false).never
       subject
     end
   end

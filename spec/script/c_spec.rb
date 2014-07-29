@@ -17,20 +17,17 @@ describe Travis::Build::Script::C do
   it_behaves_like 'a build script'
 
   it 'sets CC' do
-    is_expected.to set 'CC', 'gcc'
+    is_expected.to travis_cmd 'export CC=gcc', echo: true
   end
 
   it 'announces gcc --version' do
-    is_expected.to announce 'gcc --version', echo: true, log: true
+    is_expected.to announce 'gcc --version', echo: true
   end
 
   it 'runs ./configure && make && make test' do
-    is_expected.to run 'echo $ ./configure && make && make test'
-    is_expected.to run 'configure', log: true
-    is_expected.to run 'make', log: true
-    is_expected.to run 'make test', log: true
+    is_expected.to travis_cmd './configure && make && make test', echo: true, timing: true
   end
-  
+
   describe '#cache_slug' do
     subject { described_class.new(data, options).cache_slug }
     it { is_expected.to eq('cache--compiler-gcc') }
