@@ -1,5 +1,7 @@
 source 'https://rubygems.org'
 
+ruby '2.1.2' rescue nil
+
 gem 'travis-support',  github: 'travis-ci/travis-support'
 gem 'activesupport', '~> 4.0'
 gem 'addressable', '~> 2.3'
