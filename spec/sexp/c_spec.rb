@@ -5,8 +5,6 @@ describe Travis::Build::Script::C, :sexp do
 
   subject { described_class.new(data).sexp }
 
-  # after :all { store_example }
-
   it_behaves_like 'a build script sexp'
 
   it 'sets CC' do

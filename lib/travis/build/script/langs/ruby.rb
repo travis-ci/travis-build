@@ -16,19 +16,19 @@ module Travis
           super
 
           sh.if "-f #{config[:gemfile]}" do
-            set 'BUNDLE_GEMFILE', "$PWD/#{config[:gemfile]}", echo: true
+            sh.export 'BUNDLE_GEMFILE', "$PWD/#{config[:gemfile]}", echo: true
           end
         end
 
         def announce
-          cmd 'ruby --version', echo: true, timing: false
+          sh.cmd 'ruby --version', echo: true, timing: false
           super
-          cmd 'gem --version', echo: true, timing: false
-          cmd 'bundle --version', echo: true, timing: false
+          sh.cmd 'gem --version', echo: true, timing: false
+          sh.cmd 'bundle --version', echo: true, timing: false
         end
 
         def install
-          fold 'install' do
+          sh.fold 'install' do
             sh.if "-f #{config[:gemfile]} && -f #{config[:gemfile]}.lock" do
               directory_cache.add(sh, bundler_path) if data.cache? :bundler
               sh.cmd bundler_command("--deployment"), assert: true, echo: true, retry: true

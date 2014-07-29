@@ -1,5 +1,4 @@
 require 'core_ext/string/indent'
-require 'travis/build/script/dsl'
 
 module Travis
   module Shell
@@ -22,8 +21,6 @@ module Travis
       end
 
       class Cmds
-        include Build::Script::Dsl
-
         attr_reader :type, :nodes, :options
 
         def initialize(options = {}, &block)

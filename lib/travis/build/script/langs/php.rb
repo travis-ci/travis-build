@@ -8,18 +8,18 @@ module Travis
 
         def export
           super
-          set 'TRAVIS_PHP_VERSION', version, echo: true
+          sh.export 'TRAVIS_PHP_VERSION', version, echo: true
         end
 
         def setup
           super
-          cmd "phpenv global #{version}", echo: true
+          sh.cmd "phpenv global #{version}", echo: true
         end
 
         def announce
           super
-          cmd 'php --version', echo: true, timing: false
-          cmd 'composer --version', echo: true, timing: false
+          sh.cmd 'php --version', echo: true, timing: false
+          sh.cmd 'composer --version', echo: true, timing: false
         end
 
         def install
@@ -28,7 +28,7 @@ module Travis
         end
 
         def script
-          cmd 'phpunit', echo: true
+          sh.cmd 'phpunit', echo: true
         end
 
         def cache_slug

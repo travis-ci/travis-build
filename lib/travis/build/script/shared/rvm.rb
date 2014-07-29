@@ -4,7 +4,7 @@ module Travis
       module RVM
         def export
           super
-          set 'TRAVIS_RUBY_VERSION', config[:rvm]
+          sh.export 'TRAVIS_RUBY_VERSION', config[:rvm]
         end
 
         def setup
@@ -15,9 +15,9 @@ module Travis
         def announce
           super
           if config[:ruby]
-            cmd 'chruby --version', echo: true, timing: false
+            sh.cmd 'chruby --version', echo: true, timing: false
           else
-            cmd 'rvm --version', echo: true, timing: false
+            sh.cmd 'rvm --version', echo: true, timing: false
           end
         end
 
@@ -32,10 +32,10 @@ module Travis
           end
 
           def setup_chruby
-            echo 'BETA: Using chruby to select Ruby version. This is currently a beta feature and may change at any time."', color: :green
-            cmd "curl -sLo ~/chruby.sh https://gist.githubusercontent.com/henrikhodne/a01cd7367b12a59ee051/raw/chruby.sh"
-            cmd "source ~/chruby.sh"
-            cmd "chruby #{config[:ruby]}", assert: true, echo: true, timing: false
+            sh.echo 'BETA: Using chruby to select Ruby version. This is currently a beta feature and may change at any time."', color: :green
+            sh.cmd "curl -sLo ~/chruby.sh https://gist.githubusercontent.com/henrikhodne/a01cd7367b12a59ee051/raw/chruby.sh"
+            sh.cmd "source ~/chruby.sh"
+            sh.cmd "chruby #{config[:ruby]}", assert: true, echo: true, timing: false
           end
 
           def setup_rvm
@@ -51,7 +51,7 @@ module Travis
           end
 
           def setup_rvm_user_db
-            file '$rvm_path/user/db', %w(
+            sh.file '$rvm_path/user/db', %w(
               rvm_remote_server_url3=https://s3.amazonaws.com/travis-rubies/binaries
               rvm_remote_server_type3=rubies
               rvm_remote_server_verify_downloads3=1
@@ -68,7 +68,7 @@ module Travis
               sh.cmd "rvm remove #{ruby_version} --gems --fuzzy", assert: false
               sh.cmd "rvm install #{ruby_version} --binary"
             end
-            cmd "rvm use #{ruby_version}", assert: true, echo: true
+            sh.cmd "rvm use #{ruby_version}", assert: true, echo: true
           end
 
           def setup_rvm_default
@@ -84,7 +84,7 @@ module Travis
           end
 
           def setup_rvm_version
-            fold 'rvm.setup' do
+            sh.fold 'rvm.setup' do
               sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy", assert: true, echo: true
             end
           end

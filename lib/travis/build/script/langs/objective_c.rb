@@ -13,8 +13,8 @@ module Travis
         def announce
           super
 
-          fold 'announce' do
-            cmd 'xcodebuild -version -sdk', echo: true, timing: false
+          sh.fold 'announce' do
+            sh.cmd 'xcodebuild -version -sdk', echo: true, timing: false
 
             sh.if use_ruby_motion do
               sh.cmd 'motion --version', echo: true, timing: false
@@ -28,18 +28,18 @@ module Travis
         def export
           super
 
-          set 'TRAVIS_XCODE_SDK', config[:xcode_sdk]
-          set 'TRAVIS_XCODE_SCHEME', config[:xcode_scheme]
-          set 'TRAVIS_XCODE_PROJECT', config[:xcode_project]
-          set 'TRAVIS_XCODE_WORKSPACE', config[:xcode_workspace]
+          sh.export 'TRAVIS_XCODE_SDK', config[:xcode_sdk]
+          sh.export 'TRAVIS_XCODE_SCHEME', config[:xcode_scheme]
+          sh.export 'TRAVIS_XCODE_PROJECT', config[:xcode_project]
+          sh.export 'TRAVIS_XCODE_WORKSPACE', config[:xcode_workspace]
         end
 
         def setup
           super
 
-          cmd "echo '#!/bin/bash\n# no-op' > /usr/local/bin/actool"
-          cmd "chmod +x /usr/local/bin/actool"
-          cmd "osascript -e 'set simpath to \"/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone Simulator.app/Contents/MacOS/iPhone Simulator\" as POSIX file' -e 'tell application \"Finder\"' -e 'open simpath' -e 'end tell'", echo: true
+          sh.cmd "echo '#!/bin/bash\n# no-op' > /usr/local/bin/actool"
+          sh.cmd "chmod +x /usr/local/bin/actool"
+          sh.cmd "osascript -e 'set simpath to \"/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone Simulator.app/Contents/MacOS/iPhone Simulator\" as POSIX file' -e 'tell application \"Finder\"' -e 'open simpath' -e 'end tell'", echo: true
         end
 
         def install

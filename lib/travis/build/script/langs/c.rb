@@ -12,16 +12,16 @@ module Travis
 
         def export
           super
-          set 'CC', compiler
+          sh.export 'CC', compiler
         end
 
         def announce
           super
-          cmd "#{compiler} --version", echo: true, timing: false
+          sh.cmd "#{compiler} --version", echo: true, timing: false
         end
 
         def script
-          cmd './configure && make && make test', echo: true
+          sh.cmd './configure && make && make test', echo: true
         end
 
         def compiler

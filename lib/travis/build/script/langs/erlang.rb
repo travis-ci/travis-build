@@ -12,12 +12,12 @@ module Travis
 
         def export
           super
-          set 'TRAVIS_OTP_RELEASE', otp_release
+          sh.export 'TRAVIS_OTP_RELEASE', otp_release
         end
 
         def setup
           super
-          cmd "source #{HOME_DIR}/otp/#{otp_release}/activate", echo: true
+          sh.cmd "source #{HOME_DIR}/otp/#{otp_release}/activate", echo: true
         end
 
         def install

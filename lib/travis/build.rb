@@ -1,4 +1,5 @@
 require 'core_ext/hash/deep_symbolize_keys'
+require 'travis/build/script'
 require 'travis/shell'
 
 module Travis

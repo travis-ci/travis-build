@@ -8,20 +8,20 @@ module Travis
 
         def export
           super
-          set 'TRAVIS_NODE_VERSION', version
+          sh.export 'TRAVIS_NODE_VERSION', version
         end
 
         def setup
           super
-          cmd "nvm use #{version}", echo: true, timing: false
+          sh.cmd "nvm use #{version}", echo: true, timing: false
           npm_disable_strict_ssl unless npm_strict_ssl?
           setup_npm_cache if use_npm_cache?
         end
 
         def announce
           super
-          cmd 'node --version', echo: true, timing: false
-          cmd 'npm --version', echo: true, timing: false
+          sh.cmd 'node --version', echo: true, timing: false
+          sh.cmd 'npm --version', echo: true, timing: false
         end
 
         def install
@@ -50,8 +50,8 @@ module Travis
           end
 
           def npm_disable_strict_ssl
-            cmd 'echo "### Disabling strict SSL ###"'
-            cmd 'npm conf set strict-ssl false', echo: true, timing: false
+            sh.cmd 'echo "### Disabling strict SSL ###"'
+            sh.cmd 'npm conf set strict-ssl false', echo: true, timing: false
           end
 
           def npm_strict_ssl?
@@ -68,8 +68,8 @@ module Travis
 
           def setup_npm_cache
             if data.hosts && data.hosts[:npm_cache]
-              cmd 'npm config set registry http://registry.npmjs.org/', echo: true, timing: false
-              cmd "npm config set proxy #{data.hosts[:npm_cache]}", echo: true, timing: false
+              sh.cmd 'npm config set registry http://registry.npmjs.org/', echo: true, timing: false
+              sh.cmd "npm config set proxy #{data.hosts[:npm_cache]}", echo: true, timing: false
             end
           end
       end

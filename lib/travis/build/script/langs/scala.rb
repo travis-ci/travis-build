@@ -14,20 +14,20 @@ module Travis
 
         def export
           super
-          set 'TRAVIS_SCALA_VERSION', config[:scala]
+          sh.export 'TRAVIS_SCALA_VERSION', config[:scala]
         end
 
         def setup
           super
           sh.if '-d project || -f build.sbt' do
-            sh.set 'JVM_OPTS', '@/etc/sbt/jvmopts'
-            sh.set 'SBT_OPTS', '@/etc/sbt/sbtopts'
+            sh.export 'JVM_OPTS', '@/etc/sbt/jvmopts'
+            sh.export 'SBT_OPTS', '@/etc/sbt/sbtopts'
           end
         end
 
         def announce
           super
-          echo "Using Scala #{config[:scala]}"
+          sh.echo "Using Scala #{config[:scala]}"
         end
 
         def install

@@ -8,22 +8,22 @@ module Travis
 
         def export
           super
-          set 'TRAVIS_PERL_VERSION', version, echo: true
+          sh.export 'TRAVIS_PERL_VERSION', version, echo: true
         end
 
         def setup
           super
-          cmd "perlbrew use #{version}", echo: true
+          sh.cmd "perlbrew use #{version}", echo: true
         end
 
         def announce
           super
-          cmd 'perl --version', echo: true, timing: false
-          cmd 'cpanm --version', echo: true, timing: false
+          sh.cmd 'perl --version', echo: true, timing: false
+          sh.cmd 'cpanm --version', echo: true, timing: false
         end
 
         def install
-          cmd 'cpanm --quiet --installdeps --notest .', echo: true, fold: 'install', retry: true
+          sh.cmd 'cpanm --quiet --installdeps --notest .', echo: true, fold: 'install', retry: true
         end
 
         def script

@@ -12,17 +12,17 @@ module Travis
 
         def export
           super
-          set 'CXX', cxx
-          set 'CC', cc # dome projects also need to compile some C, e.g. Rubinius. MK.
+          sh.export 'CXX', cxx
+          sh.export 'CC', cc # dome projects also need to compile some C, e.g. Rubinius. MK.
         end
 
         def announce
           super
-          cmd "#{compiler} --version", echo: true, timing: false
+          sh.cmd "#{compiler} --version", echo: true, timing: false
         end
 
         def script
-          cmd './configure && make && make test', echo: true
+          sh.cmd './configure && make && make test', echo: true
         end
 
         private

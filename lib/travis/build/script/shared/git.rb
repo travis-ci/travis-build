@@ -14,7 +14,7 @@ module Travis
             download_tarball
           else
             git_clone
-            cd dir
+            sh.cd dir
             fetch_ref if fetch_ref?
             git_checkout
             submodules if submodules?
@@ -28,31 +28,31 @@ module Travis
             return unless data.ssh_key
 
             source = " from: #{data.ssh_key.source.gsub(/[_-]+/, ' ')}" if data.ssh_key.source
-            echo "\nInstalling an SSH key#{source}\n"
+            sh.echo "\nInstalling an SSH key#{source}\n"
 
-            file '~/.ssh/id_rsa', data.ssh_key.value, decode: data.ssh_key.encoded?
-            chmod 600, '~/.ssh/id_rsa'
-            cmd 'eval `ssh-agent` &> /dev/null'
-            cmd 'ssh-add ~/.ssh/id_rsa &> /dev/null'
+            sh.file '~/.ssh/id_rsa', data.ssh_key.value, decode: data.ssh_key.encoded?
+            sh.chmod 600, '~/.ssh/id_rsa'
+            sh.cmd 'eval `ssh-agent` &> /dev/null'
+            sh.cmd 'ssh-add ~/.ssh/id_rsa &> /dev/null'
 
             # BatchMode - If set to 'yes', passphrase/password querying will be disabled.
             # TODO ... how to solve StrictHostKeyChecking correctly? deploy a knownhosts file?
-            file "Host #{data.source_host}\n\tBatchMode yes\n\tStrictHostKeyChecking no\n", '~/.ssh/config', append: true
+            sh.file "Host #{data.source_host}\n\tBatchMode yes\n\tStrictHostKeyChecking no\n", '~/.ssh/config', append: true
           end
 
           def download_tarball
             curl = "curl -o #{sanitized_slug}.tar.gz #{oauth_token}-L #{tarball_url}"
             echo = curl.gsub(data.token || /\Za/, '[SECURE]')
 
-            cmd "mkdir -p #{dir}"
-            cmd curl, assert: true, echo: echo, retry: true, fold: "tarball.#{next_git_fold_number}"
-            cmd "tar xfz #{sanitized_slug}.tar.gz", echo: true, assert: true
-            cmd "mv #{sanitized_slug}-#{data.commit[0..6]}/* #{dir}", assert: true
-            cd dir
+            sh.cmd "mkdir -p #{dir}"
+            sh.cmd curl, assert: true, echo: echo, retry: true, fold: "tarball.#{next_git_fold_number}"
+            sh.cmd "tar xfz #{sanitized_slug}.tar.gz", echo: true, assert: true
+            sh.cmd "mv #{sanitized_slug}-#{data.commit[0..6]}/* #{dir}", assert: true
+            sh.cd dir
           end
 
           def git_clone
-            set 'GIT_ASKPASS', 'echo' # this makes git interactive auth fail
+            sh.export 'GIT_ASKPASS', 'echo' # this makes git interactive auth fail
             sh.if "! -d #{dir}/.git" do
               sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, echo: true, retry: true
             end
@@ -62,7 +62,7 @@ module Travis
           end
 
           def rm_key
-            rm '~/.ssh/source_rsa', force: true
+            sh.rm '~/.ssh/source_rsa', force: true
           end
 
           def fetch_ref?
@@ -70,11 +70,11 @@ module Travis
           end
 
           def fetch_ref
-            cmd "git fetch origin +#{data.ref}:", assert: true, echo: true, fold: "git.#{next_git_fold_number}", retry: true
+            sh.cmd "git fetch origin +#{data.ref}:", assert: true, echo: true, fold: "git.#{next_git_fold_number}", retry: true
           end
 
           def git_checkout
-            cmd "git checkout -qf #{data.pull_request ? 'FETCH_HEAD' : data.commit}", assert: true, echo: true, fold: "git.#{next_git_fold_number}"
+            sh.cmd "git checkout -qf #{data.pull_request ? 'FETCH_HEAD' : data.commit}", assert: true, echo: true, fold: "git.#{next_git_fold_number}"
           end
 
           def submodules?

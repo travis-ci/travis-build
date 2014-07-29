@@ -16,17 +16,17 @@ module Travis
 
         def export
           super
-          set 'TRAVIS_PYTHON_VERSION', config[:python], echo: true
+          sh.export 'TRAVIS_PYTHON_VERSION', config[:python], echo: true
         end
 
         def setup
           super
-          cmd "source #{virtualenv_activate}", echo: true
+          sh.cmd "source #{virtualenv_activate}", echo: true
         end
 
         def announce
-          cmd 'python --version', echo: true, timing: false
-          cmd 'pip --version', echo: true, timing: false
+          sh.cmd 'python --version', echo: true, timing: false
+          sh.cmd 'pip --version', echo: true, timing: false
         end
 
         def install
@@ -37,7 +37,7 @@ module Travis
             sh.cmd 'pip install -r requirements.txt', echo: true, retry: true, fold: 'install'
           end
           sh.else do
-            echo REQUIREMENTS_MISSING, ansi: :red
+            sh.echo REQUIREMENTS_MISSING, ansi: :red
           end
         end
 
@@ -45,7 +45,7 @@ module Travis
           # This always fails the build, asking the user to provide a custom :script.
           # The Python ecosystem has no good default build command most of the
           # community aggrees on. Per discussion with jezjez, josh-k and others. MK
-          failure SCRIPT_MISSING
+          sh.terminate SCRIPT_MISSING
         end
 
         private

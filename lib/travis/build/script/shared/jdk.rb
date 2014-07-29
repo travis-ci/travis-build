@@ -4,12 +4,12 @@ module Travis
       module Jdk
         def export
           super
-          set 'TRAVIS_JDK_VERSION', config[:jdk], echo: false if uses_jdk?
+          sh.export 'TRAVIS_JDK_VERSION', config[:jdk], echo: false if uses_jdk?
         end
 
         def setup
           super
-          cmd "jdk_switcher use #{config[:jdk]}", assert: true, echo: true, timing: false
+          sh.cmd "jdk_switcher use #{config[:jdk]}", assert: true, echo: true, timing: false
           sh.if '-f build.gradle' do
             sh.export 'TERM', 'dumb'
           end
@@ -18,8 +18,8 @@ module Travis
         def announce
           super
           if uses_java?
-            cmd "java -version", echo: true, timing: false
-            cmd "javac -version", echo: true, timing: false
+            sh.cmd "java -version", echo: true, timing: false
+            sh.cmd "javac -version", echo: true, timing: false
           end
         end
 

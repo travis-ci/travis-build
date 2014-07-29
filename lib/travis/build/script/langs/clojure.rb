@@ -15,15 +15,15 @@ module Travis
 
         def announce
           super
-          cmd "#{lein} version", echo: true, timing: false
+          sh.cmd "#{lein} version", echo: true, timing: false
         end
 
         def install
-          cmd "#{lein} deps", fold: 'install', echo: true, retry: true
+          sh.cmd "#{lein} deps", fold: 'install', echo: true, retry: true
         end
 
         def script
-          cmd "#{lein} test", echo: true
+          sh.cmd "#{lein} test", echo: true
         end
 
         def lein

@@ -35,8 +35,8 @@ module Travis
         private
 
           def install_sdk_components(components)
-            fold 'android.install' do
-              echo "Installing Android dependencies"
+            sh.fold 'android.install' do
+              sh.echo "Installing Android dependencies"
               components.each do |name|
                 sh.cmd install_sdk_component(name), assert: true, echo: true
               end

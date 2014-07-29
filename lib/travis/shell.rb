@@ -1,4 +1,5 @@
 require 'travis/shell/ast'
+require 'travis/shell/builder'
 require 'travis/shell/generator'
 require 'travis/shell/generator/bash'
 
