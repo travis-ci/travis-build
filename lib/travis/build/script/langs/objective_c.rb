@@ -5,7 +5,7 @@ module Travis
     class Script
       class ObjectiveC < Script
         DEFAULTS = {
-          rvm:     'default'
+          rvm: 'default'
         }
 
         include RVM
@@ -14,13 +14,13 @@ module Travis
           super
 
           sh.fold 'announce' do
-            sh.cmd 'xcodebuild -version -sdk', echo: true, timing: false
+            sh.cmd 'xcodebuild -version -sdk'
 
             sh.if use_ruby_motion do
-              sh.cmd 'motion --version', echo: true, timing: false
+              sh.cmd 'motion --version'
             end
             sh.elif '-f Podfile' do
-              sh.cmd 'pod --version', echo: true, timing: false
+              sh.cmd 'pod --version'
             end
           end
         end
@@ -39,32 +39,32 @@ module Travis
 
           sh.cmd "echo '#!/bin/bash\n# no-op' > /usr/local/bin/actool"
           sh.cmd "chmod +x /usr/local/bin/actool"
-          sh.cmd "osascript -e 'set simpath to \"/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone Simulator.app/Contents/MacOS/iPhone Simulator\" as POSIX file' -e 'tell application \"Finder\"' -e 'open simpath' -e 'end tell'", echo: true
+          sh.cmd "osascript -e 'set simpath to \"/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone Simulator.app/Contents/MacOS/iPhone Simulator\" as POSIX file' -e 'tell application \"Finder\"' -e 'open simpath' -e 'end tell'"
         end
 
         def install
           sh.if '-f Gemfile' do
-            sh.cmd 'bundle install', echo: true, retry: true, fold: 'install.bundler'
+            sh.cmd 'bundle install', fold: 'install.bundler', retry: true
           end
 
           sh.if '-f Podfile' do
-            sh.cmd 'pod install', echo: true, retry: true, fold: 'install.cocoapods'
+            sh.cmd 'pod install', fold: 'install.cocoapods', retry: true
           end
         end
 
         def script
           sh.if use_ruby_motion(with_bundler: true) do
-            sh.cmd 'bundle exec rake spec', echo: true
+            sh.cmd 'bundle exec rake spec'
           end
           sh.elif use_ruby_motion do
-            sh.cmd 'rake spec', echo: true
+            sh.cmd 'rake spec'
           end
           sh.else do
             if config[:xcode_scheme] && (config[:xcode_project] || config[:xcode_workspace])
-              sh.cmd "xctool #{xctool_args} build test", echo: true
+              sh.cmd "xctool #{xctool_args} build test"
             else
-              sh.cmd "echo -e \"\\033[33;1mWARNING:\\033[33m Using Objective-C testing without specifying a scheme and either a workspace or a project is deprecated.\""
-              sh.cmd "echo \"  Check out our documentation for more information: http://about.travis-ci.org/docs/user/languages/objective-c/\""
+              sh.echo "WARNING: Using Objective-C testing without specifying a scheme and either a workspace or a project is deprecated.", ansi: :red
+              sh.echo "Check out our documentation for more information: http://about.travis-ci.org/docs/user/languages/objective-c/"
             end
           end
         end
@@ -79,7 +79,7 @@ module Travis
 
           def xctool_args
             config[:xctool_args].to_s.tap do |xctool_args|
-              %w[project workspace scheme sdk].each do |var|
+              %w(project workspace scheme sdk).each do |var|
                 xctool_args << " -#{var} #{config[:"xcode_#{var}"].to_s.shellescape}" if config[:"xcode_#{var}"]
               end
             end.strip

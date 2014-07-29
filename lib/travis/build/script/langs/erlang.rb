@@ -17,27 +17,27 @@ module Travis
 
         def setup
           super
-          sh.cmd "source #{HOME_DIR}/otp/#{otp_release}/activate", echo: true
+          sh.cmd "source #{HOME_DIR}/otp/#{otp_release}/activate"
         end
 
         def install
           sh.if "#{rebar_configured} && -f ./rebar" do
-            sh.cmd './rebar get-deps', echo: true, fold: 'install', retry: true
+            sh.cmd './rebar get-deps', fold: 'install', retry: true
           end
           sh.elif rebar_configured do
-            sh.cmd 'rebar get-deps', echo: true, fold: 'install', retry: true
+            sh.cmd 'rebar get-deps', fold: 'install', retry: true
           end
         end
 
         def script
           sh.if "#{rebar_configured} && -f ./rebar" do
-            sh.cmd './rebar compile && ./rebar skip_deps=true eunit', echo: true
+            sh.cmd './rebar compile && ./rebar skip_deps=true eunit'
           end
           sh.elif rebar_configured do
-            sh.cmd 'rebar compile && rebar skip_deps=true eunit', echo: true
+            sh.cmd 'rebar compile && rebar skip_deps=true eunit'
           end
           sh.else do
-            sh.cmd 'make test', echo: true
+            sh.cmd 'make test'
           end
         end
 

@@ -8,33 +8,33 @@ module Travis
 
         def export
           super
-          sh.export 'TRAVIS_PERL_VERSION', version, echo: true
+          sh.export 'TRAVIS_PERL_VERSION', version
         end
 
         def setup
           super
-          sh.cmd "perlbrew use #{version}", echo: true
+          sh.cmd "perlbrew use #{version}"
         end
 
         def announce
           super
-          sh.cmd 'perl --version', echo: true, timing: false
-          sh.cmd 'cpanm --version', echo: true, timing: false
+          sh.cmd 'perl --version'
+          sh.cmd 'cpanm --version'
         end
 
         def install
-          sh.cmd 'cpanm --quiet --installdeps --notest .', echo: true, fold: 'install', retry: true
+          sh.cmd 'cpanm --quiet --installdeps --notest .', fold: 'install', retry: true
         end
 
         def script
           sh.if '-f Build.PL' do
-            sh.cmd 'perl Build.PL && ./Build && ./Build test', echo: true
+            sh.cmd 'perl Build.PL && ./Build && ./Build test'
           end
           sh.elif '-f Makefile.PL' do
-            sh.cmd 'perl Makefile.PL && make test', echo: true
+            sh.cmd 'perl Makefile.PL && make test'
           end
           sh.else do
-            sh.cmd 'make test', echo: true
+            sh.cmd 'make test'
           end
         end
 

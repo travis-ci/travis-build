@@ -16,25 +16,25 @@ module Travis
 
         def export
           super
-          sh.export 'TRAVIS_PYTHON_VERSION', config[:python], echo: true
+          sh.export 'TRAVIS_PYTHON_VERSION', config[:python]
         end
 
         def setup
           super
-          sh.cmd "source #{virtualenv_activate}", echo: true
+          sh.cmd "source #{virtualenv_activate}"
         end
 
         def announce
-          sh.cmd 'python --version', echo: true, timing: false
-          sh.cmd 'pip --version', echo: true, timing: false
+          sh.cmd 'python --version'
+          sh.cmd 'pip --version'
         end
 
         def install
           sh.if '-f Requirements.txt' do
-            sh.cmd 'pip install -r Requirements.txt', echo: true, retry: true, fold: 'install'
+            sh.cmd 'pip install -r Requirements.txt', fold: 'install', retry: true
           end
           sh.elif '-f requirements.txt' do
-            sh.cmd 'pip install -r requirements.txt', echo: true, retry: true, fold: 'install'
+            sh.cmd 'pip install -r requirements.txt', fold: 'install', retry: true
           end
           sh.else do
             sh.echo REQUIREMENTS_MISSING, ansi: :red

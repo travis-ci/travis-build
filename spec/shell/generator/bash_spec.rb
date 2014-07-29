@@ -121,6 +121,10 @@ describe Travis::Shell::Generator::Bash, :include_node_helpers do
     end
   end
 
+  xit 'mkdir'
+  xit 'mv'
+  xit 'cp'
+
   describe :fold do
     it 'generates a fold' do
       @sexp = [:fold, 'git', [:cmds, [[:cmd, 'foo'], [:cmd, 'bar']]]]

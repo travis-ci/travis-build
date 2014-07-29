@@ -10,8 +10,7 @@ shared_examples_for 'a git repo sexp' do
     end
 
     it 'creates the directory structure' do
-      cmd = 'mkdir -p travis-ci/travis-ci'
-      should include_sexp [:cmd, cmd, timing: true]
+      should include_sexp [:mkdir, 'travis-ci/travis-ci', recursive: true]
     end
 
     it 'downloads the tarball from github' do
@@ -21,13 +20,11 @@ shared_examples_for 'a git repo sexp' do
     end
 
     it 'untars the tarball' do
-      cmd = "tar xfz #{file}"
-      should include_sexp [:cmd, cmd, assert: true, echo: true, timing: true]
+      should include_sexp [:cmd, "tar xfz #{file}", assert: true, echo: true, timing: true]
     end
 
     it 'corrects the directory structure' do
-      cmd = 'mv travis-ci-travis-ci-313f61b/* travis-ci/travis-ci'
-      should include_sexp [:cmd, cmd, assert: true, timing: true]
+      should include_sexp [:mv, ['travis-ci-travis-ci-313f61b/*', 'travis-ci/travis-ci'], assert: true]
     end
 
     it 'changes to the correct directory' do
@@ -148,9 +145,9 @@ shared_examples_for 'a git repo sexp' do
   let(:known_hosts)     { "Host github.com\n\tBatchMode yes\n\tStrictHostKeyChecking no\n" }
 
   let(:add_source_key)  { [:file, [source_key, '~/.ssh/id_rsa'], decode: true] }
-  let(:chmod_id_rsa)    { [:chmod, [600, '~/.ssh/id_rsa']] }
-  let(:start_ssh_agent) { [:cmd, 'eval `ssh-agent` &> /dev/null', timing: true] }
-  let(:add_ssh_key)     { [:cmd, 'ssh-add ~/.ssh/id_rsa &> /dev/null', timing: true] }
+  let(:chmod_id_rsa)    { [:chmod, [600, '~/.ssh/id_rsa'], assert: true] }
+  let(:start_ssh_agent) { [:cmd, 'eval `ssh-agent` &> /dev/null', assert: true] }
+  let(:add_ssh_key)     { [:cmd, 'ssh-add ~/.ssh/id_rsa &> /dev/null', assert: true] }
   let(:add_known_hosts) { [:file, ['~/.ssh/config', known_hosts], append: true] }
 
   describe 'there is a source_key' do

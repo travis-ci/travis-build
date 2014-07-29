@@ -1,7 +1,8 @@
 module Travis
   module Shell
     class Builder
-      attr_reader :stack, :options
+      attr_reader :stack
+      attr_accessor :options
 
       def initialize
         @stack = [Shell::Ast::Script.new]
@@ -45,7 +46,7 @@ module Travis
           if line.empty?
             newline
           else
-            node :echo, line, { assert: false, timing: false }.merge(options)
+            node :echo, line, { assert: false, echo: false, timing: false }.merge(options)
           end
         end
       end
@@ -64,15 +65,27 @@ module Travis
       end
 
       def file(path, content, options = {})
-        node :file, [content, path], { timing: false }.merge(options)
+        node :file, [content, path], { assert: false, echo: false, timing: false }.merge(options)
       end
 
       def chmod(mode, file, options = {})
         node :chmod, [mode, file], { timing: false }.merge(options)
       end
 
+      def mkdir(path, options = {})
+        node :mkdir, path, { assert: !options[:recursive], echo: true, timing: false }.merge(options)
+      end
+
+      def cp(source, target, options = {})
+        node :cp, [source, target], { assert: true, echo: true, timing: false }.merge(options)
+      end
+
+      def mv(source, target, options = {})
+        node :mv, [source, target], { assert: true, echo: true, timing: false }.merge(options)
+      end
+
       def rm(path, options = {})
-        node :rm, path, { timing: false }.merge(options)
+        node :rm, path, { assert: !options[:force], timing: false }.merge(options)
       end
 
       def fold(name, &block)
@@ -117,7 +130,7 @@ module Travis
           args = Array(args)
           options = args.last.is_a?(Hash) ? args.pop : {}
           options = self.options.merge(options)
-          options = { timing: true }.merge(options)
+          # options = { timing: true }.merge(options)
           args << options
         end
 

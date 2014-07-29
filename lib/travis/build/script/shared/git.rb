@@ -31,9 +31,9 @@ module Travis
             sh.echo "\nInstalling an SSH key#{source}\n"
 
             sh.file '~/.ssh/id_rsa', data.ssh_key.value, decode: data.ssh_key.encoded?
-            sh.chmod 600, '~/.ssh/id_rsa'
-            sh.cmd 'eval `ssh-agent` &> /dev/null'
-            sh.cmd 'ssh-add ~/.ssh/id_rsa &> /dev/null'
+            sh.chmod 600, '~/.ssh/id_rsa', echo: false
+            sh.cmd 'eval `ssh-agent` &> /dev/null', echo: false, timing: false
+            sh.cmd 'ssh-add ~/.ssh/id_rsa &> /dev/null', echo: false, timing: false
 
             # BatchMode - If set to 'yes', passphrase/password querying will be disabled.
             # TODO ... how to solve StrictHostKeyChecking correctly? deploy a knownhosts file?
@@ -44,10 +44,10 @@ module Travis
             curl = "curl -o #{sanitized_slug}.tar.gz #{oauth_token}-L #{tarball_url}"
             echo = curl.gsub(data.token || /\Za/, '[SECURE]')
 
-            sh.cmd "mkdir -p #{dir}"
+            sh.mkdir dir, echo: false, recursive: true
             sh.cmd curl, assert: true, echo: echo, retry: true, fold: "tarball.#{next_git_fold_number}"
-            sh.cmd "tar xfz #{sanitized_slug}.tar.gz", echo: true, assert: true
-            sh.cmd "mv #{sanitized_slug}-#{data.commit[0..6]}/* #{dir}", assert: true
+            sh.cmd "tar xfz #{sanitized_slug}.tar.gz", assert: true, echo: true
+            sh.mv "#{sanitized_slug}-#{data.commit[0..6]}/*", dir, echo: false
             sh.cd dir
           end
 
@@ -62,7 +62,7 @@ module Travis
           end
 
           def rm_key
-            sh.rm '~/.ssh/source_rsa', force: true
+            sh.rm '~/.ssh/source_rsa', force: true, echo: false
           end
 
           def fetch_ref?
@@ -84,9 +84,10 @@ module Travis
           def submodules
             sh.if '-f .gitmodules' do
               sh.fold "git.#{next_git_fold_number}" do
-                sh.cmd 'echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config', echo: false
-                sh.cmd 'git submodule init', echo: true, assert: true
-                sh.cmd 'git submodule update', echo: true, assert: true, retry: true
+                # TODO why do we need to do this? it already happens in `install_ssh_key`, doesn't it?
+                sh.file '~/.ssh/config', "Host #{data.source_host}\n\tStrictHostKeyChecking no\n", append: true
+                sh.cmd 'git submodule init'
+                sh.cmd 'git submodule update', retry: true
               end
             end
           end

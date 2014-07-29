@@ -33,8 +33,8 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   shared_examples 'gopath fix' do
-    it { should include_sexp [:cmd, "mkdir -p $HOME/gopath/src/#{hostname}/travis-ci"] }
-    it { should include_sexp [:cmd, "cp -r $TRAVIS_BUILD_DIR $HOME/gopath/src/#{hostname}/travis-ci/travis-ci", echo: true] }
+    it { should include_sexp [:mkdir, "$HOME/gopath/src/#{hostname}/travis-ci", echo: true, recursive: true] }
+    it { should include_sexp [:cp, ['$TRAVIS_BUILD_DIR', "$HOME/gopath/src/#{hostname}/travis-ci/travis-ci"], assert: true, echo: true, recursive: true] }
     it { should include_sexp [:export, ['TRAVIS_BUILD_DIR', "$HOME/gopath/src/#{hostname}/travis-ci/travis-ci"], echo: true] }
     it { should include_sexp [:cd, "$HOME/gopath/src/#{hostname}/travis-ci/travis-ci", echo: true] }
   end

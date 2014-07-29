@@ -38,7 +38,7 @@ module Travis
 
         def script
           sh.if '-d project || -f build.sbt' do
-            sh.cmd "sbt#{sbt_args} ++#{config[:scala]} test", echo: true
+            sh.cmd "sbt#{sbt_args} ++#{config[:scala]} test"
           end
           sh.else do
             super

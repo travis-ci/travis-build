@@ -17,11 +17,11 @@ module Travis
 
         def announce
           super
-          sh.cmd "#{compiler} --version", echo: true, timing: false
+          sh.cmd "#{compiler} --version"
         end
 
         def script
-          sh.cmd './configure && make && make test', echo: true
+          sh.cmd './configure && make && make test'
         end
 
         def compiler

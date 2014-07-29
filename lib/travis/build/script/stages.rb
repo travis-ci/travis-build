@@ -2,6 +2,20 @@ module Travis
   module Build
     class Script
       module Stages
+        STAGE_DEFAULT_OPTIONS = {
+          checkout:       { assert: true, echo: true, timing: true },
+          export:         {},
+          setup:          { assert: true, echo: true, timing: true },
+          announce:       { echo: true, timing: false },
+          before_install: { assert: true, echo: true, timing: true },
+          install:        { assert: true, echo: true, timing: true },
+          before_script:  { assert: true, echo: true, timing: true },
+          script:         { echo: true, timing: true },
+          after_result:   { echo: true, timing: true },
+          after_script:   { echo: true, timing: true },
+          before_deploy:  { assert: true, echo: true, timing: true }
+        }
+
         def run_stages
           STAGES[:builtin].each { |stage| run_builtin_stage(stage) }
           STAGES[:custom].each  { |stage| run_stage(stage) }
@@ -59,11 +73,7 @@ module Travis
 
         def stage(stage = nil)
           @stage = stage
-          if assert_stage?(stage)
-            sh.options.update(assert: true)
-          else
-            sh.options.delete(:assert)
-          end
+          sh.options = STAGE_DEFAULT_OPTIONS[stage] || {}
           yield
         end
 
@@ -76,7 +86,7 @@ module Travis
         end
 
         def result
-          sh.cmd 'travis_result $?', timing: false
+          sh.cmd 'travis_result $?', echo: false, timing: false
         end
 
         def fold_stage?(stage)
