@@ -5,6 +5,8 @@ RED="\033[31;1m"
 GREEN="\033[32;1m"
 RESET="\033[0m"
 
+TIMEFORMAT=$'travis_time:finish:duration=%3R\r\033[K\033[A'
+
 travis_assert() {
   local result=$?
   if [ $result -ne 0 ]; then

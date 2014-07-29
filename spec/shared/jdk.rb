@@ -47,7 +47,6 @@ shared_examples_for 'a jdk build' do
     it "sets TERM to 'dumb'" do
       is_expected.to set 'TERM', 'dumb'
     end
-
   end
 end
 
