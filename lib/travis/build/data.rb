@@ -13,7 +13,7 @@ module Travis
 
       DEFAULT_CACHES = {
         apt:     false,
-        bundler: false
+        bundler: true
       }
 
       attr_reader :data
