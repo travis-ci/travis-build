@@ -19,7 +19,7 @@ module Travis
 
           echo ""
           fold("rust-download") do
-            echo "Downloading Rust and Cargo", ansi: :yellow
+            echo "Installing Rust and Cargo", ansi: :yellow
             cmd "curl -sL #{rust_url} | tar --strip-components=1 -C ~/rust -xzf -"
             cmd "curl -sL #{cargo_url} | tar --strip-components=1 -C ~/rust -xzf -"
           end
