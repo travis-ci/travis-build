@@ -9,17 +9,17 @@ module Travis
 
           attr_reader :sh, :version
 
-          def initialize(sh, config)
+          def initialize(sh, data, config)
             @sh = sh
             @version = config.to_s.shellescape
           end
 
           def after_pre_setup
             sh.fold 'postgresql' do
-              set "PATH", "/usr/lib/postgresql/#{version}/bin:$PATH", echo: false
-              echo "Starting PostgreSQL v#{version}", ansi: :green
-              cmd "sudo service postgresql stop", assert: false
-              cmd "sudo service postgresql start #{version}", assert: false
+              sh.export "PATH", "/usr/lib/postgresql/#{version}/bin:$PATH", echo: false
+              sh.echo "Starting PostgreSQL v#{version}", ansi: :green
+              sh.cmd "service postgresql stop", assert: false, sudo: true
+              sh.cmd "service postgresql start #{version}", assert: false, sudo: true
             end
           end
         end
