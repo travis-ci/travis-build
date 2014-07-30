@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '2.1.2' rescue nil
+ruby '2.1.2'
 
 gem 'travis-support',  github: 'travis-ci/travis-support'
 gem 'activesupport', '~> 4.0'
@@ -21,4 +21,3 @@ group :test do
   gem 'mocha',       '~> 0.10.0'
   gem 'rspec',       '~> 3.0'
 end
-
