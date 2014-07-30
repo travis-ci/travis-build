@@ -150,7 +150,7 @@ describe Travis::Build::Script::ObjectiveC do
       end
 
       it 'runs bundle install' do
-        is_expected.to travis_cmd 'bundle install', echo: true, timing: true, assert: true, retry: true
+        is_expected.to travis_cmd 'bundle install --jobs=3 --retry=3', echo: true, timing: true, assert: true, retry: true
       end
 
       it 'folds bundle install' do
