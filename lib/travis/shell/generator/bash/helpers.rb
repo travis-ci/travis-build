@@ -23,7 +23,7 @@ module Travis
           end
 
           def escape(code)
-            Shellwords.escape(code)
+            Shellwords.escape(code.to_s)
           end
         end
       end
