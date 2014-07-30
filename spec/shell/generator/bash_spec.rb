@@ -28,26 +28,58 @@ describe Travis::Shell::Generator::Bash, :include_node_helpers do
   end
 
   describe :cd do
-    it 'generates the cd command' do
+    it 'generates a cd command' do
       @sexp = [:cd, './to/here', echo: true]
-      expect(code).to eql("travis_cmd cd\\ ./to/here --echo")
+      expect(code).to eql('travis_cmd cd\\ ./to/here --echo')
+    end
+
+    it 'generates a pushd command if :stack was given' do
+      @sexp = [:cd, './to/here', stack: true]
+      expect(code).to eql('travis_cmd pushd\\ ./to/here\\ \\&\\>\\ /dev/null')
+    end
+
+    it 'uses - as a path if path is :back' do
+      @sexp = [:cd, :back]
+      expect(code).to eql('travis_cmd cd\\ -')
+    end
+
+    it 'generates a popd command if path is :back, and :stack was given' do
+      @sexp = [:cd, :back, stack: true]
+      expect(code).to eql('travis_cmd popd\\ \\&\\>\\ /dev/null')
     end
   end
 
   describe :chmod do
-    it 'generates the chmod command' do
+    it 'generates a chmod command' do
       @sexp = [:chmod, [600, './foo'], echo: true]
       expect(code).to eql("travis_cmd chmod\\ 600\\ ./foo --echo")
+    end
+
+    it 'chmods recursively if :recursive was given' do
+      @sexp = [:chmod, [600, './foo'], recursive: true]
+      expect(code).to eql('travis_cmd chmod\\ -R\\ 600\\ ./foo')
+    end
+  end
+
+  describe :chown do
+    it 'generates a chown command' do
+      @sexp = [:chown, ['travis', './foo'], echo: true]
+      expect(code).to eql("travis_cmd chown\\ travis\\ ./foo --echo")
+    end
+
+    it 'chowns recursively if :recursive was given' do
+      @sexp = [:chown, ['travis', './foo'], recursive: true]
+      expect(code).to eql('travis_cmd chown\\ -R\\ travis\\ ./foo')
     end
   end
 
   describe :echo do
-    it 'generates the echo command' do
+    it 'generates a echo command' do
       @sexp = [:echo, 'Hello.']
       expect(code).to eql("travis_cmd echo\\ Hello.")
     end
 
-    it 'escapes the message' do
+    it 'escapes a message' do
       @sexp = [:echo, 'Hello there.']
       expect(code).to eql("travis_cmd echo\\ Hello\\\\\\ there.")
     end
@@ -66,7 +98,7 @@ describe Travis::Shell::Generator::Bash, :include_node_helpers do
   end
 
   describe :export do
-    it 'generates the export command' do
+    it 'generates an export command' do
       @sexp = [:export, ['FOO', 'foo'], echo: true]
       expect(code).to eql("travis_cmd export\\ FOO\\=foo --echo")
     end

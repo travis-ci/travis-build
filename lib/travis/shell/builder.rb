@@ -76,6 +76,10 @@ module Travis
         node :chmod, [mode, file], { timing: false }.merge(options)
       end
 
+      def chown(owner, file, options = {})
+        node :chown, [owner, file], { timing: false }.merge(options)
+      end
+
       def mkdir(path, options = {})
         node :mkdir, path, { assert: !options[:recursive], echo: true, timing: false }.merge(options)
       end

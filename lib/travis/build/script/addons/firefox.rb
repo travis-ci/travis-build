@@ -7,27 +7,34 @@ module Travis
 
           attr_reader :sh, :version
 
-          def initialize(sh, config)
+          def initialize(sh, data, config)
             @sh = sh
             @version = config.to_s
           end
 
           def before_install
             sh.fold 'install_firefox' do
-              echo "Installing Firefox v#{version}", ansi: :green
-              sh.raw "sudo mkdir -p /usr/local/firefox-#{version}"
-              sh.raw "sudo chown -R travis /usr/local/firefox-#{version}"
-              sh.cmd "wget -O /tmp/firefox.tar.bz2 http://ftp.mozilla.org/pub/firefox/releases/#{version}/linux-x86_64/en-US/firefox-#{version}.tar.bz2", retry: true
-              sh.raw "pushd /usr/local/firefox-#{version}"
-              sh.raw "tar xf /tmp/firefox.tar.bz2"
-              sh.raw "sudo ln -sf /usr/local/firefox-#{version}/firefox/firefox /usr/local/bin/firefox"
-              sh.raw "sudo ln -sf /usr/local/firefox-#{version}/firefox/firefox-bin /usr/local/bin/firefox-bin"
-              sh.raw "popd"
+              sh.echo "Installing Firefox v#{version}", ansi: :green
+              sh.mkdir target_path, echo: false, recursive: true, sudo: true
+              sh.chown 'travis', target_path, recursive: true, sudo: true
+              sh.cmd "wget -O /tmp/firefox.tar.bz2 #{source_url}", retry: true
+              sh.cd target_path, stack: true, echo: false
+              sh.cmd "tar xf /tmp/firefox.tar.bz2"
+              sh.cd :back, stack: true, echo: false
+              sh.cmd "ln -sf #{target_path}/firefox/firefox /usr/local/bin/firefox", sudo: true
+              sh.cmd "ln -sf #{target_path}/firefox/firefox-bin /usr/local/bin/firefox-bin", sudo: true
             end
+          end
+
+          def target_path
+            "/usr/local/firefox-#{version}"
+          end
+
+          def source_url
+            "http://ftp.mozilla.org/pub/firefox/releases/#{version}/linux-x86_64/en-US/firefox-#{version}.tar.bz2"
           end
         end
       end
     end
   end
 end
-

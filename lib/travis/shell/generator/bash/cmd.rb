@@ -15,9 +15,11 @@ module Travis
           end
 
           def to_bash
-            cmd = ["travis_cmd #{escape(code)}"]
-            cmd << ' ' << opts(options) unless options.empty?
-            [cmd.join]
+            cmd = []
+            cmd << 'sudo' if options[:sudo]
+            cmd << "travis_cmd #{escape(code)}"
+            cmd << opts(options) unless opts(options).empty?
+            cmd.join(' ')
           end
 
           private

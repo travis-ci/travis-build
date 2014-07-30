@@ -29,7 +29,7 @@ module Travis
         end
 
         def handle_script(nodes)
-          nodes.map { |node|  handle(node) }
+          nodes.map { |node| handle(node) }
         end
 
         def handle_cmds(nodes)
