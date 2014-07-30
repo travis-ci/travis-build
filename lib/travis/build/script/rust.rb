@@ -32,8 +32,11 @@ module Travis
           cmd "rustc --version"
         end
 
-        def script
+        def install
           cmd "cargo build"
+        end
+
+        def script
           cmd "cargo test"
         end
 
