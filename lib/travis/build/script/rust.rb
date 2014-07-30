@@ -17,10 +17,10 @@ module Travis
 
           cmd 'mkdir -p ~/rust', echo: false
 
-          cmd 'echo -e "\033[33;1mDownloading Rust\033[0m"', assert: false, echo: false
+          echo "Downloading Rust", ansi: :yellow
           cmd "curl -sL #{rust_url} | tar --strip-components=1 -C ~/rust -xzf -"
 
-          cmd 'echo -e "\033[33;1mDownloading Cargo\033[0m"', assert: false, echo: false
+          echo "Downloading Cargo", ansi: :yellow
           cmd "curl -sL #{cargo_url} | tar --strip-components=1 -C ~/rust -xzf -"
 
           cmd 'export PATH="$PATH:$HOME/rust/bin"', assert: false, echo: false

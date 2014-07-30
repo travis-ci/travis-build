@@ -11,7 +11,7 @@ describe Travis::Build::Script::Addons::Postgresql do
 
   it 'runs the command' do
     script.expects(:fold).with('postgresql').yields(script)
-    script.expects(:echo).with("Starting PostgreSQL v9.3", ansi: :green)
+    script.expects(:echo).with("Starting PostgreSQL v9.3", ansi: :yellow)
     script.expects(:cmd).with("sudo service postgresql stop", assert: false)
     script.expects(:cmd).with("sudo service postgresql start 9.3", assert: false)
     subject

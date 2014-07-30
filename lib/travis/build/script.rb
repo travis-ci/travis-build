@@ -102,7 +102,7 @@ module Travis
           newline if data.env_vars_groups.any?(&:announce?)
 
           data.env_vars_groups.each do |group|
-            echo "Setting environment variables from #{group.source}", ansi: :green if group.announce?
+            echo "Setting environment variables from #{group.source}", ansi: :yellow if group.announce?
             group.vars.each { |var| set var.key, var.value, echo: var.to_s }
           end
 
@@ -135,7 +135,7 @@ module Travis
         def paranoid_mode
           if data.paranoid_mode?
             newline
-            echo "Sudo, services, addons, setuid and setgid have been disabled.", ansi: :green
+            echo "Sudo, the FireFox addon, setuid and setgid have been disabled.", ansi: :yellow
             newline
             raw 'sudo -n sh -c "sed -e \'s/^%.*//\' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis && find / -perm -4000 -exec chmod a-s {} \; 2>/dev/null"'
           end
@@ -143,7 +143,7 @@ module Travis
 
         def setup_apt_cache
           if data.hosts && data.hosts[:apt_cache]
-            echo 'Setting up APT cache', ansi: :green
+            echo 'Setting up APT cache', ansi: :yellow
             raw %(echo 'Acquire::http { Proxy "#{data.hosts[:apt_cache]}"; };' | sudo tee /etc/apt/apt.conf.d/01proxy &> /dev/null)
           end
         end

@@ -40,7 +40,7 @@ module Travis
 
             return unless validate!
 
-            script.echo 'Uploading Artifacts (BETA)', ansi: :green
+            script.echo 'Uploading Artifacts (BETA)', ansi: :yellow
             script.fold 'artifacts.0' do
               install
               configure_env
@@ -49,7 +49,7 @@ module Travis
             script.fold 'artifacts.1' do
               script.cmd "artifacts upload #{options}", assert: false
             end
-            script.echo 'Done uploading artifacts', ansi: :green
+            script.echo 'Done uploading artifacts', ansi: :yellow
           end
 
           def branch

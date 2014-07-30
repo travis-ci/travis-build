@@ -12,7 +12,7 @@ module Travis
 
           def before_install
             @script.fold 'install_firefox' do |sh|
-              sh.echo "Installing Firefox v#{@firefox_version}", ansi: :green
+              sh.echo "Installing Firefox v#{@firefox_version}", ansi: :yellow
               sh.raw "sudo mkdir -p /usr/local/firefox-#{@firefox_version}"
               sh.raw "sudo chown -R travis /usr/local/firefox-#{@firefox_version}"
               sh.cmd "wget -O /tmp/firefox.tar.bz2 http://ftp.mozilla.org/pub/firefox/releases/#{@firefox_version}/linux-x86_64/en-US/firefox-#{@firefox_version}.tar.bz2", retry: true
@@ -28,4 +28,3 @@ module Travis
     end
   end
 end
-

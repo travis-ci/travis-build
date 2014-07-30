@@ -11,7 +11,7 @@ describe Travis::Build::Script::Addons::Firefox do
 
   it 'runs the command' do
     script.expects(:fold).with('install_firefox').yields(script)
-    script.expects(:echo).with("Installing Firefox v20.0", ansi: :green)
+    script.expects(:echo).with("Installing Firefox v20.0", ansi: :yellow)
     script.expects(:raw).with("sudo mkdir -p /usr/local/firefox-20.0")
     script.expects(:raw).with("sudo chown -R travis /usr/local/firefox-20.0")
     script.expects(:cmd).with("wget -O /tmp/firefox.tar.bz2 http://ftp.mozilla.org/pub/firefox/releases/20.0/linux-x86_64/en-US/firefox-20.0.tar.bz2", retry: true)

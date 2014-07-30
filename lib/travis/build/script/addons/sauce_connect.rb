@@ -19,7 +19,7 @@ module Travis
             end
 
             @script.fold 'sauce_connect' do |sh|
-              sh.echo 'Starting Sauce Connect', ansi: :green
+              sh.echo 'Starting Sauce Connect', ansi: :yellow
               sh.cmd "curl -L https://gist.githubusercontent.com/henrikhodne/9322897/raw/sauce-connect.sh | bash", assert: false
               sh.set 'TRAVIS_SAUCE_CONNECT', 'true', echo: false
             end
@@ -29,4 +29,3 @@ module Travis
     end
   end
 end
-

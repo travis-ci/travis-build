@@ -15,7 +15,7 @@ module Travis
           def after_pre_setup
             @script.fold 'postgresql' do |sh|
               sh.set "PATH", "/usr/lib/postgresql/#{@postgresql_version}/bin:$PATH", echo: false
-              sh.echo "Starting PostgreSQL v#{@postgresql_version}", ansi: :green
+              sh.echo "Starting PostgreSQL v#{@postgresql_version}", ansi: :yellow
               sh.cmd "sudo service postgresql stop", assert: false
               sh.cmd "sudo service postgresql start #{@postgresql_version}", assert: false
             end

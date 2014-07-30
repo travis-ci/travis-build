@@ -17,7 +17,7 @@ describe Travis::Build::Script::Addons::SauceConnect do
 
     it 'runs the command' do
       script.expects(:fold).with('sauce_connect').yields(script)
-      script.expects(:echo).with('Starting Sauce Connect', ansi: :green)
+      script.expects(:echo).with('Starting Sauce Connect', ansi: :yellow)
       script.expects(:cmd).with('curl -L https://gist.githubusercontent.com/henrikhodne/9322897/raw/sauce-connect.sh | bash', assert: false)
       subject
     end
@@ -43,7 +43,7 @@ describe Travis::Build::Script::Addons::SauceConnect do
 
     it 'runs the command' do
       script.expects(:fold).with('sauce_connect').yields(script)
-      script.expects(:echo).with('Starting Sauce Connect', ansi: :green)
+      script.expects(:echo).with('Starting Sauce Connect', ansi: :yellow)
       script.expects(:cmd).with('curl -L https://gist.githubusercontent.com/henrikhodne/9322897/raw/sauce-connect.sh | bash', assert: false)
       subject
     end
