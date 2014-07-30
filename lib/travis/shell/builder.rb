@@ -40,10 +40,13 @@ module Travis
         node :cmd, data, *args
       end
 
-      def export(type, value, options = {})
-        node :export, [type, value], { assert: false, echo: true, timing: false }.merge(options)
+      def set(name, value, options = {})
+        node :set, [name, value], { assert: false, echo: true, timing: false }.merge(options)
       end
-      alias set export
+
+      def export(name, value, options = {})
+        node :export, [name, value], { assert: false, echo: true, timing: false }.merge(options)
+      end
 
       def echo(string = '', options = {})
         string.split("\n").each do |line|
@@ -59,9 +62,9 @@ module Travis
         node :newline, nil, timing: false
       end
 
-      def terminate(message)
-        echo message
-        cmd 'false'
+      def terminate(result, message = nil)
+        echo message if message
+        cmd "travis_terminate #{result}"
       end
 
       def cd(path, options = {})

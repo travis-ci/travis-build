@@ -99,16 +99,16 @@ module Travis
         end
 
         def export
-          sh.set 'TRAVIS', 'true', echo: false
-          sh.set 'CI', 'true', echo: false
-          sh.set 'CONTINUOUS_INTEGRATION', 'true', echo: false
-          sh.set 'HAS_JOSH_K_SEAL_OF_APPROVAL', 'true', echo: false
+          sh.export 'TRAVIS', 'true', echo: false
+          sh.export 'CI', 'true', echo: false
+          sh.export 'CONTINUOUS_INTEGRATION', 'true', echo: false
+          sh.export 'HAS_JOSH_K_SEAL_OF_APPROVAL', 'true', echo: false
 
           sh.newline if data.env_vars_groups.any?(&:announce?)
 
           data.env_vars_groups.each do |group|
             sh.echo "Setting environment variables from #{group.source}", ansi: :green if group.announce?
-            group.vars.each { |var| sh.set var.key, var.value, echo: var.echo?, secure: var.secure? }
+            group.vars.each { |var| sh.export var.key, var.value, echo: var.echo?, secure: var.secure? }
           end
 
           sh.newline if data.env_vars_groups.any?(&:announce?)
@@ -159,7 +159,7 @@ module Travis
         end
 
         def fix_ps4
-          sh.set "PS4", "+ "
+          sh.export "PS4", "+ "
         end
     end
   end

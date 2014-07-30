@@ -76,17 +76,17 @@ describe Travis::Shell::Generator::Bash, :include_node_helpers do
   describe :echo do
     it 'generates a echo command' do
       @sexp = [:echo, 'Hello.']
-      expect(code).to eql("travis_cmd echo\\ Hello.")
+      expect(code).to eql("travis_cmd echo\\ -e\\ \\\"Hello.\\\"")
     end
 
     it 'escapes a message' do
       @sexp = [:echo, 'Hello there.']
-      expect(code).to eql("travis_cmd echo\\ Hello\\\\\\ there.")
+      expect(code).to eql("travis_cmd echo\\ -e\\ \\\"Hello\\ there.\\\"")
     end
 
     it 'adds ansi codes' do
       @sexp = [:echo, 'Hello.', ansi: [:green]]
-      expect(code).to eql("travis_cmd echo\\ \\\\033\\[33\\;1mHello.\\\\033\\[0m")
+      expect(code).to eql("travis_cmd echo\\ -e\\ \\\"\\\\033\\[33\\;1mHello.\\\\033\\[0m\\\"")
     end
   end
 
@@ -96,6 +96,8 @@ describe Travis::Shell::Generator::Bash, :include_node_helpers do
       expect(code).to eql('travis_cmd echo')
     end
   end
+
+  xit :set
 
   describe :export do
     it 'generates an export command' do

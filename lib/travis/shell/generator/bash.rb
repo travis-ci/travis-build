@@ -14,12 +14,19 @@ module Travis
         end
 
         def handle_echo(message = '', options = {})
-          message = " #{ansi(escape(message), options.delete(:ansi))}" unless message.empty?
-          handle_cmd("echo#{message}", options)
+          message.split("\n").map do |line|
+            message = %( -e "#{ansi(line, options.delete(:ansi))}") unless message.empty?
+            handle_cmd("echo#{message}", options)
+          end
         end
 
         def handle_newline(options = {})
-          handle_echo
+          handle_cmd('echo')
+        end
+
+        def handle_set(data, options = {})
+          options[:echo] = "#{data.first}=[secure]" if options[:echo] && options[:secure]
+          handle_cmd("#{data.first}=#{escape(data.last)}", options)
         end
 
         def handle_export(data, options = {})
