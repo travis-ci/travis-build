@@ -7,17 +7,15 @@ module Travis
         class Deploy
           SUPER_USER_SAFE = true
 
-          attr_reader :script, :config
+          attr_reader :providers
 
-          def initialize(script, config)
-            @script = script
-            @config = config.is_a?(Array) ? config : [config]
+          def initialize(sh, data, config)
+            config = config.is_a?(Array) ? config : [config]
+            @providers = config.map { |config| Provider.new(sh, data, config) }
           end
 
           def deploy
-            config.each do |config|
-              Provider.new(script, config).deploy
-            end
+            providers.map(&:deploy)
           end
         end
       end

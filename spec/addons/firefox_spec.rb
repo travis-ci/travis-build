@@ -3,11 +3,10 @@ require 'spec_helper'
 describe Travis::Build::Script::Addons::Firefox, :sexp do
   let(:config)  { '20.0' }
   let(:data)    { PAYLOADS[:push].deep_clone }
-  let(:script)  { Travis::Build::Script.new(data) }
-  let(:sh)      { script.sh }
-  let(:addon)   { described_class.new(script, config) }
+  let(:sh)      { Travis::Shell::Builder.new }
+  let(:addon)   { described_class.new(sh, Travis::Build::Data.new(data), config) }
   subject       { sh.to_sexp }
-  before(:each) { addon.before_install }
+  before        { addon.before_install }
 
   it { should include_sexp [:echo, 'Installing Firefox v20.0', ansi: :green] }
   it { should include_sexp [:mkdir, '/usr/local/firefox-20.0', recursive: true, sudo: true] }

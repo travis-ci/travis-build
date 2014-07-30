@@ -9,8 +9,8 @@ module Travis
 
           attr_reader :sh, :hosts
 
-          def initialize(script, config)
-            @sh = script.sh
+          def initialize(sh, data, config)
+            @sh = sh
             @hosts = [config].flatten.join(' ').shellescape
           end
 

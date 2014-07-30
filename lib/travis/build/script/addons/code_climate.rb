@@ -7,8 +7,8 @@ module Travis
 
           attr_reader :sh, :config
 
-          def initialize(script, config)
-            @sh = script.sh
+          def initialize(sh, data, config)
+            @sh = sh
             @config = config.respond_to?(:to_hash) ? config.to_hash : {}
           end
 

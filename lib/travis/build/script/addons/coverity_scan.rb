@@ -8,8 +8,8 @@ module Travis
 
           attr_reader :sh
 
-          def initialize(script, config)
-            @sh = script.sh
+          def initialize(sh, data, config)
+            @sh = sh
             @config = config.respond_to?(:to_hash) ? config.to_hash : {}
             @config[:build_script_url] ||= "#{SCAN_URL}/scripts/travisci_build_coverity_scan.sh"
           end
@@ -52,7 +52,7 @@ module Travis
                   exit 1
                 fi
               fi
-            SH
+            sh
             sh.cmd(scr, echo: true)
           end
 

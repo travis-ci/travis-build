@@ -7,8 +7,8 @@ module Travis
 
           attr_reader :sh, :version
 
-          def initialize(script, config)
-            @sh = script.sh
+          def initialize(sh, data, config)
+            @sh = sh
             @version = config.to_s
           end
 

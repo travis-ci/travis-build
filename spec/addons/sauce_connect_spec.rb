@@ -3,11 +3,10 @@ require 'spec_helper'
 describe Travis::Build::Script::Addons::SauceConnect, :sexp do
   let(:config)  { '9.3' }
   let(:data)    { PAYLOADS[:push].deep_clone }
-  let(:script)  { Travis::Build::Script.new(data) }
-  let(:sh)      { script.sh }
-  let(:addon)   { described_class.new(script, config) }
+  let(:sh)      { Travis::Shell::Builder.new }
+  let(:addon)   { described_class.new(sh, Travis::Build::Data.new(data), config) }
   subject       { sh.to_sexp }
-  before(:each) { addon.before_script }
+  before        { addon.before_script }
 
   shared_examples_for 'starts sauce connect' do
     it { should include_sexp [:echo, 'Starting Sauce Connect', ansi: :green] }
