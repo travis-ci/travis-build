@@ -171,7 +171,7 @@ travis_retry() {
     [ $result -ne 0 ] && {
       echo -e "\n${ANSI_RED}The command \"$@\" failed. Retrying, $count of 3.${ANSI_RESET}\n" >&2
     }
-    "$@"
+    eval "$@"
     result=$?
     [ $result -eq 0 ] && break
     count=$(($count + 1))
