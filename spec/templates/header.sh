@@ -17,6 +17,7 @@ stubs=(
   php phpenv phpunit composer
   python pip
   ruby rvm chruby gem bundle rake
+  cargo cabal
   sbt
   curl cp bash mv tar
   /Users/travis/travis-utils/osx-cibuild.sh xcodebuild pod motion xctool osascript
