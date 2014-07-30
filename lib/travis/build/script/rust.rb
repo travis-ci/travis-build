@@ -17,11 +17,12 @@ module Travis
 
           cmd 'mkdir -p ~/rust', echo: false
 
-          echo "Downloading Rust", ansi: :yellow
-          cmd "curl -sL #{rust_url} | tar --strip-components=1 -C ~/rust -xzf -"
-
-          echo "Downloading Cargo", ansi: :yellow
-          cmd "curl -sL #{cargo_url} | tar --strip-components=1 -C ~/rust -xzf -"
+          echo ""
+          fold("rust-download") do
+            echo "Downloading Rust and Cargo", ansi: :yellow
+            cmd "curl -sL #{rust_url} | tar --strip-components=1 -C ~/rust -xzf -"
+            cmd "curl -sL #{cargo_url} | tar --strip-components=1 -C ~/rust -xzf -"
+          end
 
           cmd 'export PATH="$PATH:$HOME/rust/bin"', assert: false, echo: false
           cmd 'export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/rust/lib"', assert: false, echo: false
