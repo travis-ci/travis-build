@@ -57,27 +57,20 @@ describe Travis::Build::Script::Addons::Deploy, :sexp do
     let(:config) { { provider: 'heroku', on: { condition: ['$ENV_1 = 1', '$ENV_2 = 2'] } } }
     before       { addon.deploy }
 
-    it { should match_sexp [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master) && ($ENV_1 = 1) && ($ENV_2 = 2)'] }
+    it { should match_sexp [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master) && (($ENV_1 = 1) && ($ENV_2 = 2))'] }
   end
 
   describe 'deploy condition fails' do
     let(:config) { { provider: 'heroku', on: { condition: '$ENV_2 = 1'} } }
     let(:sexp)   { sexp_find(subject, [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master) && ($ENV_2 = 1)'], [:else]) }
 
-    let(:not_permitted)    { [:echo, 'Skipping deployment with the heroku provider because this branch is not permitted deploy.', ansi: :red] }
+    let(:not_permitted)    { [:echo, 'Skipping deployment with the heroku provider because this branch is not permitted to deploy as per configuration.', ansi: :red] }
     let(:custom_condition) { [:echo, 'Skipping deployment with the heroku provider because a custom condition was not met.', ansi: :red] }
     let(:is_pull_request)  { [:echo, 'Skipping deployment with the heroku provider because the current build is a pull request.', ansi: :red] }
 
-    it { expect(sexp_find(sexp, [:if, ' ! -z $TRAVIS_PULL_REQUEST'])).to include_sexp is_pull_request }
-    it { expect(sexp_find(sexp, [:if, ' ! $TRAVIS_BRANCH = master'])).to include_sexp not_permitted }
-    it { expect(sexp_find(sexp, [:if, ' ! $ENV_2 = 1'])).to include_sexp custom_condition }
-  end
-
-  describe 'build is a pull request' do
-    let(:config) { { provider: 'heroku', password: 'foo', email: 'user@host' } }
-    before       { script.data.stubs(pull_request: '123') }
-    after        { store_example('pull_request') }
-
+    it { expect(sexp_find(sexp, [:if, '(! -z $TRAVIS_PULL_REQUEST)'])).to include_sexp is_pull_request }
+    it { expect(sexp_find(sexp, [:if, '(! $TRAVIS_BRANCH = master)'])).to include_sexp not_permitted }
+    it { expect(sexp_find(sexp, [:if, '(! $ENV_2 = 1)'])).to include_sexp custom_condition }
   end
 end
 

@@ -1,4 +1,4 @@
-require 'travis/build/script/addons/deploy/provider'
+require 'travis/build/script/addons/deploy/script'
 
 module Travis
   module Build
@@ -11,7 +11,7 @@ module Travis
 
           def initialize(sh, data, config)
             config = config.is_a?(Array) ? config : [config]
-            @providers = config.map { |config| Provider.new(sh, data, config) }
+            @providers = config.map { |config| Script.new(sh, data, config) }
           end
 
           def deploy
