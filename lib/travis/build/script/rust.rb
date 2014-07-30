@@ -36,7 +36,8 @@ module Travis
         end
 
         def script
-          cmd "cargo build && cargo test"
+          cmd "cargo build"
+          cmd "cargo test"
         end
 
         private
