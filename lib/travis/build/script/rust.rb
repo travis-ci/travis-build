@@ -24,6 +24,7 @@ module Travis
           cmd "curl -sL #{cargo_url} | tar --strip-components=1 -C ~/rust -xzf -"
 
           cmd 'export PATH="$PATH:$HOME/rust/bin"', assert: false, echo: false
+          cmd 'export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/rust/lib"', assert: false, echo: false
         end
 
         def announce
