@@ -8,7 +8,7 @@ describe Travis::Build::Script::Addons::Artifacts, :sexp do
   let(:addon)  { described_class.new(sh, data, config) }
   subject      { sh.to_sexp }
 
-  context 'with a valid config' do
+  describe 'with a valid config' do
     before :each do
       addon.validator.stubs(valid?: true)
       addon.after_script
@@ -35,7 +35,7 @@ describe Travis::Build::Script::Addons::Artifacts, :sexp do
     end
   end
 
-  context 'with an invalid config' do
+  describe 'with an invalid config' do
     before :each do
       addon.validator.stubs(valid?: false)
       addon.validator.stubs(errors: ['kaputt 1', 'kaputt 2'])
