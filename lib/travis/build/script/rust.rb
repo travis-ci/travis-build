@@ -31,6 +31,7 @@ module Travis
           super
 
           cmd "rustc --version"
+          cmd "cargo --version"
         end
 
         def install
