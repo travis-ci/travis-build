@@ -69,7 +69,7 @@ describe Travis::Build::Script::ObjectiveC do
     end
   end
 
-  if "custom Podfile exists" do
+  context "custom Podfile exists" do
     before do
       file('foo/Podfile')
       data['config']['podfile'] = 'foo/Podfile'
