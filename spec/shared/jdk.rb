@@ -27,7 +27,7 @@ shared_examples_for 'a jdk build' do
     end
 
     it 'runs jdk_switcher' do
-      is_expected.to setup 'jdk_switcher use openjdk7'
+      is_expected.to travis_cmd 'jdk_switcher use openjdk7', assert: true, echo: true
     end
   end
 
@@ -47,7 +47,6 @@ shared_examples_for 'a jdk build' do
     it "sets TERM to 'dumb'" do
       is_expected.to set 'TERM', 'dumb'
     end
-
   end
 end
 

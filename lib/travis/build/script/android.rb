@@ -26,7 +26,7 @@ module Travis
         private
 
         def install_sdk_components(components)
-          fold("android.install") do |script|
+          fold 'android.install' do |script|
             echo "Installing Android dependencies"
             components.each do |component_name|
               install_sdk_component(script, component_name)

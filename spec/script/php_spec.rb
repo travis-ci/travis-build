@@ -17,7 +17,7 @@ describe Travis::Build::Script::Php do
   end
 
   it 'sets up the php version' do
-    is_expected.to setup 'phpenv global 5.3'
+    is_expected.to travis_cmd 'phpenv global 5.3', echo: true, timing: true, assert: true
   end
 
   it 'announces php --version' do
@@ -29,6 +29,6 @@ describe Travis::Build::Script::Php do
   end
 
   it 'runs phpunit' do
-    is_expected.to run_script 'phpunit'
+    is_expected.to travis_cmd 'phpunit', echo: true, timing: true
   end
 end

@@ -35,14 +35,10 @@ describe Travis::Build::Script::Haskell do
   end
 
   it 'installs with cabal install --only-dependencies --enable-tests' do
-    is_expected.to run 'echo $ cabal install --only-dependencies --enable-tests'
-    is_expected.to run 'cabal install --only-dependencies --enable-tests', log: true, assert: true, retry: true
+    is_expected.to travis_cmd 'cabal install --only-dependencies --enable-tests', echo: true, timing: true, assert: true, retry: true
   end
 
   it 'runs cabal configure --enable-tests && cabal build && cabal test' do
-    is_expected.to run 'echo $ cabal configure --enable-tests && cabal build && cabal test'
-    is_expected.to run 'cabal configure --enable-tests'
-    is_expected.to run 'cabal build'
-    is_expected.to run 'cabal test', log: true
+    is_expected.to travis_cmd 'cabal configure --enable-tests && cabal build && cabal test', echo: true, timing: true
   end
 end

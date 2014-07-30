@@ -22,7 +22,8 @@ module Travis
 
         def announce
           super
-          cmd "bundle --version"
+
+          cmd "bundle --version", timing: false
         end
 
         def install

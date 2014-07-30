@@ -9,6 +9,22 @@ shared_examples_for 'a build script' do
     let(:env_type) { 'global_env' }
   end
 
+  it 'sets environment variables from settings' do
+    data['config']['env'] = nil
+    data['config']['global_env'] = nil
+    data['env_vars'] = [{ 'name' => 'SETTINGS_VAR', 'value' => 'a value', 'public' => false }]
+    is_expected.to travis_cmd 'export SETTINGS_VAR=a value', echo: true, display: 'export SETTINGS_VAR=[secure]'
+    is_expected.to run /Setting environment variables from repository settings/
+    is_expected.not_to run /Setting environment variables from .travis.yml/
+  end
+
+  it 'sets environment variables from config' do
+    data['config']['global_env'] = 'SECURE CONFIG_VAR=value'
+    is_expected.to travis_cmd 'export CONFIG_VAR=value', echo: true, display: 'export CONFIG_VAR=[secure]'
+    is_expected.not_to run /Setting environment variables from repository settings/
+    is_expected.to run /Setting environment variables from .travis.yml/
+  end
+
   it 'sets TRAVIS_* env vars' do
     data['config']['env'].delete_if { |var| var =~ /SECURE / }
 
@@ -52,7 +68,7 @@ shared_examples_for 'a build script' do
     it "runs the given :#{script} command" do
       data['config'][script] = script
       assert = %w(before_install install before_script).include?(script)
-      is_expected.to run script, echo: true, log: true, assert: assert
+      is_expected.to travis_cmd script, echo: true, assert: assert, timing: true
     end
 
     next if script == 'script'
@@ -112,21 +128,24 @@ shared_examples_for 'a build script' do
   end
 
   describe "result" do
+    let(:log) { log_for(subject) }
+
     before do
       data['config']['.result'] = result
-      data['config']['script'] = 'echo "THE SCIPT"'
+      data['config']['script'] = './the_script'
     end
 
     describe "server error" do
       let(:result) { "server_error" }
-      it { is_expected.to include("echo -e \"\\033[31;1mCould not fetch .travis.yml from GitHub.\\033[0m\"\ntravis_terminate 2") }
-      it { is_expected.not_to include('echo "THE SCIPT"') }
+      it { expect(log).to include('\\033[31;1mCould not fetch .travis.yml from GitHub.\\033[0m') }
+      it { expect(log).to include('travis_terminate 2') }
+      it { expect(log).not_to include('./the_script') }
     end
 
     describe "not found" do
       let(:result) { "not_found" }
-      it { is_expected.to include("echo -e \"\\033[31;1mCould not find .travis.yml, using standard configuration.\\033[0m\"") }
-      it { is_expected.to include('echo "THE SCIPT"') }
+      it { expect(log).to include('\\033[31;1mCould not find .travis.yml, using standard configuration.\\033[0m') }
+      it { expect(log).to include('./the_script') }
     end
   end
 end

@@ -17,7 +17,7 @@ describe Travis::Build::Script::Perl do
   end
 
   it 'sets up the perl version' do
-    is_expected.to setup 'perlbrew use 5.14'
+    is_expected.to travis_cmd 'perlbrew use 5.14', echo: true, timing: true, assert: true
   end
 
   it 'announces perl --version' do
@@ -29,7 +29,7 @@ describe Travis::Build::Script::Perl do
   end
 
   it 'installs with ' do
-    is_expected.to install 'cpanm --quiet --installdeps --notest .', retry: true
+    is_expected.to travis_cmd 'cpanm --quiet --installdeps --notest .', echo: true, timing: true, assert: true, retry: true
   end
 
   describe 'if perl version is 5.10' do
@@ -38,13 +38,13 @@ describe Travis::Build::Script::Perl do
     end
 
     it 'converts 5.1 to 5.10' do
-      is_expected.to setup 'perlbrew use 5.10'
+      is_expected.to travis_cmd 'perlbrew use 5.10', echo: true, timing: true, assert: true
     end
   end
 
   describe 'if no Build.PL or Makefile.PL exists' do
     it 'runs make test' do
-      is_expected.to run_script 'make test'
+      is_expected.to travis_cmd 'make test', echo: true, timing: true
     end
   end
 
@@ -54,10 +54,7 @@ describe Travis::Build::Script::Perl do
     end
 
     it 'runs perl Build.PL && ./Build test' do
-      is_expected.to run 'echo $ perl Build.PL && ./Build && ./Build test'
-      is_expected.to run 'perl Build.PL'
-      # TODO can't really capture this yet
-      # should run './Build test', log: true
+      is_expected.to travis_cmd 'perl Build.PL && ./Build && ./Build test', echo: true, timing: true
     end
   end
 
@@ -67,9 +64,7 @@ describe Travis::Build::Script::Perl do
     end
 
     it 'runs perl Makefile.PL && make test' do
-      is_expected.to run 'echo $ perl Makefile.PL && make test'
-      is_expected.to run 'perl Makefile.PL'
-      is_expected.to run 'make test', log: true
+      is_expected.to travis_cmd 'perl Makefile.PL && make test', echo: true, timing: true
     end
   end
 end

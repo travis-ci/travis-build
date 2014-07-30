@@ -11,16 +11,16 @@ module Travis
           end
 
           def before_install
-            @script.fold('install_firefox') do |script|
-              script.cmd "echo -e \"\033[33;1mInstalling Firefox v#{@firefox_version}\033[0m\"; ", assert: false, echo: false
-              script.cmd "sudo mkdir -p /usr/local/firefox-#{@firefox_version}", assert: false
-              script.cmd "sudo chown -R travis /usr/local/firefox-#{@firefox_version}", assert: false
-              script.cmd "wget -O /tmp/firefox.tar.bz2 http://ftp.mozilla.org/pub/firefox/releases/#{@firefox_version}/linux-x86_64/en-US/firefox-#{@firefox_version}.tar.bz2", assert: false
-              script.cmd "pushd /usr/local/firefox-#{@firefox_version}", assert: false
-              script.cmd "tar xf /tmp/firefox.tar.bz2", assert: false
-              script.cmd "sudo ln -sf /usr/local/firefox-#{@firefox_version}/firefox/firefox /usr/local/bin/firefox", assert: false
-              script.cmd "sudo ln -sf /usr/local/firefox-#{@firefox_version}/firefox/firefox-bin /usr/local/bin/firefox-bin", assert: false
-              script.cmd "popd", assert: false
+            @script.fold 'install_firefox' do |sh|
+              sh.echo "Installing Firefox v#{@firefox_version}", ansi: :yellow
+              sh.raw "sudo mkdir -p /usr/local/firefox-#{@firefox_version}"
+              sh.raw "sudo chown -R travis /usr/local/firefox-#{@firefox_version}"
+              sh.cmd "wget -O /tmp/firefox.tar.bz2 http://ftp.mozilla.org/pub/firefox/releases/#{@firefox_version}/linux-x86_64/en-US/firefox-#{@firefox_version}.tar.bz2", retry: true
+              sh.raw "pushd /usr/local/firefox-#{@firefox_version}"
+              sh.raw "tar xf /tmp/firefox.tar.bz2"
+              sh.raw "sudo ln -sf /usr/local/firefox-#{@firefox_version}/firefox/firefox /usr/local/bin/firefox"
+              sh.raw "sudo ln -sf /usr/local/firefox-#{@firefox_version}/firefox/firefox-bin /usr/local/bin/firefox-bin"
+              sh.raw "popd"
             end
           end
         end
@@ -28,4 +28,3 @@ module Travis
     end
   end
 end
-

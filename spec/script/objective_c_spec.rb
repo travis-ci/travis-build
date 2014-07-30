@@ -16,7 +16,7 @@ describe Travis::Build::Script::ObjectiveC do
 
   it 'handles ruby version being set' do
     data['config']['rvm'] = 'system'
-    is_expected.to setup 'rvm use system'
+    is_expected.to travis_cmd 'rvm use system --install --binary --fuzzy', echo: true, timing: true, assert: true
   end
 
   it 'sets TRAVIS_XCODE_SDK' do
@@ -49,7 +49,7 @@ describe Travis::Build::Script::ObjectiveC do
     end
 
     it 'runs pod install' do
-      is_expected.to install 'pod install', retry: true
+      is_expected.to travis_cmd 'pod install', echo: true, timing: true, assert: true, retry: true
       store_example 'cocoapods'
     end
 
@@ -104,7 +104,7 @@ describe Travis::Build::Script::ObjectiveC do
     end
 
     it 'runs xctool' do
-      is_expected.to run_script 'xctool -workspace YourWorkspace.xcworkspace -scheme YourScheme build test'
+      is_expected.to travis_cmd 'xctool -workspace YourWorkspace.xcworkspace -scheme YourScheme build test', echo: true, timing: true
       store_example 'xctool'
     end
   end
@@ -116,7 +116,7 @@ describe Travis::Build::Script::ObjectiveC do
     end
 
     it 'runs xctool' do
-      is_expected.to run_script 'xctool -project YourProject.xcodeproj -scheme YourScheme build test'
+      is_expected.to travis_cmd 'xctool -project YourProject.xcodeproj -scheme YourScheme build test', echo: true, timing: true
     end
 
     context 'if an SDK version is passed' do
@@ -125,7 +125,7 @@ describe Travis::Build::Script::ObjectiveC do
       end
 
       it 'passes it to xctool' do
-        is_expected.to run_script 'xctool -project YourProject.xcodeproj -scheme YourScheme -sdk 7.0 build test'
+        is_expected.to travis_cmd 'xctool -project YourProject.xcodeproj -scheme YourScheme -sdk 7.0 build test', echo: true, timing: true
       end
     end
   end
@@ -140,7 +140,7 @@ describe Travis::Build::Script::ObjectiveC do
     end
 
     it 'runs specs' do
-      is_expected.to run_script 'rake spec'
+      is_expected.to travis_cmd 'rake spec', echo: true, timing: true
       store_example 'rubymotion'
     end
 
@@ -150,7 +150,7 @@ describe Travis::Build::Script::ObjectiveC do
       end
 
       it 'runs bundle install' do
-        is_expected.to install 'bundle install', retry: true
+        is_expected.to travis_cmd 'bundle install', echo: true, timing: true, assert: true, retry: true
       end
 
       it 'folds bundle install' do
@@ -158,7 +158,7 @@ describe Travis::Build::Script::ObjectiveC do
       end
 
       it 'runs specs with Bundler' do
-        is_expected.to run_script 'bundle exec rake spec'
+        is_expected.to travis_cmd 'bundle exec rake spec', echo: true, timing: true
       end
     end
   end

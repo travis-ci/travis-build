@@ -1,4 +1,11 @@
 GIT
+  remote: git://github.com/eric/metriks-librato_metrics.git
+  revision: ccbeb751ec5fc4edfe446d8a67a423b96ebe86c7
+  specs:
+    metriks-librato_metrics (1.0.2)
+      metriks (>= 0.9.9.6)
+
+GIT
   remote: git://github.com/travis-ci/travis-support.git
   revision: d37220d766a3fb218f0f8e60ab8764034f6b376f
   specs:
@@ -14,6 +21,8 @@ GEM
       thread_safe (~> 0.1)
       tzinfo (~> 1.1)
     addressable (2.3.6)
+    atomic (1.1.16)
+    avl_tree (1.1.3)
     celluloid (0.15.2)
       timers (~> 1.1.0)
     diff-lcs (1.2.5)
@@ -21,6 +30,7 @@ GEM
       multipart-post (>= 1.2, < 3)
     ffi (1.9.3)
     hashie (2.1.1)
+    hitimes (1.2.2)
     i18n (0.6.9)
     json (1.8.1)
     listen (2.7.5)
@@ -28,6 +38,10 @@ GEM
       rb-fsevent (>= 0.9.3)
       rb-inotify (>= 0.9)
     metaclass (0.0.4)
+    metriks (0.9.9.6)
+      atomic (~> 1.0)
+      avl_tree (~> 1.1.2)
+      hitimes (~> 1.1)
     minitest (5.3.5)
     mocha (0.10.5)
       metaclass (~> 0.0.1)
@@ -77,6 +91,8 @@ PLATFORMS
 DEPENDENCIES
   activesupport (~> 4.0)
   addressable (~> 2.3)
+  metriks (= 0.9.9.6)
+  metriks-librato_metrics!
   mocha (~> 0.10.0)
   puma
   rack-ssl (~> 1.4)
