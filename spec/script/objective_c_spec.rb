@@ -76,7 +76,7 @@ describe Travis::Build::Script::ObjectiveC do
     end
 
     it 'runs Pod install in Podfile directory' do
-      is_expected.to install 'pushd foo'
+      is_expected.to run 'pushd foo'
     end
 
     context 'if Podfile.lock and Pods/Manifest.lock is the same' do
