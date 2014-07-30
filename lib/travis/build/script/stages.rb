@@ -13,7 +13,8 @@ module Travis
           script:         { echo: true, timing: true },
           after_result:   { echo: true, timing: true },
           after_script:   { echo: true, timing: true },
-          before_deploy:  { assert: true, echo: true, timing: true }
+          before_deploy:  { assert: true, echo: true, timing: true },
+          after_deploy:   { assert: true, echo: true, timing: true }
         }
 
         def run_stages
@@ -27,7 +28,7 @@ module Travis
           elsif respond_to?(stage, false) || stage == :after_result
             run_builtin_stage(stage)
           else
-            stage(stage) { run_addon_stage(stage) }
+            run_addon_stage(stage)
           end
         end
 
@@ -51,7 +52,7 @@ module Travis
         end
 
         def run_addon_stage(stage)
-          run_addons(stage)
+          stage(stage) { run_addons(stage) } if respond_to?(:run_addons)
         end
 
         def after_result
@@ -71,10 +72,9 @@ module Travis
           end
         end
 
-        def stage(stage = nil)
+        def stage(stage = nil, &block)
           @stage = stage
-          sh.options = STAGE_DEFAULT_OPTIONS[stage] || {}
-          yield
+          sh.with_options(STAGE_DEFAULT_OPTIONS[stage] || {}, &block)
         end
 
         def announce?(stage)

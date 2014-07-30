@@ -2,8 +2,10 @@ require 'spec_helper'
 
 describe Travis::Build::Script::Addons::Firefox, :sexp do
   let(:config)  { '20.0' }
-  let(:sh)      { Travis::Shell::Builder.new }
-  let(:addon)   { described_class.new(sh, nil, config) }
+  let(:data)    { PAYLOADS[:push].deep_clone }
+  let(:script)  { Travis::Build::Script.new(data) }
+  let(:sh)      { script.sh }
+  let(:addon)   { described_class.new(script, config) }
   subject       { sh.to_sexp }
   before(:each) { addon.before_install }
 

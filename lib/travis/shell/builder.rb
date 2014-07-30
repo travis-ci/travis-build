@@ -132,6 +132,12 @@ module Travis
         # rgt.cmd(*args) unless args.first.is_a?(Hash)
       end
 
+      def with_options(options)
+        options, @options = @options, options
+        yield
+        @options = options
+      end
+
       private
 
         def merge_options(args)

@@ -40,8 +40,7 @@ module SpecHelpers
       const_name = described_class.name.split('::').last.gsub(/([A-Z]+)/,'_\1').gsub(/^_/, '').downcase
       name = [const_name, name].compact.join('-').gsub(' ', '_')
 
-      case described_class
-      when Travis::Build::Script
+      if described_class < Travis::Build::Script
         type = :build
         code = script.compile
       else

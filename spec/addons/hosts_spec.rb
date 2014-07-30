@@ -2,8 +2,10 @@ require "spec_helper"
 
 describe Travis::Build::Script::Addons::Hosts, :sexp do
   let(:config)  { 'one.local two.local' }
-  let(:sh)      { Travis::Shell::Builder.new }
-  let(:addon)   { described_class.new(sh, nil, config) }
+  let(:data)    { PAYLOADS[:push].deep_clone }
+  let(:script)  { Travis::Build::Script.new(data) }
+  let(:sh)      { script.sh }
+  let(:addon)   { described_class.new(script, config) }
   subject       { sh.to_sexp }
   before(:each) { addon.after_pre_setup }
 

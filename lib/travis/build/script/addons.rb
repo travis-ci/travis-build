@@ -14,7 +14,7 @@ module Travis
         MAP = {
           artifacts:     Artifacts,
           code_climate:  CodeClimate,
-          deploy:        Deploy::Group,
+          deploy:        Deploy,
           firefox:       Firefox,
           hosts:         Hosts,
           postgresql:    Postgresql,
@@ -30,11 +30,11 @@ module Travis
 
         def addons
           @addons ||= (config[:addons] || {}).map do |name, addon_config|
-            init_addon(name, addon_config)
+            addon(name, addon_config)
           end.compact
         end
 
-        def init_addon(name, config)
+        def addon(name, config)
           MAP[name] && MAP[name].new(self, config)
         end
 

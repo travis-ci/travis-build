@@ -14,9 +14,9 @@ module Travis
 
           attr_accessor :sh, :data, :env, :options, :validator
 
-          def initialize(sh, data, config)
-            @sh = sh
-            @data = data
+          def initialize(script, config)
+            @sh = script.sh
+            @data = script.data
             @options = config.delete(:options)
             @validator = Validator.new(data, config)
             @env = Env.new(data, config)

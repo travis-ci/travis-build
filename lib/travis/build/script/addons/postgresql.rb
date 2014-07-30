@@ -9,8 +9,8 @@ module Travis
 
           attr_reader :sh, :version
 
-          def initialize(sh, data, config)
-            @sh = sh
+          def initialize(script, config)
+            @sh = script.sh
             @version = config.to_s.shellescape
           end
 
