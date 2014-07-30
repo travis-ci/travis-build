@@ -1,5 +1,6 @@
 require 'core_ext/hash/deep_merge'
 require 'core_ext/hash/deep_symbolize_keys'
+require 'base64'
 
 # actually, the worker payload can be cleaned up a lot ...
 
@@ -81,6 +82,14 @@ module Travis
       end
 
       class SshKey < Struct.new(:value, :source, :encoded)
+        def value
+          if encoded?
+            Base64.decode64(super)
+          else
+            super
+          end
+        end
+
         def encoded?
           encoded
         end

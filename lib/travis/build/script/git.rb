@@ -25,10 +25,6 @@ module Travis
 
         private
 
-          def decode_cmd
-            data.ssh_key.encoded? ? ' | base64 --decode ' : ''
-          end
-
           def ssh_key_source
             return unless data.ssh_key.source
 
@@ -40,7 +36,7 @@ module Travis
             return unless data.ssh_key
 
             echo "\nInstalling an SSH key#{ssh_key_source}\n"
-            file '~/.ssh/id_rsa', "#{data.ssh_key.value} #{decode_cmd}"
+            file '~/.ssh/id_rsa', data.ssh_key.value
             raw 'chmod 600 ~/.ssh/id_rsa'
             raw 'eval `ssh-agent` &> /dev/null'
             raw 'ssh-add ~/.ssh/id_rsa &> /dev/null'
