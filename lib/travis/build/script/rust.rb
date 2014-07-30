@@ -34,12 +34,8 @@ module Travis
           cmd "cargo --version"
         end
 
-        def install
-          cmd "cargo build"
-        end
-
         def script
-          cmd "cargo test"
+          cmd "cargo build && cargo test"
         end
 
         private
