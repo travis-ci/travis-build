@@ -11,13 +11,13 @@ describe Travis::Build::Script::Rust do
 
   it_behaves_like "a build script"
 
-  # it "downloads and installs Rust" do
-  #   is_expected.to setup(/tar.+~\/rust/)
-  # end
-  #
-  # it "downloads and installs Cargo" do
-  #   is_expected.to setup(/tar.+~\/rust/)
-  # end
+  it "downloads and installs Rust" do
+    is_expected.to setup(/dist\/rust-nightly.*\.tar\.gz/)
+  end
+
+  it "downloads and installs Cargo" do
+    is_expected.to setup(/cargo-dist\/cargo-nightly.*\.tar\.gz/)
+  end
 
   it "runs cargo build" do
     is_expected.to travis_cmd("cargo build")
