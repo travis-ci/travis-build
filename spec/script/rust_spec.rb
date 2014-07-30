@@ -11,19 +11,19 @@ describe Travis::Build::Script::Rust do
 
   it_behaves_like "a build script"
 
-  it "downloads and installs Rust" do
-    is_expected.to setup(/tar.+~\/rust/)
-  end
-
-  it "downloads and installs Cargo" do
-    is_expected.to setup(/tar.+~\/rust/)
-  end
+  # it "downloads and installs Rust" do
+  #   is_expected.to setup(/tar.+~\/rust/)
+  # end
+  #
+  # it "downloads and installs Cargo" do
+  #   is_expected.to setup(/tar.+~\/rust/)
+  # end
 
   it "runs cargo build" do
-    is_expected.to run("cargo build")
+    is_expected.to travis_cmd("cargo build")
   end
 
   it "runs cargo test" do
-    is_expected.to run("cargo test")
+    is_expected.to travis_cmd("cargo test")
   end
 end
