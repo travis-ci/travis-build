@@ -33,6 +33,7 @@ module Travis
 
           cmd "rustc --version"
           cmd "cargo --version"
+          echo ""
         end
 
         def script
