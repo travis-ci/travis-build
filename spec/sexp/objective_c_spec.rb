@@ -114,7 +114,7 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
       let(:branch) { sexp_find(sexp, [:else]) }
 
       it 'prints a warning' do
-        expect(branch.flatten.join).to include('WARNING')
+        should include_deprecation_sexp(/without specifying a scheme and either a workspace or a project/)
       end
     end
   end

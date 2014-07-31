@@ -9,6 +9,8 @@ module Travis
       module Addons
         class Deploy
           class Config
+            include Deprecation
+
             RUNTIMES = [:jdk, :node, :perl, :php, :python, :ruby, :scala, :go]
 
             attr_reader :data, :config
@@ -35,13 +37,14 @@ module Travis
             end
 
             def branches
-              if on[:branch]
+              branches = if on[:branch]
                 branches = on[:branch]
                 branches.is_a?(Hash) ? branches.keys : Array(branches)
               else
-                # TODO DEPRECATE
+                deprecate DEPRECATED_OPTION_HASHES_SYNTAX
                 config.except(:on).values.grep(Hash).map(&:keys).flatten(1).uniq.compact
               end
+              branches.any? ? branches : ['master']
             end
 
             def runtimes
@@ -72,12 +75,40 @@ module Travis
               def dpl_option(key, value)
                 case value
                 when Array      then value.map { |v| dpl_option(key, v) }
-                when Hash       then dpl_option(key, value[data.branch.to_sym]) # TODO deprecate
+                when Hash       then dpl_option(key, value[data.branch.to_sym]).tap { deprecate DEPRECATED_OPTION_HASHES_SYNTAX }
                 when true       then "--#{key}"
                 when nil, false then nil
                 else '--%s=%s' % [key, value.to_s.shellescape]
                 end
               end
+
+              DEPRECATED_OPTION_HASHES_SYNTAX = <<-msg
+                Using option specific branch hashes is deprecated and will be disabled soon. Please use one of the following syntaxes instead:
+
+                Multiple deployment targets:
+
+                  deploy:
+                    - provider: s3
+                      bucket: production_bucket
+                      on:
+                        branch: production
+
+                    - provider: s3
+                      bucket: staging_bucket
+                      on:
+                        branch: staging
+
+                Branch specific option hashes:
+
+                  deploy:
+                    provider: s3
+                    on:
+                      branch:
+                        production:
+                          bucket: production_bucket
+                        staging:
+                          bucket: staging_bucket
+              msg
           end
         end
       end

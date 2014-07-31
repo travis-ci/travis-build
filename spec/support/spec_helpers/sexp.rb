@@ -26,14 +26,14 @@ module SpecHelpers
     end
 
     def sexp_find(sexp, *parts)
-      parts.map { |part| sexp = sexp_filter(sexp, part).first }.last
+      parts.map { |part| sexp = sexp_filter(sexp, part).first }.last || []
     end
 
     def sexp_filter(sexp, part, result = [])
       return result unless sexp.is_a?(Array)
       result << sexp if sexp[0, part.length] == part
       sexp.each { |sexp| sexp_filter(sexp, part, result) }
-      result
+      result || []
     end
 
     def store_example(name = nil)

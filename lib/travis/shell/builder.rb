@@ -27,8 +27,9 @@ module Travis
         if fold = args.last.delete(:fold)
           fold(fold) { node(type, data, *args) }
         else
+          pos = args.last.delete(:pos)
           node = Shell::Ast::Cmd.new(type, data, *args)
-          sh.nodes.insert(args.last.delete(:pos) || -1, node)
+          sh.nodes.insert(pos || -1, node)
         end
       end
 
@@ -48,13 +49,19 @@ module Travis
         node :export, [name, value], { assert: false, echo: true, timing: false }.merge(options)
       end
 
-      def echo(string = '', options = {})
-        string.split("\n").each do |line|
+      def echo(msg = '', options = {})
+        msg.split("\n").each do |line|
           if line.empty?
             newline
           else
             node :echo, line, { assert: false, echo: false, timing: false }.merge(options)
           end
+        end
+      end
+
+      def deprecate(msg)
+        msg.split("\n").each.with_index do |line, ix|
+          node :echo, line, pos: ix, ansi: :red
         end
       end
 

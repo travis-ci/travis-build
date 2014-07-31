@@ -11,6 +11,7 @@ module Travis
       autoload :C,              'travis/build/script/langs/c'
       autoload :Cpp,            'travis/build/script/langs/cpp'
       autoload :Clojure,        'travis/build/script/langs/clojure'
+      autoload :Deprecation,    'travis/build/script/deprecation'
       autoload :Erlang,         'travis/build/script/langs/erlang'
       autoload :Go,             'travis/build/script/langs/go'
       autoload :Groovy,         'travis/build/script/langs/groovy'
@@ -45,7 +46,7 @@ module Travis
         end
       end
 
-      include Addons, Git, Helpers, Services, Stages, DirectoryCache
+      include Addons, Deprecation, Git, Helpers, Services, Stages, DirectoryCache
 
       attr_reader :sh, :data
 
@@ -73,6 +74,7 @@ module Travis
           sh.raw [template('header.sh')]
           run_stages if check_config
           sh.raw template('footer.sh')
+          notify_deprecations
         end
 
         def check_config
@@ -160,6 +162,16 @@ module Travis
 
         def fix_ps4
           sh.export "PS4", "+ "
+        end
+
+        def notify_deprecations
+          deprecations.map.with_index do |msg, ix|
+            sh.deprecate "DEPRECATED: #{unindent(msg)}"
+          end
+        end
+
+        def unindent(str)
+          str.gsub /^#{str[/\A\s*/]}/, ''
         end
     end
   end

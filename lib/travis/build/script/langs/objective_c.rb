@@ -56,15 +56,16 @@ module Travis
           sh.if use_ruby_motion(with_bundler: true) do
             sh.cmd 'bundle exec rake spec'
           end
+
           sh.elif use_ruby_motion do
             sh.cmd 'rake spec'
           end
+
           sh.else do
             if config[:xcode_scheme] && (config[:xcode_project] || config[:xcode_workspace])
               sh.cmd "xctool #{xctool_args} build test"
             else
-              sh.echo "WARNING: Using Objective-C testing without specifying a scheme and either a workspace or a project is deprecated.", ansi: :red
-              sh.echo "Check out our documentation for more information: http://about.travis-ci.org/docs/user/languages/objective-c/"
+              deprecate DEPRECATED_MISSING_WORKSPACE_OR_PROJECT
             end
           end
         end
@@ -84,6 +85,11 @@ module Travis
               end
             end.strip
           end
+
+          DEPRECATED_MISSING_WORKSPACE_OR_PROJECT = <<-msg
+            Using Objective-C testing without specifying a scheme and either a workspace or a project is deprecated.
+            Check out our documentation for more information: http://about.travis-ci.org/docs/user/languages/objective-c/
+          msg
       end
     end
   end

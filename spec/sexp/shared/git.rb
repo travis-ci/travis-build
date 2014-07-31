@@ -137,8 +137,8 @@ shared_examples_for 'a git repo sexp' do
       describe 'submodules is set to false' do
         before { data['config']['git'] = { submodules: false } }
 
-        it { expect(sexp_find(subject, submodule_init)).to be_nil }
-        it { expect(sexp_find(subject, submodule_update)).to be_nil }
+        it { expect(sexp_find(subject, submodule_init)).to be_empty }
+        it { expect(sexp_find(subject, submodule_update)).to be_empty }
       end
     end
   end
@@ -165,11 +165,11 @@ shared_examples_for 'a git repo sexp' do
   end
 
   describe 'there is no source_key' do
-    it { expect(sexp_find(subject, add_source_key)).to be_nil }
-    it { expect(sexp_find(subject, chmod_id_rsa)).to be_nil }
-    it { expect(sexp_find(subject, start_ssh_agent)).to be_nil }
-    it { expect(sexp_find(subject, add_ssh_key)).to be_nil }
-    it { expect(sexp_find(subject, add_known_hosts)).to be_nil }
+    it { expect(sexp_find(subject, add_source_key)).to be_empty }
+    it { expect(sexp_find(subject, chmod_id_rsa)).to be_empty }
+    it { expect(sexp_find(subject, start_ssh_agent)).to be_empty }
+    it { expect(sexp_find(subject, add_ssh_key)).to be_empty }
+    it { expect(sexp_find(subject, add_known_hosts)).to be_empty }
   end
 end
 
