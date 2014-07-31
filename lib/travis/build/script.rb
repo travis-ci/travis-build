@@ -71,10 +71,10 @@ module Travis
       private
 
         def run
-          sh.raw [template('header.sh')]
           run_stages if check_config
           sh.raw template('footer.sh')
           notify_deprecations
+          sh.raw template('header.sh'), pos: 0
         end
 
         def check_config
@@ -166,7 +166,9 @@ module Travis
 
         def notify_deprecations
           deprecations.map.with_index do |msg, ix|
-            sh.deprecate "DEPRECATED: #{unindent(msg)}"
+            sh.fold "deprecated.#{ix}" do
+              sh.deprecate "DEPRECATED: #{unindent(msg)}"
+            end
           end
         end
 

@@ -35,16 +35,16 @@ module Travis
         end
 
         def addon(stage, name, config)
-          MAP[name].new(self, addon_config(stage, config)) if MAP[name]
+          MAP[name].new(sh, data, merge_config(stage, config)) if MAP[name]
         end
 
-        def addon_config(stage, config)
+        def merge_config(stage, other)
           [:before, :after].each do |prefix|
             key = :"#{prefix}_#{stage}"
-            value = self.config[key]
-            config = config.merge(key => value) if value
+            value = config[key]
+            other = other.merge(key => value) if value
           end
-          config
+          other
         end
 
         def can_run?(addon, stage)

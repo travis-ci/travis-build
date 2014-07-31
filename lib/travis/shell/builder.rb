@@ -33,8 +33,8 @@ module Travis
         end
       end
 
-      def raw(code)
-        node :raw, code
+      def raw(code, options = {})
+        node :raw, code, options
       end
 
       def cmd(data, *args)
@@ -60,13 +60,15 @@ module Travis
       end
 
       def deprecate(msg)
-        msg.split("\n").each.with_index do |line, ix|
+        lines = msg.split("\n")
+        lines.each.with_index do |line, ix|
           node :echo, line, pos: ix, ansi: :red
         end
+        newline(pos: lines.size)
       end
 
-      def newline
-        node :newline, nil, timing: false
+      def newline(options = {})
+        node :newline, nil, { timing: false }.merge(options)
       end
 
       def terminate(result, message = nil)

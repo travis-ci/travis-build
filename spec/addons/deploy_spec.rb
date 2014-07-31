@@ -23,7 +23,14 @@ describe Travis::Build::Script::Addons::Deploy, :sexp do
     it { expect(sexp).to include_sexp [:cmd, './after_deploy_2.sh', assert: true, echo: true, timing: true] }
   end
 
-  describe 'implicit branches' do
+  describe 'branch specific option hashes' do
+    let(:data)   { super().merge(branch: 'staging') }
+    let(:config) { { provider: 'heroku', on: { branch: { staging: 'foo', production: 'bar' } } } }
+
+    it { should match_sexp [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = staging || $TRAVIS_BRANCH = production)'] }
+  end
+
+  describe 'option specific branch hashes (deprecated)' do
     let(:data)   { super().merge(branch: 'staging') }
     let(:config) { { provider: 'heroku', app: { staging: 'foo', production: 'bar' } } }
 
