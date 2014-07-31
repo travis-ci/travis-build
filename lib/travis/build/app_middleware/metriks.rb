@@ -5,7 +5,7 @@ require "sinatra/base"
 module Travis
   module Build
     module AppMiddleware
-      class Metriks < Base
+      class Metriks < Sinatra::Base
         configure do
           Metriks::LibratoMetricsReporter.new(
             ENV["LIBRATO_EMAIL"],

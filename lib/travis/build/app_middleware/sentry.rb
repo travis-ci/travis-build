@@ -4,7 +4,7 @@ require "sinatra/base"
 module Travis
   module Build
     module AppMiddleware
-      class Sentry < Base
+      class Sentry < Sinatra::Base
         configure do
           Raven.configure do |config|
             config.tags = {
