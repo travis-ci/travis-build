@@ -55,7 +55,7 @@ module Travis
 
         def handle_mkdir(path, options = {})
           opts = []
-          opts << 'r' if options[:recursive]
+          opts << 'p' if options[:recursive]
           opts = opts.any? ? "-#{opts.join}" : nil
           handle_cmd(['mkdir', opts, path].compact.join(' '), options)
         end

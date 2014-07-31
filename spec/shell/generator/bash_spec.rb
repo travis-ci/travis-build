@@ -97,7 +97,17 @@ describe Travis::Shell::Generator::Bash, :include_node_helpers do
     end
   end
 
-  xit :set
+  describe :set do
+    it 'sets a variable' do
+      @sexp = [:set, ['FOO', 'foo'], echo: true]
+      expect(code).to eql("travis_cmd FOO\\=foo --echo")
+    end
+
+    it 'adds --display FOO=[secure] if :secure is given' do
+      @sexp = [:set, ['FOO', 'foo'], echo: true, secure: true]
+      expect(code).to eql("travis_cmd FOO\\=foo --echo --display FOO\\=\\[secure\\]")
+    end
+  end
 
   describe :export do
     it 'generates an export command' do
@@ -155,9 +165,36 @@ describe Travis::Shell::Generator::Bash, :include_node_helpers do
     end
   end
 
-  xit 'mkdir'
-  xit 'mv'
-  xit 'cp'
+  describe 'mkdir' do
+    it 'generates a mkdir command' do
+      @sexp = [:mkdir, ['./foo']]
+      expect(code).to eql('travis_cmd mkdir\\ ./foo')
+    end
+
+    it 'adds -p if :recursive is given' do
+      @sexp = [:mkdir, ['./foo'], recursive: true]
+      expect(code).to eql('travis_cmd mkdir\\ -p\\ ./foo')
+    end
+  end
+
+  describe 'mv' do
+    it 'generates a mv command' do
+      @sexp = [:mv, ['./foo', './bar']]
+      expect(code).to eql('travis_cmd mv\\ ./foo\\ ./bar')
+    end
+  end
+
+  describe 'cp' do
+    it 'generates a cp command' do
+      @sexp = [:cp, ['./foo', './bar']]
+      expect(code).to eql('travis_cmd cp\\ ./foo\\ ./bar')
+    end
+
+    it 'adds -r if :recursive is given' do
+      @sexp = [:cp, ['./foo', './bar'], recursive: true]
+      expect(code).to eql('travis_cmd cp\\ -r\\ ./foo\\ ./bar')
+    end
+  end
 
   describe :fold do
     it 'generates a fold' do
