@@ -1,6 +1,7 @@
 require 'shellwords'
 require 'active_support/core_ext/hash/except'
 require 'active_support/core_ext/hash/slice'
+require 'active_support/core_ext/hash/deep_merge'
 
 module Travis
   module Build
@@ -34,7 +35,13 @@ module Travis
             end
 
             def branches
-              config.except(:on).values.grep(Hash).map(&:keys).flatten(1).uniq.compact
+              if on[:branch]
+                branches = on[:branch]
+                branches.is_a?(Hash) ? branches.keys : Array(branches)
+              else
+                # TODO DEPRECATE
+                config.except(:on).values.grep(Hash).map(&:keys).flatten(1).uniq.compact
+              end
             end
 
             def runtimes
@@ -51,16 +58,21 @@ module Travis
 
             def dpl_options
               options = config.except(:edge, :on, true, :true, :allow_failure, :before_deploy, :after_deploy)
+              options = options.deep_merge(dpl_branch_options)
               options = options.flat_map { |key, value| dpl_option(key, value) }
               options.compact.join(' ')
             end
 
             private
 
+              def dpl_branch_options
+                on.fetch(:branch, {}).fetch(data.branch.to_sym, {})
+              end
+
               def dpl_option(key, value)
                 case value
                 when Array      then value.map { |v| dpl_option(key, v) }
-                when Hash       then dpl_option(key, value[data.branch.to_sym])
+                when Hash       then dpl_option(key, value[data.branch.to_sym]) # TODO deprecate
                 when true       then "--#{key}"
                 when nil, false then nil
                 else '--%s=%s' % [key, value.to_s.shellescape]

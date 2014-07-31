@@ -52,8 +52,7 @@ module Travis
 
               def matches_branch
                 return if config.on[:all_branches]
-                branches = Array(config.on[:branch] || default_branches)
-                [:matches_branch, branches.map { |b| "$TRAVIS_BRANCH = #{escape(b)}" }.join(' || ')]
+                [:matches_branch, config.branches.map { |b| "$TRAVIS_BRANCH = #{escape(b)}" }.join(' || ')]
               end
 
               def matches_tag

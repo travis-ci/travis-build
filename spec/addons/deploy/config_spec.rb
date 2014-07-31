@@ -42,7 +42,12 @@ describe Travis::Build::Script::Addons::Deploy::Config do
   describe 'branches' do
     subject { object.branches }
 
-    describe 'returns keys from nested hashes, ummya?' do
+    describe 'returns on: :branch if given' do
+      let(:config) { { on: { branch: { staging: {}, production: {} } } } }
+      it { should eql [:staging, :production] }
+    end
+
+    describe 'returns keys from nested hashes (deprecated)' do
       let(:config) { { app: { staging: 'foo-staging', production: 'foo-production' } } }
       it { should eql [:staging, :production] }
     end
@@ -57,6 +62,13 @@ describe Travis::Build::Script::Addons::Deploy::Config do
     end
 
     describe 'for the current branch' do
+      describe 'merges configuration from on: branch' do
+        let(:config) { { on: { branch: { master: { app_id: 1, api_key: 1 }, staging: { app_id: 2, api_key: 2 } } } } }
+        it { should eql '--app_id=1 --api_key=1' }
+      end
+    end
+
+    describe 'for the current branch (deprecated)' do
       describe 'adds keys from nested hashes' do
         let(:config) { { app_id: { master: 1, staging: 1 }, api_key: { master: 1, staging: 2 } } }
         it { should eql '--app_id=1 --api_key=1' }
