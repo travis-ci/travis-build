@@ -49,7 +49,7 @@ module Travis
 
       attr_reader :sh, :data
 
-      def initialize(data, options = nil) # TODO deprecate options if passed from travis-worker
+      def initialize(data)
         @sh = Shell::Builder.new
         @data = Data.new({ config: self.class.defaults }.deep_merge(data.deep_symbolize_keys))
         run
