@@ -49,6 +49,13 @@ module Travis
       post "/script" do
         payload = JSON.parse(request.body.read)
 
+        if ENV["SENTRY_DSN"]
+          Raven.extra_context(
+            repository: payload["repository"]["slug"],
+            job: payload["job"]["id"],
+          )
+        end
+
         content_type :txt
         Travis::Build.script(payload).compile
       end
