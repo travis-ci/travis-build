@@ -89,7 +89,7 @@ module Travis
               end
 
               def escape(str)
-                Shellwords.escape(str)
+                Shellwords.escape(str.to_s)
               end
           end
         end
