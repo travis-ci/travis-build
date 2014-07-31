@@ -54,7 +54,40 @@ describe Travis::Build::Script::ObjectiveC do
     end
 
     it 'folds pod install' do
-      is_expected.to fold 'pod install', 'install'
+      is_expected.to fold 'pod install', 'install.cocoapods'
+    end
+
+    context "if Podfile.lock and Pods/Manifest.lock is the same" do
+      before do
+        file("Podfile.lock", "abcd")
+        file("Pods/Manifest.lock", "abcd")
+      end
+
+      it "does not run pod install" do
+        is_expected.not_to install "pod install"
+      end
+    end
+  end
+
+  context "custom Podfile exists" do
+    before do
+      file('foo/Podfile')
+      data['config']['podfile'] = 'foo/Podfile'
+    end
+
+    it 'runs Pod install in Podfile directory' do
+      is_expected.to run 'pushd foo'
+    end
+
+    context 'if Podfile.lock and Pods/Manifest.lock is the same' do
+      before do
+        file("foo/Podfile.lock", "abcd")
+        file("foo/Pods/Manifest.lock", "abcd")
+      end
+
+      it "does not run pod install" do
+        is_expected.not_to install "pod install"
+      end
     end
   end
 
@@ -117,7 +150,7 @@ describe Travis::Build::Script::ObjectiveC do
       end
 
       it 'runs bundle install' do
-        is_expected.to travis_cmd 'bundle install', echo: true, timing: true, assert: true, retry: true
+        is_expected.to travis_cmd 'bundle install --jobs=3 --retry=3', echo: true, timing: true, assert: true, retry: true
       end
 
       it 'folds bundle install' do
@@ -126,6 +159,35 @@ describe Travis::Build::Script::ObjectiveC do
 
       it 'runs specs with Bundler' do
         is_expected.to travis_cmd 'bundle exec rake spec', echo: true, timing: true
+      end
+    end
+  end
+
+  describe '#cache_slug' do
+    subject { described_class.new(data, options) }
+
+    describe '#cache_slug' do
+      subject { super().cache_slug }
+      it { is_expected.to eq('cache--rvm-default--gemfile-Gemfile') }
+    end
+
+    describe 'with custom gemfile' do
+      before do
+        gemfile 'foo'
+      end
+
+      describe '#cache_slug' do
+        subject { super().cache_slug }
+        it { is_expected.to eq('cache--rvm-default--gemfile-foo') }
+      end
+    end
+
+    describe 'with custom ruby version' do
+      before { data['config']['rvm'] = 'jruby' }
+
+      describe '#cache_slug' do
+        subject { super().cache_slug }
+        it { is_expected.to eq('cache--rvm-jruby--gemfile-Gemfile') }
       end
     end
   end

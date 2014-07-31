@@ -5,16 +5,23 @@ module Travis
     class Script
       class ObjectiveC < Script
         DEFAULTS = {
-          rvm:     'default'
+          rvm:     'default',
+          gemfile: 'Gemfile',
+          podfile: 'Podfile',
         }
 
         include RVM
+        include Bundler
+
+        def use_directory_cache?
+          super || data.cache?(:cocoapods)
+        end
 
         def announce
           super
           cmd 'xcodebuild -version -sdk', fold: 'announce'
           uses_rubymotion? then: 'motion --version'
-          has_podfile? then: 'pod --version'
+          podfile? then: 'pod --version'
         end
 
         def export
@@ -35,8 +42,20 @@ module Travis
         end
 
         def install
-          has_gemfile? then: 'bundle install', fold: 'install.bundler', retry: true
-          has_podfile? then: 'pod install', fold: 'install.cocoapods', retry: true
+          super
+
+          podfile? do |sh|
+            # cache cocoapods if it has been enabled
+            directory_cache.add(sh, 'Pods') if data.cache?(:cocoapods)
+
+            sh.if "! ([[ -f #{pod_dir}/Podfile.lock && -f #{pod_dir}/Pods/Manifest.lock ]] && cmp --silent #{pod_dir}/Podfile.lock #{pod_dir}/Pods/Manifest.lock)", raw_condition: true do |pod_script|
+              fold("install.cocoapods") do |pod_fold|
+                pod_fold.cmd "pushd #{pod_dir}"
+                pod_script.cmd "pod install", retry: true
+                pod_fold.cmd "popd"
+              end
+            end
+          end
         end
 
         def script
@@ -55,12 +74,12 @@ module Travis
 
         private
 
-        def has_podfile?(*args)
-          self.if '-f Podfile', *args
+        def podfile?(*args, &block)
+          self.if "-f #{config[:podfile].to_s.shellescape}", *args, &block
         end
 
-        def has_gemfile?(*args)
-          self.if '-f Gemfile', *args
+        def pod_dir
+          File.dirname(config[:podfile]).shellescape
         end
 
         def uses_rubymotion?(*args)

@@ -1,3 +1,4 @@
+require 'base64'
 require 'spec_helper'
 require 'base64'
 
@@ -98,7 +99,7 @@ describe Travis::Build::Data do
 
       describe '#cache' do
         subject { super().cache }
-        it { is_expected.to eq({ bundler: false, apt: false }) }
+        it { is_expected.to eq({ bundler: false, apt: false, cocoapods: false }) }
       end
       it { is_expected.not_to be_cache(:bundler) }
       it { is_expected.not_to be_cache(:edge) }

@@ -13,8 +13,9 @@ module Travis
       DEFAULTS = { }
 
       DEFAULT_CACHES = {
-        apt:     false,
-        bundler: false
+        apt:       false,
+        bundler:   false,
+        cocoapods: false
       }
 
       attr_reader :data
