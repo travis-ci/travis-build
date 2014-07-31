@@ -21,4 +21,5 @@ deploy:
   endpoint: travis-build-examples.s3-website-us-east-1.amazonaws.com
   region: US Standard
   on:
+    branch: sf-sexp
     rvm: 1.9.3
