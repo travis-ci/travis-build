@@ -5,6 +5,11 @@ describe Travis::Build::Script::Addons::Deploy::Conditions do
   let(:config)     { {} }
   let(:conditions) { described_class.new(Travis::Build::Script::Addons::Deploy::Config.new(data, config)) }
 
+  describe 'to_s' do
+    subject { conditions.to_s }
+    it { should eql('(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master)') }
+  end
+
   describe 'all' do
     subject { conditions.send(:all) }
 
@@ -65,7 +70,6 @@ describe Travis::Build::Script::Addons::Deploy::Conditions do
 
       describe 'on: :condition set to an Array' do
         let(:config) { { on: { condition: ['$FOO = foo', '$BAR = bar'] } } }
-
         it { should include custom: '(($FOO = foo) && ($BAR = bar))' }
       end
     end

@@ -6,8 +6,6 @@ module Travis
       module Addons
         class Deploy
           class Conditions
-            RUNTIMES = [:jdk, :node, :perl, :php, :python, :ruby, :scala, :go]
-
             MESSAGES = {
               is_pull_request: 'the current build is a pull request',
               matches_repo:    'this is a forked repo',
@@ -66,9 +64,8 @@ module Travis
               end
 
               def matches_runtime
-                runtimes = (RUNTIMES & config.on.keys)
-                return if runtimes.empty?
-                conditions = runtimes.map { |runtime| "$TRAVIS_#{runtime.to_s.upcase}_VERSION = #{escape(config.on[runtime])}" }
+                return if config.runtimes.empty?
+                conditions = config.runtimes.map { |runtime| "$TRAVIS_#{runtime.to_s.upcase}_VERSION = #{escape(config.on[runtime])}" }
                 [:matches_runtime, conditions.join(' && ')]
               end
 

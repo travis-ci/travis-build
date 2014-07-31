@@ -1,3 +1,4 @@
+require 'shellwords'
 require 'active_support/core_ext/hash/except'
 require 'active_support/core_ext/hash/slice'
 
@@ -7,6 +8,8 @@ module Travis
       module Addons
         class Deploy
           class Config
+            RUNTIMES = [:jdk, :node, :perl, :php, :python, :ruby, :scala, :go]
+
             attr_reader :data, :config
 
             def initialize(data, config)
@@ -25,14 +28,17 @@ module Travis
             def on
               on = config[:on] || config[true] || config[:true] || {}
               on = { branch: on.to_str } if on.respond_to?(:to_str)
-              on[:ruby] ||= on[:rvm]     if on.include?(:rvm)
-              on[:node] ||= on[:node_js] if on.include?(:node_js)
+              on[:ruby] ||= on.delete(:rvm) if on.include?(:rvm)
+              on[:node] ||= on.delete(:node_js) if on.include?(:node_js)
               on
             end
 
             def branches
-              # TODO ask Konstantin
               config.except(:on).values.grep(Hash).map(&:keys).flatten(1).uniq.compact
+            end
+
+            def runtimes
+              RUNTIMES & on.keys
             end
 
             def assert?
@@ -49,15 +55,17 @@ module Travis
               options.compact.join(' ')
             end
 
-            def dpl_option(key, value)
-              case value
-              when Array      then value.map { |v| option(key, v) }
-              when Hash       then dpl_option(key, value[data.branch.to_sym])
-              when true       then "--#{key}"
-              when nil, false then nil
-              else '--%s=%p' % [key, value]
+            private
+
+              def dpl_option(key, value)
+                case value
+                when Array      then value.map { |v| dpl_option(key, v) }
+                when Hash       then dpl_option(key, value[data.branch.to_sym])
+                when true       then "--#{key}"
+                when nil, false then nil
+                else '--%s=%s' % [key, value.to_s.shellescape]
+                end
               end
-            end
           end
         end
       end

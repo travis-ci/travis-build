@@ -17,7 +17,7 @@ describe Travis::Build::Script::Addons::Deploy, :sexp do
     it { expect(sexp).to include_sexp [:cmd, './before_deploy_1.sh', assert: true, echo: true, timing: true] }
     it { expect(sexp).to include_sexp [:cmd, './before_deploy_2.sh', assert: true, echo: true, timing: true] }
     it { expect(sexp).to include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do ruby -S gem install dpl', assert: true, timing: true] }
-    it { expect(sexp).to include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do ruby -S dpl --provider="heroku" --password="foo" --email="user@host" --fold', assert: true, timing: true] }
+    it { expect(sexp).to include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do ruby -S dpl --provider=heroku --password=foo --email=user@host --fold', assert: true, timing: true] }
     it { expect(sexp).to include_sexp terminate_on_failure }
     it { expect(sexp).to include_sexp [:cmd, './after_deploy_1.sh', assert: true, echo: true, timing: true] }
     it { expect(sexp).to include_sexp [:cmd, './after_deploy_2.sh', assert: true, echo: true, timing: true] }
@@ -42,9 +42,9 @@ describe Travis::Build::Script::Addons::Deploy, :sexp do
     let(:config)    { [heroku, nodejitsu] }
 
     it { should match_sexp [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master) && ($FOO = foo)'] }
-    it { should include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do ruby -S dpl --provider="heroku" --password="foo" --email="user@host" --fold', assert: true, timing: true] }
+    it { should include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do ruby -S dpl --provider=heroku --password=foo --email=user@host --fold', assert: true, timing: true] }
     it { should match_sexp [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master) && ($BAR = bar)'] }
-    it { should include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do ruby -S dpl --provider="nodejitsu" --user="foo" --api_key="bar" --fold', assert: true, timing: true] }
+    it { should include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do ruby -S dpl --provider=nodejitsu --user=foo --api_key=bar --fold', assert: true, timing: true] }
   end
 
   describe 'allow_failure' do
@@ -61,16 +61,16 @@ describe Travis::Build::Script::Addons::Deploy, :sexp do
   end
 
   describe 'deploy condition fails' do
-    let(:config) { { provider: 'heroku', on: { condition: '$ENV_2 = 1'} } }
-    let(:sexp)   { sexp_find(subject, [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master) && ($ENV_2 = 1)'], [:else]) }
+    let(:config) { { provider: 'heroku', on: { condition: '$FOO = foo'} } }
+    let(:sexp)   { sexp_find(subject, [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master) && ($FOO = foo)'], [:else]) }
 
     let(:not_permitted)    { [:echo, 'Skipping deployment with the heroku provider because this branch is not permitted to deploy as per configuration.', ansi: :red] }
     let(:custom_condition) { [:echo, 'Skipping deployment with the heroku provider because a custom condition was not met.', ansi: :red] }
     let(:is_pull_request)  { [:echo, 'Skipping deployment with the heroku provider because the current build is a pull request.', ansi: :red] }
 
-    it { expect(sexp_find(sexp, [:if, '(! -z $TRAVIS_PULL_REQUEST)'])).to include_sexp is_pull_request }
-    it { expect(sexp_find(sexp, [:if, '(! $TRAVIS_BRANCH = master)'])).to include_sexp not_permitted }
-    it { expect(sexp_find(sexp, [:if, '(! $ENV_2 = 1)'])).to include_sexp custom_condition }
+    it { expect(sexp_find(sexp, [:if, '(! (-z $TRAVIS_PULL_REQUEST))'])).to include_sexp is_pull_request }
+    it { expect(sexp_find(sexp, [:if, '(! ($TRAVIS_BRANCH = master))'])).to include_sexp not_permitted }
+    it { expect(sexp_find(sexp, [:if, '(! ($FOO = foo))'])).to include_sexp custom_condition }
   end
 end
 
