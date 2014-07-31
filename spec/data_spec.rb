@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'base64'
 
 describe Travis::Build::Data do
   describe 'parse' do
@@ -27,7 +28,7 @@ describe Travis::Build::Data do
 
   describe 'ssh_key' do
     it 'returns ssh_key from source_key as a fallback' do
-      data = Travis::Build::Data.new(config: { source_key: 'foo' })
+      data = Travis::Build::Data.new(config: { source_key: Base64.encode64('foo') })
       data.ssh_key.value.should == 'foo'
       data.ssh_key.source.should be_nil
       data.ssh_key.should be_encoded
