@@ -8,12 +8,12 @@ describe Travis::Build::Script::Addons::Artifacts, :sexp do
   let(:addon)  { described_class.new(sh, Travis::Build::Data.new(data), config) }
   subject      { sh.to_sexp }
 
-  describe 'with a valid config' do
-    before :each do
-      addon.validator.stubs(valid?: true)
-      addon.after_script
-    end
+  before :each do
+    addon.validator.stubs(valid?: true)
+    addon.after_script
+  end
 
+  describe 'with a valid config' do
     describe 'exports' do
       let(:exports) { sexp_filter(subject, [:export]) }
 
