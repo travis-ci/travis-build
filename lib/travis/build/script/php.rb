@@ -6,6 +6,8 @@ module Travis
           php: '5.3'
         }
 
+        DEFAULT_COMPOSER_ARGS = "--no-interaction --prefer-source"
+
         def cache_slug
           super << "--php-" << config[:php].to_s
         end
@@ -33,12 +35,16 @@ module Travis
         def install
           self.if '-f composer.json' do |sub|
             directory_cache.add(sub, "~/.composer") if data.cache?(:composer)
-            sub.cmd "composer install #{config[:composer_args]}".strip, fold: 'install.composer'
+            sub.cmd "composer install #{composer_args}".strip, fold: 'install.composer'
           end
         end
 
         def script
           cmd 'phpunit'
+        end
+
+        def composer_args
+          config[:composer_args] || DEFAULT_COMPOSER_ARGS
         end
       end
     end
