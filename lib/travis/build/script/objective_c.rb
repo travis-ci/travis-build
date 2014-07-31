@@ -49,9 +49,10 @@ module Travis
             directory_cache.add(sh, 'Pods') if data.cache?(:cocoapods)
 
             sh.if "! ([[ -f #{pod_dir}/Podfile.lock && -f #{pod_dir}/Pods/Manifest.lock ]] && cmp --silent #{pod_dir}/Podfile.lock #{pod_dir}/Pods/Manifest.lock)", raw_condition: true do |pod_script|
-              fold("install.cocoapods") do |pod_fold|
+              pod_script.fold("install.cocoapods") do |pod_fold|
+                pod_fold.echo "Installing Pods with 'pod install'", ansi: :yellow
                 pod_fold.cmd "pushd #{pod_dir}"
-                pod_script.cmd "pod install", retry: true
+                pod_fold.cmd "pod install", retry: true
                 pod_fold.cmd "popd"
               end
             end
