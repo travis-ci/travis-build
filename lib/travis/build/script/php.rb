@@ -10,6 +10,10 @@ module Travis
           super << "--php-" << config[:php].to_s
         end
 
+        def use_directory_cache?
+          super || data.cache?(:composer)
+        end
+
         def export
           super
           set 'TRAVIS_PHP_VERSION', config[:php], echo: false
@@ -27,8 +31,10 @@ module Travis
         end
 
         def install
-          # # composer is not yet ready for prime time. MK.
-          # self.if '-f composer.json', "composer install #{config[:composer_args]}".strip
+          self.if '-f composer.json' do |sub|
+            directory_cache.add(sub, "~/.composer") if data.cache?(:composer)
+            "composer install #{config[:composer_args]}".strip
+          end
         end
 
         def script
@@ -38,4 +44,3 @@ module Travis
     end
   end
 end
-
