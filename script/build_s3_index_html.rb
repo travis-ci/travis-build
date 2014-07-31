@@ -2,7 +2,7 @@
 
 require 'erb'
 
-filenames = Dir['examples/*.sh.txt']
+filenames = Dir['examples/*.sh.txt'].sort
 filenames = filenames.map { |filename| filename.sub('examples/', '') }
 
 path = 'examples/index.html'
