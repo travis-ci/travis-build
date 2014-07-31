@@ -37,13 +37,13 @@ describe Travis::Build::Script::Addons::Deploy, :sexp do
   end
 
   describe 'multiple providers' do
-    let(:heroku)    { { provider: 'heroku', password: 'foo', email: 'user@host', on: { condition: '$ENV_1 = 1' } } }
-    let(:nodejitsu) { { provider: 'nodejitsu', user: 'foo', api_key: 'bar', on: { condition: '$ENV_2 = 2' } } }
+    let(:heroku)    { { provider: 'heroku', password: 'foo', email: 'user@host', on: { condition: '$FOO = foo' } } }
+    let(:nodejitsu) { { provider: 'nodejitsu', user: 'foo', api_key: 'bar', on: { condition: '$BAR = bar' } } }
     let(:config)    { [heroku, nodejitsu] }
 
-    it { should match_sexp [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master) && ($ENV_1 = 1)'] }
+    it { should match_sexp [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master) && ($FOO = foo)'] }
     it { should include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do ruby -S dpl --provider="heroku" --password="foo" --email="user@host" --fold', assert: true, timing: true] }
-    it { should match_sexp [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master) && ($ENV_2 = 2)'] }
+    it { should match_sexp [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master) && ($BAR = bar)'] }
     it { should include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do ruby -S dpl --provider="nodejitsu" --user="foo" --api_key="bar" --fold', assert: true, timing: true] }
   end
 
@@ -54,10 +54,10 @@ describe Travis::Build::Script::Addons::Deploy, :sexp do
   end
 
   describe 'multiple conditions match' do
-    let(:config) { { provider: 'heroku', on: { condition: ['$ENV_1 = 1', '$ENV_2 = 2'] } } }
+    let(:config) { { provider: 'heroku', on: { condition: ['$FOO = foo', '$BAR = bar'] } } }
     before       { addon.deploy }
 
-    it { should match_sexp [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master) && (($ENV_1 = 1) && ($ENV_2 = 2))'] }
+    it { should match_sexp [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master) && (($FOO = foo) && ($BAR = bar))'] }
   end
 
   describe 'deploy condition fails' do

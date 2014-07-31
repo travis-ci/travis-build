@@ -26,7 +26,7 @@ module Travis
               end
 
               sh.else do
-                conditions.each(negate: true) do |condition, message|
+                conditions.each_with_message(negate: true) do |condition, message|
                   sh.if(condition) { failure_message(message) } if condition
                 end
               end
