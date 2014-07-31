@@ -35,7 +35,7 @@ module Travis
             private
 
               def all(options = { negate: false })
-                methods = private_methods(false).grep(/^(is_|matches_|custom)/)
+                methods = %w(is_ matches_ custom).map { |prefix| private_methods(false).grep(/^#{prefix}/) }.flatten
                 pairs = methods.map { |name| send(name) }.compact
                 pairs = pairs.map { |name, condition| [name, negate(condition)] } if options[:negate]
                 pairs = pairs.map { |name, condition| [name, "(#{condition})"]  } if pairs.size > 1
