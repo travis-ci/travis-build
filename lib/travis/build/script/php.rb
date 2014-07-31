@@ -33,7 +33,7 @@ module Travis
         def install
           self.if '-f composer.json' do |sub|
             directory_cache.add(sub, "~/.composer") if data.cache?(:composer)
-            sub.cmd "composer install #{config[:composer_args]}".strip
+            sub.cmd "composer install #{config[:composer_args]}".strip, fold: 'install.composer'
           end
         end
 
