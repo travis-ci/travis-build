@@ -31,9 +31,15 @@ module Travis
           cmd 'composer --version'
         end
 
+        def before_install
+          self.if '-f composer.json' do |sub|
+            sub.cmd 'composer self-update', fold: 'before_install.update_composer'
+          end
+        end
+
         def install
           self.if '-f composer.json' do |sub|
-            directory_cache.add(sub, "~/.composer") if data.cache?(:composer)
+            directory_cache.add(sub, '~/.composer') if data.cache?(:composer)
             sub.cmd "composer install #{config[:composer_args]}".strip, fold: 'install.composer'
           end
         end
