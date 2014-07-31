@@ -9,6 +9,8 @@ rvm:
 
 script: bundle exec rspec spec
 
+before_deploy: ruby script/build_s3_index_html.rb
+
 deploy:
   provider: s3
   access_key_id:
