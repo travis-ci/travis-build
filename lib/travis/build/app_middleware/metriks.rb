@@ -7,7 +7,7 @@ module Travis
     module AppMiddleware
       class Metriks < Sinatra::Base
         configure do
-          Metriks::LibratoMetricsReporter.new(
+          ::Metriks::LibratoMetricsReporter.new(
             ENV["LIBRATO_EMAIL"],
             ENV["LIBRATO_TOKEN"],
             source: ENV["LIBRATO_SOURCE"],
