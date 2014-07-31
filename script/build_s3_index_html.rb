@@ -5,5 +5,6 @@ require 'erb'
 filenames = Dir['examples/*.sh.txt']
 filenames = filenames.map { |filename| filename.sub('examples/', '') }
 
-erb = ERB.new(File.read('examples/index.html'))
-puts erb.result(binding)
+path = 'examples/index.html'
+erb = ERB.new(File.read(path))
+File.open(path, 'w+') { |f| f.write(erb.result(binding)) }
