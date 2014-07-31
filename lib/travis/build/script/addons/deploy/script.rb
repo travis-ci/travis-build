@@ -12,7 +12,6 @@ module Travis
             attr_accessor :sh, :data, :config, :conditions
 
             def initialize(sh, data, config)
-              @silent = false # TODO what's with silent? did i break something here?
               @sh = sh
               @data = data
               @config = Config.new(data, config)

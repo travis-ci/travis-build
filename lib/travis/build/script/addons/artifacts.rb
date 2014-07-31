@@ -49,7 +49,6 @@ module Travis
             end
 
             def install
-              # TODO should be ported to sh calls
               sh.raw template('install.sh')
             end
 
