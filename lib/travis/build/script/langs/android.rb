@@ -27,7 +27,6 @@ module Travis
             sh.cmd 'mvn install -B', echo: true
           end
           sh.else do
-            # TODO is that really `installt` (ending with a t?)
             sh.cmd 'ant debug installt test'
           end
         end
