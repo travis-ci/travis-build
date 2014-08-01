@@ -61,8 +61,8 @@ module Travis
 
       def deprecate(msg)
         lines = msg.split("\n")
-        lines.each.with_index do |line, ix|
-          node :echo, line, pos: ix, ansi: :red
+        lines.each.with_index do |line|
+          node :echo, line, ansi: :red
         end
         newline(pos: lines.size)
       end
@@ -108,10 +108,11 @@ module Travis
         node :rm, path, { assert: !options[:force], timing: false }.merge(options)
       end
 
-      def fold(name, &block)
+      def fold(name, options = {}, &block)
         args = merge_options(name)
         block = with_node(&block) if block
-        sh.nodes << Shell::Ast::Fold.new(*args, &block)
+        node = Shell::Ast::Fold.new(*args, &block)
+        sh.nodes.insert(options[:pos] || -1, node)
       end
 
       def if(*args, &block)

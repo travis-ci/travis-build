@@ -166,7 +166,7 @@ module Travis
 
         def notify_deprecations
           deprecations.map.with_index do |msg, ix|
-            sh.fold "deprecated.#{ix}" do
+            sh.fold "deprecated.#{ix}", pos: ix do
               sh.deprecate "DEPRECATED: #{unindent(msg)}"
             end
           end
