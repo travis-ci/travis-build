@@ -41,8 +41,9 @@ module Travis
                 branches = on[:branch]
                 branches.is_a?(Hash) ? branches.keys : Array(branches)
               else
-                deprecate DEPRECATED_OPTION_HASHES_SYNTAX
-                config.except(:on).values.grep(Hash).map(&:keys).flatten(1).uniq.compact
+                branches = config.except(:on).values.grep(Hash).map(&:keys).flatten(1).uniq.compact
+                deprecate DEPRECATED_OPTION_HASHES_SYNTAX if branches.any?
+                branches
               end
               branches.any? ? branches : ['master']
             end
