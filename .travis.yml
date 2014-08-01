@@ -31,4 +31,3 @@ deploy:
   region: us-east-1
   on:
     branch: sf-sexp
-    rvm: 1.9.3
