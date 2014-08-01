@@ -17,7 +17,7 @@ describe Travis::Build::Script::Ruby do
   end
 
   it 'sets the default ruby if no :rvm config given' do
-    is_expected.to setup 'rvm use default'
+    is_expected.to travis_cmd 'rvm use default'
   end
 
   context 'with a .ruby-version' do
@@ -26,23 +26,23 @@ describe Travis::Build::Script::Ruby do
     end
 
     it 'sets up rvm with .ruby-version' do
-      is_expected.to setup 'rvm use . --install --binary --fuzzy'
+      is_expected.to travis_cmd 'rvm use . --install --binary --fuzzy'
     end
   end
 
   it 'sets the ruby from config :rvm' do
     data['config']['rvm'] = 'rbx'
-    is_expected.to setup 'rvm use rbx'
+    is_expected.to travis_cmd 'rvm use rbx --install --binary --fuzzy', echo: true, timing: true, assert: true
   end
 
   it 'handles float values correctly for rvm values' do
     data['config']['rvm'] = 2.0
-    is_expected.to setup 'rvm use 2.0'
+    is_expected.to travis_cmd 'rvm use 2.0 --install --binary --fuzzy', echo: true, timing: true, assert: true
   end
 
   it 'sets BUNDLE_GEMFILE if a gemfile exists' do
     gemfile 'Gemfile.ci'
-    is_expected.to set 'BUNDLE_GEMFILE', File.join(ENV['PWD'], 'tmp/Gemfile.ci')
+    is_expected.to travis_cmd 'export BUNDLE_GEMFILE=$PWD/Gemfile.ci', echo: true
   end
 
   it 'announces ruby --version' do
@@ -59,38 +59,38 @@ describe Travis::Build::Script::Ruby do
 
   it 'installs with bundle install with the given bundler_args if a gemfile exists' do
     gemfile 'Gemfile.ci'
-    is_expected.to install 'bundle install'
+    is_expected.to travis_cmd 'bundle install --jobs=3 --retry=3', echo: true, timing: true, assert: true, retry: true
   end
 
   it 'folds bundle install if a gemfile exists' do
     gemfile 'Gemfile.ci'
-    is_expected.to fold 'bundle install', 'install'
+    is_expected.to fold 'bundle install --jobs=3 --retry=3', 'install'
   end
 
   it "retries bundle install if a Gemfile exists" do
     gemfile "Gemfile.ci"
-    is_expected.to retry_script 'bundle install'
+    is_expected.to travis_cmd 'bundle install --jobs=3 --retry=3', echo: true, timing: true, assert: true, retry: true
   end
 
   it 'runs bundle install --deployment if there is a Gemfile.lock' do
     gemfile('Gemfile')
     file('Gemfile.lock')
-    is_expected.to run_script 'bundle install --deployment'
+    is_expected.to travis_cmd 'bundle install --jobs=3 --retry=3 --deployment', echo: true, timing: true, assert: true, retry: true
   end
 
   it 'runs bundle install --deployment if there is a custom Gemfile.ci.lock' do
     gemfile('Gemfile.ci')
     file('Gemfile.ci.lock')
-    is_expected.to run_script 'bundle install --deployment'
+    is_expected.to travis_cmd 'bundle install --jobs=3 --retry=3 --deployment', echo: true, timing: true, assert: true, retry: true
   end
 
   it 'runs bundle exec rake if a gemfile exists' do
     gemfile 'Gemfile.ci'
-    is_expected.to run_script 'bundle exec rake'
+    is_expected.to travis_cmd 'bundle exec rake', echo: true, timing: true
   end
 
   it 'runs rake if a gemfile does not exist' do
-    is_expected.to run_script 'rake'
+    is_expected.to travis_cmd 'rake', echo: true, timing: true
   end
 
   describe 'using a jdk' do
@@ -160,7 +160,7 @@ describe Travis::Build::Script::Ruby do
     end
 
     it 'uses chruby to set the version' do
-      is_expected.to setup 'chruby 2.1.1'
+      is_expected.to travis_cmd 'chruby 2.1.1'
     end
 
     it 'announces the chruby version' do

@@ -5,25 +5,32 @@ module Travis
     class Script
       class ObjectiveC < Script
         DEFAULTS = {
-          rvm:     'default'
+          rvm:     'default',
+          gemfile: 'Gemfile',
+          podfile: 'Podfile',
         }
 
         include RVM
+        include Bundler
+
+        def use_directory_cache?
+          super || data.cache?(:cocoapods)
+        end
 
         def announce
           super
           cmd 'xcodebuild -version -sdk', fold: 'announce'
           uses_rubymotion? then: 'motion --version'
-          has_podfile? then: 'pod --version'
+          podfile? then: 'pod --version'
         end
 
         def export
           super
 
-          set 'TRAVIS_XCODE_SDK', config[:xcode_sdk], echo: false
-          set 'TRAVIS_XCODE_SCHEME', config[:xcode_scheme], echo: false
-          set 'TRAVIS_XCODE_PROJECT', config[:xcode_project], echo: false
-          set 'TRAVIS_XCODE_WORKSPACE', config[:xcode_workspace], echo: false
+          set 'TRAVIS_XCODE_SDK', config[:xcode_sdk].to_s.shellescape, echo: false
+          set 'TRAVIS_XCODE_SCHEME', config[:xcode_scheme].to_s.shellescape, echo: false
+          set 'TRAVIS_XCODE_PROJECT', config[:xcode_project].to_s.shellescape, echo: false
+          set 'TRAVIS_XCODE_WORKSPACE', config[:xcode_workspace].to_s.shellescape, echo: false
         end
 
         def setup
@@ -32,17 +39,34 @@ module Travis
           cmd "echo '#!/bin/bash\n# no-op' > /usr/local/bin/actool", echo: false
           cmd "chmod +x /usr/local/bin/actool", echo: false
 
-          cmd "osascript -e 'set simpath to \"/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone Simulator.app/Contents/MacOS/iPhone Simulator\" as POSIX file' -e 'tell application \"Finder\"' -e 'open simpath' -e 'end tell'"
+          fold("start-simulator") do |sh|
+            sh.echo "Starting iOS Simulator", ansi: :yellow
+            sh.cmd "osascript -e 'set simpath to \"/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone Simulator.app/Contents/MacOS/iPhone Simulator\" as POSIX file' -e 'tell application \"Finder\"' -e 'open simpath' -e 'end tell'"
+          end
         end
 
         def install
-          has_gemfile? then: 'bundle install', fold: 'install.bundler', retry: true
-          has_podfile? then: 'pod install', fold: 'install.cocoapods', retry: true
+          super
+
+          podfile? do |sh|
+            # cache cocoapods if it has been enabled
+            directory_cache.add(sh, 'Pods') if data.cache?(:cocoapods)
+
+            sh.if "! ([[ -f #{pod_dir}/Podfile.lock && -f #{pod_dir}/Pods/Manifest.lock ]] && cmp --silent #{pod_dir}/Podfile.lock #{pod_dir}/Pods/Manifest.lock)", raw_condition: true do |pod_script|
+              pod_script.fold("install.cocoapods") do |pod_fold|
+                pod_fold.echo "Installing Pods with 'pod install'", ansi: :yellow
+                pod_fold.cmd "pushd #{pod_dir}"
+                pod_fold.cmd "pod install", retry: true
+                pod_fold.cmd "popd"
+              end
+            end
+          end
         end
 
         def script
           uses_rubymotion?(with_bundler: true, then: 'bundle exec rake spec')
           uses_rubymotion?(elif: true, then: 'rake spec')
+
           self.else do |script|
             if config[:xcode_scheme] && (config[:xcode_project] || config[:xcode_workspace])
               script.cmd "xctool #{xctool_args} build test"
@@ -55,17 +79,18 @@ module Travis
 
         private
 
-        def has_podfile?(*args)
-          self.if '-f Podfile', *args
+        def podfile?(*args, &block)
+          self.if "-f #{config[:podfile].to_s.shellescape}", *args, &block
         end
 
-        def has_gemfile?(*args)
-          self.if '-f Gemfile', *args
+        def pod_dir
+          File.dirname(config[:podfile]).shellescape
         end
 
         def uses_rubymotion?(*args)
           conditional = '-f Rakefile && "$(cat Rakefile)" =~ require\ [\\"\\\']motion/project'
           conditional << ' && -f Gemfile' if args.first && args.first.is_a?(Hash) && args.first.delete(:with_bundler)
+
           if args.first && args.first.is_a?(Hash) && args.first.delete(:elif)
             self.elif conditional, *args
           else

@@ -3,7 +3,7 @@ module Travis
     class Script
       module Addons
         class CodeClimate
-          REQUIRES_SUPER_USER = false
+          SUPER_USER_SAFE = true
 
           def initialize(script, config)
             @script = script
@@ -12,7 +12,7 @@ module Travis
 
           def before_script
             if @config[:repo_token]
-              @script.set 'CODECLIMATE_REPO_TOKEN', @config[:repo_token], echo: false, assert: false
+              @script.set 'CODECLIMATE_REPO_TOKEN', @config[:repo_token], echo: false
             end
           end
         end

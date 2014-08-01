@@ -14,7 +14,7 @@ module Travis
         MAP = {
           artifacts:     Artifacts,
           code_climate:  CodeClimate,
-          deploy:        Deploy,
+          deploy:        Deploy::Group,
           firefox:       Firefox,
           hosts:         Hosts,
           postgresql:    Postgresql,
@@ -43,7 +43,7 @@ module Travis
 
           if !data.paranoid_mode?
             true
-          elsif data.paranoid_mode? && !addon::REQUIRES_SUPER_USER
+          elsif data.paranoid_mode? && addon.class::SUPER_USER_SAFE
             true
           else
             false

@@ -9,12 +9,12 @@ module Travis
         }
 
         def checkout
-          install_source_key
+          install_ssh_key
           if tarball_clone?
             download_tarball
           else
             git_clone
-            ch_dir
+            cd dir
             fetch_ref if fetch_ref?
             git_checkout
             submodules if submodules?
@@ -25,18 +25,25 @@ module Travis
 
         private
 
-          def install_source_key
-            return unless config[:source_key]
+          def ssh_key_source
+            return unless data.ssh_key.source
 
-            echo "\nInstalling an SSH key\n"
-            cmd "echo '#{config[:source_key]}' | base64 --decode > ~/.ssh/id_rsa", echo: false, log: false
-            cmd 'chmod 600 ~/.ssh/id_rsa',                echo: false, log: false
-            cmd 'eval `ssh-agent` &> /dev/null',      echo: false, log: false
-            cmd 'ssh-add ~/.ssh/id_rsa &> /dev/null', echo: false, log: false
+            source = data.ssh_key.source.gsub(/[_-]+/, ' ')
+            " from: #{source}"
+          end
+
+          def install_ssh_key
+            return unless data.ssh_key
+
+            echo "\nInstalling an SSH key#{ssh_key_source}\n"
+            file '~/.ssh/id_rsa', data.ssh_key.value
+            raw 'chmod 600 ~/.ssh/id_rsa'
+            raw 'eval `ssh-agent` &> /dev/null'
+            raw 'ssh-add ~/.ssh/id_rsa &> /dev/null'
 
             # BatchMode - If set to 'yes', passphrase/password querying will be disabled.
             # TODO ... how to solve StrictHostKeyChecking correctly? deploy a knownhosts file?
-            cmd %(echo -e "Host #{data.source_host}\n\tBatchMode yes\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config), echo: false, log: false
+            raw %(echo -e "Host #{data.source_host}\n\tBatchMode yes\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config)
           end
 
           def download_tarball
@@ -45,7 +52,7 @@ module Travis
             cmd curl_cmd, echo: curl_cmd.gsub(data.token || /\Za/, '[SECURE]'), assert: true, retry: true, fold: "tarball.#{next_git_fold_number}"
             cmd "tar xfz #{sanitized_slug}.tar.gz", assert: true
             cmd "mv #{sanitized_slug}-#{data.commit[0..6]}/* #{dir}", assert: true
-            ch_dir
+            cd dir
           end
 
           def git_clone
@@ -56,10 +63,6 @@ module Travis
             self.else do
               cmd "git fetch origin", assert: true, fold: "git.#{next_git_fold_number}", retry: true
             end
-          end
-
-          def ch_dir
-            cmd "cd #{dir}", assert: true
           end
 
           def rm_key
@@ -75,7 +78,7 @@ module Travis
           end
 
           def git_checkout
-            cmd "git checkout -qf #{data.pull_request ? 'FETCH_HEAD' : data.commit}", assert: true, fold: "git.#{next_git_fold_number}"
+            cmd "git checkout -qf #{data.pull_request ? 'FETCH_HEAD' : data.commit}", assert: true, timing: false, fold: "git.#{next_git_fold_number}"
           end
 
           def submodules?
@@ -92,7 +95,7 @@ module Travis
           end
 
           def clone_args
-            args = "--depth=#{config[:git][:depth]}"
+            args = "--depth=#{config[:git][:depth].to_s.shellescape}"
             args << " --branch=#{data.branch.shellescape}" unless data.ref
             args
           end

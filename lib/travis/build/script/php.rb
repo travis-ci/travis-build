@@ -3,11 +3,16 @@ module Travis
     class Script
       class Php < Script
         DEFAULTS = {
-          php: '5.3'
+          php:      '5.3',
+          composer: '--no-interaction --prefer-source'
         }
 
         def cache_slug
           super << "--php-" << config[:php].to_s
+        end
+
+        def use_directory_cache?
+          super || data.cache?(:composer)
         end
 
         def export
@@ -26,9 +31,17 @@ module Travis
           cmd 'composer --version'
         end
 
+        def before_install
+          self.if '-f composer.json' do |sub|
+            sub.cmd 'composer self-update', fold: 'before_install.update_composer'
+          end
+        end
+
         def install
-          # # composer is not yet ready for prime time. MK.
-          # self.if '-f composer.json', "composer install #{config[:composer_args]}".strip
+          self.if '-f composer.json' do |sub|
+            directory_cache.add(sub, '~/.composer') if data.cache?(:composer)
+            sub.cmd "composer install #{config[:composer_args]}".strip, fold: 'install.composer'
+          end
         end
 
         def script
@@ -38,4 +51,3 @@ module Travis
     end
   end
 end
-

@@ -61,10 +61,10 @@ module SpecHelpers
   end
 
   def store_example(name = nil)
-    restore_consts
-    name = [described_class.name.split('::').last.gsub(/([A-Z]+)/,'_\1').gsub(/^_/, '').downcase, name].compact.join('_').gsub(' ', '_')
-    script = described_class.new(data, options).compile
-    File.open("examples/build_#{name}.sh", 'w+') { |f| f.write(script) }
+    # restore_consts
+    # name = [described_class.name.split('::').last.gsub(/([A-Z]+)/,'_\1').gsub(/^_/, '').downcase, name].compact.join('_').gsub(' ', '_')
+    # script = described_class.new(data, options).compile
+    # File.open("examples/build_#{name}.sh", 'w+') { |f| f.write(script) }
   end
 end
 
@@ -75,6 +75,7 @@ RSpec.configure do |c|
   c.filter_run focus: true
   c.run_all_when_everything_filtered = true
   c.filter_run_excluding :clean_room => true
+  c.formatter = 'documentation'
   # c.backtrace_clean_patterns.clear
 
   c.before :each do

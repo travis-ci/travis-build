@@ -20,16 +20,26 @@ module Travis
           nodes.insert(pos, node)
         end
 
-        def set(var, value, options = {})
-          cmd "export #{var}=#{value}", options.merge(log: false)
+        def export(name, value, options = {})
+          cmd "export #{name}=#{value}", { assert: false, timing: false }.merge(options)
         end
+        alias set export
 
         def echo(string, options = {})
-          cmd "echo #{escape(string)}", echo: false, log: true
+          string = ansi(string, options) if options[:ansi]
+          cmd "echo -e #{escape(string)}", { assert: false, echo: false, timing: false }.merge(options)
+        end
+
+        def newline
+          raw 'echo'
         end
 
         def cd(path)
-          cmd "cd #{path}", echo: true, log: false
+          cmd "cd #{path}", echo: true, timing: false
+        end
+
+        def file(path, content)
+          raw "echo #{escape(content)} > #{path}"
         end
 
         def if(*args, &block)
@@ -56,9 +66,9 @@ module Travis
         end
 
         def fold(name, &block)
-          raw "echo -en 'travis_fold:start:#{name}\\r'"
+          raw "travis_fold start #{name}"
           result = yield(self)
-          raw "echo -en 'travis_fold:end:#{name}\\r'"
+          raw "travis_fold end #{name}"
           result
         end
 
@@ -67,6 +77,22 @@ module Travis
           def merge_options(args, options = {})
             options = (args.last.is_a?(Hash) ? args.pop : {}).merge(options)
             args << self.options.merge(options)
+          end
+
+          ANSI = {
+            green:  '\033[32;1m',
+            red:    '\033[31;1m',
+            yellow: '\033[33;1m',
+            reset:  '\033[0m'
+          }
+
+          def ansi(string, options)
+            keys = Array(options[:ansi])
+            prefix = keys.map { |key| ANSI[key] }
+            lines = string.split("\n").map do |line|
+              line.strip.empty? ? line : [prefix, line, ANSI[:reset]].flatten.join
+            end
+            lines.join("\n")
           end
       end
     end

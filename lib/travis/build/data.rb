@@ -1,5 +1,6 @@
 require 'core_ext/hash/deep_merge'
 require 'core_ext/hash/deep_symbolize_keys'
+require 'base64'
 
 # actually, the worker payload can be cleaned up a lot ...
 
@@ -12,8 +13,10 @@ module Travis
       DEFAULTS = { }
 
       DEFAULT_CACHES = {
-        apt:     false,
-        bundler: false
+        apt:       false,
+        bundler:   false,
+        cocoapods: false,
+        composer:  false
       }
 
       attr_reader :data
@@ -72,8 +75,34 @@ module Travis
         @env_vars ||= Env.new(self).vars
       end
 
+      def env_vars_groups
+        @env_vars_groups ||= Env.new(self).vars_groups
+      end
+
       def raw_env_vars
         data[:env_vars] || []
+      end
+
+      class SshKey < Struct.new(:value, :source, :encoded)
+        def value
+          if encoded?
+            Base64.decode64(super)
+          else
+            super
+          end
+        end
+
+        def encoded?
+          encoded
+        end
+      end
+
+      def ssh_key
+        if ssh_key = data[:ssh_key]
+          SshKey.new(ssh_key[:value], ssh_key[:source], ssh_key[:encoded])
+        elsif source_key = data[:config][:source_key]
+          SshKey.new(source_key, nil, true)
+        end
       end
 
       def pull_request

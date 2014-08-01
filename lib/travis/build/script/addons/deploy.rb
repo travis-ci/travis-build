@@ -3,41 +3,71 @@ module Travis
     class Script
       module Addons
         class Deploy
-          REQUIRES_SUPER_USER = false
+          class Group
+            SUPER_USER_SAFE = true
+
+            def initialize(script, config)
+              @script = script
+              @config = if config.is_a?(Array)
+                          config
+                        else
+                          [config]
+                        end
+            end
+
+            def deploy
+              @config.each do |config|
+                Deploy.new(@script, config).deploy
+              end
+            end
+          end
 
           VERSIONED_RUNTIMES = [:jdk, :node, :perl, :php, :python, :ruby, :scala, :go]
           USE_RUBY           = '1.9.3'
+
           attr_accessor :script, :config, :allow_failure
 
           def initialize(script, config)
             @silent = false
             @script = script
-            if config.is_a?(Array)
-              @configs = config
-              @config = {}
-            else
-              @configs = [config]
-              @config = config
-            end
+            @config = config
+            @allow_failure = config.delete(:allow_failure)
           end
 
           def deploy
-            if @configs.length > 1
-              @configs.each do |config|
-                Deploy.new(script, config).deploy
-              end
+            if script.data.pull_request
+              failure_message "the current build is a pull request."
+              return
+            end
+
+            if conditions.empty?
+              run
             else
-              @allow_failure = config.delete(:allow_failure)
-              script.cmd("git fetch --tags") if on[:tags]
-              script.if(want) do
-                script.run_stage(:before_deploy)
-                run
-                script.run_stage(:after_deploy)
-              end
+              check_conditions_and_run
             end
           end
 
           private
+            def check_conditions_and_run
+              script.if(conditions) do
+                run
+              end
+
+              script.else do
+                failure_message_unless(repo_condition, "this repo's name does not match one specified in .travis.yml's deploy.on.repo: #{on[:repo]}")
+                failure_message_unless(branch_condition, "this branch is not permitted deploy")
+                failure_message_unless(runtime_conditions, "this is not on the required runtime")
+                failure_message_unless(custom_conditions, "a custom condition was not met")
+                failure_message_unless(tags_condition, "this is not a tagged commit")
+              end
+            end
+
+            def failure_message_unless(condition, message)
+              return if negate_condition(condition) == ""
+
+              script.if(negate_condition(condition)) { failure_message(message) }
+            end
+
             def on
               @on ||= begin
                 on = config.delete(:on) || config.delete(true) || config.delete(:true) || {}
@@ -48,43 +78,46 @@ module Travis
               end
             end
 
-            def want
-              conditions = [ want_push(on), want_repo(on), want_branch(on), want_runtime(on), want_condition(on), want_tags(on) ]
-              conditions.flatten.compact.map { |c| "(#{c})" }.join(" && ")
+            def conditions
+              [
+                repo_condition,
+                branch_condition,
+                runtime_conditions,
+                custom_conditions,
+                tags_condition,
+              ].flatten.compact.map { |c| "(#{c})" }.join(" && ")
             end
 
-            def want_push(on)
-              '$TRAVIS_PULL_REQUEST = false'
-            end
-
-            def want_repo(on)
+            def repo_condition
               "$TRAVIS_REPO_SLUG = \"#{on[:repo]}\"" if on[:repo]
             end
 
-            def want_branch(on)
+            def branch_condition
               return if on[:all_branches]
               branches  = Array(on[:branch] || default_branches)
               branches.map { |b| "$TRAVIS_BRANCH = #{b}" }.join(' || ')
             end
 
-            def want_tags(on)
-              '$(git describe --tags --exact-match 2>/dev/null)' if on[:tags]
-            end
-
-            def want_condition(on)
-              on[:condition]
-            end
-
-            def want_runtime(on)
-              VERSIONED_RUNTIMES.map do |runtime|
-                next unless on.include? runtime
-                "$TRAVIS_#{runtime.to_s.upcase}_VERSION = \"#{on[runtime]}\""
+            def tags_condition
+              case on[:tags]
+              when true  then '"$TRAVIS_TAG" != ""'
+              when false then '"$TRAVIS_TAG" = ""'
               end
             end
 
+            def custom_conditions
+              on[:condition]
+            end
+
+            def runtime_conditions
+              (VERSIONED_RUNTIMES & on.keys).map { |runtime| "$TRAVIS_#{runtime.to_s.upcase}_VERSION = #{on[runtime].to_s.shellescape}" }
+            end
+
             def run
+              script.run_stage(:before_deploy)
               script.fold('dpl.0') { install }
               cmd(run_command, echo: false, assert: false)
+              script.run_stage(:after_deploy)
             end
 
             def install(edge = config[:edge])
@@ -123,6 +156,14 @@ module Travis
 
             def options
               config.flat_map { |k,v| option(k,v) }.compact.join(" ")
+            end
+
+            def failure_message(message)
+              script.echo "Skipping deployment with the #{config[:provider]} provider because #{message}", ansi: :red
+            end
+
+            def negate_condition(conditions)
+              Array(conditions).flatten.compact.map { |condition| " ! #{condition}" }.join(" && ")
             end
         end
       end

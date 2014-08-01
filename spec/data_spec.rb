@@ -1,4 +1,6 @@
+require 'base64'
 require 'spec_helper'
+require 'base64'
 
 describe Travis::Build::Data do
   describe 'parse' do
@@ -22,6 +24,26 @@ describe Travis::Build::Data do
         data = Travis::Build::Data.new(repository: { source_url: "https://#{host}/foo/bar.git" })
         expect(data.source_host).to eq(host)
       end
+    end
+  end
+
+  describe 'ssh_key' do
+    it 'returns ssh_key from source_key as a fallback' do
+      data = Travis::Build::Data.new(config: { source_key: Base64.encode64('foo') })
+      data.ssh_key.value.should == 'foo'
+      data.ssh_key.source.should be_nil
+      data.ssh_key.should be_encoded
+    end
+
+    it 'returns nil if there is no ssh_key' do
+      data = Travis::Build::Data.new({ config: {} })
+      data.ssh_key.should be_nil
+    end
+
+    it 'returns ssh_key from api if it is available' do
+      data = Travis::Build::Data.new(ssh_key: { value: 'foo', source: 'the source' })
+      data.ssh_key.value.should == 'foo'
+      data.ssh_key.source.should == 'the source'
     end
   end
 
@@ -77,7 +99,7 @@ describe Travis::Build::Data do
 
       describe '#cache' do
         subject { super().cache }
-        it { is_expected.to eq({ bundler: false, apt: false }) }
+        it { is_expected.to eq({ bundler: false, apt: false, cocoapods: false, composer: false }) }
       end
       it { is_expected.not_to be_cache(:bundler) }
       it { is_expected.not_to be_cache(:edge) }

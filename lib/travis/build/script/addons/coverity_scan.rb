@@ -3,7 +3,7 @@ module Travis
     class Script
       module Addons
         class CoverityScan
-          REQUIRES_SUPER_USER = false
+          SUPER_USER_SAFE = true
 
           SCAN_URL      = 'https://scan.coverity.com'
 

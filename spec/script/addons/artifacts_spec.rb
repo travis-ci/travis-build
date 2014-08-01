@@ -79,43 +79,37 @@ describe Travis::Build::Script::Addons::Artifacts do
     end
 
     it 'exports ARTIFACTS_BUCKET' do
-      script.expects(:set).with('ARTIFACTS_BUCKET', '"hambone"', echo: false, assert: false)
+      script.expects(:set).with('ARTIFACTS_BUCKET', '"hambone"', echo: false)
       subject.after_script
     end
 
     it 'exports ARTIFACTS_PRIVATE' do
-      script.expects(:set).with('ARTIFACTS_PRIVATE', '"true"', echo: false, assert: false)
+      script.expects(:set).with('ARTIFACTS_PRIVATE', '"true"', echo: false)
       subject.after_script
     end
 
     it 'overrides ARTIFACTS_TARGET_PATHS' do
-      script.expects(:set).with('ARTIFACTS_TARGET_PATHS', '"hamster/wheel/123/123.1"', echo: false, assert: false)
+      script.expects(:set).with('ARTIFACTS_TARGET_PATHS', '"hamster/wheel/123/123.1"', echo: false)
       subject.after_script
     end
 
     it 'overrides ARTIFACTS_CONCURRENCY' do
-      script.expects(:set).with(
-        'ARTIFACTS_CONCURRENCY', %Q{"#{subject.class::CONCURRENCY}"},
-        echo: false, assert: false
-      )
+      script.expects(:set).with('ARTIFACTS_CONCURRENCY', %Q{"#{subject.class::CONCURRENCY}"}, echo: false)
       subject.after_script
     end
 
     it 'overrides ARTIFACTS_MAX_SIZE' do
-      script.expects(:set).with(
-        'ARTIFACTS_MAX_SIZE', %Q{"#{subject.class::MAX_SIZE}"},
-        echo: false, assert: false
-      )
+      script.expects(:set).with('ARTIFACTS_MAX_SIZE', %Q{"#{subject.class::MAX_SIZE}"}, echo: false)
       subject.after_script
     end
 
     it 'defaults ARTIFACTS_PATHS' do
-      script.expects(:set).with('ARTIFACTS_PATHS', '"$(git ls-files -o | tr "\n" ":")"', echo: true, assert: false)
+      script.expects(:set).with('ARTIFACTS_PATHS', '"$(git ls-files -o | tr "\n" ":")"', echo: true)
       subject.after_script
     end
 
     it 'defaults ARTIFACTS_LOG_FORMAT' do
-      script.expects(:set).with('ARTIFACTS_LOG_FORMAT', '"multiline"', echo: false, assert: false)
+      script.expects(:set).with('ARTIFACTS_LOG_FORMAT', '"multiline"', echo: false)
       subject.after_script
     end
 
@@ -125,7 +119,7 @@ describe Travis::Build::Script::Addons::Artifacts do
     end
 
     it 'prefixes $PATH with $HOME/bin' do
-      script.expects(:set).with('PATH', '$HOME/bin:$PATH', echo: false, assert: false).once
+      script.expects(:set).with('PATH', '$HOME/bin:$PATH', echo: false).once
       subject.after_script
     end
 
@@ -135,12 +129,12 @@ describe Travis::Build::Script::Addons::Artifacts do
     end
 
     it 'overwrites :concurrency' do
-      script.expects(:set).with('ARTIFACTS_CONCURRENCY', %Q{"#{subject.class::CONCURRENCY}"}, echo: false, assert: false).once
+      script.expects(:set).with('ARTIFACTS_CONCURRENCY', %Q{"#{subject.class::CONCURRENCY}"}, echo: false).once
       subject.after_script
     end
 
     it 'overwrites :max_size' do
-      script.expects(:set).with('ARTIFACTS_MAX_SIZE', %Q{"#{subject.class::MAX_SIZE}"}, echo: false, assert: false).once
+      script.expects(:set).with('ARTIFACTS_MAX_SIZE', %Q{"#{subject.class::MAX_SIZE}"}, echo: false).once
       subject.after_script
     end
   end
@@ -159,17 +153,17 @@ describe Travis::Build::Script::Addons::Artifacts do
     end
 
     it 'echoes a message about missing :key' do
-      script.expects(:cmd).with('echo "Artifacts config missing :key param"', echo: false, assert: false).once
+      script.expects(:echo).with('Artifacts config missing :key param', ansi: :red).once
       subject.after_script
     end
 
     it 'echoes a message about missing :secret' do
-      script.expects(:cmd).with('echo "Artifacts config missing :secret param"', echo: false, assert: false).once
+      script.expects(:echo).with('Artifacts config missing :secret param', ansi: :red).once
       subject.after_script
     end
 
     it 'echoes a message about missing :bucket' do
-      script.expects(:cmd).with('echo "Artifacts config missing :bucket param"', echo: false, assert: false).once
+      script.expects(:echo).with('Artifacts config missing :bucket param', ansi: :red).once
       subject.after_script
     end
 
@@ -195,7 +189,7 @@ describe Travis::Build::Script::Addons::Artifacts do
     before(:each) { subject.stubs(:pull_request?).returns(true) }
 
     it 'echoes that artifacts are disabled for pull requests and nothing else' do
-      script.expects(:cmd).with('echo "Artifacts support disabled for pull requests"', echo: false, assert: false).once
+      script.expects(:echo).with('Artifacts support disabled for pull requests').once
       script.expects(:set).never
       script.expects(:fold).never
       subject.after_script
@@ -206,7 +200,7 @@ describe Travis::Build::Script::Addons::Artifacts do
     before(:each) { subject.stubs(:branch_runnable?).returns(false) }
 
     it 'echoes that artifacts are disabled for the current branch and nothing else' do
-      script.expects(:cmd).with(%Q{echo "Artifacts support not enabled for the current branch (#{data.branch.inspect})"}, echo: false, assert: false).once
+      script.expects(:echo).with("Artifacts support not enabled for the current branch (#{data.branch.inspect})").once
       script.expects(:set).never
       script.expects(:fold).never
       subject.after_script

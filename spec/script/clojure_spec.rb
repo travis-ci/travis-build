@@ -19,15 +19,11 @@ describe Travis::Build::Script::Clojure do
     end
 
     it 'installs lein deps' do
-      is_expected.to install 'lein deps'
-    end
-
-    it 'retries len deps' do
-      is_expected.to retry_script 'lein deps'
+      is_expected.to travis_cmd 'lein deps', echo: true, timing: true, retry: true, assert: true
     end
 
     it 'runs lein test' do
-      is_expected.to run_script 'lein test'
+      is_expected.to travis_cmd 'lein test', echo: true, timing: true
     end
   end
 
@@ -45,15 +41,11 @@ describe Travis::Build::Script::Clojure do
     end
 
     it 'installs lein2 deps if lein: lein2 given' do
-      is_expected.to install 'lein2 deps'
-    end
-
-    it 'retries lein2 deps if lein: lein2 given' do
-      is_expected.to retry_script 'lein2 deps'
+      is_expected.to travis_cmd 'lein2 deps', echo: true, timing: true, retry: true, assert: true
     end
 
     it 'runs lein2 test if lein: lein2 given' do
-      is_expected.to run_script 'lein2 test'
+      is_expected.to travis_cmd 'lein2 test', echo: true, timing: true
     end
   end
 

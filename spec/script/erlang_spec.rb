@@ -24,23 +24,21 @@ describe Travis::Build::Script::Erlang do
 
   describe 'if no rebar config exists' do
     it 'does not install rebar get-deps' do
-      is_expected.not_to run 'rebar get-deps'
+      is_expected.not_to travis_cmd "./rebar get-deps", echo: true, timing: true, retry: true, assert: true
     end
 
     it 'runs make test' do
-      is_expected.to run_script 'make test'
+      is_expected.to travis_cmd "make test", echo: true, timing: true
     end
   end
 
   shared_examples_for 'runs rebar' do |path|
     it "installs #{path}rebar get-deps" do
-      is_expected.to run "#{path}rebar get-deps", echo: true, log: true, assert: true, retry: true
+      is_expected.to travis_cmd "#{path}rebar get-deps", echo: true, timing: true, retry: true, assert: true
     end
 
     it "runs #{path}rebar compile && #{path}rebar skip_deps=true eunit" do
-      is_expected.to run "echo $ #{path}rebar compile && #{path}rebar skip_deps=true eunit"
-      is_expected.to run "#{path}rebar compile"
-      is_expected.to run "#{path}rebar skip_deps=true eunit", log: true
+      is_expected.to travis_cmd "#{path}rebar compile && #{path}rebar skip_deps=true eunit", echo: true, timing: true
     end
   end
 
