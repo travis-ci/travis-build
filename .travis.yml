@@ -6,4 +6,4 @@ sudo: false
 
 rvm: 2.1
 
-script: "bundle exec rspec spec --tag @clean_room"
+script: "bundle exec rspec spec"
