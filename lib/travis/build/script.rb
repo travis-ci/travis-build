@@ -157,7 +157,6 @@ module Travis
         def fix_etc_hosts
           return if data.skip_etc_hosts_fix?
           raw %(sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'.bak' /etc/hosts)
-          raw %(sudo bash -c 'echo "87.98.253.108 getcomposer.org" >> /etc/hosts')
         end
 
         def fix_ps4
