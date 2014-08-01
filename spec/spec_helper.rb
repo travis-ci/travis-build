@@ -74,6 +74,7 @@ RSpec.configure do |c|
   c.mock_with :mocha
   c.filter_run focus: true
   c.run_all_when_everything_filtered = true
+  c.filter_run_excluding :clean_room => true
   # c.backtrace_clean_patterns.clear
 
   c.before :each do
