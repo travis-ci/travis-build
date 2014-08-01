@@ -19,6 +19,7 @@ module Travis
         def setup
           super
           cmd "nvm use #{config[:node_js]}"
+          cmd "npm config set spin false", echo: false
           if npm_should_disable_strict_ssl?
             cmd 'echo "### Disabling strict SSL ###"'
             cmd 'npm conf set strict-ssl false'
