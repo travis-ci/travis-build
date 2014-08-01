@@ -156,7 +156,7 @@ shared_examples_for 'a git repo' do
 
   # this currently trashes your local ~/.ssh/id_rsa and known_hosts file
   # you should only be run on a clean room env
-  describe 'there is a source_key' do
+  describe 'there is a source_key', clean_room: true do
     before :each do
       data['config']['source_key'] = "d2hvbGV0dGhlam9zaG91dA==\n"
     end
