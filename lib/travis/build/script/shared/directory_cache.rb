@@ -119,11 +119,15 @@ module Travis
           end
 
           def install(sh)
-            sh.set 'CASHER_DIR', '$HOME/.casher'
-            sh.mkdir '$CASHER_DIR/bin', recursive: true
+            sh.export 'CASHER_DIR', '$HOME/.casher'
+
+            sh.mkdir '$CASHER_DIR/bin', echo: false, recursive: true
             sh.cmd "curl #{CASHER_URL % @casher_branch} -L -o #{BIN_PATH} -s --fail", retry: true
             sh.cmd "[ $? -ne 0 ] && echo 'Failed to fetch casher from GitHub, disabling cache.' && echo > #{BIN_PATH}"
-            sh.if("-f #{BIN_PATH}") { sh.cmd "chmod +x #{BIN_PATH}" }
+
+            sh.if "-f #{BIN_PATH}" do
+              sh.chmod '+x', BIN_PATH
+            end
           end
 
           def add(sh, path)
@@ -190,8 +194,8 @@ module Travis
             end
 
             def run(sh, command, *arguments)
-              sh.if("-f #{BIN_PATH}") do
-                sh.cmd("rvm #{USE_RUBY} --fuzzy do #{BIN_PATH} #{command} #{arguments.join(" ")}", echo: false)
+              sh.if "-f #{BIN_PATH}" do
+                sh.cmd "rvm #{USE_RUBY} --fuzzy do #{BIN_PATH} #{command} #{arguments.join(" ")}", echo: false
               end
             end
         end
