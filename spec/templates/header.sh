@@ -21,7 +21,7 @@ stubs=(
   sbt
   curl cp bash mv tar
   /Users/travis/travis-utils/osx-cibuild.sh /usr/local/bin/actool xcodebuild pod motion xctool osascript
-  sudo
+  sudo ssh-add
   chruby
 )
 for stub in ${stubs[*]}; do
