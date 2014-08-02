@@ -4,6 +4,16 @@ describe Travis::Build::Script::DirectoryCache do
   let(:sh)      { Travis::Shell::Builder.new }
   let(:options) { { fetch_timeout: 20, push_timeout: 30, type: 's3', s3: { bucket: 's3_bucket', secret_access_key: 's3_secret_access_key', access_key_id: 's3_access_key_id' } } }
 
+  # sh.export 'CASHER_DIR', '$HOME/.casher'
+
+  # sh.mkdir '$CASHER_DIR/bin', echo: false, recursive: true
+  # sh.cmd "curl #{CASHER_URL % @casher_branch} -L -o #{BIN_PATH} -s --fail", retry: true
+  # sh.cmd "[ $? -ne 0 ] && echo 'Failed to fetch casher from GitHub, disabling cache.' && echo > #{BIN_PATH}"
+
+  # sh.if "-f #{BIN_PATH}" do
+  #   sh.chmod '+x', BIN_PATH
+  # end
+
   describe 'dummy caching' do
     let(:data)   { Travis::Build::Data.new(config: { cache: config }, cache_options: options) }
     let(:script) { Struct.new(:sh, :data) { include(Travis::Build::Script::DirectoryCache) }.new(sh, data) }
@@ -75,10 +85,10 @@ describe Travis::Build::Script::DirectoryCache do
     let(:url)             { url_for(branch) }
     let(:fetch_url)       { Shellwords.escape "#{url}&X-Amz-Expires=20&X-Amz-Signature=#{fetch_signature}&X-Amz-SignedHeaders=host" }
     let(:push_url)        { Shellwords.escape "#{url}&X-Amz-Expires=30&X-Amz-Signature=#{push_signature}&X-Amz-SignedHeaders=host" }
-    let(:data)            { Travis::Build::Data.new(config: {}, repository: { github_id: 42 }, cache_options: options, job: { branch: branch }) }
+    let(:data)            { PAYLOADS[:push].deep_merge(cache_options: options, job: { branch: branch }) }
     let(:branch)          { 'master' }
 
-    let(:directory_cache) { described_class.new(data, 'ex a/mple', 'production', Time.at(10)) }
+    let(:directory_cache) { described_class.new(Travis::Build::Data.new(data), 'ex a/mple', 'production', Time.at(10)) }
     let(:subject)         { sh.to_sexp }
 
     describe 'install' do

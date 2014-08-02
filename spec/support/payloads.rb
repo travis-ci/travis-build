@@ -14,6 +14,7 @@ PAYLOADS = {
       'after_deploy'   => ['./after_deploy_1.sh',   './after_deploy_1.sh'],
     },
     'repository' => {
+      'github_id' => 42,
       'slug' => 'travis-ci/travis-ci',
       'source_url' => 'git://github.com/travis-ci/travis-ci.git'
     },
