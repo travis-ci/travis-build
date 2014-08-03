@@ -111,11 +111,15 @@ module Travis
       end
 
       def source_url
-        repository[:source_url]
+        repository.fetch(:source_url)
       end
 
       def slug
-        repository[:slug]
+        repository.fetch(:slug)
+      end
+
+      def github_id
+        repository.fetch(:github_id)
       end
 
       def commit

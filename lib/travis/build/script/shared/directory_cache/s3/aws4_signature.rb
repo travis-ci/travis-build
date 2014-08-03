@@ -2,10 +2,6 @@ require 'addressable/uri'
 require 'digest/sha1'
 require 'openssl'
 
-# TODO these don't seem to be used?
-require 'base64'
-require 'uri'
-
 module Travis
   module Build
     class Script

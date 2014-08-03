@@ -117,7 +117,6 @@ module Travis
         end
 
         def finish
-          push_directory_cache
         end
 
         def pre_setup
@@ -128,7 +127,6 @@ module Travis
         end
 
         def setup
-          setup_directory_cache
         end
 
         def announce
