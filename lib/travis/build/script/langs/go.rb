@@ -8,7 +8,7 @@ module Travis
         }
 
         def cache_slug
-          super << "--go-" << config[:go].to_s
+          super << '--go-' << config[:go].to_s
         end
 
         def export

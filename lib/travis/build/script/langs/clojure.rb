@@ -10,7 +10,7 @@ module Travis
         }
 
         def cache_slug
-          super << "--lein-" << lein.to_s
+          super << '--lein-' << lein.to_s
         end
 
         def announce

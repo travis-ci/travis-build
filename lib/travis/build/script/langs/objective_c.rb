@@ -38,7 +38,7 @@ module Travis
           super
 
           sh.cmd "echo '#!/bin/bash\n# no-op' > /usr/local/bin/actool"
-          sh.cmd "chmod +x /usr/local/bin/actool"
+          sh.cmd 'chmod +x /usr/local/bin/actool'
           sh.cmd "osascript -e 'set simpath to \"/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone Simulator.app/Contents/MacOS/iPhone Simulator\" as POSIX file' -e 'tell application \"Finder\"' -e 'open simpath' -e 'end tell'"
         end
 

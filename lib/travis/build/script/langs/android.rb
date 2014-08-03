@@ -35,7 +35,7 @@ module Travis
 
           def install_sdk_components(components)
             sh.fold 'android.install' do
-              sh.echo "Installing Android dependencies"
+              sh.echo 'Installing Android dependencies'
               components.each do |name|
                 sh.cmd install_sdk_component(name)
               end

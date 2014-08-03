@@ -10,7 +10,7 @@ module Travis
         include Jdk
         include RVM
 
-        DEFAULT_BUNDLER_ARGS = "--jobs=3 --retry=3"
+        DEFAULT_BUNDLER_ARGS = '--jobs=3 --retry=3'
 
         def setup
           super
@@ -31,7 +31,7 @@ module Travis
           sh.fold 'install' do
             sh.if "-f #{config[:gemfile]} && -f #{config[:gemfile]}.lock" do
               directory_cache.add(sh, bundler_path) if data.cache? :bundler
-              sh.cmd bundler_command("--deployment"), retry: true
+              sh.cmd bundler_command('--deployment'), retry: true
             end
             sh.elif "-f #{config[:gemfile]}" do
               directory_cache.add(sh, bundler_path) if data.cache? :bundler, false
@@ -54,7 +54,7 @@ module Travis
         end
 
         def cache_slug
-          super << "--gemfile-" << config[:gemfile].to_s # ruby version is added by RVM
+          super << '--gemfile-' << config[:gemfile].to_s # ruby version is added by RVM
         end
 
         def use_directory_cache?
@@ -64,20 +64,20 @@ module Travis
         private
 
           def bundler_args_path
-            args = Array(bundler_args).join(" ")
+            args = Array(bundler_args).join(' ')
             path = args[/--path[= ](\S+)/, 1]
             path ||= 'vendor/bundle' if args.include?('--deployment')
             path
           end
 
           def bundler_path
-            bundler_args_path || "${BUNDLE_PATH:-vendor/bundle}"
+            bundler_args_path || '${BUNDLE_PATH:-vendor/bundle}'
           end
 
           def bundler_command(args = nil)
             args = bundler_args ? bundler_args : [DEFAULT_BUNDLER_ARGS, args].compact
-            args = [args].flatten << "--path=#{bundler_path}" if data.cache?(:bundler) and !bundler_args_path
-            ["bundle install", *args].compact.join(" ")
+            args = [args].flatten << '--path=#{bundler_path}' if data.cache?(:bundler) and !bundler_args_path
+            ['bundle install', *args].compact.join(' ')
           end
 
           def bundler_args

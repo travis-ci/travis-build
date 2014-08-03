@@ -11,7 +11,7 @@ module Travis
         SCRIPT_MISSING       = 'Please override the script: key in your .travis.yml to run tests.'
 
         def cache_slug
-          super << "--python-" << config[:python].to_s
+          super << '--python-' << config[:python].to_s
         end
 
         def export
@@ -55,12 +55,12 @@ module Travis
           end
 
           def python_version
-            config[:python] =~ /pypy/i ? "pypy" : "python#{config[:python]}"
+            config[:python] =~ /pypy/i ? 'pypy' : "python#{config[:python]}"
           end
 
           def system_site_packages
             if config[:virtualenv][:system_site_packages]
-              "_with_system_site_packages"
+              '_with_system_site_packages'
             end
           end
       end

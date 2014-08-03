@@ -106,39 +106,27 @@ describe Travis::Build::Script::Ruby, :sexp do
   describe '#cache_slug' do
     let(:script) { described_class.new(data) }
 
-    describe '#cache_slug' do
+    describe 'default' do
       subject { script.cache_slug }
       it { is_expected.to eq('cache--rvm-default--gemfile-Gemfile') }
     end
 
     describe 'with custom gemfile' do
       before { data['config']['gemfile'] = 'Gemfile.ci' }
-
-      describe '#cache_slug' do
-        subject { script.cache_slug }
-        it { is_expected.to eq('cache--rvm-default--gemfile-Gemfile.ci') }
-      end
+      subject { script.cache_slug }
+      it { is_expected.to eq('cache--rvm-default--gemfile-Gemfile.ci') }
     end
 
     describe 'with custom ruby version' do
       before { data['config']['rvm'] = 'jruby' }
-
-      describe '#cache_slug' do
-        subject { script.cache_slug }
-        it { is_expected.to eq('cache--rvm-jruby--gemfile-Gemfile') }
-      end
+      subject { script.cache_slug }
+      it { is_expected.to eq('cache--rvm-jruby--gemfile-Gemfile') }
     end
 
     describe 'with custom jdk version' do
-      before do
-        data['config']['rvm'] = 'jruby'
-        data['config']['jdk'] = 'openjdk7'
-      end
-
-      describe '#cache_slug' do
-        subject { script.cache_slug }
-        it { is_expected.to eq('cache--jdk-openjdk7--rvm-jruby--gemfile-Gemfile') }
-      end
+      before { data.deep_merge!(config: { rvm: 'jruby', jdk: 'openjdk7' }) }
+      subject { script.cache_slug }
+      it { is_expected.to eq('cache--jdk-openjdk7--rvm-jruby--gemfile-Gemfile') }
     end
   end
 end

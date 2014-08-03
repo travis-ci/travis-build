@@ -7,7 +7,7 @@ module Travis
         }
 
         def cache_slug
-          super << "--otp-" << otp_release.to_s
+          super << '--otp-' << otp_release.to_s
         end
 
         def export

@@ -32,7 +32,7 @@ module Travis
         end
 
         def cache_slug
-          super << "--php-" << version
+          super << '--php-' << version
         end
 
         def version

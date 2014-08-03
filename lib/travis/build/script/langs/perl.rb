@@ -39,12 +39,12 @@ module Travis
         end
 
         def cache_slug
-          super << "--perl-" << version
+          super << '--perl-' << version
         end
 
         def version
           # this check is needed because safe_yaml parses the string 5.10 to 5.1
-          (config[:perl] == 5.1 ? "5.10" : config[:perl]).to_s
+          (config[:perl] == 5.1 ? '5.10' : config[:perl]).to_s
         end
       end
     end

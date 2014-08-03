@@ -7,7 +7,7 @@ module Travis
         }
 
         def cache_slug
-          super << "--compiler-" << compiler.to_s.tr('+', 'p')
+          super << '--compiler-' << compiler.to_s.tr('+', 'p')
         end
 
         def export
@@ -45,11 +45,11 @@ module Travis
           def cc
             case config[:compiler]
             when /^gcc/i, /^g\+\+/i then
-              "gcc"
+              'gcc'
             when /^clang/i, /^clang\+\+/i then
-              "clang"
+              'clang'
             else
-              "gcc"
+              'gcc'
             end
           end
       end

@@ -7,7 +7,7 @@ module Travis
         }
 
         def cache_slug
-          super << "--compiler-" << compiler.to_s
+          super << '--compiler-' << compiler.to_s
         end
 
         def export

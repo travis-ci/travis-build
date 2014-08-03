@@ -12,7 +12,7 @@ module Travis
         def cache_class
           type = data.cache_options[:type].to_s.capitalize
           type = :Noop if type.empty? or !use_directory_cache?
-          raise ArgumentError, "unknown caching mode %p" % type unless DirectoryCache.const_defined?(type, false)
+          raise ArgumentError, 'unknown caching mode %p' % type unless DirectoryCache.const_defined?(type, false)
           DirectoryCache.const_get(type)
         end
 

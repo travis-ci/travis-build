@@ -40,7 +40,7 @@ module Travis
         end
 
         def cache_slug
-          super << "--node-" << version
+          super << '--node-' << version
         end
 
         private

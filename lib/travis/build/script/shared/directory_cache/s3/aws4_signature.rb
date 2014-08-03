@@ -31,17 +31,17 @@ module Travis
             private
 
             def date
-              @timestamp.utc.strftime("%Y%m%d")
+              @timestamp.utc.strftime('%Y%m%d')
             end
 
             def timestamp
-              @timestamp.utc.strftime("%Y%m%dT%H%M%SZ")
+              @timestamp.utc.strftime('%Y%m%dT%H%M%SZ')
             end
 
             def query_string
               canonical_query_params.map { |key, value|
                 "#{URI.encode(key.to_s, /[^~a-zA-Z0-9_.-]/)}=#{URI.encode(value.to_s, /[^~a-zA-Z0-9_.-]/)}"
-              }.join("&")
+              }.join('&')
             end
 
             def request_sha
@@ -51,25 +51,25 @@ module Travis
                   @location.path,
                   query_string,
                   "host:#{@location.hostname}\n",
-                  "host",
-                  "UNSIGNED-PAYLOAD"
+                  'host',
+                  'UNSIGNED-PAYLOAD'
                 ].join("\n")
               )
             end
 
             def canonical_query_params
               @canonical_query_params ||= {
-                "X-Amz-Algorithm" => "AWS4-HMAC-SHA256",
-                "X-Amz-Credential" => "#{@key_pair.id}/#{date}/#{@location.region}/s3/aws4_request",
-                "X-Amz-Date" => timestamp,
-                "X-Amz-Expires" => @expires,
-                "X-Amz-SignedHeaders" => "host",
+                'X-Amz-Algorithm' => 'AWS4-HMAC-SHA256',
+                'X-Amz-Credential' => "#{@key_pair.id}/#{date}/#{@location.region}/s3/aws4_request",
+                'X-Amz-Date' => timestamp,
+                'X-Amz-Expires' => @expires,
+                'X-Amz-SignedHeaders' => 'host',
               }
             end
 
             def string_to_sign
               [
-                "AWS4-HMAC-SHA256",
+                'AWS4-HMAC-SHA256',
                 timestamp,
                 "#{date}/#{@location.region}/s3/aws4_request",
                 request_sha
@@ -81,13 +81,13 @@ module Travis
                 "AWS4#{@key_pair.secret}",
                 date,
                 @location.region,
-                "s3",
-                "aws4_request",
+                's3',
+                'aws4_request',
               )
             end
 
             def recursive_hmac(*args)
-              args.inject { |key, data| OpenSSL::HMAC.digest("sha256", key, data) }
+              args.inject { |key, data| OpenSSL::HMAC.digest('sha256', key, data) }
             end
           end
         end

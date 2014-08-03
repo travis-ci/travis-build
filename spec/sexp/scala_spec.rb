@@ -22,11 +22,11 @@ describe Travis::Build::Script::Scala, :sexp do
   describe 'if ./project directory or build.sbt file exists' do
     let(:sexp) { sexp_find(subject, [:if, '-d project || -f build.sbt']) }
 
-    it "sets JVM_OPTS" do
+    it 'sets JVM_OPTS' do
       should include_sexp export_jvm_opts
     end
 
-    it "sets SBT_OPTS" do
+    it 'sets SBT_OPTS' do
       should include_sexp export_sbt_opts
     end
   end
@@ -35,12 +35,12 @@ describe Travis::Build::Script::Scala, :sexp do
     describe 'if ./project directory or build.sbt file exists' do
       let(:sexp) { sexp_find(sexp_filter(subject, [:if, '-d project || -f build.sbt'])[1], [:then]) }
 
-      it "runs sbt with default arguments" do
+      it 'runs sbt with default arguments' do
         expect(sexp).to include_sexp [:cmd, 'sbt ++2.10.4 test', echo: true, timing: true]
       end
 
-      it "runs sbt with additional arguments" do
-        data["config"]["sbt_args"] = "-Dsbt.log.noformat=true"
+      it 'runs sbt with additional arguments' do
+        data['config']['sbt_args'] = '-Dsbt.log.noformat=true'
         expect(sexp).to include_sexp [:cmd, 'sbt -Dsbt.log.noformat=true ++2.10.4 test', echo: true, timing: true]
       end
     end

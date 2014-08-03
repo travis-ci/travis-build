@@ -16,9 +16,9 @@ module Travis
           end
 
           # TODO: Switch to different branch from master?
-          CASHER_URL = "https://raw.githubusercontent.com/travis-ci/casher/%s/bin/casher"
-          USE_RUBY   = "1.9.3"
-          BIN_PATH   = "$CASHER_DIR/bin/casher"
+          CASHER_URL = 'https://raw.githubusercontent.com/travis-ci/casher/%s/bin/casher'
+          USE_RUBY   = '1.9.3'
+          BIN_PATH   = '$CASHER_DIR/bin/casher'
 
           attr_reader :sh, :data, :slug, :start
 
@@ -86,7 +86,7 @@ module Travis
 
             def run(command, *arguments)
               sh.if "-f #{BIN_PATH}" do
-                sh.cmd "rvm #{USE_RUBY} --fuzzy do #{BIN_PATH} #{command} #{arguments.join(" ")}", echo: false
+                sh.cmd "rvm #{USE_RUBY} --fuzzy do #{BIN_PATH} #{command} #{arguments.join(' ')}", echo: false
               end
             end
 
