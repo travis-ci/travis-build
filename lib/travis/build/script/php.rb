@@ -28,7 +28,7 @@ module Travis
         def announce
           super
           cmd 'php --version'
-          cmd 'composer --version'
+          cmd 'composer --version' unless config[:php] == '5.2'
         end
 
         def before_install
