@@ -18,7 +18,7 @@ describe Travis::Build::Script::Scala do
   end
 
   it 'announces Scala 2.10.4' do
-    expect(log_for(subject)).to include('Using Scala 2.10.4')
+    expect(log_for(subject)).to include('Using\\ Scala\\ 2.10.4')
   end
 
   it 'does not set JVM_OPTS' do

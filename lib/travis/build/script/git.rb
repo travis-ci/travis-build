@@ -74,7 +74,7 @@ module Travis
           end
 
           def fetch_ref
-            cmd "git fetch origin +#{data.ref}: ", assert: true, fold: "git.#{next_git_fold_number}", retry: true
+            cmd "git fetch origin +#{data.ref}:", assert: true, fold: "git.#{next_git_fold_number}", retry: true
           end
 
           def git_checkout
