@@ -49,7 +49,15 @@ module Travis
           end
 
           def python_version
-            config[:python] =~ /pypy/i ? "pypy" : "python#{config[:python]}"
+            if pypy?
+              config[:python]
+            else
+              "python#{config[:python]}"
+            end
+          end
+
+          def pypy?
+            config[:python] =~ /pypy/i
           end
 
           def system_site_packages
