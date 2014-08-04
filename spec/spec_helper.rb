@@ -1,4 +1,6 @@
 require 'fileutils'
+require 'sinatra/test_helpers'
+
 require 'travis/build'
 
 require 'support/matchers'
@@ -75,6 +77,7 @@ RSpec.configure do |c|
   c.filter_run focus: true
   c.run_all_when_everything_filtered = true
   c.formatter = 'documentation'
+  c.include Sinatra::TestHelpers, :include_sinatra_helpers
   # c.backtrace_clean_patterns.clear
 
   c.before :each do
