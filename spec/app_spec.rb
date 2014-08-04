@@ -1,13 +1,7 @@
-require "sinatra/test_helpers"
-
 require "spec_helper"
 require "travis/build/app"
 
-RSpec.configure do |c|
-  c.include Sinatra::TestHelpers
-end
-
-describe Travis::Build::App do
+describe Travis::Build::App, :include_sinatra_helpers do
   before do
     set_app Travis::Build::App.new
     ENV["API_TOKEN"] = "the-token"
