@@ -24,6 +24,12 @@ describe Travis::Build::Script::Python do
     store_example 'pypy'
   end
 
+  it 'sets up the python version (pypy3)' do
+    data['config']['python'] = 'pypy3'
+    is_expected.to travis_cmd 'source ~/virtualenv/pypy3/bin/activate', echo: true, timing: true, assert: true
+    store_example 'pypy3'
+  end
+
   it 'sets up the python version (2.7)' do
     is_expected.to travis_cmd 'source ~/virtualenv/python2.7/bin/activate', echo: true, timing: true, assert: true
     store_example '2.7'
