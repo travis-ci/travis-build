@@ -8,7 +8,7 @@ require 'travis/build'
 module Travis
   module Build
     class App < Sinatra::Base
-      before do
+      before "/script" do
         return if ENV["API_TOKEN"].nil? || ENV["API_TOKEN"].empty?
 
         type, token = env["HTTP_AUTHORIZATION"].to_s.split(" ", 2)
@@ -58,6 +58,10 @@ module Travis
 
         content_type :txt
         Travis::Build.script(payload).compile
+      end
+
+      get "/uptime" do
+        status 204
       end
     end
   end

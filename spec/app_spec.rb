@@ -14,7 +14,7 @@ describe Travis::Build::App do
     header("Content-Type", "application/json")
   end
 
-  context "/script" do
+  describe "/script" do
     context "with the right token" do
       it "returns a script" do
         header("Authorization", "token the-token")
@@ -43,6 +43,15 @@ describe Travis::Build::App do
         header("Authorization", "token the-token")
         response = post "/script", {}, input: "{'invalid':'json"
         expect(response.status).to be == 400
+      end
+    end
+  end
+
+  describe "/uptime" do
+    context "without a token" do
+      it "returns 204" do
+        response = get "/uptime"
+        expect(response.status).to be == 204
       end
     end
   end
