@@ -38,7 +38,7 @@ module Travis
 
         def perl_version
           # this check is needed because safe_yaml parses the string 5.10 to 5.1
-          config[:perl] == 5.1 ? "5.10" : config[:perl]
+          config[:perl] == 5.1 ? "5.10" : config[:perl] == 5.2 ? "5.20" : config[:perl]
         end
       end
     end

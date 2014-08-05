@@ -42,6 +42,16 @@ describe Travis::Build::Script::Perl do
     end
   end
 
+  describe 'if perl version is 5.20' do
+    before(:each) do
+      data['config']['perl'] = 5.2
+    end
+
+    it 'converts 5.2 to 5.20' do
+      is_expected.to travis_cmd 'perlbrew use 5.20', echo: true, timing: true, assert: true
+    end
+  end
+
   describe 'if no Build.PL or Makefile.PL exists' do
     it 'runs make test' do
       is_expected.to travis_cmd 'make test', echo: true, timing: true
