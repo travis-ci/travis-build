@@ -148,7 +148,7 @@ shared_examples_for 'a git repo' do
         end
 
         it 'updates submodules with that depth' do
-          is_expected.to travis_cmd 'git submodules update --depth=50'
+          is_expected.to travis_cmd 'git submodule update --depth=50'
         end
       end
     end
