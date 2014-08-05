@@ -135,8 +135,21 @@ shared_examples_for 'a git repo' do
         is_expected.to travis_cmd 'git submodule init'
       end
 
-      it 'updates submodules' do
-        is_expected.to travis_cmd 'git submodule update'
+
+      context 'without setting submodules_depth' do
+        it 'updates submodules with no depth' do
+          is_expected.to travis_cmd 'git submodule update'
+        end
+      end
+
+      context 'when setting submodules_depth' do
+        before do
+          data['config']['git'] = { submodules_depth: 50 }
+        end
+
+        it 'updates submodules with that depth' do
+          is_expected.to travis_cmd 'git submodules update --depth=50'
+        end
       end
     end
 

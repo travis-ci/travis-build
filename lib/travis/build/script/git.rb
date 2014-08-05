@@ -87,10 +87,11 @@ module Travis
 
           def submodules
             self.if '-f .gitmodules' do
-              depth_opt = config[:git][:submodules_depth] ? " --depth=#{config[:git][:submodules_depth]}" : ''
+              depth_opt = " --depth=#{config[:git][:submodules_depth].to_s.shellescape}" if config[:git].key?(:submodules_depth)
+
               cmd 'echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config', echo: false
               cmd 'git submodule init', fold: "git.#{next_git_fold_number}"
-              cmd "git submodule update #{depth_opt}", assert: true, fold: "git.#{next_git_fold_number}", retry: true
+              cmd "git submodule update#{depth_opt}", assert: true, fold: "git.#{next_git_fold_number}", retry: true
             end
           end
 
