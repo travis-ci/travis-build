@@ -55,14 +55,15 @@ function travis_cmd() {
 
 travis_time_start() {
   travis_start_time=$(travis_nanoseconds)
-  echo -en "travis_time:start\r${ANSI_CLEAR}"
+  travis_timer_id=$travis_start_time
+  echo -en "travis_time:start:$travis_timer_id\r${ANSI_CLEAR}"
 }
 
 travis_time_finish() {
   local result=$?
   travis_end_time=$(travis_nanoseconds)
   local duration=$(($travis_end_time-$travis_start_time))
-  echo -en "travis_time:finish:start=$travis_start_time,finish=$travis_end_time,duration=$duration\r${ANSI_CLEAR}"
+  echo -en "travis_time:end:$travis_timer_id:start=$travis_start_time,finish=$travis_end_time,duration=$duration\r${ANSI_CLEAR}"
   return $result
 }
 
