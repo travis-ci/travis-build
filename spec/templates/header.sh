@@ -1,42 +1,26 @@
 <%= ERB.new(File.read('lib/travis/build/script/templates/header.sh')).result(binding) %>
 
-stubs=(
-  before_install install before_script script after_script after_success after_failure
-  android-update-sdk
-  git
-  gcc make
-  java javac
-  jdk_switcher
-  lein lein2
-  rebar
-  go gvm
-  gradle mvn ant
-  ghc cabal ghc_find
-  node nvm npm
-  perl perlbrew cpanm
-  php phpenv phpunit composer
-  python pip
-  ruby rvm chruby gem bundle rake
-  cargo cabal
-  sbt
-  curl cp bash mv tar
-  /Users/travis/travis-utils/osx-cibuild.sh /usr/local/bin/actool xcodebuild pod motion xctool osascript
-  sudo
-  chruby
-)
-for stub in ${stubs[*]}; do
-  eval "$stub() { builtin echo $stub \$@; }"
-done
+export HOME="<%= Travis::Build::HOME_DIR %>"
 
-stubs=(
-  echo cd rm mkdir source
-  travis_assert travis_terminate travis_retry
-)
-for stub in ${stubs[*]}; do
-  eval "$stub() { builtin echo $stub \$@; }"
-done
+shopt -s extdebug
 
-function travis_cmd() {
-  builtin echo travis_cmd $@
-  eval "$1"
+function generate_stub() {
+  echo "function $1() {"
+  echo "  $(command -v $1) \"\$@\""
+  echo "}"
 }
+
+# Generate stubs for env and cat so they still work after we blank out PATH
+eval "$(generate_stub env)"
+eval "$(generate_stub cat)"
+
+# Remove everything from PATH to help enforce that no external commands should
+# be run in the test script.
+export PATH=""
+
+# Let's just assume that everything always works
+export TRAVIS_TEST_RESULT=0
+
+# This trap prints out the command and allows the command to be run if it
+# matches the regexp at the end.
+trap 'printf '"'"'%s\0'"'"' "$BASH_COMMAND"; [[ "$BASH_COMMAND" =~ ^(env|export|\[\[) ]]' DEBUG

@@ -25,7 +25,7 @@ describe Travis::Build::Script::Go do
   end
 
   it 'fetches the latest Go code' do
-    is_expected.to run %r|gvm update && source #{Travis::Build::HOME_DIR}/.gvm/scripts/gvm|
+    is_expected.to travis_cmd "gvm update && source #{Travis::Build::HOME_DIR}/.gvm/scripts/gvm"
   end
 
   it 'sets the default go version if not :go config given' do
@@ -38,7 +38,7 @@ describe Travis::Build::Script::Go do
   end
 
   it 'creates the src dir' do
-    is_expected.to run "mkdir -p #{Travis::Build::HOME_DIR}/gopath/src/github.com/travis-ci"
+    is_expected.to travis_cmd "mkdir -p #{Travis::Build::HOME_DIR}/gopath/src/github.com/travis-ci"
   end
 
   it "copies the repository to the GOPATH" do
@@ -50,7 +50,7 @@ describe Travis::Build::Script::Go do
   end
 
   it "cds to the GOPATH version of the project" do
-    is_expected.to run "cd #{Travis::Build::HOME_DIR}/gopath/src/github.com/travis-ci/travis-ci"
+    is_expected.to travis_cmd "cd #{Travis::Build::HOME_DIR}/gopath/src/github.com/travis-ci/travis-ci"
   end
 
   context "on a GHE instance" do
@@ -59,7 +59,7 @@ describe Travis::Build::Script::Go do
     end
 
     it 'creates the src dir' do
-      is_expected.to run "mkdir -p #{Travis::Build::HOME_DIR}/gopath/src/ghe.example.com/travis-ci"
+      is_expected.to travis_cmd "mkdir -p #{Travis::Build::HOME_DIR}/gopath/src/ghe.example.com/travis-ci"
     end
 
     it "copies the repository to the GOPATH" do
@@ -71,25 +71,25 @@ describe Travis::Build::Script::Go do
     end
 
     it "cds to the GOPATH version of the project" do
-      is_expected.to run "cd #{Travis::Build::HOME_DIR}/gopath/src/ghe.example.com/travis-ci/travis-ci"
+      is_expected.to travis_cmd "cd #{Travis::Build::HOME_DIR}/gopath/src/ghe.example.com/travis-ci/travis-ci"
     end
   end
 
   it 'installs the gvm version' do
     data['config']['go'] = 'go1.1'
-    is_expected.to run 'gvm install go1.1 --binary || gvm install go1.1'
+    is_expected.to travis_cmd 'gvm install go1.1 --binary || gvm install go1.1'
   end
 
   {'1.1' => 'go1.1', '1' => 'go1.3', '1.2' => 'go1.2.2', '1.0' => 'go1.0.3', '1.2.2' => 'go1.2.2', '1.0.2' => 'go1.0.2'}.each do |version_alias,version|
     it "sets version #{version.inspect} for alias #{version_alias.inspect}" do
       data['config']['go'] = version_alias
-      is_expected.to run "gvm install #{version} --binary || gvm install #{version}"
+      is_expected.to travis_cmd "gvm install #{version} --binary || gvm install #{version}"
     end
   end
 
   it 'passes through arbitrary tag versions' do
     data['config']['go'] = 'release9000'
-    is_expected.to run 'gvm install release9000 --binary || gvm install release9000'
+    is_expected.to travis_cmd 'gvm install release9000 --binary || gvm install release9000'
   end
 
   it 'announces go version' do

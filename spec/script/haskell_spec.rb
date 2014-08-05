@@ -15,11 +15,11 @@ describe Travis::Build::Script::Haskell do
   it "exports PATH variable" do
     version = "version"
     data['config']['ghc'] = version
-    is_expected.to run "/usr/local/ghc/$(ghc_find #{version})/bin/:$PATH"
+    is_expected.to travis_cmd "export PATH=/usr/local/ghc/$(ghc_find #{version})/bin/:$PATH"
   end
 
   it 'runs cabal update' do
-    is_expected.to run 'cabal update', retry: true
+    is_expected.to travis_cmd 'cabal update', retry: true
   end
 
   it 'folds cabal update' do

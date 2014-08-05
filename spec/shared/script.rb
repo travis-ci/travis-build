@@ -14,15 +14,15 @@ shared_examples_for 'a build script' do
     data['config']['global_env'] = nil
     data['env_vars'] = [{ 'name' => 'SETTINGS_VAR', 'value' => 'a value', 'public' => false }]
     is_expected.to travis_cmd 'export SETTINGS_VAR=a value', echo: true, display: 'export SETTINGS_VAR=[secure]'
-    is_expected.to run /Setting environment variables from repository settings/
-    is_expected.not_to run /Setting environment variables from .travis.yml/
+    is_expected.to run /Setting\\ environment\\ variables\\ from\\ repository\\ settings/
+    is_expected.not_to run /Setting\\ environment\\ variables\\ from\\ \.travis\.yml/
   end
 
   it 'sets environment variables from config' do
     data['config']['global_env'] = 'SECURE CONFIG_VAR=value'
     is_expected.to travis_cmd 'export CONFIG_VAR=value', echo: true, display: 'export CONFIG_VAR=[secure]'
-    is_expected.not_to run /Setting environment variables from repository settings/
-    is_expected.to run /Setting environment variables from .travis.yml/
+    is_expected.not_to run 'echo -e Setting environment variables from repository settings'
+    is_expected.to run /Setting\\ environment\\ variables\\ from\\ \.travis\.yml/
   end
 
   it 'sets TRAVIS_* env vars' do
@@ -51,16 +51,6 @@ shared_examples_for 'a build script' do
     data['job']['secure_env_enabled'] = false
     is_expected.to set 'TRAVIS_PULL_REQUEST', '1'
     store_example 'pull_request' if described_class == Travis::Build::Script::Generic
-  end
-
-  it 'sets TRAVIS_TEST_RESULT to 0 if all scripts exited with 0' do
-    data['config']['script'] = ['true', 'true', 'true', 'true']
-    is_expected.to set 'TRAVIS_TEST_RESULT', 0
-  end
-
-  it 'sets TRAVIS_TEST_RESULT to 1 if any command exited with 1' do
-    data['config']['script'] = ['false', 'true', 'false', 'true']
-    is_expected.to set 'TRAVIS_TEST_RESULT', 1
   end
 
   # TODO after_failure won't be called because the build script never returns 1
@@ -137,14 +127,14 @@ shared_examples_for 'a build script' do
 
     describe "server error" do
       let(:result) { "server_error" }
-      it { expect(log).to include('\\033[31;1mCould not fetch .travis.yml from GitHub.\\033[0m') }
+      it { expect(log).to include(["echo", "-e", "\\033[31;1mCould not fetch .travis.yml from GitHub.\\033[0m"].shelljoin) }
       it { expect(log).to include('travis_terminate 2') }
       it { expect(log).not_to include('./the_script') }
     end
 
     describe "not found" do
       let(:result) { "not_found" }
-      it { expect(log).to include('\\033[31;1mCould not find .travis.yml, using standard configuration.\\033[0m') }
+      it { expect(log).to include(["echo", "-e", "\\033[31;1mCould not find .travis.yml, using standard configuration.\\033[0m"].shelljoin) }
       it { expect(log).to include('./the_script') }
     end
   end

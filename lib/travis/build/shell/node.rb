@@ -40,9 +40,9 @@ module Travis
           opts ||= []
           opts << '--assert' if options[:assert]
           opts << '--echo'   if options[:echo]
-          opts << "--display #{escape(options[:echo])}" if options[:echo].is_a?(String)
           opts << '--retry'  if options[:retry]
           opts << '--timing' if options[:timing]
+          opts << "--display #{escape(options[:echo])}" if options[:echo].is_a?(String)
           opts
         end
       end

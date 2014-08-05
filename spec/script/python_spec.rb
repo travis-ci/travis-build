@@ -64,8 +64,7 @@ describe Travis::Build::Script::Python do
       file('requirements.txt')
     end
 
-    # TODO [[ -f file ]] matches case insensitive on mac osx but doesn't on ubuntu?
-    xit 'installs with pip' do
+    it 'installs with pip' do
       is_expected.to travis_cmd 'pip install -r requirements.txt', echo: true, timing: true, assert: true, retry: true
     end
   end

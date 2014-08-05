@@ -16,10 +16,8 @@ describe Travis::Build::Script::Erlang do
     is_expected.to set 'TRAVIS_OTP_RELEASE', 'R14B04'
   end
 
-  xit 'activates otp' do
-    # for some reason the source stub doesn't work. can't source be overwritten in bash?
-    executable 'otp/R14B04/activate' # should not be needed?
-    is_expected.to run "source ~/otp/R14B04/activate"
+  it 'activates otp' do
+    is_expected.to travis_cmd "source ./otp/R14B04/activate"
   end
 
   describe 'if no rebar config exists' do

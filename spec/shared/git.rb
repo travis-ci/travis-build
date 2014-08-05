@@ -1,3 +1,5 @@
+require "pathname"
+
 shared_examples_for 'a git repo' do
   describe 'using tarball' do
     before :each do
@@ -7,7 +9,7 @@ shared_examples_for 'a git repo' do
 
     it 'creates the directory structure' do
       cmd = 'mkdir -p travis-ci/travis-ci'
-      is_expected.to run cmd
+      is_expected.to travis_cmd cmd
     end
 
     it 'downloads the tarball from github' do
@@ -86,20 +88,20 @@ shared_examples_for 'a git repo' do
       end
 
       it 'does not clone again' do
-        is_expected.not_to run 'git clone'
+        is_expected.not_to run 'git\\ clone'
       end
 
       it 'fetches the changes' do
-        is_expected.to run 'git fetch'
+        is_expected.to travis_cmd 'git fetch origin'
       end
     end
 
     it 'changes to the git repo dir' do
-      is_expected.to run 'cd travis-ci/travis-ci'
+      is_expected.to travis_cmd 'cd travis-ci/travis-ci', echo: true
     end
 
     it 'does not fetch a ref if not given' do
-      is_expected.not_to run 'git fetch'
+      is_expected.not_to run 'git\\ fetch'
     end
 
     it 'fetches a ref if given' do
@@ -122,22 +124,36 @@ shared_examples_for 'a git repo' do
       is_expected.to travis_cmd 'git checkout -qf FETCH_HEAD', echo: true, assert: true
     end
 
-    # TODO this currently trashes my ~/.ssh/config
-    # describe 'if .gitmodules exists' do
-    #   before :each do
-    #     file '.gitmodules'
-    #   end
+    # this will trash your ~/.ssh/config
+    # you should only be run on a clean room env
+    describe 'if .gitmodules exists', clean_room: true do
+      before :each do
+        file '.gitmodules'
+      end
 
-    #   it 'inits submodules' do
-    #     should run 'git submodule init'
-    #   end
+      it 'inits submodules' do
+        is_expected.to travis_cmd 'git submodule init'
+      end
 
-    #   it 'updates submodules' do
-    #     should run 'git submodule update'
-    #   end
-    # end
 
-    describe 'submodules is set to false' do
+      context 'without setting submodules_depth' do
+        it 'updates submodules with no depth' do
+          is_expected.to travis_cmd 'git submodule update'
+        end
+      end
+
+      context 'when setting submodules_depth' do
+        before do
+          data['config']['git'] = { submodules_depth: 50 }
+        end
+
+        it 'updates submodules with that depth' do
+          is_expected.to travis_cmd 'git submodule update --depth=50'
+        end
+      end
+    end
+
+    describe 'submodules is set to false', clean_room: true do
       before :each do
         file '.gitmodules'
         data['config']['git'] = { submodules: false }
@@ -153,36 +169,37 @@ shared_examples_for 'a git repo' do
     end
   end
 
-  # TODO this currently trashes your local ~/.ssh/id_rsa and known_hosts file
-  # describe 'there is a source_key' do
-  #   before :each do
-  #     data['config']['source_key'] = "d2hvbGV0dGhlam9zaG91dA==\n"
-  #   end
-  #
-  #   it 'does not add the source_key' do
-  #     should run /echo '\w+' | base64 -D -o ~\/.ssh\/id_rsa/
-  #   end
-  #
-  #   it 'does not change the id_rsa file permissions' do
-  #     should run "chmod 600 ~/.ssh/id_rsa"
-  #   end
-  #
-  #   it 'does not start the ssh-agent' do
-  #     should run "eval `ssh-agent` > /dev/null 2>&1"
-  #   end
-  #
-  #   it 'does not add the id_rsa key to the ssh agent' do
-  #     should run "ssh-add ~/.ssh/id_rsa > /dev/null 2>&1"
-  #   end
-  #
-  #   it 'does not add github.com to the known_hosts file' do
-  #     should run "echo -e \"Host github.com\n\tBatchMode yes\n\tStrictHostKeyChecking no\n\" >> ~/.ssh/config"
-  #   end
-  # end
+  # this currently trashes your local ~/.ssh/id_rsa and known_hosts file
+  # you should only be run on a clean room env
+  describe 'there is a source_key', clean_room: true do
+    before :each do
+      data['config']['source_key'] = "d2hvbGV0dGhlam9zaG91dA==\n"
+    end
+
+    it 'does not add the source_key' do
+      is_expected.to run /echo wholetthejoshout > ~\/.ssh\/id_rsa/
+    end
+
+    it 'does not change the id_rsa file permissions' do
+      is_expected.to run "chmod 600 ~/.ssh/id_rsa"
+    end
+
+    it 'does not start the ssh-agent' do
+      is_expected.to run "eval `ssh-agent` &>/dev/null"
+    end
+
+    it 'does not add the id_rsa key to the ssh agent' do
+      is_expected.to run "ssh-add ~/.ssh/id_rsa &>/dev/null"
+    end
+
+    it 'does not add github.com to the known_hosts file' do
+      is_expected.to run "echo -e \"Host github.com\n\tBatchMode yes\n\tStrictHostKeyChecking no\n\" >> ~/.ssh/config"
+    end
+  end
 
   describe 'there is no source_key' do
     it 'does not add the source_key' do
-      is_expected.not_to run /echo '\w+' | base64 -D -o ~\/.ssh\/id_rsa/
+      is_expected.not_to run /> ~\/.ssh\/id_rsa/
     end
 
     it 'does not change the id_rsa file permissions' do
@@ -190,11 +207,11 @@ shared_examples_for 'a git repo' do
     end
 
     it 'does not start the ssh-agent' do
-      is_expected.not_to run "eval `ssh-agent` > /dev/null 2>&1"
+      is_expected.not_to run "eval `ssh-agent` &>/dev/null"
     end
 
     it 'does not add the id_rsa key to the ssh agent' do
-      is_expected.not_to run "ssh-add ~/.ssh/id_rsa > /dev/null 2>&1"
+      is_expected.not_to run "ssh-add ~/.ssh/id_rsa &>/dev/null"
     end
 
     it 'does not add github.com to the known_hosts file' do

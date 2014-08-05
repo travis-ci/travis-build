@@ -57,20 +57,20 @@ describe Travis::Build::Script::NodeJs do
     it 'installs an npm proxy and registry' do
       data['hosts'] = {'npm_cache' => 'http://npm.cache.com'}
       data['config']['cache'] = 'npm'
-      is_expected.to run 'npm config set registry http://registry.npmjs.org', echo: false, assert: false
-      is_expected.to run 'npm config set proxy http://npm.cache.com', echo: false, assert: false
+      is_expected.to travis_cmd 'npm config set registry http://registry.npmjs.org', echo: false, assert: false
+      is_expected.to travis_cmd 'npm config set proxy http://npm.cache.com', echo: false, assert: false
     end
 
     it "doesn't install a proxy when caching is disabled" do
       data['hosts'] = {'npm_cache' => 'http://npm.cache.com'}
-      is_expected.not_to run 'npm config set registry http://registry.npmjs.org', echo: false, assert: false
-      is_expected.not_to run 'npm config set proxy http://npm.cache.com', echo: false, assert: false
+      is_expected.not_to travis_cmd 'npm config set registry http://registry.npmjs.org', echo: false, assert: false
+      is_expected.not_to travis_cmd 'npm config set proxy http://npm.cache.com', echo: false, assert: false
     end
 
     it "doesn't install a proxy when no host is configured" do
       data['config']['cache'] = 'npm'
-      is_expected.not_to run 'npm config set registry http://registry.npmjs.org', echo: false, assert: false
-      is_expected.not_to run 'npm config set proxy http://npm.cache.com', echo: false, assert: false
+      is_expected.not_to travis_cmd 'npm config set registry http://registry.npmjs.org', echo: false, assert: false
+      is_expected.not_to travis_cmd 'npm config set proxy http://npm.cache.com', echo: false, assert: false
     end
   end
 
@@ -78,7 +78,7 @@ describe Travis::Build::Script::NodeJs do
     it 'sets strict-ssl to false for node 0.6.x' do
       ['0.6', '0.6.1', '0.6.99'].each do |version|
         data['config']['node_js'] = version
-        is_expected.to run 'npm conf set strict-ssl false'
+        is_expected.to travis_cmd 'npm conf set strict-ssl false'
       end
     end
 

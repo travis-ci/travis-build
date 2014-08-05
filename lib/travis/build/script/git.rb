@@ -74,7 +74,7 @@ module Travis
           end
 
           def fetch_ref
-            cmd "git fetch origin +#{data.ref}: ", assert: true, fold: "git.#{next_git_fold_number}", retry: true
+            cmd "git fetch origin +#{data.ref}:", assert: true, fold: "git.#{next_git_fold_number}", retry: true
           end
 
           def git_checkout
@@ -87,9 +87,11 @@ module Travis
 
           def submodules
             self.if '-f .gitmodules' do
+              depth_opt = " --depth=#{config[:git][:submodules_depth].to_s.shellescape}" if config[:git].key?(:submodules_depth)
+
               cmd 'echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config', echo: false
               cmd 'git submodule init', fold: "git.#{next_git_fold_number}"
-              cmd 'git submodule update', assert: true, fold: "git.#{next_git_fold_number}", retry: true
+              cmd "git submodule update#{depth_opt}", assert: true, fold: "git.#{next_git_fold_number}", retry: true
             end
           end
 
