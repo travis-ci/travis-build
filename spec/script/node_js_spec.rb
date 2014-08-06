@@ -12,7 +12,7 @@ describe Travis::Build::Script::NodeJs do
   end
 
   it 'sets up the node version' do
-    is_expected.to travis_cmd 'nvm use 0.10', echo: true, timing: true, assert: true
+    is_expected.to travis_cmd 'nvm install 0.10', echo: true, timing: true, assert: true
   end
 
   it 'disables the npm spinner' do
