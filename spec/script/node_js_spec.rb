@@ -89,4 +89,14 @@ describe Travis::Build::Script::NodeJs do
       end
     end
   end
+
+  describe 'if node_js version is 0.10' do
+    before(:each) do
+      data['config']['node_js'] = 0.1
+    end
+
+    it 'converts 0.1 to 0.10' do
+      is_expected.to travis_cmd 'nvm install 0.10', echo: true, timing: true, assert: true
+    end
+  end
 end

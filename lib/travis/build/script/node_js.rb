@@ -18,7 +18,7 @@ module Travis
 
         def setup
           super
-          cmd "nvm install #{config[:node_js]}"
+          cmd "nvm install #{node_version}"
           cmd "npm config set spin false", echo: false
           if npm_should_disable_strict_ssl?
             cmd 'echo "### Disabling strict SSL ###"'
@@ -64,6 +64,11 @@ module Travis
 
           def npm_should_disable_strict_ssl?
             node_0_6?
+          end
+
+          def node_version
+            # this check is needed because safe_yaml parses the string 0.10 to 0.1
+            config[:node_js] == 0.1 ? "0.10" : config[:node_js]
           end
       end
     end
