@@ -54,7 +54,7 @@ function travis_cmd() {
 }
 
 travis_time_start() {
-  travis_timer_id=$RANDOM
+  travis_timer_id=$(printf %08x $(( RANDOM * RANDOM )))
   travis_start_time=$(travis_nanoseconds)
   echo -en "travis_time:start:$travis_timer_id\r${ANSI_CLEAR}"
 }
