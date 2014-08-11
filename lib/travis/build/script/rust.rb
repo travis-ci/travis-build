@@ -55,9 +55,9 @@ module Travis
         def cargo_url
           case config[:os]
           when "osx"
-            "http://static.rust-lang.org/cargo-dist/cargo-nightly-mac.tar.gz"
+            "http://static.rust-lang.org/cargo-dist/cargo-nightly-x86_64-apple-darwin.tar.gz"
           else
-            "http://static.rust-lang.org/cargo-dist/cargo-nightly-linux.tar.gz"
+            "http://static.rust-lang.org/cargo-dist/cargo-nightly-x86_64-unknown-linux-gnu.tar.gz"
           end
         end
       end
