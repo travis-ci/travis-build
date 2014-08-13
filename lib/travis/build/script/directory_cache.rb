@@ -220,7 +220,7 @@ module Travis
         end
 
         def setup_directory_cache
-          directory_cache.fold(self, 'setup build cache') do
+          directory_cache.fold(self, 'Setting up build cache') do
             directory_cache.install(self)
             directory_cache.fetch(self)
             Array(data.cache[:directories]).each do |entry|
