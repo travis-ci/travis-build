@@ -233,7 +233,11 @@ module Travis
         end
 
         def casher_branch
-          data.cache?(:edge) ? 'master' : 'production'
+          if branch = data.cache[:branch]
+            branch
+          else
+            data.cache?(:edge) ? 'master' : 'production'
+          end
         end
 
         def push_directory_cache

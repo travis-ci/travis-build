@@ -42,6 +42,15 @@ describe Travis::Build::Script::DirectoryCache do
         end
       end
 
+      describe "passing branch" do
+        let(:cache) {{ branch: 'foo' }}
+
+        describe '#casher_branch' do
+          subject { super().casher_branch }
+          it { is_expected.to eq('foo') }
+        end
+      end
+
       describe "edge mode" do
         let(:cache) {{ edge: true }}
 
