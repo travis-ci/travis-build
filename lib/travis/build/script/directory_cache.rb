@@ -121,7 +121,7 @@ module Travis
           def install(sh)
             sh.set 'CASHER_DIR', '$HOME/.casher'
             sh.raw 'mkdir -p $CASHER_DIR/bin'
-            sh.cmd "curl #{CASHER_URL % @casher_branch} -L -o #{BIN_PATH} -s --fail", echo: false, retry: true, assert: false
+            sh.cmd "curl #{CASHER_URL % @casher_branch} -L -o #{BIN_PATH} -s --fail", echo: "Installing caching utilities", retry: true, assert: false
             sh.raw "[ $? -ne 0 ] && echo 'Failed to fetch casher from GitHub, disabling cache.' && echo > #{BIN_PATH}"
             sh.if("-f #{BIN_PATH}") { |sh| sh.raw "chmod +x #{BIN_PATH}" }
           end
