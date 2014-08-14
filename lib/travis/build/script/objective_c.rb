@@ -50,7 +50,7 @@ module Travis
 
           podfile? do |sh|
             # cache cocoapods if it has been enabled
-            directory_cache.add(sh, 'Pods') if data.cache?(:cocoapods)
+            directory_cache.add(sh, "#{pod_dir}/Pods") if data.cache?(:cocoapods)
 
             sh.if "! ([[ -f #{pod_dir}/Podfile.lock && -f #{pod_dir}/Pods/Manifest.lock ]] && cmp --silent #{pod_dir}/Podfile.lock #{pod_dir}/Pods/Manifest.lock)", raw_condition: true do |pod_script|
               pod_script.fold("install.cocoapods") do |pod_fold|

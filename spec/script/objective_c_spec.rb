@@ -75,6 +75,20 @@ describe Travis::Build::Script::ObjectiveC do
       data['config']['podfile'] = 'foo/Podfile'
     end
 
+    context "with cache enabled" do
+      before do
+        data['config']['cache'] = 'cocoapods'
+      end
+
+      it 'should add Poject/Podfile to directory cache' do
+        script = described_class.new(data, options)
+
+        script.directory_cache.expects(:add).with { |sh, dir| dir == "foo/Pods" }
+
+        script.compile
+      end
+    end
+
     it 'runs Pod install in Podfile directory' do
       is_expected.to travis_cmd 'pushd foo'
     end
