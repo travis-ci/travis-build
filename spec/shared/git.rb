@@ -94,6 +94,10 @@ shared_examples_for 'a git repo' do
       it 'fetches the changes' do
         is_expected.to travis_cmd 'git -C travis-ci/travis-ci fetch origin'
       end
+
+      it 'resets repository' do
+        is_expected.to travis_cmd 'git -C travis-ci/travis-ci reset --hard'
+      end
     end
 
     it 'changes to the git repo dir' do

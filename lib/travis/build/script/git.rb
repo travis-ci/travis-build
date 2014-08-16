@@ -62,6 +62,7 @@ module Travis
             end
             self.else do
               cmd "git -C #{dir} fetch origin", assert: true, fold: "git.#{next_git_fold_number}", retry: true
+              cmd "git -C #{dir} reset --hard", assert: true, timing: false, fold: "git.#{next_git_fold_number}"
             end
           end
 
