@@ -6,12 +6,10 @@ rvm: 2.1
 
 script: bundle exec rspec spec
 
-env:
-  global:
-  - ARTIFACTS_DEBUG=1
-
 addons:
   artifacts:
+    debug: yep
+    permissions: public-read
     paths:
       - examples
     bucket: travis-build-examples
