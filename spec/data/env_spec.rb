@@ -11,7 +11,12 @@ describe Travis::Build::Data::Env do
     raw_env_vars: [
       { name: 'BAR', value: 'bar', public: true },
       { name: 'BAZ', value: 'baz', public: false },
-    ]
+    ],
+    ssh_key: {
+      encoded: false,
+      value: TEST_PRIVATE_KEY,
+      source: 'default'
+    }
     ) }
   let(:env)  { described_class.new(data) }
 
