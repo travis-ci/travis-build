@@ -29,10 +29,11 @@ describe Travis::Build::Data do
 
   describe 'ssh_key' do
     it 'returns ssh_key from source_key as a fallback' do
-      data = Travis::Build::Data.new(config: { source_key: Base64.encode64('foo') })
-      data.ssh_key.value.should == 'foo'
+      data = Travis::Build::Data.new(config: { source_key: Base64.encode64(TEST_PRIVATE_KEY) })
+      data.ssh_key.value.should == TEST_PRIVATE_KEY
       data.ssh_key.source.should be_nil
       data.ssh_key.should be_encoded
+      data.ssh_key.fingerprint.should == '57:78:65:c2:c9:c8:c9:f7:dd:2b:35:39:40:27:d2:40'
     end
 
     it 'returns nil if there is no ssh_key' do
@@ -41,9 +42,10 @@ describe Travis::Build::Data do
     end
 
     it 'returns ssh_key from api if it is available' do
-      data = Travis::Build::Data.new(ssh_key: { value: 'foo', source: 'the source' })
-      data.ssh_key.value.should == 'foo'
+      data = Travis::Build::Data.new(ssh_key: { value: TEST_PRIVATE_KEY, source: 'the source' })
+      data.ssh_key.value.should == TEST_PRIVATE_KEY
       data.ssh_key.source.should == 'the source'
+      data.ssh_key.fingerprint.should == '57:78:65:c2:c9:c8:c9:f7:dd:2b:35:39:40:27:d2:40'
     end
   end
 
