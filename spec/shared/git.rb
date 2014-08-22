@@ -177,7 +177,7 @@ shared_examples_for 'a git repo' do
     end
 
     it 'does not add the source_key' do
-      is_expected.to run /echo #{TEST_PRIVATE_KEY} > ~\/.ssh\/id_rsa/
+      is_expected.to run "echo #{TEST_PRIVATE_KEY.shellescape} > ~/.ssh/id_rsa"
     end
 
     it 'does not change the id_rsa file permissions' do
