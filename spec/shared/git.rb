@@ -173,11 +173,11 @@ shared_examples_for 'a git repo' do
   # you should only be run on a clean room env
   describe 'there is a source_key', clean_room: true do
     before :each do
-      data['config']['source_key'] = "d2hvbGV0dGhlam9zaG91dA==\n"
+      data['config']['source_key'] = TEST_PRIVATE_KEY
     end
 
     it 'does not add the source_key' do
-      is_expected.to run /echo wholetthejoshout > ~\/.ssh\/id_rsa/
+      is_expected.to run /echo #{TEST_PRIVATE_KEY} > ~\/.ssh\/id_rsa/
     end
 
     it 'does not change the id_rsa file permissions' do
