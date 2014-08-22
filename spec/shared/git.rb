@@ -198,6 +198,10 @@ shared_examples_for 'a git repo' do
   end
 
   describe 'there is no source_key' do
+    before :each do
+      data['ssh_key'] = nil
+    end
+
     it 'does not add the source_key' do
       is_expected.not_to run /> ~\/.ssh\/id_rsa/
     end
