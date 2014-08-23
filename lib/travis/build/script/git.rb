@@ -62,7 +62,8 @@ module Travis
               cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, fold: "git.#{next_git_fold_number}", retry: true
             end
             self.else do
-              cmd "git fetch origin", assert: true, fold: "git.#{next_git_fold_number}", retry: true
+              cmd "git -C #{dir} fetch origin", assert: true, fold: "git.#{next_git_fold_number}", retry: true
+              cmd "git -C #{dir} reset --hard", assert: true, timing: false, fold: "git.#{next_git_fold_number}"
             end
           end
 
