@@ -28,6 +28,20 @@ describe Travis::Build::Script::Php do
     is_expected.to announce 'composer --version'
   end
 
+  context 'with a composer.json' do
+    before do
+      file 'composer.json'
+    end
+
+    it 'runs composer self-update' do
+      is_expected.to travis_cmd 'composer self-update', echo: true
+    end
+
+    it 'runs composer install' do
+      is_expected.to travis_cmd 'composer install', echo: true
+    end
+  end
+
   it 'runs phpunit' do
     is_expected.to travis_cmd 'phpunit', echo: true, timing: true
   end
