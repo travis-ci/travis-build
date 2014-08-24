@@ -46,7 +46,7 @@ module Travis
             end
             self.else do |sub|
               sub.cmd "composer install #{config[:composer_args]}".strip, fold: 'install.composer'
-            end 
+            end
           end
         end
 
