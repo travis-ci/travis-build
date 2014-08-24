@@ -41,7 +41,7 @@ describe Travis::Build::Script::Php do
       is_expected.to travis_cmd 'composer install', echo: true
     end
 
-    context 'a checked-in composer.phar' do
+    context 'and a checked-in composer.phar' do
       before do
         file 'composer.phar'
       end
