@@ -34,7 +34,7 @@ describe Travis::Build::Script::Php do
     end
 
     it 'runs composer self-update' do
-      is_expected.to travis_cmd 'composer self-update', echo: true
+      is_expected.to fold 'composer self-update', 'before_install.update_composer'
     end
 
     it 'runs composer install' do
