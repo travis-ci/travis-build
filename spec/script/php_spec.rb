@@ -49,6 +49,10 @@ describe Travis::Build::Script::Php do
       it 'does not run composer self-update' do
         is_expected.not_to fold 'composer self-update', 'before_install.update_composer'
       end
+
+      it 'runs composer.phar install' do
+        is_expected.to travis_cmd 'composer.phar install', echo: true
+      end
     end
   end
 
