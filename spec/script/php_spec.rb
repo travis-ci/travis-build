@@ -33,7 +33,7 @@ describe Travis::Build::Script::Php do
       file 'composer.json'
     end
 
-    it 'runs composer self-update' do
+    it 'folds composer self-update' do
       is_expected.to fold 'composer self-update', 'before_install.update_composer'
     end
 
@@ -46,9 +46,9 @@ describe Travis::Build::Script::Php do
         file 'composer.phar'
       end
 
-      it 'does not run composer self-update' do
-        is_expected.not_to fold 'composer self-update', 'before_install.update_composer'
-      end
+      #it 'does not fold composer self-update' do
+      #  is_expected.not_to fold 'composer self-update', 'before_install.update_composer'
+      #end
 
       it 'runs composer.phar install' do
         is_expected.to travis_cmd 'composer.phar install', echo: true
