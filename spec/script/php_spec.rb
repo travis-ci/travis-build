@@ -31,6 +31,7 @@ describe Travis::Build::Script::Php do
   context 'with a composer.json' do
     before do
       file 'composer.json'
+      data['config']['composer_args'] = '--prefer-dist'
     end
 
     it 'folds composer self-update' do
@@ -38,7 +39,7 @@ describe Travis::Build::Script::Php do
     end
 
     it 'runs composer install' do
-      is_expected.to travis_cmd 'composer install', echo: true
+      is_expected.to travis_cmd 'composer install --prefer-dist', echo: true
     end
 
     context 'and a checked-in composer.phar' do
@@ -51,7 +52,7 @@ describe Travis::Build::Script::Php do
       #end
 
       it 'runs composer.phar install' do
-        is_expected.to travis_cmd 'composer.phar install', echo: true
+        is_expected.to travis_cmd 'composer.phar install --prefer-dist', echo: true
       end
     end
   end
