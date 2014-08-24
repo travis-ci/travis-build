@@ -32,8 +32,8 @@ module Travis
         end
 
         def before_install
-          self.if '-f composer.json' do |sub|
-            sub.cmd 'composer self-update', fold: 'before_install.update_composer' unless has_phar?
+          self.if '-f composer.json && ! -f composer.phar' do |sub|
+            sub.cmd 'composer self-update', fold: 'before_install.update_composer'
           end
         end
 
@@ -41,26 +41,17 @@ module Travis
           self.if '-f composer.json' do |sub|
             directory_cache.add(sub, '~/.composer') if data.cache?(:composer)
 
-            composer_exec = "composer" unless has_phar?
-            composer_exec = "composer.phar" if has_phar?
-
-            sub.cmd "#{composer_exec} install #{config[:composer_args]}".strip, fold: 'install.composer'
+            self.if '-f composer.phar' do |sub|
+              sub.cmd "composer.phar install #{config[:composer_args]}".strip, fold: 'install.composer'
+            end
+            self.else do |sub|
+              sub.cmd "composer install #{config[:composer_args]}".strip, fold: 'install.composer'
+            end 
           end
         end
 
         def script
           cmd 'phpunit'
-        end
-
-        private
-
-        def has_phar?
-          self.if '-f composer.phar' do
-            echo "Project contains composer.phar"
-            return true
-          end
-
-          false
         end
       end
     end
