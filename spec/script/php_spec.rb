@@ -40,6 +40,16 @@ describe Travis::Build::Script::Php do
     it 'runs composer install' do
       is_expected.to travis_cmd 'composer install', echo: true
     end
+
+    context 'a checked-in composer.phar' do
+      before do
+        file 'composer.phar'
+      end
+
+      it 'does not run composer self-update' do
+        is_expected.not_to fold 'composer self-update', 'before_install.update_composer'
+      end
+    end
   end
 
   it 'runs phpunit' do
