@@ -28,6 +28,11 @@ describe Travis::Build::Data do
   end
 
   describe 'ssh_key' do
+    it 'does not fail on wrong key' do
+      data = Travis::Build::Data.new(config: { source_key: 'foo' })
+      data.ssh_key.fingerprint.should be_nil
+    end
+
     it 'returns ssh_key from source_key as a fallback' do
       data = Travis::Build::Data.new(config: { source_key: Base64.encode64(TEST_PRIVATE_KEY) })
       data.ssh_key.value.should == TEST_PRIVATE_KEY

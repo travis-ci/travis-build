@@ -36,7 +36,7 @@ module Travis
             return unless data.ssh_key
 
             echo "\nInstalling an SSH key#{ssh_key_source}"
-            echo "Key fingerprint: #{data.ssh_key.fingerprint}\n"
+            echo "Key fingerprint: #{data.ssh_key.fingerprint}\n" if data.ssh_key.fingerprint
             file '~/.ssh/id_rsa', data.ssh_key.value
             raw 'chmod 600 ~/.ssh/id_rsa'
             raw 'eval `ssh-agent` &> /dev/null'
