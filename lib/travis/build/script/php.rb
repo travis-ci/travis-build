@@ -3,7 +3,7 @@ module Travis
     class Script
       class Php < Script
         DEFAULTS = {
-          php:      '5.3',
+          php:      '5.5',
           composer: '--no-interaction --prefer-source'
         }
 
