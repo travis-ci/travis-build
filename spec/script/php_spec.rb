@@ -13,11 +13,11 @@ describe Travis::Build::Script::Php do
   it_behaves_like 'a build script'
 
   it 'sets TRAVIS_PHP_VERSION' do
-    is_expected.to set 'TRAVIS_PHP_VERSION', '5.3'
+    is_expected.to set 'TRAVIS_PHP_VERSION', '5.5'
   end
 
   it 'sets up the php version' do
-    is_expected.to travis_cmd 'phpenv global 5.3', echo: true, timing: true, assert: true
+    is_expected.to travis_cmd 'phpenv global 5.5', echo: true, timing: true, assert: true
   end
 
   it 'announces php --version' do
