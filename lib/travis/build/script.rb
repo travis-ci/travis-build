@@ -115,8 +115,8 @@ module Travis
         end
 
         def pre_setup
-          start_services
           stop_couchdb
+          start_services
           setup_apt_cache if data.cache? :apt
           fix_ps4
           run_addons(:after_pre_setup)
@@ -165,9 +165,7 @@ module Travis
         end
 
         def stop_couchdb
-          unless services.include? 'couchdb'
-            raw 'sudo service couchdb stop', echo: false
-          end
+          raw 'sudo service couchdb stop', echo: false
         end
     end
   end
