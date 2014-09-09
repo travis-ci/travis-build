@@ -12,6 +12,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision "shell", privileged: true, inline: "aptitude install -y make libyaml-dev"
 
   config.vm.provision "shell", privileged: true, inline: <<-EOF
+    set -e
     if ! [[ -f /usr/local/share/chruby/chruby.sh ]]; then
       mkdir /tmp/chruby
       cd /tmp/chruby
@@ -25,6 +26,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   EOF
 
   config.vm.provision "shell", privileged: false, inline: <<-EOF
+    set -e
     if ! [[ -d ~/.rubies/ruby-2.0.0-p481 ]]; then
       echo "Installing Ruby 2.0.0 (this might take a while depending on your network connection)"
       mkdir ~/.rubies
