@@ -8,6 +8,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "ubuntu/precise64"
   config.vm.box_url = "http://files.vagrantup.com/precise64.box"
 
+  config.vm.provision "shell", privileged: true, inline: "aptitude update"
+  config.vm.provision "shell", privileged: true, inline: "aptitude install -y make libyaml-dev"
+
   config.vm.provision "shell", privileged: true, inline: <<-EOF
     if ! [[ -f /usr/local/share/chruby/chruby.sh ]]; then
       mkdir /tmp/chruby
@@ -18,7 +21,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       make install
     fi
 
-    apt-get update
     apt-get install -y git libssl-dev
   EOF
 
