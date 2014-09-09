@@ -27,18 +27,18 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provision "shell", privileged: false, inline: <<-EOF
     set -e
-    if ! [[ -d ~/.rubies/ruby-2.0.0-p481 ]]; then
-      echo "Installing Ruby 2.0.0 (this might take a while depending on your network connection)"
+    if ! [[ -d ~/.rubies/ruby-2.1.2 ]]; then
+      echo "Installing Ruby 2.1.2 (this might take a while depending on your network connection)"
       mkdir ~/.rubies
-      wget -qO- http://rubies.travis-ci.org/ubuntu/12.04/x86_64/ruby-2.0.0-p481.tar.bz2 | tar -jx -C ~/.rubies
+      wget -qO- http://rubies.travis-ci.org/ubuntu/12.04/x86_64/ruby-2.1.2.tar.bz2 | tar -jx -C ~/.rubies
       RUBIES=(~/.rubies/*)
     fi
 
     echo 'source /usr/local/share/chruby/chruby.sh' >> ~/.bashrc
-    echo 'chruby ruby-2.0' >> ~/.bashrc
+    echo 'chruby ruby-2.1.2' >> ~/.bashrc
 
     source /usr/local/share/chruby/chruby.sh
-    chruby ruby-2.0
+    chruby ruby-2.1.2
 
     gem install bundler
     bundle install --gemfile=/vagrant/Gemfile
