@@ -116,6 +116,7 @@ module Travis
 
         def pre_setup
           start_services
+          stop_couchdb
           setup_apt_cache if data.cache? :apt
           fix_ps4
           run_addons(:after_pre_setup)
@@ -161,6 +162,12 @@ module Travis
 
         def fix_ps4
           set "PS4", "+ ", echo: false
+        end
+
+        def stop_couchdb
+          unless services.include? 'couchdb'
+            raw 'sudo service couchdb stop', echo: false
+          end
         end
     end
   end
