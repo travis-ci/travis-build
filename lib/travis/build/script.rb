@@ -59,10 +59,15 @@ module Travis
       end
 
       def compile
-        raw template 'header.sh'
+        raw header
         run_stages if check_config
         raw template 'footer.sh'
         sh.to_s
+      end
+
+      def header(build_dir = Travis::Build::BUILD_DIR)
+        @build_dir = build_dir
+        template 'header.sh'
       end
 
       def cache_slug
