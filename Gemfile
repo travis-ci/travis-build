@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '2.1.2'
+ruby File.read(File.expand_path('../.ruby-version', __FILE__)).strip
 
 gem 'travis-support',  github: 'travis-ci/travis-support'
 gem 'activesupport', '~> 4.0'
