@@ -123,6 +123,7 @@ module Travis
             def install(edge = config[:edge])
               command = "gem install dpl"
               command << " --pre" if edge
+              command << " --local" if edge == 'local'
               cmd(command, echo: false, assert: !allow_failure)
             end
 
