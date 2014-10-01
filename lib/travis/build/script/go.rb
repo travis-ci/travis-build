@@ -4,7 +4,7 @@ module Travis
       class Go < Script
         DEFAULTS = {
           gobuild_args: '-v',
-          go: '1.3.2'
+          go: '1.3.3'
         }
 
         def cache_slug
@@ -57,13 +57,13 @@ module Travis
             version = config[:go].to_s
             case version
             when '1'
-              'go1.3.2'
+              'go1.3.3'
             when '1.0'
               'go1.0.3'
             when '1.2'
               'go1.2.2'
             when '1.3'
-              'go1.3.2'
+              'go1.3.3'
             when /^[0-9]\.[0-9\.]+/
               "go#{config[:go]}"
             else
