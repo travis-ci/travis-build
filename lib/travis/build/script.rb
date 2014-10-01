@@ -165,7 +165,7 @@ module Travis
         end
 
         def stop_couchdb
-          raw 'sudo service couchdb stop', echo: false
+          raw 'which service >/dev/null && sudo service couchdb stop || true', echo: false
         end
     end
   end
