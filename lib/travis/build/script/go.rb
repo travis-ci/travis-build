@@ -40,11 +40,11 @@ module Travis
         end
 
         def install
-          uses_make? then: 'true', else: "go get #{config[:gobuild_args]} ./...", fold: 'install', retry: true
+          uses_make? then: 'true', else: "go get -t #{gobuild_args} ./...", fold: 'install', retry: true
         end
 
         def script
-          uses_make? then: 'make', else: "go test #{config[:gobuild_args]} ./..."
+          uses_make? then: 'make', else: "go test #{gobuild_args} ./..."
         end
 
         private
@@ -69,6 +69,10 @@ module Travis
             else
               config[:go]
             end
+          end
+
+		  def gobuild_args
+            config[:gobuild_args]
           end
       end
     end

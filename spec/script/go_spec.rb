@@ -114,7 +114,7 @@ describe Travis::Build::Script::Go do
 
   describe 'if no Makefile exists' do
     it 'installs with go get' do
-      is_expected.to travis_cmd 'go get -v ./...', echo: true, timing: true, retry: true, assert: true
+      is_expected.to travis_cmd 'go get -t -v ./...', echo: true, timing: true, retry: true, assert: true
     end
 
     it 'runs go test' do
