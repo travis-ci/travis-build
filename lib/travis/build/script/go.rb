@@ -40,7 +40,7 @@ module Travis
         end
 
         def install
-          uses_make? then: 'true', else: "go get -t #{gobuild_args} ./...", fold: 'install', retry: true
+          uses_make? then: 'true', else: "#{go_get} #{gobuild_args} ./...", fold: 'install', retry: true
         end
 
         def script
@@ -71,8 +71,13 @@ module Travis
             end
           end
 
-		  def gobuild_args
+          def gobuild_args
             config[:gobuild_args]
+          end
+
+          def go_get
+            return 'go get' if go_version < 'go1.2'
+            'go get -t'
           end
       end
     end
