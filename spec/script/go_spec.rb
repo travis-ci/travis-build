@@ -112,11 +112,27 @@ describe Travis::Build::Script::Go do
     is_expected.to fold 'gvm install', 'gvm.install'
   end
 
-  describe 'if no Makefile exists' do
-    it 'installs with go get' do
-      is_expected.to travis_cmd 'go get -t -v ./...', echo: true, timing: true, retry: true, assert: true
-    end
+  %w(1.0.3 1.1 1.1.2).each do |old_go_version|
+    describe "if no Makefile exists on #{old_go_version}" do
+      before { data['config']['go'] = old_go_version }
 
+      it 'installs with go get' do
+        is_expected.to travis_cmd 'go get -v ./...', echo: true, timing: true, retry: true, assert: true
+      end
+    end
+  end
+
+  %w(1 1.2 1.2.2 1.3).each do |recent_go_version|
+    describe "if no Makefile exists on #{recent_go_version}" do
+      before { data['config']['go'] = recent_go_version }
+
+      it 'installs with go get -t' do
+        is_expected.to travis_cmd 'go get -t -v ./...', echo: true, timing: true, retry: true, assert: true
+      end
+    end
+  end
+
+  describe 'if no Makefile exists' do
     it 'runs go test' do
       is_expected.to travis_cmd 'go test -v ./...', echo: true, timing: true
     end
