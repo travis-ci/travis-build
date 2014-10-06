@@ -38,11 +38,11 @@ describe Travis::Build::Script::Go do
   end
 
   it 'creates the src dir' do
-    is_expected.to travis_cmd "mkdir -p #{Travis::Build::HOME_DIR}/gopath/src/github.com/travis-ci"
+    is_expected.to travis_cmd "mkdir -p #{Travis::Build::HOME_DIR}/gopath/src/github.com/travis-ci/travis-ci"
   end
 
-  it "copies the repository to the GOPATH" do
-    is_expected.to travis_cmd "cp -r $TRAVIS_BUILD_DIR #{Travis::Build::HOME_DIR}/gopath/src/github.com/travis-ci/travis-ci", echo: true
+  it 'copies the repository to the GOPATH' do
+    is_expected.to travis_cmd "rsync -az ${TRAVIS_BUILD_DIR}/ #{Travis::Build::HOME_DIR}/gopath/src/github.com/travis-ci/travis-ci/", echo: true
   end
 
   it "updates TRAVIS_BUILD_DIR" do
@@ -59,11 +59,11 @@ describe Travis::Build::Script::Go do
     end
 
     it 'creates the src dir' do
-      is_expected.to travis_cmd "mkdir -p #{Travis::Build::HOME_DIR}/gopath/src/ghe.example.com/travis-ci"
+      is_expected.to travis_cmd "mkdir -p #{Travis::Build::HOME_DIR}/gopath/src/ghe.example.com/travis-ci/travis-ci"
     end
 
-    it "copies the repository to the GOPATH" do
-      is_expected.to travis_cmd "cp -r $TRAVIS_BUILD_DIR #{Travis::Build::HOME_DIR}/gopath/src/ghe.example.com/travis-ci/travis-ci", echo: true
+    it 'copies the repository to the GOPATH' do
+      is_expected.to travis_cmd "rsync -az ${TRAVIS_BUILD_DIR}/ #{Travis::Build::HOME_DIR}/gopath/src/ghe.example.com/travis-ci/travis-ci/", echo: true
     end
 
     it "updates TRAVIS_BUILD_DIR" do
