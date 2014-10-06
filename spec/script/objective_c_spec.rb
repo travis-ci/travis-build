@@ -117,6 +117,10 @@ describe Travis::Build::Script::ObjectiveC do
       data['config']['xcode_scheme'] = 'YourScheme'
     end
 
+    it 'prints xctool version' do
+      is_expected.to travis_cmd 'xctool -version'
+    end
+
     it 'runs xctool' do
       is_expected.to travis_cmd 'xctool -workspace YourWorkspace.xcworkspace -scheme YourScheme build test', echo: true, timing: true
       store_example 'xctool'
@@ -127,6 +131,10 @@ describe Travis::Build::Script::ObjectiveC do
     before(:each) do
       data['config']['xcode_project'] = 'YourProject.xcodeproj'
       data['config']['xcode_scheme'] = 'YourScheme'
+    end
+
+    it 'prints xctool version' do
+      is_expected.to travis_cmd 'xctool -version'
     end
 
     it 'runs xctool' do
