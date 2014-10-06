@@ -19,7 +19,10 @@ module Travis
 
         def announce
           super
-          cmd 'xcodebuild -version -sdk', fold: 'announce'
+          fold 'announce' do
+            cmd 'xcodebuild -version -sdk'
+            cmd 'xctool -version'
+          end
           uses_rubymotion? then: 'motion --version'
           podfile? then: 'pod --version'
         end
