@@ -17,7 +17,7 @@ module Travis
           script.set('TRAVIS_STAGE', stage, :echo => false)
           script.run_stage(stage.to_sym)
         end
-        source = File.read(__FILE__).split("\n__END__\n", 2)[1] + script.sh.to_s
+        source = script.header(Dir.pwd) + "\n" + script.sh.to_s
         print? ? puts(source) : run_script(source, *stages)
       end
 
@@ -41,26 +41,3 @@ module Travis
     end
   end
 end
-
-__END__
-#!/bin/bash
-
-travis_result() { return; }
-
-travis_assert() {
-  local result=$?
-  if [ $result -ne 0 ]; then
-    echo -e "\n\033[33;1mThe command \"$TRAVIS_CMD\" failed and exited with $result during $TRAVIS_STAGE.\e[0m\n\nYour build has been stopped."
-    travis_terminate 2
-  fi
-}
-
-travis_terminate() {
-  exit $1
-}
-
-travis_retry() {
-  "$@"
-  return $?
-}
-

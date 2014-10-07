@@ -196,6 +196,6 @@ decrypt() {
   echo $1 | base64 -d | openssl rsautl -decrypt -inkey ~/.ssh/id_rsa.repo
 }
 
-mkdir -p <%= BUILD_DIR %>
-cd       <%= BUILD_DIR %>
+mkdir -p <%= build_dir %>
+cd       <%= build_dir %>
 
