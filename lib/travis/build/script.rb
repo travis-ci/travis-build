@@ -2,6 +2,7 @@ require 'core_ext/hash/deep_merge'
 require 'core_ext/hash/deep_symbolize_keys'
 require 'core_ext/object/false'
 require 'erb'
+require 'ostruct'
 
 module Travis
   module Build
@@ -48,6 +49,12 @@ module Travis
         end
       end
 
+      class Template < OpenStruct
+        def render(template)
+          ERB.new(File.read(File.expand_path(template, TEMPLATES_PATH))).result(binding)
+        end
+      end
+
       include Addons, Git, Helpers, Services, Stages, DirectoryCache
 
       attr_reader :stack, :data, :options
@@ -66,8 +73,7 @@ module Travis
       end
 
       def header(build_dir = Travis::Build::BUILD_DIR)
-        @build_dir = build_dir
-        template 'header.sh'
+        template 'header.sh', build_dir: build_dir
       end
 
       def cache_slug
@@ -135,8 +141,8 @@ module Travis
           # overwrite
         end
 
-        def template(filename)
-          ERB.new(File.read(File.expand_path(filename, TEMPLATES_PATH))).result(binding)
+        def template(filename, vars = {})
+          Template.new(vars).render(filename)
         end
 
         def paranoid_mode
