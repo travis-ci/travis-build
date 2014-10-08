@@ -41,7 +41,7 @@ module Travis
         end
 
         def prepare_cache
-          cmd("bundle clean") if bundler_path
+          cmd("bundle clean") if bundler_path and data.cache?(:bundler)
         end
 
         private
