@@ -6,6 +6,7 @@ require 'travis/build/script/addons/hosts'
 require 'travis/build/script/addons/postgresql'
 require 'travis/build/script/addons/sauce_connect'
 require 'travis/build/script/addons/coverity_scan'
+require 'travis/build/script/addons/mariadb'
 
 module Travis
   module Build
@@ -20,6 +21,7 @@ module Travis
           postgresql:    Postgresql,
           sauce_connect: SauceConnect,
           coverity_scan: CoverityScan,
+          mariadb:       MariaDB,
         }
 
         def run_addons(stage)
