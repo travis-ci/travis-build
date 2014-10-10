@@ -24,9 +24,24 @@ describe Travis::Build do
       end
     end
 
-    it 'maps known languages to their implementations' do
-      %w(android c cpp clojure erlang go groovy haskell node_js perl php python rust scala).each do |lang|
-        expect(subject.by_lang(lang)).to_not eq(Travis::Build::Script::Ruby)
+    {
+      android: 'Android',
+      c: 'C',
+      cpp: 'Cpp',
+      clojure: 'Clojure',
+      erlang: 'Erlang',
+      go: 'Go',
+      groovy: 'Groovy',
+      haskell: 'Haskell',
+      node_js: 'NodeJs',
+      perl: 'Perl',
+      php: 'Php',
+      python: 'Python',
+      rust: 'Rust',
+      scala: 'Scala'
+    }.each do |lang, script_type|
+      it "maps #{lang} to #{script_type}" do
+        expect(subject.by_lang(lang.to_s)).to eq(Travis::Build::Script.const_get(script_type))
       end
     end
 
