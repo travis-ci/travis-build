@@ -30,6 +30,8 @@ module Travis
           Script::Cpp
         when 'objective-c'
           Script::ObjectiveC
+        when 'bash', 'sh', 'shell' then
+          Script::Generic
         else
           name = lang.split('_').map { |w| w.capitalize }.join
           Script.const_get(name, false) rescue Script::Ruby
