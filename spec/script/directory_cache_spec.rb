@@ -75,14 +75,14 @@ describe Travis::Build::Script::DirectoryCache do
 
     url_pattern = "https://s3_bucket.s3.amazonaws.com/42/%s/example.tbz?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=s3_access_key_id%%2F19700101%%2Fus-east-1%%2Fs3%%2Faws4_request&X-Amz-Date=19700101T000010Z"
     let(:url) { url_pattern % branch }
-    let(:global_fallback) { "https://s3_bucket.s3.amazonaws.com/42/example.tbz\\?X-Amz-Algorithm\\=AWS4-HMAC-SHA256\\&X-Amz-Credential\\=s3_access_key_id\\%2F19700101\\%2Fus-east-1\\%2Fs3\\%2Faws4_request\\&X-Amz-Date\\=19700101T000010Z\\&X-Amz-Expires\\=20\\&X-Amz-Signature\\=7f206e62deecd81668ca0093f051aeeaaff5c7f53dcf74186c468e4eef3c1e75\\&X-Amz-SignedHeaders\\=host" }
     let(:master_fetch_signature) { "163b2a236fcfda37d58c1d50c27d86fbd04efb4a6d97219134f71854e3e0383b" }
     let(:fetch_signature) { master_fetch_signature }
     let(:push_signature) { "926885a758f00d51eaad281522a26cf7151fdd530aa1272c1d8c607c2e778570" }
     let(:fetch_url) { Shellwords.escape "#{url}&X-Amz-Expires=20&X-Amz-Signature=#{fetch_signature}&X-Amz-SignedHeaders=host" }
     let(:push_url) { Shellwords.escape "#{url}&X-Amz-Expires=30&X-Amz-Signature=#{push_signature}&X-Amz-SignedHeaders=host" }
-    let(:data) { Travis::Build::Data.new(config: {}, repository: repository, cache_options: cache_options, job: { branch: branch }) }
+    let(:data) { Travis::Build::Data.new(config: {}, repository: repository, cache_options: cache_options, job: { branch: branch, pull_request: pull_request }) }
     let(:repository) {{ github_id: 42 }}
+    let(:pull_request) { false }
     let(:slug) { "ex a/mple" }
     let(:sh) { MockShell.new }
     let(:branch) { 'master' }
@@ -104,7 +104,7 @@ describe Travis::Build::Script::DirectoryCache do
 
     specify :fetch do
       directory_cache.fetch(sh)
-      expect(sh.commands).to be == ["rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url} #{global_fallback}"]
+      expect(sh.commands).to be == ["rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url}"]
     end
 
     specify :add do
@@ -125,7 +125,55 @@ describe Travis::Build::Script::DirectoryCache do
 
       specify :fetch do
         directory_cache.fetch(sh)
-        expect(sh.commands).to be == ["rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url} #{fallback_url} #{global_fallback}"]
+        expect(sh.commands).to be == ["rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url} #{fallback_url}"]
+      end
+
+      specify :add do
+        directory_cache.add(sh, "/foo/bar")
+        expect(sh.commands).to be == ["rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher add /foo/bar"]
+      end
+
+      specify :push do
+        directory_cache.push(sh)
+        expect(sh.commands).to be == ["rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher push #{push_url}"]
+      end
+    end
+
+    describe "on a pull request" do
+      let(:pull_request) { 15 }
+      let(:fetch_signature) { "b1db673b9a243ecbc792fd476c4f5b45462449dd73b65987d11710b42f180773" }
+      let(:push_signature) { "863f53cbb1cff7780c5a53689cd849f0b6032e30de428515fe181d65be20e13e" }
+      let(:url) { url_pattern % "PR.15" }
+      let(:fallback_url) { Shellwords.escape "#{url_pattern % 'master'}&X-Amz-Expires=20&X-Amz-Signature=#{master_fetch_signature}&X-Amz-SignedHeaders=host" }
+
+      specify :fetch do
+        directory_cache.fetch(sh)
+        expect(sh.commands).to be == ["rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url} #{fallback_url}"]
+      end
+
+      specify :add do
+        directory_cache.add(sh, "/foo/bar")
+        expect(sh.commands).to be == ["rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher add /foo/bar"]
+      end
+
+      specify :push do
+        directory_cache.push(sh)
+        expect(sh.commands).to be == ["rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher push #{push_url}"]
+      end
+    end
+
+    describe "on a pull request to a different branch" do
+      let(:pull_request) { 15 }
+      let(:fetch_signature) { "b1db673b9a243ecbc792fd476c4f5b45462449dd73b65987d11710b42f180773" }
+      let(:push_signature) { "863f53cbb1cff7780c5a53689cd849f0b6032e30de428515fe181d65be20e13e" }
+      let(:url) { url_pattern % "PR.15" }
+      let(:branch) { "foo" }
+      let(:fallback_url) { Shellwords.escape "#{url_pattern % 'master'}&X-Amz-Expires=20&X-Amz-Signature=#{master_fetch_signature}&X-Amz-SignedHeaders=host" }
+      let(:branch_fallback_url) { "https://s3_bucket.s3.amazonaws.com/42/foo/example.tbz\\?X-Amz-Algorithm\\=AWS4-HMAC-SHA256\\&X-Amz-Credential\\=s3_access_key_id\\%2F19700101\\%2Fus-east-1\\%2Fs3\\%2Faws4_request\\&X-Amz-Date\\=19700101T000010Z\\&X-Amz-Expires\\=20\\&X-Amz-Signature\\=d72269ea040415d06cea7382c25f211f05b5a701c68299c03bbecd861a5e820b\\&X-Amz-SignedHeaders\\=host" }
+
+      specify :fetch do
+        directory_cache.fetch(sh)
+        expect(sh.commands).to be == ["rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url} #{branch_fallback_url} #{fallback_url}"]
       end
 
       specify :add do
