@@ -39,6 +39,7 @@ module Travis
           # This always fails the build, asking the user to provide a custom :script.
           # The Python ecosystem has no good default build command most of the
           # community aggrees on. Per discussion with jezjez, josh-k and others. MK
+          set 'TRAVIS_CMD', 'no_script', echo: false
           failure NO_SCRIPT
         end
 
