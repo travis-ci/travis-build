@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby File.read(File.expand_path('../.ruby-version', __FILE__)).strip
+ruby File.read(File.expand_path('../.ruby-version', __FILE__)).strip if ENV.key?('DYNO')
 
 gem 'travis-support',  github: 'travis-ci/travis-support'
 gem 'activesupport', '~> 4.0'
