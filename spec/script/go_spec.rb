@@ -16,6 +16,10 @@ describe Travis::Build::Script::Go do
     is_expected.to travis_cmd 'export GOPATH=./gopath:$GOPATH', echo: true
   end
 
+  it 'sets PATH to include GOPATH/bin' do
+    is_expected.to travis_cmd 'export PATH=$PATH:$GOPATH/bin', echo: true
+  end
+
   it 'sets TRAVIS_GO_VERSION' do
     is_expected.to set 'TRAVIS_GO_VERSION', 'go1.3.3'
   end
@@ -110,6 +114,44 @@ describe Travis::Build::Script::Go do
 
   it 'folds gvm install' do
     is_expected.to fold 'gvm install', 'gvm.install'
+  end
+
+  %w(1.0.3 1.1 1.1.2).each do |old_go_version|
+    describe "if Godeps/Godeps.json exists on #{old_go_version}" do
+      before { data['config']['go'] = old_go_version }
+
+      before(:each) do
+        file('Godeps/Godeps.json')
+      end
+
+      it 'installs godep' do
+        is_expected.to travis_cmd 'go get github.com/tools/godep', echo: true, timing: true, assert: true, retry: true
+      end
+
+      it 'restores the deps' do
+        is_expected.to travis_cmd 'godep restore', echo: true, timing: true, assert: true, retry: true
+      end
+
+    end
+  end
+
+  %w(1 1.2 1.2.2 1.3).each do |recent_go_version|
+    describe "if Godeps/Godeps.json exists on #{recent_go_version}" do
+      before { data['config']['go'] = recent_go_version }
+
+      before(:each) do
+        file('Godeps/Godeps.json')
+      end
+
+      it 'installs godep' do
+        is_expected.to travis_cmd 'go get -t github.com/tools/godep', echo: true, timing: true, assert: true, retry: true
+      end
+
+      it 'restores the deps' do
+        is_expected.to travis_cmd 'godep restore', echo: true, timing: true, assert: true, retry: true
+      end
+
+    end
   end
 
   %w(1.0.3 1.1 1.1.2).each do |old_go_version|

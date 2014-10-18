@@ -33,6 +33,7 @@ module Travis
           # easier to find and our `git clone`'d libraries are found by the
           # `go` commands.
           set 'GOPATH', "#{HOME_DIR}/gopath:$GOPATH"
+          set 'PATH', "$PATH:$GOPATH/bin"
           cmd "mkdir -p #{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}", assert: false, timing: false
           cmd "rsync -az ${TRAVIS_BUILD_DIR}/ #{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}/", assert: false, timing: false
           set "TRAVIS_BUILD_DIR", "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}"
@@ -41,6 +42,10 @@ module Travis
 
         def install
           uses_make? then: 'true', else: "#{go_get} #{gobuild_args} ./...", fold: 'install', retry: true
+          self.if '-f Godeps/Godeps.json' do |sub|
+              sub.cmd "#{go_get} github.com/tools/godep", echo: true, retry: true, timing: true, assert: true
+              sub.cmd "godep restore", retry: true, timing: true, assert: true, echo: true
+          end
         end
 
         def script
