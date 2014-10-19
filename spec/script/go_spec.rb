@@ -116,7 +116,25 @@ describe Travis::Build::Script::Go do
     is_expected.to fold 'gvm install', 'gvm.install'
   end
 
-  %w(1.0.3 1.1 1.1.2).each do |old_go_version|
+  %w(1.0 1.0.1 1.0.2 1.0.3).each do |old_go_version|
+    describe "if Godeps/Godeps.json exists on 1.0.3" do
+      before { data['config']['go'] = old_go_version }
+
+      before(:each) do
+        file('Godeps/Godeps.json')
+      end
+
+      it 'not install godep' do
+        is_expected.not_to travis_cmd 'go get github.com/tools/godep', echo: true, timing: true, assert: true, retry: true
+      end
+
+      it 'not attempt to restore the deps' do
+        is_expected.not_to travis_cmd 'godep restore', echo: true, timing: true, assert: true, retry: true
+      end
+    end
+  end
+
+  %w(1.1 1.1.2).each do |old_go_version|
     describe "if Godeps/Godeps.json exists on #{old_go_version}" do
       before { data['config']['go'] = old_go_version }
 
