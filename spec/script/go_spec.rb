@@ -17,7 +17,7 @@ describe Travis::Build::Script::Go do
   end
 
   it 'sets PATH to include GOPATH/bin' do
-    is_expected.to travis_cmd 'export PATH=$PATH:$GOPATH/bin', echo: true
+    is_expected.to travis_cmd 'export PATH=$HOME/gopath/bin:$PATH', echo: true
   end
 
   it 'sets TRAVIS_GO_VERSION' do

@@ -33,7 +33,7 @@ module Travis
           # easier to find and our `git clone`'d libraries are found by the
           # `go` commands.
           set 'GOPATH', "#{HOME_DIR}/gopath:$GOPATH"
-          set 'PATH', "$PATH:$GOPATH/bin"
+          set 'PATH', "$HOME/gopath/bin:$PATH"
           cmd "mkdir -p #{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}", assert: false, timing: false
           cmd "rsync -az ${TRAVIS_BUILD_DIR}/ #{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}/", assert: false, timing: false
           set "TRAVIS_BUILD_DIR", "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}"
