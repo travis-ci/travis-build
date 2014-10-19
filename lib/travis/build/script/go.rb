@@ -42,9 +42,11 @@ module Travis
 
         def install
           uses_make? then: 'true', else: "#{go_get} #{gobuild_args} ./...", fold: 'install', retry: true
-          self.if '-f Godeps/Godeps.json' do |sub|
-            sub.cmd "#{go_get} github.com/tools/godep", echo: true, retry: true, timing: true, assert: true
-            sub.cmd 'godep restore', retry: true, timing: true, assert: true, echo: true
+          if go_version >= 'go1.1'
+            self.if '-f Godeps/Godeps.json' do |sub|
+              sub.cmd "#{go_get} github.com/tools/godep", echo: true, retry: true, timing: true, assert: true
+              sub.cmd 'godep restore', retry: true, timing: true, assert: true, echo: true
+            end
           end
         end
 
