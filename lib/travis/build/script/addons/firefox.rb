@@ -15,7 +15,7 @@ module Travis
               sh.echo "Installing Firefox v#{@firefox_version}", ansi: :yellow
               sh.raw "sudo mkdir -p /usr/local/firefox-#{@firefox_version}"
               sh.raw "sudo chown -R travis /usr/local/firefox-#{@firefox_version}"
-              sh.cmd "wget -O /tmp/firefox.tar.bz2 http://ftp.mozilla.org/pub/firefox/releases/#{@firefox_version}/linux-x86_64/en-US/firefox-#{@firefox_version}.tar.bz2", retry: true
+              sh.cmd "wget -O /tmp/firefox.tar.bz2 http://releases.mozilla.org/pub/firefox/releases/#{@firefox_version}/linux-x86_64/en-US/firefox-#{@firefox_version}.tar.bz2", retry: true
               sh.raw "pushd /usr/local/firefox-#{@firefox_version}"
               sh.raw "tar xf /tmp/firefox.tar.bz2"
               sh.raw "sudo ln -sf /usr/local/firefox-#{@firefox_version}/firefox/firefox /usr/local/bin/firefox"
