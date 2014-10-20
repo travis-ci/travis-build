@@ -16,8 +16,8 @@ describe Travis::Build::Script::Go do
     is_expected.to travis_cmd 'export GOPATH=./gopath:$GOPATH', echo: true
   end
 
-  it 'sets PATH to include GOPATH/bin' do
-    is_expected.to travis_cmd 'export PATH=$HOME/gopath/bin:$PATH', echo: true
+  it 'sets PATH to include ~/gopath/bin' do
+    is_expected.to travis_cmd "export PATH=#{Travis::Build::HOME_DIR}/gopath/bin:$PATH", echo: true
   end
 
   it 'sets TRAVIS_GO_VERSION' do
@@ -116,59 +116,105 @@ describe Travis::Build::Script::Go do
     is_expected.to fold 'gvm install', 'gvm.install'
   end
 
-  %w(1.0 1.0.1 1.0.2 1.0.3).each do |old_go_version|
-    describe "if Godeps/Godeps.json exists on 1.0.3" do
-      before { data['config']['go'] = old_go_version }
+  describe 'godep support' do
+    %w(1 1.0 1.2 1.3).each do |go_version|
+      describe "if Godeps/Godeps.json exists on #{go_version}" do
+        before { data['config']['go'] = go_version }
 
-      before(:each) do
-        file('Godeps/Godeps.json')
-      end
+        before(:each) do
+          file('Godeps/Godeps.json')
+        end
 
-      it 'not install godep' do
-        is_expected.not_to travis_cmd 'go get github.com/tools/godep', echo: true, timing: true, assert: true, retry: true
-      end
+        it 'prepends Godeps/_workspace to $GOPATH' do
+          is_expected.to travis_cmd 'export GOPATH=${TRAVIS_BUILD_DIR}/Godeps/_workspace:$GOPATH'
+        end
 
-      it 'not attempt to restore the deps' do
-        is_expected.not_to travis_cmd 'godep restore', echo: true, timing: true, assert: true, retry: true
+        it 'prepends Godeps/_workspace/bin to $PATH' do
+          is_expected.to travis_cmd 'export PATH=${TRAVIS_BUILD_DIR}/Godeps/_workspace/bin:$PATH'
+        end
       end
     end
-  end
 
-  %w(1.1 1.1.2).each do |old_go_version|
-    describe "if Godeps/Godeps.json exists on #{old_go_version}" do
-      before { data['config']['go'] = old_go_version }
+    %w(1.0 1.0.1 1.0.2 1.0.3).each do |old_go_version|
+      describe "if Godeps/Godeps.json exists on #{old_go_version}" do
+        before { data['config']['go'] = old_go_version }
 
-      before(:each) do
-        file('Godeps/Godeps.json')
+        before(:each) do
+          file('Godeps/Godeps.json')
+        end
+
+        it 'not install godep' do
+          is_expected.not_to travis_cmd 'go get github.com/tools/godep', echo: true, timing: true, assert: true, retry: true
+        end
+
+        it 'not attempt to restore the deps' do
+          is_expected.not_to travis_cmd 'godep restore', echo: true, timing: true, assert: true, retry: true
+        end
       end
-
-      it 'installs godep' do
-        is_expected.to travis_cmd 'go get github.com/tools/godep', echo: true, timing: true, assert: true, retry: true
-      end
-
-      it 'restores the deps' do
-        is_expected.to travis_cmd 'godep restore', echo: true, timing: true, assert: true, retry: true
-      end
-
     end
-  end
 
-  %w(1 1.2 1.2.2 1.3).each do |recent_go_version|
-    describe "if Godeps/Godeps.json exists on #{recent_go_version}" do
-      before { data['config']['go'] = recent_go_version }
+    %w(1.1 1.1.2).each do |old_go_version|
+      describe "if Godeps/Godeps.json exists on #{old_go_version}" do
+        before { data['config']['go'] = old_go_version }
 
-      before(:each) do
-        file('Godeps/Godeps.json')
+        before(:each) do
+          file('Godeps/Godeps.json')
+        end
+
+        it 'installs godep' do
+          is_expected.to travis_cmd 'go get github.com/tools/godep', echo: true, timing: true, assert: true, retry: true
+        end
+
+        it 'restores the deps' do
+          is_expected.to travis_cmd 'godep restore', echo: true, timing: true, assert: true, retry: true
+        end
+
+        describe 'when Godeps/_workspace/src exists' do
+          before(:each) do
+            file('Godeps/_workspace/src/.whatever')
+          end
+
+          it 'installs godep' do
+            is_expected.not_to travis_cmd 'go get github.com/tools/godep', echo: true, timing: true, assert: true, retry: true
+          end
+
+          it 'restores the deps' do
+            is_expected.not_to travis_cmd 'godep restore', echo: true, timing: true, assert: true, retry: true
+          end
+        end
       end
+    end
 
-      it 'installs godep' do
-        is_expected.to travis_cmd 'go get -t github.com/tools/godep', echo: true, timing: true, assert: true, retry: true
+    %w(1 1.2 1.2.2 1.3).each do |recent_go_version|
+      describe "if Godeps/Godeps.json exists on #{recent_go_version}" do
+        before { data['config']['go'] = recent_go_version }
+
+        before(:each) do
+          file('Godeps/Godeps.json')
+        end
+
+        it 'installs godep' do
+          is_expected.to travis_cmd 'go get -t github.com/tools/godep', echo: true, timing: true, assert: true, retry: true
+        end
+
+        it 'restores the deps' do
+          is_expected.to travis_cmd 'godep restore', echo: true, timing: true, assert: true, retry: true
+        end
+
+        describe 'when Godeps/_workspace/src exists' do
+          before(:each) do
+            file('Godeps/_workspace/src/.whatever')
+          end
+
+          it 'installs godep' do
+            is_expected.not_to travis_cmd 'go get github.com/tools/godep', echo: true, timing: true, assert: true, retry: true
+          end
+
+          it 'restores the deps' do
+            is_expected.not_to travis_cmd 'godep restore', echo: true, timing: true, assert: true, retry: true
+          end
+        end
       end
-
-      it 'restores the deps' do
-        is_expected.to travis_cmd 'godep restore', echo: true, timing: true, assert: true, retry: true
-      end
-
     end
   end
 
