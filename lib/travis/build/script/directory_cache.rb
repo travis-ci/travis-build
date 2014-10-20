@@ -132,8 +132,8 @@ module Travis
 
           def fetch(sh)
             urls = [Shellwords.escape(fetch_url.to_s)]
-            urls << Shellwords.escape(fetch_url('master').to_s) if @data.branch != 'master'
-            urls << Shellwords.escape(fetch_url(nil).to_s)
+            urls << Shellwords.escape(fetch_url(@data.branch).to_s) if @data.pull_request
+            urls << Shellwords.escape(fetch_url('master').to_s)     if @data.branch != 'master'
             run(sh, 'fetch', *urls)
           end
 
@@ -141,11 +141,11 @@ module Travis
             run(sh, 'push', Shellwords.escape(push_url.to_s))
           end
 
-          def fetch_url(branch = @data.branch)
+          def fetch_url(branch = group)
             url('GET', prefixed(branch), expires: fetch_timeout)
           end
 
-          def push_url(branch = @data.branch)
+          def push_url(branch = group)
             url('PUT', prefixed(branch), expires: push_timeout)
           end
 
@@ -159,6 +159,10 @@ module Travis
           end
 
           private
+
+            def group
+              @data.pull_request ? "PR.#{@data.pull_request}" : @data.branch
+            end
 
             def fetch_timeout
               @data.cache_options.fetch(:fetch_timeout)
