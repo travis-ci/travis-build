@@ -113,7 +113,8 @@ module Travis
 
           # XXX: temporary workaround, see:
           # https://github.com/creationix/nvm/issues/554
-          set 'NVM_NODEJS_ORG_MIRROR', 'https://nodejs.org/dist'
+          set 'NVM_NODEJS_ORG_MIRROR', 'https://nodejs.org/dist', echo: false
+          cmd "source #{HOME_DIR}/.nvm/nvm.sh", echo: false
 
           newline if data.env_vars_groups.any?(&:announce?)
 
