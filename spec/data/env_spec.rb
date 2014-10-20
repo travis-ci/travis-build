@@ -73,6 +73,14 @@ describe Travis::Build::Data::Env do
     end
   end
 
+  context "when settings vars include a hidden variable" do
+    before do
+      data.stubs(:secure_env_enabled?).returns ( true )
+    end
 
+    it "should set TRAVIS_SECURE_ENV_VARS to true" do
+      expect(env.vars.find {|var| var.key == 'TRAVIS_SECURE_ENV_VARS'}.value).to eq("true")
+    end
+  end
 end
 
