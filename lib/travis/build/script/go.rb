@@ -29,11 +29,8 @@ module Travis
           cmd "gvm update && source #{HOME_DIR}/.gvm/scripts/gvm", fold: "gvm.update"
           cmd "gvm install #{go_version} --binary || gvm install #{go_version}", fold: "gvm.install"
           cmd "gvm use #{go_version}"
-          # Prepend *our* GOPATH entry so that built binaries and packages are
-          # easier to find and our `git clone`'d libraries are found by the
-          # `go` commands.
           set 'GOPATH', "#{HOME_DIR}/gopath:$GOPATH"
-          set 'PATH', "$HOME/gopath/bin:$PATH"
+          set 'PATH', "#{HOME_DIR}/gopath/bin:$PATH"
           cmd "mkdir -p #{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}", assert: false, timing: false
           cmd "rsync -az ${TRAVIS_BUILD_DIR}/ #{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}/", assert: false, timing: false
           set "TRAVIS_BUILD_DIR", "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}"
@@ -41,13 +38,18 @@ module Travis
         end
 
         def install
-          uses_make? then: 'true', else: "#{go_get} #{gobuild_args} ./...", fold: 'install', retry: true
-          if go_version >= 'go1.1'
-            self.if '-f Godeps/Godeps.json' do |sub|
-              sub.cmd "#{go_get} github.com/tools/godep", echo: true, retry: true, timing: true, assert: true
-              sub.cmd 'godep restore', retry: true, timing: true, assert: true, echo: true
+          self.if '-f Godeps/Godeps.json' do |sub|
+            sub.set 'GOPATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace:$GOPATH'
+            sub.set 'PATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace/bin:$PATH'
+
+            if go_version >= 'go1.1'
+              self.if '! -d Godeps/_workspace/src' do |subsub|
+                subsub.cmd "#{go_get} github.com/tools/godep", echo: true, retry: true, timing: true, assert: true
+                subsub.cmd 'godep restore', retry: true, timing: true, assert: true, echo: true
+              end
             end
           end
+          uses_make? then: 'true', else: "#{go_get} #{gobuild_args} ./...", fold: 'install', retry: true
         end
 
         def script
