@@ -111,11 +111,6 @@ module Travis
           set 'CONTINUOUS_INTEGRATION', 'true', echo: false
           set 'HAS_JOSH_K_SEAL_OF_APPROVAL', 'true', echo: false
 
-          # XXX: temporary workaround, see:
-          # https://github.com/creationix/nvm/issues/554
-          set 'NVM_NODEJS_ORG_MIRROR', 'https://nodejs.org/dist', echo: false
-          cmd "curl https://raw.githubusercontent.com/creationix/nvm/v0.17.3/install.sh | bash", echo: false
-
           newline if data.env_vars_groups.any?(&:announce?)
 
           data.env_vars_groups.each do |group|
