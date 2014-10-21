@@ -76,7 +76,7 @@ module Travis
           end
 
           def secure_env_vars?
-            secure_env_enabled? && config_vars.any?(&:secure?)
+            secure_env_enabled? && (config_vars.any?(&:secure?) || settings_vars.any?(&:secure?))
           end
       end
     end
