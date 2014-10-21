@@ -31,6 +31,7 @@ module Travis
           super
           cmd 'node --version'
           cmd 'npm --version'
+          cmd 'nvm --version'
         end
 
         def install

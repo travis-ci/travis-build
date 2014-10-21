@@ -27,6 +27,10 @@ describe Travis::Build::Script::NodeJs do
     is_expected.to announce 'npm --version'
   end
 
+  it 'announces nvm --version' do
+    is_expected.to announce 'nvm --version'
+  end
+
   describe 'if no package.json exists' do
     it 'runs make test' do
       is_expected.to travis_cmd 'make test', echo: true, timing: true
