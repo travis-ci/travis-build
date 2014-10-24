@@ -29,7 +29,7 @@ describe Travis::Build::Script do
     end
   end
 
-  %w[cassandra couchdb elasticsearch mongodb mysql postgresql riak].each do |service|
+  %w[couchdb elasticsearch mongodb mysql postgresql riak].each do |service|
     describe "when #{service} is in services" do
       let(:services) { [service] }
 

@@ -12,14 +12,16 @@ module Travis
           'redis'        => 'redis-server'
         }
         VERSION_COMMANDS = {
-          'cassandra'       => '/usr/local/cassandra/bin/nodetool version',
           'couchdb'         => 'couchdb -V | head -1',
-          'elasticsearch'   => 'curl -s localhost:9200',
-          'hbase-master'    => 'hbase version',
+          # FIXME: curl'ing for elasticsearch version info does not work reliably (?)
+          # 'elasticsearch'   => 'curl -s localhost:9200',
+          # FIXME: hbase is not installed anymore (?)
+          # 'hbase-master'    => 'hbase version',
           'memcached'       => 'memcached -h | head -1',
           'mongodb'         => 'mongod --version',
           'mysql'           => 'mysqld --version 2>/dev/null',
-          'neo4j'           => 'neo4j info | grep INSTANCE',
+          # FIXME: neo4j info does not work reliably (?)
+          # 'neo4j'           => 'neo4j info | grep INSTANCE',
           'postgresql'      => 'psql -U postgres template1 -t -A -c \'select version()\'',
           'rabbitmq-server' => 'sudo rabbitmqctl status | grep rabbit,',
           'redis-server'    => 'redis-server --version',
