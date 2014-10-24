@@ -18,6 +18,7 @@ module Travis
               sh.echo "Starting PostgreSQL v#{@postgresql_version}", ansi: :yellow
               sh.cmd "sudo service postgresql stop", assert: false
               sh.cmd "sudo service postgresql start #{@postgresql_version}", assert: false
+              sh.cmd ::Travis::Build::Script::Services::VERSION_COMMANDS['postgresql'], assert: false
             end
           end
         end

@@ -14,6 +14,7 @@ describe Travis::Build::Script::Addons::Postgresql do
     script.expects(:echo).with("Starting PostgreSQL v9.3", ansi: :yellow)
     script.expects(:cmd).with("sudo service postgresql stop", assert: false)
     script.expects(:cmd).with("sudo service postgresql start 9.3", assert: false)
+    script.expects(:cmd).with(Travis::Build::Script::Services::VERSION_COMMANDS['postgresql'], assert: false)
     subject
   end
 
