@@ -9,21 +9,25 @@ module Travis
           jdk:  'default'
         }
 
+        def cache_slug
+          super << '--lein-' << lein.to_s
+        end
+
         def announce
           super
-          sh.cmd "#{config[:lein]} version"
+          sh.cmd "#{lein} version"
         end
 
         def install
-          sh.cmd "#{config[:lein]} deps", fold: 'install', retry: true
+          sh.cmd "#{lein} deps", fold: 'install', retry: true
         end
 
         def script
-          sh.cmd "#{config[:lein]} test"
+          sh.cmd "#{lein} test"
         end
 
-        def cache_slug
-          super << '--lein-' << config[:lein].to_s
+        def lein
+          config[:lein]
         end
       end
     end
