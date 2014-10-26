@@ -59,13 +59,15 @@ describe Travis::Build::Script::Python do
     end
   end
 
-  describe 'if requirements.txt exists' do
-    before(:each) do
-      file('requirements.txt')
-    end
+  unless `uname -a`.include?('Darwin')
+    describe 'if requirements.txt exists' do
+      before(:each) do
+        file('requirements.txt')
+      end
 
-    it 'installs with pip' do
-      is_expected.to travis_cmd 'pip install -r requirements.txt', echo: true, timing: true, assert: true, retry: true
+      it 'installs with pip' do
+        is_expected.to travis_cmd 'pip install -r requirements.txt', echo: true, timing: true, assert: true, retry: true
+      end
     end
   end
 
