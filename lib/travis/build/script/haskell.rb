@@ -6,7 +6,7 @@ module Travis
 
         def setup
           super
-          sh.cmd "export PATH=/usr/local/ghc/$(ghc_find #{config[:ghc]})/bin/:$PATH"
+          sh.cmd "export PATH=#{path}:$PATH"
           sh.cmd 'cabal update', fold: 'cabal', retry: true
         end
 
@@ -22,6 +22,10 @@ module Travis
 
         def script
           sh.cmd 'cabal configure --enable-tests && cabal build && cabal test'
+        end
+
+        def path
+          "/usr/local/ghc/$(ghc_find #{config[:ghc]})/bin/"
         end
       end
     end
