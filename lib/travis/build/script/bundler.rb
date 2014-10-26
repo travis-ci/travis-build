@@ -11,7 +11,7 @@ module Travis
         def setup
           super
 
-          gemfile? do
+          sh.if gemfile? do
             sh.export 'BUNDLE_GEMFILE', "$PWD/#{config[:gemfile]}"
           end
         end
@@ -22,7 +22,7 @@ module Travis
         end
 
         def install
-          gemfile? do
+          sh.if gemfile? do
             sh.if "-f #{config[:gemfile]}.lock" do
               directory_cache.add(sh, bundler_path) if data.cache?(:bundler)
               sh.cmd bundler_command("--deployment"), fold: "install.bundler", retry: true
@@ -46,30 +46,30 @@ module Travis
 
         private
 
-        def gemfile?(*args, &block)
-          sh.if "-f #{config[:gemfile]}", *args, &block
-        end
+          def gemfile?(*args, &block)
+            "-f #{config[:gemfile]}"
+          end
 
-        def bundler_args_path
-          args = Array(bundler_args).join(" ")
-          path = args[/--path[= ](\S+)/, 1]
-          path ||= 'vendor/bundle' if args.include?('--deployment')
-          path
-        end
+          def bundler_args_path
+            args = Array(bundler_args).join(" ")
+            path = args[/--path[= ](\S+)/, 1]
+            path ||= 'vendor/bundle' if args.include?('--deployment')
+            path
+          end
 
-        def bundler_path
-          bundler_args_path || '${BUNDLE_PATH:-vendor/bundle}'
-        end
+          def bundler_path
+            bundler_args_path || '${BUNDLE_PATH:-vendor/bundle}'
+          end
 
-        def bundler_command(args = nil)
-          args = bundler_args || [DEFAULT_BUNDLER_ARGS, args].compact
-          args = [args].flatten << "--path=#{bundler_path}" if data.cache?(:bundler) && !bundler_args_path
-          ['bundle install', *args].compact.join(' ')
-        end
+          def bundler_command(args = nil)
+            args = bundler_args || [DEFAULT_BUNDLER_ARGS, args].compact
+            args = [args].flatten << "--path=#{bundler_path}" if data.cache?(:bundler) && !bundler_args_path
+            ['bundle install', *args].compact.join(' ')
+          end
 
-        def bundler_args
-          config[:bundler_args]
-        end
+          def bundler_args
+            config[:bundler_args]
+          end
       end
     end
   end

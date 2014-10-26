@@ -7,7 +7,7 @@ module Travis
           gemfile: 'Gemfile'
         }
 
-        include Jdk, RVM, Bundler
+        include Bundler, RVM, Jdk
 
         def announce
           super
@@ -15,14 +15,19 @@ module Travis
         end
 
         def script
-          gemfile? then: 'bundle exec rake', else: 'rake'
+          sh.if "-f #{config[:gemfile]}" do
+            sh.cmd 'bundle exec rake'
+          end
+          sh.else do
+            sh.cmd 'rake'
+          end
         end
 
         private
 
-        def uses_java?
-          uses_jdk?
-        end
+          def uses_java?
+            uses_jdk?
+          end
       end
     end
   end
