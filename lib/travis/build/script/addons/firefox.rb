@@ -5,26 +5,40 @@ module Travis
         class Firefox
           SUPER_USER_SAFE = false
 
-          attr_reader :sh
+          attr_reader :sh, :version
 
-          def initialize(sh, config)
+          def initialize(sh, version)
             @sh = sh
-            @firefox_version = config.to_s
+            @version = version
           end
 
           def before_install
             sh.fold 'install_firefox' do
-              sh.echo "Installing Firefox v#{@firefox_version}", ansi: :yellow
-              sh.raw "sudo mkdir -p /usr/local/firefox-#{@firefox_version}"
-              sh.raw "sudo chown -R travis /usr/local/firefox-#{@firefox_version}"
-              sh.cmd "wget -O /tmp/firefox.tar.bz2 http://releases.mozilla.org/pub/firefox/releases/#{@firefox_version}/linux-x86_64/en-US/firefox-#{@firefox_version}.tar.bz2", retry: true
-              sh.raw "pushd /usr/local/firefox-#{@firefox_version}"
-              sh.raw "tar xf /tmp/firefox.tar.bz2"
-              sh.raw "sudo ln -sf /usr/local/firefox-#{@firefox_version}/firefox/firefox /usr/local/bin/firefox"
-              sh.raw "sudo ln -sf /usr/local/firefox-#{@firefox_version}/firefox/firefox-bin /usr/local/bin/firefox-bin"
+              sh.echo "Installing Firefox v#{version}", ansi: :yellow
+              sh.raw "sudo mkdir -p #{install_dir}"
+              sh.raw "sudo chown -R travis #{install_dir}"
+              sh.cmd "wget -O #{tmp_file} #{source_url}", retry: true
+              sh.raw "pushd #{install_dir}"
+              sh.raw "tar xf #{tmp_file}"
+              sh.raw "sudo ln -sf #{install_dir}/firefox/firefox /usr/local/bin/firefox"
+              sh.raw "sudo ln -sf #{install_dir}/firefox/firefox-bin /usr/local/bin/firefox-bin"
               sh.raw "popd"
             end
           end
+
+          private
+
+            def install_dir
+              "/usr/local/firefox-#{version}"
+            end
+
+            def source_url
+              "http://releases.mozilla.org/pub/firefox/releases/#{version}/linux-x86_64/en-US/firefox-#{version}.tar.bz2"
+            end
+
+            def tmp_file
+              '/tmp/firefox.tar.bz2'
+            end
         end
       end
     end
