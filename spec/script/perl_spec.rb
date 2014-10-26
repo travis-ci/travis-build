@@ -13,7 +13,7 @@ describe Travis::Build::Script::Perl do
   it_behaves_like 'a build script'
 
   it 'sets TRAVIS_PERL_VERSION' do
-    is_expected.to set 'TRAVIS_PERL_VERSION', '5.14'
+    is_expected.to set 'TRAVIS_PERL_VERSION', '5.14', echo: false
   end
 
   it 'sets up the perl version' do

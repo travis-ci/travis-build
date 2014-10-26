@@ -7,28 +7,20 @@ module Travis
           composer: '--no-interaction --prefer-source'
         }
 
-        def cache_slug
-          super << "--php-" << config[:php].to_s
-        end
-
-        def use_directory_cache?
-          super || data.cache?(:composer)
-        end
-
         def export
           super
-          sh.export 'TRAVIS_PHP_VERSION', config[:php], echo: false
+          sh.export 'TRAVIS_PHP_VERSION', version, echo: false
         end
 
         def setup
           super
-          sh.cmd "phpenv global #{config[:php]}", assert: true
+          sh.cmd "phpenv global #{version}", assert: true
         end
 
         def announce
           super
           sh.cmd 'php --version'
-          sh.cmd 'composer --version' unless config[:php] == '5.2'
+          sh.cmd 'composer --version' unless version == '5.2'
         end
 
         def before_install
@@ -59,6 +51,18 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
             EOF
             raw "sudo mkdir -p $(dirname #{ini_file_path}); echo '#{ini_file_addition}' | sudo tee -a #{ini_file_path} > /dev/null"
           end
+        end
+
+        def cache_slug
+          super << "--php-" << version
+        end
+
+        def use_directory_cache?
+          super || data.cache?(:composer)
+        end
+
+        def version
+          config[:php].to_s
         end
       end
     end
