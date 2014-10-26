@@ -16,31 +16,31 @@ module Travis
 
         def export
           super
-          set 'TRAVIS_PYTHON_VERSION', config[:python], echo: false
+          sh.export 'TRAVIS_PYTHON_VERSION', config[:python], echo: false
         end
 
         def setup
           super
-          cmd "source #{virtualenv_activate}"
+          sh.cmd "source #{virtualenv_activate}"
         end
 
         def announce
-          cmd 'python --version'
-          cmd 'pip --version'
+          sh.cmd 'python --version'
+          sh.cmd 'pip --version'
         end
 
         def install
-          self.if   '-f Requirements.txt', "pip install -r Requirements.txt", fold: 'install', retry: true
-          self.elif '-f requirements.txt', "pip install -r requirements.txt", fold: 'install', retry: true
-          self.else { echo NO_REQUIREMENTS }
+          sh.if   '-f Requirements.txt', 'pip install -r Requirements.txt', fold: 'install', retry: true
+          sh.elif '-f requirements.txt', 'pip install -r requirements.txt', fold: 'install', retry: true
+          sh.else { sh.echo NO_REQUIREMENTS }
         end
 
         def script
           # This always fails the build, asking the user to provide a custom :script.
           # The Python ecosystem has no good default build command most of the
           # community aggrees on. Per discussion with jezjez, josh-k and others. MK
-          set 'TRAVIS_CMD', 'no_script', echo: false
-          failure NO_SCRIPT
+          sh.export 'TRAVIS_CMD', 'no_script', echo: false
+          sh.failure NO_SCRIPT
         end
 
         private
@@ -63,7 +63,7 @@ module Travis
 
           def system_site_packages
             if config[:virtualenv][:system_site_packages]
-              "_with_system_site_packages"
+              '_with_system_site_packages'
             end
           end
       end

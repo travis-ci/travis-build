@@ -2,6 +2,10 @@ module Travis
   module Build
     module Shell
       module Dsl
+        def sh
+          stack.last
+        end
+
         def script(*args, &block)
           nodes << Script.new(*merge_options(args), &block)
           nodes.last
@@ -67,16 +71,32 @@ module Travis
 
         def fold(name, &block)
           raw "travis_fold start #{name}"
-          result = yield(self)
+          result = yield(sh)
           raw "travis_fold end #{name}"
           result
         end
 
+        def failure(message)
+          sh.echo message
+          sh.raw 'false'
+        end
+
         private
+
+          def with_sh(sh)
+            stack.push(sh)
+            result = yield(sh) if block_given?
+            stack.pop
+            result
+          end
+
+          def stack
+            options[:stack] ||= [self]
+          end
 
           def merge_options(args, options = {})
             options = (args.last.is_a?(Hash) ? args.pop : {}).merge(options)
-            args << self.options.merge(options)
+            args << self.options.merge(options).merge(stack: stack)
           end
 
           ANSI = {

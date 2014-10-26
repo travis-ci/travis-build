@@ -17,29 +17,31 @@ module Travis
         end
 
         def script
-          self.if   '-f gradlew',      './gradlew build connectedCheck'
-          self.elif '-f build.gradle', 'gradle build connectedCheck'
-          self.elif '-f pom.xml',      'mvn install -B'
-          self.else                    'ant debug installt test'
+          sh.if   '-f gradlew',      './gradlew build connectedCheck'
+          sh.elif '-f build.gradle', 'gradle build connectedCheck'
+          sh.elif '-f pom.xml',      'mvn install -B'
+          sh.else                    'ant debug installt test'
         end
 
         private
 
         def install_sdk_components(components)
-          fold 'android.install' do |script|
-            echo "Installing Android dependencies"
+          sh.fold 'android.install' do
+            sh.echo 'Installing Android dependencies'
             components.each do |component_name|
-              install_sdk_component(script, component_name)
+              install_sdk_component(sh, component_name)
             end
           end
         end
 
-        def install_sdk_component(script, component_name)
-          install_cmd = "android-update-sdk --components=#{component_name}"
-          unless config[:android][:licenses].empty?
-            install_cmd += " --accept-licenses='#{config[:android][:licenses].join('|')}'"
-          end
-          script.cmd install_cmd
+        def install_sdk_component(sh, component)
+          cmd = "android-update-sdk --components=#{component}"
+          cmd += " --accept-licenses='#{licenses}'" unless licenses.empty?
+          sh.cmd cmd
+        end
+
+        def licenses
+          Array(config[:android][:licenses]).join('|')
         end
       end
     end

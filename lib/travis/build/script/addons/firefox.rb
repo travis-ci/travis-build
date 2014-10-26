@@ -5,13 +5,15 @@ module Travis
         class Firefox
           SUPER_USER_SAFE = false
 
-          def initialize(script, config)
-            @script = script
+          attr_reader :sh
+
+          def initialize(sh, config)
+            @sh = sh
             @firefox_version = config.to_s
           end
 
           def before_install
-            @script.fold 'install_firefox' do |sh|
+            sh.fold 'install_firefox' do
               sh.echo "Installing Firefox v#{@firefox_version}", ansi: :yellow
               sh.raw "sudo mkdir -p /usr/local/firefox-#{@firefox_version}"
               sh.raw "sudo chown -R travis /usr/local/firefox-#{@firefox_version}"
