@@ -5,13 +5,15 @@ module Travis
   module Build
     module Shell
       class Node
+        include Dsl
+
         attr_reader :code, :options, :level
 
         def initialize(*args)
           @options = args.last.is_a?(Hash) ? args.pop : {}
           @level = options.delete(:level) || 0
           @code = args.first
-          yield(self) if block_given?
+          with_sh(self, &block) if block_given?
         end
 
         def name
@@ -57,7 +59,7 @@ module Travis
           @level = options.delete(:level) || 0
           @nodes = []
           args.map { |node| cmd(node, options) }
-          yield(self) if block_given?
+          with_sh(self, &block) if block_given?
         end
 
         def to_s

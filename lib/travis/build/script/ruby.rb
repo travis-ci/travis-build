@@ -13,7 +13,7 @@ module Travis
 
         def announce
           super
-          cmd 'gem --version', timing: false
+          sh.cmd 'gem --version', timing: false
         end
 
         def script

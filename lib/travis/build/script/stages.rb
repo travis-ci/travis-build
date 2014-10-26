@@ -22,7 +22,7 @@ module Travis
             run_addon_stage(stage)
             cmds = Array(config[stage])
             cmds.each_with_index do |command, ix|
-              cmd command, fold: fold_stage?(stage) && "#{stage}#{".#{ix + 1}" if cmds.size > 1}"
+              sh.cmd command, fold: fold_stage?(stage) && "#{stage}#{".#{ix + 1}" if cmds.size > 1}"
               result if stage == :script
             end
           end
@@ -44,25 +44,22 @@ module Travis
           run_builtin_stage(:finish)
 
           if config[:after_success] || deployment?
-            self.if('$TRAVIS_TEST_RESULT = 0') do
+            sh.if('$TRAVIS_TEST_RESULT = 0') do
               run_stage(:after_success)
               run_stage(:deploy)
             end
           end
 
           if config[:after_failure]
-            self.if('$TRAVIS_TEST_RESULT != 0') do
+            sh.if('$TRAVIS_TEST_RESULT != 0') do
               run_stage(:after_failure)
             end
           end
         end
 
-        def stage(stage = nil)
+        def stage(stage = nil, &block)
           @stage = stage
-          sh.script &stacking {
-            sh.options.update(assert: assert_stage?(stage))
-            yield
-          }
+          sh.script(options.merge(assert: assert_stage?(stage)), &block)
         end
 
         def assert_stage?(stage)
@@ -70,7 +67,7 @@ module Travis
         end
 
         def result
-          raw 'travis_result $?'
+          sh.raw 'travis_result $?'
         end
 
         def fold_stage?(stage)

@@ -6,32 +6,28 @@ module Travis
           :node_js => '0.10'
         }
 
-        def cache_slug
-          super << "--node-" << config[:node_js].to_s
-        end
-
         def export
           super
           config[:node_js] ||= config[:nodejs] # some old projects use language: nodejs. MK.
-          set 'TRAVIS_NODE_VERSION', config[:node_js], echo: false
+          sh.export 'TRAVIS_NODE_VERSION', config[:node_js], echo: false
         end
 
         def setup
           super
-          cmd "nvm install #{node_version}"
-          cmd "npm config set spin false", echo: false
+          sh.cmd "nvm install #{node_version}"
+          sh.cmd 'npm config set spin false', echo: false
           if npm_should_disable_strict_ssl?
-            cmd 'echo "### Disabling strict SSL ###"'
-            cmd 'npm conf set strict-ssl false'
+            sh.echo '### Disabling strict SSL ###'
+            sh.cmd 'npm conf set strict-ssl false'
           end
           setup_npm_cache if npm_cache_required?
         end
 
         def announce
           super
-          cmd 'node --version'
-          cmd 'npm --version'
-          cmd 'nvm --version'
+          sh.cmd 'node --version'
+          sh.cmd 'npm --version'
+          sh.cmd 'nvm --version'
         end
 
         def install
@@ -48,15 +44,19 @@ module Travis
 
         def setup_npm_cache
           if data.hosts && data.hosts[:npm_cache]
-            cmd 'npm config set registry http://registry.npmjs.org/', echo: false, assert: false
-            cmd "npm config set proxy #{data.hosts[:npm_cache]}", echo: false, assert: false
+            sh.cmd 'npm config set registry http://registry.npmjs.org/', echo: false, assert: false
+            sh.cmd "npm config set proxy #{data.hosts[:npm_cache]}", echo: false, assert: false
           end
+        end
+
+        def cache_slug
+          super << '--node-' << config[:node_js].to_s
         end
 
         private
 
           def uses_npm?(*args)
-            self.if '-f package.json', *args
+            sh.if '-f package.json', *args
           end
 
           def node_0_6?

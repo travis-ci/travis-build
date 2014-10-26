@@ -33,7 +33,7 @@ module Travis
 
             def to_uri
               query = canonical_query_params.dup
-              query["X-Amz-Signature"] = OpenSSL::HMAC.hexdigest("sha256", signing_key, string_to_sign)
+              query['X-Amz-Signature'] = OpenSSL::HMAC.hexdigest('sha256', signing_key, string_to_sign)
 
               Addressable::URI.new(
                 scheme: @location.scheme,
@@ -46,17 +46,17 @@ module Travis
             private
 
             def date
-              @timestamp.utc.strftime("%Y%m%d")
+              @timestamp.utc.strftime('%Y%m%d')
             end
 
             def timestamp
-              @timestamp.utc.strftime("%Y%m%dT%H%M%SZ")
+              @timestamp.utc.strftime('%Y%m%dT%H%M%SZ')
             end
 
             def query_string
               canonical_query_params.map { |key, value|
                 "#{URI.encode(key.to_s, /[^~a-zA-Z0-9_.-]/)}=#{URI.encode(value.to_s, /[^~a-zA-Z0-9_.-]/)}"
-              }.join("&")
+              }.join('&')
             end
 
             def request_sha
@@ -66,25 +66,25 @@ module Travis
                   @location.path,
                   query_string,
                   "host:#{@location.hostname}\n",
-                  "host",
-                  "UNSIGNED-PAYLOAD"
+                  'host',
+                  'UNSIGNED-PAYLOAD'
                 ].join("\n")
               )
             end
 
             def canonical_query_params
               @canonical_query_params ||= {
-                "X-Amz-Algorithm" => "AWS4-HMAC-SHA256",
-                "X-Amz-Credential" => "#{@key_pair.id}/#{date}/#{@location.region}/s3/aws4_request",
-                "X-Amz-Date" => timestamp,
-                "X-Amz-Expires" => @expires,
-                "X-Amz-SignedHeaders" => "host",
+                'X-Amz-Algorithm' => 'AWS4-HMAC-SHA256',
+                'X-Amz-Credential' => "#{@key_pair.id}/#{date}/#{@location.region}/s3/aws4_request",
+                'X-Amz-Date' => timestamp,
+                'X-Amz-Expires' => @expires,
+                'X-Amz-SignedHeaders' => 'host',
               }
             end
 
             def string_to_sign
               [
-                "AWS4-HMAC-SHA256",
+                'AWS4-HMAC-SHA256',
                 timestamp,
                 "#{date}/#{@location.region}/s3/aws4_request",
                 request_sha
@@ -96,20 +96,20 @@ module Travis
                 "AWS4#{@key_pair.secret}",
                 date,
                 @location.region,
-                "s3",
-                "aws4_request",
+                's3',
+                'aws4_request',
               )
             end
 
             def recursive_hmac(*args)
-              args.inject { |key, data| OpenSSL::HMAC.digest("sha256", key, data) }
+              args.inject { |key, data| OpenSSL::HMAC.digest('sha256', key, data) }
             end
           end
 
           # TODO: Switch to different branch from master?
-          CASHER_URL = "https://raw.githubusercontent.com/travis-ci/casher/%s/bin/casher"
-          USE_RUBY   = "1.9.3"
-          BIN_PATH   = "$CASHER_DIR/bin/casher"
+          CASHER_URL = 'https://raw.githubusercontent.com/travis-ci/casher/%s/bin/casher'
+          USE_RUBY   = '1.9.3'
+          BIN_PATH   = '$CASHER_DIR/bin/casher'
 
           def initialize(data, slug, casher_branch, start = Time.now)
             @data = data
@@ -123,7 +123,7 @@ module Travis
             sh.raw 'mkdir -p $CASHER_DIR/bin'
             sh.cmd "echo Installing caching utilities; curl #{CASHER_URL % @casher_branch} -L -o #{BIN_PATH} -s --fail", echo: false, retry: true, assert: false
             sh.raw "[ $? -ne 0 ] && echo 'Failed to fetch casher from GitHub, disabling cache.' && echo > #{BIN_PATH}"
-            sh.if("-f #{BIN_PATH}") { |sh| sh.raw "chmod +x #{BIN_PATH}" }
+            sh.if("-f #{BIN_PATH}") { sh.raw "chmod +x #{BIN_PATH}" }
           end
 
           def add(sh, path)
@@ -174,8 +174,8 @@ module Travis
 
             def location(path)
               Location.new(
-                @data.cache_options[:s3].fetch(:scheme, "https"),
-                @data.cache_options[:s3].fetch(:region, "us-east-1"),
+                @data.cache_options[:s3].fetch(:scheme, 'https'),
+                @data.cache_options[:s3].fetch(:region, 'us-east-1'),
                 @data.cache_options[:s3].fetch(:bucket),
                 path
               )
@@ -184,7 +184,7 @@ module Travis
             def prefixed(branch)
               args = [@data.repository.fetch(:github_id), branch, @slug].compact
               args.map! { |a| a.to_s.gsub(/[^\w\.\_\-]+/, '') }
-              "/" << args.join("/") << ".tbz"
+              '/' << args.join('/') << '.tbz'
             end
 
             def url(verb, path, options = {})
@@ -193,7 +193,7 @@ module Travis
             end
 
             def run(sh, command, *arguments)
-              sh.if("-f #{BIN_PATH}") do |sh|
+              sh.if("-f #{BIN_PATH}") do
                 sh.cmd("rvm #{USE_RUBY} --fuzzy do #{BIN_PATH} #{command} #{arguments.join(" ")}", echo: false)
               end
             end
@@ -214,8 +214,8 @@ module Travis
 
         def cache_class
           type = data.cache_options[:type].to_s.capitalize
-          type = "Dummy" if type.empty? or !use_directory_cache?
-          raise ArgumentError, "unknown caching mode %p" % type unless DirectoryCache.const_defined?(type, false)
+          type = 'Dummy' if type.empty? or !use_directory_cache?
+          raise ArgumentError, 'unknown caching mode %p' % type unless DirectoryCache.const_defined?(type, false)
           DirectoryCache.const_get(type)
         end
 

@@ -18,7 +18,7 @@ describe Travis::Build::Script::Addons::Postgresql do
   end
 
   it "updates the PATH with the right version for the psql tools" do
-    script.expects(:set).with('PATH', '/usr/lib/postgresql/9.3/bin:$PATH', echo: false)
+    script.expects(:export).with('PATH', '/usr/lib/postgresql/9.3/bin:$PATH', echo: false)
     subject
   end
 end

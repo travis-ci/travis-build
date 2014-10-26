@@ -19,9 +19,9 @@ module Travis
 
         def announce
           super
-          fold 'announce' do
-            cmd 'xcodebuild -version -sdk'
-            cmd 'xctool -version'
+          sh.fold 'announce' do
+            sh.cmd 'xcodebuild -version -sdk'
+            sh.cmd 'xctool -version'
           end
           uses_rubymotion? then: 'motion --version'
           podfile? then: 'pod --version'
@@ -30,32 +30,32 @@ module Travis
         def export
           super
 
-          set 'TRAVIS_XCODE_SDK', config[:xcode_sdk].to_s.shellescape, echo: false
-          set 'TRAVIS_XCODE_SCHEME', config[:xcode_scheme].to_s.shellescape, echo: false
-          set 'TRAVIS_XCODE_PROJECT', config[:xcode_project].to_s.shellescape, echo: false
-          set 'TRAVIS_XCODE_WORKSPACE', config[:xcode_workspace].to_s.shellescape, echo: false
+          sh.export 'TRAVIS_XCODE_SDK', config[:xcode_sdk].to_s.shellescape, echo: false
+          sh.export 'TRAVIS_XCODE_SCHEME', config[:xcode_scheme].to_s.shellescape, echo: false
+          sh.export 'TRAVIS_XCODE_PROJECT', config[:xcode_project].to_s.shellescape, echo: false
+          sh.export 'TRAVIS_XCODE_WORKSPACE', config[:xcode_workspace].to_s.shellescape, echo: false
         end
 
         def setup
           super
 
-          cmd "echo '#!/bin/bash\n# no-op' > /usr/local/bin/actool", echo: false
-          cmd "chmod +x /usr/local/bin/actool", echo: false
+          sh.cmd "echo '#!/bin/bash\n# no-op' > /usr/local/bin/actool", echo: false
+          sh.cmd 'chmod +x /usr/local/bin/actool', echo: false
         end
 
         def install
           super
 
-          podfile? do |sh|
+          podfile? do
             # cache cocoapods if it has been enabled
             directory_cache.add(sh, "#{pod_dir}/Pods") if data.cache?(:cocoapods)
 
-            sh.if "! ([[ -f #{pod_dir}/Podfile.lock && -f #{pod_dir}/Pods/Manifest.lock ]] && cmp --silent #{pod_dir}/Podfile.lock #{pod_dir}/Pods/Manifest.lock)", raw_condition: true do |pod_script|
-              pod_script.fold("install.cocoapods") do |pod_fold|
-                pod_fold.echo "Installing Pods with 'pod install'", ansi: :yellow
-                pod_fold.cmd "pushd #{pod_dir}"
-                pod_fold.cmd "pod install", retry: true
-                pod_fold.cmd "popd"
+            sh.if "! ([[ -f #{pod_dir}/Podfile.lock && -f #{pod_dir}/Pods/Manifest.lock ]] && cmp --silent #{pod_dir}/Podfile.lock #{pod_dir}/Pods/Manifest.lock)", raw_condition: true do
+              sh.fold('install.cocoapods') do
+                sh.echo 'Installing Pods with: pod install', ansi: :yellow
+                sh.cmd "pushd #{pod_dir}"
+                sh.cmd 'pod install', retry: true
+                sh.cmd 'popd'
               end
             end
           end
@@ -65,12 +65,12 @@ module Travis
           uses_rubymotion?(with_bundler: true, then: 'bundle exec rake spec')
           uses_rubymotion?(elif: true, then: 'rake spec')
 
-          self.else do |script|
+          sh.else do
             if config[:xcode_scheme] && (config[:xcode_project] || config[:xcode_workspace])
-              script.cmd "xctool #{xctool_args} build test"
+              sh.cmd "xctool #{xctool_args} build test"
             else
-              script.cmd "echo -e \"\\033[33;1mWARNING:\\033[33m Using Objective-C testing without specifying a scheme and either a workspace or a project is deprecated.\"", echo: false
-              script.cmd "echo \"  Check out our documentation for more information: http://about.travis-ci.org/docs/user/languages/objective-c/\"", echo: false
+              sh.echo '\033[33;1mWARNING:\033[33m Using Objective-C testing without specifying a scheme and either a workspace or a project is deprecated.'
+              sh.echo '  Check out our documentation for more information: http://about.travis-ci.org/docs/user/languages/objective-c/'
             end
           end
         end
@@ -78,7 +78,7 @@ module Travis
         private
 
         def podfile?(*args, &block)
-          self.if "-f #{config[:podfile].to_s.shellescape}", *args, &block
+          sh.if "-f #{config[:podfile].to_s.shellescape}", *args, &block
         end
 
         def pod_dir
@@ -90,9 +90,9 @@ module Travis
           conditional << ' && -f Gemfile' if args.first && args.first.is_a?(Hash) && args.first.delete(:with_bundler)
 
           if args.first && args.first.is_a?(Hash) && args.first.delete(:elif)
-            self.elif conditional, *args
+            sh.elif conditional, *args
           else
-            self.if conditional, *args
+            sh.if conditional, *args
           end
         end
 
