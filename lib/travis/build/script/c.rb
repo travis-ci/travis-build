@@ -8,12 +8,12 @@ module Travis
 
         def export
           super
-          sh.export 'CC', config[:compiler]
+          sh.export 'CC', compiler
         end
 
         def announce
           super
-          sh.cmd "#{config[:compiler]} --version"
+          sh.cmd "#{compiler} --version"
         end
 
         def script
@@ -21,7 +21,11 @@ module Travis
         end
 
         def cache_slug
-          super << '--compiler-' << config[:compiler].to_s
+          super << '--compiler-' << compiler.to_s
+        end
+
+        def compiler
+          config[:compiler]
         end
       end
     end
