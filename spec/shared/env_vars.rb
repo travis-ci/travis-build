@@ -52,13 +52,13 @@ shared_examples_for 'a script with env vars' do
 
   it 'sets a given secure :env var and obfuscates it' do
     data['config'][env_type] = 'SECURE BAR=bar'
-    is_expected.to travis_cmd "export BAR=bar", echo: 'export BAR=[secure]'
+    is_expected.to travis_cmd "export BAR=bar", echo: true, display: 'export BAR=[secure]'
   end
 
   it 'does not set secure :env vars if they\'re disabled' do
     data['job']['secure_env_enabled'] = false
     data['config'][env_type] = 'SECURE BAR=bar'
-    is_expected.not_to travis_cmd "export BAR=bar", echo: 'export BAR=[secure]'
+    is_expected.not_to travis_cmd "export BAR=bar", echo: true, display: 'export BAR=[secure]'
   end
 
   it 'sets both global and regular env vars' do

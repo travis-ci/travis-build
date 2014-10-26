@@ -25,6 +25,7 @@ module Travis
         end
 
         def export(name, value, options = {})
+          options[:echo] = "#{name}=[secure]" if options[:echo] && options[:secure]
           cmd "export #{name}=#{value}", { assert: false, timing: false }.merge(options)
         end
         alias set export

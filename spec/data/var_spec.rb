@@ -69,17 +69,13 @@ describe Travis::Build::Data::Var do
     end
   end
 
-  describe 'to_s' do
+  describe 'echo?' do
+    it 'returns true for other vars' do
+      expect(var(:FOO, 'foo')).to be_echo
+    end
+
     it 'returns false for internal vars' do
-      expect(var(:TRAVIS_FOO, 'foo').to_s).to be_falsey
-    end
-
-    it 'obfuscates the value for secure vars' do
-      expect(var('SECURE FOO', 'foo').to_s).to eq('export FOO=[secure]')
-    end
-
-    it 'returns the normal key=value string for normal vars' do
-      expect(var('FOO', 'foo').to_s).to eq('export FOO=foo')
+      expect(var(:TRAVIS_FOO, 'foo')).not_to be_echo
     end
   end
 end

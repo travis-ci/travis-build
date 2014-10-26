@@ -31,14 +31,8 @@ module Travis
           strip_secure(@key)
         end
 
-        def to_s
-          if travis?
-            false
-          elsif secure?
-            "export #{[key, '[secure]'].join('=')}"
-          else
-            "export #{[key, value].join('=')}"
-          end
+        def echo?
+          !travis?
         end
 
         def travis?

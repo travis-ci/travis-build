@@ -119,7 +119,7 @@ module Travis
 
           data.env_vars_groups.each do |group|
             sh.echo "Setting environment variables from #{group.source}", ansi: :yellow if group.announce?
-            group.vars.each { |var| sh.export(var.key, var.value, echo: var.to_s) }
+            group.vars.each { |var| sh.export(var.key, var.value, echo: var.echo?, secure: var.secure?) }
           end
 
           sh.newline if data.env_vars_groups.any?(&:announce?)
