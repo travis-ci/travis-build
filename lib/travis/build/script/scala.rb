@@ -37,15 +37,19 @@ module Travis
         end
 
         def script
-          sh.if '-d project || -f build.sbt', "sbt#{sbt_args} ++#{config[:scala]} test"
-          sh.else { super }
+          sh.if '-d project || -f build.sbt' do
+            sh.cmd "sbt#{sbt_args} ++#{config[:scala]} test"
+          end
+          sh.else do
+            super
+          end
         end
 
         private
 
-        def sbt_args
-          config[:sbt_args] && " #{config[:sbt_args]}"
-        end
+          def sbt_args
+            config[:sbt_args] && " #{config[:sbt_args]}"
+          end
       end
     end
   end
