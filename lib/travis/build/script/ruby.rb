@@ -7,9 +7,7 @@ module Travis
           gemfile: 'Gemfile'
         }
 
-        include Jdk
-        include RVM
-        include Bundler
+        include Jdk, RVM, Bundler
 
         def announce
           super

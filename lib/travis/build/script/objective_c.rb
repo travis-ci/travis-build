@@ -22,9 +22,15 @@ module Travis
           sh.fold 'announce' do
             sh.cmd 'xcodebuild -version -sdk'
             sh.cmd 'xctool -version'
+
+            sh.if use_ruby_motion do
+              sh.cmd 'motion --version'
+            end
+
+            sh.elif '-f Podfile' do
+              sh.cmd 'pod --version'
+            end
           end
-          uses_rubymotion? then: 'motion --version'
-          podfile? then: 'pod --version'
         end
 
         def export
@@ -62,13 +68,20 @@ module Travis
         end
 
         def script
-          uses_rubymotion?(with_bundler: true, then: 'bundle exec rake spec')
-          uses_rubymotion?(elif: true, then: 'rake spec')
+          sh.if use_ruby_motion(with_bundler: true) do
+            sh.cmd 'bundle exec rake spec'
+          end
+
+          sh.elif use_ruby_motion do
+            sh.cmd 'rake spec'
+          end
 
           sh.else do
             if config[:xcode_scheme] && (config[:xcode_project] || config[:xcode_workspace])
               sh.cmd "xctool #{xctool_args} build test"
             else
+              # TODO use as soon as Deprecation has been ported
+              # deprecate DEPRECATED_MISSING_WORKSPACE_OR_PROJECT
               sh.echo '\033[33;1mWARNING:\033[33m Using Objective-C testing without specifying a scheme and either a workspace or a project is deprecated.'
               sh.echo '  Check out our documentation for more information: http://about.travis-ci.org/docs/user/languages/objective-c/'
             end
@@ -85,15 +98,10 @@ module Travis
           File.dirname(config[:podfile]).shellescape
         end
 
-        def uses_rubymotion?(*args)
-          conditional = '-f Rakefile && "$(cat Rakefile)" =~ require\ [\\"\\\']motion/project'
-          conditional << ' && -f Gemfile' if args.first && args.first.is_a?(Hash) && args.first.delete(:with_bundler)
-
-          if args.first && args.first.is_a?(Hash) && args.first.delete(:elif)
-            sh.elif conditional, *args
-          else
-            sh.if conditional, *args
-          end
+        def use_ruby_motion(options = {})
+          condition = '-f Rakefile && "$(cat Rakefile)" =~ require\ [\\"\\\']motion/project'
+          condition << ' && -f Gemfile' if options.delete(:with_bundler)
+          condition
         end
 
         def xctool_args
@@ -103,6 +111,11 @@ module Travis
             end
           end.strip
         end
+
+        # DEPRECATED_MISSING_WORKSPACE_OR_PROJECT = <<-msg
+        #   Using Objective-C testing without specifying a scheme and either a workspace or a project is deprecated.
+        #   Check out our documentation for more information: http://about.travis-ci.org/docs/user/languages/objective-c/
+        # msg
       end
     end
   end
