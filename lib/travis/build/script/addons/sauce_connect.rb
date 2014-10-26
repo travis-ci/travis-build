@@ -14,19 +14,16 @@ module Travis
 
           def before_script
             if config[:username]
-              # TODO should use `sh.export`
-              sh.set 'SAUCE_USERNAME', @config[:username], echo: false
+              sh.export 'SAUCE_USERNAME', config[:username], echo: false
             end
             if config[:access_key]
-              # TODO should use `sh.export`
-              sh.set 'SAUCE_ACCESS_KEY', @config[:access_key], echo: false
+              sh.export 'SAUCE_ACCESS_KEY', config[:access_key], echo: false
             end
 
             sh.fold 'sauce_connect' do
               sh.echo 'Starting Sauce Connect', ansi: :yellow
               sh.cmd "curl -L https://gist.githubusercontent.com/henrikhodne/9322897/raw/sauce-connect.sh | bash", assert: false
-              # TODO should use `sh.export`
-              sh.set 'TRAVIS_SAUCE_CONNECT', 'true', echo: false
+              sh.export 'TRAVIS_SAUCE_CONNECT', 'true', echo: false
             end
           end
         end

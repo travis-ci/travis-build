@@ -23,7 +23,7 @@ describe Travis::Build::Script::Addons::SauceConnect do
     end
 
     it 'exports TRAVIS_SAUCE_CONNECT' do
-      script.expects(:set).with('TRAVIS_SAUCE_CONNECT', 'true', echo: false)
+      script.expects(:export).with('TRAVIS_SAUCE_CONNECT', 'true', echo: false)
       subject
     end
   end
@@ -32,12 +32,12 @@ describe Travis::Build::Script::Addons::SauceConnect do
     let(:config) { { :username => 'johndoe', :access_key => '0123456789abcfdef' } }
 
     it 'exports the username' do
-      script.expects(:set).with('SAUCE_USERNAME', 'johndoe', echo: false)
+      script.expects(:export).with('SAUCE_USERNAME', 'johndoe', echo: false)
       subject
     end
 
     it 'exports the access key' do
-      script.expects(:set).with('SAUCE_ACCESS_KEY', '0123456789abcfdef', echo: false)
+      script.expects(:export).with('SAUCE_ACCESS_KEY', '0123456789abcfdef', echo: false)
       subject
     end
 
@@ -49,7 +49,7 @@ describe Travis::Build::Script::Addons::SauceConnect do
     end
 
     it 'exports TRAVIS_SAUCE_CONNECT' do
-      script.expects(:set).with('TRAVIS_SAUCE_CONNECT', 'true', echo: false)
+      script.expects(:export).with('TRAVIS_SAUCE_CONNECT', 'true', echo: false)
       subject
     end
   end
