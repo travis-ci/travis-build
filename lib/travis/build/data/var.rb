@@ -46,7 +46,7 @@ module Travis
         end
 
         def secure?
-          @secure.nil? ? @key =~ /^SECURE / : @secure
+          !!(@secure.nil? ? @key =~ /^SECURE / : @secure)
         end
 
         private
