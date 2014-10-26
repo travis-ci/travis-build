@@ -4,46 +4,55 @@ module Travis
       class Android < Script
         include Jdk
 
-        DEFAULTS = {
-          android: {
-            components: [],
-            licenses: []
-          }
-        }
-
         def setup
           super
-          install_sdk_components(config[:android][:components]) unless config[:android][:components].empty?
+          install_sdk_components(components) unless components.empty?
         end
 
         def script
-          sh.if   '-f gradlew',      './gradlew build connectedCheck'
-          sh.elif '-f build.gradle', 'gradle build connectedCheck'
-          sh.elif '-f pom.xml',      'mvn install -B'
-          sh.else                    'ant debug installt test'
+          sh.if '-f gradlew' do
+            sh.cmd './gradlew build connectedCheck'
+          end
+          sh.elif '-f build.gradle' do
+            sh.cmd 'gradle build connectedCheck'
+          end
+          sh.elif '-f pom.xml' do
+            sh.cmd 'mvn install -B', echo: true
+          end
+          sh.else do
+            sh.cmd 'ant debug installt test'
+          end
         end
 
         private
 
-        def install_sdk_components(components)
-          sh.fold 'android.install' do
-            sh.echo 'Installing Android dependencies'
-            components.each do |component_name|
-              install_sdk_component(sh, component_name)
+          def install_sdk_components(components)
+            sh.fold 'android.install' do
+              sh.echo 'Installing Android dependencies'
+              components.each do |name|
+                sh.cmd install_sdk_component(name)
+              end
             end
+          end
+
+          def install_sdk_component(name)
+            code = "android-update-sdk --components=#{name}"
+            code << " --accept-licenses='#{licenses.join('|')}'" unless licenses.empty?
+            code
           end
         end
 
-        def install_sdk_component(sh, component)
-          cmd = "android-update-sdk --components=#{component}"
-          cmd += " --accept-licenses='#{licenses}'" unless licenses.empty?
-          sh.cmd cmd
+        def components
+          android_config[:components] || []
         end
 
         def licenses
-          Array(config[:android][:licenses]).join('|')
+          android_config[:licenses] || []
         end
-      end
+
+        def android_config
+          config[:android] || {}
+        end
     end
   end
 end
