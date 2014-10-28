@@ -9,16 +9,30 @@ module Travis
         }
 
         def install
-          sh.if   '-f gradlew',      './gradlew assemble', fold: 'install', retry: true
-          sh.elif '-f build.gradle', 'gradle assemble', fold: 'install', retry: true
-          sh.elif '-f pom.xml',      'mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V', fold: 'install', retry: true # Otherwise mvn install will run tests which. Suggestion from Charles Nutter. MK.
+          sh.if '-f gradlew' do
+            sh.cmd './gradlew assemble', echo: true, retry: true, fold: 'install'
+          end
+          sh.elif '-f build.gradle' do
+            sh.cmd 'gradle assemble', echo: true, retry: true, fold: 'install'
+          end
+          sh.elif '-f pom.xml' do
+            sh.cmd 'mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V', echo: true, retry: true, fold: 'install'
+          end
         end
 
         def script
-          sh.if   '-f gradlew',      './gradlew check'
-          sh.elif '-f build.gradle', 'gradle check'
-          sh.elif '-f pom.xml',      'mvn test -B'
-          sh.else                    'ant test'
+          sh.if '-f gradlew' do
+            sh.cmd './gradlew check', echo: true
+          end
+          sh.elif '-f build.gradle' do
+            sh.cmd 'gradle check', echo: true
+          end
+          sh.elif '-f pom.xml' do
+            sh.cmd 'mvn test -B', echo: true
+          end
+          sh.else do
+            sh.cmd 'ant test', echo: true
+          end
         end
       end
     end

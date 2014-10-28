@@ -7,8 +7,9 @@ require 'base64'
 module Travis
   module Build
     class Data
-      autoload :Env, 'travis/build/data/env'
-      autoload :Var, 'travis/build/data/var'
+      autoload :Env,    'travis/build/data/env'
+      autoload :SshKey, 'travis/build/data/ssh_key'
+      autoload :Var,    'travis/build/data/var'
 
       DEFAULTS = { }
 
@@ -81,27 +82,6 @@ module Travis
 
       def raw_env_vars
         data[:env_vars] || []
-      end
-
-      class SshKey < Struct.new(:value, :source, :encoded)
-        def value
-          if encoded?
-            Base64.decode64(super)
-          else
-            super
-          end
-        end
-
-        def encoded?
-          encoded
-        end
-
-        def fingerprint
-          rsa_key = OpenSSL::PKey::RSA.new(value)
-          public_ssh_rsa = "\x00\x00\x00\x07ssh-rsa" + rsa_key.e.to_s(0) + rsa_key.n.to_s(0)
-          OpenSSL::Digest::MD5.new(public_ssh_rsa).hexdigest.scan(/../).join(':')
-        rescue OpenSSL::PKey::RSAError
-        end
       end
 
       def ssh_key

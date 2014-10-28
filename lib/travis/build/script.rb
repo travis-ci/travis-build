@@ -8,6 +8,7 @@ module Travis
   module Build
     class Script
       autoload :Addons,         'travis/build/script/addons'
+      autoload :Deprecation,    'travis/build/script/deprecation'
       autoload :DirectoryCache, 'travis/build/script/directory_cache'
       autoload :Services,       'travis/build/script/services'
       autoload :Stages,         'travis/build/script/stages'
@@ -57,36 +58,54 @@ module Travis
         end
       end
 
-      include Addons, Git, Services, Stages, DirectoryCache
+      include Addons, Git, Services, Stages, DirectoryCache, Deprecation
 
-      attr_reader :shell, :data, :options
+      # attr_reader :shell, :data, :options
+      attr_reader :sh, :data, :options
 
       def initialize(data, options = {})
         @data = Data.new({ config: self.class.defaults }.deep_merge(data.deep_symbolize_keys))
         @options = options
-        @shell = Shell::Script.new(echo: true, timing: true)
+        # @shell = Shell::Script.new(echo: true, timing: true)
+        @sh = Shell::Builder.new
+        run
       end
+
+      # def compile
+      #   sh.raw header
+      #   run_stages if check_config
+      #   sh.raw template 'footer.sh'
+      #   sh.to_s
+      # end
 
       def compile
-        sh.raw header
-        run_stages if check_config
-        sh.raw template 'footer.sh'
-        sh.to_s
+        Shell.generate(sexp)
       end
 
-      def header(build_dir = Travis::Build::BUILD_DIR)
-        template 'header.sh', build_dir: build_dir
+      def sexp
+        sh.to_sexp
       end
+
+      # def header(build_dir = Travis::Build::BUILD_DIR)
+      #   template 'header.sh', build_dir: build_dir
+      # end
 
       def cache_slug
         'cache'
       end
 
-      def sh
-        shell.sh
-      end
+      # def sh
+      #   shell.sh
+      # end
 
       private
+
+        def run
+          run_stages if check_config
+          sh.raw template('footer.sh')
+          notify_deprecations
+          sh.raw template('header.sh'), pos: 0
+        end
 
         def check_config
           case data.config[:".result"]
@@ -156,29 +175,41 @@ module Travis
             sh.newline
             sh.echo "Sudo, the FireFox addon, setuid and setgid have been disabled.", ansi: :yellow
             sh.newline
-            sh.raw 'sudo -n sh -c "sed -e \'s/^%.*//\' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis && find / -perm -4000 -exec chmod a-s {} \; 2>/dev/null"'
+            sh.cmd 'sudo -n sh -c "sed -e \'s/^%.*//\' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis && find / -perm -4000 -exec chmod a-s {} \; 2>/dev/null"'
           end
         end
 
         def setup_apt_cache
           if data.hosts && data.hosts[:apt_cache]
             sh.echo 'Setting up APT cache', ansi: :yellow
-            sh.raw %(echo 'Acquire::http { Proxy "#{data.hosts[:apt_cache]}"; };' | sudo tee /etc/apt/apt.conf.d/01proxy &> /dev/null)
+            sh.cmd %(echo 'Acquire::http { Proxy "#{data.hosts[:apt_cache]}"; };' | sudo tee /etc/apt/apt.conf.d/01proxy &> /dev/null)
           end
         end
 
         def fix_resolv_conf
           return if data.skip_resolv_updates?
-          sh.raw %(grep '199.91.168' /etc/resolv.conf > /dev/null || echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf &> /dev/null)
+          sh.cmd %(grep '199.91.168' /etc/resolv.conf > /dev/null || echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf &> /dev/null)
         end
 
         def fix_etc_hosts
           return if data.skip_etc_hosts_fix?
-          sh.raw %(sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'.bak' /etc/hosts)
+          sh.cmd %(sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'.bak' /etc/hosts)
         end
 
         def fix_ps4
           sh.export "PS4", "+ ", echo: false
+        end
+
+        def notify_deprecations
+          deprecations.map.with_index do |msg, ix|
+            sh.fold "deprecated.#{ix}", pos: ix do
+              sh.deprecate "DEPRECATED: #{unindent(msg)}"
+            end
+          end
+        end
+
+        def unindent(str)
+          str.gsub /^#{str[/\A\s*/]}/, ''
         end
     end
   end

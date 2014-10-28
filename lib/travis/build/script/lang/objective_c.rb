@@ -80,10 +80,7 @@ module Travis
             if config[:xcode_scheme] && (config[:xcode_project] || config[:xcode_workspace])
               sh.cmd "xctool #{xctool_args} build test"
             else
-              # TODO use as soon as Deprecation has been ported
-              # deprecate DEPRECATED_MISSING_WORKSPACE_OR_PROJECT
-              sh.echo '\033[33;1mWARNING:\033[33m Using Objective-C testing without specifying a scheme and either a workspace or a project is deprecated.'
-              sh.echo '  Check out our documentation for more information: http://about.travis-ci.org/docs/user/languages/objective-c/'
+              deprecate DEPRECATED_MISSING_WORKSPACE_OR_PROJECT
             end
           end
         end
@@ -112,10 +109,10 @@ module Travis
           end.strip
         end
 
-        # DEPRECATED_MISSING_WORKSPACE_OR_PROJECT = <<-msg
-        #   Using Objective-C testing without specifying a scheme and either a workspace or a project is deprecated.
-        #   Check out our documentation for more information: http://about.travis-ci.org/docs/user/languages/objective-c/
-        # msg
+        DEPRECATED_MISSING_WORKSPACE_OR_PROJECT = <<-msg
+          Using Objective-C testing without specifying a scheme and either a workspace or a project is deprecated.
+          Check out our documentation for more information: http://about.travis-ci.org/docs/user/languages/objective-c/
+        msg
       end
     end
   end

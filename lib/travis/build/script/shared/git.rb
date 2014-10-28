@@ -25,50 +25,48 @@ module Travis
 
         private
 
-          def ssh_key_source
-            return unless data.ssh_key.source
-
-            source = data.ssh_key.source.gsub(/[_-]+/, ' ')
-            " from: #{source}"
-          end
-
           def install_ssh_key
             return unless data.ssh_key
 
-            sh.echo "\nInstalling an SSH key#{ssh_key_source}"
-            sh.echo "Key fingerprint: #{data.ssh_key.fingerprint}\n" if data.ssh_key.fingerprint
-            sh.file '~/.ssh/id_rsa', data.ssh_key.value
-            sh.raw 'chmod 600 ~/.ssh/id_rsa'
-            sh.raw 'eval `ssh-agent` &> /dev/null'
-            sh.raw 'ssh-add ~/.ssh/id_rsa &> /dev/null'
+            source = " from: #{data.ssh_key.source.gsub(/[_-]+/, ' ')}" if data.ssh_key.source
+            sh.echo "\nInstalling an SSH key#{source}\n"
+
+            sh.file '~/.ssh/id_rsa', data.ssh_key.value, decode: data.ssh_key.encoded?
+            sh.chmod 600, '~/.ssh/id_rsa', echo: false
+            sh.cmd 'eval `ssh-agent` &> /dev/null', echo: false, timing: false
+            sh.cmd 'ssh-add ~/.ssh/id_rsa &> /dev/null', echo: false, timing: false
 
             # BatchMode - If set to 'yes', passphrase/password querying will be disabled.
             # TODO ... how to solve StrictHostKeyChecking correctly? deploy a knownhosts file?
-            sh.raw %(echo -e "Host #{data.source_host}\n\tBatchMode yes\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config)
+            sh.file "Host #{data.source_host}\n\tBatchMode yes\n\tStrictHostKeyChecking no\n", '~/.ssh/config', append: true
           end
 
           def download_tarball
-            sh.cmd "mkdir -p #{dir}", assert: true
-            curl_cmd = "curl -o #{sanitized_slug}.tar.gz #{oauth_token}-L #{tarball_url}"
-            sh.cmd curl_cmd, echo: curl_cmd.gsub(data.token || /\Za/, '[SECURE]'), assert: true, retry: true, fold: "tarball.#{next_git_fold_number}"
-            sh.cmd "tar xfz #{sanitized_slug}.tar.gz", assert: true
-            sh.cmd "mv #{sanitized_slug}-#{data.commit[0..6]}/* #{dir}", assert: true
+            curl = "curl -o #{sanitized_slug}.tar.gz #{oauth_token}-L #{tarball_url}"
+            echo = curl.gsub(data.token || /\Za/, '[SECURE]')
+
+            sh.mkdir dir, echo: false, recursive: true
+            sh.cmd curl, assert: true, echo: echo, retry: true, fold: "tarball.#{next_git_fold_number}"
+            sh.cmd "tar xfz #{sanitized_slug}.tar.gz", assert: true, echo: true
+            sh.mv "#{sanitized_slug}-#{data.commit[0..6]}/*", dir, echo: false
             sh.cd dir
           end
 
           def git_clone
             sh.export 'GIT_ASKPASS', 'echo', :echo => false # this makes git interactive auth fail
-            sh.if "! -d #{dir}/.git" do
-              sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, fold: "git.#{next_git_fold_number}", retry: true
-            end
-            sh.else do
-              sh.cmd "git -C #{dir} fetch origin", assert: true, fold: "git.#{next_git_fold_number}", retry: true
-              sh.cmd "git -C #{dir} reset --hard", assert: true, timing: false, fold: "git.#{next_git_fold_number}"
+            sh.fold 'git' do
+              sh.if "! -d #{dir}/.git" do
+                sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, retry: true
+              end
+              sh.else do
+                sh.cmd "git -C #{dir} fetch origin", assert: true, retry: true
+                sh.cmd "git -C #{dir} reset --hard", assert: true, timing: false
+              end
             end
           end
 
           def rm_key
-            sh.raw 'rm -f ~/.ssh/source_rsa'
+            sh.rm '~/.ssh/source_rsa', force: true, echo: false
           end
 
           def fetch_ref?

@@ -30,10 +30,10 @@ module Travis
           sh.cmd "gvm install #{version} --binary || gvm install #{version}", fold: 'gvm.install'
           sh.cmd "gvm use #{version}"
 
-          sh.export 'GOPATH', "#{HOME_DIR}/gopath:$GOPATH"
-          sh.export 'PATH', "#{HOME_DIR}/gopath/bin:$PATH"
+          sh.export 'GOPATH', "#{HOME_DIR}/gopath:$GOPATH", echo: false
+          sh.export 'PATH', "#{HOME_DIR}/gopath/bin:$PATH", echo: false
 
-          sh.cmd "mkdir -p #{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}", assert: false, timing: false
+          sh.mkdir "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}", recursive: true, assert: false, timing: false
           sh.cmd "rsync -az ${TRAVIS_BUILD_DIR}/ #{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}/", assert: false, timing: false
 
           sh.export "TRAVIS_BUILD_DIR", "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}"

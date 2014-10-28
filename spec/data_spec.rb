@@ -1,6 +1,4 @@
-require 'base64'
 require 'spec_helper'
-require 'base64'
 
 describe Travis::Build::Data do
   describe 'parse' do
@@ -28,29 +26,22 @@ describe Travis::Build::Data do
   end
 
   describe 'ssh_key' do
-    it 'does not fail on wrong key' do
-      data = Travis::Build::Data.new(config: { source_key: 'foo' })
-      data.ssh_key.fingerprint.should be_nil
-    end
-
     it 'returns ssh_key from source_key as a fallback' do
-      data = Travis::Build::Data.new(config: { source_key: Base64.encode64(TEST_PRIVATE_KEY) })
-      data.ssh_key.value.should == TEST_PRIVATE_KEY
-      data.ssh_key.source.should be_nil
-      data.ssh_key.should be_encoded
-      data.ssh_key.fingerprint.should == '57:78:65:c2:c9:c8:c9:f7:dd:2b:35:39:40:27:d2:40'
+      data = Travis::Build::Data.new(config: { source_key: 'foo' })
+      expect(data.ssh_key.value).to eql('foo')
+      expect(data.ssh_key.source).to be_nil
+      expect(data.ssh_key).to be_encoded
     end
 
     it 'returns nil if there is no ssh_key' do
       data = Travis::Build::Data.new({ config: {} })
-      data.ssh_key.should be_nil
+      expect(data.ssh_key).to be_nil
     end
 
     it 'returns ssh_key from api if it is available' do
-      data = Travis::Build::Data.new(ssh_key: { value: TEST_PRIVATE_KEY, source: 'the source' })
-      data.ssh_key.value.should == TEST_PRIVATE_KEY
-      data.ssh_key.source.should == 'the source'
-      data.ssh_key.fingerprint.should == '57:78:65:c2:c9:c8:c9:f7:dd:2b:35:39:40:27:d2:40'
+      data = Travis::Build::Data.new(ssh_key: { value: 'foo', source: 'the source' })
+      expect(data.ssh_key.value).to eql('foo')
+      expect(data.ssh_key.source).to eql('the source')
     end
   end
 
@@ -62,9 +53,10 @@ describe Travis::Build::Data do
 
       describe '#cache' do
         subject { super().cache }
-        it { is_expected.to eq({ bundler: true }) }
+        it { should eq({ bundler: true }) }
       end
-      it { is_expected.to be_cache(:bundler) }
+
+      it { should be_cache(:bundler) }
       it { is_expected.not_to be_cache(:edge) }
     end
 
@@ -73,10 +65,10 @@ describe Travis::Build::Data do
 
       describe '#cache' do
         subject { super().cache }
-        it { is_expected.to eq({ bundler: true, edge: true }) }
+        it { should eq({ bundler: true, edge: true }) }
       end
-      it { is_expected.to be_cache(:bundler) }
-      it { is_expected.to be_cache(:edge) }
+      it { should be_cache(:bundler) }
+      it { should be_cache(:edge) }
     end
 
     describe "hash value" do
@@ -84,9 +76,9 @@ describe Travis::Build::Data do
 
       describe '#cache' do
         subject { super().cache }
-        it { is_expected.to eq({ bundler: true, edge: false }) }
+        it { should eq({ bundler: true, edge: false }) }
       end
-      it { is_expected.to be_cache(:bundler) }
+      it { should be_cache(:bundler) }
       it { is_expected.not_to be_cache(:edge) }
     end
 
@@ -95,9 +87,9 @@ describe Travis::Build::Data do
 
       describe '#cache' do
         subject { super().cache }
-        it { is_expected.to eq({ bundler: true, edge: false }) }
+        it { should eq({ bundler: true, edge: false }) }
       end
-      it { is_expected.to be_cache(:bundler) }
+      it { should be_cache(:bundler) }
       it { is_expected.not_to be_cache(:edge) }
     end
 
@@ -106,8 +98,9 @@ describe Travis::Build::Data do
 
       describe '#cache' do
         subject { super().cache }
-        it { is_expected.to eq({ bundler: false, apt: false, cocoapods: false, composer: false }) }
+        it { should eq(bundler: false, apt: false, cocoapods: false, composer: false) }
       end
+
       it { is_expected.not_to be_cache(:bundler) }
       it { is_expected.not_to be_cache(:edge) }
     end

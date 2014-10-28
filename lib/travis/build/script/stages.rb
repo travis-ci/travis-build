@@ -2,6 +2,21 @@ module Travis
   module Build
     class Script
       module Stages
+        STAGE_DEFAULT_OPTIONS = {
+          checkout:       { assert: true,  echo: true,  timing: true  },
+          export:         { assert: false, echo: false, timing: false },
+          setup:          { assert: true,  echo: true,  timing: true  },
+          announce:       { assert: false, echo: true,  timing: false },
+          before_install: { assert: true,  echo: true,  timing: true  },
+          install:        { assert: true,  echo: true,  timing: true  },
+          before_script:  { assert: true,  echo: true,  timing: true  },
+          script:         { assert: false, echo: true,  timing: true  },
+          after_result:   { assert: false, echo: true,  timing: true  },
+          after_script:   { assert: false, echo: true,  timing: true  },
+          before_deploy:  { assert: true,  echo: true,  timing: true  },
+          after_deploy:   { assert: true,  echo: true,  timing: true  }
+        }
+
         def run_stages
           STAGES[:builtin].each { |stage| run_builtin_stage(stage) }
           STAGES[:custom].each  { |stage| run_stage(stage) }
@@ -13,7 +28,7 @@ module Travis
           elsif respond_to?(stage, false) || stage == :after_result
             run_builtin_stage(stage)
           else
-            stage(stage) { run_addon_stage(stage) }
+            run_addon_stage(stage)
           end
         end
 
@@ -22,7 +37,7 @@ module Travis
             run_addon_stage(stage)
             cmds = Array(config[stage])
             cmds.each_with_index do |command, ix|
-              sh.cmd command, fold: fold_stage?(stage) && "#{stage}#{".#{ix + 1}" if cmds.size > 1}"
+              sh.cmd command, echo: true, fold: fold_stage?(stage) && "#{stage}#{".#{ix + 1}" if cmds.size > 1}"
               result if stage == :script
             end
           end
@@ -37,7 +52,7 @@ module Travis
         end
 
         def run_addon_stage(stage)
-          run_addons(stage)
+          stage(stage) { run_addons(stage) } if respond_to?(:run_addons)
         end
 
         def after_result
@@ -59,7 +74,8 @@ module Travis
 
         def stage(stage = nil, &block)
           @stage = stage
-          sh.script(options.merge(assert: assert_stage?(stage)), &block)
+          # sh.script(options.merge(assert: assert_stage?(stage)), &block)
+          sh.with_options(STAGE_DEFAULT_OPTIONS[stage] || {}, &block)
         end
 
         def assert_stage?(stage)
