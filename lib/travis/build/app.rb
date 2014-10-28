@@ -24,15 +24,13 @@ module Travis
 
       configure do
         if ENV["SENTRY_DSN"]
-          require "travis/build/app_middleware/sentry"
-
-          use Travis::Build::AppMiddleware::Sentry
+          require "travis/build/app/sentry"
+          use Travis::Build::App::Sentry
         end
 
         if ENV.key?("LIBRATO_EMAIL") && ENV.key?("LIBRATO_TOKEN") && ENV.key?("LIBRATO_SOURCE")
-          require 'travis/build/app_middleware/metriks'
-
-          use Travis::Build::AppMiddleware::Metriks
+          require 'travis/build/app/metriks'
+          use Travis::Build::App::Metriks
         end
       end
 

@@ -4,7 +4,7 @@ require "sinatra/base"
 
 module Travis
   module Build
-    module AppMiddleware
+    module App
       class Metriks < Sinatra::Base
         configure do
           ::Metriks::LibratoMetricsReporter.new(
