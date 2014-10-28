@@ -4,7 +4,6 @@ module Travis
   module Build
     autoload :Data,     'travis/build/data'
     autoload :Script,   'travis/build/script'
-    autoload :Services, 'travis/build/services'
     autoload :Shell,    'travis/build/shell'
 
     HOME_DIR  = '$HOME'
