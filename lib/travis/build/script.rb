@@ -103,6 +103,7 @@ module Travis
         def configure
           fix_resolv_conf
           fix_etc_hosts
+          run_addons(:before_checkout)
         end
 
         def export

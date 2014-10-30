@@ -1,25 +1,27 @@
 require 'travis/build/script/addons/artifacts'
 require 'travis/build/script/addons/code_climate'
+require 'travis/build/script/addons/coverity_scan'
 require 'travis/build/script/addons/deploy'
 require 'travis/build/script/addons/firefox'
 require 'travis/build/script/addons/hosts'
 require 'travis/build/script/addons/postgresql'
 require 'travis/build/script/addons/sauce_connect'
-require 'travis/build/script/addons/coverity_scan'
+require 'travis/build/script/addons/ssh_known_hosts'
 
 module Travis
   module Build
     class Script
       module Addons
         MAP = {
-          artifacts:     Artifacts,
-          code_climate:  CodeClimate,
-          deploy:        Deploy::Group,
-          firefox:       Firefox,
-          hosts:         Hosts,
-          postgresql:    Postgresql,
-          sauce_connect: SauceConnect,
-          coverity_scan: CoverityScan,
+          artifacts:       Artifacts,
+          code_climate:    CodeClimate,
+          coverity_scan:   CoverityScan,
+          deploy:          Deploy::Group,
+          firefox:         Firefox,
+          hosts:           Hosts,
+          postgresql:      Postgresql,
+          sauce_connect:   SauceConnect,
+          ssh_known_hosts: SshKnownHosts,
         }
 
         def run_addons(stage)
