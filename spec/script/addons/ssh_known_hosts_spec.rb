@@ -26,9 +26,9 @@ describe Travis::Build::Script::Addons::SshKnownHosts do
       ['git.example.org', 'git.example.biz']
     end
 
-    xit "adds hosts to ~/.ssh/known_hosts" do
-      script.expects(:cmd).with(%Q{ssh-keyscan -H git.example.org | tee -a #{Travis::Build::HOME_DIR}/.ssh/known_hosts}, assert: false)
-      script.expects(:cmd).with(%Q{ssh-keyscan -H git.example.biz | tee -a #{Travis::Build::HOME_DIR}/.ssh/known_hosts}, assert: false)
+    it "adds hosts to ~/.ssh/known_hosts" do
+      script.expects(:cmd).with(%Q{ssh-keyscan -t rsa,dsa -H git.example.org 2>&1 | tee -a #{Travis::Build::HOME_DIR}/.ssh/known_hosts}, assert: false)
+      script.expects(:cmd).with(%Q{ssh-keyscan -t rsa,dsa -H git.example.biz 2>&1 | tee -a #{Travis::Build::HOME_DIR}/.ssh/known_hosts}, assert: false)
       subject.before_checkout
     end
   end
@@ -38,8 +38,8 @@ describe Travis::Build::Script::Addons::SshKnownHosts do
       'git.example.org'
     end
 
-    xit 'adds host to ~/.ssh/known_hosts' do
-      script.expects(:cmd).with(%Q{ssh-keyscan -H git.example.org | tee -a #{Travis::Build::HOME_DIR}/.ssh/known_hosts}, assert: false)
+    it 'adds host to ~/.ssh/known_hosts' do
+      script.expects(:cmd).with(%Q{ssh-keyscan -t rsa,dsa -H git.example.org 2>&1 | tee -a #{Travis::Build::HOME_DIR}/.ssh/known_hosts}, assert: false)
       subject.before_checkout
     end
   end
@@ -47,7 +47,7 @@ describe Travis::Build::Script::Addons::SshKnownHosts do
   context 'without any hosts' do
     let(:config) { nil }
 
-    xit 'does not add known hosts' do
+    it 'does not add known hosts' do
       script.expects(:cmd).never
       subject.before_checkout
     end
