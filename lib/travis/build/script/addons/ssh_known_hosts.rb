@@ -22,7 +22,9 @@ module Travis
               script.echo "Adding ssh known hosts (BETA)", ansi: :yellow unless config.empty?
               script.fold 'ssh_known_hosts.0' do
                 config.each do |host|
-                  script.cmd "ssh-keyscan -H #{host} >> #{Travis::Build::HOME_DIR}/.ssh/known_hosts 2>/dev/null", assert: false
+                  script.cmd "ssh-keyscan #{host} | tee -a #{Travis::Build::HOME_DIR}/.ssh/known_hosts", assert: false
+                  script.cmd "for _ip in $(dig +short #{host}) ; do " \
+                             "ssh-keyscan $_ip | tee -a #{Travis::Build::HOME_DIR}/.ssh/known_hosts ; done", assert: false
                 end
               end
             end
