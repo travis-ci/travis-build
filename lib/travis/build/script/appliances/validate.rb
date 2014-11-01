@@ -1,22 +1,22 @@
 module Travis
   module Build
     class Script
-        class Validator
+      module Appliances
+        class Validate < Base
           MSGS = {
             not_found:    ['Could not find .travis.yml, using standard configuration.', ansi: :red],
             server_error: ['Could not fetch .travis.yml from GitHub.', ansi: :red]
           }
 
-          attr_reader :sh, :config, :result, :msgs
+          attr_reader :msgs, :result
 
-          def initialize(sh, config)
-            @sh = sh
-            @config = config
+          def initialize(*)
+            super
             @result = true
             @msgs = []
           end
 
-          def run
+          def apply
             validate_config
             msgs.each { |msg| sh.echo *msg }
             sh.terminate unless result
@@ -36,6 +36,7 @@ module Travis
               status.to_sym if status
             end
         end
+      end
     end
   end
 end

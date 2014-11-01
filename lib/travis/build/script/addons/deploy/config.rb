@@ -2,6 +2,7 @@ require 'shellwords'
 require 'active_support/core_ext/hash/except'
 require 'active_support/core_ext/hash/slice'
 require 'active_support/core_ext/hash/deep_merge'
+require 'travis/build/script/helpers/deprecation'
 
 module Travis
   module Build

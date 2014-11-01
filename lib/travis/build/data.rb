@@ -28,6 +28,10 @@ module Travis
         @data = DEFAULTS.deep_merge(defaults.deep_merge(data))
       end
 
+      def [](key)
+        data[key]
+      end
+
       def urls
         data[:urls] || {}
       end
@@ -38,18 +42,6 @@ module Travis
 
       def hosts
         data[:hosts] || {}
-      end
-
-      def disable_sudo?
-        data.fetch(:paranoid, false)
-      end
-
-      def fix_resolv_conf?
-        !data[:skip_resolv_updates]
-      end
-
-      def fix_etc_hosts?
-        !data[:skip_etc_hosts_fix]
       end
 
       def cache_options

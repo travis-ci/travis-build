@@ -1,0 +1,6 @@
+require 'travis/build/script/shared/bundler'
+require 'travis/build/script/shared/directory_cache'
+require 'travis/build/script/shared/git'
+require 'travis/build/script/shared/jdk'
+require 'travis/build/script/shared/jvm'
+require 'travis/build/script/shared/rvm'

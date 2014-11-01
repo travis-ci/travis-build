@@ -1,7 +1,9 @@
+require 'ostruct'
+
 module Travis
   module Build
     class Script
-      module Templates
+      module Template
         class Template < OpenStruct
           def render(filename)
             ERB.new(File.read(filename)).result(binding)

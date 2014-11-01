@@ -1,11 +1,11 @@
-require 'travis/build/script/templates'
+require 'travis/build/script/helpers/template'
 
 module Travis
   module Build
     class Script
       class Addons
         class Base
-          include Templates
+          include Template
 
           attr_reader :sh, :data, :config
 
