@@ -20,7 +20,6 @@ module Travis
       autoload :Groovy,         'travis/build/script/groovy'
       autoload :Generic,        'travis/build/script/generic'
       autoload :Haskell,        'travis/build/script/haskell'
-      autoload :Helpers,        'travis/build/script/helpers'
       autoload :Jdk,            'travis/build/script/jdk'
       autoload :Jvm,            'travis/build/script/jvm'
       autoload :NodeJs,         'travis/build/script/node_js'
@@ -55,20 +54,20 @@ module Travis
         end
       end
 
-      include Addons, Git, Helpers, Services, Stages, DirectoryCache
+      include Addons, Git, Services, Stages, DirectoryCache
 
-      attr_reader :stack, :data, :options
+      attr_reader :shell, :data, :options
 
       def initialize(data, options = {})
         @data = Data.new({ config: self.class.defaults }.deep_merge(data.deep_symbolize_keys))
         @options = options
-        @stack = [Shell::Script.new(echo: true, timing: true)]
+        @shell = Shell::Script.new(echo: true, timing: true)
       end
 
       def compile
-        raw header
+        sh.raw header
         run_stages if check_config
-        raw template 'footer.sh'
+        sh.raw template 'footer.sh'
         sh.to_s
       end
 
@@ -77,7 +76,11 @@ module Travis
       end
 
       def cache_slug
-        "cache"
+        'cache'
+      end
+
+      def sh
+        shell.sh
       end
 
       private
@@ -85,11 +88,11 @@ module Travis
         def check_config
           case data.config[:".result"]
           when 'not_found'
-            echo 'Could not find .travis.yml, using standard configuration.', ansi: :red
+            sh.echo 'Could not find .travis.yml, using standard configuration.', ansi: :red
             true
           when 'server_error'
-            echo 'Could not fetch .travis.yml from GitHub.', ansi: :red
-            raw 'travis_terminate 2'
+            sh.echo 'Could not fetch .travis.yml from GitHub.', ansi: :red
+            sh.raw 'travis_terminate 2'
             false
           else
             true
@@ -107,19 +110,19 @@ module Travis
         end
 
         def export
-          set 'TRAVIS', 'true', echo: false
-          set 'CI', 'true', echo: false
-          set 'CONTINUOUS_INTEGRATION', 'true', echo: false
-          set 'HAS_JOSH_K_SEAL_OF_APPROVAL', 'true', echo: false
+          sh.export 'TRAVIS', 'true', echo: false
+          sh.export 'CI', 'true', echo: false
+          sh.export 'CONTINUOUS_INTEGRATION', 'true', echo: false
+          sh.export 'HAS_JOSH_K_SEAL_OF_APPROVAL', 'true', echo: false
 
-          newline if data.env_vars_groups.any?(&:announce?)
+          sh.newline if data.env_vars_groups.any?(&:announce?)
 
           data.env_vars_groups.each do |group|
-            echo "Setting environment variables from #{group.source}", ansi: :yellow if group.announce?
-            group.vars.each { |var| set var.key, var.value, echo: var.to_s }
+            sh.echo "Setting environment variables from #{group.source}", ansi: :yellow if group.announce?
+            group.vars.each { |var| sh.export(var.key, var.value, echo: var.to_s) }
           end
 
-          newline if data.env_vars_groups.any?(&:announce?)
+          sh.newline if data.env_vars_groups.any?(&:announce?)
         end
 
         def finish
@@ -147,32 +150,32 @@ module Travis
 
         def paranoid_mode
           if data.paranoid_mode?
-            newline
-            echo "Sudo, the FireFox addon, setuid and setgid have been disabled.", ansi: :yellow
-            newline
-            raw 'sudo -n sh -c "sed -e \'s/^%.*//\' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis && find / -perm -4000 -exec chmod a-s {} \; 2>/dev/null"'
+            sh.newline
+            sh.echo "Sudo, the FireFox addon, setuid and setgid have been disabled.", ansi: :yellow
+            sh.newline
+            sh.raw 'sudo -n sh -c "sed -e \'s/^%.*//\' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis && find / -perm -4000 -exec chmod a-s {} \; 2>/dev/null"'
           end
         end
 
         def setup_apt_cache
           if data.hosts && data.hosts[:apt_cache]
-            echo 'Setting up APT cache', ansi: :yellow
-            raw %(echo 'Acquire::http { Proxy "#{data.hosts[:apt_cache]}"; };' | sudo tee /etc/apt/apt.conf.d/01proxy &> /dev/null)
+            sh.echo 'Setting up APT cache', ansi: :yellow
+            sh.raw %(echo 'Acquire::http { Proxy "#{data.hosts[:apt_cache]}"; };' | sudo tee /etc/apt/apt.conf.d/01proxy &> /dev/null)
           end
         end
 
         def fix_resolv_conf
           return if data.skip_resolv_updates?
-          raw %(grep '199.91.168' /etc/resolv.conf > /dev/null || echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf &> /dev/null)
+          sh.raw %(grep '199.91.168' /etc/resolv.conf > /dev/null || echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf &> /dev/null)
         end
 
         def fix_etc_hosts
           return if data.skip_etc_hosts_fix?
-          raw %(sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'.bak' /etc/hosts)
+          sh.raw %(sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'.bak' /etc/hosts)
         end
 
         def fix_ps4
-          set "PS4", "+ ", echo: false
+          sh.export "PS4", "+ ", echo: false
         end
     end
   end

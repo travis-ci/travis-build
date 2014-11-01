@@ -37,7 +37,7 @@ module Travis
         end
 
         def init_addon(name, config)
-          MAP[name] && MAP[name].new(self, config)
+          MAP[name] && MAP[name].new(sh, config)
         end
 
         def can_run?(addon, stage)

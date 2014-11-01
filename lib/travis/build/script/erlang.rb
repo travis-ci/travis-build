@@ -6,29 +6,29 @@ module Travis
           otp_release: 'R14B04'
         }
 
-        def cache_slug
-          super << "--otp-" << config[:otp_release].to_s
-        end
-
         def export
           super
-          set 'TRAVIS_OTP_RELEASE', config[:otp_release], echo: false
+          sh.export 'TRAVIS_OTP_RELEASE', config[:otp_release], echo: false
         end
 
         def setup
           super
-          cmd "source #{HOME_DIR}/otp/#{config[:otp_release]}/activate"
+          sh.cmd "source #{HOME_DIR}/otp/#{config[:otp_release]}/activate"
         end
 
         def install
-          self.if   "#{rebar_configured} && -f ./rebar", install_rebar('./'), fold: 'install', retry: true
-          self.elif rebar_configured, install_rebar, fold: 'install', retry: true
+          sh.if   "#{rebar_configured} && -f ./rebar", install_rebar('./'), fold: 'install', retry: true
+          sh.elif rebar_configured, install_rebar, fold: 'install', retry: true
         end
 
         def script
-          self.if   "#{rebar_configured} && -f ./rebar", run_rebar('./')
-          self.elif rebar_configured, run_rebar
-          self.else 'make test'
+          sh.if   "#{rebar_configured} && -f ./rebar", run_rebar('./')
+          sh.elif rebar_configured, run_rebar
+          sh.else 'make test'
+        end
+
+        def cache_slug
+          super << '--otp-' << config[:otp_release].to_s
         end
 
         private

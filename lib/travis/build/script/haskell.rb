@@ -6,22 +6,22 @@ module Travis
 
         def setup
           super
-          cmd "export PATH=/usr/local/ghc/$(ghc_find #{config[:ghc]})/bin/:$PATH"
-          cmd 'cabal update', fold: 'cabal', retry: true
+          sh.cmd "export PATH=/usr/local/ghc/$(ghc_find #{config[:ghc]})/bin/:$PATH"
+          sh.cmd 'cabal update', fold: 'cabal', retry: true
         end
 
         def announce
           super
-          cmd 'ghc --version'
-          cmd 'cabal --version'
+          sh.cmd 'ghc --version'
+          sh.cmd 'cabal --version'
         end
 
         def install
-          cmd 'cabal install --only-dependencies --enable-tests', fold: 'install', retry: true
+          sh.cmd 'cabal install --only-dependencies --enable-tests', fold: 'install', retry: true
         end
 
         def script
-          cmd 'cabal configure --enable-tests && cabal build && cabal test'
+          sh.cmd 'cabal configure --enable-tests && cabal build && cabal test'
         end
       end
     end

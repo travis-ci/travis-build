@@ -7,22 +7,22 @@ module Travis
         }
 
         def cache_slug
-          super << "--compiler-" << config[:compiler].to_s.tr('+', 'p')
+          super << '--compiler-' << config[:compiler].to_s.tr('+', 'p')
         end
 
         def export
           super
-          set 'CXX', cxx
-          set 'CC', cc # come projects also need to compile some C, e.g. Rubinius. MK.
+          sh.export 'CXX', cxx
+          sh.export 'CC', cc # come projects also need to compile some C, e.g. Rubinius. MK.
         end
 
         def announce
           super
-          cmd "#{config[:compiler]} --version"
+          sh.cmd "#{config[:compiler]} --version"
         end
 
         def script
-          cmd './configure && make && make test'
+          sh.cmd './configure && make && make test'
         end
 
         private
@@ -41,11 +41,11 @@ module Travis
           def cc
             case config[:compiler]
             when /^gcc/i, /^g\+\+/i then
-              "gcc"
+              'gcc'
             when /^clang/i, /^clang\+\+/i then
-              "clang"
+              'clang'
             else
-              "gcc"
+              'gcc'
             end
           end
       end
