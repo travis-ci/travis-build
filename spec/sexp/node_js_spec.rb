@@ -88,4 +88,9 @@ describe Travis::Build::Script::NodeJs, :sexp do
       end
     end
   end
+
+  it 'converts 0.1 to 0.10' do
+    data['config']['node_js'] = 0.1
+    expect(script.send(:version)).to eql('0.10')
+  end
 end
