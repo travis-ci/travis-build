@@ -94,6 +94,11 @@ shared_examples_for 'a git repo sexp' do
         expect(sexp).to include_sexp [:cmd, cmd, assert: true, echo: true, retry: true, timing: true]
       end
 
+      it 'resets the repository' do
+        cmd = 'git -C travis-ci/travis-ci reset --hard'
+        expect(sexp).to include_sexp [:cmd, cmd, assert: true, echo: true]
+      end
+
       it 'changes to the git repo dir' do
         should include_sexp [:cd, 'travis-ci/travis-ci', echo: true]
       end
