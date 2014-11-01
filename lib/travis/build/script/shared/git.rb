@@ -3,7 +3,7 @@ require 'shellwords'
 module Travis
   module Build
     class Script
-      module Git
+      class Git < Struct.new(:sh, :data)
         DEFAULTS = {
           git: { depth: 50, submodules: true, strategy: 'clone' }
         }
@@ -24,6 +24,10 @@ module Travis
         end
 
         private
+
+          def config
+            data.config
+          end
 
           def install_ssh_key
             return unless data.ssh_key

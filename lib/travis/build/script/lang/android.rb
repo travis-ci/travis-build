@@ -2,6 +2,8 @@ module Travis
   module Build
     class Script
       class Android < Script
+        DEFAULTS = {}
+
         include Jdk
 
         def setup

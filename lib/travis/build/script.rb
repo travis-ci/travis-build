@@ -57,15 +57,16 @@ module Travis
       end
 
       include Module.new { STAGES.values.flatten.each { |stage| define_method(stage) {} } }
-      include Git, DirectoryCache, Deprecation, Templates
+      include DirectoryCache, Deprecation, Templates
 
-      attr_reader :sh, :data, :options, :addons, :stages, :services
+      attr_reader :sh, :data, :options, :git, :addons, :stages, :services
 
       def initialize(data, options = {})
         @data = Data.new({ config: self.class.defaults }.deep_merge(data.deep_symbolize_keys))
         @options = options
         @sh = Shell::Builder.new
-        @addons = Addons.new(sh, self.data, config)
+        @git = Git.new(sh, @data)
+        @addons = Addons.new(sh, @data, config)
         @stages = Stages.new(self, sh, config)
         @services = Services.new(sh, config[:services])
       end
@@ -114,6 +115,10 @@ module Travis
           fix_resolv_conf
           fix_etc_hosts
           run_addons(:before_checkout)
+        end
+
+        def checkout
+          git.checkout
         end
 
         def export
