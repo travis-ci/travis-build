@@ -1,8 +1,10 @@
 Once lib/shell.rb is available
 
-* port addon refactorings
-* port deploy refactoring
-* port directory_cache refactoring
-* look at shared modules jdk, jvm, rvm etc.
++ port addon refactorings
++ port deploy refactoring
++ port directory_cache refactoring
++ look at shared modules jdk, jvm, rvm etc.
++ port rust
 
-* go over all spec changes since branching off, and port them
+- go over all spec changes since branching off, and port them
+

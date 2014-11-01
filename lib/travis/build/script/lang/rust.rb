@@ -2,6 +2,16 @@ module Travis
   module Build
     class Script
       class Rust < Script
+        RUST_URLS = {
+          osx:   'https://static.rust-lang.org/dist/rust-%s-x86_64-apple-darwin.tar.gz',
+          linux: 'https://static.rust-lang.org/dist/rust-%s-x86_64-unknown-linux-gnu.tar.gz'
+        }
+
+        CARGO_URLS = {
+          osx:   'https://static.rust-lang.org/cargo-dist/cargo-nightly-x86_64-apple-darwin.tar.gz',
+          linux: 'https://static.rust-lang.org/cargo-dist/cargo-nightly-x86_64-unknown-linux-gnu.tar.gz'
+        }
+
         DEFAULTS = {
           rust: 'nightly',
         }
@@ -20,8 +30,8 @@ module Travis
 
           sh.fold('rust-download') do
             sh.echo 'Installing Rust and Cargo', ansi: :yellow
-            sh.cmd "curl -sL #{rust_url} | tar --strip-components=1 -C ~/rust -xzf -"
-            sh.cmd "curl -sL #{cargo_url} | tar --strip-components=1 -C ~/rust -xzf -"
+            sh.cmd "curl -sL #{rust_url} | tar --strip-components=1 -C ~/rust -xzf -", echo: false
+            sh.cmd "curl -sL #{cargo_url} | tar --strip-components=1 -C ~/rust -xzf -", echo: false
           end
 
           sh.cmd 'export PATH="$PATH:$HOME/rust/bin"', assert: false, echo: false
@@ -43,23 +53,21 @@ module Travis
 
         private
 
-        def rust_url
-          case config[:os]
-          when 'osx'
-            "https://static.rust-lang.org/dist/rust-#{config[:rust].to_s.shellescape}-x86_64-apple-darwin.tar.gz"
-          else
-            "https://static.rust-lang.org/dist/rust-#{config[:rust].to_s.shellescape}-x86_64-unknown-linux-gnu.tar.gz"
+          def version
+            config[:rust].to_s
           end
-        end
 
-        def cargo_url
-          case config[:os]
-          when 'osx'
-            'https://static.rust-lang.org/cargo-dist/cargo-nightly-x86_64-apple-darwin.tar.gz'
-          else
-            'https://static.rust-lang.org/cargo-dist/cargo-nightly-x86_64-unknown-linux-gnu.tar.gz'
+          def os
+            config[:os] ? :osx : :linux
           end
-        end
+
+          def rust_url
+            RUST_URLS[os] % version.shellescape
+          end
+
+          def cargo_url
+            CARGO_URLS[os] % version.shellescape
+          end
       end
     end
   end
