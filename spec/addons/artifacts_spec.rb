@@ -10,7 +10,7 @@ describe Travis::Build::Script::Addons::Artifacts, :sexp do
 
   before :each do
     addon.validator.stubs(valid?: true)
-    addon.after_script
+    addon.before_finish
   end
 
   describe 'with a valid config' do
@@ -42,13 +42,13 @@ describe Travis::Build::Script::Addons::Artifacts, :sexp do
     end
 
     it 'echoes the messages' do
-      addon.after_script
+      addon.before_finish
       should include_sexp [:echo, 'kaputt 1', ansi: :red], [:echo, 'kaputt 2', ansi: :red]
     end
 
     it 'does not run the addon' do
       subject.expects(:run).never
-      addon.after_script
+      addon.before_finish
     end
   end
 end

@@ -6,7 +6,7 @@ describe Travis::Build::Script::Addons::Deploy, :sexp do
   let(:data)    { PAYLOADS[:push].deep_clone }
   let(:sh)      { Travis::Shell::Builder.new }
   let(:addon)   { described_class.new(sh, Travis::Build::Data.new(data), config) }
-  subject       { addon.deploy && sh.to_sexp }
+  subject       { addon.before_finish && sh.to_sexp }
 
   let(:terminate_on_failure) { [:if, '$? -ne 0', [:then, [:cmds, [[:echo, 'Failed to deploy.', ansi: :red], [:cmd, 'travis_terminate 2']]]]] }
 
@@ -62,7 +62,6 @@ describe Travis::Build::Script::Addons::Deploy, :sexp do
 
   describe 'multiple conditions match' do
     let(:config) { { provider: 'heroku', on: { condition: ['$FOO = foo', '$BAR = bar'] } } }
-    before       { addon.deploy }
 
     it { should match_sexp [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master) && (($FOO = foo) && ($BAR = bar))'] }
   end

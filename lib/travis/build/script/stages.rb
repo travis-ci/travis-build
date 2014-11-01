@@ -28,42 +28,60 @@ module Travis
         def run
           STAGES[:builtin].each { |stage| run_builtin_stage(stage) }
           STAGES[:custom].each  { |stage| run_stage(stage) }
+          STAGES[:result].each  { |stage| run_result_stage(stage) }
+          STAGES[:finish].each  { |stage| run_builtin_stage(stage) }
         end
 
         def run_stage(stage)
-          if custom_stage?(stage)
-            run_custom_stage(stage)
-          elsif builtin_stage?(stage)
-            run_builtin_stage(stage)
-          else
-            run_addon_stage(stage)
-          end
+          send(:"run_#{stage_type(stage)}_stage", stage)
+        end
+
+        def stage_type(stage)
+          type = [:custom, :builtin].detect { |type| send(:"#{type}_stage?", stage) }
+          type || :addon
         end
 
         def custom_stage?(stage)
-          config[stage] && stage != :after_result
+          config[stage]
+        end
+
+        def builtin_stage?(stage)
+          script.respond_to?(stage, false)
         end
 
         def run_custom_stage(stage)
           stage(stage) do
-            run_addon_stage(stage)
+            run_addon_stage(stage) # TODO this should be deprecated. Addons shouldn't mess with user/language stages
             cmds = Array(config[stage])
             cmds.each_with_index do |command, ix|
-              sh.cmd command, echo: true, fold: fold_stage?(stage) && "#{stage}#{".#{ix + 1}" if cmds.size > 1}"
+              sh.cmd command, echo: true, fold: fold_for(stage, cmds, ix)
               result if stage == :script
             end
           end
         end
 
-        def builtin_stage?(stage)
-          script.respond_to?(stage, false) || stage == :after_result
-        end
-
         def run_builtin_stage(stage)
           stage(stage) do
-            run_addon_stage(stage)
+            run_addon_stage(:"before_#{stage}")
             script.send(stage)
             result if stage == :script
+            run_addon_stage(:"after_#{stage}")
+          end
+        end
+
+        def run_result_stage(stage)
+          stage(stage) do
+            script.send(stage)
+            result if stage == :script
+          end
+        end
+
+        def run_result_stage(stage)
+          if config[stage]
+            operator = stage == :after_success ? '=' : '!='
+            sh.if("$TRAVIS_TEST_RESULT #{operator} 0") do
+              run_custom_stage(stage)
+            end
           end
         end
 
@@ -71,47 +89,21 @@ module Travis
           stage(stage) { script.addons.run(stage) } if script.respond_to?(:addons)
         end
 
-        def after_result
-          run_builtin_stage(:finish)
-
-          if config[:after_success] || deployment?
-            sh.if('$TRAVIS_TEST_RESULT = 0') do
-              run_stage(:after_success)
-              run_stage(:deploy)
-            end
-          end
-
-          if config[:after_failure]
-            sh.if('$TRAVIS_TEST_RESULT != 0') do
-              run_stage(:after_failure)
-            end
-          end
-        end
-
         def stage(stage = nil, &block)
           @stage = stage
-          # sh.script(options.merge(assert: assert_stage?(stage)), &block)
           sh.with_options(STAGE_DEFAULT_OPTIONS[stage] || {}, &block)
-        end
-
-        def assert_stage?(stage)
-          [:setup, :before_install, :install, :before_script, :before_deploy].include?(stage)
         end
 
         def result
           sh.raw 'travis_result $?'
         end
 
-        def fold_stage?(stage)
-          stage != :script
+        def fold_for(stage, cmds, ix)
+          "#{stage}#{".#{ix + 1}" if cmds.size > 1}" if fold_stage?(stage)
         end
 
-        def deployment?
-          addons = config.fetch(:addons, {})
-          addons = [addons] unless addons.is_a?(Array)
-          addons.any? { |config| config.is_a?(Hash) && config[:deploy] }
-        rescue
-          false
+        def fold_stage?(stage)
+          stage != :script
         end
       end
     end

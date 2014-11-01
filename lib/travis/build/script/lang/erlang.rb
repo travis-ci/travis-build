@@ -6,10 +6,6 @@ module Travis
           otp_release: 'R14B04'
         }
 
-        def cache_slug
-          super << '--otp-' << otp_release.to_s
-        end
-
         def export
           super
           sh.export 'TRAVIS_OTP_RELEASE', otp_release
@@ -39,6 +35,10 @@ module Travis
           sh.else do
             sh.cmd 'make test'
           end
+        end
+
+        def cache_slug
+          super << '--otp-' << otp_release.to_s
         end
 
         private

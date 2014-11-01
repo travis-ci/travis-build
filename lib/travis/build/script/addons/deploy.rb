@@ -9,11 +9,17 @@ module Travis
           SUPER_USER_SAFE = true
 
           def initialize(sh, data, config)
-            super(sh, data, config.is_a?(Array) ? config : [config])
+            super(sh, data, config.is_a?(Array) ? config : [config].compact)
           end
 
-          def deploy
-            providers.map(&:deploy)
+          def before_finish?
+            !config.empty?
+          end
+
+          def before_finish
+            sh.if('$TRAVIS_TEST_RESULT = 0') do
+              providers.map(&:deploy)
+            end
           end
 
           private

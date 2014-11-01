@@ -6,7 +6,7 @@ describe Travis::Build::Script::Addons::SauceConnect, :sexp do
   let(:sh)      { Travis::Shell::Builder.new }
   let(:addon)   { described_class.new(sh, Travis::Build::Data.new(data), config) }
   subject       { sh.to_sexp }
-  before        { addon.before_script }
+  before        { addon.after_setup }
 
   shared_examples_for 'starts sauce connect' do
     it { should include_sexp [:echo, 'Starting Sauce Connect', ansi: :yellow] }

@@ -7,10 +7,6 @@ module Travis
           go: '1.3.3'
         }
 
-        def cache_slug
-          super << '--go-' << config[:go].to_s # TODO should this not be version?
-        end
-
         def export
           super
           sh.export 'TRAVIS_GO_VERSION', version, echo: false
@@ -68,6 +64,10 @@ module Travis
           sh.else do
             sh.cmd "go test #{config[:gobuild_args]} ./..."
           end
+        end
+
+        def cache_slug
+          super << '--go-' << config[:go].to_s # TODO should this not be version?
         end
 
         private

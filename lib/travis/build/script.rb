@@ -34,6 +34,7 @@ module Travis
 
       autoload :Bundler,        'travis/build/script/shared/bundler'
       autoload :DirectoryCache, 'travis/build/script/shared/directory_cache'
+      autoload :Env,            'travis/build/script/shared/env'
       autoload :Git,            'travis/build/script/shared/git'
       autoload :Jdk,            'travis/build/script/shared/jdk'
       autoload :Jvm,            'travis/build/script/shared/jvm'
@@ -43,8 +44,10 @@ module Travis
       TEMPLATES_PATH = File.expand_path('../script/templates', __FILE__)
 
       STAGES = {
-        builtin: [:configure, :checkout, :pre_setup, :after_pre_setup, :paranoid_mode, :export, :setup, :announce, :finish],
-        custom:  [:before_install, :install, :before_script, :script, :after_result, :after_script]
+        builtin: [:configure, :checkout, :prepare, :setup, :export, :announce],
+        custom:  [:before_install, :install, :before_script, :script, :after_script],
+        result:  [:after_success, :after_failure],
+        finish:  [:finish]
       }
 
       class << self
@@ -62,7 +65,7 @@ module Travis
         @data = Data.new({ config: self.class.defaults }.deep_merge(data.deep_symbolize_keys))
         @options = options
         @sh = Shell::Builder.new
-        @addons = Addons.new(config)
+        @addons = Addons.new(sh, self.data, config)
         @stages = Stages.new(self, sh, config)
       end
 
@@ -86,13 +89,13 @@ module Travis
         end
 
         def run
-          stages.run if check_config
+          stages.run if validate
           sh.raw template('footer.sh')
           notify_deprecations
           sh.raw template('header.sh'), pos: 0
         end
 
-        def check_config
+        def validate
           case data.config[:".result"]
           when 'not_found'
             sh.echo 'Could not find .travis.yml, using standard configuration.', ansi: :red
@@ -113,34 +116,25 @@ module Travis
         end
 
         def export
-          sh.export 'TRAVIS', 'true', echo: false
-          sh.export 'CI', 'true', echo: false
-          sh.export 'CONTINUOUS_INTEGRATION', 'true', echo: false
-          sh.export 'HAS_JOSH_K_SEAL_OF_APPROVAL', 'true', echo: false
-
-          sh.newline if data.env_vars_groups.any?(&:announce?)
-
-          data.env_vars_groups.each do |group|
-            sh.echo "Setting environment variables from #{group.source}", ansi: :yellow if group.announce?
-            group.vars.each { |var| sh.export(var.key, var.value, echo: var.echo?, secure: var.secure?) }
-          end
-
-          sh.newline if data.env_vars_groups.any?(&:announce?)
+          Env.new(sh, data).export
         end
 
-        def pre_setup
+        def prepare
           start_services
           setup_apt_cache if data.cache? :apt
           fix_ps4
+          paranoid_mode if paranoid_mode?
+        end
+
+        def paranoid_mode?
+          data.paranoid_mode?
         end
 
         def paranoid_mode
-          if data.paranoid_mode?
-            sh.newline
-            sh.echo "Sudo, the FireFox addon, setuid and setgid have been disabled.", ansi: :yellow
-            sh.newline
-            sh.cmd 'sudo -n sh -c "sed -e \'s/^%.*//\' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis && find / -perm -4000 -exec chmod a-s {} \; 2>/dev/null"'
-          end
+          sh.newline
+          sh.echo "Sudo, the FireFox addon, setuid and setgid have been disabled.", ansi: :yellow
+          sh.newline
+          sh.cmd 'sudo -n sh -c "sed -e \'s/^%.*//\' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis && find / -perm -4000 -exec chmod a-s {} \; 2>/dev/null"'
         end
 
         def setup_apt_cache
@@ -167,13 +161,9 @@ module Travis
         def notify_deprecations
           deprecations.map.with_index do |msg, ix|
             sh.fold "deprecated.#{ix}", pos: ix do
-              sh.deprecate "DEPRECATED: #{unindent(msg)}"
+              sh.deprecate "DEPRECATED: #{msg.gsub /^#{msg[/\A\s*/]}/, ''}"
             end
           end
-        end
-
-        def unindent(str)
-          str.gsub /^#{str[/\A\s*/]}/, ''
         end
     end
   end

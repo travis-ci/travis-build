@@ -8,7 +8,7 @@ module Travis
         class Postgresql < Base
           SUPER_USER_SAFE = true
 
-          def after_pre_setup
+          def before_prepare
             sh.fold 'postgresql' do
               sh.export "PATH", "/usr/lib/postgresql/#{version}/bin:$PATH", echo: false
               sh.echo "Starting PostgreSQL v#{version}", ansi: :yellow

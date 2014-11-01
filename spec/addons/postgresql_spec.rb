@@ -6,7 +6,7 @@ describe Travis::Build::Script::Addons::Postgresql, :sexp do
   let(:sh)      { Travis::Shell::Builder.new }
   let(:addon)   { described_class.new(sh, Travis::Build::Data.new(data), config) }
   subject       { sh.to_sexp }
-  before        { addon.after_pre_setup }
+  before        { addon.before_prepare }
 
   it { should include_sexp [:export, ['PATH', '/usr/lib/postgresql/9.3/bin:$PATH']] }
   it { should include_sexp [:echo, 'Starting PostgreSQL v9.3', ansi: :yellow] }

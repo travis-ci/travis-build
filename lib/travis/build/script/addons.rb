@@ -1,3 +1,4 @@
+require 'active_support/core_ext/string/inflections.rb'
 require 'travis/build/script/addons/artifacts'
 require 'travis/build/script/addons/code_climate'
 require 'travis/build/script/addons/coverity_scan'
@@ -12,27 +13,17 @@ module Travis
   module Build
     class Script
       class Addons
-        MAP = {
-          artifacts:       Artifacts,
-          code_climate:    CodeClimate,
-          coverity_scan:   CoverityScan,
-          deploy:          Deploy::Group,
-          firefox:         Firefox,
-          hosts:           Hosts,
-          postgresql:      Postgresql,
-          sauce_connect:   SauceConnect,
-          ssh_known_hosts: SshKnownHosts,
-        }
+        attr_reader :sh, :data, :config
 
-        attr_reader :config
-
-        def initialize(config)
+        def initialize(sh, data, config)
+          @sh = sh
+          @data = data
           @config = config
         end
 
         def run(stage)
           addons(stage).each do |addon|
-            addon.send(stage) if run_addon?(addon, stage)
+            addon.send(stage) if run_stage?(addon, stage)
           end
         end
 
@@ -45,7 +36,8 @@ module Travis
           end
 
           def addon(stage, name, config)
-            MAP[name].new(sh, data, merge_config(stage, config)) if MAP[name]
+            const = self.class.const_get(name.to_s.camelize)
+            const.new(sh, data, merge_config(stage, config)) if const && run_addon?(const)
           end
 
           def merge_config(stage, other)
@@ -57,14 +49,12 @@ module Travis
             other
           end
 
-          def run_addon?(addon, stage)
-            if !addon.respond_to?(stage)
-              false
-            elsif !data.paranoid_mode? || addon.class::SUPER_USER_SAFE
-              true
-            else
-              false
-            end
+          def run_addon?(const)
+            !data.paranoid_mode? || const::SUPER_USER_SAFE
+          end
+
+          def run_stage?(addon, stage)
+            addon.respond_to?(stage) && (!addon.respond_to?(:"#{stage}?") || addon.respond_to?(:"#{stage}?"))
           end
       end
     end

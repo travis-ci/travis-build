@@ -6,7 +6,7 @@ describe Travis::Build::Script::Addons::Hosts, :sexp do
   let(:sh)      { Travis::Shell::Builder.new }
   let(:addon)   { described_class.new(sh, Travis::Build::Data.new(data), config) }
   subject       { sh.to_sexp }
-  before        { addon.after_pre_setup }
+  before        { addon.before_prepare }
 
   it { should include_sexp [:cmd, "sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 'one.local\\ two.local'/' -i'.bak' /etc/hosts", sudo: true] }
   it { should include_sexp [:cmd, "sed -e 's/^\\(::1.*\\)$/\\1 'one.local\\ two.local'/' -i'.bak' /etc/hosts", sudo: true] }

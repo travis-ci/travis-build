@@ -10,10 +10,6 @@ module Travis
         REQUIREMENTS_MISSING = 'Could not locate requirements.txt. Override the install: key in your .travis.yml to install dependencies.'
         SCRIPT_MISSING       = 'Please override the script: key in your .travis.yml to run tests.'
 
-        def cache_slug
-          super << '--python-' << version.to_s
-        end
-
         def export
           super
           sh.export 'TRAVIS_PYTHON_VERSION', version, echo: false
@@ -46,6 +42,10 @@ module Travis
           # The Python ecosystem has no good default build command most of the
           # community aggrees on. Per discussion with jezjez, josh-k and others. MK
           sh.failure SCRIPT_MISSING
+        end
+
+        def cache_slug
+          super << '--python-' << version.to_s
         end
 
         private

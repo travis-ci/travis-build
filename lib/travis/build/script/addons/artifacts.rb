@@ -19,7 +19,7 @@ module Travis
             @env = Env.new(data, config)
           end
 
-          def after_script
+          def before_finish
             sh.newline
             validator.valid? ? run : warn
             sh.newline

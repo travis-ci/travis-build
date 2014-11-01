@@ -6,10 +6,6 @@ module Travis
           compiler: 'g++'
         }
 
-        def cache_slug
-          super << '--compiler-' << compiler.to_s.tr('+', 'p')
-        end
-
         def export
           super
           sh.export 'CXX', cxx
@@ -23,6 +19,10 @@ module Travis
 
         def script
           sh.cmd './configure && make && make test'
+        end
+
+        def cache_slug
+          super << '--compiler-' << compiler.to_s.tr('+', 'p')
         end
 
         private

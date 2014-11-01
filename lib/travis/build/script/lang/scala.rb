@@ -8,10 +8,6 @@ module Travis
           jdk:   'default'
         }
 
-        def cache_slug
-          super << "--scala-" << config[:scala].to_s
-        end
-
         def export
           super
           sh.export 'TRAVIS_SCALA_VERSION', config[:scala], echo: false
@@ -43,6 +39,10 @@ module Travis
           sh.else do
             super
           end
+        end
+
+        def cache_slug
+          super << "--scala-" << config[:scala].to_s
         end
 
         private

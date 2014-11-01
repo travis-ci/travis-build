@@ -24,9 +24,11 @@ module Travis
           super << '--compiler-' << compiler.to_s
         end
 
-        def compiler
-          config[:compiler]
-        end
+        private
+
+          def compiler
+            config[:compiler]
+          end
       end
     end
   end

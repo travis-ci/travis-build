@@ -6,7 +6,7 @@ describe Travis::Build::Script::Addons::Firefox, :sexp do
   let(:sh)      { Travis::Shell::Builder.new }
   let(:addon)   { described_class.new(sh, Travis::Build::Data.new(data), config) }
   subject       { sh.to_sexp }
-  before        { addon.before_install }
+  before        { addon.before_prepare }
 
   it { should include_sexp [:echo, 'Installing Firefox v20.0', ansi: :yellow] }
   it { should include_sexp [:mkdir, '/usr/local/firefox-20.0', recursive: true, sudo: true] }

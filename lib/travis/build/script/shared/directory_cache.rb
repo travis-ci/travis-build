@@ -26,7 +26,6 @@ module Travis
         end
 
         def finish
-          super
           # only publish cache from pushes to master
           return if data.pull_request
           directory_cache.fold(self, 'store build cache') do
