@@ -1,9 +1,9 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Php, :sexp do
-  let(:data)   { PAYLOADS[:push].deep_clone }
-  let(:script) { described_class.new(data) }
-  subject      { script.sexp }
+  let(:data)     { PAYLOADS[:push].deep_clone }
+  let(:script)   { described_class.new(data) }
+  subject(:sexp) { script.sexp }
 
   it_behaves_like 'a build script sexp'
 
@@ -25,5 +25,27 @@ describe Travis::Build::Script::Php, :sexp do
 
   it 'runs phpunit' do
     should include_sexp [:cmd, 'phpunit', echo: true, timing: true]
+  end
+
+  describe 'before_install' do
+    subject { sexp_find(sexp, [:if, '-f composer.json']) }
+    before  { data['config'].delete('before_install') }
+
+    it 'runs composer self-update if composer.json exists' do
+      should include_sexp [:cmd, 'composer self-update', assert: true, echo: true, timing: true]
+    end
+  end
+
+  describe 'install' do
+    subject { sexp_find(sexp, [:if, '-f composer.json']) }
+
+    describe 'runs composer install if composer.json exists' do
+      it { should include_sexp [:cmd, 'composer install', assert: true, echo: true, timing: true] }
+    end
+
+    describe 'uses given composer_args' do
+      before { data['config'].update(composer_args: '--some --args') }
+      it { should include_sexp [:cmd, 'composer install --some --args', assert: true, echo: true, timing: true] }
+    end
   end
 end
