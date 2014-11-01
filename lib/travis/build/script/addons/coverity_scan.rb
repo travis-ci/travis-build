@@ -31,7 +31,7 @@ module Travis
             sh.export 'COVERITY_SCAN_BRANCH', coverity_scan_branch, echo: true
 
             sh.if "$COVERITY_SCAN_BRANCH = 1" do
-              sh.echo 'Coverity Scan analysis selected for branch "$TRAVIS_BRANCH".', ansi: :green
+              sh.echo 'Coverity Scan analysis selected for branch "$TRAVIS_BRANCH".', ansi: :yellow
               sh.export 'PROJECT_NAME', project_name, echo: true
               authorize
               run
@@ -52,14 +52,13 @@ module Travis
             end
 
             def authorize
-              sh.set 'SCAN_URL', SCAN_URL, echo: false
-              sh.set 'AUTH_RES', '$(curl -s --form project="$PROJECT_NAME" --form token="$COVERITY_SCAN_TOKEN" $SCAN_URL/api/upload_permitted)'
+              sh.export 'SCAN_URL', SCAN_URL, echo: false
+              sh.export 'AUTH_RES', '$(curl -s --form project="$PROJECT_NAME" --form token="$COVERITY_SCAN_TOKEN" $SCAN_URL/api/upload_permitted)'
 
               sh.if '$AUTH_RES = "Access denied"' do
                 sh.echo 'Coverity Scan API access denied. Check \\$PROJECT_NAME and \\$COVERITY_SCAN_TOKEN.', ansi: :red
                 sh.cmd 'exit 1'
               end
-
               sh.else do
                 authorize_quota
               end
@@ -67,14 +66,13 @@ module Travis
 
             def authorize_quota
               # TODO consider using https://gist.github.com/cjus/1047794
-              sh.set 'AUTH', '$(echo $AUTH_RES | ruby -e "require \'rubygems\'; require \'json\'; puts JSON[STDIN.read][\'upload_permitted\']"`', echo: false
+              sh.export 'AUTH', '$(echo $AUTH_RES | ruby -e "require \'rubygems\'; require \'json\'; puts JSON[STDIN.read][\'upload_permitted\']"`', echo: false
 
               sh.if '$AUTH = true' do
-                sh.echo 'Coverity Scan analysis authorized per quota.', ansi: :green
+                sh.echo 'Coverity Scan analysis authorized per quota.', ansi: :yellow
               end
-
               sh.else do
-                sh.set 'WHEN', '$(echo $AUTH_RES | ruby -e "require \'rubygems\'; require \'json\'; puts JSON[STDIN.read][\'next_upload_permitted_at\']")'
+                sh.export 'WHEN', '$(echo $AUTH_RES | ruby -e "require \'rubygems\'; require \'json\'; puts JSON[STDIN.read][\'next_upload_permitted_at\']")'
                 sh.echo 'Coverity Scan analysis NOT authorized until $WHEN.'
                 sh.cmd 'exit 1'
               end

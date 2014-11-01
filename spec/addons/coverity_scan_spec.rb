@@ -8,5 +8,5 @@ describe Travis::Build::Script::Addons::CoverityScan, :sexp do
   subject      { sh.to_sexp }
   before       { addon.script }
 
-  # it { p subject }
+  xit 'needs specs!'
 end
