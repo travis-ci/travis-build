@@ -9,7 +9,6 @@ module Travis
     class Script
       autoload :Addons,         'travis/build/script/addons'
       autoload :Deprecation,    'travis/build/script/deprecation'
-      autoload :DirectoryCache, 'travis/build/script/directory_cache'
       autoload :Services,       'travis/build/script/services'
       autoload :Stages,         'travis/build/script/stages'
       autoload :Templates,      'travis/build/script/templates'
@@ -34,6 +33,7 @@ module Travis
       autoload :Scala,          'travis/build/script/lang/scala'
 
       autoload :Bundler,        'travis/build/script/shared/bundler'
+      autoload :DirectoryCache, 'travis/build/script/shared/directory_cache'
       autoload :Git,            'travis/build/script/shared/git'
       autoload :Jdk,            'travis/build/script/shared/jdk'
       autoload :Jvm,            'travis/build/script/shared/jvm'

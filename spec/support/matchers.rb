@@ -18,7 +18,7 @@ RSpec::Matchers.define :include_sexp do |expected|
   end
 
   failure_message do |sexp|
-    "Expected the generated sexp to include #{expected}.#{similar_nodes(sexp, expected.first)}"
+    "Expected the generated sexp to include:\n\n#{expected}#{similar_nodes(sexp, expected.first)}"
   end
 
   def similar_nodes(sexp, type)

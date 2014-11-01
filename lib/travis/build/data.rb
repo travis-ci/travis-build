@@ -92,6 +92,10 @@ module Travis
         end
       end
 
+      def pull_request?
+        !!pull_request
+      end
+
       def pull_request
         job[:pull_request]
       end
@@ -114,6 +118,10 @@ module Travis
 
       def slug
         repository[:slug]
+      end
+
+      def github_id
+        repository.fetch(:github_id)
       end
 
       def commit
