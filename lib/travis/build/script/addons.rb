@@ -25,27 +25,34 @@ module Travis
         }
 
         def run_addons(stage)
-          addons.each do |addon|
-            addon.send(stage) if can_run?(addon, stage)
+          addons(stage).each do |addon|
+            addon.send(stage) if run_addon?(addon, stage)
           end
         end
 
-        def addons
-          @addons ||= (config[:addons] || {}).map do |name, addon_config|
-            init_addon(name, addon_config)
+        def addons(stage)
+          @addons ||= (config[:addons] || {}).map do |name, config|
+            addon(stage, name, config)
           end.compact
         end
 
-        def init_addon(name, config)
-          MAP[name] && MAP[name].new(sh, config)
+        def addon(stage, name, config)
+          MAP[name].new(sh, data, merge_config(stage, config)) if MAP[name]
         end
 
-        def can_run?(addon, stage)
-          return false if !addon.respond_to?(stage)
+        def merge_config(stage, other)
+          [:before, :after].each do |prefix|
+            key = :"#{prefix}_#{stage}"
+            value = config[key]
+            other = other.merge(key => value) if value
+          end
+          other
+        end
 
-          if !data.paranoid_mode?
-            true
-          elsif data.paranoid_mode? && addon.class::SUPER_USER_SAFE
+        def run_addon?(addon, stage)
+          if !addon.respond_to?(stage)
+            false
+          elsif !data.paranoid_mode? || addon.class::SUPER_USER_SAFE
             true
           else
             false
