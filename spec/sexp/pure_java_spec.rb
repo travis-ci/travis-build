@@ -7,5 +7,6 @@ describe Travis::Build::Script::PureJava, :sexp do
 
   it_behaves_like 'a build script sexp'
   it_behaves_like 'a jvm build sexp'
+  it_behaves_like 'announces java versions'
 end
 

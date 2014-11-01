@@ -26,7 +26,7 @@ module Travis
         private
 
           def uses_java?
-            uses_jdk?
+            ruby_version.include?('jruby')
           end
       end
     end

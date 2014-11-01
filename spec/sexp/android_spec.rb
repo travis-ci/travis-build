@@ -6,7 +6,8 @@ describe Travis::Build::Script::Android, :sexp do
   subject      { script.sexp }
 
   it_behaves_like 'a build script sexp'
-  # it_behaves_like 'a jdk build sexp'
+  it_behaves_like 'a jdk build sexp'
+  it_behaves_like 'announces java versions'
 
   describe 'on setup' do
     let(:options) { { assert: true, echo: true, timing: true } }

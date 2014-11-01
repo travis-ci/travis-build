@@ -125,10 +125,6 @@ module Travis
           sh.newline if data.env_vars_groups.any?(&:announce?)
         end
 
-        def finish
-          push_directory_cache
-        end
-
         def pre_setup
           start_services
           setup_apt_cache if data.cache? :apt
@@ -137,11 +133,12 @@ module Travis
         end
 
         def setup
-          setup_directory_cache
         end
 
         def announce
-          # overwrite
+        end
+
+        def finish
         end
 
         def paranoid_mode

@@ -43,7 +43,9 @@ shared_examples_for 'a jdk build sexp' do
       expect(sexp).to include_sexp set_dumb_term
     end
   end
+end
 
+shared_examples_for 'announces java versions' do
   it 'runs java -version' do
     should include_sexp [:cmd, 'java -version', echo: true]
   end
