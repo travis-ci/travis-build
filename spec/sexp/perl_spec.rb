@@ -20,6 +20,11 @@ describe Travis::Build::Script::Perl, :sexp do
     should include_sexp [:cmd, 'perlbrew use 5.10', echo: true, timing: true, assert: true]
   end
 
+  it 'converts 5.2 to 5.20' do
+    data['config']['perl'] = 5.2
+    should include_sexp [:cmd, 'perlbrew use 5.20', echo: true, timing: true, assert: true]
+  end
+
   it 'announces perl --version' do
     should include_sexp [:cmd, 'perl --version', echo: true]
   end
