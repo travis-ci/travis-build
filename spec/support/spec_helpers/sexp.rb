@@ -25,21 +25,21 @@ module SpecHelpers
       end
     end
 
-    def sexp_matches?(sexp, part)
-      return false unless sexp[0] == part[0] && sexp[2] == part[2]
-      lft, rgt = sexp[1], part[1]
-      lft.is_a?(String) && rgt.is_a?(Regexp) ? lft =~ rgt : sexp == part
-    end
-
     def sexp_find(sexp, *parts)
       parts.map { |part| sexp = sexp_filter(sexp, part).first }.last || []
     end
 
     def sexp_filter(sexp, part, result = [])
       return result unless sexp.is_a?(Array)
-      result << sexp if sexp[0, part.length] == part
+      result << sexp if sexp_matches?(sexp[0, part.length], part)
       sexp.each { |sexp| sexp_filter(sexp, part, result) }
       result || []
+    end
+
+    def sexp_matches?(sexp, part)
+      return false unless sexp[0] == part[0] && sexp[2] == part[2]
+      lft, rgt = sexp[1], part[1]
+      lft.is_a?(String) && rgt.is_a?(Regexp) ? lft =~ rgt : sexp == part
     end
 
     def store_example(name = nil)

@@ -63,6 +63,11 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
       sexp = sexp_find(subject, [:if, '-f Podfile'])
       expect(sexp).to include_sexp [:cmd, 'pod install', assert: true, echo: true, retry: true, timing: true]
     end
+
+    it 'does not run pod install if Podfile.lock and Pods/Manifest.lock is the same' do
+      sexp = sexp_find(subject, [:if, %r(-f ./Podfile.lock && -f ./Pods/Manifest.lock.* && cmp --silent)])
+      expect(sexp).to include_sexp [:cmd, 'pod install', assert: true, echo: true, retry: true, timing: true]
+    end
   end
 
   describe 'script' do
