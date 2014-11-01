@@ -44,12 +44,12 @@ module Travis
         data.fetch(:paranoid, false)
       end
 
-      def skip_resolv_updates?
-        data.fetch(:skip_resolv_updates, false)
+      def fix_resolv_conf?
+        !data[:skip_resolv_updates]
       end
 
-      def skip_etc_hosts_fix?
-        data.fetch(:skip_etc_hosts_fix, false)
+      def fix_etc_hosts?
+        !data[:skip_etc_hosts_fix]
       end
 
       def cache_options

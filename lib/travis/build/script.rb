@@ -12,6 +12,7 @@ module Travis
       autoload :Services,       'travis/build/script/services'
       autoload :Stages,         'travis/build/script/stages'
       autoload :Templates,      'travis/build/script/templates'
+      autoload :Validator,      'travis/build/script/validator'
 
       autoload :Android,        'travis/build/script/lang/android'
       autoload :C,              'travis/build/script/lang/c'
@@ -59,16 +60,19 @@ module Travis
       include Module.new { STAGES.values.flatten.each { |stage| define_method(stage) {} } }
       include DirectoryCache, Deprecation, Templates
 
-      attr_reader :sh, :data, :options, :git, :addons, :stages, :services
+      attr_reader :sh, :data, :options, :env, :validator, :addons, :stages, :services, :git
 
       def initialize(data, options = {})
         @data = Data.new({ config: self.class.defaults }.deep_merge(data.deep_symbolize_keys))
         @options = options
         @sh = Shell::Builder.new
+
+        @env = Env.new(sh, @data)
         @git = Git.new(sh, @data)
         @addons = Addons.new(sh, @data, config)
         @stages = Stages.new(self, sh, config)
         @services = Services.new(sh, config[:services])
+        @validator = Validator.new(sh, config)
       end
 
       def compile
@@ -91,30 +95,15 @@ module Travis
         end
 
         def run
-          stages.run if validate
+          stages.run if validator.run
           sh.raw template('footer.sh')
           notify_deprecations
           sh.raw template('header.sh'), pos: 0
         end
 
-        def validate
-          case data.config[:".result"]
-          when 'not_found'
-            sh.echo 'Could not find .travis.yml, using standard configuration.', ansi: :red
-            true
-          when 'server_error'
-            sh.echo 'Could not fetch .travis.yml from GitHub.', ansi: :red
-            sh.raw 'travis_terminate 2'
-            false
-          else
-            true
-          end
-        end
-
         def configure
-          fix_resolv_conf
-          fix_etc_hosts
-          run_addons(:before_checkout)
+          fix_resolv_conf if data.fix_resolv_conf?
+          fix_etc_hosts if data.fix_etc_hosts?
         end
 
         def checkout
@@ -122,7 +111,7 @@ module Travis
         end
 
         def export
-          Env.new(sh, data).export
+          env.export
         end
 
         def prepare
@@ -151,12 +140,10 @@ module Travis
         end
 
         def fix_resolv_conf
-          return if data.skip_resolv_updates?
           sh.cmd %(grep '199.91.168' /etc/resolv.conf > /dev/null || echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf &> /dev/null)
         end
 
         def fix_etc_hosts
-          return if data.skip_etc_hosts_fix?
           sh.cmd %(sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'.bak' /etc/hosts)
         end
 
