@@ -12,6 +12,7 @@ module Travis
       autoload :DirectoryCache, 'travis/build/script/directory_cache'
       autoload :Services,       'travis/build/script/services'
       autoload :Stages,         'travis/build/script/stages'
+      autoload :Templates,      'travis/build/script/templates'
 
       autoload :Android,        'travis/build/script/lang/android'
       autoload :C,              'travis/build/script/lang/c'
@@ -52,30 +53,15 @@ module Travis
         end
       end
 
-      class Template < OpenStruct
-        def render(template)
-          ERB.new(File.read(File.expand_path(template, TEMPLATES_PATH))).result(binding)
-        end
-      end
+      include Addons, Git, Services, Stages, DirectoryCache, Deprecation, Templates
 
-      include Addons, Git, Services, Stages, DirectoryCache, Deprecation
-
-      # attr_reader :shell, :data, :options
       attr_reader :sh, :data, :options
 
       def initialize(data, options = {})
         @data = Data.new({ config: self.class.defaults }.deep_merge(data.deep_symbolize_keys))
         @options = options
-        # @shell = Shell::Script.new(echo: true, timing: true)
         @sh = Shell::Builder.new
       end
-
-      # def compile
-      #   sh.raw header
-      #   run_stages if check_config
-      #   sh.raw template 'footer.sh'
-      #   sh.to_s
-      # end
 
       def compile
         Shell.generate(sexp)
@@ -86,17 +72,9 @@ module Travis
         sh.to_sexp
       end
 
-      # def header(build_dir = Travis::Build::BUILD_DIR)
-      #   template 'header.sh', build_dir: build_dir
-      # end
-
       def cache_slug
         'cache'
       end
-
-      # def sh
-      #   shell.sh
-      # end
 
       private
 
@@ -164,10 +142,6 @@ module Travis
 
         def announce
           # overwrite
-        end
-
-        def template(filename, vars = {})
-          Template.new(vars).render(filename)
         end
 
         def paranoid_mode
