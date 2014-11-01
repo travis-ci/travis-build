@@ -1,20 +1,21 @@
+require 'travis/build/script/addons/base'
+
 module Travis
   module Build
     class Script
       module Addons
-        class CodeClimate
+        class CodeClimate < Base
           SUPER_USER_SAFE = true
 
-          def initialize(script, config)
-            @script = script
-            @config = config.respond_to?(:to_hash) ? config.to_hash : {}
+          def before_script
+            sh.export 'CODECLIMATE_REPO_TOKEN', token, echo: false if token
           end
 
-          def before_script
-            if @config[:repo_token]
-              @script.set 'CODECLIMATE_REPO_TOKEN', @config[:repo_token], echo: false
+          private
+
+            def token
+              config[:repo_token]
             end
-          end
         end
       end
     end
