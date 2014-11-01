@@ -4,7 +4,7 @@ require 'travis/build/script/addons/deploy/config'
 module Travis
   module Build
     class Script
-      module Addons
+      class Addons
         class Deploy < Base
           class Script
             USE_RUBY = '1.9.3'

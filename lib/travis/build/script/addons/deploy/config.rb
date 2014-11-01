@@ -6,7 +6,7 @@ require 'active_support/core_ext/hash/deep_merge'
 module Travis
   module Build
     class Script
-      module Addons
+      class Addons
         class Deploy < Base
           class Config
             include Deprecation

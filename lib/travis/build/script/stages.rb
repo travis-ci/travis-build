@@ -1,7 +1,7 @@
 module Travis
   module Build
     class Script
-      module Stages
+      class Stages
         STAGE_DEFAULT_OPTIONS = {
           checkout:       { assert: true,  echo: true,  timing: true  },
           export:         { assert: false, echo: false, timing: false },
@@ -17,19 +17,31 @@ module Travis
           after_deploy:   { assert: true,  echo: true,  timing: true  }
         }
 
-        def run_stages
+        attr_reader :script, :sh, :config
+
+        def initialize(script, sh, config)
+          @script = script
+          @sh = sh
+          @config = config
+        end
+
+        def run
           STAGES[:builtin].each { |stage| run_builtin_stage(stage) }
           STAGES[:custom].each  { |stage| run_stage(stage) }
         end
 
         def run_stage(stage)
-          if config[stage] && stage != :after_result
+          if custom_stage?(stage)
             run_custom_stage(stage)
-          elsif respond_to?(stage, false) || stage == :after_result
+          elsif builtin_stage?(stage)
             run_builtin_stage(stage)
           else
             run_addon_stage(stage)
           end
+        end
+
+        def custom_stage?(stage)
+          config[stage] && stage != :after_result
         end
 
         def run_custom_stage(stage)
@@ -43,16 +55,20 @@ module Travis
           end
         end
 
+        def builtin_stage?(stage)
+          script.respond_to?(stage, false) || stage == :after_result
+        end
+
         def run_builtin_stage(stage)
           stage(stage) do
             run_addon_stage(stage)
-            send(stage)
+            script.send(stage)
             result if stage == :script
           end
         end
 
         def run_addon_stage(stage)
-          stage(stage) { run_addons(stage) } if respond_to?(:run_addons)
+          stage(stage) { script.addons.run(stage) } if script.respond_to?(:addons)
         end
 
         def after_result

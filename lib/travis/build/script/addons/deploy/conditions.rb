@@ -3,7 +3,7 @@ require 'shellwords'
 module Travis
   module Build
     class Script
-      module Addons
+      class Addons
         class Deploy < Base
           class Conditions
             MESSAGES = {

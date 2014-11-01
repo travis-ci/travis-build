@@ -4,7 +4,7 @@ require 'travis/build/script/addons/deploy/script'
 module Travis
   module Build
     class Script
-      module Addons
+      class Addons
         class Deploy < Base
           SUPER_USER_SAFE = true
 

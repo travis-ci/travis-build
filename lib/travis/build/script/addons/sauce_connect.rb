@@ -3,7 +3,7 @@ require 'travis/build/script/addons/base'
 module Travis
   module Build
     class Script
-      module Addons
+      class Addons
         class SauceConnect < Base
           SUPER_USER_SAFE = true
           SOURCE_URL = 'https://gist.githubusercontent.com/henrikhodne/9322897/raw/sauce-connect.sh'

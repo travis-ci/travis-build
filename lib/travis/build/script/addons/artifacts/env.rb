@@ -4,7 +4,7 @@ require 'active_support/core_ext/hash/slice'
 module Travis
   module Build
     class Script
-      module Addons
+      class Addons
         class Artifacts < Base
           class Env
             DEFAULT = {

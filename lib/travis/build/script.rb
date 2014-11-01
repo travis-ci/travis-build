@@ -43,7 +43,7 @@ module Travis
       TEMPLATES_PATH = File.expand_path('../script/templates', __FILE__)
 
       STAGES = {
-        builtin: [:configure, :checkout, :pre_setup, :paranoid_mode, :export, :setup, :announce],
+        builtin: [:configure, :checkout, :pre_setup, :after_pre_setup, :paranoid_mode, :export, :setup, :announce, :finish],
         custom:  [:before_install, :install, :before_script, :script, :after_result, :after_script]
       }
 
@@ -53,14 +53,17 @@ module Travis
         end
       end
 
-      include Addons, Git, Services, Stages, DirectoryCache, Deprecation, Templates
+      include Module.new { STAGES.values.flatten.each { |stage| define_method(stage) {} } }
+      include Git, Services, DirectoryCache, Deprecation, Templates
 
-      attr_reader :sh, :data, :options
+      attr_reader :sh, :data, :options, :addons, :stages
 
       def initialize(data, options = {})
         @data = Data.new({ config: self.class.defaults }.deep_merge(data.deep_symbolize_keys))
         @options = options
         @sh = Shell::Builder.new
+        @addons = Addons.new(config)
+        @stages = Stages.new(self, sh, config)
       end
 
       def compile
@@ -78,8 +81,12 @@ module Travis
 
       private
 
+        def config
+          data.config
+        end
+
         def run
-          run_stages if check_config
+          stages.run if check_config
           sh.raw template('footer.sh')
           notify_deprecations
           sh.raw template('header.sh'), pos: 0
@@ -97,10 +104,6 @@ module Travis
           else
             true
           end
-        end
-
-        def config
-          data.config
         end
 
         def configure
@@ -129,16 +132,6 @@ module Travis
           start_services
           setup_apt_cache if data.cache? :apt
           fix_ps4
-          run_addons(:after_pre_setup)
-        end
-
-        def setup
-        end
-
-        def announce
-        end
-
-        def finish
         end
 
         def paranoid_mode

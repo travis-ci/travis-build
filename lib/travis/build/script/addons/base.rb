@@ -3,7 +3,7 @@ require 'travis/build/script/templates'
 module Travis
   module Build
     class Script
-      module Addons
+      class Addons
         class Base
           include Templates
 

@@ -4,7 +4,7 @@ require 'travis/build/script/addons/base'
 module Travis
   module Build
     class Script
-      module Addons
+      class Addons
         class Hosts < Base
           SUPER_USER_SAFE = true
 

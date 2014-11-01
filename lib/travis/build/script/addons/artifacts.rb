@@ -5,7 +5,7 @@ require 'travis/build/script/addons/artifacts/validator'
 module Travis
   module Build
     class Script
-      module Addons
+      class Addons
         class Artifacts < Base
           SUPER_USER_SAFE = true
           TEMPLATES_PATH = File.expand_path('templates', __FILE__.sub('.rb', ''))
