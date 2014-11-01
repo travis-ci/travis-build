@@ -181,11 +181,11 @@ shared_examples_for 'a git repo sexp' do
     end
 
     describe 'was not given' do
-      it { expect(sexp_find(subject, add_source_key)).to be_empty }
-      it { expect(sexp_find(subject, chmod_id_rsa)).to be_empty }
-      it { expect(sexp_find(subject, start_ssh_agent)).to be_empty }
-      it { expect(sexp_find(subject, add_ssh_key)).to be_empty }
-      it { expect(sexp_find(subject, add_known_hosts)).to be_empty }
+      it { should_not include_sexp add_source_key }
+      it { should_not include_sexp chmod_id_rsa }
+      it { should_not include_sexp start_ssh_agent }
+      it { should_not include_sexp add_ssh_key }
+      it { should_not include_sexp add_known_hosts }
     end
   end
 end

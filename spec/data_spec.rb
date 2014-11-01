@@ -48,6 +48,12 @@ describe Travis::Build::Data do
       it { expect(data.ssh_key).to_not be_encoded }
       it { expect(data.ssh_key.fingerprint).to eq('57:78:65:c2:c9:c8:c9:f7:dd:2b:35:39:40:27:d2:40') }
     end
+
+    describe 'does not fail on an invalid key' do
+      let(:data) { Travis::Build::Data.new(config: { source_key: 'foo' }) }
+      it { expect { data }.to_not raise_error }
+      it { expect(data.ssh_key.fingerprint).to be_nil }
+    end
   end
 
   describe 'cache' do
