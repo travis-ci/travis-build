@@ -7,7 +7,7 @@ module SpecHelpers
     end
 
     def sexp_includes?(sexp, part)
-      if sexp == part || sexp.include?(part)
+      if sexp_matches?(sexp, part) || sexp.include?(part)
         true
       elsif sexp.is_a?(Array)
         case sexp.first
@@ -23,6 +23,12 @@ module SpecHelpers
       else
         false
       end
+    end
+
+    def sexp_matches?(sexp, part)
+      return false unless sexp[0] == part[0] && sexp[2] == part[2]
+      lft, rgt = sexp[1], part[1]
+      lft.is_a?(String) && rgt.is_a?(Regexp) ? lft =~ rgt : sexp == part
     end
 
     def sexp_find(sexp, *parts)
