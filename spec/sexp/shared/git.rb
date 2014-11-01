@@ -132,8 +132,16 @@ shared_examples_for 'a git repo sexp' do
       let(:submodule_update) { [:cmd, 'git submodule update', assert: true, echo: true, retry: true, timing: true] }
 
       describe 'if .gitmodules exists' do
-        it { should include_sexp submodule_init }
-        it { should include_sexp submodule_update }
+        describe 'if :submodules_depth is not given' do
+          it { should include_sexp submodule_init }
+          it { should include_sexp submodule_update }
+        end
+
+        describe 'if :submodules_depth is given' do
+          before { data['config']['git'] = { submodules_depth: 50 } }
+          it { should include_sexp submodule_init }
+          it { should include_sexp [:cmd, 'git submodule update --depth=50', assert: true, echo: true, retry: true, timing: true] }
+        end
       end
 
       describe 'submodules is set to false' do
