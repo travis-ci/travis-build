@@ -68,7 +68,6 @@ module Travis
         @options = options
         # @shell = Shell::Script.new(echo: true, timing: true)
         @sh = Shell::Builder.new
-        run
       end
 
       # def compile
@@ -83,6 +82,7 @@ module Travis
       end
 
       def sexp
+        run
         sh.to_sexp
       end
 
