@@ -40,7 +40,7 @@ module Travis
         data[:hosts] || {}
       end
 
-      def paranoid_mode?
+      def disable_sudo?
         data.fetch(:paranoid, false)
       end
 

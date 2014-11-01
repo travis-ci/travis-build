@@ -57,9 +57,9 @@ module Travis
       end
 
       include Module.new { STAGES.values.flatten.each { |stage| define_method(stage) {} } }
-      include Git, Services, DirectoryCache, Deprecation, Templates
+      include Git, DirectoryCache, Deprecation, Templates
 
-      attr_reader :sh, :data, :options, :addons, :stages
+      attr_reader :sh, :data, :options, :addons, :stages, :services
 
       def initialize(data, options = {})
         @data = Data.new({ config: self.class.defaults }.deep_merge(data.deep_symbolize_keys))
@@ -67,6 +67,7 @@ module Travis
         @sh = Shell::Builder.new
         @addons = Addons.new(sh, self.data, config)
         @stages = Stages.new(self, sh, config)
+        @services = Services.new(sh, config[:services])
       end
 
       def compile
@@ -120,17 +121,17 @@ module Travis
         end
 
         def prepare
-          start_services
-          setup_apt_cache if data.cache? :apt
+          services.start if services.start?
+          setup_apt_cache if data.cache?(:apt)
           fix_ps4
-          paranoid_mode if paranoid_mode?
+          disable_sudo if disable_sudo?
         end
 
-        def paranoid_mode?
-          data.paranoid_mode?
+        def disable_sudo?
+          data.disable_sudo?
         end
 
-        def paranoid_mode
+        def disable_sudo
           sh.newline
           sh.echo "Sudo, the FireFox addon, setuid and setgid have been disabled.", ansi: :yellow
           sh.newline
