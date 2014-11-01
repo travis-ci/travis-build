@@ -1,31 +1,33 @@
+require 'travis/build/script/addons/base'
+
 module Travis
   module Build
     class Script
       module Addons
-        class SauceConnect
+        class SauceConnect < Base
           SUPER_USER_SAFE = true
-
-          attr_reader :sh, :config
-
-          def initialize(sh, config)
-            @sh = sh
-            @config = config.respond_to?(:to_hash) ? config.to_hash : {}
-          end
+          SOURCE_URL = 'https://gist.githubusercontent.com/henrikhodne/9322897/raw/sauce-connect.sh'
 
           def before_script
-            if config[:username]
-              sh.export 'SAUCE_USERNAME', config[:username], echo: false
-            end
-            if config[:access_key]
-              sh.export 'SAUCE_ACCESS_KEY', config[:access_key], echo: false
-            end
+            sh.export 'SAUCE_USERNAME', username, echo: false if username
+            sh.export 'SAUCE_ACCESS_KEY', access_key, echo: false if access_key
 
             sh.fold 'sauce_connect' do
               sh.echo 'Starting Sauce Connect', ansi: :yellow
-              sh.cmd "curl -L https://gist.githubusercontent.com/henrikhodne/9322897/raw/sauce-connect.sh | bash", assert: false
+              sh.cmd "curl -L #{SOURCE_URL} | bash", assert: false
               sh.export 'TRAVIS_SAUCE_CONNECT', 'true', echo: false
             end
           end
+
+          private
+
+            def username
+              config[:username]
+            end
+
+            def access_key
+              config[:access_key]
+            end
         end
       end
     end
