@@ -159,7 +159,7 @@ shared_examples_for 'a git repo sexp' do
   end
 
   describe 'a source key' do
-    let(:source_key)      { "d2hvbGV0dGhlam9zaG91dA==\n" }
+    let(:source_key)      { TEST_PRIVATE_KEY }
     let(:known_hosts)     { "Host github.com\n\tBatchMode yes\n\tStrictHostKeyChecking no\n" }
 
     let(:add_source_key)  { [:file, [source_key, '~/.ssh/id_rsa'], decode: true] }
@@ -174,19 +174,19 @@ shared_examples_for 'a git repo sexp' do
       end
 
       it { should include_sexp add_source_key }
-      # it { should include_sexp chmod_id_rsa }
-      # it { should include_sexp start_ssh_agent }
-      # it { should include_sexp add_ssh_key }
-      # it { should include_sexp add_known_hosts }
+      it { should include_sexp chmod_id_rsa }
+      it { should include_sexp start_ssh_agent }
+      it { should include_sexp add_ssh_key }
+      it { should include_sexp add_known_hosts }
     end
 
-    # describe 'was not given' do
-    #   it { expect(sexp_find(subject, add_source_key)).to be_empty }
-    #   it { expect(sexp_find(subject, chmod_id_rsa)).to be_empty }
-    #   it { expect(sexp_find(subject, start_ssh_agent)).to be_empty }
-    #   it { expect(sexp_find(subject, add_ssh_key)).to be_empty }
-    #   it { expect(sexp_find(subject, add_known_hosts)).to be_empty }
-    # end
+    describe 'was not given' do
+      it { expect(sexp_find(subject, add_source_key)).to be_empty }
+      it { expect(sexp_find(subject, chmod_id_rsa)).to be_empty }
+      it { expect(sexp_find(subject, start_ssh_agent)).to be_empty }
+      it { expect(sexp_find(subject, add_ssh_key)).to be_empty }
+      it { expect(sexp_find(subject, add_known_hosts)).to be_empty }
+    end
   end
 end
 

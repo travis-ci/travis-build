@@ -30,6 +30,7 @@ module Travis
 
             source = " from: #{data.ssh_key.source.gsub(/[_-]+/, ' ')}" if data.ssh_key.source
             sh.echo "\nInstalling an SSH key#{source}\n"
+            sh.echo "Key fingerprint: #{data.ssh_key.fingerprint}\n" if data.ssh_key.fingerprint
 
             sh.file '~/.ssh/id_rsa', data.ssh_key.value, decode: data.ssh_key.encoded?
             sh.chmod 600, '~/.ssh/id_rsa', echo: false

@@ -3,6 +3,7 @@ require 'travis/build'
 
 require 'support/matchers'
 require 'support/payloads'
+require 'support/ssh_key'
 require 'support/spec_helpers/node'
 require 'support/spec_helpers/sexp'
 require 'support/spec_helpers/store_example'
