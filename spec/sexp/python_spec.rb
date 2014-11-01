@@ -22,6 +22,11 @@ describe Travis::Build::Script::Python, :sexp do
     should include_sexp [:cmd,  'source ~/virtualenv/pypy/bin/activate', assert: true, echo: true, timing: true]
   end
 
+  it 'sets up the python version (pypy3)' do
+    data['config']['python'] = 'pypy3'
+    should include_sexp [:cmd,  'source ~/virtualenv/pypy3/bin/activate', assert: true, echo: true, timing: true]
+  end
+
   it 'sets up the python version (2.7)' do
     should include_sexp [:cmd,  'source ~/virtualenv/python2.7/bin/activate', assert: true, echo: true, timing: true]
   end
