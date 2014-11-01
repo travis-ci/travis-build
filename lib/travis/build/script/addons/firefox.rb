@@ -1,32 +1,32 @@
+require 'shellwords'
+require 'travis/build/script/addons/base'
+
 module Travis
   module Build
     class Script
       module Addons
-        class Firefox
+        class Firefox < Base
           SUPER_USER_SAFE = false
-
-          attr_reader :sh, :version
-
-          def initialize(sh, version)
-            @sh = sh
-            @version = version
-          end
 
           def before_install
             sh.fold 'install_firefox' do
               sh.echo "Installing Firefox v#{version}", ansi: :yellow
-              sh.raw "sudo mkdir -p #{install_dir}"
-              sh.raw "sudo chown -R travis #{install_dir}"
-              sh.cmd "wget -O #{tmp_file} #{source_url}", retry: true
-              sh.raw "pushd #{install_dir}"
-              sh.raw "tar xf #{tmp_file}"
-              sh.raw "sudo ln -sf #{install_dir}/firefox/firefox /usr/local/bin/firefox"
-              sh.raw "sudo ln -sf #{install_dir}/firefox/firefox-bin /usr/local/bin/firefox-bin"
-              sh.raw "popd"
+              sh.mkdir install_dir, echo: false, recursive: true, sudo: true
+              sh.chown 'travis', install_dir, recursive: true, sudo: true
+              sh.cmd "wget -O /tmp/firefox.tar.bz2 #{source_url}", retry: true
+              sh.cd install_dir, stack: true, echo: false
+              sh.cmd "tar xf /tmp/firefox.tar.bz2"
+              sh.cd :back, stack: true, echo: false
+              sh.cmd "ln -sf #{install_dir}/firefox/firefox /usr/local/bin/firefox", sudo: true
+              sh.cmd "ln -sf #{install_dir}/firefox/firefox-bin /usr/local/bin/firefox-bin", sudo: true
             end
           end
 
           private
+
+            def version
+              config.shellescape
+            end
 
             def install_dir
               "/usr/local/firefox-#{version}"
