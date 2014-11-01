@@ -84,13 +84,21 @@ describe Travis::Build::Script::Go, :sexp do
     should include_sexp [:cmd, 'go env', echo: true]
   end
 
-  describe 'if no Makefile exists' do
-    it 'installs with go get' do
-      should include_sexp [:cmd, 'go get -t -v ./...', echo: true, timing: true, retry: true, assert: true]
+  %w(1.0.3 1.1 1.1.2).each do |old_go_version|
+    describe "if no Makefile exists on #{old_go_version}" do
+      it 'installs with go get' do
+        data['config']['go'] = old_go_version
+        should include_sexp [:cmd, 'go get -v ./...', echo: true, timing: true, retry: true, assert: true]
+      end
     end
+  end
 
-    it 'runs go test' do
-      should include_sexp [:cmd, 'go test -v ./...', echo: true, timing: true]
+  %w(1 1.2 1.2.2 1.3).each do |recent_go_version|
+    describe "if no Makefile exists on #{recent_go_version}" do
+      it 'installs with go get -t' do
+        data['config']['go'] = recent_go_version
+        should include_sexp [:cmd, 'go get -t -v ./...', echo: true, timing: true, retry: true, assert: true]
+      end
     end
   end
 
