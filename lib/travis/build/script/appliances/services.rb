@@ -14,10 +14,12 @@ module Travis
           }
 
           def apply
-            services.each do |name|
-              sh.cmd "sudo service #{name.shellescape} start", assert: false
+            sh.fold 'services' do
+              services.each do |name|
+                sh.cmd "sudo service #{name.shellescape} start", assert: false
+              end
+              sh.raw 'sleep 3'
             end
-            sh.raw 'sleep 3'
           end
 
           def apply?
@@ -27,7 +29,9 @@ module Travis
           private
 
             def services
-              @services ||= Array(config).map { |name| normalize(name) }
+              @services ||= Array(config[:services]).map do |name|
+                normalize(name)
+              end
             end
 
             def normalize(name)

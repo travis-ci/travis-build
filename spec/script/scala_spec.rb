@@ -13,7 +13,7 @@ describe Travis::Build::Script::Scala, :sexp do
   it_behaves_like 'a jvm build sexp'
   it_behaves_like 'announces java versions'
 
-  it 'sets TRAVIS_SCALA_VERSION', focus: true do
+  it 'sets TRAVIS_SCALA_VERSION' do
     should include_sexp [:export, ['TRAVIS_SCALA_VERSION', '2.10.4']]
   end
 
