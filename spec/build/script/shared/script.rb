@@ -3,6 +3,10 @@ shared_examples_for 'compiled script' do
 
   subject { Travis::Build.script(data).compile }
 
+  # it 'output' do
+  #   puts subject
+  # end
+
   it 'can be compiled' do
     expect { subject }.to_not raise_error
   end

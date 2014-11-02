@@ -15,4 +15,5 @@ RSpec.configure do |c|
   c.include Sinatra::TestHelpers, :include_sinatra_helpers
 
   c.mock_with :mocha
+  # c.backtrace_clean_patterns.clear
 end

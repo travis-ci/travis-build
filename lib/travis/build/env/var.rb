@@ -6,10 +6,11 @@ module Travis
 
         class << self
           def create(*args)
+            options = args.last.is_a?(Hash) ? args.pop : {}
             if args.size == 1
-              parse(args.first).map { |key, value| Var.new(key, value) }
+              parse(args.first).map { |key, value| Var.new(key, value, options) }
             else
-              [Var.new(*args)]
+              [Var.new(*args, options)]
             end
           end
 
@@ -19,12 +20,13 @@ module Travis
           end
         end
 
-        attr_reader :value
+        attr_reader :value, :type
 
-        def initialize(key, value, secure = nil)
+        def initialize(key, value, options = {})
           @key = key.to_s
           @value = value.to_s
-          @secure = secure
+          @secure = options[:secure]
+          @type = options[:type]
         end
 
         def key
@@ -32,7 +34,7 @@ module Travis
         end
 
         def echo?
-          !travis?
+          type != :builtin
         end
 
         def travis?

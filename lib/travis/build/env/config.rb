@@ -10,7 +10,7 @@ module Travis
 
         def vars
           @vars ||= begin
-            vars = to_vars(env_vars)
+            vars = to_vars(env_vars, type: :config)
             vars.reject!(&:secure?) unless data.secure_env?
             vars
           end

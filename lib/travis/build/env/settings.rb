@@ -10,7 +10,7 @@ module Travis
 
         def vars
           @vars ||= data.env_vars.map do |var|
-            Var.new(var[:name], var[:value], !var[:public])
+            Var.new(var[:name], var[:value], secure: !var[:public], type: :settings)
           end
         end
       end
