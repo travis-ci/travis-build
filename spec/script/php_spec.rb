@@ -32,8 +32,7 @@ describe Travis::Build::Script::Php, :sexp do
   end
 
   describe 'before_install' do
-    subject { sexp_find(sexp, [:if, '-f composer.json']) }
-    before  { data[:config].delete(:before_install) }
+    subject { sexp_filter(sexp, [:if, '-f composer.json'])[0] }
 
     it 'runs composer self-update if composer.json exists' do
       should include_sexp [:cmd, 'composer self-update', assert: true, echo: true, timing: true]
@@ -41,7 +40,7 @@ describe Travis::Build::Script::Php, :sexp do
   end
 
   describe 'install' do
-    subject { sexp_find(sexp, [:if, '-f composer.json']) }
+    subject { sexp_filter(sexp, [:if, '-f composer.json'])[1] }
 
     describe 'runs composer install if composer.json exists' do
       it { should include_sexp [:cmd, 'composer install', assert: true, echo: true, timing: true] }
