@@ -7,12 +7,6 @@ paths = ['spec/spec_helpers', 'spec/support', 'spec/script/shared']
 paths = "{#{paths.join(',')}}/**/*.rb"
 Dir[paths].each { |file| load file }
 
-class Hash
-  def deep_clone
-    Marshal.load(Marshal.dump(self))
-  end
-end
-
 RSpec.configure do |c|
   c.include SpecHelpers::Payload
   c.include SpecHelpers::Node, :include_node_helpers

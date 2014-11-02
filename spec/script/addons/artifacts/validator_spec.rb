@@ -1,9 +1,10 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Addons::Artifacts::Validator do
-  let(:data)   { Travis::Build::Data.new(PAYLOADS[:push].deep_clone) }
+  let(:data)   { Travis::Build::Data.new(payload_for(:push)) }
   let(:config) { { key: 'key', secret: 'secret', bucket: 'bucket', branch: ['master'] } }
-  subject      { described_class.new(data, config).tap { |subject| subject.valid? } }
+  let(:errors) { subject.valid?; subject.errors }
+  subject      { described_class.new(data, config) }
 
   it 'returns true if all is cool' do
     expect(subject).to be_valid
@@ -19,7 +20,7 @@ describe Travis::Build::Script::Addons::Artifacts::Validator do
 
         it "adds an error message about the missing key" do
           config.delete(key)
-          expect(subject.errors).to eql([described_class::MSGS[:config_missing] % key.inspect])
+          expect(errors).to eql([described_class::MSGS[:config_missing] % key.inspect])
         end
       end
     end
@@ -27,7 +28,7 @@ describe Travis::Build::Script::Addons::Artifacts::Validator do
     it "adds an error message about several missing keys" do
       config.delete(:key)
       config.delete(:secret)
-      expect(subject.errors).to eql([described_class::MSGS[:config_missing] % ':key, :secret'])
+      expect(errors).to eql([described_class::MSGS[:config_missing] % ':key, :secret'])
     end
   end
 
@@ -39,7 +40,7 @@ describe Travis::Build::Script::Addons::Artifacts::Validator do
 
     it 'adds an error message about pull requests being rejected' do
       data.stubs(:pull_request).returns '123'
-      expect(subject.errors).to eql([described_class::MSGS[:pull_request]])
+      expect(errors).to eql([described_class::MSGS[:pull_request]])
     end
   end
 
@@ -66,7 +67,7 @@ describe Travis::Build::Script::Addons::Artifacts::Validator do
 
     it 'adds an error message about the branch being disabled' do
       config[:branch] = ['development']
-      expect(subject.errors).to eql([described_class::MSGS[:branch_disabled] % 'master'])
+      expect(errors).to eql([described_class::MSGS[:branch_disabled] % 'master'])
     end
   end
 end

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Addons::Deploy::Config do
-  let(:data)   { PAYLOADS[:push].deep_clone }
+  let(:data)   { payload_for(:push) }
   let(:config) { {} }
   let(:object) { described_class.new(Travis::Build::Data.new(data), config) }
 

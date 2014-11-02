@@ -3,9 +3,9 @@ require 'spec_helper'
 describe Travis::Build::Script::Addons::Artifacts::Env do
   DISALLOWED_CONFIG = { concurrency: 0, max_size: 0, target_paths: 'no', unknown: true }
 
-  let(:data)   { Travis::Build::Data.new(PAYLOADS[:push].deep_clone) }
+  let(:data)   { payload_for(:push) }
   let(:config) { { key: 'key', secret: 'secret', bucket: 'bucket', private: true }.merge(DISALLOWED_CONFIG) }
-  subject      { described_class.new(data, config) }
+  subject      { described_class.new(Travis::Build::Data.new(data), config) }
 
   it 'prefixes $PATH with $HOME/bin' do
     expect(subject.env['PATH']).to eql('$HOME/bin:$PATH')
