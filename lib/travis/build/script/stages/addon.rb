@@ -6,7 +6,11 @@ module Travis
       class Stages
         class Addon < Base
           def run
-            with_stage(name) { script.addons.run(name) } if script.respond_to?(:addons)
+            with_stage(name) { script.addons.run_stage(name) } if run?
+          end
+
+          def run?
+            script.respond_to?(:addons)
           end
         end
       end

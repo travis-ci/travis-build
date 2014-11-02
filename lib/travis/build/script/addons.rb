@@ -21,32 +21,16 @@ module Travis
           @config = config
         end
 
-        def run(stage)
-          addons(stage).each do |addon|
+        def run_stage(stage)
+          addons.each do |addon|
             addon.send(stage) if run_stage?(addon, stage)
           end
         end
 
         private
 
-          def addons(stage)
-            @addons ||= (config[:addons] || {}).map do |name, config|
-              addon(stage, name, config)
-            end.compact
-          end
-
-          def addon(stage, name, config)
-            const = self.class.const_get(name.to_s.camelize)
-            const.new(sh, data, merge_config(stage, config)) if const && run_addon?(const)
-          end
-
-          def merge_config(stage, other)
-            [:before, :after].each do |prefix|
-              key = :"#{prefix}_#{stage}"
-              value = config[key]
-              other = other.merge(key => value) if value
-            end
-            other
+          def addons
+            @addons ||= addon_config.map { |name, config| addon(name, config) }.compact
           end
 
           def run_addon?(const)
@@ -55,6 +39,16 @@ module Travis
 
           def run_stage?(addon, stage)
             addon.respond_to?(stage) && (!addon.respond_to?(:"#{stage}?") || addon.respond_to?(:"#{stage}?"))
+          end
+
+          def addon(name, config)
+            const = self.class.const_get(name.to_s.camelize)
+            const.new(sh, data, config) if const && run_addon?(const)
+          rescue NameError
+          end
+
+          def addon_config
+            config[:addons] || {}
           end
       end
     end

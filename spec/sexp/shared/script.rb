@@ -60,9 +60,8 @@ shared_examples_for 'a build script sexp' do
     should include_sexp [:raw, 'travis_result $?']
   end
 
-  # %w(before_install install before_script script after_script after_success).each do |script|
-  %w(before_script).each do |script|
-    it "runs the given :#{script} command" do
+  %w(before_install install before_script script after_script after_success).each do |script|
+    it "runs the given :#{script} command", focus: script == 'after_success' do
       data['config'][script] = script
       assert = %w(before_install install before_script).include?(script)
       options = { assert: assert, echo: true, timing: true }.select { |_, value| value }
