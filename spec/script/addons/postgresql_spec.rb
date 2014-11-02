@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Travis::Build::Script::Addons::Postgresql, :sexp do
   let(:config)  { '9.3' }
-  let(:data)    { { config: { addons: { postgresql: config } } } }
+  let(:data)   { payload_for(:push, :ruby, config: { addons: { postgresql: config } }) }
   let(:sh)      { Travis::Shell::Builder.new }
   let(:addon)   { described_class.new(sh, Travis::Build::Data.new(data), config) }
   subject       { sh.to_sexp }

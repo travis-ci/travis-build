@@ -1,12 +1,12 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Addons::Firefox, :sexp do
-  let(:config)  { '20.0' }
-  let(:data)    { { config: { addons: { firefox: config } } } }
-  let(:sh)      { Travis::Shell::Builder.new }
-  let(:addon)   { described_class.new(sh, Travis::Build::Data.new(data), config) }
-  subject       { sh.to_sexp }
-  before        { addon.before_prepare }
+  let(:config) { '20.0' }
+  let(:data)   { payload_for(:push, :ruby, config: { addons: { firefox: config } }) }
+  let(:sh)     { Travis::Shell::Builder.new }
+  let(:addon)  { described_class.new(sh, Travis::Build::Data.new(data), config) }
+  subject      { sh.to_sexp }
+  before       { addon.before_prepare }
 
   it_behaves_like 'compiled script' do
     let(:code) { ['install_firefox', 'firefox.tar.bz2'] }

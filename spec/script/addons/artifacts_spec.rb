@@ -3,7 +3,7 @@ require 'spec_helper'
 
 describe Travis::Build::Script::Addons::Artifacts, :sexp do
   let(:config) { { key: 'key', secret: 'secret', bucket: 'bucket', private: true } }
-  let(:data)   { { config: { addons: { artifacts: config } } } }
+  let(:data)   { payload_for(:push, :ruby, config: { addons: { artifacts: config } }) }
   let(:sh)     { Travis::Shell::Builder.new }
   let(:addon)  { described_class.new(sh, Travis::Build::Data.new(data), config) }
   subject      { sh.to_sexp }

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Addons::CodeClimate, :sexp do
-  let(:data)   { { config: { addons: { code_climate: config } } } }
+  let(:data)   { payload_for(:push, :ruby, config: { addons: { code_climate: config } }) }
   let(:config) { { repo_token: '1234' } }
   let(:sh)     { Travis::Shell::Builder.new }
   let(:addon)  { described_class.new(sh, Travis::Build::Data.new(data), config) }

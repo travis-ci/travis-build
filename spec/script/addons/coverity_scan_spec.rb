@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Travis::Build::Script::Addons::CoverityScan, :sexp do
   let(:config) { {} }
-  let(:data)   { { config: { addons: { coverity_scan: config } } } }
+  let(:data)   { payload_for(:push, :ruby, config: { addons: { coverity_scan: config } }) }
   let(:sh)     { Travis::Shell::Builder.new }
   let(:addon)  { described_class.new(sh, Travis::Build::Data.new(data), config) }
   subject      { sh.to_sexp }

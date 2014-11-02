@@ -20,9 +20,9 @@ module Travis
 
             def deploy
               sh.if(conditions.to_s) do
-                sh.cmd stage(:before_deploy)
+                stage(:before_deploy)
                 run
-                sh.cmd stage(:after_deploy)
+                stage(:after_deploy)
               end
 
               sh.else do

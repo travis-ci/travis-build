@@ -1,6 +1,12 @@
 module Travis
   module Shell
     class Builder
+      class InvalidCmd < StandardError
+        def initialize(type, cmd)
+          super("#{type.inspect} must be followed by a non-empty String, but #{cmd.inspect} was given")
+        end
+      end
+
       attr_reader :stack
       attr_accessor :options
 
@@ -38,6 +44,7 @@ module Travis
       end
 
       def cmd(data, *args)
+        validate_non_empty_string!(:cmd, data)
         node :cmd, data, *args
       end
 
@@ -83,6 +90,7 @@ module Travis
       end
 
       def cd(path, options = {})
+        validate_non_empty_string!(:cd, path) unless path == :back
         node :cd, path, { assert: false, echo: true, timing: false }.merge(options)
       end
 
@@ -172,6 +180,10 @@ module Travis
             stack.pop
             result
           }
+        end
+
+        def validate_non_empty_string!(cmd, str)
+          raise InvalidCmd.new(cmd, str) unless str.is_a?(String) && !str.empty?
         end
     end
   end

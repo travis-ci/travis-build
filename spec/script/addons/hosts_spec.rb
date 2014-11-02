@@ -2,7 +2,7 @@ require "spec_helper"
 
 describe Travis::Build::Script::Addons::Hosts, :sexp do
   let(:config)  { 'one.local two.local' }
-  let(:data)    { { config: { addons: { hosts: config } } } }
+  let(:data)   { payload_for(:push, :ruby, config: { addons: { hosts: config } }) }
   let(:sh)      { Travis::Shell::Builder.new }
   let(:addon)   { described_class.new(sh, Travis::Build::Data.new(data), config) }
   subject       { sh.to_sexp }
