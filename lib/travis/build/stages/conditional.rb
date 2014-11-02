@@ -3,7 +3,7 @@ require 'travis/build/stages/base'
 module Travis
   module Build
     class Stages
-      class Result < Base
+      class Conditional < Base
         def run
           sh.if(condition) { Custom.new(script, name).run } if config[name]
         end

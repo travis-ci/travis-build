@@ -2,16 +2,16 @@ require 'travis/build/stages/addon'
 require 'travis/build/stages/base'
 require 'travis/build/stages/builtin'
 require 'travis/build/stages/custom'
-require 'travis/build/stages/result'
+require 'travis/build/stages/conditional'
 
 module Travis
   module Build
     class Stages
       STAGES = {
-        builtin: [:configure, :checkout, :prepare, :setup, :export, :announce],
-        custom:  [:before_install, :install, :before_script, :script, :after_script],
-        result:  [:after_success, :after_failure],
-        finish:  [:finish]
+        builtin:     [:configure, :checkout, :prepare, :setup, :export, :announce],
+        custom:      [:before_install, :install, :before_script, :script, :after_script],
+        conditional: [:after_success, :after_failure],
+        finish:      [:finish]
       }
 
       STAGE_DEFAULT_OPTIONS = {
