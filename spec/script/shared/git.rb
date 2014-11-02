@@ -1,4 +1,4 @@
-shared_examples_for 'a git repo sexp' do
+shared_examples_for 'a git checkout sexp' do
   describe 'using tarball' do
     let(:api)  { 'https://api.github.com/repos/travis-ci/travis-ci' }
     let(:url)  { "#{api}/tarball/313f61b" }

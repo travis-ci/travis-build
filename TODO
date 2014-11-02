@@ -9,7 +9,7 @@ Once lib/shell.rb is available
 + go over all spec changes since branching off, and port them
 
 + what's up with `travis_cmd \[\]`
-- what's up with travis_cmd cd\ \{:echo\=\>true\}
++ what's up with travis_cmd cd\ \{:echo\=\>true\}
 - what's up with these
     travis_cmd sudo\ service\ \\\[:git,\\\ \\\{:depth\\\=\\\>50,\\\ :submodules\\\=\\\>true,\\\ :strategy\\\=\\\>\\\"clone\\\"\\\}\\\]\ start
     travis_cmd sudo\ service\ \\\[:rvm,\\\ \\\"default\\\"\\\]\ start
