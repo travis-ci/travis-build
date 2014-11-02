@@ -1,14 +1,18 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Ruby, :sexp do
-  let(:data)   { PAYLOADS[:push].deep_clone }
+  let(:data)   { payload_for(:push, :ruby) }
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
+
+  it_behaves_like 'compiled script' do
+    let(:code) { ['TRAVIS_LANGUAGE=ruby', 'bundle install', 'bundle exec rake'] }
+  end
 
   it_behaves_like 'a build script sexp'
 
   describe 'using a jdk' do
-    before { data['config']['jdk'] = 'openjdk7' }
+    before { data[:config][:jdk] = 'openjdk7' }
     it_behaves_like 'a jdk build sexp'
   end
 
@@ -28,7 +32,7 @@ describe Travis::Build::Script::Ruby, :sexp do
     end
 
     it 'sets the version from config :rvm (handles float values correctly)' do
-      data['config']['rvm'] = 2.0
+      data[:config][:rvm] = 2.0
       should include_sexp [:cmd, 'rvm use 2.0 --install --binary --fuzzy', assert: true, echo: true, timing: true]
     end
 
@@ -45,7 +49,7 @@ describe Travis::Build::Script::Ruby, :sexp do
 
   describe 'uses chruby if config has a :ruby key set' do
     before do
-      data['config']['ruby'] = '2.1.1'
+      data[:config][:ruby] = '2.1.1'
     end
 
     it 'announces the chruby version' do
@@ -63,7 +67,7 @@ describe Travis::Build::Script::Ruby, :sexp do
   end
 
   it 'sets BUNDLE_GEMFILE from config' do
-    data['config']['gemfile'] = 'Gemfile.ci'
+    data[:config][:gemfile] = 'Gemfile.ci'
     should include_sexp [:export, ['BUNDLE_GEMFILE', '$PWD/Gemfile.ci'], echo: true]
   end
 
@@ -112,13 +116,13 @@ describe Travis::Build::Script::Ruby, :sexp do
     end
 
     describe 'with custom gemfile' do
-      before { data['config']['gemfile'] = 'Gemfile.ci' }
+      before { data[:config][:gemfile] = 'Gemfile.ci' }
       subject { script.cache_slug }
       it { is_expected.to eq('cache--rvm-default--gemfile-Gemfile.ci') }
     end
 
     describe 'with custom ruby version' do
-      before { data['config']['rvm'] = 'jruby' }
+      before { data[:config][:rvm] = 'jruby' }
       subject { script.cache_slug }
       it { is_expected.to eq('cache--rvm-jruby--gemfile-Gemfile') }
     end

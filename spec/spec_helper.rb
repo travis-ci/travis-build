@@ -8,12 +8,12 @@ require 'support/matchers/sexp'
 require 'support/payloads'
 require 'support/ssh_key'
 require 'support/spec_helpers/node'
+require 'support/spec_helpers/payload'
 require 'support/spec_helpers/sexp'
 require 'support/spec_helpers/shell'
 require 'support/spec_helpers/store_example'
 
-require 'script/shared/script'
-
+require 'sexp/shared/addon'
 require 'sexp/shared/env'
 require 'sexp/shared/git'
 require 'sexp/shared/jdk'
@@ -27,6 +27,7 @@ class Hash
 end
 
 RSpec.configure do |c|
+  c.include SpecHelpers::Payload
   c.include SpecHelpers::Node, :include_node_helpers
   c.include SpecHelpers::Sexp, :sexp
   c.include SpecHelpers::Shell, :script

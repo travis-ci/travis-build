@@ -1,9 +1,13 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Perl, :sexp do
-  let(:data)   { PAYLOADS[:push].deep_clone }
+  let(:data)   { payload_for(:push, :perl) }
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
+
+  it_behaves_like 'compiled script' do
+    let(:code) { ['TRAVIS_LANGUAGE=perl', './Build test'] }
+  end
 
   it_behaves_like 'a build script sexp'
 
@@ -16,12 +20,12 @@ describe Travis::Build::Script::Perl, :sexp do
   end
 
   it 'converts 5.1 to 5.10' do
-    data['config']['perl'] = 5.1
+    data[:config][:perl] = 5.1
     should include_sexp [:cmd, 'perlbrew use 5.10', echo: true, timing: true, assert: true]
   end
 
   it 'converts 5.2 to 5.20' do
-    data['config']['perl'] = 5.2
+    data[:config][:perl] = 5.2
     should include_sexp [:cmd, 'perlbrew use 5.20', echo: true, timing: true, assert: true]
   end
 

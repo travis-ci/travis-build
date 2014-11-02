@@ -1,9 +1,15 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::NodeJs, :sexp do
-  let(:data)   { PAYLOADS[:push].deep_clone }
+  let(:data)   { payload_for(:push, :node_js) }
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
+
+  it_behaves_like 'compiled script' do
+    let(:code) { ['TRAVIS_LANGUAGE=node_js', 'npm test'] }
+  end
+
+  it_behaves_like 'a build script sexp'
 
   it 'sets TRAVIS_NODE_VERSION' do
     should include_sexp [:export, ['TRAVIS_NODE_VERSION', '0.10']]
@@ -29,7 +35,7 @@ describe Travis::Build::Script::NodeJs, :sexp do
     let(:sexp) { sexp_find(subject, [:if, '-f package.json'], [:then]) }
 
     it 'installs with npm install --npm-args' do
-      data['config']['npm_args'] = '--npm-args'
+      data[:config][:npm_args] = '--npm-args'
       expect(sexp).to include_sexp [:cmd, 'npm install --npm-args', assert: true, echo: true, retry: true, timing: true]
     end
   end
@@ -54,7 +60,7 @@ describe Travis::Build::Script::NodeJs, :sexp do
 
     it 'installs an npm proxy and registry' do
       data['hosts'] = {'npm_cache' => 'http://npm.cache.com'}
-      data['config']['cache'] = 'npm'
+      data[:config][:cache] = 'npm'
       should include_sexp npm_set_registry
       should include_sexp npm_set_proxy
     end
@@ -66,7 +72,7 @@ describe Travis::Build::Script::NodeJs, :sexp do
     end
 
     it "doesn't install a proxy when no host is configured" do
-      data['config']['cache'] = 'npm'
+      data[:config][:cache] = 'npm'
       should_not include_sexp npm_set_registry
       should_not include_sexp npm_set_proxy
     end
@@ -76,21 +82,21 @@ describe Travis::Build::Script::NodeJs, :sexp do
     let(:npm_set_strict_ssl) { [:cmd, 'npm conf set strict-ssl false', assert: true, echo: true] }
     ['0.6', '0.6.1', '0.6.99'].each do |version|
       it "sets strict-ssl to false for node #{version}" do
-        data['config']['node_js'] = version
+        data[:config][:node_js] = version
         should include_sexp npm_set_strict_ssl
       end
     end
 
     ['0.5.99', '0.7', '0.10'].each do |version|
       it "does not set strict-ssl to false for not node #{version}" do
-        data['config']['node_js'] = version
+        data[:config][:node_js] = version
         should_not include_sexp npm_set_strict_ssl
       end
     end
   end
 
   it 'converts 0.1 to 0.10' do
-    data['config']['node_js'] = 0.1
+    data[:config][:node_js] = 0.1
     expect(script.send(:version)).to eql('0.10')
   end
 end

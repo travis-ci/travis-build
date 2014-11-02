@@ -1,9 +1,13 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::C, :sexp do
-  let(:data)   { PAYLOADS[:push].deep_clone }
+  let(:data)   { payload_for(:push, :c) }
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
+
+  it_behaves_like 'compiled script' do
+    let(:code) { ['TRAVIS_LANGUAGE=c', './configure && make && make test'] }
+  end
 
   it_behaves_like 'a build script sexp'
 

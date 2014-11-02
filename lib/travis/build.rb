@@ -17,7 +17,7 @@ module Travis
 
       def script(data)
         data  = data.deep_symbolize_keys
-        lang  = (Array(data[:config][:language]).first || 'ruby').downcase.strip
+        lang  = (Array(data[:config][:language]).first || 'ruby').to_s.downcase.strip
         const = by_lang(lang)
         const.new(data)
       end

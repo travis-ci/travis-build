@@ -1,13 +1,13 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Rust, :sexp do
-  let(:data) { PAYLOADS[:push].deep_clone }
+  let(:data)   { payload_for(:push, :rust) }
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
 
-  # after(:all) do
-  #   store_example
-  # end
+  it_behaves_like 'compiled script' do
+    let(:code) { ['TRAVIS_LANGUAGE=rust', 'cargo build --verbose'] }
+  end
 
   it_behaves_like 'a build script sexp'
 

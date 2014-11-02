@@ -1,15 +1,19 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Cpp, :sexp do
-  let(:data)   { PAYLOADS[:push].deep_clone }
+  let(:data)   { payload_for(:push, :cpp) }
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
+
+  it_behaves_like 'compiled script' do
+    let(:code) { ['TRAVIS_LANGUAGE=cpp', 'make test'] }
+  end
 
   it_behaves_like 'a build script sexp'
 
   describe 'no compiler set' do
     before :each do
-      data['config']['compiler'] = nil
+      data[:config][:compiler] = nil
     end
 
     it 'sets CC to gcc' do
@@ -23,7 +27,7 @@ describe Travis::Build::Script::Cpp, :sexp do
 
   describe 'gcc given as compiler' do
     before :each do
-      data['config']['compiler'] = 'gcc'
+      data[:config][:compiler] = 'gcc'
     end
 
     it 'sets CC to gcc' do
@@ -37,7 +41,7 @@ describe Travis::Build::Script::Cpp, :sexp do
 
   describe 'g++ given as compiler' do
     before :each do
-      data['config']['compiler'] = 'g++'
+      data[:config][:compiler] = 'g++'
     end
 
     it 'sets CC to gcc' do
@@ -51,7 +55,7 @@ describe Travis::Build::Script::Cpp, :sexp do
 
   describe 'clang given as compiler' do
     before :each do
-      data['config']['compiler'] = 'clang'
+      data[:config][:compiler] = 'clang'
     end
 
     it 'sets CC to gcc' do
@@ -65,7 +69,7 @@ describe Travis::Build::Script::Cpp, :sexp do
 
   describe 'clang++ given as compiler' do
     before :each do
-      data['config']['compiler'] = 'clang++'
+      data[:config][:compiler] = 'clang++'
     end
 
     it 'sets CC to gcc' do
@@ -78,7 +82,7 @@ describe Travis::Build::Script::Cpp, :sexp do
   end
 
   it 'runs gcc --version' do
-    data['config']['compiler'] = 'gcc'
+    data[:config][:compiler] = 'gcc'
     should include_sexp [:cmd, 'gcc --version', echo: true]
   end
 

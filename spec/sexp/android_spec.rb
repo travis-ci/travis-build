@@ -1,9 +1,13 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Android, :sexp do
-  let(:data)   { PAYLOADS[:push].deep_clone }
+  let(:data)   { payload_for(:push, :android) }
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
+
+  it_behaves_like 'compiled script' do
+    let(:code) { ['TRAVIS_LANGUAGE=android', 'gradlew build connectedCheck'] }
+  end
 
   it_behaves_like 'a build script sexp'
   it_behaves_like 'a jdk build sexp'
@@ -12,9 +16,7 @@ describe Travis::Build::Script::Android, :sexp do
   describe 'on setup' do
     let(:options) { { assert: true, echo: true, timing: true } }
 
-    before :each do
-      data['config']['android'] = {}
-    end
+    before { data[:config][:android] = {} }
 
     it 'does not install any sdk component by default' do
       expect(subject.flatten.join).not_to include('android-sdk-update')
@@ -24,8 +26,8 @@ describe Travis::Build::Script::Android, :sexp do
       components = %w(build-tools-19.0.3 android-19 sysimg-19 sysimg-18)
       licenses   = %w(android-sdk-license-.+ intel-.+)
 
-      data['config']['android']['components'] = components
-      data['config']['android']['licenses']   = licenses
+      data[:config][:android][:components] = components
+      data[:config][:android][:licenses]   = licenses
 
       components.each do |component|
         cmd = "android-update-sdk --components=#{component} --accept-licenses='#{licenses.join('|')}'"
@@ -37,8 +39,8 @@ describe Travis::Build::Script::Android, :sexp do
       components = %w(sysimg-19 sysimg-18)
       license    = 'mips-android-sysimage-license-15del8cc'
 
-      data['config']['android']['components'] = components
-      data['config']['android']['licenses']   = [license]
+      data[:config][:android][:components] = components
+      data[:config][:android][:licenses]   = [license]
 
       components.each do |component|
         cmd = "android-update-sdk --components=#{component} --accept-licenses='#{license}'"
@@ -47,7 +49,7 @@ describe Travis::Build::Script::Android, :sexp do
     end
 
     it 'installs the provided sdk component using license defaults' do
-      data['config']['android']['components'] = %w(build-tools-18.1.0)
+      data[:config][:android][:components] = %w(build-tools-18.1.0)
       should include_sexp [:cmd, 'android-update-sdk --components=build-tools-18.1.0', options]
       should_not include_sexp [:cmd, 'android-update-sdk --components=build-tools-18.1.0 --accept-licenses', options]
     end
@@ -61,7 +63,7 @@ describe Travis::Build::Script::Android, :sexp do
     let(:mvn_install_b)           { [:cmd, 'mvn install -B', echo: true, timing: true] }
     let(:ant_install_test)        { [:cmd, 'ant debug installt test', echo: true, timing: true] }
 
-    it 'runs ./gradlew check connectedCheck if ./gradlew exists' do
+    it 'runs ./gradlew build connectedCheck if ./gradlew exists' do
       branch = sexp_find(sexp, [:then])
       expect(branch).to include_sexp gradlew_connected_check
     end

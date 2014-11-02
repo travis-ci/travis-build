@@ -3,12 +3,16 @@ require 'spec_helper'
 describe Travis::Build::Script::Addons::Deploy, :sexp do
   let(:scripts) { { before_deploy: ['./before_deploy_1.sh', './before_deploy_2.sh'], after_deploy: ['./after_deploy_1.sh', './after_deploy_2.sh'] } }
   let(:config)  { {} }
-  let(:data)    { PAYLOADS[:push].deep_clone }
+  let(:data)    { { config: { addons: { deploy: config } } } }
   let(:sh)      { Travis::Shell::Builder.new }
   let(:addon)   { described_class.new(sh, Travis::Build::Data.new(data), config) }
   subject       { addon.before_finish && sh.to_sexp }
 
   let(:terminate_on_failure) { [:if, '$? -ne 0', [:then, [:cmds, [[:echo, 'Failed to deploy.', ansi: :red], [:cmd, 'travis_terminate 2']]]]] }
+
+  it_behaves_like 'compiled script' do
+    let(:code) { ['ruby -S gem install dpl', 'ruby -S dpl'] }
+  end
 
   describe 'deploys if conditions apply' do
     let(:config) { { provider: 'heroku', password: 'foo', email: 'user@host' }.merge(scripts) }

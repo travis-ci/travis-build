@@ -1,9 +1,13 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Clojure, :sexp do
-  let(:data)   { PAYLOADS[:push].deep_clone }
+  let(:data)   { payload_for(:push, :clojure) }
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
+
+  it_behaves_like 'compiled script' do
+    let(:code) { ['TRAVIS_LANGUAGE=clojure', 'lein test'] }
+  end
 
   it_behaves_like 'a build script sexp'
   it_behaves_like 'a jdk build sexp'
@@ -28,7 +32,7 @@ describe Travis::Build::Script::Clojure, :sexp do
   describe 'if lein: lein2 given' do
     it { store_example 'lein2 config' }
 
-    before(:each) { data['config']['lein'] = 'lein2' }
+    before(:each) { data[:config][:lein] = 'lein2' }
 
     it 'announces lein2 version if lein: lein2 given' do
       should include_sexp [:cmd, 'lein2 version', echo: true]

@@ -1,10 +1,16 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::ObjectiveC, :sexp do
-  let(:data)   { PAYLOADS[:push].deep_clone }
+  let(:data)   { payload_for(:push, :objective_c) }
   let(:script) { described_class.new(data) }
   let(:is_ruby_motion) { "-f Rakefile && \"$(cat Rakefile)\" =~ require\\ [\\\"\\']motion/project" }
   subject      { script.sexp }
+
+  it_behaves_like 'compiled script' do
+    let(:code) { ['TRAVIS_LANGUAGE=objective_c', 'bundle exec rake spec'] }
+  end
+
+  it_behaves_like 'a build script sexp'
 
   describe 'announce' do
     let(:fold) { sexp_find(subject, [:fold, 'announce']) }
@@ -30,29 +36,29 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
 
   describe 'setup' do
     it 'handles ruby version being set' do
-      data['config']['rvm'] = 'system'
+      data[:config][:rvm] = 'system'
       should include_sexp [:cmd, 'rvm use system --install --binary --fuzzy', echo: true, timing: true, assert: true]
     end
   end
 
   describe 'export' do
     it 'sets TRAVIS_XCODE_SDK' do
-      data['config']['xcode_sdk'] = 'iphonesimulator7.0'
+      data[:config][:xcode_sdk] = 'iphonesimulator7.0'
       should include_sexp [:export, ['TRAVIS_XCODE_SDK', 'iphonesimulator7.0']]
     end
 
     it 'sets TRAVIS_XCODE_SCHEME' do
-      data['config']['xcode_scheme'] = 'MyTests'
+      data[:config][:xcode_scheme] = 'MyTests'
       should include_sexp [:export, ['TRAVIS_XCODE_SCHEME', 'MyTests']]
     end
 
     it 'sets TRAVIS_XCODE_PROJECT' do
-      data['config']['xcode_project'] = 'MyProject.xcodeproj'
+      data[:config][:xcode_project] = 'MyProject.xcodeproj'
       should include_sexp [:export, ['TRAVIS_XCODE_PROJECT', 'MyProject.xcodeproj']]
     end
 
     it 'sets TRAVIS_XCODE_WORKSPACE' do
-      data['config']['xcode_workspace'] = 'MyWorkspace.xcworkspace'
+      data[:config][:xcode_workspace] = 'MyWorkspace.xcworkspace'
       should include_sexp [:export, ['TRAVIS_XCODE_WORKSPACE', 'MyWorkspace.xcworkspace']]
     end
   end
@@ -91,8 +97,8 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
 
     describe 'if workspace and scheme is given' do
       before(:each) do
-        data['config']['xcode_workspace'] = 'YourWorkspace.xcworkspace'
-        data['config']['xcode_scheme'] = 'YourScheme'
+        data[:config][:xcode_workspace] = 'YourWorkspace.xcworkspace'
+        data[:config][:xcode_scheme] = 'YourScheme'
       end
 
       it 'runs xctool' do
@@ -105,8 +111,8 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
       let(:branch) { sexp_find(sexp, [:else]) }
 
       before(:each) do
-        data['config']['xcode_project'] = 'YourProject.xcodeproj'
-        data['config']['xcode_scheme'] = 'YourScheme'
+        data[:config][:xcode_project] = 'YourProject.xcodeproj'
+        data[:config][:xcode_scheme] = 'YourScheme'
       end
 
       it 'runs xctool' do
@@ -114,7 +120,7 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
       end
 
       it 'passes an SDK version to xctool' do
-        data['config']['xcode_sdk'] = '7.0'
+        data[:config][:xcode_sdk] = '7.0'
         expect(branch).to include_sexp [:cmd, 'xctool -project YourProject.xcodeproj -scheme YourScheme -sdk 7.0 build test', echo: true, timing: true]
       end
     end
@@ -128,7 +134,7 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
   end
 
   describe 'with cache enabled' do
-    before { data['config']['cache'] = 'cocoapods' }
+    before { data[:config][:cache] = 'cocoapods' }
 
     it 'should add Poject/Podfile to directory cache' do
       script.directory_cache.expects(:add).with { |sh, dir| dir == './Pods' }

@@ -1,13 +1,17 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Python, :sexp do
-  let(:data)   { PAYLOADS[:push].deep_clone }
+  let(:data)   { payload_for(:push, :python) }
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
 
+  it_behaves_like 'compiled script' do
+    let(:code) { ['TRAVIS_LANGUAGE=python', 'pip install'] }
+  end
+
   describe 'given a script' do
     before :each do
-      data['config']['script'] = 'script'
+      data[:config][:script] = 'script'
     end
 
     it_behaves_like 'a build script sexp'
@@ -18,12 +22,12 @@ describe Travis::Build::Script::Python, :sexp do
   end
 
   it 'sets up the python version (pypy)' do
-    data['config']['python'] = 'pypy'
+    data[:config][:python] = 'pypy'
     should include_sexp [:cmd,  'source ~/virtualenv/pypy/bin/activate', assert: true, echo: true, timing: true]
   end
 
   it 'sets up the python version (pypy3)' do
-    data['config']['python'] = 'pypy3'
+    data[:config][:python] = 'pypy3'
     should include_sexp [:cmd,  'source ~/virtualenv/pypy3/bin/activate', assert: true, echo: true, timing: true]
   end
 
@@ -59,7 +63,7 @@ describe Travis::Build::Script::Python, :sexp do
   end
 
   it 'sets up python with system site packages enabled' do
-    data['config']['virtualenv'] = { 'system_site_packages' => true }
+    data[:config][:virtualenv] = { 'system_site_packages' => true }
     should include_sexp [:cmd,  'source ~/virtualenv/python2.7_with_system_site_packages/bin/activate', assert: true, echo: true, timing: true]
   end
 end

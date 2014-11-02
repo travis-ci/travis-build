@@ -1,12 +1,16 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Addons::SauceConnect, :sexp do
-  let(:config)  { '9.3' }
-  let(:data)    { PAYLOADS[:push].deep_clone }
+  let(:config)  { { username: 'username', access_key: 'access_key' } }
+  let(:data)    { { config: { addons: { sauce_connect: config } } } }
   let(:sh)      { Travis::Shell::Builder.new }
   let(:addon)   { described_class.new(sh, Travis::Build::Data.new(data), config) }
   subject       { sh.to_sexp }
   before        { addon.after_setup }
+
+  it_behaves_like 'compiled script' do
+    let(:code) { ['sauce_connect', 'TRAVIS_SAUCE_CONNECT=true'] }
+  end
 
   shared_examples_for 'starts sauce connect' do
     it { should include_sexp [:echo, 'Starting Sauce Connect', ansi: :yellow] }

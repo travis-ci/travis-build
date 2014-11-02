@@ -1,15 +1,19 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Haskell, :sexp do
-  let(:data)   { PAYLOADS[:push].deep_clone }
+  let(:data)   { payload_for(:push, :haskell) }
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
+
+  it_behaves_like 'compiled script' do
+    let(:code) { ['TRAVIS_LANGUAGE=haskell', 'cabal test'] }
+  end
 
   it_behaves_like 'a build script sexp'
 
   it "exports PATH variable" do
     version = "version"
-    data['config']['ghc'] = version
+    data[:config][:ghc] = version
     should include_sexp [:export, ['PATH', "/usr/local/ghc/$(ghc_find #{version})/bin/:$PATH"], echo: true]
   end
 

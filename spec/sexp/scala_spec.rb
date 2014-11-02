@@ -1,9 +1,13 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Scala, :sexp do
-  let(:data)   { PAYLOADS[:push].deep_clone }
+  let(:data)   { payload_for(:push, :scala) }
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
+
+  it_behaves_like 'compiled script' do
+    let(:code) { ['TRAVIS_LANGUAGE=scala', 'sbt ++2.10.4 test'] }
+  end
 
   it_behaves_like 'a build script sexp'
   it_behaves_like 'a jvm build sexp'
@@ -41,7 +45,7 @@ describe Travis::Build::Script::Scala, :sexp do
       end
 
       it 'runs sbt with additional arguments' do
-        data['config']['sbt_args'] = '-Dsbt.log.noformat=true'
+        data[:config][:sbt_args] = '-Dsbt.log.noformat=true'
         expect(sexp).to include_sexp [:cmd, 'sbt -Dsbt.log.noformat=true ++2.10.4 test', echo: true, timing: true]
       end
     end

@@ -5,8 +5,8 @@ shared_examples_for 'a git repo sexp' do
     let(:file) { 'travis-ci-travis-ci.tar.gz' }
 
     before :each do
-      data['config']['git'] = { strategy: 'tarball' }
-      data['repository']['api_url'] = api
+      data[:config][:git] = { strategy: 'tarball' }
+      data[:repository][:api_url] = api
     end
 
     it { store_example('git_tarball') }
@@ -37,7 +37,7 @@ shared_examples_for 'a git repo sexp' do
       let(:token) { 'foobar' }
 
       before do
-        data['oauth_token'] = token
+        data[:oauth_token] = token
       end
 
       it 'downloads with the token, but does not print it' do
@@ -60,11 +60,11 @@ shared_examples_for 'a git repo sexp' do
   describe 'using clone' do
     let(:url)    { 'git://github.com/travis-ci/travis-ci.git' }
     let(:dir)    { 'travis-ci/travis-ci' }
-    let(:branch) { data['job']['branch'] || 'master' }
-    let(:depth)  { data['config']['git']['depth'] || 50 }
+    let(:branch) { data[:job][:branch] || 'master' }
+    let(:depth)  { data[:config][:git]['depth'] || 50 }
 
     before :each do
-      data['config']['git'] = { strategy: 'clone' }
+      data[:config][:git] = { strategy: 'clone' }
     end
 
     describe 'when the repository is cloned not yet' do
@@ -76,12 +76,12 @@ shared_examples_for 'a git repo sexp' do
       end
 
       it 'clones with a custom depth' do
-        data['config']['git']['depth'] = 1
+        data[:config][:git]['depth'] = 1
         should include_sexp [:cmd, cmd, assert: true, echo: true, retry: true, timing: true]
       end
 
       it 'escapes the branch name' do
-        data['job']['branch'] = 'foo->bar'
+        data[:job][:branch] = 'foo->bar'
         should include_sexp [:cmd, cmd, assert: true, echo: true, retry: true, timing: true]
       end
     end
@@ -109,7 +109,7 @@ shared_examples_for 'a git repo sexp' do
       end
 
       it 'fetches a ref if given' do
-        data['job']['ref'] = 'refs/pull/118/merge'
+        data[:job][:ref] = 'refs/pull/118/merge'
         cmd = 'git fetch origin +refs/pull/118/merge:'
         should include_sexp [:cmd, cmd, assert: true, echo: true, retry: true, timing: true]
       end
@@ -120,13 +120,13 @@ shared_examples_for 'a git repo sexp' do
     end
 
     it 'checks out the given commit for a push request' do
-      data['job']['pull_request'] = false
+      data[:job][:pull_request] = false
       sexp = sexp_fold('git.1', [:cmd, 'git checkout -qf 313f61b', assert: true, echo: true])
       should include_sexp sexp
     end
 
     it 'checks out FETCH_HEAD for a pull request' do
-      data['job']['pull_request'] = true
+      data[:job][:pull_request] = true
       should include_sexp [:cmd, 'git checkout -qf FETCH_HEAD', assert: true, echo: true]
     end
 
@@ -143,14 +143,14 @@ shared_examples_for 'a git repo sexp' do
         end
 
         describe 'if :submodules_depth is given' do
-          before { data['config']['git'] = { submodules_depth: 50 } }
+          before { data[:config][:git] = { submodules_depth: 50 } }
           it { should include_sexp submodule_init }
           it { should include_sexp [:cmd, 'git submodule update --depth=50', assert: true, echo: true, retry: true, timing: true] }
         end
       end
 
       describe 'submodules is set to false' do
-        before { data['config']['git'] = { submodules: false } }
+        before { data[:config][:git] = { submodules: false } }
 
         it { expect(sexp_find(subject, submodule_init)).to be_empty }
         it { expect(sexp_find(subject, submodule_update)).to be_empty }
@@ -170,7 +170,7 @@ shared_examples_for 'a git repo sexp' do
 
     describe 'was given' do
       before :each do
-        data['config']['source_key'] = source_key
+        data[:config][:source_key] = source_key
       end
 
       it { should include_sexp add_source_key }

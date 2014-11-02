@@ -1,9 +1,13 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Go, :sexp do
-  let(:data)   { PAYLOADS[:push].deep_clone }
+  let(:data)   { payload_for(:push, :go) }
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
+
+  it_behaves_like 'compiled script' do
+    let(:code) { ['TRAVIS_LANGUAGE=go', 'go test'] }
+  end
 
   it_behaves_like 'a build script sexp'
 
@@ -28,7 +32,7 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   it 'sets the go version from config :go' do
-    data['config']['go'] = 'go1.1'
+    data[:config][:go] = 'go1.1'
     should include_sexp [:cmd, 'gvm use go1.1', assert: true, echo: true, timing: true]
   end
 
@@ -48,27 +52,27 @@ describe Travis::Build::Script::Go, :sexp do
     let(:hostname) { 'ghe.example.com' }
 
     before do
-      data['repository']['source_url'] = "git@#{hostname}:travis-ci/travis-ci.git"
+      data[:repository]['source_url'] = "git@#{hostname}:travis-ci/travis-ci.git"
     end
 
     it_behaves_like 'gopath fix'
   end
 
   it 'installs the gvm version' do
-    data['config']['go'] = 'go1.1'
+    data[:config][:go] = 'go1.1'
     should include_sexp [:cmd, 'gvm install go1.1 --binary || gvm install go1.1', assert: true, echo: true, timing: true]
   end
 
   versions = { '1.1' => 'go1.1', '1' => 'go1.3.3', '1.2' => 'go1.2.2', '1.0' => 'go1.0.3', '1.2.2' => 'go1.2.2', '1.0.2' => 'go1.0.2' }
   versions.each do |version_alias, version|
     it "sets version #{version.inspect} for alias #{version_alias.inspect}" do
-      data['config']['go'] = version_alias
+      data[:config][:go] = version_alias
       should include_sexp [:cmd, "gvm install #{version} --binary || gvm install #{version}", assert: true, echo: true, timing: true]
     end
   end
 
   it 'passes through arbitrary tag versions' do
-    data['config']['go'] = 'release9000'
+    data[:config][:go] = 'release9000'
     should include_sexp [:cmd, 'gvm install release9000 --binary || gvm install release9000', assert: true, echo: true, timing: true]
   end
 
@@ -87,7 +91,7 @@ describe Travis::Build::Script::Go, :sexp do
   %w(1.0.3 1.1 1.1.2).each do |old_go_version|
     describe "if no Makefile exists on #{old_go_version}" do
       it 'installs with go get' do
-        data['config']['go'] = old_go_version
+        data[:config][:go] = old_go_version
         should include_sexp [:cmd, 'go get -v ./...', echo: true, timing: true, retry: true, assert: true]
       end
     end
@@ -96,7 +100,7 @@ describe Travis::Build::Script::Go, :sexp do
   %w(1 1.2 1.2.2 1.3).each do |recent_go_version|
     describe "if no Makefile exists on #{recent_go_version}" do
       it 'installs with go get -t' do
-        data['config']['go'] = recent_go_version
+        data[:config][:go] = recent_go_version
         should include_sexp [:cmd, 'go get -t -v ./...', echo: true, timing: true, retry: true, assert: true]
       end
     end

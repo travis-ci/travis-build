@@ -5,7 +5,7 @@ shared_examples_for 'a jdk build sexp' do
 
   describe 'if no jdk is given' do
     before :each do
-      data['config']['jdk'] = nil
+      data[:config][:jdk] = nil
     end
 
     # TODO not true, the code clearly says the opposite
@@ -24,7 +24,7 @@ shared_examples_for 'a jdk build sexp' do
 
   describe 'if jdk is given' do
     before :each do
-      data['config']['jdk'] = 'openjdk7'
+      data[:config][:jdk] = 'openjdk7'
     end
 
     it 'sets TRAVIS_JDK_VERSION' do
