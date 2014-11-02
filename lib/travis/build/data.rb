@@ -1,6 +1,5 @@
 require 'core_ext/hash/deep_merge'
 require 'core_ext/hash/deep_symbolize_keys'
-require 'base64'
 require 'travis/build/data/ssh_key'
 
 # actually, the worker payload can be cleaned up a lot ...

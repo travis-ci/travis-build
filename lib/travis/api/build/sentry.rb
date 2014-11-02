@@ -6,13 +6,12 @@ module Travis
     module Build
       class Sentry < Sinatra::Base
         configure do
-          Raven.configure do |config|
-            config.tags = {
-              environment: environment,
-            }
+          if ENV['ENV'] == 'production'
+            Raven.configure do |config|
+              config.tags = { environment: environment }
+            end
+            use Raven::Rack
           end
-
-          use Raven::Rack
         end
       end
     end
