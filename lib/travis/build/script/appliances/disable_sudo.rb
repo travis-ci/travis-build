@@ -14,7 +14,7 @@ module Travis
           end
 
           def apply?
-            data[:paranoid]
+            data.disable_sudo?
           end
         end
       end

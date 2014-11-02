@@ -96,6 +96,10 @@ module Travis
         job[:secure_env_enabled]
       end
 
+      def disable_sudo?
+        data[:paranoid]
+      end
+
       def source_host
         source_url =~ %r(^(?:https?|git)(?:://|@)([^/]*?)(?:/|:)) && $1
       end

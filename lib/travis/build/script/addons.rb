@@ -50,7 +50,7 @@ module Travis
           end
 
           def run_addon?(const)
-            !data.paranoid_mode? || const::SUPER_USER_SAFE
+            !data.disable_sudo? || const::SUPER_USER_SAFE
           end
 
           def run_stage?(addon, stage)
