@@ -3,23 +3,36 @@ require 'core_ext/hash/deep_symbolize_keys'
 require 'core_ext/object/false'
 require 'erb'
 
-require 'travis/build/script/addons'
-require 'travis/build/script/appliances'
-require 'travis/build/script/helpers'
-require 'travis/build/script/lang'
-require 'travis/build/script/stages'
+require 'travis/build/addons'
+require 'travis/build/appliances'
+require 'travis/build/helpers'
+require 'travis/build/stages'
+
+require 'travis/build/script/android'
+require 'travis/build/script/c'
+require 'travis/build/script/cpp'
+require 'travis/build/script/clojure'
+require 'travis/build/script/erlang'
+require 'travis/build/script/go'
+require 'travis/build/script/groovy'
+require 'travis/build/script/generic'
+require 'travis/build/script/haskell'
+require 'travis/build/script/node_js'
+require 'travis/build/script/objective_c'
+require 'travis/build/script/perl'
+require 'travis/build/script/php'
+require 'travis/build/script/pure_java'
+require 'travis/build/script/python'
+require 'travis/build/script/ruby'
+require 'travis/build/script/rust'
+require 'travis/build/script/scala'
+require 'travis/build/script/shared/directory_cache'
+require 'travis/build/script/shared/git'
 
 module Travis
   module Build
     class Script
-      TEMPLATES_PATH = File.expand_path('../script/templates', __FILE__)
-
-      STAGES = {
-        builtin: [:configure, :checkout, :prepare, :setup, :export, :announce],
-        custom:  [:before_install, :install, :before_script, :script, :after_script],
-        result:  [:after_success, :after_failure],
-        finish:  [:finish]
-      }
+      TEMPLATES_PATH = File.expand_path('../templates', __FILE__)
 
       class << self
         def defaults
@@ -27,7 +40,7 @@ module Travis
         end
       end
 
-      include Module.new { STAGES.values.flatten.each { |stage| define_method(stage) {} } }
+      include Module.new { Stages::STAGES.values.flatten.each { |stage| define_method(stage) {} } }
       include Appliances, DirectoryCache, Deprecation, Template
 
       attr_reader :sh, :data, :options, :validator, :addons, :stages

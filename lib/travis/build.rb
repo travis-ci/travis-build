@@ -1,11 +1,11 @@
 require 'core_ext/hash/deep_symbolize_keys'
 require 'travis/shell'
+require 'travis/build/data'
+require 'travis/build/env'
+require 'travis/build/script'
 
 module Travis
   module Build
-    autoload :Data,     'travis/build/data'
-    autoload :Env,      'travis/build/env'
-    autoload :Script,   'travis/build/script'
 
     HOME_DIR  = '$HOME'
     BUILD_DIR = File.join(HOME_DIR, 'build')

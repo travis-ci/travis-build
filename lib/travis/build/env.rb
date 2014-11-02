@@ -6,14 +6,20 @@ require 'travis/build/env/var'
 module Travis
   module Build
     class Env
+      GROUPS = [Builtin, Config, Settings]
+
       attr_reader :data
 
       def initialize(data)
         @data = data
       end
 
+      def vars
+        groups.flat_map(&:vars)
+      end
+
       def groups
-        @groups ||= [Builtin.new(self, data), Config.new(self, data), Settings.new(self, data)]
+        @groups ||= GROUPS.map { |const| const.new(self, data) }
       end
 
       def announce?
@@ -21,7 +27,7 @@ module Travis
       end
 
       def secure_env_vars?
-        data.secure_env? && groups[1, 2].any?(&:secure_vars?)
+        data.secure_env? && groups.reject(&:builtin?).any?(&:secure_vars?)
       end
     end
   end

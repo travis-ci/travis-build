@@ -16,8 +16,12 @@ module Travis
           Var.create(*args)
         end
 
+        def builtin?
+          is_a?(Builtin)
+        end
+
         def announce?
-          respond_to?(:source) && vars.length > 0
+          !builtin? && vars.length > 0
         end
 
         def secure_vars?

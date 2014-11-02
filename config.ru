@@ -1,2 +1,2 @@
-require 'travis/build/app'
-run Travis::Build::App
+require 'travis/api/build/app'
+run Travis::Api::Build::App

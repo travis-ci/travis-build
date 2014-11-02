@@ -1,15 +1,13 @@
 require 'core_ext/hash/deep_merge'
 require 'core_ext/hash/deep_symbolize_keys'
 require 'base64'
+require 'travis/build/data/ssh_key'
 
 # actually, the worker payload can be cleaned up a lot ...
 
 module Travis
   module Build
     class Data
-      autoload :SshKey, 'travis/build/data/ssh_key'
-      autoload :Var,    'travis/build/data/var'
-
       DEFAULTS = { }
 
       DEFAULT_CACHES = {

@@ -1,9 +1,8 @@
 require 'fileutils'
 require 'sinatra/test_helpers'
-
 require 'travis/build'
 
-paths = ['spec/spec_helpers', 'spec/support', 'spec/script/shared']
+paths = ['spec/spec_helpers', 'spec/support', 'spec/**/shared']
 paths = "{#{paths.join(',')}}/**/*.rb"
 Dir[paths].each { |file| load file }
 
