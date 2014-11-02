@@ -13,12 +13,11 @@ require 'support/spec_helpers/sexp'
 require 'support/spec_helpers/shell'
 require 'support/spec_helpers/store_example'
 
-require 'sexp/shared/addon'
-require 'sexp/shared/env'
-require 'sexp/shared/git'
-require 'sexp/shared/jdk'
-require 'sexp/shared/jvm'
-require 'sexp/shared/script'
+require 'script/shared/env'
+require 'script/shared/git'
+require 'script/shared/jdk'
+require 'script/shared/jvm'
+require 'script/shared/script'
 
 class Hash
   def deep_clone

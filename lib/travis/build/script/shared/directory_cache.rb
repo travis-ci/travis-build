@@ -28,9 +28,9 @@ module Travis
         def finish
           # only publish cache from pushes to master
           return if data.pull_request
-          directory_cache.fold(self, 'store build cache') do
+          directory_cache.fold('store build cache') do
             prepare_cache
-            directory_cache.push(self)
+            directory_cache.push
           end
         end
 

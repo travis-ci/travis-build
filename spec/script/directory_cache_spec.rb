@@ -2,10 +2,15 @@ require 'spec_helper'
 
 describe Travis::Build::Script::DirectoryCache do
   let(:options) { { fetch_timeout: 20, push_timeout: 30, type: 's3', s3: { bucket: 's3_bucket', secret_access_key: 's3_secret_access_key', access_key_id: 's3_access_key_id' } } }
-  let(:data)    { Travis::Build::Data.new(config: { cache: config }, cache_options: options) }
+  let(:data)    { payload_for(:push, :erlang, config: { cache: config }, cache_options: options) }
   let(:sh)      { Travis::Shell::Builder.new }
-  let(:script)  { Struct.new(:sh, :data, :cache_slug) { include(Travis::Build::Script::DirectoryCache) }.new(sh, data) }
+  let(:script)  { Struct.new(:sh, :data, :cache_slug) { include(Travis::Build::Script::DirectoryCache) }.new(sh, Travis::Build::Data.new(data)) }
   let(:cache)   { script.directory_cache }
+
+  it_behaves_like 'compiled script' do
+    let(:config) { { directories: ['foo'] } }
+    let(:code)   { ['cache.1', 'cache.2', 'casher fetch', 'casher add', 'casher push'] }
+  end
 
   describe 'with no caching enabled' do
     let(:config) { {} }
