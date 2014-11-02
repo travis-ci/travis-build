@@ -95,7 +95,7 @@ module Travis
       end
 
       def file(path, content, options = {})
-        node :file, [content, path], { assert: false, echo: false, timing: false }.merge(options)
+        node :file, [path, content], { assert: false, echo: false, timing: false }.merge(options)
       end
 
       def chmod(mode, file, options = {})

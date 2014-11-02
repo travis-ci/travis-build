@@ -40,11 +40,12 @@ module Travis
         end
 
         def setup_rvm
-          sh.file '$rvm_path/user/db', %w(
+          config = %w(
             rvm_remote_server_url3=https://s3.amazonaws.com/travis-rubies/binaries
             rvm_remote_server_type3=rubies
             rvm_remote_server_verify_downloads3=1
-          ).join("\n")
+          )
+          sh.file '$rvm_path/user/db', config.join("\n")
 
           if ruby_version =~ /ruby-head/
             sh.fold('rvm.1') do

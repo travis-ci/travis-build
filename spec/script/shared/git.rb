@@ -162,7 +162,7 @@ shared_examples_for 'a git checkout sexp' do
     let(:source_key)      { TEST_PRIVATE_KEY }
     let(:known_hosts)     { "Host github.com\n\tBatchMode yes\n\tStrictHostKeyChecking no\n" }
 
-    let(:add_source_key)  { [:file, [source_key, '~/.ssh/id_rsa'], decode: true] }
+    let(:add_source_key)  { [:file, ['~/.ssh/id_rsa', source_key], decode: true] }
     let(:chmod_id_rsa)    { [:chmod, [600, '~/.ssh/id_rsa'], assert: true] }
     let(:start_ssh_agent) { [:cmd, 'eval `ssh-agent` &> /dev/null', assert: true] }
     let(:add_ssh_key)     { [:cmd, 'ssh-add ~/.ssh/id_rsa &> /dev/null', assert: true] }
