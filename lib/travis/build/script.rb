@@ -64,7 +64,7 @@ module Travis
           stages.run if apply :validate
           sh.raw template('footer.sh')
           apply :deprecations
-          sh.raw template('header.sh'), pos: 0
+          sh.raw template('header.sh', build_dir: data.slug), pos: 0
         end
 
         def configure
@@ -83,7 +83,7 @@ module Travis
         def prepare
           apply :services
           apply :setup_apt_cache
-          apply :fix_ps4
+          apply :fix_ps4 # TODO if this is to fix an rvm issue (as the specs say) then should this go to Rvm instead?
           apply :disable_sudo
         end
     end
