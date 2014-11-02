@@ -189,4 +189,3 @@ shared_examples_for 'a git checkout sexp' do
     end
   end
 end
-
