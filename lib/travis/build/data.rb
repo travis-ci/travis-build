@@ -121,11 +121,11 @@ module Travis
       end
 
       def commit
-        job[:commit]
+        job[:commit] || ''
       end
 
       def branch
-        job[:branch]
+        job[:branch] || ''
       end
 
       def ref
