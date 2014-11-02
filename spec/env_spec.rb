@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Travis::Build::Data::Env do
+describe Travis::Build::Env do
   let(:data) {
     stub('data',
       secure_env_enabled?: false,

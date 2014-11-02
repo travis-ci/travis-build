@@ -4,8 +4,8 @@ require 'travis/shell'
 module Travis
   module Build
     autoload :Data,     'travis/build/data'
+    autoload :Env,      'travis/build/env'
     autoload :Script,   'travis/build/script'
-    # autoload :Shell,    'travis/build/shell'
 
     HOME_DIR  = '$HOME'
     BUILD_DIR = File.join(HOME_DIR, 'build')

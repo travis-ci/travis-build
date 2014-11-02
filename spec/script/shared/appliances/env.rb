@@ -1,5 +1,5 @@
 shared_examples_for 'a script with travis env vars sexp' do
-  it 'sets TRAVIS_* env vars' do
+  it 'sets TRAVIS_* env vars', focus: true do
     data[:config][:env].delete_if { |var| var =~ /SECURE / }
 
     should include_sexp [:export, ['TRAVIS_PULL_REQUEST',    'false']]

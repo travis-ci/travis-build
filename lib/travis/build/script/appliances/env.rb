@@ -5,21 +5,30 @@ module Travis
     class Script
       module Appliances
         class Env < Base
+          MSG = "Setting environment variables from %s"
+
           def apply
-            sh.export 'TRAVIS', 'true', echo: false
-            sh.export 'CI', 'true', echo: false
-            sh.export 'CONTINUOUS_INTEGRATION', 'true', echo: false
-            sh.export 'HAS_JOSH_K_SEAL_OF_APPROVAL', 'true', echo: false
+            env.groups.each { |group| export(group) }
+            sh.newline if env.announce?
+          end
 
-            sh.newline if data.env_vars_groups.any?(&:announce?)
+          private
 
-            data.env_vars_groups.each do |group|
-              sh.echo "Setting environment variables from #{group.source}", ansi: :yellow if group.announce?
-              group.vars.each { |var| sh.export(var.key, var.value, echo: var.echo?, secure: var.secure?) }
+            def export(group)
+              announce(group) if group.announce?
+              group.vars.each do |var|
+                sh.export(var.key, var.value, echo: var.echo?, secure: var.secure?)
+              end
             end
 
-            sh.newline if data.env_vars_groups.any?(&:announce?)
-          end
+            def announce(group)
+              sh.newline
+              sh.echo MSG % group.source, ansi: :yellow
+            end
+
+            def env
+              @env ||= Build::Env.new(data)
+            end
         end
       end
     end

@@ -7,7 +7,6 @@ require 'base64'
 module Travis
   module Build
     class Data
-      autoload :Env,    'travis/build/data/env'
       autoload :SshKey, 'travis/build/data/ssh_key'
       autoload :Var,    'travis/build/data/var'
 
@@ -65,14 +64,6 @@ module Travis
       end
 
       def env_vars
-        @env_vars ||= Env.new(self).vars
-      end
-
-      def env_vars_groups
-        @env_vars_groups ||= Env.new(self).vars_groups
-      end
-
-      def raw_env_vars
         data[:env_vars] || []
       end
 
@@ -92,12 +83,12 @@ module Travis
         job[:pull_request]
       end
 
-      def secure_env_enabled?
-        job[:secure_env_enabled]
+      def secure_env?
+        !!job[:secure_env_enabled]
       end
 
       def disable_sudo?
-        data[:paranoid]
+        !!data[:paranoid]
       end
 
       def source_host
