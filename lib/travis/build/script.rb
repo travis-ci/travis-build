@@ -32,11 +32,11 @@ module Travis
 
       attr_reader :sh, :data, :options, :validator, :addons, :stages
 
-      def initialize(data, options = {})
+      def initialize(data)
         @data = Data.new({ config: self.class.defaults }.deep_merge(data.deep_symbolize_keys))
-        @options = options
-        @sh = Shell::Builder.new
+        @options = {}
 
+        @sh = Shell::Builder.new
         @addons = Addons.new(sh, @data, config)
         @stages = Stages.new(self, sh, config)
       end

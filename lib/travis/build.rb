@@ -15,11 +15,11 @@ module Travis
         Travis.services.add(key, self)
       end
 
-      def script(data, options = {})
+      def script(data)
         data  = data.deep_symbolize_keys
         lang  = (Array(data[:config][:language]).first || 'ruby').downcase.strip
         const = by_lang(lang)
-        const.new(data, options)
+        const.new(data)
       end
 
       def by_lang(lang)
