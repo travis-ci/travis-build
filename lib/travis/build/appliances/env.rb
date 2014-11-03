@@ -16,7 +16,9 @@ module Travis
           def export(group)
             announce(group) if group.announce?
             group.vars.each do |var|
-              sh.export(var.key, var.value, echo: var.echo?, secure: var.secure?)
+              # sh.export(var.key, var.value, echo: var.echo?, secure: var.secure?)
+              echo = "export #{var.key}=#{var.secure? ? '[secure]' : var.value}" if var.echo?
+              sh.export(var.key, var.value, echo: echo, secure: var.secure?)
             end
           end
 
