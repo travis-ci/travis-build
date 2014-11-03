@@ -6,7 +6,8 @@ describe Travis::Build::Script::Python, :sexp do
   subject      { script.sexp }
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=python', 'pip install'] }
+    let(:code) { ['TRAVIS_LANGUAGE=python'] }
+    let(:cmds) { ['pip install'] }
   end
 
   describe 'given a script' do

@@ -6,7 +6,8 @@ describe Travis::Build::Script::Clojure, :sexp do
   subject      { script.sexp }
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=clojure', 'lein test'] }
+    let(:code) { ['TRAVIS_LANGUAGE=clojure'] }
+    let(:cmds) { ['lein test'] }
   end
 
   it_behaves_like 'a build script sexp'

@@ -9,7 +9,7 @@ describe Travis::Build::Addons::Postgresql, :sexp do
   before        { addon.before_prepare }
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['service postgresql start 9.3'] }
+    let(:cmds) { ['service postgresql start 9.3'] }
   end
 
   it { should include_sexp [:export, ['PATH', '/usr/lib/postgresql/9.3/bin:$PATH']] }

@@ -6,7 +6,8 @@ describe Travis::Build::Script::Haskell, :sexp do
   subject      { script.sexp }
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=haskell', 'cabal test'] }
+    let(:code) { ['TRAVIS_LANGUAGE=haskell'] }
+    let(:cmds) { ['cabal test'] }
   end
 
   it_behaves_like 'a build script sexp'

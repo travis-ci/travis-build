@@ -14,7 +14,7 @@ describe Travis::Build::Addons::Artifacts, :sexp do
   end
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['artifacts.setup', 'artifacts upload'] }
+    let(:cmds) { ['artifacts.setup', 'artifacts upload'] }
   end
 
   describe 'with a valid config' do

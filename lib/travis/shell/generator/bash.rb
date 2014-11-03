@@ -1,3 +1,4 @@
+require 'core_ext/hash/compact'
 require 'travis/shell/generator'
 
 module Travis
@@ -10,7 +11,12 @@ module Travis
         include Helpers
 
         def handle_cmd(code, options = {})
-          [Cmd.new(code, options).to_bash]
+          options = options.compact
+          if options.empty?
+            handle_raw(code)
+          else
+            [Cmd.new(code, options).to_bash]
+          end
         end
 
         def handle_echo(message = '', options = {})
@@ -47,15 +53,15 @@ module Travis
         def handle_file(data, options = {})
           path, content = *data
           cmd = ['echo', escape(content)]
-          cmd << '| base64 --decode' if options[:decode]
-          cmd << (options[:append] ? '>>' : '>')
+          cmd << '| base64 --decode' if options.delete(:decode)
+          cmd << (options.delete(:append) ? '>>' : '>')
           cmd << path
           handle_cmd(cmd.join(' '), options)
         end
 
         def handle_mkdir(path, options = {})
           opts = []
-          opts << 'p' if options[:recursive]
+          opts << 'p' if options.delete(:recursive)
           opts = opts.any? ? "-#{opts.join}" : nil
           handle_cmd(['mkdir', opts, path].compact.join(' '), options)
         end
@@ -63,7 +69,7 @@ module Travis
         def handle_chmod(data, options = {})
           mode, path = *data
           opts = []
-          opts << 'R' if options[:recursive]
+          opts << 'R' if options.delete(:recursive)
           opts = opts.any? ? "-#{opts.join}" : nil
           cmd = ['chmod', opts, mode, path].compact.join(' ')
           handle_cmd(cmd, options)
@@ -72,7 +78,7 @@ module Travis
         def handle_chown(data, options = {})
           owner, path = *data
           opts = []
-          opts << 'R' if options[:recursive]
+          opts << 'R' if options.delete(:recursive)
           opts = opts.any? ? "-#{opts.join}" : nil
           cmd = ['chown', opts, owner, path].compact.join(' ')
           handle_cmd(cmd, options)
@@ -81,7 +87,7 @@ module Travis
         def handle_cp(data, options = {})
           source, target = *data
           opts = []
-          opts << 'r' if options[:recursive]
+          opts << 'r' if options.delete(:recursive)
           opts = opts.any? ? "-#{opts.join}" : nil
           cmd = ['cp', opts, source, target].compact.join(' ')
           handle_cmd(cmd, options)
@@ -95,8 +101,8 @@ module Travis
 
         def handle_rm(path, options = {})
           opts = []
-          opts << 'r' if options[:recursive]
-          opts << 'f' if options[:force]
+          opts << 'r' if options.delete(:recursive)
+          opts << 'f' if options.delete(:force)
           opts = opts.any? ? "-#{opts.join}" : nil
           cmd = ['rm', opts, path].compact.join(' ')
           handle_cmd(cmd, options)

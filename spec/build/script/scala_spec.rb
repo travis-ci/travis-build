@@ -6,7 +6,8 @@ describe Travis::Build::Script::Scala, :sexp do
   subject      { script.sexp }
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=scala', 'sbt ++2.10.4 test'] }
+    let(:code) { ['TRAVIS_LANGUAGE=scala'] }
+    let(:cmds) { ['sbt ++2.10.4 test'] }
   end
 
   it_behaves_like 'a build script sexp'

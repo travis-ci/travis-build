@@ -9,7 +9,7 @@ module Travis
       end
 
       def generate
-        lines = handle(nodes).flatten
+        lines = Array(handle(nodes)).flatten
         script = lines.join("\n").strip
         script = unindent(script)
         script = normalize_newlines(script)

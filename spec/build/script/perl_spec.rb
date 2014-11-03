@@ -6,7 +6,8 @@ describe Travis::Build::Script::Perl, :sexp do
   subject      { script.sexp }
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=perl', './Build test'] }
+    let(:code) { ['TRAVIS_LANGUAGE=perl'] }
+    let(:cmds) { ['./Build test'] }
   end
 
   it_behaves_like 'a build script sexp'

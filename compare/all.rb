@@ -4,7 +4,7 @@ def checkout(branch)
   sleep 1
 end
 
-branches = ['master', 'sf-sexp-2']
+branches = ARGV
 branches.each do |branch|
   checkout(branch)
   system 'bundle exec ruby compare/compile.rb'

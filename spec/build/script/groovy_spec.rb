@@ -6,7 +6,8 @@ describe Travis::Build::Script::Groovy, :sexp do
   subject      { script.sexp }
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=groovy', 'gradlew check'] }
+    let(:code) { ['TRAVIS_LANGUAGE=groovy'] }
+    let(:cmds) { ['gradlew check'] }
   end
 
   it_behaves_like 'a build script sexp'

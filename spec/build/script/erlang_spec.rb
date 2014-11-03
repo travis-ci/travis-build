@@ -6,7 +6,8 @@ describe Travis::Build::Script::Erlang, :sexp do
   subject      { script.sexp }
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=erlang', 'rebar skip_deps=true eunit'] }
+    let(:code) { ['TRAVIS_LANGUAGE=erlang'] }
+    let(:cmds) { ['rebar skip_deps=true eunit'] }
   end
 
   it_behaves_like 'a build script sexp'

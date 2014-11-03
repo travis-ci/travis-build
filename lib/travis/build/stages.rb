@@ -11,7 +11,7 @@ module Travis
         builtin:     [:configure, :checkout, :prepare, :setup, :export, :announce],
         custom:      [:before_install, :install, :before_script, :script, :after_script],
         conditional: [:after_success, :after_failure],
-        finish:      [:finish]
+        finish:      [:deploy, :finish]
       }
 
       STAGE_DEFAULT_OPTIONS = {
@@ -27,7 +27,11 @@ module Travis
         after_failure:  { assert: false, echo: true,  timing: true  },
         after_script:   { assert: false, echo: true,  timing: true  },
         before_deploy:  { assert: true,  echo: true,  timing: true  },
-        after_deploy:   { assert: true,  echo: true,  timing: true  }
+        deploy:         { assert: true,  echo: true,  timing: true  },
+        after_deploy:   { assert: true,  echo: true,  timing: true  },
+        before_finish:  { assert: true,  echo: true,  timing: true  },
+        finish:         { assert: true,  echo: true,  timing: true  },
+        before_finish:  { assert: true,  echo: true,  timing: true  }
       }
 
       attr_reader :script, :sh, :config

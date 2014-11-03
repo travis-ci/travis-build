@@ -6,7 +6,8 @@ describe Travis::Build::Script::NodeJs, :sexp do
   subject      { script.sexp }
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=node_js', 'npm test'] }
+    let(:code) { ['TRAVIS_LANGUAGE=node_js'] }
+    let(:cmds) { ['npm test'] }
   end
 
   it_behaves_like 'a build script sexp'

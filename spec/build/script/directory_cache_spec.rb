@@ -9,7 +9,7 @@ describe Travis::Build::Script::DirectoryCache do
 
   it_behaves_like 'compiled script' do
     let(:config) { { directories: ['foo'] } }
-    let(:code)   { ['cache.1', 'cache.2', 'casher fetch', 'casher add', 'casher push'] }
+    let(:cmds)   { ['cache.1', 'cache.2', 'casher fetch', 'casher add', 'casher push'] }
   end
 
   describe 'with no caching enabled' do

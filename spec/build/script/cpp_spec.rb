@@ -6,7 +6,8 @@ describe Travis::Build::Script::Cpp, :sexp do
   subject      { script.sexp }
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=cpp', 'make test'] }
+    let(:code) { ['TRAVIS_LANGUAGE=cpp'] }
+    let(:cmds) { ['make test'] }
   end
 
   it_behaves_like 'a build script sexp'

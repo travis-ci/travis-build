@@ -6,7 +6,8 @@ describe Travis::Build::Script::Php, :sexp do
   subject(:sexp) { script.sexp }
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=php', 'phpunit'] }
+    let(:code) { ['TRAVIS_LANGUAGE=php'] }
+    let(:cmds) { ['phpunit'] }
   end
 
   it_behaves_like 'a build script sexp'

@@ -1,6 +1,9 @@
 shared_examples_for 'compiled script' do
   include SpecHelpers::Shell
 
+  let(:code) { [] }
+  let(:cmds) { [] }
+
   subject { Travis::Build.script(data).compile }
 
   # it 'output' do
@@ -13,7 +16,13 @@ shared_examples_for 'compiled script' do
 
   it 'includes the expected shell code' do
     code.each do |code|
-      should include_shell code
+      should include code
+    end
+  end
+
+  it 'includes the expected travis_cmds' do
+    cmds.each do |cmd|
+      should include_shell cmd
     end
   end
 end

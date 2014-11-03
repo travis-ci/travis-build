@@ -6,7 +6,8 @@ describe Travis::Build::Script::Go, :sexp do
   subject      { script.sexp }
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=go', 'go test'] }
+    let(:code) { ['TRAVIS_LANGUAGE=go'] }
+    let(:cmds) { ['go test'] }
   end
 
   it_behaves_like 'a build script sexp'

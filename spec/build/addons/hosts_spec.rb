@@ -9,7 +9,7 @@ describe Travis::Build::Addons::Hosts, :sexp do
   before        { addon.before_prepare }
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['one.local\ two.local'] }
+    let(:cmds) { ['one.local\ two.local'] }
   end
 
   it { should include_sexp [:cmd, "sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 'one.local\\ two.local'/' -i'.bak' /etc/hosts", sudo: true] }

@@ -6,7 +6,8 @@ describe Travis::Build::Script::Ruby, :sexp do
   subject      { script.sexp }
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=ruby', 'bundle install', 'bundle exec rake'] }
+    let(:code) { ['TRAVIS_LANGUAGE=ruby'] }
+    let(:cmds) { ['bundle install', 'bundle exec rake'] }
   end
 
   it_behaves_like 'a build script sexp'

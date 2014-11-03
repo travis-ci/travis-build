@@ -6,7 +6,8 @@ describe Travis::Build::Script::Rust, :sexp do
   subject      { script.sexp }
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=rust', 'cargo build --verbose'] }
+    let(:code) { ['TRAVIS_LANGUAGE=rust'] }
+    let(:cmds) { ['cargo build --verbose'] }
   end
 
   it_behaves_like 'a build script sexp'
