@@ -84,7 +84,7 @@ describe Travis::Build::Script::Cpp, :sexp do
 
   it 'runs gcc --version' do
     data[:config][:compiler] = 'gcc'
-    should include_sexp [:cmd, 'gcc --version', echo: true]
+    should include_sexp [:cmd, 'gcc --version', echo: true, timing: true]
   end
 
   it 'runs ./configure && make && make test' do

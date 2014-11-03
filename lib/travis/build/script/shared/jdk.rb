@@ -11,15 +11,15 @@ module Travis
           super
           sh.cmd "jdk_switcher use #{config[:jdk]}", assert: true, timing: false if uses_jdk?
           sh.if '-f build.gradle' do
-            sh.export 'TERM', 'dumb'
+            sh.export 'TERM', 'dumb', echo: false
           end
         end
 
         def announce
           super
           if uses_java?
-            sh.cmd 'java -version', timing: false
-            sh.cmd 'javac -version', timing: false
+            sh.cmd 'java -version', timing: true
+            sh.cmd 'javac -version', timing: true
           end
         end
 

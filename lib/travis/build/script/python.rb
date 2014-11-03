@@ -21,8 +21,8 @@ module Travis
         end
 
         def announce
-          sh.cmd 'python --version'
-          sh.cmd 'pip --version'
+          sh.cmd 'python --version', timing: true
+          sh.cmd 'pip --version', timing: true
         end
 
         def install

@@ -17,21 +17,21 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
     let(:fold) { sexp_find(subject, [:fold, 'announce']) }
 
     it 'announces xcodebuild -version -sdk' do
-      expect(fold).to include_sexp [:cmd, 'xcodebuild -version -sdk', echo: true]
+      expect(fold).to include_sexp [:cmd, 'xcodebuild -version -sdk', echo: true, timing: true]
     end
 
     it 'announces xcodebuild -version -sdk' do
-      expect(fold).to include_sexp [:cmd, 'xctool -version', echo: true]
+      expect(fold).to include_sexp [:cmd, 'xctool -version', echo: true, timing: true]
     end
 
     it 'announces RubyMotion version if project is a RubyMotion project' do
       sexp = sexp_find(subject, [:if, is_ruby_motion], [:then])
-      expect(sexp).to include_sexp [:cmd, 'motion --version', echo: true]
+      expect(sexp).to include_sexp [:cmd, 'motion --version', echo: true, timing: true]
     end
 
     it 'announces CocoaPods version if a Podfile exists' do
       sexp = sexp_find(subject, [:if, is_ruby_motion], [:elif, '-f Podfile'])
-      expect(sexp).to include_sexp [:cmd, 'pod --version', echo: true]
+      expect(sexp).to include_sexp [:cmd, 'pod --version', echo: true, timing: true]
     end
   end
 

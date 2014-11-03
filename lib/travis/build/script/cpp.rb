@@ -14,7 +14,7 @@ module Travis
 
         def announce
           super
-          sh.cmd "#{compiler} --version"
+          sh.cmd "#{compiler} --version", timing: true
         end
 
         def script

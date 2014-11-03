@@ -1,7 +1,7 @@
 shared_examples_for 'a jdk build sexp' do
   let(:export_jdk_version) { [:export, ['TRAVIS_JDK_VERSION', 'openjdk7']] }
   let(:run_jdk_switcher)   { [:cmd, 'jdk_switcher use openjdk7', assert: true, echo: true] }
-  let(:set_dumb_term)      { [:export, ['TERM', 'dumb'], echo: true] }
+  let(:set_dumb_term)      { [:export, ['TERM', 'dumb']] }
 
   describe 'if no jdk is given' do
     before :each do
@@ -47,10 +47,10 @@ end
 
 shared_examples_for 'announces java versions' do
   it 'runs java -version' do
-    should include_sexp [:cmd, 'java -version', echo: true]
+    should include_sexp [:cmd, 'java -version', echo: true, timing: true]
   end
 
   it 'runs javac -version' do
-    should include_sexp [:cmd, 'javac -version', echo: true]
+    should include_sexp [:cmd, 'javac -version', echo: true, timing: true]
   end
 end

@@ -37,11 +37,11 @@ describe Travis::Build::Script::Python, :sexp do
   end
 
   it 'announces python --version' do
-    should include_sexp [:cmd,  'python --version', echo: true]
+    should include_sexp [:cmd,  'python --version', echo: true, timing: true]
   end
 
   it 'announces pip --version' do
-    should include_sexp [:cmd,  'pip --version', echo: true]
+    should include_sexp [:cmd,  'pip --version', echo: true, timing: true]
   end
 
   describe 'install' do

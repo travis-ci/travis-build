@@ -29,7 +29,7 @@ describe Travis::Build::Script::Ruby, :sexp do
 
   describe 'uses rvm if config does not have a :ruby key set' do
     it 'announces rvm --version' do
-      should include_sexp [:cmd, 'rvm --version', echo: true]
+      should include_sexp [:cmd, 'rvm --version', echo: true, timing: true]
     end
 
     it 'sets the version from config :rvm (handles float values correctly)' do
@@ -44,7 +44,7 @@ describe Travis::Build::Script::Ruby, :sexp do
 
     it 'sets the default ruby otherwise' do
       sexp = sexp_find(subject, [:if, '-f .ruby-version'], [:else])
-      should include_sexp [:cmd, 'rvm use default', assert: true, echo: true]
+      should include_sexp [:cmd, 'rvm use default', assert: true, echo: true, timing: true]
     end
   end
 
@@ -54,7 +54,7 @@ describe Travis::Build::Script::Ruby, :sexp do
     end
 
     it 'announces the chruby version' do
-      should include_sexp [:cmd, 'chruby --version', echo: true]
+      should include_sexp [:cmd, 'chruby --version', echo: true, timing: true]
     end
 
     it 'uses chruby to set the version' do
@@ -73,11 +73,11 @@ describe Travis::Build::Script::Ruby, :sexp do
   end
 
   it 'announces ruby --version' do
-    should include_sexp [:cmd, 'ruby --version', echo: true]
+    should include_sexp [:cmd, 'ruby --version', echo: true, timing: true]
   end
 
   it 'announces rvm --version' do
-    should include_sexp [:cmd, 'rvm --version', echo: true]
+    should include_sexp [:cmd, 'rvm --version', echo: true, timing: true]
   end
 
   it 'announces bundle --version' do

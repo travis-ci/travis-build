@@ -31,11 +31,6 @@ module Travis
           handle_cmd('echo')
         end
 
-        # def handle_set(data, options = {})
-        #   options[:echo] = "#{data.first}=[secure]" if options[:echo] && options[:secure]
-        #   handle_cmd("#{data.first}=#{escape(data.last)}", options)
-        # end
-
         def handle_export(data, options = {})
           options[:echo] = "export #{data.first}=[secure]" if options[:echo] && options[:secure]
           handle_cmd("export #{data.first}=#{data.last}", options)

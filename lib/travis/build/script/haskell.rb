@@ -12,8 +12,8 @@ module Travis
 
         def announce
           super
-          sh.cmd 'ghc --version'
-          sh.cmd 'cabal --version'
+          sh.cmd 'ghc --version', timing: true
+          sh.cmd 'cabal --version', timing: true
         end
 
         def install

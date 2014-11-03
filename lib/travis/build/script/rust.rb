@@ -41,8 +41,8 @@ module Travis
         def announce
           super
 
-          sh.cmd 'rustc --version'
-          sh.cmd 'cargo --version'
+          sh.cmd 'rustc --version', timing: true
+          sh.cmd 'cargo --version', timing: true
           sh.newline
         end
 

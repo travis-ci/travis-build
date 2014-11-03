@@ -18,11 +18,11 @@ module Travis
 
         def announce
           super
-          sh.cmd 'ruby --version'
+          sh.cmd 'ruby --version', timing: true
           if config[:ruby]
-            sh.cmd 'chruby --version'
+            sh.cmd 'chruby --version', timing: true
           else
-            sh.cmd 'rvm --version'
+            sh.cmd 'rvm --version', timing: true
           end
         end
 
@@ -33,7 +33,7 @@ module Travis
         end
 
         def setup_chruby
-          sh.echo 'BETA: Using chruby to select Ruby version. This is currently a beta feature and may change at any time.', color: :yellow
+          sh.echo 'BETA: Using chruby to select Ruby version. This is currently a beta feature and may change at any time.', ansi: :yellow
           sh.cmd 'curl -sLo ~/chruby.sh https://gist.githubusercontent.com/henrikhodne/a01cd7367b12a59ee051/raw/chruby.sh', echo: false
           sh.cmd 'source ~/chruby.sh', echo: false
           sh.cmd "chruby #{config[:ruby]}", timing: false
@@ -60,13 +60,13 @@ module Travis
             sh.cmd "rvm use #{ruby_version}"
           elsif ruby_version == 'default'
             sh.if '-f .ruby-version' do
-              sh.echo 'BETA: Using Ruby version from .ruby-version. This is a beta feature and may be removed in the future.', color: :yellow
+              sh.echo 'BETA: Using Ruby version from .ruby-version. This is a beta feature and may be removed in the future.' #, ansi: :yellow
               sh.fold('rvm.1') do
                 sh.cmd 'rvm use . --install --binary --fuzzy'
               end
             end
             sh.else do
-              sh.cmd "rvm use default", timing: false
+              sh.cmd "rvm use default", timing: true
             end
           else
             sh.fold('rvm.1') do

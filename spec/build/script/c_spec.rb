@@ -17,7 +17,7 @@ describe Travis::Build::Script::C, :sexp do
   end
 
   it 'announces gcc --version' do
-    should include_sexp [:cmd, 'gcc --version', echo: true]
+    should include_sexp [:cmd, 'gcc --version', echo: true, timing: true]
   end
 
   it 'runs ./configure && make && make test' do

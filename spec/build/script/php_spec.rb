@@ -21,11 +21,11 @@ describe Travis::Build::Script::Php, :sexp do
   end
 
   it 'announces php --version' do
-    should include_sexp [:cmd, 'php --version', echo: true]
+    should include_sexp [:cmd, 'php --version', echo: true, timing: true]
   end
 
   it 'announces composer --version' do
-    should include_sexp [:cmd, 'composer --version', echo: true]
+    should include_sexp [:cmd, 'composer --version', echo: true, timing: true]
   end
 
   it 'runs phpunit' do

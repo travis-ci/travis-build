@@ -23,11 +23,11 @@ describe Travis::Build::Script::Haskell, :sexp do
   end
 
   it 'announces ghc --version' do
-    should include_sexp [:cmd, 'ghc --version', echo: true]
+    should include_sexp [:cmd, 'ghc --version', echo: true, timing: true]
   end
 
   it 'announces cabal --version' do
-    should include_sexp [:cmd, 'cabal --version', echo: true]
+    should include_sexp [:cmd, 'cabal --version', echo: true, timing: true]
   end
 
   it 'installs with cabal install --only-dependencies --enable-tests' do

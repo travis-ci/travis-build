@@ -13,7 +13,7 @@ module Travis
 
         def announce
           super
-          sh.cmd "#{lein} version"
+          sh.cmd "#{lein} version", timing: true
         end
 
         def install

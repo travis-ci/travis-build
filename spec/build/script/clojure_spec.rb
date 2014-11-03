@@ -18,7 +18,7 @@ describe Travis::Build::Script::Clojure, :sexp do
     it { store_example 'no lein config' }
 
     it 'announces lein version' do
-      should include_sexp [:cmd, 'lein version', echo: true]
+      should include_sexp [:cmd, 'lein version', echo: true, timing: true]
     end
 
     it 'installs lein deps' do
@@ -36,7 +36,7 @@ describe Travis::Build::Script::Clojure, :sexp do
     before(:each) { data[:config][:lein] = 'lein2' }
 
     it 'announces lein2 version if lein: lein2 given' do
-      should include_sexp [:cmd, 'lein2 version', echo: true]
+      should include_sexp [:cmd, 'lein2 version', echo: true, timing: true]
     end
 
     it 'installs lein2 deps if lein: lein2 given' do

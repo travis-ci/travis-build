@@ -21,9 +21,9 @@ module Travis
 
         def announce
           super
-          sh.cmd 'node --version'
-          sh.cmd 'npm --version'
-          sh.cmd 'nvm --version'
+          sh.cmd 'node --version', timing: true
+          sh.cmd 'npm --version', timing: true
+          sh.cmd 'nvm --version', timing: true
         end
 
         def install

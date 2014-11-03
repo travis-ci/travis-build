@@ -78,11 +78,11 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   it 'announces go version' do
-    should include_sexp [:cmd, 'go version', echo: true]
+    should include_sexp [:cmd, 'go version', echo: true, timing: true]
   end
 
   it 'announces gvm version' do
-    should include_sexp [:cmd, 'gvm version', echo: true]
+    should include_sexp [:cmd, 'gvm version', echo: true, timing: true]
   end
 
   it 'announces go env' do

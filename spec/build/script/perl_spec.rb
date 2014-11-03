@@ -31,11 +31,11 @@ describe Travis::Build::Script::Perl, :sexp do
   end
 
   it 'announces perl --version' do
-    should include_sexp [:cmd, 'perl --version', echo: true]
+    should include_sexp [:cmd, 'perl --version', echo: true, timing: true]
   end
 
   it 'announces cpanm --version' do
-    should include_sexp [:cmd, 'cpanm --version', echo: true]
+    should include_sexp [:cmd, 'cpanm --version', echo: true, timing: true]
   end
 
   it 'installs' do

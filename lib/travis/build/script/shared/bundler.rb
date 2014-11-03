@@ -18,7 +18,7 @@ module Travis
 
         def announce
           super
-          sh.cmd 'bundle --version', timing: false
+          sh.cmd 'bundle --version'
         end
 
         def install
