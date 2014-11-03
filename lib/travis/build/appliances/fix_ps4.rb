@@ -5,7 +5,7 @@ module Travis
     module Appliances
       class FixPs4 < Base
         def apply
-          sh.export "PS4", "+ ", echo: false
+          sh.export 'PS4', '+', echo: false
         end
       end
     end
