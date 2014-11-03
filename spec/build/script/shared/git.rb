@@ -133,7 +133,8 @@ shared_examples_for 'a git checkout sexp' do
     describe 'submodules' do
       let(:sexp) { sexp_find(subject, [:if, '-f .gitmodules'], [:then]) }
 
-      let(:no_host_key_check) { [:file, ['~/.ssh/config', "Host github.com\n\tStrictHostKeyChecking no\n"], append: true] }
+      # let(:no_host_key_check) { [:file, ['~/.ssh/config', "Host github.com\n\tStrictHostKeyChecking no\n"], append: true] }
+      let(:no_host_key_check) { [:cmd, "echo -e \"Host github.com\\n\\tStrictHostKeyChecking no\\n\" >> ~/.ssh/config", timing: true] }
       let(:submodule_init)    { [:cmd, 'git submodule init', echo: true, timing: true] }
       let(:submodule_update)  { [:cmd, 'git submodule update', assert: true, echo: true, retry: true, timing: true] }
 
