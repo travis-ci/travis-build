@@ -10,7 +10,7 @@ describe Travis::Shell::Generator::Bash::Cmd, :include_node_helpers do
 
   it 'adds sudo if :sudo is given' do
     @options = { sudo: true }
-    should eql('sudo travis_cmd cd\ ..')
+    should eql('travis_cmd sudo\ cd\ ..')
   end
 
   it 'adds --assert if :assert is given' do
