@@ -14,7 +14,7 @@ module Travis
         def setup
           super
           sh.cmd "nvm install #{version}"
-          sh.cmd 'npm config set spin false', echo: false, timing: false
+          sh.cmd 'npm config set spin false', echo: false
           npm_disable_strict_ssl unless npm_strict_ssl?
           setup_npm_cache if use_npm_cache?
         end

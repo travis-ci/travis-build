@@ -29,7 +29,7 @@ describe Travis::Build::Script::NodeJs, :sexp do
   end
 
   it 'disables the npm spinner' do
-    should include_sexp [:cmd, 'npm config set spin false', assert: true]
+    should include_sexp [:cmd, 'npm config set spin false', assert: true, timing: true]
   end
 
   describe 'if package.json exists' do
