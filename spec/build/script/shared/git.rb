@@ -68,7 +68,7 @@ shared_examples_for 'a git checkout sexp' do
     end
 
     describe 'when the repository is cloned not yet' do
-      let(:sexp) { sexp_find(subject, [:fold, 'git'], [:if]) }
+      let(:sexp) { sexp_find(subject, [:if, "! -d #{dir}/.git"]) }
       let(:cmd) { "git clone --depth=#{depth} --branch=#{branch.shellescape} #{url} #{dir}" }
 
       it 'clones the git repo' do
@@ -87,7 +87,7 @@ shared_examples_for 'a git checkout sexp' do
     end
 
     describe 'when the repository is already cloned' do
-      let(:sexp) { sexp_find(subject, [:fold, 'git'], [:else]) }
+      let(:sexp) { sexp_find(subject, [:if, "! -d #{dir}/.git"], [:else]) }
 
       it 'fetches the changes' do
         cmd = 'git -C travis-ci/travis-ci fetch origin'
@@ -121,7 +121,7 @@ shared_examples_for 'a git checkout sexp' do
 
     it 'checks out the given commit for a push request' do
       data[:job][:pull_request] = false
-      sexp = sexp_fold('git.1', [:cmd, 'git checkout -qf 313f61b', assert: true, echo: true])
+      sexp = sexp_fold('git.4', [:cmd, 'git checkout -qf 313f61b', assert: true, echo: true])
       should include_sexp sexp
     end
 
