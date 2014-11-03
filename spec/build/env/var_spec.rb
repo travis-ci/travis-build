@@ -5,8 +5,8 @@ describe Travis::Build::Env::Var do
     described_class.parse(line)
   end
 
-  def var(key, value, secure = nil)
-    described_class.new(key, value, secure)
+  def var(key, value, options = {})
+    described_class.new(key, value, options)
   end
 
   describe 'parse' do
@@ -65,17 +65,17 @@ describe Travis::Build::Env::Var do
     end
 
     it 'returns true if var is created with secure argument' do
-      expect(var('FOO', 'foo', true)).to be_secure
+      expect(var('FOO', 'foo', secure: true)).to be_secure
     end
   end
 
   describe 'echo?' do
     it 'returns true for other vars' do
-      expect(var(:FOO, 'foo')).to be_echo
+      expect(var(:FOO, 'foo', type: :settings)).to be_echo
     end
 
     it 'returns false for internal vars' do
-      expect(var(:TRAVIS_FOO, 'foo')).not_to be_echo
+      expect(var(:TRAVIS_FOO, 'foo', type: :builtin)).not_to be_echo
     end
   end
 end
