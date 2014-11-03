@@ -66,7 +66,7 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
 
   describe 'install' do
     it 'runs bundle install if the project is a RubyMotion project' do
-      sexp = sexp_find(subject, [:elif, '-f Gemfile'])
+      sexp = sexp_find(sexp_filter(subject, [:if, '-f Gemfile'])[1], [:then])
       expect(sexp).to include_sexp [:cmd, 'bundle install --jobs=3 --retry=3', echo: true, timing: true, assert: true, retry: true]
     end
 

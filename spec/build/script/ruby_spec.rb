@@ -86,12 +86,12 @@ describe Travis::Build::Script::Ruby, :sexp do
 
   describe 'install' do
     it 'runs bundle install --deployment if there is a Gemfile and a Gemfile.lock' do
-      sexp = sexp_find(subject, [:if, '-f Gemfile && -f Gemfile.lock'], [:then])
+      sexp = sexp_find(sexp_filter(subject, [:if, '-f Gemfile'])[1], [:if, '-f Gemfile.lock'], [:then])
       expect(sexp).to include_sexp [:cmd, 'bundle install --jobs=3 --retry=3 --deployment', assert: true, echo: true, timing: true, retry: true]
     end
 
     it "runs bundle install if a Gemfile exists" do
-      sexp = sexp_find(subject, [:if, '-f Gemfile && -f Gemfile.lock'], [:else])
+      sexp = sexp_find(sexp_filter(subject, [:if, '-f Gemfile'])[1], [:if, '-f Gemfile.lock'], [:else])
       should include_sexp [:cmd, 'bundle install --jobs=3 --retry=3', assert: true, echo: true, timing: true, retry: true]
     end
   end

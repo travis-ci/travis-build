@@ -22,14 +22,16 @@ module Travis
         end
 
         def install
-          sh.if gemfile_lock? do
-            directory_cache.add(sh, bundler_path) if data.cache?(:bundler)
-            sh.cmd bundler_command("--deployment"), fold: "install.bundler", retry: true
-          end
-          sh.elif gemfile? do
-            # Cache bundler if it has been explicitly enabled
-            directory_cache.add(sh, bundler_path) if data.cache?(:bundler, false)
-            sh.cmd bundler_command, fold: "install.bundler", retry: true
+          sh.if gemfile? do
+            sh.if gemfile_lock? do
+              directory_cache.add(sh, bundler_path) if data.cache?(:bundler)
+              sh.cmd bundler_install("--deployment"), fold: "install.bundler", retry: true
+            end
+            sh.else do
+              # Cache bundler if it has been explicitly enabled
+              directory_cache.add(sh, bundler_path) if data.cache?(:bundler, false)
+              sh.cmd bundler_install, fold: "install.bundler", retry: true
+            end
           end
         end
 
@@ -48,7 +50,7 @@ module Travis
           end
 
           def gemfile_lock?
-            "-f #{config[:gemfile]} && -f #{config[:gemfile]}.lock"
+            "-f #{config[:gemfile]}.lock"
           end
 
           def bundler_args_path
@@ -62,7 +64,7 @@ module Travis
             bundler_args_path || '${BUNDLE_PATH:-vendor/bundle}'
           end
 
-          def bundler_command(args = nil)
+          def bundler_install(args = nil)
             args = bundler_args || [DEFAULT_BUNDLER_ARGS, args].compact
             args = [args].flatten << "--path=#{bundler_path}" if data.cache?(:bundler) && !bundler_args_path
             ['bundle install', *args].compact.join(' ')
