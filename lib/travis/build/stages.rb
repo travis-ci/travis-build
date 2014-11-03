@@ -9,8 +9,8 @@ module Travis
     class Stages
       STAGES = {
         builtin:     [:configure, :checkout, :prepare, :export, :setup, :announce],
-        custom:      [:before_install, :install, :before_script, :script, :after_script],
-        conditional: [:after_success, :after_failure],
+        custom:      [:before_install, :install, :before_script, :script, :after_success, :after_failure, :after_script],
+        # conditional: [:after_success, :after_failure],
         finish:      [:deploy, :finish]
       }
 
@@ -50,6 +50,7 @@ module Travis
 
       def run_stage(type, name)
         type = :builtin if fallback?(type, name) || type == :finish
+        type = :conditional if [:after_success, :after_failure].include?(name)
         stage = self.class.const_get(type.to_s.camelize).new(script, name)
         stage.run
       end

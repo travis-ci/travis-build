@@ -7,4 +7,10 @@ Once lib/shell.rb is available
 + port rust
 
 + go over all spec changes since branching off, and port them
+- port known hosts feature
+
+
+Later
+
+- revert all the diff cleaning commits to clean things up again
 - add a fold around announce
