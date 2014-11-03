@@ -21,9 +21,14 @@ def path_for(dir, payload)
   "#{dir}/#{['build', lang, slug, 'job', id].join('-')}.sh"
 end
 
+def filter(code)
+  code.gsub(/^echo\n/m, '') # remove newlines
+end
+
 def compile(dir, payload)
   path = path_for(dir, payload)
   code = Travis::Build.script(payload).compile
+  code = filter(code)
   File.open(path, 'w+') { |f| f.write(code) } if code
 end
 
