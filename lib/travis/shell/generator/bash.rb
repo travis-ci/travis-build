@@ -37,7 +37,7 @@ module Travis
         end
 
         def handle_export(data, options = {})
-          options[:echo] = "#{data.first}=[secure]" if options[:echo] && options[:secure]
+          options[:echo] = "export #{data.first}=[secure]" if options[:echo] && options[:secure]
           handle_cmd("export #{data.first}=#{data.last}", options)
         end
 

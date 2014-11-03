@@ -122,7 +122,7 @@ describe Travis::Shell::Generator::Bash, :include_node_helpers do
 
     it 'adds --display FOO=[secure] if :secure is given' do
       @sexp = [:export, ['FOO', 'foo'], echo: true, secure: true]
-      expect(code).to eql("travis_cmd export\\ FOO\\=foo --echo --display FOO\\=\\[secure\\]")
+      expect(code).to eql("travis_cmd export\\ FOO\\=foo --echo --display export\\ FOO\\=\\[secure\\]")
     end
   end
 
