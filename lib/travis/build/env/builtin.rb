@@ -18,10 +18,9 @@ module Travis
               TRAVIS:                 true,
               CI:                     true,
               CONTINUOUS_INTEGRATION: true,
-
-              TRAVIS_OS_NAME:         config[:os],
-              TRAVIS_LANGUAGE:        config[:language],
-              TRAVIS_REPO_SLUG:       slug.shellescape,
+              HAS_JOSH_K_SEAL_OF_APPROVAL: true,
+              TRAVIS_PULL_REQUEST:    pull_request || false,
+              TRAVIS_SECURE_ENV_VARS: secure_env_vars? || false,
               TRAVIS_BUILD_ID:        build[:id],
               TRAVIS_BUILD_NUMBER:    build[:number],
               TRAVIS_BUILD_DIR:       [BUILD_DIR, slug.shellescape].join('/'),
@@ -29,11 +28,11 @@ module Travis
               TRAVIS_JOB_NUMBER:      job[:number],
               TRAVIS_BRANCH:          branch.shellescape,
               TRAVIS_COMMIT:          job[:commit],
-
               TRAVIS_COMMIT_RANGE:    job[:commit_range],
+              TRAVIS_REPO_SLUG:       slug.shellescape,
+              TRAVIS_OS_NAME:         config[:os],
+              TRAVIS_LANGUAGE:        config[:language],
               TRAVIS_TAG:             job[:tag],
-              TRAVIS_PULL_REQUEST:    pull_request || false,
-              TRAVIS_SECURE_ENV_VARS: secure_env_vars? || false
             }
           end
 
