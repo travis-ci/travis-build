@@ -33,6 +33,7 @@ module Travis
   module Build
     class Script
       TEMPLATES_PATH = File.expand_path('../templates', __FILE__)
+      DEFAULTS = {}
 
       class << self
         def defaults

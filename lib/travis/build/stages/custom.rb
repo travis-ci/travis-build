@@ -8,7 +8,7 @@ module Travis
           with_stage(name) do
             cmds = Array(config[name])
             cmds.each_with_index do |command, ix|
-              sh.cmd command, echo: true, fold: fold_for(name, cmds, ix)
+              sh.cmd command.to_s, echo: true, fold: fold_for(name, cmds, ix)
               result if script?
             end
           end
