@@ -11,8 +11,8 @@ module Travis
           sh.fold 'postgresql' do
             sh.export "PATH", "/usr/lib/postgresql/#{version}/bin:$PATH", echo: false
             sh.echo "Starting PostgreSQL v#{version}", ansi: :yellow
-            sh.cmd "service postgresql stop", assert: false, sudo: true
-            sh.cmd "service postgresql start #{version}", assert: false, sudo: true
+            sh.cmd "service postgresql stop", assert: false, sudo: true, echo: true, timing: true
+            sh.cmd "service postgresql start #{version}", assert: false, sudo: true, echo: true, timing: true
           end
         end
 
