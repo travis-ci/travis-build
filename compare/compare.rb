@@ -5,7 +5,7 @@ end
 
 def compare(dir, lft, rgt)
   Dir["#{lft}/*.sh"].each do |file|
-    diff = `diff --ignore-all-space #{file} #{file.sub(lft, rgt)}`
+    diff = `diff --ignore-all-space --ignore-blank-lines #{file} #{file.sub(lft, rgt)}`
     path = file.sub(lft, dir).sub('.sh', '.diff')
     File.open(path, 'w+') { |f| f.write(diff) }
   end
