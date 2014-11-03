@@ -92,7 +92,7 @@ module Travis
 
           def submodules
             sh.if '-f .gitmodules' do
-              sh.cmd 'echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config', echo: false
+              sh.file '~/.ssh/config', "Host github.com\n\tStrictHostKeyChecking no\n", append: true
               sh.cmd 'git submodule init', fold: "git.#{next_git_fold_number}"
               sh.cmd "git submodule update #{submodule_update_args}".strip, assert: true, fold: "git.#{next_git_fold_number}", retry: true
             end
