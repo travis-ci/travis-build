@@ -115,8 +115,10 @@ module Travis
         end
 
         def handle_if(condition, *branches)
+          options = branches.last.is_a?(Hash) ? branches.pop : {}
           with_margin do
-            lines = ["if [[ #{condition} ]]; then"]
+            condition = "[[ #{condition} ]]" unless options.delete(:raw)
+            lines = ["if #{condition}; then"]
             lines += branches.map { |branch| handle(branch) }
             lines << 'fi'
             lines

@@ -86,7 +86,9 @@ module Travis
         end
 
         def to_sexp
-          [:if, condition, *branches.map(&:to_sexp)]
+          sexp = [:if, condition, *branches.map(&:to_sexp)]
+          sexp << { raw: true } if options[:raw]
+          sexp
         end
       end
 
