@@ -16,7 +16,7 @@ module Travis
           super
           sh.cmd 'gvm version', timing: true
           sh.cmd 'go version', timing: true
-          sh.cmd 'go env', fold: 'go.env'
+          sh.cmd 'go env', fold: 'go.env', timing: true
         end
 
         def setup
@@ -26,20 +26,20 @@ module Travis
           sh.cmd "gvm install #{version} --binary || gvm install #{version}", fold: 'gvm.install'
           sh.cmd "gvm use #{version}"
 
-          sh.export 'GOPATH', "#{HOME_DIR}/gopath:$GOPATH", echo: false
-          sh.export 'PATH', "#{HOME_DIR}/gopath/bin:$PATH", echo: false
+          sh.export 'GOPATH', "#{HOME_DIR}/gopath:$GOPATH", echo: true
+          sh.export 'PATH', "#{HOME_DIR}/gopath/bin:$PATH", echo: true
 
           sh.mkdir "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}", recursive: true, assert: false, timing: false
           sh.cmd "rsync -az ${TRAVIS_BUILD_DIR}/ #{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}/", assert: false, timing: false
 
           sh.export "TRAVIS_BUILD_DIR", "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}"
-          sh.cd "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}"
+          sh.cd "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}", assert: true
         end
 
         def install
           sh.if '-f Godeps/Godeps.json' do
-            sh.set 'GOPATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace:$GOPATH'
-            sh.set 'PATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace/bin:$PATH'
+            sh.set 'GOPATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace:$GOPATH', retry: false
+            sh.set 'PATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace/bin:$PATH', retry: false
 
             if version >= 'go1.1'
               sh.if '! -d Godeps/_workspace/src' do
@@ -50,7 +50,7 @@ module Travis
           end
 
           sh.if uses_make do
-            sh.cmd 'true'
+            sh.cmd 'true', retry: true, fold: 'install' # TODO instead negate the condition
           end
           sh.else do
             sh.cmd "#{go_get_cmd} #{config[:gobuild_args]} ./...", retry: true, fold: 'install'

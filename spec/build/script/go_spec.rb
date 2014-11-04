@@ -13,7 +13,7 @@ describe Travis::Build::Script::Go, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'sets GOPATH' do
-    should include_sexp [:export, ['GOPATH', '$HOME/gopath:$GOPATH']]
+    should include_sexp [:export, ['GOPATH', '$HOME/gopath:$GOPATH'], echo: true]
   end
 
   it 'sets TRAVIS_GO_VERSION' do
@@ -41,7 +41,7 @@ describe Travis::Build::Script::Go, :sexp do
     it { should include_sexp [:mkdir, "$HOME/gopath/src/#{hostname}/travis-ci/travis-ci", echo: true, recursive: true] }
     it { should include_sexp [:cmd, "rsync -az ${TRAVIS_BUILD_DIR}/ $HOME/gopath/src/#{hostname}/travis-ci/travis-ci/", echo: true] }
     it { should include_sexp [:export, ['TRAVIS_BUILD_DIR', "$HOME/gopath/src/#{hostname}/travis-ci/travis-ci"], echo: true] }
-    it { should include_sexp [:cd, "$HOME/gopath/src/#{hostname}/travis-ci/travis-ci", echo: true] }
+    it { should include_sexp [:cd, "$HOME/gopath/src/#{hostname}/travis-ci/travis-ci", assert: true, echo: true] }
   end
 
   describe 'with github.com' do
@@ -86,7 +86,7 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   it 'announces go env' do
-    should include_sexp [:cmd, 'go env', echo: true]
+    should include_sexp [:cmd, 'go env', echo: true, timing: true]
   end
 
   %w(1.0.3 1.1 1.1.2).each do |old_go_version|
