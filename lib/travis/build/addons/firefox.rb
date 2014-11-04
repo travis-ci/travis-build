@@ -7,7 +7,7 @@ module Travis
       class Firefox < Base
         SUPER_USER_SAFE = false
 
-        def before_prepare
+        def after_prepare
           sh.fold 'install_firefox' do
             sh.echo "Installing Firefox v#{version}", ansi: :yellow
             sh.mkdir install_dir, echo: false, recursive: true, sudo: true

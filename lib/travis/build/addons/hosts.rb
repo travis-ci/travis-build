@@ -7,7 +7,7 @@ module Travis
       class Hosts < Base
         SUPER_USER_SAFE = true
 
-        def before_prepare
+        def after_prepare
           sh.fold 'hosts' do
             sh.cmd "sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '#{hosts}'/' -i'.bak' /etc/hosts", sudo: true
             sh.cmd "sed -e 's/^\\(::1.*\\)$/\\1 '#{hosts}'/' -i'.bak' /etc/hosts", sudo: true

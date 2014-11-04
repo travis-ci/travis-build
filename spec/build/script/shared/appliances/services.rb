@@ -4,11 +4,9 @@ shared_examples_for 'starts services' do
   describe 'if services were given' do
     let(:services) { [:postgresql] }
 
-    subject { sexp_find(super(), [:fold, 'services']) }
-
-    describe 'folds the services section' do
-      it { should_not be_empty }
-    end
+    # describe 'folds the services section' do
+    #   it { should_not be_empty }
+    # end
 
     describe 'postgresql' do
       it { should include_sexp [:cmd, 'sudo service postgresql start', echo: true, timing: true] }

@@ -98,6 +98,9 @@ module Travis
           apply :services
           apply :setup_apt_cache
           apply :fix_ps4 # TODO if this is to fix an rvm issue (as the specs say) then should this go to Rvm instead?
+        end
+
+        def disable_sudo
           apply :disable_sudo
         end
     end

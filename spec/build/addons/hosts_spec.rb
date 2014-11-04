@@ -6,7 +6,7 @@ describe Travis::Build::Addons::Hosts, :sexp do
   let(:sh)      { Travis::Shell::Builder.new }
   let(:addon)   { described_class.new(sh, Travis::Build::Data.new(data), config) }
   subject       { sh.to_sexp }
-  before        { addon.before_prepare }
+  before        { addon.after_prepare }
 
   it_behaves_like 'compiled script' do
     let(:cmds) { ['one.local\ two.local'] }
