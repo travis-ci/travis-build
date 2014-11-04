@@ -20,13 +20,13 @@ module Travis
           sh.fold 'announce' do
             sh.cmd 'xcodebuild -version -sdk', timing: true
             sh.cmd 'xctool -version', timing: true
+          end
 
-            sh.if use_ruby_motion do
-              sh.cmd 'motion --version', timing: true
-            end
-            sh.elif '-f Podfile' do
-              sh.cmd 'pod --version', timing: true
-            end
+          sh.if use_ruby_motion do
+            sh.cmd 'motion --version', timing: true
+          end
+          sh.if '-f Podfile' do
+            sh.cmd 'pod --version', timing: true
           end
         end
 
@@ -52,9 +52,9 @@ module Travis
           directory_cache.add(sh, "#{pod_dir}/Pods") if data.cache?(:cocoapods)
 
           sh.if podfile? do
-            sh.if "! ([[ -f #{pod_dir}/Podfile.lock && -f #{pod_dir}/Pods/Manifest.lock ]] && cmp --silent #{pod_dir}/Podfile.lock #{pod_dir}/Pods/Manifest.lock)", raw_condition: true do
+            sh.if "! ([[ -f #{pod_dir}/Podfile.lock && -f #{pod_dir}/Pods/Manifest.lock ]] && cmp --silent #{pod_dir}/Podfile.lock #{pod_dir}/Pods/Manifest.lock)", raw: true do
               sh.fold('install.cocoapods') do
-                sh.echo 'Installing Pods with: pod install', ansi: :yellow
+                sh.echo "Installing Pods with 'pod install'", ansi: :yellow
                 sh.cmd "pushd #{pod_dir}"
                 sh.cmd 'pod install', retry: true
                 sh.cmd 'popd'
