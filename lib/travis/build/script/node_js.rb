@@ -50,7 +50,7 @@ module Travis
           def version
             # TODO deprecate :nodejs
             version = config[:node_js] || config[:nodejs] # some old projects use language: nodejs. MK.
-            version == 0.1 ? '0.10' : version
+            version == 0.1 ? '0.10' : version.to_s
           end
 
           def npm_disable_strict_ssl

@@ -24,7 +24,7 @@ module Travis
         private
 
           def version
-            config.shellescape
+            config.to_s.shellescape
           end
 
           def install_dir

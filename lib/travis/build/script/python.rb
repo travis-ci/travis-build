@@ -45,13 +45,13 @@ module Travis
         end
 
         def cache_slug
-          super << '--python-' << version.to_s
+          super << '--python-' << version
         end
 
         private
 
           def version
-            config[:python]
+            config[:python].to_s
           end
 
           def virtualenv_activate

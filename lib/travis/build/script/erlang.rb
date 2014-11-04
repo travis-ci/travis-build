@@ -38,13 +38,13 @@ module Travis
         end
 
         def cache_slug
-          super << '--otp-' << otp_release.to_s
+          super << '--otp-' << otp_release
         end
 
         private
 
           def otp_release
-            config[:otp_release]
+            config[:otp_release].to_s
           end
 
           def rebar_configured

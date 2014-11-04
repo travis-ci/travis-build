@@ -29,7 +29,7 @@ module Travis
         end
 
         def version
-          config[:ghc]
+          config[:ghc].to_s
         end
       end
     end

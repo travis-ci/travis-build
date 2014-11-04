@@ -21,13 +21,13 @@ module Travis
         end
 
         def cache_slug
-          super << '--compiler-' << compiler.to_s
+          super << '--compiler-' << compiler
         end
 
         private
 
           def compiler
-            config[:compiler]
+            config[:compiler].to_s
           end
       end
     end

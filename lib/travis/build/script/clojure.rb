@@ -25,13 +25,13 @@ module Travis
         end
 
         def cache_slug
-          super << '--lein-' << lein.to_s
+          super << '--lein-' << lein
         end
 
         private
 
           def lein
-            config[:lein]
+            config[:lein].to_s
           end
       end
     end

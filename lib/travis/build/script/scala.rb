@@ -12,7 +12,7 @@ module Travis
 
         def export
           super
-          sh.export 'TRAVIS_SCALA_VERSION', config[:scala], echo: false
+          sh.export 'TRAVIS_SCALA_VERSION', version, echo: false
         end
 
         def setup
@@ -25,7 +25,7 @@ module Travis
 
         def announce
           super
-          sh.echo "Using Scala #{config[:scala]}"
+          sh.echo "Using Scala #{version}"
         end
 
         def install
@@ -36,7 +36,7 @@ module Travis
 
         def script
           sh.if '-d project || -f build.sbt' do
-            sh.cmd "sbt#{sbt_args} ++#{config[:scala]} test"
+            sh.cmd "sbt#{sbt_args} ++#{version} test"
           end
           sh.else do
             super
@@ -44,10 +44,14 @@ module Travis
         end
 
         def cache_slug
-          super << "--scala-" << config[:scala].to_s
+          super << "--scala-" << version
         end
 
         private
+
+          def version
+            config[:scala].to_s
+          end
 
           def sbt_args
             config[:sbt_args] && " #{config[:sbt_args]}"
