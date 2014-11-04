@@ -14,12 +14,12 @@ module Travis
         }
 
         def apply
-          sh.fold 'services' do
+          # sh.fold 'services' do
             services.each do |name|
               sh.cmd "sudo service #{name.shellescape} start", assert: false, echo: true, timing: true
             end
             sh.raw 'sleep 3'
-          end
+          # end
         end
 
         def apply?
