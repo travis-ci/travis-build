@@ -79,7 +79,10 @@ module Travis
 
         def deployment?
           addons = config.fetch(:addons, {})
-          !!addons[:deploy]
+          addons = [addons] unless addons.is_a?(Array)
+          addons.any? { |config| config.is_a?(Hash) && config[:deploy] }
+        rescue
+          false
         end
       end
     end
