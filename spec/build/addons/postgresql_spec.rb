@@ -1,12 +1,12 @@
 require 'spec_helper'
 
 describe Travis::Build::Addons::Postgresql, :sexp do
-  let(:config)  { '9.3' }
+  let(:config) { '9.3' }
   let(:data)   { payload_for(:push, :ruby, config: { addons: { postgresql: config } }) }
-  let(:sh)      { Travis::Shell::Builder.new }
-  let(:addon)   { described_class.new(sh, Travis::Build::Data.new(data), config) }
-  subject       { sh.to_sexp }
-  before        { addon.after_prepare }
+  let(:sh)     { Travis::Shell::Builder.new }
+  let(:addon)  { described_class.new(sh, Travis::Build::Data.new(data), config) }
+  subject      { sh.to_sexp }
+  before       { addon.after_prepare }
 
   it_behaves_like 'compiled script' do
     let(:cmds) { ['service postgresql start 9.3'] }

@@ -1,12 +1,12 @@
 require 'spec_helper'
 
 describe Travis::Build::Addons::SauceConnect, :sexp do
-  let(:config)  { { username: 'username', access_key: 'access_key' } }
+  let(:config) { { username: 'username', access_key: 'access_key' } }
   let(:data)   { payload_for(:push, :ruby, config: { addons: { sauce_connect: config } }) }
-  let(:sh)      { Travis::Shell::Builder.new }
-  let(:addon)   { described_class.new(sh, Travis::Build::Data.new(data), config) }
-  subject       { sh.to_sexp }
-  before        { addon.after_setup }
+  let(:sh)     { Travis::Shell::Builder.new }
+  let(:addon)  { described_class.new(sh, Travis::Build::Data.new(data), config) }
+  subject      { sh.to_sexp }
+  before       { addon.after_setup }
 
   it_behaves_like 'compiled script' do
     let(:code) { ['sauce_connect', 'TRAVIS_SAUCE_CONNECT=true'] }

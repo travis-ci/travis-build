@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Travis::Build::Addons::Deploy, :sexp do
   let(:scripts) { { before_deploy: ['./before_deploy_1.sh', './before_deploy_2.sh'], after_deploy: ['./after_deploy_1.sh', './after_deploy_2.sh'] } }
   let(:config)  { {} }
-  let(:data)   { payload_for(:push, :ruby, config: { addons: { deploy: config } }) }
+  let(:data)    { payload_for(:push, :ruby, config: { addons: { deploy: config } }) }
   let(:sh)      { Travis::Shell::Builder.new }
   let(:addon)   { described_class.new(sh, Travis::Build::Data.new(data), config) }
   subject       { addon.before_finish && sh.to_sexp }
