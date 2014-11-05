@@ -1,0 +1,100 @@
+module Travis
+  module Build
+    class Addons
+      class CoverityScan
+        SUPER_USER_SAFE = true
+        SCAN_URL        = 'https://scan.coverity.com'
+
+        attr_reader :script, :sh, :data, :config
+
+        def initialize(script, sh, data, config)
+          @script = script
+          @sh = sh
+          @data = data
+          @config = config.respond_to?(:to_hash) ? config.to_hash : {}
+          config[:build_script_url] ||= "#{SCAN_URL}/scripts/travisci_build_coverity_scan.sh"
+        end
+
+        # This method consumes the script method of the caller, calling it or the Coverity Scan
+        #   script depending on the TRAVIS_BRANCH env variable.
+        # The Coverity Scan build therefore overrides the default script, but only on the
+        #   coverity_scan branch.
+        #
+        # TODO I don't get "calling it or the Coverity Scan script" in the comment above.
+        # Where does this call the original script?
+        def script
+          sh.echo 'coverty_scan:start\\r'
+          sh.if '$COVERITY_VERBOSE = 1' do
+            sh.cmd 'set -x'
+          end
+
+          sh.export 'COVERITY_SCAN_BRANCH', coverity_scan_branch, echo: true
+
+          sh.if "$COVERITY_SCAN_BRANCH = 1" do
+            sh.echo 'Coverity Scan analysis selected for branch "$TRAVIS_BRANCH".', ansi: :yellow
+            sh.export 'PROJECT_NAME', project_name, echo: true
+            authorize
+            run
+          end
+
+          sh.echo 'coverity_scan:end\\r'
+          sh.terminate 0 # TODO is this what the COVERITY_SCAN_BRANCH thing intends?
+        end
+
+        private
+
+          def project_name
+            config[:project] && config[:project][:name]
+          end
+
+          def coverity_scan_branch
+            data.branch =~ /^#{config[:branch_pattern]}$/ ? 1 : 0
+          end
+
+          def authorize
+            sh.export 'SCAN_URL', SCAN_URL, echo: false
+            sh.export 'AUTH_RES', '$(curl -s --form project="$PROJECT_NAME" --form token="$COVERITY_SCAN_TOKEN" $SCAN_URL/api/upload_permitted)'
+
+            sh.if '$AUTH_RES = "Access denied"' do
+              sh.echo 'Coverity Scan API access denied. Check \\$PROJECT_NAME and \\$COVERITY_SCAN_TOKEN.', ansi: :red
+              sh.cmd 'exit 1'
+            end
+            sh.else do
+              authorize_quota
+            end
+          end
+
+          def authorize_quota
+            # TODO consider using https://gist.github.com/cjus/1047794
+            sh.export 'AUTH', '$(echo $AUTH_RES | ruby -e "require \'rubygems\'; require \'json\'; puts JSON[STDIN.read][\'upload_permitted\']"`', echo: false
+
+            sh.if '$AUTH = true' do
+              sh.echo 'Coverity Scan analysis authorized per quota.', ansi: :yellow
+            end
+            sh.else do
+              sh.export 'WHEN', '$(echo $AUTH_RES | ruby -e "require \'rubygems\'; require \'json\'; puts JSON[STDIN.read][\'next_upload_permitted_at\']")'
+              sh.echo 'Coverity Scan analysis NOT authorized until $WHEN.'
+              sh.cmd 'exit 1'
+            end
+          end
+
+          def run
+            sh.if '$TRAVIS_TEST_RESULT = 0' do
+              sh.fold 'coverity' do
+                env = []
+                env << "COVERITY_SCAN_PROJECT_NAME=\"$TRAVIS_REPO_SLUG\""
+                env << "COVERITY_SCAN_NOTIFICATION_EMAIL=\"#{config[:notification_email]}\""
+                env << "COVERITY_SCAN_BUILD_COMMAND=\"#{config[:build_command]}\""
+                env << "COVERITY_SCAN_BUILD_COMMAND_PREPEND=\"#{config[:build_command_prepend]}\""
+                env << "COVERITY_SCAN_BRANCH_PATTERN=#{config[:branch_pattern]}"
+                sh.cmd "curl -s #{config[:build_script_url]} | #{env.join(' ')} bash", echo: true
+              end
+            end
+            sh.else do
+              sh.echo 'Skipping build_coverity due to previous error', ansi: :red
+            end
+          end
+      end
+    end
+  end
+end
