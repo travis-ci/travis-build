@@ -20,10 +20,11 @@ module Travis
         end
 
         def handle_echo(message = '', options = {})
-          message.split("\n").map do |line|
+          lines = message.include?("\n") ? message.split("\n") : [message]
+          lines.map do |line|
             # message = %( -e "#{ansi(line, options.delete(:ansi))}") unless message.empty?
-            message = %( -e #{escape(ansi(line, options.delete(:ansi)))}) unless message.empty?
-            handle_cmd("echo#{message}", options)
+            line = %( -e #{escape(ansi(line, options.delete(:ansi)))}) # unless message.empty?
+            handle_cmd("echo#{line}", options)
           end
         end
 
