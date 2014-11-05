@@ -7,13 +7,13 @@ module Travis
         SUPER_USER_SAFE = true
         SOURCE_URL = 'https://gist.githubusercontent.com/henrikhodne/9322897/raw/sauce-connect.sh'
 
-        def after_setup
+        def after_install
           sh.export 'SAUCE_USERNAME', username, echo: false if username
           sh.export 'SAUCE_ACCESS_KEY', access_key, echo: false if access_key
 
           sh.fold 'sauce_connect' do
             sh.echo 'Starting Sauce Connect', ansi: :yellow
-            sh.cmd "curl -L #{SOURCE_URL} | bash", assert: false
+            sh.cmd "curl -L #{SOURCE_URL} | bash", assert: false, echo: true, timing: true
             sh.export 'TRAVIS_SAUCE_CONNECT', 'true', echo: false
           end
         end

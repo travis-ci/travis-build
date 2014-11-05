@@ -20,7 +20,7 @@ module Travis
             sh.echo "Adding ssh known hosts (BETA)", ansi: :yellow
             sh.fold 'ssh_known_hosts.0' do
               config.each do |host|
-                sh.cmd "ssh-keyscan -t rsa,dsa -H #{host} 2>&1 | tee -a #{Travis::Build::HOME_DIR}/.ssh/known_hosts"
+                sh.cmd "ssh-keyscan -t rsa,dsa -H #{host} 2>&1 | tee -a #{Travis::Build::HOME_DIR}/.ssh/known_hosts", echo: true, timing: true
               end
             end
           end

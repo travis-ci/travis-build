@@ -7,24 +7,25 @@ module Travis
       class Deploy < Base
         SUPER_USER_SAFE = true
 
-        def initialize(sh, data, config)
-          super(sh, data, config.is_a?(Array) ? config : [config].compact)
+        def initialize(script, sh, data, config)
+          super(script, sh, data, config.is_a?(Array) ? config : [config].compact)
         end
 
-        def before_finish?
+        def after_after_success?
           !config.empty?
         end
 
-        def before_finish
-          sh.if('$TRAVIS_TEST_RESULT = 0') do
-            providers.map(&:deploy)
-          end
+        def after_after_success
+          # sh.if('$TRAVIS_TEST_RESULT = 0') do
+          #   providers.map(&:deploy)
+          # end
+          providers.map(&:deploy)
         end
 
         private
 
           def providers
-            config.map { |config| Script.new(sh, data, config) }
+            config.map { |config| Script.new(script, sh, data, config) }
           end
       end
     end

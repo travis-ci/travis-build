@@ -12,9 +12,10 @@ require 'travis/build/addons/ssh_known_hosts'
 module Travis
   module Build
     class Addons
-      attr_reader :sh, :data, :config
+      attr_reader :script, :sh, :data, :config
 
-      def initialize(sh, data, config)
+      def initialize(script, sh, data, config)
+        @script = script
         @sh = sh
         @data = data
         @config = config
@@ -42,7 +43,7 @@ module Travis
 
         def addon(name, config)
           const = self.class.const_get(name.to_s.camelize)
-          const.new(sh, data, config) if const && run_addon?(const)
+          const.new(script, sh, data, config) if const && run_addon?(const)
         rescue NameError
         end
 
