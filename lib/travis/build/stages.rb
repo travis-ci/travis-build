@@ -7,12 +7,15 @@ require 'travis/build/stages/conditional'
 module Travis
   module Build
     class Stages
-      STAGES = {
-        builtin:     [:configure, :checkout, :prepare, :disable_sudo, :export, :setup, :announce],
-        custom:      [:before_install, :install, :before_script, :script, :after_success, :after_failure, :after_script],
-        # conditional: [:after_success, :after_failure],
-        finish:      [:deploy, :finish]
-      }
+      STAGES = [
+        :builtin,     [:configure, :checkout, :prepare, :disable_sudo, :export, :setup, :announce],
+        :custom,      [:before_install, :install, :before_script, :script],
+        :conditional, [:after_success],
+        # :addon,       [:deploy_all],
+        :conditional, [:after_failure],
+        :custom,      [:after_script],
+        :builtin,     [:finish]
+      ]
 
       STAGE_DEFAULT_OPTIONS = {
         checkout:       { assert: true,  echo: true,  timing: true  },
@@ -28,7 +31,7 @@ module Travis
         after_script:   { assert: false, echo: true,  timing: true  },
         before_deploy:  { assert: true,  echo: true,  timing: true  },
         deploy:         { assert: true,  echo: true,  timing: true  },
-        after_deploy:   { assert: true,  echo: true,  timing: true  },
+        after_deploy:   { assert: false, echo: true,  timing: true  },
         before_finish:  { assert: true,  echo: true,  timing: true  },
         finish:         { assert: true,  echo: true,  timing: true  },
         before_finish:  { assert: true,  echo: true,  timing: true  }
@@ -43,14 +46,13 @@ module Travis
       end
 
       def run
-        STAGES.each do |type, names|
+        STAGES.each_slice(2) do |type, names|
           names.each { |name| run_stage(type, name) }
         end
       end
 
       def run_stage(type, name)
-        type = :builtin if fallback?(type, name) || type == :finish
-        type = :conditional if [:after_success, :after_failure].include?(name)
+        type = :builtin if fallback?(type, name)
         stage = self.class.const_get(type.to_s.camelize).new(script, name)
         stage.run
       end

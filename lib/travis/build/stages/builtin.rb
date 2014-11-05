@@ -7,14 +7,13 @@ module Travis
         def run
           with_stage(name) do
             run_addon_stage :"before_#{name}"
-            script.send(name)
-            result if script?
+            run_addon_stage :script if script? # TODO for coverity_scan
+            if script.respond_to?(name, true)
+              script.send(name)
+              result if script?
+            end
             run_addon_stage :"after_#{name}"
           end
-        end
-
-        def run_addon_stage(name)
-          Addon.new(script, name).run
         end
       end
     end

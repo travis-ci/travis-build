@@ -5,7 +5,10 @@ module Travis
     class Stages
       class Conditional < Base
         def run
-          sh.if(condition) { Custom.new(script, name).run } if config[name]
+          return unless config[name] || deployment?
+          sh.if(condition) do
+            Custom.new(script, name).run
+          end
         end
 
         private

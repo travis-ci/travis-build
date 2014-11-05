@@ -41,7 +41,7 @@ module Travis
         end
       end
 
-      include Module.new { Stages::STAGES.values.flatten.each { |stage| define_method(stage) {} } }
+      include Module.new { Stages::STAGES.each_slice(2).map(&:last).flatten.each { |stage| define_method(stage) {} } }
       include Appliances, DirectoryCache, Deprecation, Template
 
       attr_reader :sh, :data, :options, :validator, :addons, :stages
@@ -51,7 +51,7 @@ module Travis
         @options = {}
 
         @sh = Shell::Builder.new
-        @addons = Addons.new(sh, @data, config)
+        @addons = Addons.new(self, sh, self.data, config)
         @stages = Stages.new(self, sh, config)
       end
 
