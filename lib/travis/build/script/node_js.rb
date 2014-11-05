@@ -8,7 +8,8 @@ module Travis
 
         def export
           super
-          sh.export 'TRAVIS_NODE_VERSION', version, echo: false
+          # sh.export 'TRAVIS_NODE_VERSION', version, echo: false
+          sh.export 'TRAVIS_NODE_VERSION', config[:nodejs] || config[:node_js], echo: false
         end
 
         def setup
@@ -54,8 +55,9 @@ module Travis
           end
 
           def npm_disable_strict_ssl
-            sh.echo '### Disabling strict SSL ###', ansi: :red
-            sh.cmd 'npm conf set strict-ssl false', timing: false
+            # sh.echo '### Disabling strict SSL ###', ansi: :red
+            sh.cmd 'echo "### Disabling strict SSL ###"'
+            sh.cmd 'npm conf set strict-ssl false', assert: true, echo: true, timing: true
           end
 
           def npm_strict_ssl?

@@ -6,7 +6,7 @@ module Travis
 
         def setup
           super
-          sh.export 'PATH', "#{path}:$PATH"
+          sh.export 'PATH', "#{path}:$PATH", assert: true, timing: true
           sh.cmd 'cabal update', fold: 'cabal', retry: true
         end
 

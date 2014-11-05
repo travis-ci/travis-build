@@ -26,12 +26,12 @@ module Travis
           super
 
           sh.cmd 'mkdir -p ~/rust', echo: false
-          sh.newline
+          sh.echo ''
 
           sh.fold('rust-download') do
             sh.echo 'Installing Rust and Cargo', ansi: :yellow
-            sh.cmd "curl -sL #{rust_url} | tar --strip-components=1 -C ~/rust -xzf -", echo: false
-            sh.cmd "curl -sL #{cargo_url} | tar --strip-components=1 -C ~/rust -xzf -", echo: false
+            sh.cmd "curl -sL #{rust_url} | tar --strip-components=1 -C ~/rust -xzf -"
+            sh.cmd "curl -sL #{cargo_url} | tar --strip-components=1 -C ~/rust -xzf -"
           end
 
           sh.cmd 'export PATH="$PATH:$HOME/rust/bin"', assert: false, echo: false
@@ -43,7 +43,7 @@ module Travis
 
           sh.cmd 'rustc --version', timing: true
           sh.cmd 'cargo --version', timing: true
-          sh.newline
+          sh.echo ''
         end
 
         def script
@@ -58,7 +58,7 @@ module Travis
           end
 
           def os
-            config[:os] ? :osx : :linux
+            config[:os] == 'osx' ? :osx : :linux
           end
 
           def rust_url

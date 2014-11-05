@@ -33,7 +33,7 @@ module Travis
             sh.cmd 'pip install -r requirements.txt', fold: 'install', retry: true
           end
           sh.else do
-            sh.echo REQUIREMENTS_MISSING, ansi: :red
+            sh.echo REQUIREMENTS_MISSING # , ansi: :red
           end
         end
 
