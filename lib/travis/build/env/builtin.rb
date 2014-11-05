@@ -14,7 +14,7 @@ module Travis
         private
 
           def env_vars
-            {
+            vars = {
               TRAVIS:                 true,
               CI:                     true,
               CONTINUOUS_INTEGRATION: true,
@@ -34,6 +34,8 @@ module Travis
               TRAVIS_LANGUAGE:        config[:language],
               TRAVIS_TAG:             job[:tag],
             }
+            vars.delete(:TRAVIS_LANGUAGE) unless config[:language]
+            vars
           end
 
           def slug
