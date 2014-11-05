@@ -15,7 +15,8 @@ describe Travis::Build::Script::Haskell, :sexp do
   it "exports PATH variable" do
     version = "version"
     data[:config][:ghc] = version
-    should include_sexp [:export, ['PATH', "/usr/local/ghc/$(ghc_find #{version})/bin/:$PATH"], echo: true]
+    # should include_sexp [:export, ['PATH', "/usr/local/ghc/$(ghc_find #{version})/bin/:$PATH"], echo: true]
+    should include_sexp [:export, ['PATH', "/usr/local/ghc/$(ghc_find #{version})/bin/:$PATH"], echo: true, assert: true, timing: true]
   end
 
   it 'runs cabal update' do

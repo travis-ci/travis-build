@@ -32,24 +32,24 @@ describe Travis::Build::Script::Php, :sexp do
     should include_sexp [:cmd, 'phpunit', echo: true, timing: true]
   end
 
-  describe 'before_install' do
-    subject { sexp_filter(sexp, [:if, '-f composer.json'])[0] }
+  # describe 'before_install' do
+  #   subject { sexp_filter(sexp, [:if, '-f composer.json'])[0] }
 
-    it 'runs composer self-update if composer.json exists' do
-      should include_sexp [:cmd, 'composer self-update', assert: true, echo: true, timing: true]
-    end
-  end
+  #   it 'runs composer self-update if composer.json exists' do
+  #     should include_sexp [:cmd, 'composer self-update', assert: true, echo: true, timing: true]
+  #   end
+  # end
 
-  describe 'install' do
-    subject { sexp_filter(sexp, [:if, '-f composer.json'])[1] }
+  # describe 'install' do
+  #   subject { sexp_filter(sexp, [:if, '-f composer.json'])[1] }
 
-    describe 'runs composer install if composer.json exists' do
-      it { should include_sexp [:cmd, 'composer install', assert: true, echo: true, timing: true] }
-    end
+  #   describe 'runs composer install if composer.json exists' do
+  #     it { should include_sexp [:cmd, 'composer install', assert: true, echo: true, timing: true] }
+  #   end
 
-    describe 'uses given composer_args' do
-      before { data[:config].update(composer_args: '--some --args') }
-      it { should include_sexp [:cmd, 'composer install --some --args', assert: true, echo: true, timing: true] }
-    end
-  end
+  #   describe 'uses given composer_args' do
+  #     before { data[:config].update(composer_args: '--some --args') }
+  #     it { should include_sexp [:cmd, 'composer install --some --args', assert: true, echo: true, timing: true] }
+  #   end
+  # end
 end

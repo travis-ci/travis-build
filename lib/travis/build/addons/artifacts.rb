@@ -1,4 +1,6 @@
 require 'travis/build/addons/base'
+require 'travis/build/addons/artifacts/env'
+require 'travis/build/addons/artifacts/validator'
 
 module Travis
   module Build

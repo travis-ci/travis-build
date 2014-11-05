@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe Travis::Build::Addons do
+  let(:script) { stub('script') }
   let(:sh)     { stub('sh') }
   let(:data)   { stub('data', disable_sudo?: !sudo) }
   let(:config) { { addons: { hosts: 'foo.bar' } } }
@@ -8,13 +9,13 @@ describe Travis::Build::Addons do
 
   let(:stage)  { :before_prepare }
   let(:addon)  { described_class::Hosts.any_instance }
-  let(:addons) { described_class.new(sh, data, config) }
+  let(:addons) { described_class.new(script, sh, data, config) }
 
   subject      { addons.run_stage(stage) }
   before       { addon.stubs(stage) }
 
   it 'passes the addon config' do
-    described_class::Hosts.expects(:new).with(sh, data, config[:addons][:hosts]).returns(addon)
+    described_class::Hosts.expects(:new).with(script, sh, data, config[:addons][:hosts]).returns(addon)
     subject
   end
 

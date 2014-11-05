@@ -13,11 +13,11 @@ describe Travis::Build::Script::Rust, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'downloads and installs Rust' do
-    should include_sexp [:cmd, %r(curl .*dist/rust-nightly.*\.tar\.gz), assert: true, timing: true]
+    should include_sexp [:cmd, %r(curl .*dist/rust-nightly.*\.tar\.gz), assert: true, echo: true, timing: true]
   end
 
   it 'downloads and installs Cargo' do
-    should include_sexp [:cmd, %r(curl .*cargo-dist/cargo-nightly.*\.tar\.gz), assert: true, timing: true]
+    should include_sexp [:cmd, %r(curl .*cargo-dist/cargo-nightly.*\.tar\.gz), assert: true, echo: true, timing: true]
   end
 
   it 'runs cargo build' do

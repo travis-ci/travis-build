@@ -1,3 +1,6 @@
+require 'travis/build/addons/deploy/conditions'
+require 'travis/build/addons/deploy/config'
+
 module Travis
   module Build
     class Addons

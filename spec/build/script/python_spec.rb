@@ -59,7 +59,7 @@ describe Travis::Build::Script::Python, :sexp do
 
     it 'errors if no requirements file exists' do
       branch = sexp_find(sexp, [:else])
-      expect(branch).to include_sexp [:echo, described_class::REQUIREMENTS_MISSING, ansi: :red]
+      expect(branch).to include_sexp [:echo, described_class::REQUIREMENTS_MISSING] #, ansi: :red
     end
   end
 

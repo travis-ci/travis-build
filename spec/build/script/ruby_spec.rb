@@ -58,7 +58,8 @@ describe Travis::Build::Script::Ruby, :sexp do
     end
 
     it 'uses chruby to set the version' do
-      should include_sexp [:cmd, 'chruby 2.1.1', assert: true, echo: true]
+      # should include_sexp [:cmd, 'chruby 2.1.1', assert: true, echo: true]
+      should include_sexp [:cmd, 'chruby 2.1.1', assert: true, echo: true, timing: true]
     end
   end
 
