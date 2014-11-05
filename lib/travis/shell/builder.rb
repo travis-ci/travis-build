@@ -57,13 +57,11 @@ module Travis
       end
 
       def echo(msg = '', options = {})
-        msg.split("\n").each do |line|
-          if line.empty?
-            newline
-          else
-            node :echo, line, { assert: false, echo: false, timing: false }.merge(options)
-          end
-        end
+        # if msg.empty?
+        #   newline
+        # else
+          node :echo, msg, { assert: false, echo: false, timing: false }.merge(options)
+        # end
       end
 
       def deprecate(msg)
