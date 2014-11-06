@@ -166,15 +166,22 @@ shared_examples_for 'a git checkout sexp' do
     let(:source_key)      { TEST_PRIVATE_KEY }
     let(:known_hosts)     { "Host github.com\n\tBatchMode yes\n\tStrictHostKeyChecking no\n" }
 
-    let(:add_source_key)  { [:file, ['~/.ssh/id_rsa', source_key], decode: true] }
-    let(:chmod_id_rsa)    { [:chmod, [600, '~/.ssh/id_rsa'], assert: true] }
-    let(:start_ssh_agent) { [:cmd, 'eval `ssh-agent` &> /dev/null', assert: true] }
-    let(:add_ssh_key)     { [:cmd, 'ssh-add ~/.ssh/id_rsa &> /dev/null', assert: true] }
-    let(:add_known_hosts) { [:file, ['~/.ssh/config', known_hosts], append: true] }
+    # let(:add_source_key)  { [:file, ['~/.ssh/id_rsa', source_key], decode: true] }
+    # let(:chmod_id_rsa)    { [:chmod, [600, '~/.ssh/id_rsa'], assert: true] }
+    # let(:start_ssh_agent) { [:cmd, 'eval `ssh-agent` &> /dev/null', assert: true] }
+    # let(:add_ssh_key)     { [:cmd, 'ssh-add ~/.ssh/id_rsa &> /dev/null', assert: true] }
+    # let(:add_known_hosts) { [:file, ['~/.ssh/config', known_hosts], append: true] }
+
+    # sh.file '~/.ssh/id_rsa', data.ssh_key.value
+    let(:add_source_key)  { [:file, ['~/.ssh/id_rsa', source_key]] }
+    let(:chmod_id_rsa)    { [:raw, 'chmod 600 ~/.ssh/id_rsa', assert: true] }
+    let(:start_ssh_agent) { [:raw, 'eval `ssh-agent` &> /dev/null', assert: true] }
+    let(:add_ssh_key)     { [:raw, 'ssh-add ~/.ssh/id_rsa &> /dev/null', assert: true] }
+    let(:add_known_hosts) { [:raw, %(echo -e "#{known_hosts}" >> ~/.ssh/config), assert: true] }
 
     describe 'was given' do
       before :each do
-        data[:config][:source_key] = source_key
+        data[:config][:source_key] = Base64.encode64(source_key)
       end
 
       it { should include_sexp add_source_key }

@@ -28,7 +28,7 @@ describe Travis::Build::Data do
 
   describe 'ssh_key' do
     describe 'returns ssh_key from source_key as a fallback' do
-      let(:data) { Travis::Build::Data.new(config: { source_key: TEST_PRIVATE_KEY, encoded: true }) }
+      let(:data) { Travis::Build::Data.new(config: { source_key: Base64.encode64(TEST_PRIVATE_KEY), encoded: true }) }
 
       it { expect(data.ssh_key.value).to eql(TEST_PRIVATE_KEY) }
       it { expect(data.ssh_key.source).to be_nil }

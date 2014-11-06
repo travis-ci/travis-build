@@ -7,7 +7,7 @@ describe Travis::Build::Addons::CodeClimate, :sexp do
   let(:sh)     { Travis::Shell::Builder.new }
   let(:addon)  { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
   subject      { sh.to_sexp }
-  before       { addon.after_export }
+  before       { addon.before_before_script }
 
   let(:export_repo_token) { [:export, ['CODECLIMATE_REPO_TOKEN', '1234']] }
 
