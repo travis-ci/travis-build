@@ -12,6 +12,7 @@ gem 'sentry-raven'
 gem 'rack-ssl', '~> 1.4'
 gem 'metriks',         '0.9.9.6'
 gem 'metriks-librato_metrics', github: 'eric/metriks-librato_metrics'
+gem 'coder'
 
 group :development do
   gem 'rerun'

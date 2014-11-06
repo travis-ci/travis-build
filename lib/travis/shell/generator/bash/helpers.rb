@@ -1,4 +1,5 @@
 require 'shellwords'
+require 'coder'
 
 module Travis
   module Shell
@@ -24,7 +25,7 @@ module Travis
           end
 
           def escape(code)
-            Shellwords.escape(code.to_s)
+            Shellwords.escape(Coder.clean(code.to_s))
           end
         end
       end
