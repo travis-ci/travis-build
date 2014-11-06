@@ -27,11 +27,11 @@ module Travis
 
         configure do
           if ENV['SENTRY_DSN']
-            use Travis::Build::App::Sentry
+            use Sentry
           end
 
           if ENV.key?('LIBRATO_EMAIL') && ENV.key?('LIBRATO_TOKEN') && ENV.key?('LIBRATO_SOURCE')
-            use Travis::Build::App::Metriks
+            use Metriks
           end
         end
 
