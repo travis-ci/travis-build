@@ -44,7 +44,7 @@ module Travis
       end
 
       def cmd(data, *args)
-        validate_non_empty_string!(:cmd, data)
+        # validate_non_empty_string!(:cmd, data)
         node :cmd, data, *args
       end
 
@@ -82,8 +82,8 @@ module Travis
       end
 
       def failure(message)
-        echo message
         export 'TRAVIS_CMD', 'no_script', echo: false
+        echo message
         raw 'false'
       end
 

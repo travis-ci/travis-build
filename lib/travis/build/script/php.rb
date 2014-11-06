@@ -20,7 +20,8 @@ module Travis
         def announce
           super
           sh.cmd 'php --version', timing: true
-          sh.cmd 'composer --version', timing: true unless version == '5.2'
+          # sh.cmd 'composer --version', timing: true unless version == '5.2'
+          sh.cmd 'composer --version', timing: true unless config[:php] == '5.2'
         end
 
         def before_install

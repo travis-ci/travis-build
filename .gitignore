@@ -8,4 +8,3 @@ play/*.sh
 examples
 rspec.log
 .vagrant
-compare

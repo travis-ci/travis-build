@@ -30,11 +30,20 @@ module Travis
         end
 
         def key
-          strip_secure(@key)
+          strip_secure(@key).strip
+        end
+
+        def valid?
+          !key.empty?
         end
 
         def echo?
-          type != :builtin
+          # !builtin?
+          !builtin? && !travis?
+        end
+
+        def builtin?
+          type == :builtin
         end
 
         def travis?

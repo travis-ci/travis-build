@@ -1,4 +1,5 @@
 require 'shellwords'
+require 'base64'
 
 module Travis
   module Build
@@ -33,17 +34,22 @@ module Travis
             return unless data.ssh_key
 
             source = " from: #{data.ssh_key.source.gsub(/[_-]+/, ' ')}" if data.ssh_key.source
-            sh.echo "\nInstalling an SSH key#{source}\n"
+            sh.echo "\nInstalling an SSH key#{source}"
             sh.echo "Key fingerprint: #{data.ssh_key.fingerprint}\n" if data.ssh_key.fingerprint
 
-            sh.file '~/.ssh/id_rsa', data.ssh_key.value, decode: data.ssh_key.encoded?
-            sh.chmod 600, '~/.ssh/id_rsa', echo: false
-            sh.cmd 'eval `ssh-agent` &> /dev/null', echo: false, timing: false
-            sh.cmd 'ssh-add ~/.ssh/id_rsa &> /dev/null', echo: false, timing: false
+            # sh.file '~/.ssh/id_rsa', data.ssh_key.value, decode: data.ssh_key.encoded?
+            # sh.chmod 600, '~/.ssh/id_rsa', echo: false
+            # sh.cmd 'eval `ssh-agent` &> /dev/null', echo: false, timing: false
+            # sh.cmd 'ssh-add ~/.ssh/id_rsa &> /dev/null', echo: false, timing: false
+            sh.file '~/.ssh/id_rsa', data.ssh_key.value
+            sh.raw 'chmod 600 ~/.ssh/id_rsa'
+            sh.raw 'eval `ssh-agent` &> /dev/null'
+            sh.raw 'ssh-add ~/.ssh/id_rsa &> /dev/null'
 
             # BatchMode - If set to 'yes', passphrase/password querying will be disabled.
             # TODO ... how to solve StrictHostKeyChecking correctly? deploy a knownhosts file?
-            sh.file '~/.ssh/config', "Host #{data.source_host}\n\tBatchMode yes\n\tStrictHostKeyChecking no\n", append: true
+            # sh.file '~/.ssh/config', "Host #{data.source_host}\n\tBatchMode yes\n\tStrictHostKeyChecking no\n", append: true
+            sh.raw %(echo -e "Host #{data.source_host}\n\tBatchMode yes\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config)
           end
 
           def download_tarball

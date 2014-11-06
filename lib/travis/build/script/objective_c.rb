@@ -25,7 +25,7 @@ module Travis
           sh.if use_ruby_motion do
             sh.cmd 'motion --version', timing: true
           end
-          sh.if '-f Podfile' do
+          sh.if podfile? do
             sh.cmd 'pod --version', timing: true
           end
         end

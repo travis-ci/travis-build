@@ -33,7 +33,7 @@ module Travis
         private
 
           def version
-            config.to_s.shellescape
+            config.to_s #.shellescape
           end
 
           def install_dir

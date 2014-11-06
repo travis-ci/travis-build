@@ -19,7 +19,8 @@ module Travis
         private
 
           def env_vars
-            config.values_at(:global_env, :env).flatten.compact.reject(&:empty?)
+            vars = Array(config[:global_env]) + Array(config[:env])
+            vars.compact.reject(&:empty?)
           end
       end
     end

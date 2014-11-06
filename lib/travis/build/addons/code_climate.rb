@@ -6,7 +6,7 @@ module Travis
       class CodeClimate < Base
         SUPER_USER_SAFE = true
 
-        def after_export
+        def before_before_script
           sh.export 'CODECLIMATE_REPO_TOKEN', token, echo: false if token
         end
 

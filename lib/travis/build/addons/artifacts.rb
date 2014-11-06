@@ -11,7 +11,7 @@ module Travis
         CONCURRENCY = 5
         MAX_SIZE = Float(1024 * 1024 * 50)
 
-        def after_script
+        def before_after_script
           return if config.empty?
           sh.newline
 
@@ -42,7 +42,7 @@ module Travis
             configure_env
             sh.set 'PATH', '$HOME/bin:$PATH', echo: false
           end
-          sh.cmd "artifacts upload #{options}", assert: false
+          sh.cmd "artifacts upload #{options}", assert: false, echo: true, timing: true
           sh.echo 'Done uploading artifacts', ansi: :yellow
         end
 
@@ -61,7 +61,7 @@ module Travis
         end
 
         def install
-          sh.cmd install_script, echo: false, assert: false
+          sh.cmd install_script, echo: false, assert: false, timing: true
         end
 
         def install_script

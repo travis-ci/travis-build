@@ -9,7 +9,7 @@ module Travis
         def_delegators :data, :config
 
         def to_vars(args, options)
-          args.to_a.flat_map { |args| to_var(args, options) }
+          args.to_a.flat_map { |args| to_var(args, options) } #.select(&:valid?)
         end
 
         def to_var(args, options)

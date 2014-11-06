@@ -16,7 +16,12 @@ module Travis
         end
 
         def normalize_config(config)
-          config.is_a?(String) ? config.to_s : config
+          case config
+          when Fixnum, Float, String, Array, Hash
+            config
+          else
+            {}
+          end
         end
       end
     end
