@@ -28,7 +28,7 @@ module Travis
           Script::PureJava
         when "c++", "cpp", "cplusplus" then
           Script::Cpp
-        when 'objective-c'
+        when 'objective-c', 'swift' then
           Script::ObjectiveC
         when 'bash', 'sh', 'shell' then
           Script::Generic

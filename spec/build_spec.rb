@@ -18,6 +18,10 @@ describe Travis::Build do
       expect(subject.by_lang('objective-c')).to eq(Travis::Build::Script::ObjectiveC)
     end
 
+    it 'maps swift to ObjectiveC' do
+      expect(subject.by_lang('swift')).to eq(Travis::Build::Script::ObjectiveC)
+    end
+
     it 'maps bash, sh, and shell to Generic' do
       %w(bash sh shell).each do |lang|
         expect(subject.by_lang(lang)).to eq(Travis::Build::Script::Generic)
