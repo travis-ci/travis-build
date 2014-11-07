@@ -50,12 +50,21 @@ module Travis
 
         def configure
           super
-          if config[:php] == 'hhvm'
+          case config[:php]
+          when 'hhvm-nightly'
+            insatll_hhvm_nightly
+            fix_hhvm_php_ini
+          when 'hhvm'
             fix_hhvm_php_ini
           end
         end
 
         private
+        def insatll_hhvm_nightly
+          echo 'Installing HHVM nightly', ansi: :yellow
+          cmd "sudo apt-get update -qq", echo: false
+          cmd "sudo apt-get install hhvm-nightly 2>&1 >/dev/null", echo: false
+        end
 
         def fix_hhvm_php_ini
           echo 'Modifying HHVM init file', ansi: :yellow
