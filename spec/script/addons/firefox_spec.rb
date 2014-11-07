@@ -11,14 +11,13 @@ describe Travis::Build::Script::Addons::Firefox do
 
   it 'runs the command' do
     script.expects(:fold).with('install_firefox').yields(script)
-    script.expects(:echo).with("Installing Firefox v20.0", ansi: :yellow)
-    script.expects(:raw).with("sudo mkdir -p /usr/local/firefox-20.0")
-    script.expects(:raw).with("sudo chown -R travis /usr/local/firefox-20.0")
-    script.expects(:cmd).with("wget -O /tmp/firefox.tar.bz2 http://releases.mozilla.org/pub/firefox/releases/20.0/linux-x86_64/en-US/firefox-20.0.tar.bz2", retry: true)
-    script.expects(:raw).with("pushd /usr/local/firefox-20.0")
+    script.expects(:echo).with("Installing Firefox v#{config}", ansi: :yellow)
+    script.expects(:raw).with("mkdir -p \$HOME/firefox-#{config}")
+    script.expects(:raw).with("chown -R travis \$HOME/firefox-#{config}")
+    script.expects(:cmd).with("wget -O /tmp/firefox.tar.bz2 http://releases.mozilla.org/pub/firefox/releases/#{config}/linux-x86_64/en-US/firefox-#{config}.tar.bz2", retry: true)
+    script.expects(:raw).with("pushd \$HOME/firefox-#{config}")
     script.expects(:raw).with("tar xf /tmp/firefox.tar.bz2")
-    script.expects(:raw).with("sudo ln -sf /usr/local/firefox-20.0/firefox/firefox /usr/local/bin/firefox")
-    script.expects(:raw).with("sudo ln -sf /usr/local/firefox-20.0/firefox/firefox-bin /usr/local/bin/firefox-bin")
+    script.expects(:raw).with("export PATH=\$HOME/firefox-#{config}/firefox:\$PATH")
     script.expects(:raw).with("popd")
     subject
   end

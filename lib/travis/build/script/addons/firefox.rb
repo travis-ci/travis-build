@@ -3,7 +3,7 @@ module Travis
     class Script
       module Addons
         class Firefox
-          SUPER_USER_SAFE = false
+          SUPER_USER_SAFE = true
 
           def initialize(script, config)
             @script = script
@@ -13,13 +13,12 @@ module Travis
           def before_install
             @script.fold 'install_firefox' do |sh|
               sh.echo "Installing Firefox v#{@firefox_version}", ansi: :yellow
-              sh.raw "sudo mkdir -p /usr/local/firefox-#{@firefox_version}"
-              sh.raw "sudo chown -R travis /usr/local/firefox-#{@firefox_version}"
+              sh.raw "mkdir -p \$HOME/firefox-#{@firefox_version}"
+              sh.raw "chown -R travis \$HOME/firefox-#{@firefox_version}"
               sh.cmd "wget -O /tmp/firefox.tar.bz2 http://releases.mozilla.org/pub/firefox/releases/#{@firefox_version}/linux-x86_64/en-US/firefox-#{@firefox_version}.tar.bz2", retry: true
-              sh.raw "pushd /usr/local/firefox-#{@firefox_version}"
+              sh.raw "pushd \$HOME/firefox-#{@firefox_version}"
               sh.raw "tar xf /tmp/firefox.tar.bz2"
-              sh.raw "sudo ln -sf /usr/local/firefox-#{@firefox_version}/firefox/firefox /usr/local/bin/firefox"
-              sh.raw "sudo ln -sf /usr/local/firefox-#{@firefox_version}/firefox/firefox-bin /usr/local/bin/firefox-bin"
+              sh.raw "export PATH=\$HOME/firefox-#{@firefox_version}/firefox:\$PATH"
               sh.raw "popd"
             end
           end
