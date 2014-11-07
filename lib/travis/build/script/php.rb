@@ -32,7 +32,7 @@ module Travis
 
         def install
           # sh.if '-f composer.json' do
-          #   directory_cache.add(sh, '~/.composer') if data.cache?(:composer)
+          #   directory_cache.add('~/.composer') if data.cache?(:composer)
           #   sh.cmd "composer install #{composer_args}".strip, fold: 'install.composer'
           # end
         end

@@ -49,7 +49,7 @@ module Travis
         def install
           super
 
-          directory_cache.add(sh, "#{pod_dir}/Pods") if data.cache?(:cocoapods)
+          directory_cache.add("#{pod_dir}/Pods") if use_directory_cache?
 
           sh.if podfile? do
             sh.if "! ([[ -f #{pod_dir}/Podfile.lock && -f #{pod_dir}/Pods/Manifest.lock ]] && cmp --silent #{pod_dir}/Podfile.lock #{pod_dir}/Pods/Manifest.lock)", raw: true do

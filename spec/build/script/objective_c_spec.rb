@@ -138,7 +138,7 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
     before { data[:config][:cache] = 'cocoapods' }
 
     it 'should add Poject/Podfile to directory cache' do
-      script.directory_cache.expects(:add).with { |sh, dir| dir == './Pods' }
+      script.directory_cache.expects(:add).with('./Pods')
       script.sexp
     end
   end

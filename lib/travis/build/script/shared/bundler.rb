@@ -24,12 +24,12 @@ module Travis
         def install
           sh.if gemfile? do
             sh.if gemfile_lock? do
-              directory_cache.add(sh, bundler_path) if data.cache?(:bundler)
+              directory_cache.add(bundler_path) if data.cache?(:bundler)
               sh.cmd bundler_install("--deployment"), fold: "install.bundler", retry: true
             end
             sh.else do
               # Cache bundler if it has been explicitly enabled
-              directory_cache.add(sh, bundler_path) if data.cache?(:bundler, false)
+              directory_cache.add(bundler_path) if data.cache?(:bundler, false)
               sh.cmd bundler_install, fold: "install.bundler", retry: true
             end
           end

@@ -14,6 +14,8 @@ module Travis
 
           def token
             config[:repo_token]
+          rescue
+            false
           end
       end
     end
