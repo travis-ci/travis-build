@@ -24,13 +24,12 @@ describe Travis::Build::Addons::Firefox, :sexp do
   # it { should include_sexp [:cmd, 'ln -sf /usr/local/firefox-20.0/firefox/firefox-bin /usr/local/bin/firefox-bin', sudo: true] }
 
   it { should include_sexp [:echo, 'Installing Firefox v20.0', ansi: :yellow] }
-  it { should include_sexp [:raw, 'sudo mkdir -p /usr/local/firefox-20.0'] }
-  it { should include_sexp [:raw, 'sudo chown -R travis /usr/local/firefox-20.0'] }
+  it { should include_sexp [:raw, 'mkdir -p $HOME/firefox-20.0'] }
+  it { should include_sexp [:raw, 'chown -R travis $HOME/firefox-20.0'] }
   it { should include_sexp [:cmd, 'wget -O /tmp/firefox.tar.bz2 http://releases.mozilla.org/pub/firefox/releases/20.0/linux-x86_64/en-US/firefox-20.0.tar.bz2', assert: true, echo: true, timing: true, retry: true] }
-  it { should include_sexp [:raw, 'pushd /usr/local/firefox-20.0'] }
+  it { should include_sexp [:raw, 'pushd $HOME/firefox-20.0'] }
   it { should include_sexp [:raw, 'tar xf /tmp/firefox.tar.bz2'] }
+  it { should include_sexp [:raw, 'export PATH=$HOME/firefox-20.0/firefox:$PATH'] }
   it { should include_sexp [:raw, 'popd'] }
-  it { should include_sexp [:raw, 'sudo ln -sf /usr/local/firefox-20.0/firefox/firefox /usr/local/bin/firefox'] }
-  it { should include_sexp [:raw, 'sudo ln -sf /usr/local/firefox-20.0/firefox/firefox-bin /usr/local/bin/firefox-bin'] }
 end
 
