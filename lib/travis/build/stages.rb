@@ -10,6 +10,7 @@ module Travis
       STAGES = [
         :builtin,     [:configure, :checkout, :prepare, :disable_sudo, :export, :setup, :announce],
         :custom,      [:before_install, :install, :before_script, :script],
+        :builtin,     [:after_result],
         :conditional, [:after_success],
         # :addon,       [:deploy_all],
         :conditional, [:after_failure],
@@ -29,6 +30,7 @@ module Travis
         after_success:  { assert: false, echo: true,  timing: true  },
         after_failure:  { assert: false, echo: true,  timing: true  },
         after_script:   { assert: false, echo: true,  timing: true  },
+        after_result:   { assert: true,  echo: true,  timing: true  },
         before_deploy:  { assert: true,  echo: true,  timing: true  },
         deploy:         { assert: true,  echo: true,  timing: true  },
         after_deploy:   { assert: false, echo: true,  timing: true  },
