@@ -50,15 +50,30 @@ module Travis
 
         def configure
           super
-          if config[:php] == 'hhvm'
-            echo 'Modifying HHVM init file', ansi: :yellow
-            ini_file_path = '/etc/hhvm/php.ini'
-            ini_file_addition = <<-EOF
+          case config[:php]
+          when 'hhvm-nightly'
+            install_hhvm_nightly
+            fix_hhvm_php_ini
+          when 'hhvm'
+            fix_hhvm_php_ini
+          end
+        end
+
+        private
+        def install_hhvm_nightly
+          echo 'Installing HHVM nightly', ansi: :yellow
+          cmd "sudo apt-get update -qq", echo: false
+          cmd "sudo apt-get install hhvm-nightly 2>&1 >/dev/null", echo: false
+        end
+
+        def fix_hhvm_php_ini
+          echo 'Modifying HHVM init file', ansi: :yellow
+          ini_file_path = '/etc/hhvm/php.ini'
+          ini_file_addition = <<-EOF
 date.timezone = "UTC"
 hhvm.libxml.ext_entity_whitelist=file,http,https
-            EOF
-            raw "sudo mkdir -p $(dirname #{ini_file_path}); echo '#{ini_file_addition}' | sudo tee -a #{ini_file_path} > /dev/null"
-          end
+          EOF
+          raw "sudo mkdir -p $(dirname #{ini_file_path}); echo '#{ini_file_addition}' | sudo tee -a #{ini_file_path} > /dev/null"
         end
       end
     end
