@@ -1,3 +1,4 @@
+require 'shellwords'
 require 'travis/build/addons/base'
 
 module Travis
@@ -12,17 +13,29 @@ module Travis
 
         private
 
-          def config
-            Array(super)
-          end
-
           def add_ssh_known_hosts
-            sh.echo "Adding ssh known hosts (BETA)", ansi: :yellow
+            sh.echo 'Adding ssh known hosts (BETA)', ansi: :yellow
             sh.fold 'ssh_known_hosts.0' do
-              config.each do |host|
-                sh.cmd "ssh-keyscan -t rsa,dsa -H #{host} 2>&1 | tee -a #{Travis::Build::HOME_DIR}/.ssh/known_hosts", echo: true, timing: true
+              hosts.each do |host|
+                add_host(host)
               end
             end
+          end
+
+          def add_host(host)
+            sh.cmd "ssh-keyscan -t rsa,dsa -H #{host} 2>&1 | tee -a #{known_hosts_file}", echo: true, timing: true
+          end
+
+          def known_hosts_file
+            "#{Travis::Build::HOME_DIR}/.ssh/known_hosts"
+          end
+
+          def hosts
+            config.map { |host| host.gsub(/[^\w_\-\.]/, '').shellescape }
+          end
+
+          def config
+            Array(super)
           end
       end
     end

@@ -19,7 +19,7 @@ module Travis
         private
 
           def version
-            config.to_s.shellescape
+            config.to_s.gsub(/[^\d\._\-]/, '').shellescape
           end
       end
     end

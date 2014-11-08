@@ -17,7 +17,7 @@ module Travis
         private
 
           def hosts
-            Array(config).join(' ').shellescape
+            Array(config).join(' ').gsub(/[^\w_\-\. ]/, '').shellescape
           end
       end
     end
