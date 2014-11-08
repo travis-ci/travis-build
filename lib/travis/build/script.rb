@@ -90,18 +90,15 @@ module Travis
           apply :checkout
         end
 
-        def export
-          apply :env
-        end
-
         def prepare
           apply :services
           apply :setup_apt_cache
           apply :fix_ps4 # TODO if this is to fix an rvm issue (as the specs say) then should this go to Rvm instead?
+          apply :disable_sudo
         end
 
-        def disable_sudo
-          apply :disable_sudo
+        def export
+          apply :env
         end
     end
   end
