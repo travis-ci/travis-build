@@ -37,7 +37,7 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
       it { should include_sexp [:export, ['CASHER_DIR', '$HOME/.casher'], echo: true] }
       it { should include_sexp [:mkdir, '$CASHER_DIR/bin', recursive: true] }
       it { should include_sexp [:cmd,  'curl https://raw.githubusercontent.com/travis-ci/casher/production/bin/casher -L -o $CASHER_DIR/bin/casher -s --fail', retry: true, display: 'Installing caching utilities'] }
-      it { should include_sexp [:cmd, '[ $? -ne 0 ] && echo \'Failed to fetch casher from GitHub, disabling cache.\' && echo > $CASHER_DIR/bin/casher'] }
+      it { should include_sexp [:raw, '[ $? -ne 0 ] && echo \'Failed to fetch casher from GitHub, disabling cache.\' && echo > $CASHER_DIR/bin/casher'] }
     end
 
     describe 'uses casher master in edge mode' do
