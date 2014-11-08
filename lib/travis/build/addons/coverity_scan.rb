@@ -20,7 +20,7 @@ module Travis
         #   script depending on the TRAVIS_BRANCH env variable.
         # The Coverity Scan build therefore overrides the default script, but only on the
         #   coverity_scan branch.
-        def script
+        def before_script
           sh.raw "echo -en 'coverity_scan:start\\r'"
           sh.if "${COVERITY_VERBOSE} = 1", echo: true do
             sh.raw "set -x"
