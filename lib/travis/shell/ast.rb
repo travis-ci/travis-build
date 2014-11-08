@@ -35,13 +35,20 @@ module Travis
       end
 
       class Group < Cmds
-        def initialize(type, options = {}, &block)
+        attr_reader :name
+
+        def initialize(type, *args, &block)
+          options = args.last.is_a?(Hash) ? args.pop : {}
           @type = type
+          @name = args.first
           super(options, &block)
         end
 
         def to_sexp
-          [type, [:cmds, nodes.map(&:to_sexp)]]
+          sexp = [type]
+          sexp << name if name
+          sexp << [:cmds, nodes.map(&:to_sexp)] unless nodes.empty?
+          sexp
         end
       end
 

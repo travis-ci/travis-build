@@ -36,6 +36,10 @@ module Travis
           indent { handle_script(nodes) }
         end
 
+        def handle_group(name, cmds = nil)
+          cmds ? handle(cmds) : ''
+        end
+
         def indent(lines = nil)
           @level += 1
           lines = Array(lines || yield).flatten.map { |line| line.split("\n").map { |line| "  #{line}" }.join("\n") }

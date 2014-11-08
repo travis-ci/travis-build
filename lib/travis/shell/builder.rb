@@ -28,6 +28,11 @@ module Travis
         sh.nodes << Shell::Ast::Script.new(*merge_options(args), &block)
       end
 
+      def group(name, *args, &block)
+        block = with_node(&block) if block
+        sh.nodes << Shell::Ast::Group.new(:group, name, *merge_options(args), &block)
+      end
+
       def node(type, data = nil, *args)
         args = merge_options(args)
         if fold = args.last.delete(:fold)

@@ -11,6 +11,26 @@ describe Travis::Build::Script, :sexp do
     expect(code).to match %r(cd +\$HOME/build)
   end
 
+  it 'runs stages in the expected order' do
+    expected = [
+      :before_configure, :configure, :after_configure,
+      :before_prepare, :prepare, :after_prepare,
+      :before_checkout, :checkout, :after_checkout,
+      :before_export, :export, :after_export,
+      :before_setup, :setup, :after_setup,
+      :before_announce, :announce, :after_announce,
+      :before_before_install, :before_install, :after_before_install,
+      :before_install, :install, :after_install,
+      :before_before_script, :before_script, :after_before_script,
+      :before_script, :script, :after_script,
+      :before_after_script, :after_script, :after_after_script,
+      :before_finish, :finish, :after_finish,
+      :deploy
+    ]
+    actual = sexp_filter(subject, [:group]).map { |group| group[1] }
+    expect(actual).to eq expected
+  end
+
   it 'sets up apt cache' do
     should include_sexp [:cmd, %r(tee /etc/apt/apt.conf.d/01proxy)]
   end

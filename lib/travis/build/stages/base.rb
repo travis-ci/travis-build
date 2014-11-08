@@ -10,7 +10,9 @@ module Travis
 
         def with_stage(name = nil, &block)
           @stage = name
-          sh.with_options(STAGE_DEFAULT_OPTIONS[name] || {}, &block)
+          sh.group(name) do
+            sh.with_options(STAGE_DEFAULT_OPTIONS[name] || {}, &block)
+          end
         end
 
         def run_addon_stage(name)

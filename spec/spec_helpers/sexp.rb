@@ -15,8 +15,8 @@ module SpecHelpers
           sexp.detect { |sexp| sexp_includes?(sexp, part) }
         when :script, :cmds, :then, :else
           sexp_includes?(sexp[1], part)
-        when :fold
-          sexp_includes?(sexp[2], part)
+        when :group, :fold
+          sexp_includes?(sexp[2] || [], part)
         when :if, :elif
           sexp_includes?(sexp[2..-1], part)
         end
