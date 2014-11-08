@@ -9,7 +9,7 @@ module Travis
 
         def configure
           super
-          configure_hhvm if config[:php] == 'hhvm'
+          configure_hhvm if config[:php].to_s.include?('hhvm')
         end
 
         def export
@@ -50,9 +50,7 @@ module Travis
           super << "--php-" << version
         end
 
-        def use_directory_cache?
-          super || data.cache?(:composer)
-        end
+        private
 
         def version
           config[:php].to_s
@@ -63,6 +61,17 @@ module Travis
         end
 
         def configure_hhvm
+          install_hhvm_nightly if config[:php] == 'hhvm-nightly'
+          fix_hhvm_php_ini
+        end
+
+        def install_hhvm_nightly
+          sh.echo 'Installing HHVM nightly', ansi: :yellow
+          sh.cmd "sudo apt-get update -qq", echo: false
+          sh.cmd "sudo apt-get install hhvm-nightly 2>&1 >/dev/null", echo: false
+        end
+
+        def fix_hhvm_php_ini
           sh.echo 'Modifying HHVM init file', ansi: :yellow
           ini_file_path = '/etc/hhvm/php.ini'
           ini_file_addition = <<-EOF
