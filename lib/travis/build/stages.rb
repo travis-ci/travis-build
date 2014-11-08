@@ -11,7 +11,8 @@ module Travis
         :builtin,     [:configure, :prepare, :checkout, :export, :setup, :announce],
         :custom,      [:before_install, :install, :before_script, :script, :after_script],
         :conditional, [:after_success, :after_failure],
-        :builtin,     [:finish]
+        :builtin,     [:finish],
+        :addon,       [:deploy]
       ]
 
       STAGE_DEFAULT_OPTIONS = {
