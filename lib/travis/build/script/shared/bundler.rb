@@ -36,7 +36,7 @@ module Travis
         end
 
         def prepare_cache
-          cmd('bundle clean') if bundler_path and data.cache?(:bundler)
+          sh.cmd('bundle clean') if bundler_path and data.cache?(:bundler)
         end
 
         def cache_slug
