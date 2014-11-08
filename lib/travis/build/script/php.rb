@@ -44,13 +44,13 @@ module Travis
         def configure
           super
           if config[:php] == 'hhvm'
-            echo 'Modifying HHVM init file', ansi: :yellow
+            sh.echo 'Modifying HHVM init file', ansi: :yellow
             ini_file_path = '/etc/hhvm/php.ini'
             ini_file_addition = <<-EOF
 date.timezone = "UTC"
 hhvm.libxml.ext_entity_whitelist=file,http,https
             EOF
-            raw "sudo mkdir -p $(dirname #{ini_file_path}); echo '#{ini_file_addition}' | sudo tee -a #{ini_file_path} > /dev/null"
+            sh.raw "sudo mkdir -p $(dirname #{ini_file_path}); echo '#{ini_file_addition}' | sudo tee -a #{ini_file_path} > /dev/null"
           end
         end
 
