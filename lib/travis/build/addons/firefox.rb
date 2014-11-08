@@ -11,12 +11,12 @@ module Travis
         def before_before_install
           sh.fold 'install_firefox' do
             sh.echo "Installing Firefox v#{version}", ansi: :yellow
-            sh.raw "mkdir -p \$HOME/firefox-#{version}"
-            sh.raw "chown -R travis \$HOME/firefox-#{version}"
+            sh.raw "mkdir -p #{HOME_DIR}/firefox-#{version}"
+            sh.raw "chown -R travis #{HOME_DIR}/firefox-#{version}"
             sh.cmd "wget -O /tmp/firefox.tar.bz2 http://releases.mozilla.org/pub/firefox/releases/#{version}/linux-x86_64/en-US/firefox-#{version}.tar.bz2", assert: true, echo: true, timing: true, retry: true
-            sh.raw "pushd \$HOME/firefox-#{version}"
+            sh.raw "pushd #{HOME_DIR}/firefox-#{version}"
             sh.raw "tar xf /tmp/firefox.tar.bz2"
-            sh.raw "export PATH=\$HOME/firefox-#{version}/firefox:\$PATH"
+            sh.raw "export PATH=#{HOME_DIR}/firefox-#{version}/firefox:\$PATH"
             sh.raw "popd"
             # sh.mkdir install_dir, echo: false, recursive: true, sudo: true, cmd: true
             # sh.chown 'travis', install_dir, recursive: true, sudo: true, cmd: true
@@ -36,7 +36,7 @@ module Travis
           end
 
           def install_dir
-            "\$HOME/firefox-#{version}"
+            "#{HOME_DIR}/firefox-#{version}"
           end
 
           def source_url

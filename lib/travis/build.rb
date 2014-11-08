@@ -6,7 +6,6 @@ require 'travis/build/script'
 
 module Travis
   module Build
-
     HOME_DIR  = '$HOME'
     BUILD_DIR = File.join(HOME_DIR, 'build')
 
