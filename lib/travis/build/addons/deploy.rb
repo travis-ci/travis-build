@@ -11,11 +11,11 @@ module Travis
           super(script, sh, data, config.is_a?(Array) ? config : [config].compact)
         end
 
-        def after_after_success?
+        def after_finish?
           !config.empty?
         end
 
-        def after_after_success
+        def after_finish
           # sh.if('$TRAVIS_TEST_RESULT = 0') do
           #   providers.map(&:deploy)
           # end

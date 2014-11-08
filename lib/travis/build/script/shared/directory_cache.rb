@@ -25,16 +25,13 @@ module Travis
           super
         end
 
-        def after_result
+        def finish
           # only publish cache from pushes to master
           return if data.pull_request
           directory_cache.fold('store build cache') do
-            prepare_cache
+            prepare_cache if respond_to?(:prepare_cache)
             directory_cache.push
           end
-        end
-
-        def prepare_cache
         end
       end
     end
