@@ -108,10 +108,31 @@ shared_examples_for 'a git repo' do
       is_expected.not_to run 'git\\ fetch'
     end
 
-    it 'fetches a ref if given' do
-      data['job']['ref'] = 'refs/pull/118/merge'
-      cmd = 'git fetch origin +refs/pull/118/merge:'
-      is_expected.to travis_cmd cmd, echo: true, assert: true, timing: true, retry: true
+    context 'with ref' do
+      before do
+        data['job']['ref'] = 'refs/pull/118/merge'
+      end
+
+      it 'does not clone' do
+        is_expected.not_to run 'git clone'
+      end
+
+      it 'creates the repo dir' do
+        is_expected.to travis_cmd 'mkdir -p travis-ci/travis-ci', assert: true
+      end
+
+      it 'inits a git repo' do
+        is_expected.to travis_cmd 'git init'
+      end
+
+      it 'sets the remote for the repo' do
+        is_expected.to travis_cmd 'git remote add origin git://github.com/travis-ci/travis-ci.git'
+      end
+
+      it 'fetches the ref' do
+        cmd = 'git fetch --depth=1 origin +refs/pull/118/merge:'
+        is_expected.to travis_cmd cmd, echo: true, assert: true, timing: true, retry: true
+      end
     end
 
     it 'removes the ssh key' do
