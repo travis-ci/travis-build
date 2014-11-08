@@ -84,17 +84,14 @@ module Travis
         def configure
           apply :fix_resolv_conf
           apply :fix_etc_hosts
+          apply :fix_ps4 # TODO if this is to fix an rvm issue (as the specs say) then should this go to Rvm instead?
+          apply :setup_apt_cache
+          apply :services
+          apply :disable_sudo
         end
 
         def checkout
           apply :checkout
-        end
-
-        def prepare
-          apply :services
-          apply :setup_apt_cache
-          apply :fix_ps4 # TODO if this is to fix an rvm issue (as the specs say) then should this go to Rvm instead?
-          apply :disable_sudo
         end
 
         def export

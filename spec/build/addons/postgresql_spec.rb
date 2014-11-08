@@ -7,7 +7,7 @@ describe Travis::Build::Addons::Postgresql, :sexp do
   let(:sh)     { Travis::Shell::Builder.new }
   let(:addon)  { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
   subject      { sh.to_sexp }
-  before       { addon.before_prepare }
+  before       { addon.before_configure }
 
   it_behaves_like 'compiled script' do
     let(:cmds) { ['service postgresql start 9.3'] }

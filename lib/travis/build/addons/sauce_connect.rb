@@ -7,7 +7,7 @@ module Travis
         SUPER_USER_SAFE = true
         SOURCE_URL = 'https://gist.githubusercontent.com/henrikhodne/9322897/raw/sauce-connect.sh'
 
-        def after_prepare
+        def after_configure
           sh.export 'SAUCE_USERNAME', username, echo: false if username
           sh.export 'SAUCE_ACCESS_KEY', access_key, echo: false if access_key
 

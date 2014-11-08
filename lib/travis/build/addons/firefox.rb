@@ -7,7 +7,6 @@ module Travis
       class Firefox < Base
         SUPER_USER_SAFE = true
 
-        # def after_prepare
         def before_before_install
           sh.fold 'install_firefox' do
             sh.echo "Installing Firefox v#{version}", ansi: :yellow

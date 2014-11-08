@@ -1,11 +1,11 @@
 require 'spec_helper'
 
 describe Travis::Build::Script, :sexp do
-  let(:config)  { PAYLOADS[:worker_config] }
-  let(:payload) { payload_for(:push, :ruby, config: { cache: ['apt', 'bundler'] }).merge(config) }
-  let(:script)  { Travis::Build.script(payload) }
-  let(:code)    { script.compile }
-  subject       { script.sexp }
+  let(:config)   { PAYLOADS[:worker_config] }
+  let(:payload)  { payload_for(:push, :ruby, config: { services: ['redis'], cache: ['apt', 'bundler'] }).merge(config) }
+  let(:script)   { Travis::Build.script(payload) }
+  let(:code)     { script.compile }
+  subject(:sexp) { script.sexp }
 
   it 'uses $HOME/build as a working directory' do
     expect(code).to match %r(cd +\$HOME/build)
@@ -14,7 +14,6 @@ describe Travis::Build::Script, :sexp do
   it 'runs stages in the expected order' do
     expected = [
       :before_configure, :configure, :after_configure,
-      :before_prepare, :prepare, :after_prepare,
       :before_checkout, :checkout, :after_checkout,
       :before_export, :export, :after_export,
       :before_setup, :setup, :after_setup,
@@ -31,24 +30,32 @@ describe Travis::Build::Script, :sexp do
     expect(actual).to eq expected
   end
 
-  it 'sets up apt cache' do
-    should include_sexp [:cmd, %r(tee /etc/apt/apt.conf.d/01proxy)]
-  end
+  describe 'configure' do
+    subject { sexp_find(sexp, [:group, :configure]) }
 
-  it 'applies resolv.conf fix' do
-    should include_sexp [:raw, %r(tee /etc/resolv.conf)]
-  end
+    it 'applies resolv.conf fix' do
+      should include_sexp [:raw, %r(tee /etc/resolv.conf)]
+    end
 
-  it 'applies /etc/hosts fix' do
-    should include_sexp [:raw, %r(sed .* /etc/hosts)]
-  end
+    it 'applies /etc/hosts fix' do
+      should include_sexp [:raw, %r(sed .* /etc/hosts)]
+    end
 
-  it 'applies PS4 fix' do
-    should include_sexp [:export, ['PS4', '+']]
-  end
+    it 'starts services' do
+      should include_sexp [:cmd, %r(service redis-server start), :*]
+    end
 
-  it 'disables sudo' do
-    should include_sexp [:cmd, %r(rm -f /etc/sudoers.d/travis)]
+    it 'sets up apt cache' do
+      should include_sexp [:cmd, %r(tee /etc/apt/apt.conf.d/01proxy)]
+    end
+
+    it 'applies PS4 fix' do
+      should include_sexp [:export, ['PS4', '+']]
+    end
+
+    it 'disables sudo' do
+      should include_sexp [:cmd, %r(rm -f /etc/sudoers.d/travis)]
+    end
   end
 
   it 'runs casher fetch' do

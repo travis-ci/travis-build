@@ -7,7 +7,7 @@ module Travis
       class SshKnownHosts < Base
         SUPER_USER_SAFE = true
 
-        def before_prepare
+        def before_configure
           add_ssh_known_hosts unless config.empty?
         end
 
