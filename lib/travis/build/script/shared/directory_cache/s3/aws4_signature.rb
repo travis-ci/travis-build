@@ -1,3 +1,4 @@
+require 'uri'
 require 'addressable/uri'
 require 'digest/sha1'
 require 'openssl'

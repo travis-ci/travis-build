@@ -41,11 +41,12 @@ module Travis
             sh.export 'CASHER_DIR', '$HOME/.casher'
 
             sh.mkdir '$CASHER_DIR/bin', echo: false, recursive: true
-            sh.cmd "curl #{casher_url} -L -o #{BIN_PATH} -s --fail", retry: true, display: 'Installing caching utilities'
+            # sh.cmd "curl #{casher_url} -L -o #{BIN_PATH} -s --fail", retry: true, echo: 'Installing caching utilities'
+            sh.cmd "echo Installing caching utilities; curl #{CASHER_URL % casher_branch} -L -o #{BIN_PATH} -s --fail", echo: false, retry: true, assert: false
             sh.raw "[ $? -ne 0 ] && echo 'Failed to fetch casher from GitHub, disabling cache.' && echo > #{BIN_PATH}"
 
             sh.if "-f #{BIN_PATH}" do
-              sh.chmod '+x', BIN_PATH
+              sh.chmod '+x', BIN_PATH, assert: false, echo: false
             end
           end
 
@@ -57,11 +58,11 @@ module Travis
             urls = [Shellwords.escape(fetch_url.to_s)]
             urls << Shellwords.escape(fetch_url(data.branch).to_s) if data.pull_request
             urls << Shellwords.escape(fetch_url('master').to_s)    if data.branch != 'master'
-            run('fetch', *urls)
+            run('fetch', urls)
           end
 
           def push
-            run('push', Shellwords.escape(push_url.to_s))
+            run('push', Shellwords.escape(push_url.to_s), assert: false)
           end
 
           def fetch_url(branch = group)
@@ -84,9 +85,9 @@ module Travis
 
           private
 
-            def run(command, *arguments)
+            def run(command, args, options = {})
               sh.if "-f #{BIN_PATH}" do
-                sh.cmd "rvm #{USE_RUBY} --fuzzy do #{BIN_PATH} #{command} #{arguments.join(' ')}", echo: false
+                sh.cmd "rvm #{USE_RUBY} --fuzzy do #{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false)
               end
             end
 
