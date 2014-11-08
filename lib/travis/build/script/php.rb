@@ -52,7 +52,7 @@ module Travis
           super
           case config[:php]
           when 'hhvm-nightly'
-            insatll_hhvm_nightly
+            install_hhvm_nightly
             fix_hhvm_php_ini
           when 'hhvm'
             fix_hhvm_php_ini
@@ -60,7 +60,7 @@ module Travis
         end
 
         private
-        def insatll_hhvm_nightly
+        def install_hhvm_nightly
           echo 'Installing HHVM nightly', ansi: :yellow
           cmd "sudo apt-get update -qq", echo: false
           cmd "sudo apt-get install hhvm-nightly 2>&1 >/dev/null", echo: false
