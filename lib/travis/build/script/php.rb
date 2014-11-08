@@ -7,6 +7,11 @@ module Travis
           composer: '--no-interaction --prefer-source'
         }
 
+        def configure
+          super
+          configure_hhvm if config[:php] == 'hhvm'
+        end
+
         def export
           super
           sh.export 'TRAVIS_PHP_VERSION', version, echo: false
@@ -41,19 +46,6 @@ module Travis
           sh.cmd 'phpunit'
         end
 
-        def configure
-          super
-          if config[:php] == 'hhvm'
-            sh.echo 'Modifying HHVM init file', ansi: :yellow
-            ini_file_path = '/etc/hhvm/php.ini'
-            ini_file_addition = <<-EOF
-date.timezone = "UTC"
-hhvm.libxml.ext_entity_whitelist=file,http,https
-            EOF
-            sh.raw "sudo mkdir -p $(dirname #{ini_file_path}); echo '#{ini_file_addition}' | sudo tee -a #{ini_file_path} > /dev/null"
-          end
-        end
-
         def cache_slug
           super << "--php-" << version
         end
@@ -68,6 +60,16 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
 
         def composer_args
           config[:composer_args]
+        end
+
+        def configure_hhvm
+          sh.echo 'Modifying HHVM init file', ansi: :yellow
+          ini_file_path = '/etc/hhvm/php.ini'
+          ini_file_addition = <<-EOF
+date.timezone = "UTC"
+hhvm.libxml.ext_entity_whitelist=file,http,https
+          EOF
+          sh.raw "sudo mkdir -p $(dirname #{ini_file_path}); echo '#{ini_file_addition}' | sudo tee -a #{ini_file_path} > /dev/null"
         end
       end
     end
