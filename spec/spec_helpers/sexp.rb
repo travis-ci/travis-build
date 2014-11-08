@@ -37,7 +37,8 @@ module SpecHelpers
     end
 
     def sexp_matches?(sexp, part)
-      return false unless sexp[0] == part[0] && sexp[2] == part[2]
+      return false unless sexp[0] == part[0]
+      return false unless sexp[2] == part[2] || [:any_options, :*].include?(part[2])
       lft, rgt = sexp[1], part[1]
       lft.is_a?(String) && rgt.is_a?(Regexp) ? lft =~ rgt : sexp == part
     end
