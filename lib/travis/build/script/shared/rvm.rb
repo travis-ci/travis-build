@@ -4,6 +4,17 @@ module Travis
       module RVM
         include Chruby
 
+        MSGS = {
+          setup_ruby_head:   'Setting up latest %s',
+          ruby_version_file: 'BETA: Using Ruby version from .ruby-version. This is a beta feature and may be removed in the future.'
+        }
+
+        CONFIG = %w(
+          rvm_remote_server_url3=https://s3.amazonaws.com/travis-rubies/binaries
+          rvm_remote_server_type3=rubies
+          rvm_remote_server_verify_downloads3=1
+        )
+
         def export
           super
           sh.export 'TRAVIS_RUBY_VERSION', config[:rvm], echo: false if rvm?
@@ -35,38 +46,54 @@ module Travis
           end
 
           def setup_rvm
-            config = %w(
-              rvm_remote_server_url3=https://s3.amazonaws.com/travis-rubies/binaries
-              rvm_remote_server_type3=rubies
-              rvm_remote_server_verify_downloads3=1
-            )
-            sh.file '$rvm_path/user/db', config.join("\n")
+            sh.file '$rvm_path/user/db', CONFIG.join("\n")
+            send rvm_strategy
+          end
 
-            if ruby_version =~ /ruby-head/
-              sh.fold('rvm.1') do
-                sh.echo 'Setting up latest %s' % ruby_version, ansi: :yellow
-                sh.cmd "rvm get stable", assert: false if ruby_version == 'jruby-head'
-                sh.export 'ruby_alias', "`rvm alias show #{ruby_version} 2>/dev/null`"
-                sh.cmd "rvm alias delete #{ruby_version}"
-                sh.cmd "rvm remove ${ruby_alias:-#{ruby_version}} --gems"
-                sh.cmd "rvm remove #{ruby_version} --gems --fuzzy"
-                sh.cmd "rvm install #{ruby_version} --binary"
-              end
+          def rvm_strategy
+            return :use_ruby_head    if ruby_version.include?('ruby-head')
+            return :use_default_ruby if ruby_version == 'default'
+            :use_ruby_version
+          end
+
+          def use_ruby_head
+            sh.fold('rvm') do
+              sh.echo MSGS[:setup_ruby_head] % ruby_version, ansi: :yellow
+              sh.cmd "rvm get stable", assert: false if ruby_version == 'jruby-head'
+              sh.export 'ruby_alias', "`rvm alias show #{ruby_version} 2>/dev/null`"
+              sh.cmd "rvm alias delete #{ruby_version}"
+              sh.cmd "rvm remove ${ruby_alias:-#{ruby_version}} --gems"
+              sh.cmd "rvm remove #{ruby_version} --gems --fuzzy"
+              sh.cmd "rvm install #{ruby_version} --binary"
               sh.cmd "rvm use #{ruby_version}"
-            elsif ruby_version == 'default'
-              sh.if '-f .ruby-version' do
-                sh.echo 'BETA: Using Ruby version from .ruby-version. This is a beta feature and may be removed in the future.' #, ansi: :yellow
-                sh.fold('rvm.1') do
-                  sh.cmd 'rvm use . --install --binary --fuzzy'
-                end
-              end
-              sh.else do
-                sh.cmd "rvm use default", timing: true
-              end
-            else
-              sh.fold('rvm.1') do
-                sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy"
-              end
+            end
+          end
+
+          def use_ruby_version_file
+            sh.echo MSGS[:ruby_version_file], ansi: :yellow
+            sh.fold('rvm') do
+              sh.cmd 'rvm use . --install --binary --fuzzy'
+            end
+          end
+
+          def use_default_ruby
+            sh.if '-f .ruby-version' do
+              use_ruby_version_file
+            end
+            sh.else do
+              use_rvm_default_ruby
+            end
+          end
+
+          def use_rvm_default_ruby
+            sh.fold('rvm') do
+              sh.cmd "rvm use default", timing: true
+            end
+          end
+
+          def use_ruby_version
+            sh.fold('rvm') do
+              sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy"
             end
           end
       end
