@@ -18,11 +18,11 @@ module Travis
 
         def announce
           super
-          sh.cmd 'ruby --version', timing: true
+          sh.cmd 'ruby --version'
           if config[:ruby]
-            sh.cmd 'chruby --version', timing: true
+            sh.cmd 'chruby --version'
           else
-            sh.cmd 'rvm --version', timing: true
+            sh.cmd 'rvm --version'
           end
         end
 
@@ -36,7 +36,7 @@ module Travis
           sh.echo 'BETA: Using chruby to select Ruby version. This is currently a beta feature and may change at any time."' #, ansi: :yellow
           sh.cmd 'curl -sLo ~/chruby.sh https://gist.githubusercontent.com/henrikhodne/a01cd7367b12a59ee051/raw/chruby.sh', echo: false
           sh.cmd 'source ~/chruby.sh', echo: false
-          sh.cmd "chruby #{config[:ruby]}", timing: true
+          sh.cmd "chruby #{config[:ruby]}"
         end
 
         def setup_rvm
@@ -66,7 +66,7 @@ module Travis
               end
             end
             sh.else do
-              sh.cmd "rvm use default", timing: true
+              sh.cmd "rvm use default"
             end
           else
             sh.fold('rvm.1') do

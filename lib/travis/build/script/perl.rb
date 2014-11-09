@@ -18,8 +18,8 @@ module Travis
 
         def announce
           super
-          sh.cmd 'perl --version', timing: true
-          sh.cmd 'cpanm --version', timing: true
+          sh.cmd 'perl --version'
+          sh.cmd 'cpanm --version'
         end
 
         def install

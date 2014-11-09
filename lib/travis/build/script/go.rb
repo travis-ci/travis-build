@@ -14,9 +14,9 @@ module Travis
 
         def announce
           super
-          sh.cmd 'gvm version', timing: true
-          sh.cmd 'go version', timing: true
-          sh.cmd 'go env', fold: 'go.env', timing: true
+          sh.cmd 'gvm version'
+          sh.cmd 'go version'
+          sh.cmd 'go env', fold: 'go.env'
         end
 
         def setup

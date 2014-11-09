@@ -18,15 +18,15 @@ module Travis
         def announce
           super
           sh.fold 'announce' do
-            sh.cmd 'xcodebuild -version -sdk', timing: true
-            sh.cmd 'xctool -version', timing: true
+            sh.cmd 'xcodebuild -version -sdk'
+            sh.cmd 'xctool -version'
           end
 
           sh.if use_ruby_motion do
-            sh.cmd 'motion --version', timing: true
+            sh.cmd 'motion --version'
           end
           sh.if podfile? do
-            sh.cmd 'pod --version', timing: true
+            sh.cmd 'pod --version'
           end
         end
 

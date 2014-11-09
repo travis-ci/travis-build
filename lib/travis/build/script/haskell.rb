@@ -6,14 +6,14 @@ module Travis
 
         def setup
           super
-          sh.export 'PATH', "#{path}:$PATH", assert: true, timing: true
+          sh.export 'PATH', "#{path}:$PATH"
           sh.cmd 'cabal update', fold: 'cabal', retry: true
         end
 
         def announce
           super
-          sh.cmd 'ghc --version', timing: true
-          sh.cmd 'cabal --version', timing: true
+          sh.cmd 'ghc --version'
+          sh.cmd 'cabal --version'
         end
 
         def install
