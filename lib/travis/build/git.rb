@@ -58,7 +58,7 @@ module Travis
         end
 
         def config
-          data.config
+          DEFAULTS.merge(data.config)
         end
 
         def submodules?

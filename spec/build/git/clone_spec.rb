@@ -1,108 +1,75 @@
 require 'spec_helper'
 
 describe Travis::Build::Git::Clone, :sexp do
-  let(:payload) { payload_for(:push, :ruby) }
-  let(:script)  { Travis::Build::Script.new(payload) }
-  subject       { script.sexp }
+  let(:payload)  { payload_for(:push, :ruby) }
+  let(:script)   { Travis::Build::Script.new(payload) }
+  subject(:sexp) { sexp_find(script.sexp, [:fold, 'git.checkout']) }
 
   let(:url)    { 'git://github.com/travis-ci/travis-ci.git' }
   let(:dir)    { 'travis-ci/travis-ci' }
+  let(:depth)  { Travis::Build::Git::DEFAULTS[:git][:depth] }
   let(:branch) { payload[:job][:branch] || 'master' }
-  let(:depth)  { payload[:config][:git]['depth'] || 50 }
 
   before :each do
     payload[:config][:git] = { strategy: 'clone' }
   end
 
   describe 'when the repository is cloned not yet' do
-    let(:sexp) { sexp_find(subject, [:if, "! -d #{dir}/.git"]) }
-    let(:cmd) { "git clone --depth=#{depth} --branch=#{branch.shellescape} #{url} #{dir}" }
+    let(:args) { "--depth=#{depth} --branch=#{branch.shellescape}" }
+    let(:cmd)  { "git clone #{args} #{url} #{dir}" }
+    subject    { sexp_find(sexp, [:if, "! -d #{dir}/.git"]) }
 
-    it 'clones the git repo' do
-      should include_sexp [:cmd, cmd, assert: true, echo: true, retry: true, timing: true]
+    let(:clone) { [:cmd, cmd, assert: true, echo: true, retry: true, timing: true] }
+
+    describe 'with no depth specified' do
+      it { should include_sexp clone }
     end
 
-    it 'clones with a custom depth' do
-      payload[:config][:git]['depth'] = 1
-      should include_sexp [:cmd, cmd, assert: true, echo: true, retry: true, timing: true]
+    describe 'with a custom depth' do
+      let(:depth) { 1 }
+      before { payload[:config][:git]['depth'] = depth }
+      it { should include_sexp clone }
     end
 
-    it 'escapes the branch name' do
-      payload[:job][:branch] = 'foo->bar'
-      should include_sexp [:cmd, cmd, assert: true, echo: true, retry: true, timing: true]
+    describe 'escapes the branch name' do
+      before { payload[:job][:branch] = 'foo->bar' }
+      it { should include_sexp clone }
     end
   end
 
   describe 'when the repository is already cloned' do
-    let(:sexp) { sexp_find(subject, [:if, "! -d #{dir}/.git"], [:else]) }
+    subject         { sexp_find(sexp, [:if, "! -d #{dir}/.git"], [:else]) }
 
-    it 'fetches the changes' do
-      cmd = 'git -C travis-ci/travis-ci fetch origin'
-      expect(sexp).to include_sexp [:cmd, cmd, assert: true, echo: true, retry: true, timing: true]
-    end
+    let(:fetch)     { [:cmd, 'git -C travis-ci/travis-ci fetch origin', assert: true, echo: true, retry: true, timing: true] }
+    let(:reset)     { [:cmd, 'git -C travis-ci/travis-ci reset --hard', assert: true, echo: true] }
 
-    it 'resets the repository' do
-      cmd = 'git -C travis-ci/travis-ci reset --hard'
-      expect(sexp).to include_sexp [:cmd, cmd, assert: true, echo: true]
-    end
-
-    it 'changes to the git repo dir' do
-      should include_sexp [:cd, 'travis-ci/travis-ci', echo: true]
-    end
-
-    it 'does not fetch a ref if not given' do
-      cmd = 'git -C travis-ci/travis-ci fetch origin'
-      should include_sexp [:cmd, cmd, assert: true, echo: true, retry: true, timing: true]
-    end
-
-    it 'fetches a ref if given' do
-      payload[:job][:ref] = 'refs/pull/118/merge'
-      cmd = 'git fetch origin +refs/pull/118/merge:'
-      should include_sexp [:cmd, cmd, assert: true, echo: true, retry: true, timing: true]
-    end
+    it { should include_sexp fetch }
+    it { should include_sexp reset }
   end
 
-  it 'removes the ssh key' do
-    should include_sexp [:rm, '~/.ssh/source_rsa', force: true]
+  let(:cd)            { [:cd,  'travis-ci/travis-ci', echo: true] }
+  let(:fetch_ref)     { [:cmd, %r(git fetch origin \+[\w/]+:), assert: true, echo: true, retry: true, timing: true] }
+  let(:checkout_push) { [:cmd, 'git checkout -qf 313f61b', assert: true, echo: true] }
+  let(:checkout_pull) { [:cmd, 'git checkout -qf FETCH_HEAD', assert: true, echo: true] }
+
+  it { should include_sexp cd }
+
+  describe 'with a ref given' do
+    before { payload[:job][:ref] = 'refs/pull/118/merge' }
+    it { should include_sexp fetch_ref }
   end
 
-  it 'checks out the given commit for a push request' do
-    payload[:job][:pull_request] = false
-    should include_sexp [:cmd, 'git checkout -qf 313f61b', assert: true, echo: true]
+  describe 'with no ref given' do
+    it { should_not include_sexp fetch_ref }
   end
 
-  it 'checks out FETCH_HEAD for a pull request' do
-    payload[:job][:pull_request] = true
-    should include_sexp [:cmd, 'git checkout -qf FETCH_HEAD', assert: true, echo: true]
+  describe 'checks out the given commit for a push request' do
+    before { payload[:job][:pull_request] = false }
+    it { should include_sexp checkout_push }
   end
 
-  describe 'submodules' do
-    let(:sexp) { sexp_find(subject, [:if, '-f .gitmodules'], [:then]) }
-
-    let(:no_host_key_check) { [:file, ['~/.ssh/config', "Host github.com\n\tStrictHostKeyChecking no\n"], append: true] }
-    let(:submodule_init)    { [:cmd, 'git submodule init', assert: true, echo: true, timing: true] }
-    let(:submodule_update)  { [:cmd, 'git submodule update', assert: true, echo: true, retry: true, timing: true] }
-
-    describe 'if .gitmodules exists' do
-      it { should include_sexp no_host_key_check }
-
-      describe 'if :submodules_depth is not given' do
-        it { should include_sexp submodule_init }
-        it { should include_sexp submodule_update }
-      end
-
-      describe 'if :submodules_depth is given' do
-        before { payload[:config][:git] = { submodules_depth: 50 } }
-        it { should include_sexp submodule_init }
-        it { should include_sexp [:cmd, 'git submodule update --depth=50', assert: true, echo: true, retry: true, timing: true] }
-      end
-    end
-
-    describe 'submodules is set to false' do
-      before { payload[:config][:git] = { submodules: false } }
-
-      it { expect(sexp_find(subject, submodule_init)).to be_empty }
-      it { expect(sexp_find(subject, submodule_update)).to be_empty }
-    end
+  describe 'checks out the given commit for a pull request' do
+    before { payload[:job][:pull_request] = true }
+    it { should include_sexp checkout_pull }
   end
 end

@@ -6,16 +6,16 @@ module Travis
       class Clone < Struct.new(:sh, :data)
         def apply
           sh.fold 'git.checkout' do
-            git_clone_or_fetch
+            clone_or_fetch
             sh.cd dir
             fetch_ref if fetch_ref?
-            git_checkout
+            checkout
           end
         end
 
         private
 
-          def git_clone_or_fetch
+          def clone_or_fetch
             sh.if "! -d #{dir}/.git" do
               sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, retry: true
             end
@@ -23,6 +23,18 @@ module Travis
               sh.cmd "git -C #{dir} fetch origin", assert: true, retry: true
               sh.cmd "git -C #{dir} reset --hard", assert: true, timing: false
             end
+          end
+
+          def fetch_ref
+            sh.cmd "git fetch origin +#{data.ref}:", assert: true, retry: true
+          end
+
+          def fetch_ref?
+            !!data.ref
+          end
+
+          def checkout
+            sh.cmd "git checkout -qf #{data.pull_request ? 'FETCH_HEAD' : data.commit}", timing: false
           end
 
           def clone_args
@@ -37,18 +49,6 @@ module Travis
 
           def branch
             data.branch.shellescape
-          end
-
-          def fetch_ref?
-            !!data.ref
-          end
-
-          def fetch_ref
-            sh.cmd "git fetch origin +#{data.ref}:", assert: true, retry: true
-          end
-
-          def git_checkout
-            sh.cmd "git checkout -qf #{data.pull_request ? 'FETCH_HEAD' : data.commit}", timing: false
           end
 
           def dir
