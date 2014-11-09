@@ -9,18 +9,15 @@ module Travis
         end
 
         def vars
-          @vars ||= begin
-            vars = to_vars(env_vars, type: :config)
-            vars.reject!(&:secure?) unless data.secure_env?
-            vars
-          end
+          @vars ||= to_vars(:config, env_vars)
         end
 
         private
 
           def env_vars
             vars = Array(config[:global_env]) + Array(config[:env])
-            vars.compact.reject(&:empty?)
+            vars = vars.compact.reject(&:empty?)
+            vars.flat_map { |var| Var.parse(var) }
           end
       end
     end

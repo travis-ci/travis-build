@@ -8,7 +8,9 @@ module Travis
         def_delegators :data, :build, :job, :repository, :pull_request
 
         def vars
-          to_vars(env_vars, type: :builtin)
+          env_vars.map do |key, value|
+            Var.new(key, value, type: :builtin)
+          end
         end
 
         private

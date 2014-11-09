@@ -8,12 +8,14 @@ module Travis
 
         def_delegators :data, :config
 
-        def to_vars(args, options)
-          args.to_a.flat_map { |args| to_var(args, options) } #.select(&:valid?)
+        def to_vars(type, args)
+          vars = args.map { |arg| to_var(type, *arg) }.select(&:valid?)
+          vars = vars.reject(&:secure?) unless data.secure_env?
+          vars
         end
 
-        def to_var(args, options)
-          Var.create(*args, options)
+        def to_var(type, key, value, options = {})
+          Var.new(key, value, options.merge(type: type))
         end
 
         def builtin?

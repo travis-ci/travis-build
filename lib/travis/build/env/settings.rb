@@ -9,10 +9,16 @@ module Travis
         end
 
         def vars
-          @vars ||= data.env_vars.map do |var|
-            Var.new(var[:name], var[:value], secure: !var[:public], type: :settings)
-          end
+          @vars ||= to_vars(:settings, env_vars)
         end
+
+        private
+
+          def env_vars
+            data.env_vars.map do |var|
+              [var[:name], var[:value], secure: !var[:public]]
+            end
+          end
       end
     end
   end
