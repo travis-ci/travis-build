@@ -32,16 +32,22 @@ module Travis
         end
 
         def before_install
-          # self.if '-f composer.json' do |sub|
-          #   sub.cmd 'composer self-update', fold: 'before_install.update_composer'
-          # end
+          self.if '-f composer.json && ! -f composer.phar' do |sub|
+            sub.cmd 'composer self-update', fold: 'before_install.update_composer'
+          end
         end
 
         def install
-          # self.if '-f composer.json' do |sub|
-          #   directory_cache.add(sub, '~/.composer') if data.cache?(:composer)
-          #   sub.cmd "composer install #{config[:composer_args]}".strip, fold: 'install.composer'
-          # end
+          self.if '-f composer.json' do |sub|
+            directory_cache.add(sub, '~/.composer') if data.cache?(:composer)
+
+            self.if '-f composer.phar' do |sub|
+              sub.cmd "composer.phar install #{config[:composer_args]}".strip, fold: 'install.composer'
+            end
+            self.else do |sub|
+              sub.cmd "composer install #{config[:composer_args]}".strip, fold: 'install.composer'
+            end
+          end
         end
 
         def script

@@ -28,6 +28,35 @@ describe Travis::Build::Script::Php do
     is_expected.to announce 'composer --version'
   end
 
+  context 'with a composer.json' do
+    before do
+      file 'composer.json'
+      data['config']['composer_args'] = '--prefer-dist'
+    end
+
+    it 'folds composer self-update' do
+      is_expected.to fold 'composer self-update', 'before_install.update_composer'
+    end
+
+    it 'runs composer install' do
+      is_expected.to travis_cmd 'composer install --prefer-dist', echo: true
+    end
+
+    context 'and a checked-in composer.phar' do
+      before do
+        file 'composer.phar'
+      end
+
+      #it 'does not fold composer self-update' do
+      #  is_expected.not_to fold 'composer self-update', 'before_install.update_composer'
+      #end
+
+      it 'runs composer.phar install' do
+        is_expected.to travis_cmd 'composer.phar install --prefer-dist', echo: true
+      end
+    end
+  end
+
   it 'runs phpunit' do
     is_expected.to travis_cmd 'phpunit', echo: true, timing: true
   end
