@@ -215,24 +215,24 @@ describe Travis::Shell::Generator::Bash, :include_node_helpers do
 
   describe :if do
     it 'generates an if statement' do
-      @sexp = [:if, '-f Gemfile', [:cmds, [[:cmd, 'foo']]]]
+      @sexp = [:if, '-f Gemfile', [:then, [:cmds, [[:cmd, 'foo']]]]]
       expect(code).to eql("if [[ -f Gemfile ]]; then\n  foo\nfi")
     end
 
     it 'with an elif branch' do
-      @sexp = [:if, '-f Gemfile', [:cmds, [[:cmd, 'foo']]], [:elif, '-f Gemfile.lock', [:cmds, [[:cmd, 'bar']]]]]
+      @sexp = [:if, '-f Gemfile', [:then, [:cmds, [[:cmd, 'foo']]]], [:elif, '-f Gemfile.lock', [:cmds, [[:cmd, 'bar']]]]]
       expect(code).to eql("if [[ -f Gemfile ]]; then\n  foo\nelif [[ -f Gemfile.lock ]]; then\n  bar\nfi")
     end
 
     it 'with an else branch' do
-      @sexp = [:if, '-f Gemfile', [:cmds, [[:cmd, 'foo']]], [:else, [:cmds, [[:cmd, 'bar']]]]]
+      @sexp = [:if, '-f Gemfile', [:then, [:cmds, [[:cmd, 'foo']]]], [:else, [:cmds, [[:cmd, 'bar']]]]]
       expect(code).to eql("if [[ -f Gemfile ]]; then\n  foo\nelse\n  bar\nfi")
     end
   end
 
   describe :nesting do
     it 'generates a fold with an if statement' do
-      @sexp = [:fold, 'git', [:cmds, [[:if, '-f Gemfile', [:cmds, [[:cmd, 'foo']]]]]]]
+      @sexp = [:fold, 'git', [:cmds, [[:if, '-f Gemfile', [:then, [:cmds, [[:cmd, 'foo']]]]]]]]
       expect(code).to eql("travis_fold start git\n  if [[ -f Gemfile ]]; then\n    foo\n  fi\ntravis_fold end git")
     end
   end

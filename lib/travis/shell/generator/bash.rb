@@ -110,7 +110,7 @@ module Travis
         def handle_fold(name, cmds, options = {})
           with_margin do
             lines = ["travis_fold start #{name}"]
-            lines << handle(cmds)
+            lines << indent { handle(cmds) }
             lines << "travis_fold end #{name}"
             lines
           end
@@ -128,17 +128,17 @@ module Travis
         end
 
         def handle_then(cmds)
-          handle(cmds)
+          indent { handle(cmds) }
         end
 
         def handle_elif(condition, cmds)
           lines = ["elif [[ #{condition} ]]; then"]
-          lines += handle(cmds)
+          lines += indent { handle(cmds) }
           lines
         end
 
         def handle_else(cmds)
-          ['else', handle(cmds)]
+          ['else', indent { handle(cmds) }]
         end
       end
     end

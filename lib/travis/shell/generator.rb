@@ -9,7 +9,7 @@ module Travis
       end
 
       def generate
-        lines = Array(handle(nodes)).flatten
+        lines = Array(handle(nodes)).flatten.compact
         script = lines.join("\n").strip
         script = unindent(script)
         script = normalize_newlines(script)
@@ -31,18 +31,16 @@ module Travis
         def handle_script(nodes)
           nodes.map { |node| handle(node) }
         end
-
-        def handle_cmds(nodes)
-          indent { handle_script(nodes) }
-        end
+        alias handle_cmds handle_script
 
         def handle_group(name, cmds = nil)
-          cmds ? handle(cmds) : ''
+          cmds ? handle(cmds) : nil
         end
 
         def indent(lines = nil)
           @level += 1
-          lines = Array(lines || yield).flatten.map { |line| line.split("\n").map { |line| "  #{line}" }.join("\n") }
+          lines = Array(lines || yield).flatten.compact
+          lines = lines.map { |line| line.split("\n").map { |line| "  #{line}" }.join("\n") }
           @level -= 1
           lines
         end
