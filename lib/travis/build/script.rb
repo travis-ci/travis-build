@@ -148,7 +148,7 @@ module Travis
         def paranoid_mode
           if data.paranoid_mode?
             newline
-            echo "Sudo, the FireFox addon, setuid and setgid have been disabled.", ansi: :yellow
+            echo "Sudo, setuid and setgid have been disabled.", ansi: :yellow
             newline
             raw 'sudo -n sh -c "sed -e \'s/^%.*//\' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis && find / -perm -4000 -exec chmod a-s {} \; 2>/dev/null"'
           end
