@@ -38,8 +38,7 @@ module Travis
         end
 
         def echo?
-          # !builtin?
-          !builtin? && !travis?
+          !builtin?
         end
 
         def builtin?
