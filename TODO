@@ -15,3 +15,5 @@ Later
 - re-add service appliance fold
 - re-add :announce stage fold
 - re-add deprecation warnings
+- check specs for git download tarball
+- check specs for rvm setup_rvm for ruby-head

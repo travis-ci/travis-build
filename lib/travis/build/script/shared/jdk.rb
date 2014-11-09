@@ -9,9 +9,9 @@ module Travis
 
         def setup
           super
-          sh.cmd "jdk_switcher use #{config[:jdk]}", assert: true, timing: false if uses_jdk?
+          sh.cmd "jdk_switcher use #{config[:jdk]}", timing: false if uses_jdk?
           sh.if '-f build.gradle' do
-            sh.export 'TERM', 'dumb', echo: false
+            sh.export 'TERM', 'dumb'
           end
         end
 

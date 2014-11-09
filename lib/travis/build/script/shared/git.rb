@@ -57,8 +57,8 @@ module Travis
             echo = curl.gsub(data.token || /\Za/, '[SECURE]')
 
             sh.mkdir dir, echo: false, recursive: true
-            sh.cmd curl, assert: true, echo: echo, retry: true, fold: "tarball.#{next_git_fold_number}"
-            sh.cmd "tar xfz #{sanitized_slug}.tar.gz", assert: true, echo: true
+            sh.cmd curl, echo: echo, retry: true, fold: "tarball.#{next_git_fold_number}"
+            sh.cmd "tar xfz #{sanitized_slug}.tar.gz"
             sh.mv "#{sanitized_slug}-#{data.commit[0..6]}/*", dir, echo: false
             sh.cd dir
           end
@@ -87,7 +87,7 @@ module Travis
           end
 
           def git_checkout
-            sh.cmd "git checkout -qf #{data.pull_request ? 'FETCH_HEAD' : data.commit}", assert: true, timing: false, fold: "git.#{next_git_fold_number}"
+            sh.cmd "git checkout -qf #{data.pull_request ? 'FETCH_HEAD' : data.commit}", timing: false, fold: "git.#{next_git_fold_number}"
           end
 
           def submodules?
@@ -97,8 +97,8 @@ module Travis
           def submodules
             sh.if '-f .gitmodules' do
               # sh.file '~/.ssh/config', "Host github.com\n\tStrictHostKeyChecking no\n", append: true
-              sh.cmd 'echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config', assert: false, echo: false
-              sh.cmd 'git submodule init', fold: "git.#{next_git_fold_number}", assert: false
+              sh.cmd 'echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config', echo: false, timing: false
+              sh.cmd 'git submodule init', fold: "git.#{next_git_fold_number}"
               sh.cmd "git submodule update #{submodule_update_args}".strip, assert: true, fold: "git.#{next_git_fold_number}", retry: true
             end
           end

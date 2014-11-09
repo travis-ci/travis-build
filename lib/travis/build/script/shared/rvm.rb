@@ -50,11 +50,11 @@ module Travis
           if ruby_version =~ /ruby-head/
             sh.fold('rvm.1') do
               sh.echo 'Setting up latest %s' % ruby_version, ansi: :yellow
-              sh.cmd "rvm get stable", assert: false if ruby_version == 'jruby-head'
+              sh.cmd "rvm get stable" if ruby_version == 'jruby-head'
               sh.export 'ruby_alias', "`rvm alias show #{ruby_version} 2>/dev/null`"
-              sh.cmd "rvm alias delete #{ruby_version}", assert: false
-              sh.cmd "rvm remove ${ruby_alias:-#{ruby_version}} --gems", assert: false
-              sh.cmd "rvm remove #{ruby_version} --gems --fuzzy", assert: false
+              sh.cmd "rvm alias delete #{ruby_version}"
+              sh.cmd "rvm remove ${ruby_alias:-#{ruby_version}} --gems"
+              sh.cmd "rvm remove #{ruby_version} --gems --fuzzy"
               sh.cmd "rvm install #{ruby_version} --binary"
             end
             sh.cmd "rvm use #{ruby_version}"
