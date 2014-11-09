@@ -55,10 +55,6 @@ describe Travis::Build::Env::Var do
     end
   end
 
-  it 'travis? returns true if the var name starts with TRAVIS_' do
-    expect(var(:TRAVIS_FOO, 'foo')).to be_travis
-  end
-
   describe 'secure?' do
     it 'returns true if the var name starts with SECURE' do
       args = parse('SECURE FOO=foo').first

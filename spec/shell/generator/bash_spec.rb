@@ -8,6 +8,11 @@ describe Travis::Shell::Generator::Bash, :include_node_helpers do
       @sexp = [:script, [[:cmd, 'foo'], [:cmd, 'bar']]]
       expect(code).to eql("foo\nbar")
     end
+
+    it 'raises an exception if the generated code is tainted (leaking secure env vars)' do
+      @sexp = [:script, [[:export, ['foo', 'bar'.tap { |value| value.taint }]]]]
+      expect { code }.to raise_error(Travis::Shell::Generator::TaintedOutput)
+    end
   end
 
   describe :cmd do

@@ -14,10 +14,6 @@ module Travis
         @data = data
       end
 
-      def vars
-        groups.flat_map(&:vars)
-      end
-
       def groups
         @groups ||= GROUPS.map { |const| const.new(self, data) }
       end
