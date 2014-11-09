@@ -12,5 +12,6 @@ Once lib/shell.rb is available
 
 Later
 
-- revert all the diff cleaning commits to clean things up again
-- add a fold around announce
+- re-add service appliance fold
+- re-add :announce stage fold
+- re-add deprecation warnings
