@@ -13,6 +13,7 @@ describe Travis::Build::Script, :sexp do
 
   it 'runs stages in the expected order' do
     expected = [
+      :before_header, :header, :after_header,
       :before_configure, :configure, :after_configure,
       :before_checkout, :checkout, :after_checkout,
       :before_export, :export, :after_export,

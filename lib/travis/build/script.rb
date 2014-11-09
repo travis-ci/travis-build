@@ -78,7 +78,10 @@ module Travis
           stages.run if apply :validate
           sh.raw template('footer.sh')
           apply :deprecations
-          sh.raw template('header.sh', build_dir: BUILD_DIR), pos: 0
+        end
+
+        def header
+          sh.raw template('header.sh', build_dir: BUILD_DIR)
         end
 
         def configure
