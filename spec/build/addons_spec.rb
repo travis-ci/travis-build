@@ -40,12 +40,14 @@ describe Travis::Build::Addons do
 
     it 'runs the addon stage if the predicate returns true' do
       addon.stubs(:respond_to?).with(:"#{stage}?").returns(true)
+      addon.stubs(:"#{stage}?").returns(true)
       addon.expects(:before_prepare)
       subject
     end
 
     it 'does not run the addon stage if the predicate returns false' do
       addon.stubs(:respond_to?).with(:"#{stage}?").returns(false)
+      addon.stubs(:"#{stage}?").returns(false)
       addon.expects(:before_prepare).never
       subject
     end
