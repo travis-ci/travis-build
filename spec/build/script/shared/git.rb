@@ -17,8 +17,7 @@ shared_examples_for 'a git checkout sexp' do
 
     it 'downloads the tarball from github' do
       cmd = "curl -o #{file} -L #{url}"
-      sexp = sexp_fold('tarball.1', [:cmd, cmd, assert: true, echo: cmd, retry: true, timing: true])
-      should include_sexp sexp
+      should include_sexp [:cmd, cmd, assert: true, echo: cmd, retry: true, timing: true]
     end
 
     it 'untars the tarball' do
@@ -121,8 +120,7 @@ shared_examples_for 'a git checkout sexp' do
 
     it 'checks out the given commit for a push request' do
       data[:job][:pull_request] = false
-      sexp = sexp_fold('git.4', [:cmd, 'git checkout -qf 313f61b', assert: true, echo: true])
-      should include_sexp sexp
+      should include_sexp [:cmd, 'git checkout -qf 313f61b', assert: true, echo: true]
     end
 
     it 'checks out FETCH_HEAD for a pull request' do

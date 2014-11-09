@@ -11,17 +11,18 @@ module Travis
 
         def checkout
           install_ssh_key
-          if tarball_clone?
+          if use_tarball?
             download_tarball
           else
-            git_clone
-            sh.cd dir
-            fetch_ref if fetch_ref?
-            git_checkout
+            sh.fold 'git.checkout' do
+              git_clone_or_fetch
+              sh.cd dir
+              fetch_ref if fetch_ref?
+              git_checkout
+            end
             submodules if submodules?
           end
           rm_key
-          sh.to_s
         end
 
         private
@@ -52,20 +53,20 @@ module Travis
             echo = curl.gsub(data.token || /\Za/, '[SECURE]')
 
             sh.mkdir dir, echo: false, recursive: true
-            sh.cmd curl, echo: echo, retry: true, fold: "tarball.#{next_git_fold_number}"
+            sh.cmd curl, echo: echo, retry: true
             sh.cmd "tar xfz #{sanitized_slug}.tar.gz"
             sh.mv "#{sanitized_slug}-#{data.commit[0..6]}/*", dir, echo: false
             sh.cd dir
           end
 
-          def git_clone
+          def git_clone_or_fetch
             disable_interactive_auth
             sh.if "! -d #{dir}/.git" do
-              sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, retry: true, fold: "git.#{next_git_fold_number}"
+              sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, retry: true
             end
             sh.else do
-              sh.cmd "git -C #{dir} fetch origin", assert: true, retry: true, fold: "git.#{next_git_fold_number}"
-              sh.cmd "git -C #{dir} reset --hard", assert: true, timing: false, fold: "git.#{next_git_fold_number}"
+              sh.cmd "git -C #{dir} fetch origin", assert: true, retry: true
+              sh.cmd "git -C #{dir} reset --hard", assert: true, timing: false
             end
           end
 
@@ -82,11 +83,11 @@ module Travis
           end
 
           def fetch_ref
-            sh.cmd "git fetch origin +#{data.ref}:", assert: true, fold: "git.#{next_git_fold_number}", retry: true
+            sh.cmd "git fetch origin +#{data.ref}:", assert: true, retry: true
           end
 
           def git_checkout
-            sh.cmd "git checkout -qf #{data.pull_request ? 'FETCH_HEAD' : data.commit}", timing: false, fold: "git.#{next_git_fold_number}"
+            sh.cmd "git checkout -qf #{data.pull_request ? 'FETCH_HEAD' : data.commit}", timing: false
           end
 
           def submodules?
@@ -95,9 +96,11 @@ module Travis
 
           def submodules
             sh.if '-f .gitmodules' do
-              sh.file '~/.ssh/config', "Host github.com\n\tStrictHostKeyChecking no\n", append: true
-              sh.cmd 'git submodule init', fold: "git.#{next_git_fold_number}"
-              sh.cmd "git submodule update #{submodule_update_args}".strip, assert: true, fold: "git.#{next_git_fold_number}", retry: true
+              sh.fold 'git.submodule' do
+                sh.file '~/.ssh/config', "Host github.com\n\tStrictHostKeyChecking no\n", append: true
+                sh.cmd 'git submodule init'
+                sh.cmd "git submodule update #{submodule_update_args}".strip, assert: true, retry: true
+              end
             end
           end
 
@@ -111,7 +114,7 @@ module Travis
             args
           end
 
-          def tarball_clone?
+          def use_tarball?
             config[:git][:strategy] == 'tarball'
           end
 
@@ -129,11 +132,6 @@ module Travis
 
           def sanitized_slug
             data.slug.gsub('/', '-')
-          end
-
-          def next_git_fold_number
-            @git_fold_number ||= 0
-            @git_fold_number  += 1
           end
       end
     end
