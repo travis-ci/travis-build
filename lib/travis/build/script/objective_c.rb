@@ -32,23 +32,19 @@ module Travis
 
         def export
           super
-
-          sh.export 'TRAVIS_XCODE_SDK', config[:xcode_sdk].to_s.shellescape, echo: false
-          sh.export 'TRAVIS_XCODE_SCHEME', config[:xcode_scheme].to_s.shellescape, echo: false
-          sh.export 'TRAVIS_XCODE_PROJECT', config[:xcode_project].to_s.shellescape, echo: false
-          sh.export 'TRAVIS_XCODE_WORKSPACE', config[:xcode_workspace].to_s.shellescape, echo: false
+          [:sdk, :scheme, :project, :workspace].each do |key|
+            sh.export "TRAVIS_XCODE_#{key.upcase}", config[:"xcode_#{key}"].to_s.shellescape, echo: false
+          end
         end
 
         def setup
           super
-
           sh.cmd "echo '#!/bin/bash\n# no-op' > /usr/local/bin/actool", echo: false
           sh.cmd 'chmod +x /usr/local/bin/actool', echo: false
         end
 
         def install
           super
-
           sh.if podfile? do
             directory_cache.add("#{pod_dir}/Pods") if data.cache?(:cocoapods)
             sh.if "! ([[ -f #{pod_dir}/Podfile.lock && -f #{pod_dir}/Pods/Manifest.lock ]] && cmp --silent #{pod_dir}/Podfile.lock #{pod_dir}/Pods/Manifest.lock)", raw: true do

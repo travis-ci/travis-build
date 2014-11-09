@@ -15,5 +15,5 @@ Later
 - re-add service appliance fold
 - re-add :announce stage fold
 - re-add deprecation warnings
-- check specs for git download tarball
-- check specs for rvm setup_rvm for ruby-head
+- split up git into smaller classes, check spec coverage, eg download tarball
+- split up rvm into smaller classes (split out chruby?), check spec coverage, eg rvm setup_rvm for ruby-head

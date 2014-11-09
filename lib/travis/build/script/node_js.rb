@@ -8,9 +8,7 @@ module Travis
 
         def export
           super
-          # sh.export 'TRAVIS_NODE_VERSION', version, echo: false
-          config[:node_js] ||= config[:nodejs]
-          sh.export 'TRAVIS_NODE_VERSION', config[:node_js], echo: false
+          sh.export 'TRAVIS_NODE_VERSION', version, echo: false
         end
 
         def setup
@@ -50,10 +48,12 @@ module Travis
         private
 
           def version
-            # TODO deprecate :nodejs
-            version = config[:node_js] || config[:nodejs] # some old projects use language: nodejs. MK.
-            version = version.first if version.is_a?(Array) # it seems travis-core does not exand on nodejs anymore so we end up with an array here?
-            version == 0.1 ? '0.10' : version.to_s
+            @version ||= begin
+              # TODO deprecate :nodejs
+              version = config[:node_js] || config[:nodejs] # some old projects use language: nodejs. MK.
+              version = version.first if version.is_a?(Array) # it seems travis-core does not exand on nodejs anymore so we end up with an array here?
+              version == 0.1 ? '0.10' : version.to_s
+            end
           end
 
           def npm_disable_strict_ssl

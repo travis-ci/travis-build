@@ -33,30 +33,27 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
   describe 'install' do
     before { cache.install }
 
-    # let(:url) { "https://raw.githubusercontent.com/travis-ci/casher/#{branch}/bin/casher" }
-    # let(:cmd) { [:cmd,  "curl #{url} -L -o $CASHER_DIR/bin/casher -s --fail", retry: true, display: 'Installing caching utilities'] }
-    let(:cmd) {  'echo Installing caching utilities; curl https://raw.githubusercontent.com/travis-ci/casher/%s/bin/casher -L -o $CASHER_DIR/bin/casher -s --fail' }
+    let(:url) { "https://raw.githubusercontent.com/travis-ci/casher/#{branch}/bin/casher" }
+    let(:cmd) { [:cmd,  "curl #{url} -L -o $CASHER_DIR/bin/casher -s --fail", retry: true, display: 'Installing caching utilities'] }
 
     describe 'uses casher production in default mode' do
-      # let(:branch) { 'production' }
+      let(:branch) { 'production' }
       it { should include_sexp [:export, ['CASHER_DIR', '$HOME/.casher'], echo: true] }
       it { should include_sexp [:mkdir, '$CASHER_DIR/bin', recursive: true] }
-      # it { should include_sexp :cmd }
-      it { should include_sexp [:cmd, cmd % 'production', retry: true] }
+      it { should include_sexp :cmd }
       it { should include_sexp [:raw, '[ $? -ne 0 ] && echo \'Failed to fetch casher from GitHub, disabling cache.\' && echo > $CASHER_DIR/bin/casher'] }
     end
 
     describe 'uses casher master in edge mode' do
-      # let(:branch) { 'master' }
+      let(:branch) { 'master' }
       let(:config) { { cache: { edge: true } } }
-      it { should include_sexp [:cmd, cmd % 'master', retry: true] }
+      it { should include_sexp :cmd }
     end
 
     describe 'passing a casher branch' do
-      # let(:branch) { 'foo' }
-      # let(:config) { { cache: { branch: branch } } }
-      let(:config) { { cache: { branch: 'foo' } } }
-      it { should include_sexp [:cmd, cmd % 'foo', retry: true] }
+      let(:branch) { 'foo' }
+      let(:config) { { cache: { branch: branch } } }
+      it { should include_sexp :cmd }
     end
   end
 
