@@ -9,7 +9,7 @@ module Travis
 
         def configure
           super
-          configure_hhvm if config[:php].to_s.include?('hhvm')
+          configure_hhvm if hhvm?
         end
 
         def export
@@ -56,12 +56,20 @@ module Travis
           config[:php].to_s
         end
 
+        def hhvm?
+          version.include?('hhvm')
+        end
+
+        def nightly?
+          version.include?('nightly')
+        end
+
         def composer_args
           config[:composer_args]
         end
 
         def configure_hhvm
-          install_hhvm_nightly if config[:php] == 'hhvm-nightly'
+          install_hhvm_nightly if nightly?
           fix_hhvm_php_ini
         end
 
