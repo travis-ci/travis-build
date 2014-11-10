@@ -75,8 +75,8 @@ module Travis
 
         def install_hhvm_nightly
           sh.echo 'Installing HHVM nightly', ansi: :yellow
-          sh.cmd "sudo apt-get update -qq", echo: false
-          sh.cmd "sudo apt-get install hhvm-nightly 2>&1 >/dev/null", echo: false
+          sh.cmd 'sudo apt-get update -qq'
+          sh.cmd 'sudo apt-get install hhvm-nightly 2>&1 >/dev/null'
         end
 
         def fix_hhvm_php_ini

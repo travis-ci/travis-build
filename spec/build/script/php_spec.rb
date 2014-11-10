@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Php, :sexp do
-  let(:data)   { payload_for(:push, :php) }
+  let(:data)     { payload_for(:push, :php) }
   let(:script)   { described_class.new(data) }
   subject(:sexp) { script.sexp }
 
@@ -30,6 +30,19 @@ describe Travis::Build::Script::Php, :sexp do
 
   it 'runs phpunit' do
     should include_sexp [:cmd, 'phpunit', echo: true, timing: true]
+  end
+
+  describe 'fixes php.ini for hhvm' do
+    let(:path)     { '/etc/hhvm/php.ini' }
+    let(:addition) { %(date.timezone = "UTC"\nhhvm.libxml.ext_entity_whitelist=file,http,https\n) }
+    before { data[:config][:php] = 'hhvm' }
+    it { should include_sexp [:raw, "sudo mkdir -p $(dirname #{path}); echo '#{addition}' | sudo tee -a #{path} > /dev/null"] }
+  end
+
+  describe 'installs hhvm-nightly' do
+    before { data[:config][:php] = 'hhvm-nightly' }
+    it { should include_sexp [:cmd, 'sudo apt-get update -qq'] }
+    it { should include_sexp [:cmd, 'sudo apt-get install hhvm-nightly 2>&1 >/dev/null'] }
   end
 
   # describe 'before_install' do
