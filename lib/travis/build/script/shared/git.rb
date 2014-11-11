@@ -37,19 +37,14 @@ module Travis
             sh.echo "\nInstalling an SSH key#{source}"
             sh.echo "Key fingerprint: #{data.ssh_key.fingerprint}\n" if data.ssh_key.fingerprint
 
-            # sh.file '~/.ssh/id_rsa', data.ssh_key.value, decode: data.ssh_key.encoded?
-            # sh.chmod 600, '~/.ssh/id_rsa', echo: false
-            # sh.cmd 'eval `ssh-agent` &> /dev/null', echo: false, timing: false
-            # sh.cmd 'ssh-add ~/.ssh/id_rsa &> /dev/null', echo: false, timing: false
             sh.file '~/.ssh/id_rsa', data.ssh_key.value
-            sh.raw 'chmod 600 ~/.ssh/id_rsa'
+            sh.chmod 600, '~/.ssh/id_rsa', echo: false
             sh.raw 'eval `ssh-agent` &> /dev/null'
             sh.raw 'ssh-add ~/.ssh/id_rsa &> /dev/null'
 
             # BatchMode - If set to 'yes', passphrase/password querying will be disabled.
-            # TODO ... how to solve StrictHostKeyChecking correctly? deploy a knownhosts file?
-            # sh.file '~/.ssh/config', "Host #{data.source_host}\n\tBatchMode yes\n\tStrictHostKeyChecking no\n", append: true
-            sh.raw %(echo -e "Host #{data.source_host}\n\tBatchMode yes\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config)
+            # TODO ... how to solve StrictHostKeyChecking correctly? deploy a known_hosts file?
+            sh.file '~/.ssh/config', "Host #{data.source_host}\n\tBatchMode yes\n\tStrictHostKeyChecking no\n", append: true
           end
 
           def download_tarball
@@ -57,14 +52,14 @@ module Travis
             echo = curl.gsub(data.token || /\Za/, '[SECURE]')
 
             sh.mkdir dir, echo: false, recursive: true
-            sh.cmd curl, assert: true, echo: echo, retry: true, fold: "tarball.#{next_git_fold_number}"
-            sh.cmd "tar xfz #{sanitized_slug}.tar.gz", assert: true, echo: true
+            sh.cmd curl, echo: echo, retry: true, fold: "tarball.#{next_git_fold_number}"
+            sh.cmd "tar xfz #{sanitized_slug}.tar.gz"
             sh.mv "#{sanitized_slug}-#{data.commit[0..6]}/*", dir, echo: false
             sh.cd dir
           end
 
           def git_clone
-            sh.export 'GIT_ASKPASS', 'echo', :echo => false # this makes git interactive auth fail
+            disable_interactive_auth
             sh.if "! -d #{dir}/.git" do
               sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, retry: true, fold: "git.#{next_git_fold_number}"
             end
@@ -72,6 +67,10 @@ module Travis
               sh.cmd "git -C #{dir} fetch origin", assert: true, retry: true, fold: "git.#{next_git_fold_number}"
               sh.cmd "git -C #{dir} reset --hard", assert: true, timing: false, fold: "git.#{next_git_fold_number}"
             end
+          end
+
+          def disable_interactive_auth
+            sh.export 'GIT_ASKPASS', 'echo', :echo => false
           end
 
           def rm_key
@@ -87,7 +86,7 @@ module Travis
           end
 
           def git_checkout
-            sh.cmd "git checkout -qf #{data.pull_request ? 'FETCH_HEAD' : data.commit}", assert: true, timing: false, fold: "git.#{next_git_fold_number}"
+            sh.cmd "git checkout -qf #{data.pull_request ? 'FETCH_HEAD' : data.commit}", timing: false, fold: "git.#{next_git_fold_number}"
           end
 
           def submodules?
@@ -96,9 +95,8 @@ module Travis
 
           def submodules
             sh.if '-f .gitmodules' do
-              # sh.file '~/.ssh/config', "Host github.com\n\tStrictHostKeyChecking no\n", append: true
-              sh.cmd 'echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config', assert: false, echo: false
-              sh.cmd 'git submodule init', fold: "git.#{next_git_fold_number}", assert: false
+              sh.file '~/.ssh/config', "Host github.com\n\tStrictHostKeyChecking no\n", append: true
+              sh.cmd 'git submodule init', fold: "git.#{next_git_fold_number}"
               sh.cmd "git submodule update #{submodule_update_args}".strip, assert: true, fold: "git.#{next_git_fold_number}", retry: true
             end
           end

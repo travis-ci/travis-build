@@ -21,15 +21,15 @@ describe Travis::Build::Script::NodeJs, :sexp do
   end
 
   it 'announces node --version' do
-    should include_sexp [:cmd, 'node --version', echo: true, timing: true]
+    should include_sexp [:cmd, 'node --version', echo: true]
   end
 
   it 'announces npm --version' do
-    should include_sexp [:cmd, 'npm --version', echo: true, timing: true]
+    should include_sexp [:cmd, 'npm --version', echo: true]
   end
 
   it 'disables the npm spinner' do
-    should include_sexp [:cmd, 'npm config set spin false', assert: true, timing: true]
+    should include_sexp [:cmd, 'npm config set spin false', assert: true]
   end
 
   describe 'if package.json exists' do

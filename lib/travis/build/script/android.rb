@@ -10,7 +10,7 @@ module Travis
 
         def setup
           super
-          install_sdk_components(components) unless components.empty?
+          install_sdk_components unless components.empty?
         end
 
         def script
@@ -30,7 +30,7 @@ module Travis
 
         private
 
-          def install_sdk_components(components)
+          def install_sdk_components
             sh.fold 'android.install' do
               sh.echo 'Installing Android dependencies'
               components.each do |name|

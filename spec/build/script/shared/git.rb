@@ -133,9 +133,8 @@ shared_examples_for 'a git checkout sexp' do
     describe 'submodules' do
       let(:sexp) { sexp_find(subject, [:if, '-f .gitmodules'], [:then]) }
 
-      # let(:no_host_key_check) { [:file, ['~/.ssh/config', "Host github.com\n\tStrictHostKeyChecking no\n"], append: true] }
-      let(:no_host_key_check) { [:cmd, "echo -e \"Host github.com\\n\\tStrictHostKeyChecking no\\n\" >> ~/.ssh/config", timing: true] }
-      let(:submodule_init)    { [:cmd, 'git submodule init', echo: true, timing: true] }
+      let(:no_host_key_check) { [:file, ['~/.ssh/config', "Host github.com\n\tStrictHostKeyChecking no\n"], append: true] }
+      let(:submodule_init)    { [:cmd, 'git submodule init', assert: true, echo: true, timing: true] }
       let(:submodule_update)  { [:cmd, 'git submodule update', assert: true, echo: true, retry: true, timing: true] }
 
       describe 'if .gitmodules exists' do
@@ -166,18 +165,11 @@ shared_examples_for 'a git checkout sexp' do
     let(:source_key)      { TEST_PRIVATE_KEY }
     let(:known_hosts)     { "Host github.com\n\tBatchMode yes\n\tStrictHostKeyChecking no\n" }
 
-    # let(:add_source_key)  { [:file, ['~/.ssh/id_rsa', source_key], decode: true] }
-    # let(:chmod_id_rsa)    { [:chmod, [600, '~/.ssh/id_rsa'], assert: true] }
-    # let(:start_ssh_agent) { [:cmd, 'eval `ssh-agent` &> /dev/null', assert: true] }
-    # let(:add_ssh_key)     { [:cmd, 'ssh-add ~/.ssh/id_rsa &> /dev/null', assert: true] }
-    # let(:add_known_hosts) { [:file, ['~/.ssh/config', known_hosts], append: true] }
-
-    # sh.file '~/.ssh/id_rsa', data.ssh_key.value
     let(:add_source_key)  { [:file, ['~/.ssh/id_rsa', source_key]] }
-    let(:chmod_id_rsa)    { [:raw, 'chmod 600 ~/.ssh/id_rsa', assert: true] }
+    let(:chmod_id_rsa)    { [:chmod, [600, '~/.ssh/id_rsa'], assert: true] }
     let(:start_ssh_agent) { [:raw, 'eval `ssh-agent` &> /dev/null', assert: true] }
     let(:add_ssh_key)     { [:raw, 'ssh-add ~/.ssh/id_rsa &> /dev/null', assert: true] }
-    let(:add_known_hosts) { [:raw, %(echo -e "#{known_hosts}" >> ~/.ssh/config), assert: true] }
+    let(:add_known_hosts) { [:file, ['~/.ssh/config', known_hosts], append: true] }
 
     describe 'was given' do
       before :each do

@@ -12,5 +12,8 @@ Once lib/shell.rb is available
 
 Later
 
-- revert all the diff cleaning commits to clean things up again
-- add a fold around announce
+- re-add service appliance fold
+- re-add :announce stage fold
+- re-add deprecation warnings
+- split up git into smaller classes, check spec coverage, eg download tarball
+- split up rvm into smaller classes (split out chruby?), check spec coverage, eg rvm setup_rvm for ruby-head

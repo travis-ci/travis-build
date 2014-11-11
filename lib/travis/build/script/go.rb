@@ -14,9 +14,9 @@ module Travis
 
         def announce
           super
-          sh.cmd 'gvm version', timing: true
-          sh.cmd 'go version', timing: true
-          sh.cmd 'go env', fold: 'go.env', timing: true
+          sh.cmd 'gvm version'
+          sh.cmd 'go version'
+          sh.cmd 'go env', fold: 'go.env'
         end
 
         def setup
@@ -38,8 +38,8 @@ module Travis
 
         def install
           sh.if '-f Godeps/Godeps.json' do
-            sh.set 'GOPATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace:$GOPATH', retry: false
-            sh.set 'PATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace/bin:$PATH', retry: false
+            sh.export 'GOPATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace:$GOPATH', retry: false
+            sh.export 'PATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace/bin:$PATH', retry: false
 
             if version >= 'go1.1'
               sh.if '! -d Godeps/_workspace/src' do

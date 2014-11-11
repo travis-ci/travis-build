@@ -18,11 +18,11 @@ module Travis
 
         def announce
           super
-          sh.cmd 'ruby --version', timing: true
+          sh.cmd 'ruby --version'
           if config[:ruby]
-            sh.cmd 'chruby --version', timing: true
+            sh.cmd 'chruby --version'
           else
-            sh.cmd 'rvm --version', timing: true
+            sh.cmd 'rvm --version'
           end
         end
 
@@ -36,7 +36,7 @@ module Travis
           sh.echo 'BETA: Using chruby to select Ruby version. This is currently a beta feature and may change at any time."' #, ansi: :yellow
           sh.cmd 'curl -sLo ~/chruby.sh https://gist.githubusercontent.com/henrikhodne/a01cd7367b12a59ee051/raw/chruby.sh', echo: false
           sh.cmd 'source ~/chruby.sh', echo: false
-          sh.cmd "chruby #{config[:ruby]}", timing: true
+          sh.cmd "chruby #{config[:ruby]}"
         end
 
         def setup_rvm
@@ -50,11 +50,11 @@ module Travis
           if ruby_version =~ /ruby-head/
             sh.fold('rvm.1') do
               sh.echo 'Setting up latest %s' % ruby_version, ansi: :yellow
-              sh.cmd "rvm get stable", assert: false if ruby_version == 'jruby-head'
+              sh.cmd "rvm get stable" if ruby_version == 'jruby-head'
               sh.export 'ruby_alias', "`rvm alias show #{ruby_version} 2>/dev/null`"
-              sh.cmd "rvm alias delete #{ruby_version}", assert: false
-              sh.cmd "rvm remove ${ruby_alias:-#{ruby_version}} --gems", assert: false
-              sh.cmd "rvm remove #{ruby_version} --gems --fuzzy", assert: false
+              sh.cmd "rvm alias delete #{ruby_version}"
+              sh.cmd "rvm remove ${ruby_alias:-#{ruby_version}} --gems"
+              sh.cmd "rvm remove #{ruby_version} --gems --fuzzy"
               sh.cmd "rvm install #{ruby_version} --binary"
             end
             sh.cmd "rvm use #{ruby_version}"
@@ -66,7 +66,7 @@ module Travis
               end
             end
             sh.else do
-              sh.cmd "rvm use default", timing: true
+              sh.cmd "rvm use default"
             end
           else
             sh.fold('rvm.1') do
