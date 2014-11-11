@@ -1,3 +1,5 @@
+require 'travis/build/script/shared/jdk'
+
 module Travis
   module Build
     class Script
@@ -9,22 +11,28 @@ module Travis
           jdk:  'default'
         }
 
-        def cache_slug
-          super << "--lein-" << config[:lein].to_s
-        end
-
         def announce
           super
-          cmd "#{config[:lein]} version"
+          sh.cmd "#{lein} version", timing: true
         end
 
         def install
-          cmd "#{config[:lein]} deps", fold: 'install', retry: true
+          sh.cmd "#{lein} deps", fold: 'install', retry: true
         end
 
         def script
-          cmd "#{config[:lein]} test"
+          sh.cmd "#{lein} test"
         end
+
+        def cache_slug
+          super << '--lein-' << lein
+        end
+
+        private
+
+          def lein
+            config[:lein].to_s
+          end
       end
     end
   end

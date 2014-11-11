@@ -39,14 +39,20 @@ data = {
   },
   timeouts: {
     # git_clone: 300
-  }
+  },
+  deploy: [{
+    provider: 's3',
+    access_key_id: 'YOUR AWS ACCESS KEY',
+    secret_access_key: 'YOUR AWS SECRET KEY',
+    bucket: 'S3 Bucket',
+    skip_cleanup: true,
+  }]
 }
 
 # require 'yaml'
 # data[:config] = YAML.load_file('play/config.yml')
 
-# script = Travis::Build.script(data, logs: { build: false, state: true })
-script = Travis::Build.script(data, logs: { build: false, state: true })
+script = Travis::Build.script(data)
 script = script.compile
-puts script
+puts script #.split("\n")[-50, 50]
 

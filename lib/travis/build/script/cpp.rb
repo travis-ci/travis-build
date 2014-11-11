@@ -6,29 +6,33 @@ module Travis
           compiler: 'g++'
         }
 
-        def cache_slug
-          super << "--compiler-" << config[:compiler].to_s.tr('+', 'p')
-        end
-
         def export
           super
-          set 'CXX', cxx
-          set 'CC', cc # come projects also need to compile some C, e.g. Rubinius. MK.
+          sh.export 'CXX', cxx
+          sh.export 'CC', cc # some projects also need to compile some C, e.g. Rubinius. MK.
         end
 
         def announce
           super
-          cmd "#{config[:compiler]} --version"
+          sh.cmd "#{compiler} --version", timing: true
         end
 
         def script
-          cmd './configure && make && make test'
+          sh.cmd './configure && make && make test'
+        end
+
+        def cache_slug
+          super << '--compiler-' << compiler.tr('+', 'p')
         end
 
         private
 
+          def compiler
+            config[:compiler].to_s
+          end
+
           def cxx
-            case config[:compiler]
+            case compiler
             when /^gcc/i, /^g\+\+/i then
               'g++'
             when /^clang/i, /^clang\+\+/i then
@@ -39,13 +43,13 @@ module Travis
           end
 
           def cc
-            case config[:compiler]
+            case compiler
             when /^gcc/i, /^g\+\+/i then
-              "gcc"
+              'gcc'
             when /^clang/i, /^clang\+\+/i then
-              "clang"
+              'clang'
             else
-              "gcc"
+              'gcc'
             end
           end
       end

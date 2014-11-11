@@ -7,59 +7,94 @@ module Travis
           go: '1.3.3'
         }
 
-        def cache_slug
-          super << "--go-" << config[:go].to_s
-        end
-
         def export
           super
-          set 'TRAVIS_GO_VERSION', go_version, echo: false
+          sh.export 'TRAVIS_GO_VERSION', version, echo: false
         end
 
         def announce
           super
-          cmd 'gvm version'
-          cmd 'go version'
-          cmd 'go env', fold: 'go.env'
+          sh.cmd 'gvm version', timing: true
+          sh.cmd 'go version', timing: true
+          sh.cmd 'go env', fold: 'go.env', timing: true
         end
 
         def setup
           super
-          cmd "gvm get", fold: "gvm.get"
-          cmd "gvm update && source #{HOME_DIR}/.gvm/scripts/gvm", fold: "gvm.update"
-          cmd "gvm install #{go_version} --binary || gvm install #{go_version}", fold: "gvm.install"
-          cmd "gvm use #{go_version}"
-          set 'GOPATH', "#{HOME_DIR}/gopath:$GOPATH"
-          set 'PATH', "#{HOME_DIR}/gopath/bin:$PATH"
-          cmd "mkdir -p #{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}", assert: false, timing: false
-          cmd "rsync -az ${TRAVIS_BUILD_DIR}/ #{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}/", assert: false, timing: false
-          set "TRAVIS_BUILD_DIR", "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}"
-          cd "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}"
+          sh.cmd 'gvm get', fold: 'gvm.get'
+          sh.cmd "gvm update && source #{HOME_DIR}/.gvm/scripts/gvm", fold: 'gvm.update'
+          sh.cmd "gvm install #{version} --binary || gvm install #{version}", fold: 'gvm.install'
+          sh.cmd "gvm use #{version}"
+
+          sh.export 'GOPATH', "#{HOME_DIR}/gopath:$GOPATH", echo: true
+          sh.export 'PATH', "#{HOME_DIR}/gopath/bin:$PATH", echo: true
+
+          sh.mkdir "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}", recursive: true, assert: false, timing: false
+          sh.cmd "rsync -az ${TRAVIS_BUILD_DIR}/ #{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}/", assert: false, timing: false
+
+          sh.export "TRAVIS_BUILD_DIR", "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}"
+          sh.cd "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}", assert: true
         end
 
         def install
-          self.if '-f Godeps/Godeps.json' do |sub|
-            sub.set 'GOPATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace:$GOPATH'
-            sub.set 'PATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace/bin:$PATH'
+          sh.if '-f Godeps/Godeps.json' do
+            sh.set 'GOPATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace:$GOPATH', retry: false
+            sh.set 'PATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace/bin:$PATH', retry: false
 
-            if go_version >= 'go1.1'
-              self.if '! -d Godeps/_workspace/src' do |subsub|
-                subsub.cmd "#{go_get} github.com/tools/godep", echo: true, retry: true, timing: true, assert: true
-                subsub.cmd 'godep restore', retry: true, timing: true, assert: true, echo: true
+            if version >= 'go1.1'
+              sh.if '! -d Godeps/_workspace/src' do
+                sh.cmd "#{go_get_cmd} github.com/tools/godep", echo: true, retry: true, timing: true, assert: true
+                sh.cmd 'godep restore', retry: true, timing: true, assert: true, echo: true
               end
             end
           end
-          uses_make? then: 'true', else: "#{go_get} #{gobuild_args} ./...", fold: 'install', retry: true
+
+          sh.if uses_make do
+            sh.cmd 'true', retry: true, fold: 'install' # TODO instead negate the condition
+          end
+          sh.else do
+            sh.cmd "#{go_get_cmd} #{config[:gobuild_args]} ./...", retry: true, fold: 'install'
+          end
         end
 
         def script
-          uses_make? then: 'make', else: "go test #{gobuild_args} ./..."
+          sh.if uses_make do
+            sh.cmd 'make'
+          end
+          sh.else do
+            sh.cmd "go test #{config[:gobuild_args]} ./..."
+          end
+        end
+
+        def cache_slug
+          super << '--go-' << config[:go].to_s # TODO should this not be version?
         end
 
         private
 
-          def uses_make?(*args)
-            self.if '-f GNUmakefile || -f makefile || -f Makefile || -f BSDmakefile', *args
+          def uses_make
+            '-f GNUmakefile || -f makefile || -f Makefile || -f BSDmakefile'
+          end
+
+          def version
+            case version = config[:go].to_s
+            when '1'
+              'go1.3.3'
+            when '1.0'
+              'go1.0.3'
+            when '1.2'
+              'go1.2.2'
+            when '1.3'
+              'go1.3.3'
+            when /^[0-9]\.[0-9\.]+/
+              "go#{version}"
+            else
+              version
+            end
+          end
+
+          def gobuild_args
+            config[:gobuild_args]
           end
 
           def go_version
@@ -80,13 +115,8 @@ module Travis
             end
           end
 
-          def gobuild_args
-            config[:gobuild_args]
-          end
-
-          def go_get
-            return 'go get' if go_version < 'go1.2'
-            'go get -t'
+          def go_get_cmd
+            version < 'go1.2' ? 'go get' : 'go get -t'
           end
       end
     end

@@ -6,46 +6,51 @@ module Travis
           perl: '5.14'
         }
 
-        def cache_slug
-          super << "--perl-" << config[:perl].to_s
-        end
-
         def export
           super
-          set 'TRAVIS_PERL_VERSION', perl_version, echo: false
+          sh.export 'TRAVIS_PERL_VERSION', version, echo: false
         end
 
         def setup
           super
-          cmd "perlbrew use #{perl_version}"
+          sh.cmd "perlbrew use #{version}"
         end
 
         def announce
           super
-          cmd 'perl --version'
-          cmd 'cpanm --version'
+          sh.cmd 'perl --version', timing: true
+          sh.cmd 'cpanm --version', timing: true
         end
 
         def install
-          cmd 'cpanm --quiet --installdeps --notest .', fold: 'install', retry: true
+          sh.cmd 'cpanm --quiet --installdeps --notest .', fold: 'install', retry: true
         end
 
         def script
-          self.if   '-f Build.PL',    'perl Build.PL && ./Build && ./Build test'
-          self.elif '-f Makefile.PL', 'perl Makefile.PL && make test'
-          self.else                   'make test'
+          sh.if '-f Build.PL' do
+            sh.cmd 'perl Build.PL && ./Build && ./Build test'
+          end
+          sh.elif '-f Makefile.PL' do
+            sh.cmd 'perl Makefile.PL && make test'
+          end
+          sh.else do
+            sh.cmd 'make test'
+          end
         end
 
-        def perl_version
-          # this check is needed because safe_yaml parses the string 5.10 to 5.1
-          if config[:perl] == 5.1
-            "5.10"
-          # this check is needed because safe_yaml parses the string 5.20 to 5.2
-          elsif config[:perl] == 5.2
-            "5.20"
-          else
-            config[:perl]
-          end
+        def cache_slug
+          super << '--perl-' << version
+        end
+
+        # safe_yaml parses strings like 5.10 to 5.1
+        VERSIONS = {
+          '5.1' => '5.10',
+          '5.2' => '5.20'
+        }
+
+        def version
+          version = config[:perl].to_s
+          VERSIONS[version] || version
         end
       end
     end
