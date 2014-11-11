@@ -5,32 +5,24 @@ module Travis
         PATTERN = /(?:SECURE )?([\w]+)=(("|')(.*?)(\3)|\$\(.*?\)|[^"' ]+)/
 
         class << self
-          def create(*args)
-            options = args.last.is_a?(Hash) ? args.pop : {}
-            if args.size == 1
-              parse(args.first).map { |key, value| Var.new(key, value, options) }
-            else
-              [Var.new(*args, options)]
-            end
-          end
-
           def parse(line)
             secure = line =~ /^SECURE /
-            line.scan(PATTERN).map { |match| [(secure ? "SECURE #{match[0]}" : match[0]), match[1]] }
+            vars = line.scan(PATTERN).map { |var| var[0, 2] }
+            vars = vars.map { |var| var << { secure: true } } if secure
+            vars
+          end
+
+          def mark_secure(vars)
           end
         end
 
-        attr_reader :value, :type
+        attr_reader :key, :value, :type
 
         def initialize(key, value, options = {})
           @key = key.to_s
-          @value = value.to_s
-          @secure = options[:secure]
+          @value = value.to_s.tap { |value| value.taint if options[:secure] }
           @type = options[:type]
-        end
-
-        def key
-          strip_secure(@key).strip
+          @secure = !!options[:secure]
         end
 
         def valid?
@@ -38,27 +30,16 @@ module Travis
         end
 
         def echo?
-          # !builtin?
-          !builtin? && !travis?
+          !builtin?
         end
 
         def builtin?
           type == :builtin
         end
 
-        def travis?
-          @key =~ /^TRAVIS_/
-        end
-
         def secure?
-          !!(@secure.nil? ? @key =~ /^SECURE / : @secure)
+          @secure
         end
-
-        private
-
-          def strip_secure(string)
-            string.gsub('SECURE ', '')
-          end
       end
     end
   end

@@ -25,7 +25,7 @@ module Travis
           end
 
           def escape(code)
-            Shellwords.escape(Coder.clean(code.to_s))
+            Shellwords.escape(Coder.force_encoding(code.to_s))
           end
         end
       end

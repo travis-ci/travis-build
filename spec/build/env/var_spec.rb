@@ -11,7 +11,7 @@ describe Travis::Build::Env::Var do
 
   describe 'parse' do
     it 'parses SECURE FOO=foo BAR=bar' do
-      expect(parse('SECURE FOO=foo BAR=bar')).to eq([["SECURE FOO", "foo"], ["SECURE BAR", "bar"]])
+      expect(parse('SECURE FOO=foo BAR=bar')).to eq([["FOO", "foo", secure: true], ["BAR", "bar", secure: true]])
     end
 
     it 'parses FOO=foo BAR=bar' do
@@ -55,13 +55,10 @@ describe Travis::Build::Env::Var do
     end
   end
 
-  it 'travis? returns true if the var name starts with TRAVIS_' do
-    expect(var(:TRAVIS_FOO, 'foo')).to be_travis
-  end
-
   describe 'secure?' do
     it 'returns true if the var name starts with SECURE' do
-      expect(var('SECURE FOO', 'foo')).to be_secure
+      args = parse('SECURE FOO=foo').first
+      expect(var(*args)).to be_secure
     end
 
     it 'returns true if var is created with secure argument' do

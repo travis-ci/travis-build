@@ -1,6 +1,8 @@
 module Travis
   module Shell
     class Generator
+      TaintedOutput = Class.new(StandardError)
+
       attr_reader :nodes, :level
 
       def initialize(nodes)
@@ -11,6 +13,7 @@ module Travis
       def generate
         lines = Array(handle(nodes)).flatten
         script = lines.join("\n").strip
+        raise TaintedOutput if script.tainted?
         script = unindent(script)
         script = normalize_newlines(script)
         script

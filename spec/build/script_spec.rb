@@ -7,6 +7,12 @@ describe Travis::Build::Script, :sexp do
   let(:code)    { script.compile }
   subject       { script.sexp }
 
+  it 'raises an exception if the generated code is tainted (leaking secure env vars)' do
+    payload[:config][:env] = ['SECURE FOO=foo']
+    Travis::Build::Env::Var.any_instance.stubs(:secure?).returns(false)
+    expect { code }.to raise_error(Travis::Shell::Generator::TaintedOutput)
+  end
+
   it 'uses $HOME/build as a working directory' do
     expect(code).to match %r(cd +\$HOME/build)
   end
