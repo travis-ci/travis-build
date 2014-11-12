@@ -16,11 +16,16 @@ describe Travis::Build::Addons::Artifacts, :sexp do
   end
 
   it_behaves_like 'compiled script' do
+    let(:code) { ['function travis_artifacts_install()'] }
     let(:cmds) { ['artifacts.setup', 'artifacts upload'] }
   end
 
-  it 'installs artifacts' do
+  it 'adds the artifacts install function' do
     should include_sexp [:raw, addon.template('artifacts.sh')]
+  end
+
+  it 'installs the artifacts tool' do
+    should include_sexp [:cmd, 'travis_artifacts_install']
   end
 
   describe 'with a valid config' do
