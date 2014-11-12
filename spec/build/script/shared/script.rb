@@ -28,8 +28,6 @@ shared_examples_for 'compiled script' do
 end
 
 shared_examples_for 'a build script sexp' do
-  it_behaves_like 'a git checkout sexp'
-
   it_behaves_like 'a script with travis env vars sexp'
   it_behaves_like 'a script with env vars sexp' do
     let(:env_type) { 'env' }

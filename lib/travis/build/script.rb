@@ -5,6 +5,7 @@ require 'erb'
 
 require 'travis/build/addons'
 require 'travis/build/appliances'
+require 'travis/build/git'
 require 'travis/build/helpers'
 require 'travis/build/stages'
 
@@ -27,7 +28,6 @@ require 'travis/build/script/ruby'
 require 'travis/build/script/rust'
 require 'travis/build/script/scala'
 require 'travis/build/script/shared/directory_cache'
-require 'travis/build/script/shared/git'
 
 module Travis
   module Build
