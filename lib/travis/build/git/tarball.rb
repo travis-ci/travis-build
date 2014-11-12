@@ -3,10 +3,12 @@ module Travis
     class Git
       class Tarball < Struct.new(:sh, :data)
         def apply
-          mkdir
-          download
-          extract
-          move
+          sh.fold 'git.tarball' do
+            mkdir
+            download
+            extract
+            move
+          end
         end
 
         private

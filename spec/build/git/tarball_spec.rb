@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Travis::Build::Git::Clone, :sexp do
   let(:payload) { payload_for(:push, :ruby, oauth_token: 'secret') }
   let(:script)  { Travis::Build::Script.new(payload) }
-  subject       { script.sexp }
+  subject       { sexp_find(script.sexp, [:fold, 'git.tarball']) }
 
   let(:api)     { 'https://api.github.com/repos/travis-ci/travis-ci' }
   let(:url)     { "#{api}/tarball/313f61b" }
