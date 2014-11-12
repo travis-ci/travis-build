@@ -36,6 +36,7 @@ shared_examples_for 'a build script sexp' do
     let(:env_type) { 'global_env' }
   end
 
+  it_behaves_like 'show system info'
   it_behaves_like 'validates config'
   it_behaves_like 'paranoid mode on/off'
   it_behaves_like 'fix ps4'
