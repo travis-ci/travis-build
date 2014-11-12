@@ -1,5 +1,6 @@
 require 'shellwords'
 require 'travis/build/script/shared/bundler'
+require 'travis/build/script/shared/chruby'
 require 'travis/build/script/shared/rvm'
 
 module Travis
