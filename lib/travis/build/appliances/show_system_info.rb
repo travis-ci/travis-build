@@ -6,8 +6,7 @@ module Travis
       class ShowSystemInfo < Base
         def apply
           sh.fold 'system_info' do
-            sh.echo 'Build system information', ansi: :yellow
-            sh.echo "Build script language: #{data.language}"
+            header
             sh.if "-f #{info_file}" do
               sh.cmd "cat #{info_file}"
             end
@@ -16,6 +15,13 @@ module Travis
         end
 
         private
+
+          def header
+            sh.echo 'Build system information', ansi: :yellow
+            [:language, :group, :dist].each do |attr|
+              sh.echo "Build script #{attr}: #{data.send(attr)}"
+            end
+          end
 
           def info_file
             '/usr/share/travis/system_info'
