@@ -6,6 +6,7 @@ describe Travis::Build::Git::SshKey, :sexp do
   subject       { script.sexp }
 
   let(:source_key)      { TEST_PRIVATE_KEY }
+  let(:fingerprint)     { '57:78:65:c2:c9:c8:c9:f7:dd:2b:35:39:40:27:d2:40' }
 
   let(:add_source_key)  { [:file, ['~/.ssh/id_rsa', source_key]] }
   let(:chmod_id_rsa)    { [:chmod, [600, '~/.ssh/id_rsa'], assert: true] }
@@ -23,6 +24,8 @@ describe Travis::Build::Git::SshKey, :sexp do
     it { should include_sexp start_ssh_agent }
     it { should include_sexp add_ssh_key }
     it { should include_sexp add_known_hosts }
+
+    it { should include_sexp [:echo, ['Installing an SSH key', "Key fingerprint: #{fingerprint}"]] }
   end
 
   describe 'was not given' do

@@ -3,7 +3,9 @@ module Travis
     class Git
       class SshKey < Struct.new(:sh, :data)
         def apply
+          sh.newline
           sh.echo messages
+          sh.newline
 
           sh.file '~/.ssh/id_rsa', key.value
           sh.chmod 600, '~/.ssh/id_rsa', echo: false
@@ -22,8 +24,8 @@ module Travis
           end
 
           def messages
-            msgs = ["\nInstalling an SSH key #{" from: #{source}" if key.source}"]
-            msgs = "Key fingerprint: #{key.fingerprint}\n" if key.fingerprint
+            msgs = ["Installing an SSH key#{" from: #{source}" if key.source}"]
+            msgs << "Key fingerprint: #{key.fingerprint}" if key.fingerprint
             msgs
           end
 
