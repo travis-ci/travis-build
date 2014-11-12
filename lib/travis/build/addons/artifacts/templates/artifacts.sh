@@ -10,5 +10,3 @@ function travis_artifacts_install() {
   chmod +x $target
   PATH="$(dirname $target):$PATH" artifacts -v
 }
-
-travis_artifacts_install
