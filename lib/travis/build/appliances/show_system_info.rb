@@ -20,7 +20,7 @@ module Travis
             sh.echo 'Build system information', ansi: :yellow
             [:language, :group, :dist].each do |name|
               value = data.send(name)
-              sh.echo "Build script #{name}: #{value}" if value
+              sh.echo "Build #{name}: #{value}" if value
             end
           end
 
