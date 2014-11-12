@@ -10,6 +10,8 @@ describe Travis::Build::Addons::Firefox, :sexp do
   subject      { sh.to_sexp }
   before       { addon.before_before_install }
 
+  it { store_example }
+
   it_behaves_like 'compiled script' do
     let(:code) { ['install_firefox', 'firefox-20.0.tar.bz2'] }
   end

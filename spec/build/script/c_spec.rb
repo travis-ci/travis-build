@@ -4,6 +4,7 @@ describe Travis::Build::Script::C, :sexp do
   let(:data)   { payload_for(:push, :c) }
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
+  it           { store_example }
 
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=c'] }

@@ -9,6 +9,8 @@ describe Travis::Build::Addons::Postgresql, :sexp do
   subject      { sh.to_sexp }
   before       { addon.after_prepare }
 
+  it { store_example }
+
   it_behaves_like 'compiled script' do
     let(:cmds) { ['service postgresql start 9.3'] }
   end
