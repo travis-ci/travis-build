@@ -5,12 +5,20 @@ module Travis
     module Appliances
       class ShowSystemInfo < Base
         def apply
-          info_file = '/usr/share/travis/sytem_info'
           sh.fold 'system_info' do
-            sh.echo 'Build System Information', ansi: :yellow
-            sh.raw %(test -f #{info_file} && cat #{info_file} || true)
+            sh.echo 'Build system information', ansi: :yellow
+            sh.echo "Build script language: #{data.language}"
+            sh.if "-f #{info_file}" do
+              sh.cmd "cat #{info_file}"
+            end
           end
         end
+
+        private
+
+          def info_file
+            '/usr/share/travis/system_info'
+          end
       end
     end
   end
