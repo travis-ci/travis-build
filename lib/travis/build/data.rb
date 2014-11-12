@@ -28,6 +28,10 @@ module Travis
         data[key]
       end
 
+      def language
+        config[:language]
+      end
+
       def urls
         data[:urls] || {}
       end
