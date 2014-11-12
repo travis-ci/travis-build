@@ -8,7 +8,7 @@ describe Travis::Build::Addons::Firefox, :sexp do
   let(:addon)  { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
   let(:home)   { Travis::Build::HOME_DIR }
   subject      { sh.to_sexp }
-  before       { addon.before_before_install }
+  before       { addon.before_setup }
 
   it_behaves_like 'compiled script' do
     let(:code) { ['install_firefox', 'firefox.tar.bz2'] }

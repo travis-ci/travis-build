@@ -7,7 +7,7 @@ describe Travis::Build::Addons::SshKnownHosts, :sexp do
   let(:sh)     { Travis::Shell::Builder.new }
   let(:addon)  { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
   subject      { sh.to_sexp }
-  before       { addon.before_checkout }
+  before       { addon.before_configure }
 
   def add_host_cmd(host)
     "ssh-keyscan -t rsa,dsa -H #{host} 2>&1 | tee -a #{Travis::Build::HOME_DIR}/.ssh/known_hosts"

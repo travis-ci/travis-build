@@ -78,13 +78,20 @@ module Travis
           stages.run if apply :validate
           sh.raw template('footer.sh')
           apply :deprecations
-          sh.raw template('header.sh', build_dir: BUILD_DIR), pos: 0
+        end
+
+        def header
+          sh.raw template('header.sh', build_dir: BUILD_DIR)
         end
 
         def configure
           apply :show_system_info
           apply :fix_resolv_conf
           apply :fix_etc_hosts
+          apply :fix_ps4 # TODO if this is to fix an rvm issue (as the specs say) then should this go to Rvm instead?
+          apply :setup_apt_cache
+          apply :services
+          apply :disable_sudo
         end
 
         def checkout
@@ -93,16 +100,6 @@ module Travis
 
         def export
           apply :env
-        end
-
-        def prepare
-          apply :services
-          apply :setup_apt_cache
-          apply :fix_ps4 # TODO if this is to fix an rvm issue (as the specs say) then should this go to Rvm instead?
-        end
-
-        def disable_sudo
-          apply :disable_sudo
         end
     end
   end

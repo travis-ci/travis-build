@@ -8,14 +8,11 @@ module Travis
   module Build
     class Stages
       STAGES = [
-        :builtin,     [:configure, :checkout, :prepare, :disable_sudo, :export, :setup, :announce],
-        :custom,      [:before_install, :install, :before_script, :script],
-        :builtin,     [:after_result],
-        :conditional, [:after_success],
-        # :addon,       [:deploy_all],
-        :conditional, [:after_failure],
-        :custom,      [:after_script],
-        :builtin,     [:finish]
+        :builtin,     [:header, :configure, :checkout, :export, :setup, :announce],
+        :custom,      [:before_install, :install, :before_script, :script, :after_script],
+        :conditional, [:after_success, :after_failure],
+        :builtin,     [:finish],
+        :addon,       [:deploy]
       ]
 
       STAGE_DEFAULT_OPTIONS = {

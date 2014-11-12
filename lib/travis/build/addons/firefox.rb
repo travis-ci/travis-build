@@ -7,8 +7,7 @@ module Travis
       class Firefox < Base
         SUPER_USER_SAFE = true
 
-        # def after_prepare
-        def before_before_install
+        def before_setup
           sh.fold 'install_firefox' do
             sh.echo "Installing Firefox v#{version}", ansi: :yellow
             sh.raw "mkdir -p #{HOME_DIR}/firefox-#{version}"
@@ -32,7 +31,7 @@ module Travis
         private
 
           def version
-            config.to_s #.shellescape
+            config.to_s.gsub(/[^\d\._\-]/, '').shellescape
           end
 
           def install_dir

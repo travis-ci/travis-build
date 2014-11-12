@@ -7,7 +7,7 @@ module Travis
       class Postgresql < Base
         SUPER_USER_SAFE = true
 
-        def after_prepare
+        def before_configure
           sh.fold 'postgresql' do
             sh.export "PATH", "/usr/lib/postgresql/#{version}/bin:$PATH", echo: false
             sh.echo "Starting PostgreSQL v#{version}", ansi: :yellow
@@ -19,7 +19,7 @@ module Travis
         private
 
           def version
-            config.to_s.shellescape
+            config.to_s.gsub(/[^\d\._\-]/, '').shellescape
           end
       end
     end
