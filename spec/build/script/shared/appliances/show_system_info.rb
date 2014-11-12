@@ -2,9 +2,9 @@ shared_examples_for 'show system info' do
   let(:sexp) { sexp_find(subject, [:fold, 'system_info']) }
 
   let(:echo_notice)   { [:echo, "Build system information", ansi: :yellow] }
-  let(:echo_language) { [:echo, /Build script language/] }
-  let(:echo_group)    { [:echo, 'Build script group: dev'] }
-  let(:echo_dist)     { [:echo, 'Build script dist: trusty'] }
+  let(:echo_language) { [:echo, /Build language/] }
+  let(:echo_group)    { [:echo, 'Build group: dev'] }
+  let(:echo_dist)     { [:echo, 'Build dist: trusty'] }
   let(:path)          { '/usr/share/travis/system_info' }
   let(:system_info)   { [:cmd, "cat #{path}"] }
 
