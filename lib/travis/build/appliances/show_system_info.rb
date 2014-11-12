@@ -18,8 +18,9 @@ module Travis
 
           def header
             sh.echo 'Build system information', ansi: :yellow
-            [:language, :group, :dist].each do |attr|
-              sh.echo "Build script #{attr}: #{data.send(attr)}"
+            [:language, :group, :dist].each do |name|
+              value = data.send(name)
+              sh.echo "Build script #{name}: #{value}" if value
             end
           end
 
