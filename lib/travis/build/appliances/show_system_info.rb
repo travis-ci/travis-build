@@ -12,6 +12,7 @@ module Travis
               sh.cmd "cat #{info_file}"
             end
           end
+          sh.newline
         end
 
         private
