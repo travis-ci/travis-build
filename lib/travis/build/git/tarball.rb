@@ -18,7 +18,7 @@ module Travis
           end
 
           def download
-            cmd  = "curl -o #{filename} #{oauth_token}-L #{tarball_url}"
+            cmd  = "curl -o #{filename} #{auth_header}-L #{tarball_url}"
             echo = cmd.gsub(data.token || /\Za/, '[SECURE]')
             sh.cmd cmd, echo: echo, retry: true
           end
@@ -48,8 +48,8 @@ module Travis
             "#{data.api_url}/tarball/#{data.commit}"
           end
 
-          def oauth_token
-            data.token ? "-H \"Authorization: token #{data.token}\" " : nil
+          def auth_header
+            "-H \"Authorization: token #{data.token}\" " if data.token
           end
       end
     end
