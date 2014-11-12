@@ -69,19 +69,19 @@ module Travis
             end
           end
 
-          def use_ruby_version_file
-            sh.echo MSGS[:ruby_version_file], ansi: :yellow
-            sh.fold('rvm') do
-              sh.cmd 'rvm use . --install --binary --fuzzy'
-            end
-          end
-
           def use_default_ruby
             sh.if '-f .ruby-version' do
               use_ruby_version_file
             end
             sh.else do
               use_rvm_default_ruby
+            end
+          end
+
+          def use_ruby_version_file
+            sh.echo MSGS[:ruby_version_file], ansi: :yellow
+            sh.fold('rvm') do
+              sh.cmd 'rvm use . --install --binary --fuzzy'
             end
           end
 
