@@ -7,6 +7,7 @@ require 'travis/build/appliances/fix_ps4'
 require 'travis/build/appliances/fix_resolv_conf'
 require 'travis/build/appliances/services'
 require 'travis/build/appliances/setup_apt_cache'
+require 'travis/build/appliances/show_system_info'
 require 'travis/build/appliances/validate'
 
 module Travis

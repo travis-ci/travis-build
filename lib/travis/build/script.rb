@@ -82,6 +82,7 @@ module Travis
         end
 
         def configure
+          apply :show_system_info
           apply :fix_resolv_conf
           apply :fix_etc_hosts
         end
