@@ -16,7 +16,7 @@ module Travis
             sh.cd install_dir, echo: false, stack: true
             sh.cmd "wget -O /tmp/#{filename} #{source_url}", echo: true, timing: true, retry: true
             sh.cmd "tar xf /tmp/#{filename}"
-            sh.export 'PATH', "#{install_dir}/firefox:\$PATH", echo: false
+            sh.cmd "sudo ln -sf #{install_dir}/firefox/firefox /usr/local/bin/firefox", echo: false
             sh.cd :back, echo: false, stack: true
           end
         end
