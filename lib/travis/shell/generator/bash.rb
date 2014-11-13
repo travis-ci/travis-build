@@ -20,13 +20,12 @@ module Travis
         end
 
         def handle_echo(message = '', options = {})
-          # lines = message.include?("\n") ? message.split("\n") : [message]
-          # lines.map do |line|
-            # message = %( -e "#{ansi(line, options.delete(:ansi))}") unless message.empty?
-            message = ansi(message, options.delete(:ansi)) if options[:ansi]
-            message = %( -e #{escape(message)}) # unless message.empty?
-            handle_cmd("echo#{message}", options)
-          # end
+          lines = Array(message).flat_map { |msg| msg.split("\n") }
+          lines << '' if lines.empty?
+          lines.map do |line|
+            line = %( -e "#{ansi(line, options.delete(:ansi))}") unless line.empty?
+            handle_cmd("echo#{line}", options)
+          end
         end
 
         def handle_newline(options = {})

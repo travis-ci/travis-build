@@ -95,20 +95,32 @@ describe Travis::Shell::Generator::Bash, :include_node_helpers do
   describe :echo do
     it 'generates a echo command' do
       @sexp = [:echo, 'Hello.']
-      # expect(code).to eql("echo -e \"Hello.\"")
-      expect(code).to eql("echo -e Hello.")
+      expect(code).to eql("echo -e \"Hello.\"")
     end
 
     it 'escapes a message' do
       @sexp = [:echo, 'Hello there.']
-      # expect(code).to eql("echo -e \"Hello there.\"")
-      expect(code).to eql("echo -e Hello\\ there.")
+      expect(code).to eql("echo -e \"Hello there.\"")
     end
 
     it 'adds ansi codes' do
       @sexp = [:echo, 'Hello.', ansi: [:green]]
-      # expect(code).to eql("echo -e \"\\033[33;1mHello.\\033[0m\"")
-      expect(code).to eql("echo -e \\\\033\\[33\\;1mHello.\\\\033\\[0m")
+      expect(code).to eql("echo -e \"\\033[33;1mHello.\\033[0m\"")
+    end
+
+    it 'generates multiple commands when given an array' do
+      @sexp = [:echo, ['Hello there.', 'Goodbye!']]
+      expect(code).to eql("echo -e \"Hello there.\"\necho -e \"Goodbye!\"")
+    end
+
+    it 'generates a plain echo command when given an empty string' do
+      @sexp = [:echo, ['']]
+      expect(code).to eql('echo')
+    end
+
+    it 'generates the expected echo command when given a newline char' do
+      @sexp = [:echo, ["\n"]]
+      expect(code).to eql('echo')
     end
   end
 
