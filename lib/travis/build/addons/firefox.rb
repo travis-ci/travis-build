@@ -13,11 +13,11 @@ module Travis
             sh.echo "Installing Firefox v#{version}", ansi: :yellow
             sh.mkdir install_dir, echo: false, recursive: true
             sh.chown 'travis', install_dir, recursive: true
-            sh.cd install_dir, echo: false
+            sh.cd install_dir, echo: false, stack: true
             sh.cmd "wget -O /tmp/#{filename} #{source_url}", echo: true, timing: true, retry: true
             sh.cmd "tar xf /tmp/#{filename}"
             sh.export 'PATH', "#{install_dir}/firefox:\$PATH", echo: false
-            sh.cd HOME_DIR, echo: false
+            sh.cd :back, echo: false, stack: true
           end
         end
 
