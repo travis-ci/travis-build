@@ -37,6 +37,7 @@ describe Travis::Build::Script::Php, :sexp do
     let(:addition) { %(date.timezone = "UTC"\nhhvm.libxml.ext_entity_whitelist=file,http,https\n) }
     before { data[:config][:php] = 'hhvm' }
     it { should include_sexp [:raw, "sudo mkdir -p $(dirname #{path}); echo '#{addition}' | sudo tee -a #{path} > /dev/null"] }
+    it { should include_sexp [:raw, "grep session.save_path #{path} | cut -d= -f2 | sudo xargs mkdir -p"] }
   end
 
   describe 'installs hhvm-nightly' do
