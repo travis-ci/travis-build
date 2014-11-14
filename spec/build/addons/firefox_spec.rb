@@ -30,7 +30,7 @@ describe Travis::Build::Addons::Firefox, :sexp do
     let(:config) { '20.0; sudo rm -rf /' }
 
     it_behaves_like 'compiled script' do
-      let(:code) { ['install_firefox', 'Invalid\\ version'] }
+      let(:code) { ['install_firefox', 'Invalid version'] }
     end
 
     it { should include_sexp [:echo, "Invalid version '20.0\\;\\ sudo\\ rm\\ -rf\\ /' given.", ansi: :red] }
