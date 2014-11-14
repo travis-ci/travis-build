@@ -7,9 +7,13 @@ module Travis
       class Firefox < Base
         SUPER_USER_SAFE = true
 
-        # def after_prepare
-        def before_before_install
+        def after_prepare
           sh.fold 'install_firefox' do
+            unless version
+              sh.echo "Invalid version '#{raw_version}' given.", ansi: :red
+              return
+            end
+
             sh.echo "Installing Firefox v#{version}", ansi: :yellow
             sh.mkdir install_dir, echo: false, recursive: true
             sh.chown 'travis', install_dir, recursive: true
@@ -24,7 +28,15 @@ module Travis
         private
 
           def version
+            sanitize raw_version
+          end
+
+          def raw_version
             config.to_s.shellescape
+          end
+
+          def sanitize(input)
+            (m = /\A(?<version>[\d\.]+(?:esr)?)\z/.match(input.chomp)) && m[:version]
           end
 
           def install_dir
