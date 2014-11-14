@@ -15,7 +15,7 @@ module Travis
 
           def ansi(string, keys)
             keys = Array(keys)
-            prefix = keys.map { |key| ANSI[key] }
+            prefix = keys.map { |key| ANSI[key] }.join
             suffix = ANSI[:reset] if keys.any?
 
             lines = string.split("\n").map do |line|
