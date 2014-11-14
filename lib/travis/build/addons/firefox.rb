@@ -31,7 +31,7 @@ module Travis
           end
 
           def raw_version
-            config.to_s.shellescape
+            config.to_s.strip.shellescape
           end
 
           def sanitize(input)
