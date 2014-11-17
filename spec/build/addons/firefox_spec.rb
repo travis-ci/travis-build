@@ -18,7 +18,7 @@ describe Travis::Build::Addons::Firefox, :sexp do
   it { should include_sexp [:mkdir, '$HOME/firefox-20.0', recursive: true] }
   it { should include_sexp [:chown, ['travis', '$HOME/firefox-20.0'], recursive: true] }
   it { should include_sexp [:cd, '$HOME/firefox-20.0', stack: true] }
-  it { should include_sexp [:cmd, 'wget -O /tmp/firefox-20.0.tar.bz2 http://releases.mozilla.org/pub/firefox/releases/20.0/linux-x86_64/en-US/firefox-20.0.tar.bz2', echo: true, timing: true, retry: true] }
+  it { should include_sexp [:cmd, 'wget -O /tmp/firefox-20.0.tar.bz2 http://download.cdn.mozilla.net/pub/firefox/releases/20.0/linux-x86_64/en-US/firefox-20.0.tar.bz2', echo: true, timing: true, retry: true] }
   it { should include_sexp [:cmd, 'tar xf /tmp/firefox-20.0.tar.bz2'] }
   it { should include_sexp [:export, ['PATH', '$HOME/firefox-20.0/firefox:$PATH']] }
   it { should include_sexp [:cd, :back, stack: true] }
