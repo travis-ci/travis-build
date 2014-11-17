@@ -5,7 +5,21 @@ module Travis
     module Appliances
       class FixResolvConf < Base
         def apply
-          sh.raw %(grep '199.91.168' /etc/resolv.conf > /dev/null || echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf &> /dev/null)
+          currnet_resovl_conf = File.read('/etc/resolv.conf')
+          resolv_conf_data = <<-EOF
+options rotate
+options timeout:1
+
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+nameserver 208.67.222.222
+nameserver 208.67.220.220
+          EOF
+
+          if currnet_resovl_conf =~ /nameserver\s+199\.91\.168/
+            resolv_conf_data << "\nnameserver 199.91.168.70\nnameserver 199.91.168.71\n"
+          end
+          sh.raw %(echo "#{resolv_conf_data}" | sudo tee /etc/resolv.conf &> /dev/null)
         end
 
         def apply?
