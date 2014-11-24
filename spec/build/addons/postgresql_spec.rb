@@ -16,5 +16,6 @@ describe Travis::Build::Addons::Postgresql, :sexp do
   it { should include_sexp [:export, ['PATH', '/usr/lib/postgresql/9.3/bin:$PATH']] }
   it { should include_sexp [:echo, 'Starting PostgreSQL v9.3', ansi: :yellow] }
   it { should include_sexp [:cmd, 'service postgresql stop', sudo: true, echo: true, timing: true] }
+  it { should include_sexp [:cmd, 'cp -rp /var/lib/postgresql/9.3 /var/ramfs/postgresql/9.3', sudo: true] }
   it { should include_sexp [:cmd, 'service postgresql start 9.3', sudo: true, echo: true, timing: true] }
 end

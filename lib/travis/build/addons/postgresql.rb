@@ -12,6 +12,9 @@ module Travis
             sh.export "PATH", "/usr/lib/postgresql/#{version}/bin:$PATH", echo: false
             sh.echo "Starting PostgreSQL v#{version}", ansi: :yellow
             sh.cmd "service postgresql stop", assert: false, sudo: true, echo: true, timing: true
+            sh.if "-d /var/ramfs && ! -d /var/ramfs/postgresql/#{version}", echo: false do
+              sh.cmd "cp -rp /var/lib/postgresql/#{version} /var/ramfs/postgresql/#{version}", sudo: true, assert: false, echo: false, timing: false
+            end
             sh.cmd "service postgresql start #{version}", assert: false, sudo: true, echo: true, timing: true
           end
         end
