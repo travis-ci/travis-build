@@ -122,7 +122,7 @@ module Travis
             end
 
             def url(verb, path, options = {})
-              AWS4Signature.new(key_pair, verb, location(path), options[:expires], start).to_uri
+              AWS4Signature.new(key_pair, verb, location(path), options[:expires], start).to_uri.to_s.untaint
             end
 
             def key_pair
