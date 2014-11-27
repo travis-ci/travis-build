@@ -6,14 +6,18 @@ module Travis
     class Script
       module DirectoryCache
         def directory_cache
-          @directory_cache ||= cache_class.new(sh, data, cache_slug)
+          @directory_cache ||= begin
+            cache = cache_class.new(sh, data, cache_slug)
+            cache = Noop.new(sh, data, cache_slug) unless cache.valid? && use_directory_cache?
+            cache
+          end
         end
 
         def cache_class
-          type = data.cache_options[:type].to_s.capitalize
-          type = :Noop if type.empty? or !use_directory_cache?
-          raise ArgumentError, 'unknown caching mode %p' % type unless DirectoryCache.const_defined?(type, false)
-          DirectoryCache.const_get(type)
+          type = data.cache_options[:type] || :noop
+          name = type.to_s.capitalize
+          raise ArgumentError, 'unknown caching mode %p' % type unless DirectoryCache.const_defined?(name, false)
+          DirectoryCache.const_get(name)
         end
 
         def use_directory_cache?
