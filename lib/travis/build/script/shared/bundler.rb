@@ -61,8 +61,13 @@ module Travis
             path
           end
 
+          def bundler_default_path
+            base_dir = File.dirname(config[:gemfile])
+            File.join(base_dir, 'vendor', 'bundle')
+          end
+
           def bundler_path
-            bundler_args_path || '${BUNDLE_PATH:-vendor/bundle}'
+            @bundler_path ||= bundler_args_path || "${BUNDLE_PATH:-#{bundler_default_path}}"
           end
 
           def bundler_install(args = nil)

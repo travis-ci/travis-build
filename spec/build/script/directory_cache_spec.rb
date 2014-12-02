@@ -33,8 +33,23 @@ describe Travis::Build::Script::DirectoryCache, :sexp do
 
   # not quite sure where to put this atm, but there probably should be tests
   # specific to bundler caching
-  describe 'with bundler caching enabled' do
-    let(:config) { { cache: 'bundler', bundler_args: '--path=foo/bar' } }
-    it { expect(sexp).to include_sexp [:cmd, 'bundle clean', echo: true] }
+  describe 'bundler caching' do
+    describe 'with explicit path' do
+      let(:config) { { cache: 'bundler', bundler_args: '--path=foo/bar' } }
+      it { expect(sexp).to include_sexp [:cmd, 'bundle clean', echo: true] }
+      it { expect(sexp).to include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher add foo/bar', assert: true, timing: true] }
+    end
+
+    describe 'with implicit path' do
+      let(:config) { { cache: 'bundler' } }
+      it { expect(sexp).to include_sexp [:cmd, 'bundle clean', echo: true] }
+      it { expect(sexp).to include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher add ${BUNDLE_PATH:-./vendor/bundle}', assert: true, timing: true] }
+    end
+
+    describe 'with implicit path, but gemfile in a subdirectory' do
+      let(:config) { { cache: 'bundler', gemfile: 'foo/Gemfile' } }
+      it { expect(sexp).to include_sexp [:cmd, 'bundle clean', echo: true] }
+      it { expect(sexp).to include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher add ${BUNDLE_PATH:-foo/vendor/bundle}', assert: true, timing: true] }
+    end
   end
 end
