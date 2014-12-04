@@ -12,6 +12,8 @@ describe Travis::Build::Addons::Firefox, :sexp do
   context 'given a valid version string' do
     let(:config) { '20.0' }
 
+    it { store_example }
+
     it_behaves_like 'compiled script' do
       let(:code) { ['install_firefox', 'firefox-20.0.tar.bz2'] }
     end

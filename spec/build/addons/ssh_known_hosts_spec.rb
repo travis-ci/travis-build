@@ -20,6 +20,7 @@ describe Travis::Build::Addons::SshKnownHosts, :sexp do
     # it { should include_sexp [:cmd, add_host_cmd('git.example.biz')] }
     it { should include_sexp [:cmd, add_host_cmd('git.example.org'), echo: true, timing: true] }
     it { should include_sexp [:cmd, add_host_cmd('git.example.biz'), echo: true, timing: true] }
+    it { store_example }
   end
 
   context 'with singular host config' do

@@ -5,6 +5,6 @@ bin/*
 .bundle/*
 tmp
 play/*.sh
-examples
+examples/*.txt
 rspec.log
 .vagrant
