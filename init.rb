@@ -14,7 +14,7 @@ module Travis
         stages << 'script' if stages.empty?
         script = Travis::Build.script(data)
         stages.each do |stage|
-          script.set('TRAVIS_STAGE', stage, :echo => false)
+          script.sh.export('TRAVIS_STAGE', stage, :echo => false)
           script.run_stage(stage.to_sym)
         end
         source = script.header(Dir.pwd) + "\n" + script.sh.to_s

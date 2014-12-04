@@ -1,5 +1,14 @@
 shared_examples_for 'fix resolve.conf' do
-  let(:fix_resolv_conf) { "grep '199.91.168' /etc/resolv.conf > /dev/null || echo 'nameserver 199.91.168.70\nnameserver 199.91.168.71' | sudo tee /etc/resolv.conf &> /dev/null" }
+  let(:resolv_conf_data) { <<-EOF }
+options rotate
+options timeout:1
+
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+nameserver 208.67.222.222
+nameserver 208.67.220.220
+  EOF
+  let(:fix_resolv_conf) { "echo \"#{resolv_conf_data}\" | sudo tee /etc/resolv.conf &> /dev/null" }
 
   it 'fixes the DNS entries in /etc/resolv.conf' do
     should include_sexp [:raw, fix_resolv_conf]
@@ -10,4 +19,3 @@ shared_examples_for 'fix resolve.conf' do
     should_not include_sexp [:raw, fix_resolv_conf]
   end
 end
-

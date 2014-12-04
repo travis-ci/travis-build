@@ -30,6 +30,19 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
   let(:cache)         { described_class.new(sh, Travis::Build::Data.new(data), 'ex a/mple', Time.at(10)) }
   let(:subject)       { sh.to_sexp }
 
+  describe 'validate' do
+    before { cache.valid? }
+
+    describe 'with valid s3' do
+      it { should_not include_sexp [:echo, 'Worker S3 config missing: bucket name, access key id, secret access key', ansi: :red] }
+    end
+
+    describe 'with s3 config missing' do
+      let(:s3_options)  { nil }
+      it { should include_sexp [:echo, 'Worker S3 config missing: bucket name, access key id, secret access key', ansi: :red] }
+    end
+  end
+
   describe 'install' do
     before { cache.install }
 

@@ -88,7 +88,7 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
           sh.raw "sudo mkdir -p $(dirname #{ini_file_path}); echo '#{ini_file_addition}' | sudo tee -a #{ini_file_path} > /dev/null"
           # Ensure that the configured session storage directory exists if
           # specified in the ini file.
-          sh.raw "grep session.save_path #{ini_file_path} | cut -d= -f2 | sudo xargs mkdir -p"
+          sh.raw "grep session.save_path #{ini_file_path} | cut -d= -f2 | sudo xargs mkdir -m 01733 -p"
         end
       end
     end

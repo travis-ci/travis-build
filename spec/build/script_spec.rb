@@ -50,5 +50,10 @@ describe Travis::Build::Script, :sexp do
       payload[:config][:script] = true
       expect { subject }.to_not raise_error
     end
+
+    it 'if s3_options are tainted' do
+      payload['cache_options']['s3']['access_key_id'].taint
+      expect { code }.to_not raise_error
+    end
   end
 end
