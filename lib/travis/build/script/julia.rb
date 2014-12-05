@@ -92,8 +92,8 @@ module Travis
           end
 
           def pkg_name
-            # Regular expression from: julia:base/pkg/entry.jl
-            urlregex = 'r"(?:^|[/\\])(\w+?)(?:\.jl)?(?:\.git)?$'
+            # Regular expression adapted from: julia:base/pkg/entry.jl
+            urlregex = 'r"(?:^|[/\\\\])([^/\\\\]+?)(?:\.jl)?(?:\.git)?$"'
             jlcode = "println(match(#{urlregex}, readchomp(STDIN)).captures[1])"
             shurl = "git remote -v | head -n 1 | cut -f 2 | cut -f 1 -d ' '"
             sh.cmd "#{shurl} | julia -e '#{jlcode}'"
