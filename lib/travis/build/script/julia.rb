@@ -57,16 +57,16 @@ module Travis
         end
 
         def script
-          name = pkg_name
+          set_jl_pkg
           # Check if the repository is a Julia package.
-          sh.if "-f src/#{name}.jl" do
+          sh.if "-f src/#{ENV['JL_PKG']}.jl" do
             sh.if '-a .git/shallow' do
               sh.cmd 'git fetch --unshallow'
             end
             sh.cmd "julia -e 'Pkg.clone(pwd())'"
-            sh.cmd "julia -e 'Pkg.build(#{name})'"
+            sh.cmd "julia -e 'Pkg.build(#{ENV['JL_PKG']})'"
             sh.if '-f test/runtests.jl' do
-              sh.cmd "julia --check-bounds=yes -e 'Pkg.test(#{name})'"
+              sh.cmd "julia --check-bounds=yes -e 'Pkg.test(#{ENV['JL_PKG']})'"
             end
           end
         end
@@ -91,12 +91,13 @@ module Travis
             "https://status.julialang.org/#{version}/#{os}"
           end
 
-          def pkg_name
-            # Regular expression adapted from: julia:base/pkg/entry.jl
-            urlregex = 'r"(?:^|[/\\\\])([^/\\\\]+?)(?:\.jl)?(?:\.git)?$"'
+          def set_jl_pkg
+            # Regular expression from: julia:base/pkg/entry.jl
+            urlregex = 'r"(?:^|[/\\\\])(\w+?)(?:\.jl)?(?:\.git)?$"'
             jlcode = "println(match(#{urlregex}, readchomp(STDIN)).captures[1])"
             shurl = "git remote -v | head -n 1 | cut -f 2 | cut -f 1 -d ' '"
-            sh.cmd "#{shurl} | julia -e '#{jlcode}'"
+            sh.export 'JL_PKG', "$(#{shurl} | julia -e '#{jlcode}')",
+              echo: false
           end
       end
     end
