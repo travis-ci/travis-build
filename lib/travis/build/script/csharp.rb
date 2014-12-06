@@ -6,7 +6,7 @@
 module Travis
   module Build
     class Script
-      class CSharp < Script
+      class Csharp < Script
         DEFAULTS = {
           csharp: 'mono',
         }
