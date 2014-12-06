@@ -30,8 +30,8 @@ module Travis
             ansi: :green
           sh.echo '  https://github.com/travis-ci/travis-ci/issues' \
             '/new?labels=julia', ansi: :green
-          sh.echo 'and mention `@tkelman`, `@ninjin` and `@staticfloat` ' \
-            'in the issue', ansi: :green
+          sh.echo 'and mention \`@tkelman\`, \`@ninjin\` and ' \
+            '\`@staticfloat\` in the issue', ansi: :green
 
           sh.echo 'Installing Julia', ansi: :yellow
           case config[:os]
