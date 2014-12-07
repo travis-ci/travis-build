@@ -22,10 +22,24 @@ module Travis
           @config = last_build.jobs[0].config
         else
           config = travis_config
-          warn 'env key is ignored' if config.has_key? 'env'
+          global_env = []
+          if config.has_key? 'env'
+            if config['env']['matrix']
+              warn 'env.matrix key is ignored'
+            end
+            global_env = config['env'].fetch('global', [])
+            global_env.delete_if { |v| v.is_a? Hash }
+          end
+
           warn 'matrix key is ignored' if config.has_key? 'matrix'
 
+          unless config['os'].respond_to? :scan
+            warn "Detected unsupported 'os' key value for local build script comilation. Setting to default, 'linux'."
+            config['os'] = 'linux'
+          end
+
           @config = config.delete_if {|k,v| k == 'env' }.delete_if {|k,v| k == 'matrix' }
+          @config['env'] = global_env
         end
 
         puts Travis::Build.script(data).compile(true)
