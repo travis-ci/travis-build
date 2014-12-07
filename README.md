@@ -29,15 +29,28 @@ You can set travis-build up as a plugin for the [command line client](https://gi
 
     ln -s PATH_TO_TRAVIS_BUILD ~/.travis/travis-build
 
-Now you can run one or many stages locally (defaults to script stage):
+This will add the `compile` command to travis CLI, which produces
+the bash script that ran the specified job, except that the secure environment
+variables are not defined.
 
-    $ travis run
-    ... executes test ...
-    $ travis run install
-    ... installs dependencies ...
-    $ travis run install script
-    ... installs dependencies ...
-    ... executes test ...
+The command can be invoked in 3 ways:
+
+1. Without argument, it produces the bash script for the local `.travis.yml` without considering `env` and `matrix` values
+(`travis-build` is unable to expand these keys correctly).
+
+    `$ travis compile`
+
+1. With a single integer, it produces the script for the given build.
+(or the first job of that build)
+
+    `$ travis compile 8`
+
+1. With an argument of the form `M.N`, it produces the bash script for the job `M.N`.
+
+    `$ travis compile 351.2`
+
+The resultant script can be used on a (virtual) machine that closely mimic Travis CI's build
+environment to aid you in debugging the build failures.
 
 ## License & copyright information
 

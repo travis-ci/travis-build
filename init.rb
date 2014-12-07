@@ -1,8 +1,9 @@
 module Travis
   module CLI
-    class Run < RepoCommand
-      description "executes a stage from the .travis.yml"
-      on '-p', '--print', 'output stage instead of running it'
+    class Compile < RepoCommand
+      description "compiles a build script from .travis.yml"
+
+      attr_accessor :slug
 
       def setup
         error "run command is not available on #{RUBY_VERSION}" if RUBY_VERSION < '1.9.3'
@@ -10,32 +11,33 @@ module Travis
         require 'travis/build'
       end
 
-      def run(*stages)
-        stages << 'script' if stages.empty?
-        script = Travis::Build.script(data)
-        stages.each do |stage|
-          script.sh.export('TRAVIS_STAGE', stage, :echo => false)
-          script.run_stage(stage.to_sym)
+      def run(*arg)
+        @slug = find_slug
+        if match_data = /\A(?<build>\d+)(\.(?<job>\d+))?\z/.match(arg.first)
+          @build = build(match_data[:build])
+          @job_number = match_data[:job].to_i - 1
+          @config = @build.jobs[@job_number].config
+        elsif arg.length > 0
+          warn "#{arg.first} does not look like a job number. Last build's first job is assumed."
+          @config = last_build.jobs[0].config
+        else
+          config = travis_config
+          warn 'env key is ignored' if config.has_key? 'env'
+          warn 'matrix key is ignored' if config.has_key? 'matrix'
+
+          @config = config.delete_if {|k,v| k == 'env' }.delete_if {|k,v| k == 'matrix' }
         end
-        source = script.header(Dir.pwd) + "\n" + script.sh.to_s
-        print? ? puts(source) : run_script(source, *stages)
+
+        puts Travis::Build.script(data).compile(true)
       end
 
       private
-
-        def run_script(source, *stages)
-          script = File.expand_path(
-            "~/.travis/.build/#{find_slug}/travis-build-" << stages.join('-')
-          )
-          FileUtils.mkdir_p(File.dirname(script))
-          File.open(script, 'w') { |f| f.write(source) }
-          FileUtils.chmod(0755, script)
-          exec(script)
-        end
-
         def data
           {
-            :config => travis_config
+            :config => @config,
+            :repository => {
+              :slug => slug
+            }
           }
         end
     end

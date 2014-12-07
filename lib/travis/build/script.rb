@@ -55,8 +55,8 @@ module Travis
         @stages = Stages.new(self, sh, config)
       end
 
-      def compile
-        Shell.generate(sexp)
+      def compile(ignore_taint = false)
+        Shell.generate(sexp, ignore_taint)
       end
 
       def sexp

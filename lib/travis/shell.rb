@@ -6,8 +6,8 @@ require 'travis/shell/generator/bash'
 module Travis
   module Shell
     class << self
-      def generate(nodes)
-        Generator::Bash.new(nodes).generate
+      def generate(nodes, ignore_taint = false)
+        Generator::Bash.new(nodes).generate(ignore_taint)
       end
     end
   end
