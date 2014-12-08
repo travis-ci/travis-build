@@ -14,32 +14,27 @@ module Travis
       def run(*arg)
         @slug = find_slug
         if match_data = /\A(?<build>\d+)(\.(?<job>\d+))?\z/.match(arg.first)
-          @build = build(match_data[:build])
-          @job_number = match_data[:job].to_i - 1
-          @config = @build.jobs[@job_number].config
+          set_up_config(match_data)
         elsif arg.length > 0
           warn "#{arg.first} does not look like a job number. Last build's first job is assumed."
           @config = last_build.jobs[0].config
         else
+          ## No arg case; use .travis.yml from $PWD
           config = travis_config
-          global_env = []
-          if config.has_key? 'env'
-            if config['env']['matrix']
-              warn 'env.matrix key is ignored'
-            end
-            global_env = config['env'].fetch('global', [])
-            global_env.delete_if { |v| v.is_a? Hash }
-          end
 
-          warn 'matrix key is ignored' if config.has_key? 'matrix'
+          global_env = sanitize_global_env(config)
+
+          if config.has_key? 'matrix'
+            warn 'matrix key is ignored'
+            config.delete_if { |k,v| k == 'matrix' }
+          end
 
           unless config['os'].respond_to? :scan
             warn "Detected unsupported 'os' key value for local build script comilation. Setting to default, 'linux'."
             config['os'] = 'linux'
           end
 
-          @config = config.delete_if {|k,v| k == 'env' }.delete_if {|k,v| k == 'matrix' }
-          @config['env'] = global_env
+          set_up_env(config, global_env)
         end
 
         puts Travis::Build.script(data).compile(true)
@@ -53,6 +48,30 @@ module Travis
               :slug => slug
             }
           }
+        end
+
+        def set_up_config(match_data)
+          @build = build(match_data[:build])
+          @job_number = match_data[:job].to_i - 1
+          @config = @build.jobs[@job_number].config
+        end
+
+        def sanitize_global_env(config)
+          global_env = []
+          if config.has_key? 'env'
+            if config['env']['matrix']
+              warn 'env.matrix key is ignored'
+            end
+            global_env = config['env'].fetch('global', [])
+            global_env.delete_if { |v| v.is_a? Hash }
+          end
+
+          global_env
+        end
+
+        def set_up_env(config, global_env)
+          @config = config.delete_if {|k,v| k == 'env' }
+          @config['env'] = global_env
         end
     end
   end
