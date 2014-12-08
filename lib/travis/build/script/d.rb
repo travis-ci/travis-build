@@ -23,35 +23,40 @@ module Travis
         def setup
           super
 
+          sh.echo 'D support for Travis-CI is community maintained.'+
+            'Please make sure to ping @MartinNowak, @klickverbot and @ibuclaw'+
+            'when filing issues under https://github.com/travis-ci/travis-ci/issues.', ansi: :green
+
           sh.fold("compiler-download") do
             sh.echo "Installing compiler and dub", ansi: :yellow
 
+            sh.cmd 'alias curl="curl -fsSL --retry 3 -A \'Travis-CI $(curl --version | head -n 1)\'"'
             case compiler_cmd
             when 'dmd'
               binpath, libpath = {'linux' => ['dmd2/linux/bin64', 'dmd2/linux/lib64'],
                                   'osx' => ['dmd2/linux/bin', 'dmd2/linux/lib']}[os]
 
-              sh.cmd "curl -fsSL #{compiler_url} > ~/dmd.zip"
+              sh.cmd "curl #{compiler_url} > ~/dmd.zip"
               sh.cmd "unzip -q -d ~ ~/dmd.zip"
             when 'ldc2'
               binpath, libpath = 'ldc/bin', 'ldc/lib'
 
               sh.cmd "mkdir ${HOME}/ldc", echo: false
-              sh.cmd "curl -fsSL #{compiler_url} | tar --strip-components=1 -C ~/ldc -Jxf -"
+              sh.cmd "curl #{compiler_url} | tar --strip-components=1 -C ~/ldc -Jxf -"
             when 'gdc'
               binpath, libpath = 'gdc/bin', 'gdc/lib'
 
               sh.cmd "mkdir ${HOME}/gdc", echo: false
-              sh.cmd "curl -fsSL #{compiler_url} | tar --strip-components=1 -C ~/gdc -Jxf -"
-              sh.cmd 'curl -fsSL https://raw.githubusercontent.com/D-Programming-GDC/GDMD/master/dmd-script > '+
+              sh.cmd "curl #{compiler_url} | tar --strip-components=1 -C ~/gdc -Jxf -"
+              sh.cmd 'curl https://raw.githubusercontent.com/D-Programming-GDC/GDMD/master/dmd-script > '+
                 "~/#{binpath}/gdmd && chmod +x ~/#{binpath}/gdmd"
             end
 
             sh.cmd 'LATEST_DUB=$('+
-              'curl -fsSL https://api.github.com/repos/D-Programming-Language/dub/tags | '+
+              'curl https://api.github.com/repos/D-Programming-Language/dub/tags | '+
               'sed -n \'s|.*"name": "v\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\)".*|\1|p\' |'+
               'sort | tail -n 1)', echo: false
-            sh.cmd "curl -fsSL http://code.dlang.org/files/dub-${LATEST_DUB}-#{os}-x86_64.tar.gz | tar -C ~/#{binpath} -xzf -"
+            sh.cmd "curl http://code.dlang.org/files/dub-${LATEST_DUB}-#{os}-x86_64.tar.gz | tar -C ~/#{binpath} -xzf -"
             sh.cmd "export PATH=\"${HOME}/#{binpath}:${PATH}\""
             sh.cmd "export LD_LIBRARY_PATH=\"${HOME}/#{libpath}:${LD_LIBRARY_PATH}\""
           end
