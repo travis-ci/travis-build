@@ -32,7 +32,7 @@ module Travis
                                   'osx' => ['dmd2/linux/bin', 'dmd2/linux/lib']}[os]
 
               sh.cmd "curl -fsSL #{compiler_url} > ~/dmd.zip"
-              sh.cmd "unzip -q -d ~ dmd.zip"
+              sh.cmd "unzip -q -d ~ ~/dmd.zip"
             when 'ldc2'
               binpath, libpath = 'ldc/bin', 'ldc/lib'
 
