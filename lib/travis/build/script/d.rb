@@ -23,14 +23,18 @@ module Travis
         def setup
           super
 
-          sh.echo 'D support for Travis-CI is community maintained.'+
-            'Please make sure to ping @MartinNowak, @klickverbot and @ibuclaw'+
-            'when filing issues under https://github.com/travis-ci/travis-ci/issues.', ansi: :green
+          sh.echo <<-MSG, ansi: :green
+D support for Travis-CI is community maintained. Please make sure to
+ping @MartinNowak, @klickverbot and @ibuclaw when filing issues under
+https://github.com/travis-ci/travis-ci/issues.
+          MSG
 
           sh.fold("compiler-download") do
             sh.echo "Installing compiler and dub", ansi: :yellow
 
-            sh.cmd 'alias curl="curl -fsSL --retry 3 -A \'Travis-CI $(curl --version | head -n 1)\'"'
+            sh.cmd 'CURL_USER_AGENT="Travis-CI $(curl --version | head -n 1)"'
+            sh.cmd 'curl() { command curl -fsSL --retry 3 -A "${CURL_USER_AGENT}" "$@"; }'
+
             case compiler_cmd
             when 'dmd'
               binpath, libpath = {'linux' => ['dmd2/linux/bin64', 'dmd2/linux/lib64'],
