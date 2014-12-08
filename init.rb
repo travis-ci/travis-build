@@ -30,7 +30,7 @@ module Travis
           end
 
           unless config['os'].respond_to? :scan
-            warn "'os' key is unsupported in local build script comilation. Setting to default, 'linux'."
+            warn "'os' key is unsupported in local build script compilation. Setting to default, 'linux'."
             config['os'] = 'linux'
           end
 

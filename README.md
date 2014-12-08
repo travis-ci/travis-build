@@ -33,6 +33,16 @@ This will add the `compile` command to travis CLI, which produces
 the bash script that runs the specified job, except that the secure environment
 variables are not defined, and that the build matrix expansion is not considered.
 
+### _Important_
+
+The resulting script contains command that make changes to the system on which it is executed
+(e.g., edit `/etc/resolv.conf`, install software).
+Some require `sudo` privileges and they are not easily undone.
+
+It is highly recommended that you run this on a virtual machine.
+
+### Invocation
+
 The command can be invoked in 3 ways:
 
 1. Without argument, it produces the bash script for the local `.travis.yml` without considering `env` and `matrix` values
