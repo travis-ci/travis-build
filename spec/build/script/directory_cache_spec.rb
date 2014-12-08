@@ -29,6 +29,7 @@ describe Travis::Build::Script::DirectoryCache, :sexp do
     let(:config) { { cache: { directories: ['foo'] } } }
     it { expect(script).to be_use_directory_cache }
     it { expect(cache).to be_a(Travis::Build::Script::DirectoryCache::S3) }
+    # it { store_example 'directory caching' }
   end
 
   # not quite sure where to put this atm, but there probably should be tests

@@ -5,6 +5,7 @@ shared_examples_for 'setup apt cache' do
     data[:config][:cache] = ['apt']
     data[:hosts]= { apt_cache: 'http://cache.example.com:80'}
     should include_sexp [:cmd, setup_apt_cache]
+    store_example 'setup apt cache' if data[:config][:language] == :ruby
   end
 
   it "doesn't set up an apt cache when the cache list is empty" do

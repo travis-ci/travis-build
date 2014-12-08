@@ -4,6 +4,7 @@ describe Travis::Build::Script::Ruby, :sexp do
   let(:data)   { payload_for(:push, :ruby) }
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
+  it           { store_example }
 
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=ruby'] }
@@ -60,17 +61,6 @@ describe Travis::Build::Script::Ruby, :sexp do
     it 'uses chruby to set the version' do
       # should include_sexp [:cmd, 'chruby 2.1.1', assert: true, echo: true]
       should include_sexp [:cmd, 'chruby 2.1.1', assert: true, echo: true, timing: true]
-    end
-  end
-
-  context 'when running on Rubinius' do
-    before :each do
-      data[:config][:rvm] = 'rbx'
-    end
-
-    it "runs bundle install without '--jobs' if a Gemfile exists" do
-      sexp = sexp_find(sexp_filter(subject, [:if, '-f Gemfile'])[1], [:if, '-f Gemfile.lock'], [:else])
-      should include_sexp [:cmd, 'bundle install --retry=3', assert: true, echo: true, timing: true, retry: true]
     end
   end
 

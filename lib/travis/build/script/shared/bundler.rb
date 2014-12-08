@@ -3,7 +3,6 @@ module Travis
     class Script
       module Bundler
         DEFAULT_BUNDLER_ARGS = "--jobs=3 --retry=3"
-        DEFAULT_BUNDLER_ARGS_RBX = '--retry=3'
 
         def use_directory_cache?
           super || data.cache?(:bundler)
@@ -84,21 +83,13 @@ module Travis
           end
 
           def bundler_install(args = nil)
-            args = bundler_args || [default_bundler_args, args].compact
+            args = bundler_args || [DEFAULT_BUNDLER_ARGS, args].compact
             args = [args].flatten << "--path=#{bundler_path(true)}" if data.cache?(:bundler) && !bundler_args_path
             ['bundle install', *args].compact.join(' ')
           end
 
           def bundler_args
             config[:bundler_args]
-          end
-
-          def rbx?
-            config.fetch(:rvm, '').to_s.include?('rbx') || config.fetch(:ruby, '').to_s.include?('rbx')
-          end
-
-          def default_bundler_args
-            rbx? ? DEFAULT_BUNDLER_ARGS_RBX : DEFAULT_BUNDLER_ARGS
           end
       end
     end

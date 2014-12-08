@@ -17,6 +17,7 @@ describe Travis::Build::Addons::CodeClimate, :sexp do
 
   describe 'with a token' do
     it { should include_sexp export_repo_token }
+    it { store_example }
   end
 
   describe 'without a token' do

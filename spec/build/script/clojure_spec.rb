@@ -4,6 +4,7 @@ describe Travis::Build::Script::Clojure, :sexp do
   let(:data)   { payload_for(:push, :clojure) }
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
+  it           { store_example }
 
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=clojure'] }

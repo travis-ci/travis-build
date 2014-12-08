@@ -5,6 +5,7 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
   let(:script) { described_class.new(data) }
   let(:is_ruby_motion) { "-f Rakefile && \"$(cat Rakefile)\" =~ require\\ [\\\"\\']motion/project" }
   subject      { script.sexp }
+  it           { store_example }
 
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=objective_c'] }
