@@ -23,8 +23,8 @@ module Travis
         def setup
           super
 
-          sh.echo 'D support for Travis-CI is community maintained.'+
-            'Please make sure to ping @MartinNowak, @klickverbot and @ibuclaw'+
+          sh.echo 'D support for Travis-CI is community maintained.', ansi: :green
+          sh.echo 'Please make sure to ping @MartinNowak, @klickverbot and @ibuclaw '+
             'when filing issues under https://github.com/travis-ci/travis-ci/issues.', ansi: :green
 
           sh.fold("compiler-download") do
