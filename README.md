@@ -30,8 +30,8 @@ You can set travis-build up as a plugin for the [command line client](https://gi
     ln -s PATH_TO_TRAVIS_BUILD ~/.travis/travis-build
 
 This will add the `compile` command to travis CLI, which produces
-the bash script that ran the specified job, except that the secure environment
-variables are not defined.
+the bash script that runs the specified job, except that the secure environment
+variables are not defined, and that the build matrix expansion is not considered.
 
 The command can be invoked in 3 ways:
 
