@@ -23,11 +23,9 @@ module Travis
         def setup
           super
 
-          sh.echo <<-MSG, ansi: :green
-D support for Travis-CI is community maintained. Please make sure to
-ping @MartinNowak, @klickverbot and @ibuclaw when filing issues under
-https://github.com/travis-ci/travis-ci/issues.
-          MSG
+          sh.echo 'D support for Travis-CI is community maintained.'+
+            'Please make sure to ping @MartinNowak, @klickverbot and @ibuclaw'+
+            'when filing issues under https://github.com/travis-ci/travis-ci/issues.', ansi: :green
 
           sh.fold("compiler-download") do
             sh.echo "Installing compiler and dub", ansi: :yellow
