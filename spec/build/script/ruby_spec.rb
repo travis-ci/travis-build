@@ -64,17 +64,6 @@ describe Travis::Build::Script::Ruby, :sexp do
     end
   end
 
-  context 'when running on Rubinius' do
-    before :each do
-      data[:config][:rvm] = 'rbx'
-    end
-
-    it "runs bundle install without '--jobs' if a Gemfile exists" do
-      sexp = sexp_find(sexp_filter(subject, [:if, '-f Gemfile'])[1], [:if, '-f Gemfile.lock'], [:else])
-      should include_sexp [:cmd, 'bundle install --retry=3', assert: true, echo: true, timing: true, retry: true]
-    end
-  end
-
   it 'sets BUNDLE_GEMFILE if a gemfile exists' do
     sexp = sexp_find(subject, [:if, '-f Gemfile'], [:then])
     expect(sexp).to include_sexp [:export, ['BUNDLE_GEMFILE', '$PWD/Gemfile'], echo: true]
