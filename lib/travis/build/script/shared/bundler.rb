@@ -25,12 +25,12 @@ module Travis
         def install
           sh.if gemfile? do
             sh.if gemfile_lock? do
-              directory_cache.add(bundler_path) if data.cache?(:bundler)
+              directory_cache.add(bundler_path(false)) if data.cache?(:bundler)
               sh.cmd bundler_install("--deployment"), fold: "install.bundler", retry: true
             end
             sh.else do
               # Cache bundler if it has been explicitly enabled
-              directory_cache.add(bundler_path) if data.cache?(:bundler, false)
+              directory_cache.add(bundler_path(false)) if data.cache?(:bundler, false)
               sh.cmd bundler_install, fold: "install.bundler", retry: true
             end
           end
@@ -54,6 +54,11 @@ module Travis
             "-f #{config[:gemfile]}.lock"
           end
 
+          def gemfile_path(*path)
+            base_dir = File.dirname(config[:gemfile])
+            File.join(base_dir, *path)
+          end
+
           def bundler_args_path
             args = Array(bundler_args).join(" ")
             path = args[/--path[= ](\S+)/, 1]
@@ -61,18 +66,26 @@ module Travis
             path
           end
 
-          def bundler_default_path
-            base_dir = File.dirname(config[:gemfile])
-            File.join(base_dir, 'vendor', 'bundle')
+          def bundler_default_path(relative_to_gemfile)
+            default = relative_to_gemfile ? 'vendor/bundle' : gemfile_path('vendor/bundle')
+            "${BUNDLE_PATH:-#{default}}"
           end
 
-          def bundler_path
-            @bundler_path ||= bundler_args_path || "${BUNDLE_PATH:-#{bundler_default_path}}"
+          def bundler_path_relative_to_gemfile
+            @bundler_path_relative_to_gemfile ||= bundler_args_path || bundler_default_path(true)
+          end
+
+          def bundler_path_relative_to_project
+            @bundler_path_relative_to_project ||= bundler_args_path ? gemfile_path(bundler_args_path) : bundler_default_path(false)
+          end
+
+          def bundler_path(relative_to_gemfile = false)
+            relative_to_gemfile ? bundler_path_relative_to_gemfile : bundler_path_relative_to_project
           end
 
           def bundler_install(args = nil)
             args = bundler_args || [default_bundler_args, args].compact
-            args = [args].flatten << "--path=#{bundler_path}" if data.cache?(:bundler) && !bundler_args_path
+            args = [args].flatten << "--path=#{bundler_path(true)}" if data.cache?(:bundler) && !bundler_args_path
             ['bundle install', *args].compact.join(' ')
           end
 
