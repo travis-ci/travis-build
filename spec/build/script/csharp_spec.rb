@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Travis::Build::Script::CSharp, :sexp do
+describe Travis::Build::Script::Csharp, :sexp do
   let(:data)    { payload_for(:push, :csharp) }
   let(:script) { described_class.new(data) }
   subject { script.sexp }
