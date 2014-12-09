@@ -42,7 +42,7 @@ module Travis
           when 'osx'
             sh.cmd %Q{curl -s -L -o julia.dmg '#{julia_url}'}
             sh.cmd 'hdiutil mount -readonly julia.dmg'
-            sh.cmd 'cp -r -a /Volumes/Julia/*.app/Contents/Resources/julia ~/'
+            sh.cmd 'cp -a /Volumes/Julia/*.app/Contents/Resources/julia ~/'
           else
             sh.failure "Operating system not supported: #{config[:os]}"
           end
