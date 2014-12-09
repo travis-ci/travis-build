@@ -53,7 +53,7 @@ module Travis
 
         def script
           if config[:solution]
-            sh.cmd "xbuild #{config[:solution]}", timing: true if config[:solution]
+            sh.cmd "xbuild /p:Configuration=#{config[:configuration] || 'Release'} /p:Platform=\"#{config[:platform] || 'x64'}\" #{config[:solution]}", timing: true if config[:solution]
           else
             sh.echo 'No solution or script defined, exiting', ansi: :red
             sh.cmd 'false', echo: false, timing: false

@@ -56,7 +56,14 @@ describe Travis::Build::Script::Csharp, :sexp do
 
     it 'builds specified solution' do
       data[:config][:solution] = 'foo.sln'
-      should include_sexp [:cmd, 'xbuild foo.sln', echo: true, timing: true]
+      should include_sexp [:cmd, 'xbuild /p:Configuration=Release /p:Platform="x64" foo.sln', echo: true, timing: true]
+    end
+
+    it 'configuration and platform work' do
+      data[:config][:solution] = 'foo.sln'
+      data[:config][:configuration] = 'Debug'
+      data[:config][:platform] = 'x86'
+      should include_sexp [:cmd, 'xbuild /p:Configuration=Debug /p:Platform="x86" foo.sln', echo: true, timing: true]
     end
   end
 end
