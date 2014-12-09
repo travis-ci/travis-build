@@ -57,16 +57,17 @@ module Travis
         end
 
         def script
+          sh.echo 'Executing the default test script', ansi: :green
           set_jl_pkg
           # Check if the repository is a Julia package.
-          sh.if "-f src/#{ENV['JL_PKG']}.jl" do
+          sh.if "-f src/${JL_PKG}.jl" do
             sh.if '-a .git/shallow' do
               sh.cmd 'git fetch --unshallow'
             end
             sh.cmd "julia -e 'Pkg.clone(pwd())'"
-            sh.cmd "julia -e 'Pkg.build(#{ENV['JL_PKG']})'"
+            sh.cmd "julia -e 'Pkg.build(${JL_PKG})'"
             sh.if '-f test/runtests.jl' do
-              sh.cmd "julia --check-bounds=yes -e 'Pkg.test(#{ENV['JL_PKG']})'"
+              sh.cmd "julia --check-bounds=yes -e 'Pkg.test(${JL_PKG})'"
             end
           end
         end
