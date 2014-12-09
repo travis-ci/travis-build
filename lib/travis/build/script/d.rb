@@ -11,7 +11,7 @@ module Travis
         }
 
         def cache_slug
-          super << "--d-" << config[:d]
+          super << '--d-' << config[:d]
         end
 
         def export
@@ -23,44 +23,44 @@ module Travis
         def setup
           super
 
-          sh.echo <<-MSG, ansi: :green
-D support for Travis-CI is community maintained. Please make sure to
-ping @MartinNowak, @klickverbot and @ibuclaw when filing issues under
-https://github.com/travis-ci/travis-ci/issues.
-          MSG
+          sh.echo 'D support for Travis-CI is community maintained.', ansi: :green
+          sh.echo 'Please make sure to ping @MartinNowak, @klickverbot and @ibuclaw '\
+            'when filing issues under https://github.com/travis-ci/travis-ci/issues.', ansi: :green
 
-          sh.fold("compiler-download") do
-            sh.echo "Installing compiler and dub", ansi: :yellow
+          sh.fold 'compiler-download' do
+            sh.echo 'Installing compiler and dub', ansi: :yellow
 
             sh.cmd 'CURL_USER_AGENT="Travis-CI $(curl --version | head -n 1)"'
             sh.cmd 'curl() { command curl -fsSL --retry 3 -A "${CURL_USER_AGENT}" "$@"; }'
 
             case compiler_cmd
             when 'dmd'
-              binpath, libpath = {'linux' => ['dmd2/linux/bin64', 'dmd2/linux/lib64'],
-                                  'osx' => ['dmd2/linux/bin', 'dmd2/linux/lib']}[os]
+              binpath, libpath = {
+                'linux' => ['dmd2/linux/bin64', 'dmd2/linux/lib64'],
+                'osx' => ['dmd2/linux/bin', 'dmd2/linux/lib'] }[os]
 
               sh.cmd "curl #{compiler_url} > ~/dmd.zip"
-              sh.cmd "unzip -q -d ~ ~/dmd.zip"
+              sh.cmd 'unzip -q -d ~ ~/dmd.zip'
             when 'ldc2'
               binpath, libpath = 'ldc/bin', 'ldc/lib'
 
-              sh.cmd "mkdir ${HOME}/ldc", echo: false
+              sh.cmd 'mkdir ${HOME}/ldc', echo: false
               sh.cmd "curl #{compiler_url} | tar --strip-components=1 -C ~/ldc -Jxf -"
             when 'gdc'
               binpath, libpath = 'gdc/bin', 'gdc/lib'
 
-              sh.cmd "mkdir ${HOME}/gdc", echo: false
+              sh.cmd 'mkdir ${HOME}/gdc', echo: false
               sh.cmd "curl #{compiler_url} | tar --strip-components=1 -C ~/gdc -Jxf -"
-              sh.cmd 'curl https://raw.githubusercontent.com/D-Programming-GDC/GDMD/master/dmd-script > '+
+              sh.cmd 'curl https://raw.githubusercontent.com/D-Programming-GDC/GDMD/master/dmd-script > '\
                 "~/#{binpath}/gdmd && chmod +x ~/#{binpath}/gdmd"
             end
 
-            sh.cmd 'LATEST_DUB=$('+
-              'curl https://api.github.com/repos/D-Programming-Language/dub/tags | '+
-              'sed -n \'s|.*"name": "v\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\)".*|\1|p\' |'+
+            sh.cmd 'LATEST_DUB=$('\
+              'curl https://api.github.com/repos/D-Programming-Language/dub/tags | '\
+              'sed -n \'s|.*"name": "v\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\)".*|\1|p\' |'\
               'sort | tail -n 1)', echo: false
-            sh.cmd "curl http://code.dlang.org/files/dub-${LATEST_DUB}-#{os}-x86_64.tar.gz | tar -C ~/#{binpath} -xzf -"
+            sh.cmd "curl http://code.dlang.org/files/dub-${LATEST_DUB}-#{os}-x86_64.tar.gz"\
+              " | tar -C ~/#{binpath} -xzf -"
             sh.cmd "export PATH=\"${HOME}/#{binpath}:${PATH}\""
             sh.cmd "export LD_LIBRARY_PATH=\"${HOME}/#{libpath}:${LD_LIBRARY_PATH}\""
           end
@@ -85,7 +85,7 @@ https://github.com/travis-ci/travis-ci/issues.
           config[:os] || 'linux'
         end
 
-        def compiler_url compiler=config[:d]
+        def compiler_url(compiler = config[:d])
           case compiler
           # dmd-2.062, dmd-2.065.0, dmd-2.066.1-rc.3
           when /^dmd-2\.(\d{3}(\.\d(-.*)?)?)$/
@@ -98,7 +98,8 @@ https://github.com/travis-ci/travis-ci/issues.
             end
           # ldc-0.12.1 or ldc-0.15.0-alpha1
           when /^ldc-(\d+\.\d+\.\d+(-.*)?)$/
-            "https://github.com/ldc-developers/ldc/releases/download/v#{$1}/ldc2-#{$1}-#{os}-x86_64.tar.xz"
+            'https://github.com/ldc-developers/ldc/releases/download'\
+              "/v#{$1}/ldc2-#{$1}-#{os}-x86_64.tar.xz"
           # gdc-4.8.2 or gdc-4.9.0-alpha1
           when /^gdc-(\d+\.\d+\.\d+(-.*)?)$/
             case os
@@ -107,7 +108,7 @@ https://github.com/travis-ci/travis-ci/issues.
             when 'osx'
               host_triplet = 'x86_64-apple-darwin'
             else
-              raise "GDC is currently not supported on #{os}."
+              fail "GDC is currently not supported on #{os}."
             end
             "http://gdcproject.org/downloads/binaries/#{host_triplet}/gdc-#{$1}.tar.xz"
           end
@@ -115,23 +116,23 @@ https://github.com/travis-ci/travis-ci/issues.
 
         def compiler_cmd
           case config[:d]
-            when /^ldc/
-              'ldc2'
-            when /^gdc/
-              'gdc'
-            else
-              'dmd'
+          when /^ldc/
+            'ldc2'
+          when /^gdc/
+            'gdc'
+          else
+            'dmd'
           end
         end
 
         def dmd_cmd
           case config[:d]
-            when /^ldc/
-              'ldmd2'
-            when /^gdc/
-              'gdmd'
-            else
-              'dmd'
+          when /^ldc/
+            'ldmd2'
+          when /^gdc/
+            'gdmd'
+          else
+            'dmd'
           end
         end
       end
