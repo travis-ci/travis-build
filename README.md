@@ -50,8 +50,8 @@ The command can be invoked in 3 ways:
 
     `$ travis compile`
 
-1. With a single integer, it produces the script for the given build.
-(or the first job of that build)
+1. With a single integer, it produces the script for the given build
+(or the first job of that build matrix).
 
     `$ travis compile 8`
 
