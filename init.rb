@@ -1,8 +1,9 @@
 module Travis
   module CLI
-    class Run < RepoCommand
-      description "executes a stage from the .travis.yml"
-      on '-p', '--print', 'output stage instead of running it'
+    class Compile < RepoCommand
+      description "compiles a build script from .travis.yml"
+
+      attr_accessor :slug
 
       def setup
         error "run command is not available on #{RUBY_VERSION}" if RUBY_VERSION < '1.9.3'
@@ -10,33 +11,67 @@ module Travis
         require 'travis/build'
       end
 
-      def run(*stages)
-        stages << 'script' if stages.empty?
-        script = Travis::Build.script(data)
-        stages.each do |stage|
-          script.sh.export('TRAVIS_STAGE', stage, :echo => false)
-          script.run_stage(stage.to_sym)
+      def run(*arg)
+        @slug = find_slug
+        if match_data = /\A(?<build>\d+)(\.(?<job>\d+))?\z/.match(arg.first)
+          set_up_config(match_data)
+        elsif arg.length > 0
+          warn "#{arg.first} does not look like a job number. Last build's first job is assumed."
+          @config = last_build.jobs[0].config
+        else
+          ## No arg case; use .travis.yml from $PWD
+          config = travis_config
+
+          global_env = sanitize_global_env(config)
+
+          if config.has_key? 'matrix'
+            warn 'matrix key is ignored'
+            config.delete_if { |k,v| k == 'matrix' }
+          end
+
+          unless config['os'].respond_to? :scan
+            warn "'os' key is unsupported in local build script compilation. Setting to default, 'linux'."
+            config['os'] = 'linux'
+          end
+
+          set_up_env(config, global_env)
         end
-        source = script.header(Dir.pwd) + "\n" + script.sh.to_s
-        print? ? puts(source) : run_script(source, *stages)
+
+        puts Travis::Build.script(data).compile(true)
       end
 
       private
-
-        def run_script(source, *stages)
-          script = File.expand_path(
-            "~/.travis/.build/#{find_slug}/travis-build-" << stages.join('-')
-          )
-          FileUtils.mkdir_p(File.dirname(script))
-          File.open(script, 'w') { |f| f.write(source) }
-          FileUtils.chmod(0755, script)
-          exec(script)
-        end
-
         def data
           {
-            :config => travis_config
+            :config => @config,
+            :repository => {
+              :slug => slug
+            }
           }
+        end
+
+        def set_up_config(match_data)
+          @build = build(match_data[:build])
+          @job_number = match_data[:job].to_i - 1
+          @config = @build.jobs[@job_number].config
+        end
+
+        def sanitize_global_env(config)
+          global_env = []
+          if config.has_key? 'env'
+            if config['env']['matrix']
+              warn 'env.matrix key is ignored'
+            end
+            global_env = config['env'].fetch('global', [])
+            global_env.delete_if { |v| v.is_a? Hash }
+          end
+
+          global_env
+        end
+
+        def set_up_env(config, global_env)
+          @config = config.delete_if {|k,v| k == 'env' }
+          @config['env'] = global_env
         end
     end
   end

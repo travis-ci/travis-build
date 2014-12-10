@@ -113,7 +113,7 @@ module Travis
       end
 
       def slug
-        repository[:slug] || raise('data.slug must not empty')
+        repository[:slug] || raise('data.slug must not be empty')
       end
 
       def github_id
