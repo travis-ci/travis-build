@@ -11,6 +11,7 @@ require 'travis/build/addons/hosts'
 require 'travis/build/addons/mariadb'
 require 'travis/build/addons/postgresql'
 require 'travis/build/addons/sauce_connect'
+require 'travis/build/addons/jwt'
 require 'travis/build/addons/ssh_known_hosts'
 require 'travis/build/addons/sonarqube'
 
