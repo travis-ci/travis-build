@@ -26,6 +26,7 @@ module Travis
           super
           sh.cmd 'php --version'
           sh.cmd 'composer --version' unless version == '5.2'
+          sh.echo '${ANSI_RESET}', echo: false
         end
 
         def before_install
