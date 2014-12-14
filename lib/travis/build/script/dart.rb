@@ -20,7 +20,7 @@ module Travis
           sh.echo 'Please file any issues using the following link',
             ansi: :green
           sh.echo '  https://github.com/travis-ci/travis-ci/issues' \
-            '/new?labels=dart', ansi: :green
+            '/new?labels=community:dart', ansi: :green
           sh.echo 'and mention \`@a14n\` in the issue', ansi: :green
 
           sh.echo 'Installing Dart', ansi: :yellow
