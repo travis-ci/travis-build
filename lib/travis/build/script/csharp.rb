@@ -23,7 +23,7 @@ module Travis
             if config[:csharp] == 'mono'
               sh.echo 'Installing Mono', ansi: :yellow
 
-              sh.cmd 'sudo apt-key adv --keyserver pgp.mit.edu --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF', echo: false
+              sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF', echo: false
               sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false
               sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy-libtiff-compat main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false
               sh.cmd 'sudo apt-get update -qq', timing: true
