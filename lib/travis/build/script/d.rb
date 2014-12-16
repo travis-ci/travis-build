@@ -37,7 +37,7 @@ module Travis
             when 'dmd'
               binpath, libpath = {
                 'linux' => ['dmd2/linux/bin64', 'dmd2/linux/lib64'],
-                'osx' => ['dmd2/linux/bin', 'dmd2/linux/lib'] }[os]
+                'osx' => ['dmd2/osx/bin', 'dmd2/osx/lib'] }[os]
 
               sh.cmd "curl #{compiler_url} > ~/dmd.zip"
               sh.cmd 'unzip -q -d ~ ~/dmd.zip'
