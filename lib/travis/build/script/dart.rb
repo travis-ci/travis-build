@@ -21,7 +21,8 @@ module Travis
             ansi: :green
           sh.echo '  https://github.com/travis-ci/travis-ci/issues' \
             '/new?labels=community:dart', ansi: :green
-          sh.echo 'and mention \`@a14n\` in the issue', ansi: :green
+          sh.echo 'and mention \`@a14n\` and \`@sethladd\` in the issue',
+            ansi: :green
 
           sh.echo 'Installing Dart', ansi: :yellow
           sh.cmd "sudo apt-get update"
