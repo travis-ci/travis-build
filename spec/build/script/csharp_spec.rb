@@ -13,7 +13,7 @@ describe Travis::Build::Script::Csharp, :sexp do
 
   describe 'configure' do
     it 'sets up package repository' do
-      should include_sexp [:cmd, 'sudo apt-key adv --keyserver pgp.mit.edu --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF']
+      should include_sexp [:cmd, 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF']
       should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy main' >> /etc/apt/sources.list.d/mono-xamarin.list\""]
       should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy-libtiff-compat main' >> /etc/apt/sources.list.d/mono-xamarin.list\""]
       should include_sexp [:cmd, 'sudo apt-get update -qq', timing: true]
