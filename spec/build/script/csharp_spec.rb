@@ -20,7 +20,7 @@ describe Travis::Build::Script::Csharp, :sexp do
     end
 
     it 'installs mono' do
-      should include_sexp [:cmd, 'sudo apt-get install -qq mono-complete nuget mono-vbnc fsharp', timing: true]
+      should include_sexp [:cmd, 'sudo apt-get install -qq mono-complete nuget nunit-console mono-vbnc fsharp', timing: true]
       should include_sexp [:cmd, 'mozroots --import --sync --quiet', timing: true]
     end
   end
