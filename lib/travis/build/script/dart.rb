@@ -24,9 +24,6 @@ module Travis
           sh.echo 'and mention \`@a14n\`, \`@devoncarew\` and \`@sethladd\`' \
             ' in the issue', ansi: :green
 
-          sh.cmd 'sudo apt-get update'
-          sh.cmd 'sudo apt-get install -y unzip curl'
-
           sh.echo 'Installing Dart', ansi: :yellow
           sh.cmd "curl #{archive_url}/sdk/dartsdk-linux-x64-release.zip > dartsdk.zip"
           sh.cmd "unzip dartsdk.zip > /dev/null"
