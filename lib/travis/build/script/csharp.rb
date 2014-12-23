@@ -27,7 +27,7 @@ module Travis
               sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false
               sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy-libtiff-compat main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false
               sh.cmd 'sudo apt-get update -qq', timing: true
-              sh.cmd 'sudo apt-get install -qq mono-complete nuget mono-vbnc fsharp', timing: true
+              sh.cmd 'sudo apt-get install -qq mono-complete referenceassemblies-pcl nuget mono-vbnc fsharp', timing: true
               sh.cmd 'mozroots --import --sync --quiet', timing: true
             end
           end
