@@ -13,11 +13,6 @@ describe Travis::Build::Script::Dart, :sexp do
     should include_sexp [:export, ['TRAVIS_DART_VERSION', 'stable']]
   end
 
-  it 'install dart' do
-    should include_sexp [:cmd, %r(sudo apt-get install -y dart.*), assert: true,
-      echo: true, timing: true]
-  end
-
   it 'sets DART_SDK' do
     should include_sexp [:cmd, %r(export DART_SDK=.*), assert: true,
       echo: true, timing: true]

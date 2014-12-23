@@ -24,24 +24,15 @@ module Travis
           sh.echo 'and mention \`@a14n\`, \`@devoncarew\` and \`@sethladd\`' \
             ' in the issue', ansi: :green
 
+          sh.cmd 'sudo apt-get update'
+          sh.cmd 'sudo apt-get install -y unzip curl'
+
           sh.echo 'Installing Dart', ansi: :yellow
-          sh.cmd "sudo apt-get update"
-          sh.cmd "sudo apt-get install -y apt-transport-https curl"
-          sh.cmd "sudo sh -c 'curl https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -'"
-          sh.cmd "sudo sh -c 'curl https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list > /etc/apt/sources.list.d/dart_stable.list'"
-          sh.cmd "sudo sh -c 'curl https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_unstable.list > /etc/apt/sources.list.d/dart_unstable.list'"
-          sh.cmd "sudo apt-get update"
-          case config[:dart]
-          when 'stable'
-            sh.cmd "sudo apt-get install -y dart/stable"
-          when 'dev'
-            sh.cmd "sudo apt-get install -y dart/unstable"
-          when 'unstable'
-            sh.cmd "sudo apt-get install -y dart/unstable"
-          else
-            sh.cmd "sudo apt-get install -y dart=#{config[:dart]}"
-          end
-          sh.cmd 'export DART_SDK="/usr/lib/dart/"'
+          sh.cmd "curl #{archive_url}/sdk/dartsdk-linux-x64-release.zip > dartsdk.zip"
+          sh.cmd "unzip dartsdk.zip > /dev/null"
+          sh.cmd "rm dartsdk.zip"
+          sh.cmd 'export DART_SDK="${PWD%/}/dart-sdk"'
+          sh.cmd 'export PATH="$DART_SDK/bin:$PATH"'
         end
 
         def announce
@@ -62,6 +53,15 @@ module Travis
             sh.cmd 'dart test/all_test.dart'
           end
         end
+
+        private
+
+          def archive_url
+            if not ["stable", "dev"].include?(config[:dart])
+              sh.failure "Only 'stable' and 'dev' can be used as dart version for now"
+            end
+            "http://storage.googleapis.com/dart-archive/channels/#{config[:dart]}/release/latest"
+          end
       end
     end
   end
