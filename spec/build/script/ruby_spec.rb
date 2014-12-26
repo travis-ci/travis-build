@@ -136,4 +136,14 @@ describe Travis::Build::Script::Ruby, :sexp do
       it { is_expected.to eq('cache--jdk-openjdk7--rvm-jruby--gemfile-Gemfile') }
     end
   end
+
+  context 'when testing with rbx' do
+    before :each do
+      data[:config][:rvm] = 'rbx'
+    end
+
+    it 'sets autolibs to disable' do
+      should include_sexp [:cmd, "rvm autolibs disable", assert: true]
+    end
+  end
 end

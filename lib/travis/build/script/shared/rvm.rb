@@ -37,6 +37,10 @@ module Travis
 
         private
 
+          def version
+            config[:rvm].to_s
+          end
+
           def rvm?
             !!config[:rvm]
           end
@@ -92,9 +96,18 @@ module Travis
           end
 
           def use_ruby_version
+            skip_deps_install if rbx?
             sh.fold('rvm') do
               sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy"
             end
+          end
+
+          def rbx?
+            /^(rbx\S*)/.match(version)
+          end
+
+          def skip_deps_install
+            sh.cmd "rvm autolibs disable", echo: false, timing: false
           end
       end
     end
