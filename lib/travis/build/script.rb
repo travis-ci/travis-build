@@ -91,6 +91,7 @@ module Travis
           apply :show_system_info
           apply :fix_resolv_conf
           apply :fix_etc_hosts
+          apply :put_localhost_first
         end
 
         def checkout
