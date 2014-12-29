@@ -30,6 +30,9 @@ module Travis
           sh.cmd "rm dartsdk.zip"
           sh.cmd 'export DART_SDK="${PWD%/}/dart-sdk"'
           sh.cmd 'export PATH="$DART_SDK/bin:$PATH"'
+
+          sh.echo 'Installing Test Runner', ansi: :yellow
+          sh.cmd "pub global activate test_runner"
         end
 
         def announce
@@ -46,9 +49,7 @@ module Travis
         end
 
         def script
-          sh.if '-f test/all_test.dart' do
-            sh.cmd 'dart test/all_test.dart'
-          end
+          sh.cmd 'pub global run test_runner --skip-browser-tests'
         end
 
         private
