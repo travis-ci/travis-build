@@ -67,7 +67,8 @@ module Travis
             sh.cmd "julia -e 'Pkg.clone(pwd())'"
             sh.cmd 'julia -e "Pkg.build(\"${JL_PKG}\")"'
             sh.if '-f test/runtests.jl' do
-              sh.cmd 'julia --check-bounds=yes -e "Pkg.test(\"${JL_PKG}\")"'
+              sh.cmd 'julia --check-bounds=yes ' \
+                '-e "Pkg.test(\"${JL_PKG}\", coverage=true)"'
             end
           end
         end
