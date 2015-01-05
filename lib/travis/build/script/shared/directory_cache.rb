@@ -30,8 +30,6 @@ module Travis
         end
 
         def after_result
-          # only publish cache from pushes to master
-          return if data.pull_request
           directory_cache.fold('store build cache') do
             prepare_cache
             directory_cache.push
