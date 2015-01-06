@@ -9,11 +9,17 @@ module Travis
         def export
           super
           sh.export 'TRAVIS_OTP_RELEASE', otp_release, echo: false
+          sh.export 'TRAVIS_ELIXIR_VERSION', elixir, echo: false
         end
 
-        def setup
+        def announce
           super
-          sh.cmd "source #{HOME_DIR}/otp/#{otp_release}/activate"
+          sh.cmd "source #{HOME_DIR}/otp/#{otp_release}/activate", assert: true
+          if !elixir.empty?
+            sh.if has_elixir(elixir) do
+              sh.cmd "source #{HOME_DIR}/.kiex/elixirs/elixir-#{elixir}.env", assert: true
+            end
+          end
         end
 
         def install
@@ -47,8 +53,20 @@ module Travis
             config[:otp_release].to_s
           end
 
+          def elixir
+            config[:elixir].to_s
+          end
+
           def rebar_configured
             '(-f rebar.config || -f Rebar.config)'
+          end
+
+          def has_elixir(version)
+            "-f #{exlixir_env_file(version)}"
+          end
+
+          def exlixir_env_file(version)
+            "#{HOME_DIR}/.kiex/elixirs/elixir-#{version}.env"
           end
       end
     end
