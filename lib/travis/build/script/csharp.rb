@@ -48,7 +48,7 @@ module Travis
         end
 
         def install
-          sh.cmd "nuget restore #{config[:solution]}" if config[:solution]
+          sh.cmd "nuget restore #{config[:solution]}", retry: true if config[:solution]
         end
 
         def script
