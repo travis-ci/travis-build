@@ -45,7 +45,7 @@ describe Travis::Build::Script::Csharp, :sexp do
   describe 'install' do
     it 'restores nuget from solution' do
       data[:config][:solution] = 'foo.sln'
-      should include_sexp [:cmd, 'nuget restore foo.sln', assert: true, echo: true, timing: true]
+      should include_sexp [:cmd, 'nuget restore foo.sln', assert: true, echo: true, timing: true, retry: true]
     end
   end
 
