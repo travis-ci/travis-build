@@ -13,7 +13,9 @@ module Travis
         apt:       false,
         bundler:   false,
         cocoapods: false,
-        composer:  false
+        composer:  false,
+        ccache:    false,
+        pip:       false
       }
 
       attr_reader :data

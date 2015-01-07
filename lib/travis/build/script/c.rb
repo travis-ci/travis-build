@@ -24,6 +24,19 @@ module Travis
           super << '--compiler-' << compiler
         end
 
+        def install
+          super
+          sh.export 'CCACHE_DISABLE', 'true', echo: false
+          if data.cache?(:ccache)
+            sh.export 'CCACHE_DISABLE', 'false', echo: false
+            directory_cache.add('~/.ccache')
+          end
+        end
+
+        def use_directory_cache?
+          super || data.cache?(:ccache)
+        end
+
         private
 
           def compiler
