@@ -7,7 +7,7 @@ module Travis
   module Build
     class Git
       DEFAULTS = {
-        git: { depth: 50, submodules: true, strategy: 'clone' }
+        git: { depth: 50, submodules: true, strategy: 'clone', quiet: false }
       }
 
       attr_reader :sh, :data

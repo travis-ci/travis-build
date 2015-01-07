@@ -9,13 +9,15 @@ describe Travis::Build::Git::Clone, :sexp do
   let(:dir)    { 'travis-ci/travis-ci' }
   let(:depth)  { Travis::Build::Git::DEFAULTS[:git][:depth] }
   let(:branch) { payload[:job][:branch] || 'master' }
+  let(:quiet)  { Travis::Build::Git::DEFAULTS[:git][:quiet] }
+  let(:quiet_o){ '' }
 
   before :each do
     payload[:config][:git] = { strategy: 'clone' }
   end
 
   describe 'when the repository is cloned not yet' do
-    let(:args) { "--depth=#{depth} --branch=#{branch.shellescape}" }
+    let(:args) { "--depth=#{depth} --branch=#{branch.shellescape} #{quiet_o}" }
     let(:cmd)  { "git clone #{args} #{url} #{dir}" }
     subject    { sexp_find(sexp, [:if, "! -d #{dir}/.git"]) }
 
