@@ -9,6 +9,7 @@ describe Travis::Build::Git::Clone, :sexp do
   let(:dir)    { 'travis-ci/travis-ci' }
   let(:depth)  { Travis::Build::Git::DEFAULTS[:git][:depth] }
   let(:branch) { payload[:job][:branch] || 'master' }
+  let(:quiet)  { Travis::Build::Git::DEFAULTS[:git][:quiet] }
 
   before :each do
     payload[:config][:git] = { strategy: 'clone' }
