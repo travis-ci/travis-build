@@ -15,6 +15,8 @@ describe Travis::Build::Addons::Deploy, :sexp do
 
   let(:terminate_on_failure) { [:if, '$? -ne 0', [:then, [:cmds, [[:echo, 'Failed to deploy.', ansi: :red], [:cmd, 'travis_terminate 2']]]]] }
 
+  it { store_example }
+
   it_behaves_like 'compiled script' do
     let(:cmds) { ['ruby -S gem install dpl', 'ruby -S dpl'] }
   end

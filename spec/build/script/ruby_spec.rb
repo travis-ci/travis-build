@@ -4,6 +4,7 @@ describe Travis::Build::Script::Ruby, :sexp do
   let(:data)   { payload_for(:push, :ruby) }
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
+  it           { store_example }
 
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=ruby'] }
@@ -60,17 +61,6 @@ describe Travis::Build::Script::Ruby, :sexp do
     it 'uses chruby to set the version' do
       # should include_sexp [:cmd, 'chruby 2.1.1', assert: true, echo: true]
       should include_sexp [:cmd, 'chruby 2.1.1', assert: true, echo: true, timing: true]
-    end
-  end
-
-  context 'when running on Rubinius' do
-    before :each do
-      data[:config][:rvm] = 'rbx'
-    end
-
-    it "runs bundle install without '--jobs' if a Gemfile exists" do
-      sexp = sexp_find(sexp_filter(subject, [:if, '-f Gemfile'])[1], [:if, '-f Gemfile.lock'], [:else])
-      should include_sexp [:cmd, 'bundle install --retry=3', assert: true, echo: true, timing: true, retry: true]
     end
   end
 
@@ -144,6 +134,16 @@ describe Travis::Build::Script::Ruby, :sexp do
       before { data.deep_merge!(config: { rvm: 'jruby', jdk: 'openjdk7' }) }
       subject { script.cache_slug }
       it { is_expected.to eq('cache--jdk-openjdk7--rvm-jruby--gemfile-Gemfile') }
+    end
+  end
+
+  context 'when testing with rbx' do
+    before :each do
+      data[:config][:rvm] = 'rbx'
+    end
+
+    it 'sets autolibs to disable' do
+      should include_sexp [:cmd, "rvm autolibs disable", assert: true]
     end
   end
 end

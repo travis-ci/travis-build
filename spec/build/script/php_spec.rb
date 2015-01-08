@@ -4,6 +4,7 @@ describe Travis::Build::Script::Php, :sexp do
   let(:data)     { payload_for(:push, :php) }
   let(:script)   { described_class.new(data) }
   subject(:sexp) { script.sexp }
+  it             { store_example }
 
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=php'] }

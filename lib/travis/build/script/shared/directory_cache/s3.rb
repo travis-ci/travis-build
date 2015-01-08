@@ -7,6 +7,16 @@ module Travis
     class Script
       module DirectoryCache
         class S3
+          MSGS = {
+            config_missing: 'Worker S3 config missing: %s'
+          }
+
+          VALIDATE = {
+            bucket:            'bucket name',
+            access_key_id:     'access key id',
+            secret_access_key: 'secret access key'
+          }
+
           KeyPair = Struct.new(:id, :secret)
 
           Location = Struct.new(:scheme, :region, :bucket, :path) do
@@ -20,13 +30,19 @@ module Travis
           USE_RUBY   = '1.9.3'
           BIN_PATH   = '$CASHER_DIR/bin/casher'
 
-          attr_reader :sh, :data, :slug, :start
+          attr_reader :sh, :data, :slug, :start, :msgs
 
           def initialize(sh, data, slug, start = Time.now)
             @sh = sh
             @data = data
             @slug = slug
             @start = start
+            @msgs = []
+          end
+
+          def valid?
+            validate
+            msgs.empty?
           end
 
           def setup
@@ -84,6 +100,11 @@ module Travis
 
           private
 
+            def validate
+              VALIDATE.each { |key, msg| msgs << msg unless s3_options[key] }
+              sh.echo MSGS[:config_missing] % msgs.join(', '), ansi: :red unless msgs.empty?
+            end
+
             def run(command, args, options = {})
               sh.if "-f #{BIN_PATH}" do
                 sh.cmd "rvm #{USE_RUBY} --fuzzy do #{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false)
@@ -122,7 +143,7 @@ module Travis
             end
 
             def url(verb, path, options = {})
-              AWS4Signature.new(key_pair, verb, location(path), options[:expires], start).to_uri
+              AWS4Signature.new(key_pair, verb, location(path), options[:expires], start).to_uri.to_s.untaint
             end
 
             def key_pair
@@ -130,7 +151,7 @@ module Travis
             end
 
             def s3_options
-              options.fetch(:s3)
+              options[:s3] || {}
             end
 
             def options

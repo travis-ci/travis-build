@@ -33,6 +33,7 @@ describe Travis::Build::Addons::SauceConnect, :sexp do
     it { should include_sexp [:export, ['SAUCE_ACCESS_KEY', 'access_key']] }
 
     it_behaves_like 'starts sauce connect'
+    it { store_example }
   end
 end
 

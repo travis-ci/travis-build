@@ -13,12 +13,15 @@ require 'travis/build/script/android'
 require 'travis/build/script/c'
 require 'travis/build/script/cpp'
 require 'travis/build/script/clojure'
+require 'travis/build/script/csharp'
+require 'travis/build/script/d'
 require 'travis/build/script/erlang'
 require 'travis/build/script/elixir'
 require 'travis/build/script/go'
 require 'travis/build/script/groovy'
 require 'travis/build/script/generic'
 require 'travis/build/script/haskell'
+require 'travis/build/script/julia'
 require 'travis/build/script/node_js'
 require 'travis/build/script/objective_c'
 require 'travis/build/script/perl'
@@ -56,8 +59,8 @@ module Travis
         @stages = Stages.new(self, sh, config)
       end
 
-      def compile
-        Shell.generate(sexp)
+      def compile(ignore_taint = false)
+        Shell.generate(sexp, ignore_taint)
       end
 
       def sexp
@@ -89,6 +92,7 @@ module Travis
           apply :show_system_info
           apply :fix_resolv_conf
           apply :fix_etc_hosts
+          apply :put_localhost_first
         end
 
         def checkout
