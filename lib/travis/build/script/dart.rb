@@ -24,15 +24,19 @@ module Travis
           sh.echo 'and mention \`@a14n\`, \`@devoncarew\` and \`@sethladd\`' \
             ' in the issue', ansi: :green
 
-          sh.echo 'Installing Dart', ansi: :yellow
-          sh.cmd "curl #{archive_url}/sdk/dartsdk-linux-x64-release.zip > dartsdk.zip"
-          sh.cmd "unzip dartsdk.zip > /dev/null"
-          sh.cmd "rm dartsdk.zip"
-          sh.cmd 'export DART_SDK="${PWD%/}/dart-sdk"'
-          sh.cmd 'export PATH="$DART_SDK/bin:$PATH"'
+          sh.fold 'Dart install' do
+            sh.echo 'Installing Dart', ansi: :yellow
+            sh.cmd "curl #{archive_url}/sdk/dartsdk-linux-x64-release.zip > dartsdk.zip"
+            sh.cmd "unzip dartsdk.zip > /dev/null"
+            sh.cmd "rm dartsdk.zip"
+            sh.cmd 'export DART_SDK="${PWD%/}/dart-sdk"'
+            sh.cmd 'export PATH="$DART_SDK/bin:$PATH"'
+          end
 
-          sh.echo 'Installing Test Runner', ansi: :yellow
-          sh.cmd "pub global activate test_runner"
+          sh.fold 'Test Runner install' do
+            sh.echo 'Installing Test Runner', ansi: :yellow
+            sh.cmd "pub global activate test_runner"
+          end
         end
 
         def announce
