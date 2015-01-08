@@ -40,6 +40,7 @@ module Travis
           def clone_args
             args = "--depth=#{depth}"
             args << " --branch=#{branch}" unless data.ref
+            args << " --quiet" if quiet?
             args
           end
 
@@ -49,6 +50,10 @@ module Travis
 
           def branch
             data.branch.shellescape
+          end
+
+          def quiet?
+            config[:git][:quiet]
           end
 
           def dir

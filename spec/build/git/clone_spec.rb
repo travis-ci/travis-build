@@ -35,6 +35,14 @@ describe Travis::Build::Git::Clone, :sexp do
       before { payload[:job][:branch] = 'foo->bar' }
       it { should include_sexp clone }
     end
+
+    context 'when git.quiet is true' do
+      before :each do
+        payload[:config][:git].merge!({ quiet: true })
+      end
+      let(:args) { "--depth=#{depth} --branch=#{branch.shellescape} --quiet" }
+      it { should include_sexp clone }
+    end
   end
 
   describe 'when the repository is already cloned' do
