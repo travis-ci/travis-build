@@ -9,7 +9,6 @@ describe Travis::Build::Git::Clone, :sexp do
   let(:dir)    { 'travis-ci/travis-ci' }
   let(:depth)  { Travis::Build::Git::DEFAULTS[:git][:depth] }
   let(:branch) { payload[:job][:branch] || 'master' }
-  let(:quiet)  { Travis::Build::Git::DEFAULTS[:git][:quiet] }
 
   before :each do
     payload[:config][:git] = { strategy: 'clone' }
@@ -34,6 +33,14 @@ describe Travis::Build::Git::Clone, :sexp do
 
     describe 'escapes the branch name' do
       before { payload[:job][:branch] = 'foo->bar' }
+      it { should include_sexp clone }
+    end
+
+    context 'when git.quiet is true' do
+      before :each do
+        payload[:config][:git].merge!({ quiet: true })
+      end
+      let(:args) { "--depth=#{depth} --branch=#{branch.shellescape} --quiet" }
       it { should include_sexp clone }
     end
   end
