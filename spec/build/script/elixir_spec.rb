@@ -24,6 +24,10 @@ describe Travis::Build::Script::Elixir, :sexp do
     should include_sexp [:cmd, 'kiex use 1.0.2', echo: true]
   end
 
+  it 'announces elixir version' do
+    should include_sexp [:cmd, 'elixir --version', echo: true]
+  end
+
   describe 'install' do
   end
 

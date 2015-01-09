@@ -16,6 +16,7 @@ module Travis
           super
           sh.cmd "source #{HOME_DIR}/otp/#{otp_release}/activate"
           sh.cmd "kiex use #{elixir_version}"
+          sh.cmd "elixir --version"
         end
 
         def install
