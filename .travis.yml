@@ -4,7 +4,7 @@ cache: bundler
 
 sudo: false
 
-script: "bundle exec rspec spec"
+script: false # "bundle exec rspec spec"
 before_deploy: ruby script/build_s3_index_html.rb
 
 deploy:
