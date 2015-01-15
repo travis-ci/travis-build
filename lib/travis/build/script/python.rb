@@ -26,6 +26,9 @@ module Travis
         end
 
         def install
+          if data.cache?(:pip)
+            directory_cache.add '$HOME/.cache/pip'
+          end
           sh.if '-f Requirements.txt' do
             sh.cmd 'pip install -r Requirements.txt', fold: 'install', retry: true
           end
@@ -46,6 +49,10 @@ module Travis
 
         def cache_slug
           super << '--python-' << version
+        end
+
+        def use_directory_cache?
+          super || data.cache?(:pip)
         end
 
         private
