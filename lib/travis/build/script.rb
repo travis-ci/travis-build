@@ -112,6 +112,11 @@ module Travis
         def disable_sudo
           apply :disable_sudo
         end
+
+        def config_env_vars
+          @config_env_vars ||= Build::Env::Config.new(data, config)
+          Array(@config_env_vars.data[:env])
+        end
     end
   end
 end

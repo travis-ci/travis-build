@@ -47,6 +47,8 @@ describe Travis::Build::Script::Python, :sexp do
 
   describe 'install' do
     let(:sexp) { sexp_find(subject, [:if, '-f Requirements.txt']) }
+    let(:options) { { fetch_timeout: 20, push_timeout: 30, type: 's3', s3: { bucket: 's3_bucket', secret_access_key: 's3_secret_access_key', access_key_id: 's3_access_key_id' } } }
+    let(:data)   { payload_for(:push, :python, config: { cache: 'pip' }, cache_options: options) }
 
     it 'installs with pip if Requirements.txt exists' do
       branch = sexp_find(sexp, [:then])
@@ -61,6 +63,10 @@ describe Travis::Build::Script::Python, :sexp do
     it 'errors if no requirements file exists' do
       branch = sexp_find(sexp, [:else])
       expect(branch).to include_sexp [:echo, described_class::REQUIREMENTS_MISSING] #, ansi: :red
+    end
+
+    it 'adds $HOME/.cache/pip to directory cache' do
+      should include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher add $HOME/.cache/pip', assert: true, timing: true]
     end
   end
 
