@@ -18,7 +18,7 @@ describe Travis::Build::Script::Erlang, :sexp do
   end
 
   it 'activates otp' do
-    should include_sexp [:cmd, 'source $HOME/otp/R14B04/activate', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'source $HOME/otp/R14B04/activate', assert: true, echo: true]
   end
 
   describe 'install' do
@@ -58,6 +58,16 @@ describe Travis::Build::Script::Erlang, :sexp do
   describe '#cache_slug' do
     subject { described_class.new(data).cache_slug }
     it { is_expected.to eq('cache--otp-R14B04') }
+  end
+
+  context 'when elixir is defined' do
+    it { store_example 'elixir config' }
+
+    before(:each) { data[:config][:elixir] = '1.0.2' }
+
+    it 'activates elixir' do
+      should include_sexp [:cmd, 'source $HOME/.kiex/elixirs/elixir-1.0.2.env', echo: true, assert: true]
+    end
   end
 end
 
