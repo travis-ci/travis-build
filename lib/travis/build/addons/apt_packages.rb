@@ -14,12 +14,12 @@ module Travis
               if whitelist.include?(package)
                 whitelisted << package
               else
-                sh.echo "Ignoring unknown or disallowed package #{package.inspect}"
+                sh.echo "Ignoring unknown/disallowed package #{package.inspect}"
               end
             end
 
             sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
-            sh.cmd "apt-get -yq install #{whitelisted.join(' ')}"
+            sh.cmd "apt-get -yq install #{whitelisted.join(' ')}", echo: true, timing: true
           end
         end
 
