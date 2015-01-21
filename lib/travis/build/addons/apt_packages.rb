@@ -7,8 +7,9 @@ module Travis
         SUPER_USER_SAFE = true
 
         def after_prepare
-          sh.echo "Installing APT Packages (BETA)", ansi: :yellow
           sh.fold 'apt_packages.0' do
+            sh.echo "Installing APT Packages (BETA)", ansi: :yellow
+
             whitelisted = []
             config.each do |package|
               if whitelist.include?(package)
