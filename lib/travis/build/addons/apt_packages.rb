@@ -26,8 +26,7 @@ module Travis
               sh.echo 'If you require these packages, please submit them for ' \
                       'review in a new issue:'
               sh.echo '    https://github.com/travis-ci/travis-ci/issues/new' \
-                          '?labels[]=apt-whitelist&labels[]=travis-build' \
-                          "&title=APT+whitelist+request+for+#{disallowed.join(',+')}"
+                          "?title=APT+whitelist+request+for+#{disallowed.join(',+')}"
             end
 
             unless whitelisted.empty?
