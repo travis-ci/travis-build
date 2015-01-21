@@ -15,7 +15,7 @@ describe Travis::Build::Addons::AptPackages, :sexp do
   end
 
   def apt_get_install_command(*packages)
-    "apt-get -yq install #{packages.join(' ')}"
+    "sudo -E apt-get -yq install #{packages.join(' ')}"
   end
 
   context 'with multiple whitelisted packages' do

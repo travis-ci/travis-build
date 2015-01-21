@@ -19,7 +19,7 @@ module Travis
             end
 
             sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
-            sh.cmd "apt-get -yq install #{whitelisted.join(' ')}", echo: true, timing: true
+            sh.cmd "sudo -E apt-get -yq install #{whitelisted.join(' ')}", echo: true, timing: true
           end
         end
 
