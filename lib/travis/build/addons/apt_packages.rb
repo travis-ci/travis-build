@@ -35,7 +35,7 @@ module Travis
           end
 
           def whitelist
-            @whitelist ||= ENV['TRAVIS_BUILD_APT_WHITELIST'].to_s.split(/\s*,\s*/)
+            @whitelist ||= ENV['TRAVIS_BUILD_APT_WHITELIST'].to_s.split(/\s*,\s*/).map(&:strip)
           end
       end
     end
