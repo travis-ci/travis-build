@@ -7,7 +7,7 @@ module Travis
         SUPER_USER_SAFE = true
 
         def after_prepare
-          sh.fold 'apt_packages.0' do
+          sh.fold 'apt_packages' do
             sh.echo "Installing APT Packages (BETA)", ansi: :yellow
 
             whitelisted = []
