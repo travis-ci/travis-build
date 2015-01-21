@@ -11,12 +11,23 @@ module Travis
             sh.echo "Installing APT Packages (BETA)", ansi: :yellow
 
             whitelisted = []
+            disallowed = []
+
             config.each do |package|
               if whitelist.include?(package)
                 whitelisted << package
               else
-                sh.echo "Ignoring unknown/disallowed package #{package.inspect}"
+                disallowed << package
               end
+            end
+
+            unless disallowed.empty?
+              sh.echo "Disallowing packages: #{disallowed.join(', ')}", ansi: :red
+              sh.echo 'If you require these packages, please submit them for ' \
+                      'review in a new issue:'
+              sh.echo '    https://github.com/travis-ci/travis-ci/issues/new' \
+                          '?labels[]=apt-whitelist&labels[]=travis-build' \
+                          "&title=APT+whitelist+request+for+#{disallowed.join(',+')}"
             end
 
             unless whitelisted.empty?
