@@ -40,7 +40,7 @@ module Travis
 
             unless disallowed.empty?
               sh.echo "Disallowing packages: #{disallowed.join(', ')}", ansi: :red
-              sh.echo 'If you require these packages, please review the package '
+              sh.echo 'If you require these packages, please review the package ' \
                       'approval process at:'
               sh.echo '    https://github.com/travis-ci/apt-package-whitelist#package-approval-process'
             end
