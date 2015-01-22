@@ -6,6 +6,23 @@ module Travis
       class AptPackages < Base
         SUPER_USER_SAFE = true
 
+        class << self
+          def whitelist
+            @whitelist ||= load_whitelist
+          end
+
+          private
+
+          def load_whitelist
+            require 'faraday'
+            response = Faraday.get(ENV['TRAVIS_BUILD_APT_WHITELIST'])
+            response.body.to_s.split.map(&:strip).sort.uniq
+          rescue => e
+            warn e
+            []
+          end
+        end
+
         def after_prepare
           sh.fold 'apt_packages' do
             sh.echo "Installing APT Packages (BETA)", ansi: :yellow
@@ -23,10 +40,9 @@ module Travis
 
             unless disallowed.empty?
               sh.echo "Disallowing packages: #{disallowed.join(', ')}", ansi: :red
-              sh.echo 'If you require these packages, please submit them for ' \
-                      'review in a new issue:'
-              sh.echo '    https://github.com/travis-ci/travis-ci/issues/new' \
-                          "?title=APT+whitelist+request+for+#{disallowed.join(',+')}"
+              sh.echo 'If you require these packages, please review the package ' \
+                      'approval process at: ' \
+                      'https://github.com/travis-ci/apt-package-whitelist#package-approval-process'
             end
 
             unless whitelisted.empty?
@@ -45,7 +61,7 @@ module Travis
           end
 
           def whitelist
-            @whitelist ||= ENV['TRAVIS_BUILD_APT_WHITELIST'].to_s.split(/\s*,\s*/).map(&:strip)
+            ::Travis::Build::Addons::AptPackages.whitelist
           end
       end
     end
