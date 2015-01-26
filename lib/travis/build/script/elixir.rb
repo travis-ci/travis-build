@@ -15,7 +15,7 @@ module Travis
         def announce
           super
           sh.if has_elixir(elixir_version) do
-            sh.cmd "kiex use #{elixir_version}"
+            sh.cmd "kiex use #{elixir_version} || kiex install #{elixir_version}"
             sh.cmd "elixir --version"
           end
           sh.else do

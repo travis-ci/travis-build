@@ -21,7 +21,7 @@ describe Travis::Build::Script::Elixir, :sexp do
   end
 
   it 'uses elixir' do
-    should include_sexp [:cmd, 'kiex use 1.0.2', echo: true]
+    should include_sexp [:cmd, 'kiex use 1.0.2 || kiex install 1.0.2', echo: true]
   end
 
   it 'announces elixir version' do
