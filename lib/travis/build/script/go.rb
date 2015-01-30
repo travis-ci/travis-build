@@ -113,7 +113,7 @@ module Travis
           end
 
           def go_get_cmd
-            go_version < '1.2' ? 'go get' : 'go get -t'
+            (go_version < '1.2' || go_version == 'go1') ? 'go get' : 'go get -t'
           end
 
           def gimme_url
