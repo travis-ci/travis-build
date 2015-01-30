@@ -15,6 +15,8 @@ module Travis
         def prepare
           super
           # TODO: remove this bit once we're shipping gimme via chef (?)
+          sh.cmd 'unset gvm', echo: false
+          sh.mv "#{HOME_DIR}/.gvm", "#{HOME_DIR}/.gvm.disabled", echo: false
           sh.if "! -x '#{HOME_DIR}/bin/gimme' && ! -x '/usr/local/bin/gimme'" do
             sh.mkdir "#{HOME_DIR}/bin"
             sh.cmd "curl -sL -o #{HOME_DIR}/bin/gimme '#{gimme_url}'", echo: true
@@ -32,8 +34,6 @@ module Travis
 
         def setup
           super
-          sh.cmd "gimme #{go_version} | source /dev/stdin", fold: 'gimme.install'
-
           sh.export 'GOPATH', "#{HOME_DIR}/gopath:$GOPATH", echo: true
           sh.export 'PATH', "#{HOME_DIR}/gopath/bin:$PATH", echo: true
 
@@ -42,6 +42,8 @@ module Travis
 
           sh.export "TRAVIS_BUILD_DIR", "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}"
           sh.cd "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}", assert: true
+
+          sh.cmd %Q'eval "$(gimme #{go_version})"'
         end
 
         def install
