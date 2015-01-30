@@ -14,7 +14,7 @@ describe Travis::Build::Script::Go, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'sets GOPATH' do
-    should include_sexp [:export, ['GOPATH', '$HOME/gopath:$GOPATH'], echo: true]
+    should include_sexp [:export, ['GOPATH', '$HOME/gopath:'], echo: true]
   end
 
   it 'sets TRAVIS_GO_VERSION' do
@@ -22,12 +22,12 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   it 'sets the default go version if not :go config given' do
-    should include_sexp [:cmd, 'gimme 1.4.1 | source /dev/stdin', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'eval "$(gimme 1.4.1)"', assert: true, echo: true, timing: true]
   end
 
   it 'sets the go version from config :go' do
     data[:config][:go] = 'go1.2'
-    should include_sexp [:cmd, 'gimme 1.2 | source /dev/stdin', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'eval "$(gimme 1.2)"', assert: true, echo: true, timing: true]
   end
 
   shared_examples 'gopath fix' do
@@ -54,20 +54,20 @@ describe Travis::Build::Script::Go, :sexp do
 
   it 'installs the go version' do
     data[:config][:go] = 'go1.1'
-    should include_sexp [:cmd, 'gimme 1.1 | source /dev/stdin', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'eval "$(gimme 1.1)"', assert: true, echo: true, timing: true]
   end
 
   versions = { '1' => '1.4.1', '1.0' => '1.0.3', 'go1' => 'go1', 'go1.4.1' => '1.4.1' }
   versions.each do |version_alias, version|
     it "sets version #{version.inspect} for alias #{version_alias.inspect}" do
       data[:config][:go] = version_alias
-      should include_sexp [:cmd, "gimme #{version} | source /dev/stdin", assert: true, echo: true, timing: true]
+      should include_sexp [:cmd, %Q'eval "$(gimme #{version})"', assert: true, echo: true, timing: true]
     end
   end
 
   it 'passes through arbitrary tag versions' do
     data[:config][:go] = 'release9000'
-    should include_sexp [:cmd, 'gimme release9000 | source /dev/stdin', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'eval "$(gimme release9000)"', assert: true, echo: true, timing: true]
   end
 
   it 'announces go version' do
