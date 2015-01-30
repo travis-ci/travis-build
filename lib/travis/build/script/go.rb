@@ -16,6 +16,7 @@ module Travis
           super
           # TODO: remove this bit once we're shipping gimme via chef (?)
           sh.if "! -x '#{HOME_DIR}/bin/gimme' && ! -x '/usr/local/bin/gimme'" do
+            sh.mkdir "#{HOME_DIR}/bin"
             sh.cmd "curl -sL -o #{HOME_DIR}/bin/gimme '#{gimme_url}'", echo: true
             sh.cmd "chmod +x #{HOME_DIR}/bin/gimme", echo: true
             sh.export 'PATH', "#{HOME_DIR}/bin:$PATH", retry: false, echo: true
