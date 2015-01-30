@@ -36,7 +36,7 @@ module Travis
           super
           sh.cmd %Q'eval "$(gimme #{go_version})"'
 
-          sh.export 'GOPATH', "#{HOME_DIR}/gopath:$GOPATH", echo: true
+          sh.export 'GOPATH', "#{HOME_DIR}/gopath:", echo: true
           sh.export 'PATH', "#{HOME_DIR}/gopath/bin:$PATH", echo: true
 
           sh.mkdir "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}", recursive: true, assert: false, timing: false
@@ -119,7 +119,7 @@ module Travis
           def gimme_url
             @gimme_url ||= ENV.fetch(
               'TRAVIS_BUILD_GIMME_URL',
-              'https://raw.githubusercontent.com/meatballhat/gimme/v0.2.1/gimme'
+              'https://raw.githubusercontent.com/meatballhat/gimme/v0.2.2/gimme'
             )
           end
       end
