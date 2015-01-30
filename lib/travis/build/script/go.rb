@@ -18,10 +18,10 @@ module Travis
           sh.cmd 'unset gvm', echo: false
           sh.mv "#{HOME_DIR}/.gvm", "#{HOME_DIR}/.gvm.disabled", echo: false
           sh.if "! -x '#{HOME_DIR}/bin/gimme' && ! -x '/usr/local/bin/gimme'" do
-            sh.mkdir "#{HOME_DIR}/bin"
-            sh.cmd "curl -sL -o #{HOME_DIR}/bin/gimme '#{gimme_url}'", echo: true
-            sh.cmd "chmod +x #{HOME_DIR}/bin/gimme", echo: true
-            sh.export 'PATH', "#{HOME_DIR}/bin:$PATH", retry: false, echo: true
+            sh.mkdir "#{HOME_DIR}/bin", echo: false
+            sh.cmd "curl -sL -o #{HOME_DIR}/bin/gimme '#{gimme_url}'", echo: false
+            sh.cmd "chmod +x #{HOME_DIR}/bin/gimme", echo: false
+            sh.export 'PATH', "#{HOME_DIR}/bin:$PATH", retry: false, echo: false
           end
         end
 
