@@ -1,0 +1,368 @@
+module Travis
+  module Build
+    class Script
+      class R < Script
+        DEFAULTS = {
+          # Basic config options
+          cran: 'http://cran.rstudio.com',
+          warnings_are_errors: false,
+          # Dependencies (installed in this order)
+          apt_packages: [],
+          r_binary_packages: [],
+          r_packages: [],
+          bioc_packages: [],
+          r_github_packages: [],
+          # Build/test options
+          r_build_args: '--no-build-vignettes --no-manual',
+          r_check_args: '--no-build-vignettes --no-manual --as-cran',
+          r_check_cran_incoming: false,
+          r_check_revdep: false,
+          # Heavy dependencies
+          latex: false,
+          pandoc: false,
+          pandoc_version: '1.12.4.2',
+          # Bioconductor
+          bioc: 'http://bioconductor.org/biocLite.R',
+          bioc_required: false,
+          bioc_use_devel: true,
+        }
+
+        def initialize(data)
+          # TODO(craigcitro): Is there a way to avoid explicitly
+          # naming arguments here?
+          super
+          @devtools_installed = false
+          @bioc_installed = false
+        end
+
+        def export
+          super
+          sh.export 'TRAVIS_R_VERSION', 'release', echo: false
+        end
+
+        def setup
+          super
+
+          sh.echo 'R for Travis-CI is not officially supported, ' +
+                  'but is community maintained.', ansi: :green
+          sh.echo 'Please file any issues using the following link',
+                  ansi: :green
+          sh.echo '  https://github.com/travis-ci/travis-ci/issues' +
+                  '/new?labels=community:r', ansi: :green
+          sh.echo 'and mention \`@craigcitro\`, \`@eddelbuettel\` and ' +
+                  '\`@hadley\` in the issue', ansi: :green
+
+          # TODO(craigcitro): python-software-properties?
+          sh.echo 'Installing R'
+          case config[:os]
+          when 'linux'
+            # Set up our CRAN mirror.
+            sh.cmd 'sudo add-apt-repository ' +
+                   "\"deb #{config[:cran]}/bin/linux/ubuntu " +
+                   "$(lsb_release -cs)/\""
+            sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com ' +
+                   '--recv-keys E084DAB9'
+
+            # Add marutter's c2d4u repository.
+            sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter"'
+            sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u"'
+
+            # Update after adding all repositories. Retry several
+            # times to work around flaky connection to Launchpad PPAs.
+            sh.cmd 'sudo apt-get update -qq', retry: true
+
+            # Install an R development environment. qpdf is also needed for
+            # --as-cran checks:
+            #   https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
+            sh.cmd 'sudo apt-get install --no-install-recommends r-base-dev ' +
+                   'r-recommended qpdf', retry: true
+
+            # Change permissions for /usr/local/lib/R/site-library
+            # This should really be via 'sudo adduser travis staff'
+            # but that may affect only the next shell
+            sh.cmd 'sudo chmod 2777 /usr/local/lib/R /usr/local/lib/R/site-library'
+
+          when 'osx'
+            # Install from latest CRAN binary build for OS X
+            sh.cmd "wget #{config[:cran]}/bin/macosx/R-latest.pkg " +
+                   '-O /tmp/R-latest.pkg'
+
+            sh.echo 'Installing OS X binary package for R'
+            sh.cmd 'sudo installer -pkg "/tmp/R-latest.pkg" -target /'
+            sh.rm '/tmp/R-latest.pkg'
+
+          else
+            sh.failure "Operating system not supported: #{config[:os]}"
+          end
+
+          if needs_bioc?
+            setup_bioc
+          end
+          if config[:latex]
+            setup_latex
+          end
+          if config[:pandoc]
+            setup_pandoc
+          end
+        end
+
+        def announce
+          super
+
+          sh.cmd 'Rscript -e \'sessionInfo()\''
+          sh.echo ''
+        end
+
+        def install
+          super
+
+          # Install any declared packages
+          apt_install config[:apt_packages]
+          r_binary_install config[:r_binary_packages]
+          r_install config[:r_packages]
+          bioc_install config[:bioc_packages]
+          r_github_install config[:r_github_packages]
+
+          # Install dependencies for the package we're testing.
+          install_deps
+        end
+
+        def script
+          # Build the package
+          sh.echo "Building with: R CMD build ${R_BUILD_ARGS}"
+          sh.cmd "R CMD build #{config[:r_build_args]} ."
+          tarball_script = [
+            'library("devtools")',
+            'pkg <- as.package(".")',
+            'cat(paste0(pkg$package, "_", pkg$version, ".tar.gz"))',
+          ].join('; ')
+          sh.export 'PKG_TARBALL', "$(Rscript -e '#{tarball_script}')"
+
+          # Test the package
+          sh.echo 'Testing with: R CMD check "${PKG_TARBALL}" ' +
+                  "#{config[:r_check_args]}"
+          sh.export '_R_CHECK_CRAN_INCOMING_', as_r_boolean(
+                      config[:r_check_cran_incoming])
+          if config[:r_check_cran_incoming]
+            sh.echo "(CRAN incoming checks are off)"
+          end
+          sh.cmd "R CMD check \"${PKG_TARBALL}\" #{config[:r_check_args]}"
+
+          # Turn warnings into errors, if requested.
+          if config[:warnings_are_errors]
+            export_rcheck_dir
+            sh.if 'grep -q -R "${RCHECK_DIR}/**/*.00check" "WARNING"' do
+              sh.failure "Found warnings, treating as errors (as requested)."
+            end
+          end
+          
+          # Check revdeps, if requested.
+          if config[:r_check_revdep]
+            sh.echo "Checking reverse dependencies"
+            revdep_script = [
+              'library("devtools");',
+              'res <- revdep_check();',
+              'if (length(res) > 0) {',
+              ' revdep_check_summary(res);',
+              ' revdep_check_save_logs(res);',
+              ' q(status = 1, save = "no");',
+              '}',
+            ].join(' ')
+            sh.cmd "Rscript -e '#{revdep_script}'"
+          end
+
+        end
+
+        def after_failure
+          dump_logs
+          super
+        end
+
+        private
+
+        def needs_bioc?
+          config[:bioc_required] or not config[:bioc_packages].empty?
+        end
+
+        def packages_as_arg(packages)
+          quoted_pkgs = packages.collect{|p| "\"#{p}\""}
+          "c(#{quoted_pkgs.join(', ')})"
+        end
+
+        def as_r_boolean(bool)
+          bool ? "TRUE" : "FALSE"
+        end
+
+        def r_install(packages)
+          sh.echo "Installing R packages: #{packages.join(', ')}"
+          pkg_arg = packages_as_arg(packages)
+          sh.cmd "Rscript -e 'install.packages(#{pkg_arg}, " +
+                 "repos=\"#{config[:cran]}]\")'"
+        end
+
+        def r_github_install(packages)
+          setup_devtools
+          sh.echo "Installing R packages from github: #{packages.join(', ')}"
+          pkg_arg = packages_as_arg(packages)
+          install_script = [
+            'library("devtools")',
+            "options(repos = c(CRAN = \"#{config[:cran]}\"))",
+            "install_github(#{pkg_arg}, build_vignettes = FALSE)",
+          ].join('; ')
+          sh.cmd "Rscript -e '#{install_script}'"
+        end
+        
+        def r_binary_install(packages)
+          case config[:os]
+          when 'linux'
+            sh.echo "Installing *binary* R packages: #{packages.join(', ')}"
+            apt_install packages.collect{|p| "r-cran-#{p.downcase}"}
+          else
+            sh.echo "R binary packages not supported on #{config[:os]}, " +
+                    'falling back to source install'
+            r_install packages
+          end
+        end
+
+        def apt_install(packages)
+          pkg_arg = packages.join(' ')
+          sh.echo "Installing apt packages: #{packages.join(', ')}"
+          sh.cmd "sudo apt-get install #{pkg_arg}", retry: true
+        end
+
+        def bioc_install(packages)
+          if not needs_bioc?
+            return
+          end
+          setup_bioc
+          sh.echo "Installing bioc packages: #{packages.join(', ')}"
+          pkg_arg = packages_as_arg(packages)
+          install_script = [
+            "source(\"#{config[:bioc]}\")",
+            'options(repos=biocinstallRepos())',
+            "biocLite(#{pkg_arg})",
+          ].join('; ')
+          sh.cmd "Rscript -e '#{install_script}'"
+        end
+
+        def install_deps
+          setup_devtools
+          if not needs_bioc?
+            install_script = [
+              'library("devtools")',
+              "options(repos = c(CRAN = \"#{config[:cran]}\"))",
+              'install_deps(dependencies = TRUE)',
+            ].join('; ')
+          else
+            install_script = [
+              'library("devtools")',
+              'options(repos = biocinstallRepos())',
+              'install_deps(dependencies = TRUE)',
+            ].join('; ')
+          end
+          sh.cmd "Rscript -e '#{install_script}'"
+        end
+
+        def export_rcheck_dir
+          pkg_script = [
+            'library("devtools")',
+            'cat(paste0(as.package(".")$package, ".Rcheck"))',
+          ].join('; ')
+          sh.export 'RCHECK_DIR', "$(Rscript -e '#{pkg_script}')"
+        end
+        
+        def dump_logs
+          export_rcheck_dir
+          ['out', 'log', 'fail'].each do |ext|
+            cmd = [
+              'for name in',
+              "$(find \"${RCHECK_DIR}\" -type f -name \"*#{ext}\");",
+              'do',
+              'echo ">>> Filename: ${name} <<<";',
+              'cat ${name};',
+              'done',
+            ].join(' ')
+            sh.cmd cmd
+          end
+        end
+        
+        def setup_bioc
+          if not @bioc_installed
+            sh.echo 'Installing BioConductor'
+            bioc_install_script = [
+              "source(\"#{config[:bioc]}\");",
+              'tryCatch(',
+              " useDevel(#{as_r_boolean(config[:bioc_use_devel])}),",
+              ' error=function(e) {if (!grepl("already in use", e$message)) {e}}',
+              ');',
+            ].join(' ')
+            sh.cmd "Rscript -e '#{bioc_install_script}'", retry: true
+          end
+          @bioc_installed = true
+        end
+
+        def setup_devtools
+          if not @devtools_installed
+            devtools_check = '!length(find.package("devtools", quiet = TRUE))'
+            devtools_install = 'install.packages(c("devtools"), ' +
+                               "repos=\"#{config[:cran]}\")"
+            sh.cmd "Rscript -e 'if (#{devtools_check}) #{devtools_install}'"
+          end
+          @devtools_installed = true
+        end
+
+        def setup_latex
+          case config[:os]
+          when 'linux'
+            # We add a backports PPA for more recent TeX packages.
+            sh.cmd 'sudo add-apt-repository -y "ppa:texlive-backports/ppa"'
+
+            sh.cmd 'sudo apt-get install --no-install-recommends ' +
+                   'lmodern texinfo texlive-base texlive-extra-utils ' +
+                   'texlive-fonts-extra texlive-fonts-recommended ' +
+                   'texlive-generic-recommended texlive-latex-base ' +
+                   'texlive-latex-extra texlive-latex-recommended ',
+                   retry: true
+          when 'mac'
+            # We use mactex-basic due to disk space constraints.
+            mactex = 'mactex-basic.pkg'
+            sh.cmd 'wget http://ctan.math.utah.edu/ctan/tex-archive/systems/' +
+                   "mac/mactex/#{mactex} -O \"/tmp/#{mactex}\""
+
+            sh.echo 'Installing OS X binary package for MacTeX'
+            sh.cmd "sudo installer -pkg \"/tmp/#{mactex}\" -target /"
+            sh.rm "/tmp/#{mactex}"
+            sh.cmd 'sudo tlmgr update --self'
+            sh.cmd 'sudo tlmgr install inconsolata upquote courier ' +
+                   'courier-scaled helvetic'
+
+            sh.export 'PATH', '$PATH:/usr/texbin'
+          end
+        end
+
+        def setup_pandoc
+          case config[:os]
+          when 'linux'
+            os_path = 'linux/debian/x86_64'
+          when 'mac'
+            os_path = 'mac'
+          end
+
+          pandoc_url = 'https://s3.amazonaws.com/rstudio-buildtools/pandoc-' +
+                       "#{config[:pandoc_version]}.zip"
+          pandoc_srcdir = "pandoc-#{config[:pandoc_version]}/#{os_path}/pandoc "
+          pandoc_destdir = File.join(Dir.home(), 'opt/pandoc')
+          pandoc_tmpfile = "/tmp/pandoc-#{config[:pandoc_version]}.zip"
+          
+          sh.mkdir pandoc_destdir, recursive: true
+          sh.cmd "curl -o #{pandoc_tmpfile} #{pandoc_url}"
+          sh.cmd "unzip -j #{pandoc_tmpfile} #{pandoc_srcdir} -d #{pandoc_destdir}"
+          sh.chmod '+x', "#{pandoc_destdir}/pandoc"
+          
+          sh.export 'PATH', "$PATH:#{pandoc_destdir}"
+        end
+        
+      end
+    end
+  end
+end
