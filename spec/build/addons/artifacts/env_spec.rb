@@ -47,8 +47,4 @@ describe Travis::Build::Addons::Artifacts::Env do
     config[:key] = [:a, :b, :c]
     expect(subject.env['ARTIFACTS_KEY']).to eql('a:b:c')
   end
-
-  it 'removes any unknown keys' do
-    expect(subject.env).not_to be_key('ARTIFACTS_UNKNOWN')
-  end
 end
