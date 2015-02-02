@@ -17,8 +17,6 @@ module Travis
             target_paths: nil
           }
 
-          KEYS = [:key, :secret, :bucket, :private, *DEFAULT.keys, *FORCE.keys]
-
           attr_reader :data, :env
 
           def initialize(data, env)
@@ -35,7 +33,6 @@ module Travis
             def normalize(env)
               env = DEFAULT.merge(env.deep_symbolize_keys)
               env = env.merge(FORCE.merge(target_paths: target_paths))
-              env = env.slice(*KEYS)
               env = env.map { |key, value| [to_key(key), to_value(value)] }
               env = ['PATH', '$HOME/bin:$PATH'] + env
               env = Hash[*env.flatten]

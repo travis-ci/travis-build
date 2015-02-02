@@ -10,28 +10,6 @@ describe Travis::Build::Addons::Artifacts::Validator do
     expect(subject).to be_valid
   end
 
-  describe 'S3 configuration' do
-    [:key, :secret, :bucket].each do |key|
-      describe "if the key #{key.inspect} is missing" do
-        it "returns false" do
-          config.delete(key)
-          expect(subject.valid?).to eql(false)
-        end
-
-        it "adds an error message about the missing key" do
-          config.delete(key)
-          expect(errors).to eql([described_class::MSGS[:config_missing] % key.inspect])
-        end
-      end
-    end
-
-    it "adds an error message about several missing keys" do
-      config.delete(:key)
-      config.delete(:secret)
-      expect(errors).to eql([described_class::MSGS[:config_missing] % ':key, :secret'])
-    end
-  end
-
   describe 'request type' do
     it 'returns false for a pull request' do
       data.stubs(:pull_request).returns '123'
