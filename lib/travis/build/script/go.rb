@@ -4,29 +4,43 @@ module Travis
       class Go < Script
         DEFAULTS = {
           gobuild_args: '-v',
-          go: '1.3.3'
+          go: '1.4.1'
         }
 
         def export
           super
-          sh.export 'TRAVIS_GO_VERSION', version, echo: false
+          sh.export 'TRAVIS_GO_VERSION', go_version, echo: false
+        end
+
+        def prepare
+          super
+          # TODO: remove this bit once we're shipping gimme via chef (?)
+          sh.cmd 'unset gvm', echo: false
+          sh.if "-d #{HOME_DIR}/.gvm" do
+            sh.mv "#{HOME_DIR}/.gvm", "#{HOME_DIR}/.gvm.disabled", echo: false
+          end
+          sh.if "! -x '#{HOME_DIR}/bin/gimme' && ! -x '/usr/local/bin/gimme'" do
+            sh.mkdir "#{HOME_DIR}/bin", echo: false
+            sh.cmd "curl -sL -o #{HOME_DIR}/bin/gimme '#{gimme_url}'", echo: false
+            sh.cmd "chmod +x #{HOME_DIR}/bin/gimme", echo: false
+            sh.export 'PATH', "#{HOME_DIR}/bin:$PATH", retry: false, echo: false
+            # install bootstrap version so that tip/master/whatever can be used immediately
+            sh.cmd %Q'gimme 1.4.1 >/dev/null 2>&1'
+          end
         end
 
         def announce
           super
-          sh.cmd 'gvm version'
+          sh.cmd 'gimme version'
           sh.cmd 'go version'
           sh.cmd 'go env', fold: 'go.env'
         end
 
         def setup
           super
-          sh.cmd 'gvm get', fold: 'gvm.get'
-          sh.cmd "gvm update && source #{HOME_DIR}/.gvm/scripts/gvm", fold: 'gvm.update'
-          sh.cmd "gvm install #{version} --binary || gvm install #{version}", fold: 'gvm.install'
-          sh.cmd "gvm use #{version}"
+          sh.cmd %Q'eval "$(gimme #{go_version})"'
 
-          sh.export 'GOPATH', "#{HOME_DIR}/gopath:$GOPATH", echo: true
+          sh.export 'GOPATH', "#{HOME_DIR}/gopath:", echo: true
           sh.export 'PATH', "#{HOME_DIR}/gopath/bin:$PATH", echo: true
 
           sh.mkdir "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}", recursive: true, assert: false, timing: false
@@ -41,7 +55,7 @@ module Travis
             sh.export 'GOPATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace:$GOPATH', retry: false
             sh.export 'PATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace/bin:$PATH', retry: false
 
-            if version >= 'go1.1'
+            if go_version >= '1.1'
               sh.if '! -d Godeps/_workspace/src' do
                 sh.cmd "#{go_get_cmd} github.com/tools/godep", echo: true, retry: true, timing: true, assert: true
                 sh.cmd 'godep restore', retry: true, timing: true, assert: true, echo: true
@@ -67,7 +81,7 @@ module Travis
         end
 
         def cache_slug
-          super << '--go-' << config[:go].to_s # TODO should this not be version?
+          super << '--go-' << go_version
         end
 
         private
@@ -76,47 +90,41 @@ module Travis
             '-f GNUmakefile || -f makefile || -f Makefile || -f BSDmakefile'
           end
 
-          def version
-            case version = config[:go].to_s
-            when '1'
-              'go1.3.3'
-            when '1.0'
-              'go1.0.3'
-            when '1.2'
-              'go1.2.2'
-            when '1.3'
-              'go1.3.3'
-            when /^[0-9]\.[0-9\.]+/
-              "go#{version}"
-            else
-              version
-            end
-          end
-
           def gobuild_args
             config[:gobuild_args]
           end
 
           def go_version
-            version = config[:go].to_s
-            case version
+            @go_version ||= normalized_go_version
+          end
+
+          def normalized_go_version
+            v = config[:go].to_s
+            case v
             when '1'
-              'go1.3.3'
+              '1.4.1'
             when '1.0'
-              'go1.0.3'
+              '1.0.3'
             when '1.2'
-              'go1.2.2'
-            when '1.3'
-              'go1.3.3'
-            when /^[0-9]\.[0-9\.]+/
-              "go#{config[:go]}"
+              '1.2.2'
+            when 'go1'
+              v
+            when /^go/
+              v.sub(/^go/, '')
             else
-              config[:go]
+              v
             end
           end
 
           def go_get_cmd
-            version < 'go1.2' ? 'go get' : 'go get -t'
+            (go_version < '1.2' || go_version == 'go1') ? 'go get' : 'go get -t'
+          end
+
+          def gimme_url
+            @gimme_url ||= ENV.fetch(
+              'TRAVIS_BUILD_GIMME_URL',
+              'https://raw.githubusercontent.com/meatballhat/gimme/v0.2.2/gimme'
+            )
           end
       end
     end

@@ -14,28 +14,20 @@ describe Travis::Build::Script::Go, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'sets GOPATH' do
-    should include_sexp [:export, ['GOPATH', '$HOME/gopath:$GOPATH'], echo: true]
+    should include_sexp [:export, ['GOPATH', '$HOME/gopath:'], echo: true]
   end
 
   it 'sets TRAVIS_GO_VERSION' do
-    should include_sexp [:export, ['TRAVIS_GO_VERSION', 'go1.3.3']]
-  end
-
-  it 'updates GVM' do
-    should include_sexp [:cmd, 'gvm get', assert: true, echo: true, timing: true]
-  end
-
-  it 'fetches the latest Go code' do
-    should include_sexp [:cmd, 'gvm update && source $HOME/.gvm/scripts/gvm', assert: true, echo: true, timing: true]
+    should include_sexp [:export, ['TRAVIS_GO_VERSION', '1.4.1']]
   end
 
   it 'sets the default go version if not :go config given' do
-    should include_sexp [:cmd, 'gvm use go1.3.3', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'eval "$(gimme 1.4.1)"', assert: true, echo: true, timing: true]
   end
 
   it 'sets the go version from config :go' do
-    data[:config][:go] = 'go1.1'
-    should include_sexp [:cmd, 'gvm use go1.1', assert: true, echo: true, timing: true]
+    data[:config][:go] = 'go1.2'
+    should include_sexp [:cmd, 'eval "$(gimme 1.2)"', assert: true, echo: true, timing: true]
   end
 
   shared_examples 'gopath fix' do
@@ -60,30 +52,30 @@ describe Travis::Build::Script::Go, :sexp do
     it_behaves_like 'gopath fix'
   end
 
-  it 'installs the gvm version' do
+  it 'installs the go version' do
     data[:config][:go] = 'go1.1'
-    should include_sexp [:cmd, 'gvm install go1.1 --binary || gvm install go1.1', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'eval "$(gimme 1.1)"', assert: true, echo: true, timing: true]
   end
 
-  versions = { '1.1' => 'go1.1', '1' => 'go1.3.3', '1.2' => 'go1.2.2', '1.0' => 'go1.0.3', '1.2.2' => 'go1.2.2', '1.0.2' => 'go1.0.2' }
+  versions = { '1' => '1.4.1', '1.0' => '1.0.3', 'go1' => 'go1', 'go1.4.1' => '1.4.1' }
   versions.each do |version_alias, version|
     it "sets version #{version.inspect} for alias #{version_alias.inspect}" do
       data[:config][:go] = version_alias
-      should include_sexp [:cmd, "gvm install #{version} --binary || gvm install #{version}", assert: true, echo: true, timing: true]
+      should include_sexp [:cmd, %Q'eval "$(gimme #{version})"', assert: true, echo: true, timing: true]
     end
   end
 
   it 'passes through arbitrary tag versions' do
     data[:config][:go] = 'release9000'
-    should include_sexp [:cmd, 'gvm install release9000 --binary || gvm install release9000', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'eval "$(gimme release9000)"', assert: true, echo: true, timing: true]
   end
 
   it 'announces go version' do
     should include_sexp [:cmd, 'go version', echo: true]
   end
 
-  it 'announces gvm version' do
-    should include_sexp [:cmd, 'gvm version', echo: true]
+  it 'announces gimme version' do
+    should include_sexp [:cmd, 'gimme version', echo: true]
   end
 
   it 'announces go env' do
