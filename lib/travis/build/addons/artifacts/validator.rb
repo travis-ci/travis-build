@@ -4,7 +4,6 @@ module Travis
       class Artifacts < Base
         class Validator
           MSGS = {
-            config_missing: 'The configuration for artifacts support is missing: %s',
             pull_request: 'Artifacts support disabled for pull requests',
             branch_disabled: 'Artifacts support disabled: the current branch is not enabled as per configuration (%s)'
           }
@@ -25,14 +24,9 @@ module Travis
           private
 
             def validate
-              [:config, :push_request, :branch].each do |name|
+              [:push_request, :branch].each do |name|
                 send(:"validate_#{name}")
               end
-            end
-
-            def validate_config
-              missing = [:key, :secret, :bucket] - config.keys
-              error :config_missing, missing.map(&:inspect).join(', ') unless missing.empty?
             end
 
             def validate_push_request
