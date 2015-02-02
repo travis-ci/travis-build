@@ -16,7 +16,9 @@ module Travis
           super
           # TODO: remove this bit once we're shipping gimme via chef (?)
           sh.cmd 'unset gvm', echo: false
-          sh.mv "#{HOME_DIR}/.gvm", "#{HOME_DIR}/.gvm.disabled", echo: false
+          sh.if "-d #{HOME_DIR}/.gvm" do
+            sh.mv "#{HOME_DIR}/.gvm", "#{HOME_DIR}/.gvm.disabled", echo: false
+          end
           sh.if "! -x '#{HOME_DIR}/bin/gimme' && ! -x '/usr/local/bin/gimme'" do
             sh.mkdir "#{HOME_DIR}/bin", echo: false
             sh.cmd "curl -sL -o #{HOME_DIR}/bin/gimme '#{gimme_url}'", echo: false
