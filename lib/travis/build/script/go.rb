@@ -22,6 +22,8 @@ module Travis
             sh.cmd "curl -sL -o #{HOME_DIR}/bin/gimme '#{gimme_url}'", echo: false
             sh.cmd "chmod +x #{HOME_DIR}/bin/gimme", echo: false
             sh.export 'PATH', "#{HOME_DIR}/bin:$PATH", retry: false, echo: false
+            # install bootstrap version so that tip/master/whatever can be used immediately
+            sh.cmd %Q'gimme 1.4.1 >/dev/null 2>&1'
           end
         end
 
