@@ -6,6 +6,25 @@ module Travis
           :dart => 'stable'
         }
 
+        def configure
+          super
+
+          sh.fold 'Content Shell dependencies install' do
+            sh.echo 'Installing Content Shell dependencies', ansi: :yellow
+
+            # Enable Multiverse Packages:
+            sh.cmd "sudo sh -c 'echo \"deb http://gce_debian_mirror.storage.googleapis.com precise contrib non-free\" >> /etc/apt/sources.list'"
+            sh.cmd "sudo sh -c 'echo \"deb http://gce_debian_mirror.storage.googleapis.com precise-updates contrib non-free\" >> /etc/apt/sources.list'"
+            sh.cmd "sudo sh -c 'apt-get update'"
+
+            # Pre-accepts MSFT Fonts EULA:
+            sh.cmd "sudo sh -c 'echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections'"
+
+            # Install all dependencies:
+            sh.cmd "sudo sh -c 'apt-get install --no-install-recommends -y -q chromium-browser libudev0 ttf-kochi-gothic ttf-kochi-mincho ttf-mscorefonts-installer ttf-indic-fonts ttf-dejavu-core ttf-indic-fonts-core fonts-thai-tlwg msttcorefonts'"
+          end
+        end
+
         def export
           super
 
@@ -33,6 +52,19 @@ module Travis
             sh.cmd 'export PATH="$DART_SDK/bin:$PATH"'
           end
 
+          sh.fold 'Content Shell install' do
+            sh.echo 'Installing Content Shell', ansi: :yellow
+
+            # Download and install Content Shell
+            sh.cmd "mkdir content_shell"
+            sh.cmd "cd content_shell"
+            sh.cmd "curl #{archive_url}/dartium/content_shell-linux-x64-release.zip > content_shell.zip"
+            sh.cmd "unzip content_shell.zip > /dev/null"
+            sh.cmd "rm content_shell.zip"
+            sh.cmd 'export PATH="${PWD%/}/$(ls):$PATH"'
+            sh.cmd "cd -"
+          end
+
           sh.fold 'Test Runner install' do
             sh.echo 'Installing Test Runner', ansi: :yellow
             sh.cmd "pub global activate test_runner"
@@ -53,7 +85,7 @@ module Travis
         end
 
         def script
-          sh.cmd 'pub global run test_runner --skip-browser-tests'
+          sh.cmd 'pub global run test_runner -c'
         end
 
         private
