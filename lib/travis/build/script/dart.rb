@@ -21,7 +21,7 @@ module Travis
             sh.cmd "sudo sh -c 'echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections'"
 
             # Install all dependencies:
-            sh.cmd "sudo sh -c 'apt-get install --no-install-recommends -y -q chromium-browser libudev0 ttf-kochi-gothic ttf-kochi-mincho ttf-mscorefonts-installer ttf-indic-fonts ttf-dejavu-core ttf-indic-fonts-core fonts-thai-tlwg msttcorefonts'"
+            sh.cmd "sudo sh -c 'apt-get install --no-install-recommends -y -q chromium-browser libudev0 ttf-kochi-gothic ttf-kochi-mincho ttf-mscorefonts-installer ttf-indic-fonts ttf-dejavu-core ttf-indic-fonts-core fonts-thai-tlwg msttcorefonts xvfb'"
           end
         end
 
@@ -85,7 +85,7 @@ module Travis
         end
 
         def script
-          sh.cmd 'pub global run test_runner -c'
+          sh.cmd "xvfb-run -s '-screen 0 1024x768x24' pub global run test_runner -c"
         end
 
         private
