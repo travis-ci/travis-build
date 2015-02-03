@@ -85,7 +85,7 @@ module Travis
         end
 
         def script
-          sh.cmd "xvfb-run -s '-screen 0 1024x768x24' pub global run test_runner -c"
+          sh.cmd "xvfb-run -s '-screen 0 1024x768x24' pub global run test_runner --disable-ansi"
         end
 
         private
