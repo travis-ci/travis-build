@@ -18,17 +18,17 @@ describe Travis::Build::Script::Perl, :sexp do
   end
 
   it 'sets up the perl version' do
-    should include_sexp [:cmd, 'perlbrew use 5.14', echo: true, timing: true, assert: true]
+    should include_sexp [:cmd, 'perlbrew use 5.14 || true', echo: true, timing: true, assert: true]
   end
 
   it 'converts 5.1 to 5.10' do
     data[:config][:perl] = 5.1
-    should include_sexp [:cmd, 'perlbrew use 5.10', echo: true, timing: true, assert: true]
+    should include_sexp [:cmd, 'perlbrew use 5.10 || true', echo: true, timing: true, assert: true]
   end
 
   it 'converts 5.2 to 5.20' do
     data[:config][:perl] = 5.2
-    should include_sexp [:cmd, 'perlbrew use 5.20', echo: true, timing: true, assert: true]
+    should include_sexp [:cmd, 'perlbrew use 5.20 || true', echo: true, timing: true, assert: true]
   end
 
   it 'announces perl --version' do
