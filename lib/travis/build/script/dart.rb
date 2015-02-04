@@ -31,6 +31,7 @@ module Travis
             sh.cmd "rm dartsdk.zip"
             sh.cmd 'export DART_SDK="${PWD%/}/dart-sdk"'
             sh.cmd 'export PATH="$DART_SDK/bin:$PATH"'
+            sh.cmd 'export PATH="~/.pub-cache/bin:$PATH"'
           end
 
           sh.fold 'Test Runner install' do
