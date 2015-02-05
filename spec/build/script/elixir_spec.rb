@@ -29,9 +29,15 @@ describe Travis::Build::Script::Elixir, :sexp do
   end
 
   describe 'install' do
+    it 'runs "mix deps.get"' do
+      should include_sexp [:cmd, 'mix deps.get', echo: true, timing: true]
+    end
   end
 
   describe 'script' do
+    it 'runs "mix test"' do
+      should include_sexp [:cmd, 'mix test', echo: true, timing: true]
+    end
   end
 
   describe '#cache_slug' do

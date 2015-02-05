@@ -14,19 +14,16 @@ module Travis
 
         def announce
           super
-          sh.if has_elixir(elixir_version) do
-            sh.cmd "kiex use #{elixir_version} || kiex install #{elixir_version}"
-            sh.cmd "elixir --version"
-          end
-          sh.else do
-            sh.echo "Elixir version #{elixir_version} is not available.", ansi: :red
-          end
+          sh.cmd "kiex use #{elixir_version} || kiex install #{elixir_version}"
+          sh.cmd "elixir --version"
         end
 
         def install
+          sh.cmd 'mix deps.get'
         end
 
         def script
+          sh.cmd 'mix test'
         end
 
         def cache_slug
