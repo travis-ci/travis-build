@@ -19,6 +19,7 @@ module Travis
         end
 
         def install
+          sh.cmd 'mix local.hex'
           sh.cmd 'mix deps.get'
         end
 
@@ -34,14 +35,6 @@ module Travis
 
         def elixir_version
           config[:elixir].to_s
-        end
-
-        def has_elixir(version)
-          "-f #{exlixir_env_file(version)}"
-        end
-
-        def exlixir_env_file(version)
-          "#{HOME_DIR}/.kiex/elixirs/elixir-#{version}.env"
         end
       end
     end
