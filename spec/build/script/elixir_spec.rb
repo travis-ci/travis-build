@@ -30,7 +30,7 @@ describe Travis::Build::Script::Elixir, :sexp do
 
   describe 'install' do
     it 'runs "mix local.hex"' do
-      should include_sexp [:cmd, 'mix local.hex', assert: true, echo: true, timing: true]
+      should include_sexp [:cmd, 'mix local.hex --force', assert: true, echo: true, timing: true]
     end
     it 'runs "mix deps.get"' do
       should include_sexp [:cmd, 'mix deps.get',  assert: true, echo: true, timing: true]

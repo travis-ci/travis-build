@@ -19,7 +19,7 @@ module Travis
         end
 
         def install
-          sh.cmd 'mix local.hex'
+          sh.cmd 'mix local.hex --force'
           sh.cmd 'mix deps.get'
         end
 
