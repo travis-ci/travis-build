@@ -137,8 +137,11 @@ module Travis
           end
 
           def gimme_url
-            URI.parse(gimme_config[:url]).to_s.untaint
-          rescue URI::InvalidURIError
+            cleaned = URI.parse(gimme_config[:url]).to_s.untaint
+            return cleaned if cleaned =~ %r{^https://raw\.githubusercontent\.com/meatballhat/gimme}
+            DEFAULTS[:gimme_config][:url]
+          rescue URI::InvalidURIError => e
+            warn e
             DEFAULTS[:gimme_config][:url]
           end
       end
