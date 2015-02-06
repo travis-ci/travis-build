@@ -121,10 +121,10 @@ module Travis
           end
 
           def gimme_url
-            @gimme_url ||= ENV.fetch(
+            @gimme_url ||= "#{ENV.fetch(
               'TRAVIS_BUILD_GIMME_URL',
               'https://raw.githubusercontent.com/meatballhat/gimme/v0.2.2/gimme'
-            )
+            )}".untaint
           end
       end
     end
