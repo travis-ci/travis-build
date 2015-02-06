@@ -11,9 +11,9 @@ module Travis
               'TRAVIS_BUILD_GIMME_URL',
               'https://raw.githubusercontent.com/meatballhat/gimme/v0.2.3/gimme'
             )}".untaint,
-            force_reinstall: false
+            force_reinstall: !!ENV['TRAVIS_BUILD_GIMME_FORCE_REINSTALL']
           },
-          go: '1.4.1'
+          go: "#{ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.4.1')}".untaint
         }
 
         def export
