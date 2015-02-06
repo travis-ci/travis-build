@@ -124,6 +124,7 @@ module Travis
           end
 
           def install_gimme
+            sh.echo "Installing gimme from #{gimme_url.inspect}", ansi: :yellow
             sh.mkdir "#{HOME_DIR}/bin", echo: false
             sh.cmd "curl -sL -o #{HOME_DIR}/bin/gimme '#{gimme_url}'", echo: false
             sh.cmd "chmod +x #{HOME_DIR}/bin/gimme", echo: false
