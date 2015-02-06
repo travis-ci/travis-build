@@ -1,3 +1,5 @@
+require 'uri'
+
 module Travis
   module Build
     class Script
@@ -123,7 +125,7 @@ module Travis
 
           def install_gimme
             sh.mkdir "#{HOME_DIR}/bin", echo: false
-            sh.cmd "curl -sL -o #{HOME_DIR}/bin/gimme '#{gimme_config[:url]}'", echo: false
+            sh.cmd "curl -sL -o #{HOME_DIR}/bin/gimme '#{gimme_url}'", echo: false
             sh.cmd "chmod +x #{HOME_DIR}/bin/gimme", echo: false
             sh.export 'PATH', "#{HOME_DIR}/bin:$PATH", retry: false, echo: false
             # install bootstrap version so that tip/master/whatever can be used immediately
@@ -132,6 +134,12 @@ module Travis
 
           def gimme_config
             config[:gimme_config]
+          end
+
+          def gimme_url
+            URI.parse(gimme_config[:url]).to_s.untaint
+          rescue URI::InvalidURIError
+            DEFAULTS[:gimme_config][:url]
           end
       end
     end
