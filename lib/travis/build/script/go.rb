@@ -1,10 +1,19 @@
+require 'uri'
+
 module Travis
   module Build
     class Script
       class Go < Script
         DEFAULTS = {
           gobuild_args: '-v',
-          go: '1.4.1'
+          gimme_config: {
+            url: "#{ENV.fetch(
+              'TRAVIS_BUILD_GIMME_URL',
+              'https://raw.githubusercontent.com/meatballhat/gimme/v0.2.3/gimme'
+            )}".untaint,
+            force_reinstall: !!ENV['TRAVIS_BUILD_GIMME_FORCE_REINSTALL']
+          },
+          go: "#{ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.4.1')}".untaint
         }
 
         def export
@@ -14,19 +23,11 @@ module Travis
 
         def prepare
           super
-          # TODO: remove this bit once we're shipping gimme via chef (?)
-          sh.cmd 'unset gvm', echo: false
-          sh.if "-d #{HOME_DIR}/.gvm" do
-            sh.mv "#{HOME_DIR}/.gvm", "#{HOME_DIR}/.gvm.disabled", echo: false
-          end
+          ensure_gvm_wiped
           sh.if "! -x '#{HOME_DIR}/bin/gimme' && ! -x '/usr/local/bin/gimme'" do
-            sh.mkdir "#{HOME_DIR}/bin", echo: false
-            sh.cmd "curl -sL -o #{HOME_DIR}/bin/gimme '#{gimme_url}'", echo: false
-            sh.cmd "chmod +x #{HOME_DIR}/bin/gimme", echo: false
-            sh.export 'PATH', "#{HOME_DIR}/bin:$PATH", retry: false, echo: false
-            # install bootstrap version so that tip/master/whatever can be used immediately
-            sh.cmd %Q'gimme 1.4.1 >/dev/null 2>&1'
+            install_gimme
           end
+          install_gimme if gimme_config[:force_reinstall]
         end
 
         def announce
@@ -101,18 +102,13 @@ module Travis
           def normalized_go_version
             v = config[:go].to_s
             case v
-            when '1'
-              '1.4.1'
-            when '1.0'
-              '1.0.3'
-            when '1.2'
-              '1.2.2'
-            when 'go1'
-              v
-            when /^go/
-              v.sub(/^go/, '')
-            else
-              v
+            when 'default' then DEFAULTS[:go]
+            when '1' then '1.4.1'
+            when '1.0' then '1.0.3'
+            when '1.2' then '1.2.2'
+            when 'go1' then v
+            when /^go/ then v.sub(/^go/, '')
+            else v
             end
           end
 
@@ -120,11 +116,34 @@ module Travis
             (go_version < '1.2' || go_version == 'go1') ? 'go get' : 'go get -t'
           end
 
+          def ensure_gvm_wiped
+            sh.cmd 'unset gvm', echo: false
+            sh.if "-d #{HOME_DIR}/.gvm" do
+              sh.mv "#{HOME_DIR}/.gvm", "#{HOME_DIR}/.gvm.disabled", echo: false
+            end
+          end
+
+          def install_gimme
+            sh.echo "Installing gimme from #{gimme_url.inspect}", ansi: :yellow
+            sh.mkdir "#{HOME_DIR}/bin", echo: false
+            sh.cmd "curl -sL -o #{HOME_DIR}/bin/gimme '#{gimme_url}'", echo: false
+            sh.cmd "chmod +x #{HOME_DIR}/bin/gimme", echo: false
+            sh.export 'PATH', "#{HOME_DIR}/bin:$PATH", retry: false, echo: false
+            # install bootstrap version so that tip/master/whatever can be used immediately
+            sh.cmd %Q'gimme 1.4.1 >/dev/null 2>&1'
+          end
+
+          def gimme_config
+            config[:gimme_config]
+          end
+
           def gimme_url
-            @gimme_url ||= "#{ENV.fetch(
-              'TRAVIS_BUILD_GIMME_URL',
-              'https://raw.githubusercontent.com/meatballhat/gimme/v0.2.2/gimme'
-            )}".untaint
+            cleaned = URI.parse(gimme_config[:url]).to_s.untaint
+            return cleaned if cleaned =~ %r{^https://raw\.githubusercontent\.com/meatballhat/gimme}
+            DEFAULTS[:gimme_config][:url]
+          rescue URI::InvalidURIError => e
+            warn e
+            DEFAULTS[:gimme_config][:url]
           end
       end
     end

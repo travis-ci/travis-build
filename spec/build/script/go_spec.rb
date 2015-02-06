@@ -1,10 +1,11 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Go, :sexp do
-  let(:data)   { payload_for(:push, :go) }
-  let(:script) { described_class.new(data) }
-  subject      { script.sexp }
-  it           { store_example }
+  let(:data)     { payload_for(:push, :go) }
+  let(:script)   { described_class.new(data) }
+  let(:defaults) { described_class::DEFAULTS }
+  subject        { script.sexp }
+  it             { store_example }
 
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=go'] }
@@ -57,8 +58,14 @@ describe Travis::Build::Script::Go, :sexp do
     should include_sexp [:cmd, 'eval "$(gimme 1.1)"', assert: true, echo: true, timing: true]
   end
 
-  versions = { '1' => '1.4.1', '1.0' => '1.0.3', 'go1' => 'go1', 'go1.4.1' => '1.4.1' }
-  versions.each do |version_alias, version|
+  {
+    'default' => Travis::Build::Script::Go::DEFAULTS[:go],
+    '1' => '1.4.1',
+    '1.0' => '1.0.3',
+    '1.2' => '1.2.2',
+    'go1' => 'go1',
+    'go1.4.1' => '1.4.1'
+  }.each do |version_alias, version|
     it "sets version #{version.inspect} for alias #{version_alias.inspect}" do
       data[:config][:go] = version_alias
       should include_sexp [:cmd, %Q'eval "$(gimme #{version})"', assert: true, echo: true, timing: true]
@@ -76,6 +83,15 @@ describe Travis::Build::Script::Go, :sexp do
 
   it 'announces gimme version' do
     should include_sexp [:cmd, 'gimme version', echo: true]
+  end
+
+  [
+    "https://raw.githubusercontent.com/meatballhat/gimme/master/gimme' ; curl -sL -o ~/bin/gimme 'https://gist.githubusercontent.com/meatballhat/e2baf03f7ffae8047ccd/raw/f6d89b63eadb5faeeeed5b1bcd63c3fb60df3900/breakout.sh",
+    'https://gist.githubusercontent.com/meatballhat/e2baf03f7ffae8047ccd/raw/f6d89b63eadb5faeeeed5b1bcd63c3fb60df3900/breakout.sh'
+  ].each do |url|
+    it "ignores invalid gimme_config.url #{url}" do
+      should include_sexp [:cmd, "curl -sL -o $HOME/bin/gimme '#{defaults[:gimme_config][:url]}'"]
+    end
   end
 
   it 'announces go env' do
