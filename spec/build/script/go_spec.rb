@@ -57,8 +57,14 @@ describe Travis::Build::Script::Go, :sexp do
     should include_sexp [:cmd, 'eval "$(gimme 1.1)"', assert: true, echo: true, timing: true]
   end
 
-  versions = { '1' => '1.4.1', '1.0' => '1.0.3', 'go1' => 'go1', 'go1.4.1' => '1.4.1' }
-  versions.each do |version_alias, version|
+  {
+    'default' => Travis::Build::Script::Go::DEFAULTS[:go],
+    '1' => '1.4.1',
+    '1.0' => '1.0.3',
+    '1.2' => '1.2.2',
+    'go1' => 'go1',
+    'go1.4.1' => '1.4.1'
+  }.each do |version_alias, version|
     it "sets version #{version.inspect} for alias #{version_alias.inspect}" do
       data[:config][:go] = version_alias
       should include_sexp [:cmd, %Q'eval "$(gimme #{version})"', assert: true, echo: true, timing: true]
