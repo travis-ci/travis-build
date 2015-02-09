@@ -9,7 +9,7 @@ module Travis
         def configure
           super
 
-          sh.fold 'Content Shell dependencies install' do
+          sh.fold 'content_shell_dependencies_install' do
             sh.echo 'Installing Content Shell dependencies', ansi: :yellow
 
             # Enable Multiverse Packages:
@@ -43,7 +43,7 @@ module Travis
           sh.echo 'and mention \`@a14n\`, \`@devoncarew\` and \`@sethladd\`' \
             ' in the issue', ansi: :green
 
-          sh.fold 'Dart install' do
+          sh.fold 'dart_install' do
             sh.echo 'Installing Dart', ansi: :yellow
             sh.cmd "curl #{archive_url}/sdk/dartsdk-linux-x64-release.zip > dartsdk.zip"
             sh.cmd "unzip dartsdk.zip > /dev/null"
@@ -52,7 +52,7 @@ module Travis
             sh.cmd 'export PATH="$DART_SDK/bin:$PATH"'
           end
 
-          sh.fold 'Content Shell install' do
+          sh.fold 'content_shell_install' do
             sh.echo 'Installing Content Shell', ansi: :yellow
 
             # Download and install Content Shell
@@ -65,7 +65,7 @@ module Travis
             sh.cmd "cd -"
           end
 
-          sh.fold 'Test Runner install' do
+          sh.fold 'test_runner_install' do
             sh.echo 'Installing Test Runner', ansi: :yellow
             sh.cmd "pub global activate test_runner"
           end
