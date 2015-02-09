@@ -36,6 +36,7 @@ module Travis
 
           sh.cmd 'export PATH="$PATH:$HOME/rust/bin"', assert: false, echo: false
           sh.cmd 'export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/rust/lib"', assert: false, echo: false
+          sh.cmd 'export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:$HOME/rust/lib"', assert: false, echo: false
         end
 
         def announce
