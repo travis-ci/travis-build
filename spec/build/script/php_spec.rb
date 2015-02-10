@@ -21,6 +21,14 @@ describe Travis::Build::Script::Php, :sexp do
     should include_sexp [:cmd, 'phpenv global 5.5', echo: true, timing: true, assert: true]
   end
 
+  describe '#setup' do
+    subject { sexp_filter(sexp, [:if, '-f composer.json'])[0] }
+
+    it 'runs composer self-update silently if composer.json exists' do
+      should include_sexp [:cmd, 'composer self-update', assert: true, timing: true]
+    end
+  end
+
   it 'announces php --version' do
     should include_sexp [:cmd, 'php --version', echo: true]
   end

@@ -20,6 +20,11 @@ module Travis
         def setup
           super
           sh.cmd "phpenv global #{version}", assert: true
+          unless version == '5.2'
+            sh.if '-f composer.json' do
+              sh.cmd 'composer self-update', echo: false
+            end
+          end
         end
 
         def announce
