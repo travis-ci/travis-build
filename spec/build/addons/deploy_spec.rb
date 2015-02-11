@@ -96,8 +96,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
     it { expect(sexp_find(sexp, [:if, ' ! $FOO = foo'])).to include_sexp custom_condition }
   end
 
-  describe 'deploy condition fails' do
-    require 'pp'
+  describe 'deploy condition fails with tags' do
     let(:config) { { provider: 'heroku', on: { tags: true} } }
     let(:sexp)   { sexp_find(subject, [:if, '("$TRAVIS_TAG" != "")']) }
 
