@@ -95,5 +95,15 @@ describe Travis::Build::Addons::Deploy, :sexp do
     it { expect(sexp_find(sexp, [:if, ' ! $TRAVIS_BRANCH = master'])).to include_sexp not_permitted }
     it { expect(sexp_find(sexp, [:if, ' ! $FOO = foo'])).to include_sexp custom_condition }
   end
+
+  describe 'deploy condition fails' do
+    require 'pp'
+    let(:config) { { provider: 'heroku', on: { tags: true} } }
+    let(:sexp)   { sexp_find(subject, [:if, '("$TRAVIS_TAG" != "")']) }
+
+    let(:not_tag) { [:echo, "Skipping deployment with the heroku provider because this is not a tagged commit", ansi: :red] }
+
+    it { expect(sexp_find(sexp, [:if, ' ! "$TRAVIS_TAG" != ""'])).to include_sexp not_tag }
+  end
 end
 
