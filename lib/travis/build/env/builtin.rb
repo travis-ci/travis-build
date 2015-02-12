@@ -37,6 +37,7 @@ module Travis
               TRAVIS_OS_NAME:         config[:os],
               TRAVIS_LANGUAGE:        config[:language],
               TRAVIS_TAG:             job[:tag],
+              TRAVIS_SUDO:            config[:sudo],
             }
           end
       end
