@@ -176,7 +176,7 @@ module Travis
         private
 
         def needs_bioc?
-          config[:bioc_required] || not config[:bioc_packages].empty?
+          config[:bioc_required] || !config[:bioc_packages].empty?
         end
 
         def packages_as_arg(packages)
@@ -307,11 +307,14 @@ module Travis
             # We add a backports PPA for more recent TeX packages.
             sh.cmd 'sudo add-apt-repository -y "ppa:texlive-backports/ppa"'
 
+            latex_packages = %w[
+                   lmodern texinfo texlive-base texlive-extra-utils
+                   texlive-fonts-extra texlive-fonts-recommended
+                   texlive-generic-recommended texlive-latex-base
+                   texlive-latex-extra texlive-latex-recommended
+            ]
             sh.cmd 'sudo apt-get install --no-install-recommends ' +
-                   'lmodern texinfo texlive-base texlive-extra-utils ' +
-                   'texlive-fonts-extra texlive-fonts-recommended ' +
-                   'texlive-generic-recommended texlive-latex-base ' +
-                   'texlive-latex-extra texlive-latex-recommended ',
+                   "#{latex_packages.join(' ')}",
                    retry: true
           when 'mac'
             # We use mactex-basic due to disk space constraints.
