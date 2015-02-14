@@ -292,11 +292,16 @@ module Travis
 
         def setup_devtools
           unless @devtools_installed
-            devtools_check = '!requireNamespace("devtools", quietly = TRUE)'
-            devtools_install = 'install.packages(c("devtools"), ' +
-                               "repos=\"#{config[:cran]}\")"
-            sh.cmd "Rscript -e 'if (#{devtools_check}) #{devtools_install}'",
-                   retry: true
+            case config[:os]
+            when 'linux'
+              r_binary_install ['devtools']
+            else
+              devtools_check = '!requireNamespace("devtools", quietly = TRUE)'
+              devtools_install = 'install.packages(c("devtools"), ' +
+                                 "repos=\"#{config[:cran]}\")"
+              sh.cmd "Rscript -e 'if (#{devtools_check}) #{devtools_install}'",
+                     retry: true
+            end
           end
           @devtools_installed = true
         end
