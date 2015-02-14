@@ -13,18 +13,17 @@ module Travis
           bioc_packages: [],
           r_github_packages: [],
           # Build/test options
-          r_build_args: '--no-build-vignettes --no-manual',
-          r_check_args: '--no-build-vignettes --no-manual --as-cran',
+          r_build_args: '',
+          r_check_args: '--as-cran',
           r_check_cran_incoming: false,
           r_check_revdep: false,
           # Heavy dependencies
-          latex: false,
           pandoc: false,
           pandoc_version: '1.12.4.2',
           # Bioconductor
           bioc: 'http://bioconductor.org/biocLite.R',
           bioc_required: false,
-          bioc_use_devel: true,
+          bioc_use_devel: false,
         }
 
         def initialize(data)
@@ -43,6 +42,8 @@ module Travis
         def setup
           super
 
+          # TODO(craigcitro): Confirm that these do, in fact, print as
+          # green. (They're yellow under vagrant.)
           sh.echo 'R for Travis-CI is not officially supported, ' +
                   'but is community maintained.', ansi: :green
           sh.echo 'Please file any issues using the following link',
@@ -95,15 +96,10 @@ module Travis
             sh.failure "Operating system not supported: #{config[:os]}"
           end
 
-          if needs_bioc?
-            setup_bioc
-          end
-          if config[:latex]
-            setup_latex
-          end
-          if config[:pandoc]
-            setup_pandoc
-          end
+          setup_latex
+          
+          setup_bioc if needs_bioc?
+          setup_pandoc if config[:pandoc]
         end
 
         def announce
@@ -132,8 +128,7 @@ module Travis
           sh.echo "Building with: R CMD build ${R_BUILD_ARGS}"
           sh.cmd "R CMD build #{config[:r_build_args]} ."
           tarball_script = [
-            'library("devtools")',
-            'pkg <- as.package(".")',
+            'pkg <- devtools::as.package(".")',
             'cat(paste0(pkg$package, "_", pkg$version, ".tar.gz"))',
           ].join('; ')
           sh.export 'PKG_TARBALL', "$(Rscript -e '#{tarball_script}')"
@@ -181,7 +176,7 @@ module Travis
         private
 
         def needs_bioc?
-          config[:bioc_required] or not config[:bioc_packages].empty?
+          config[:bioc_required] || not config[:bioc_packages].empty?
         end
 
         def packages_as_arg(packages)
@@ -205,9 +200,8 @@ module Travis
           sh.echo "Installing R packages from github: #{packages.join(', ')}"
           pkg_arg = packages_as_arg(packages)
           install_script = [
-            'library("devtools")',
             "options(repos = c(CRAN = \"#{config[:cran]}\"))",
-            "install_github(#{pkg_arg}, build_vignettes = FALSE)",
+            "devtools::install_github(#{pkg_arg}, build_vignettes = FALSE)",
           ].join('; ')
           sh.cmd "Rscript -e '#{install_script}'"
         end
@@ -231,9 +225,7 @@ module Travis
         end
 
         def bioc_install(packages)
-          if not needs_bioc?
-            return
-          end
+          return unless needs_bioc?
           setup_bioc
           sh.echo "Installing bioc packages: #{packages.join(', ')}"
           pkg_arg = packages_as_arg(packages)
@@ -249,25 +241,22 @@ module Travis
           setup_devtools
           if not needs_bioc?
             install_script = [
-              'library("devtools")',
               "options(repos = c(CRAN = \"#{config[:cran]}\"))",
-              'install_deps(dependencies = TRUE)',
+              'devtools::install_deps(dependencies = TRUE)',
             ].join('; ')
           else
             install_script = [
-              'library("devtools")',
               'options(repos = biocinstallRepos())',
-              'install_deps(dependencies = TRUE)',
+              'devtools::install_deps(dependencies = TRUE)',
             ].join('; ')
           end
           sh.cmd "Rscript -e '#{install_script}'"
         end
 
         def export_rcheck_dir
-          pkg_script = [
-            'library("devtools")',
-            'cat(paste0(as.package(".")$package, ".Rcheck"))',
-          ].join('; ')
+          pkg_script = (
+            'cat(paste0(devtools::as.package(".")$package, ".Rcheck"))'
+          )
           sh.export 'RCHECK_DIR', "$(Rscript -e '#{pkg_script}')"
         end
         
@@ -287,7 +276,7 @@ module Travis
         end
         
         def setup_bioc
-          if not @bioc_installed
+          unless @bioc_installed
             sh.echo 'Installing BioConductor'
             bioc_install_script = [
               "source(\"#{config[:bioc]}\");",
@@ -302,11 +291,12 @@ module Travis
         end
 
         def setup_devtools
-          if not @devtools_installed
-            devtools_check = '!length(find.package("devtools", quiet = TRUE))'
+          unless @devtools_installed
+            devtools_check = '!requireNamespace("devtools", quietly = TRUE)'
             devtools_install = 'install.packages(c("devtools"), ' +
                                "repos=\"#{config[:cran]}\")"
-            sh.cmd "Rscript -e 'if (#{devtools_check}) #{devtools_install}'"
+            sh.cmd "Rscript -e 'if (#{devtools_check}) #{devtools_install}'",
+                   retry: true
           end
           @devtools_installed = true
         end
@@ -326,8 +316,10 @@ module Travis
           when 'mac'
             # We use mactex-basic due to disk space constraints.
             mactex = 'mactex-basic.pkg'
-            sh.cmd 'wget http://ctan.math.utah.edu/ctan/tex-archive/systems/' +
-                   "mac/mactex/#{mactex} -O \"/tmp/#{mactex}\""
+            # TODO(craigcitro): Confirm that this will route us to the
+            # nearest mirror.
+            sh.cmd 'wget http://mirror.ctan.org/systems/mac/mactex/' +
+                   "#{mactex} -O \"/tmp/#{mactex}\""
 
             sh.echo 'Installing OS X binary package for MacTeX'
             sh.cmd "sudo installer -pkg \"/tmp/#{mactex}\" -target /"
