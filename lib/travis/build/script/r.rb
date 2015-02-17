@@ -85,6 +85,8 @@ module Travis
             sh.cmd 'sudo chmod 2777 /usr/local/lib/R /usr/local/lib/R/site-library'
 
           when 'osx'
+            sh.cmd 'brew update', retry: true
+
             # Install from latest CRAN binary build for OS X
             sh.cmd "wget #{config[:cran]}/bin/macosx/R-latest.pkg " +
                    '-O /tmp/R-latest.pkg'
