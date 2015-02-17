@@ -55,10 +55,7 @@ module Travis
                 "~/#{binpath}/gdmd && chmod +x ~/#{binpath}/gdmd"
             end
 
-            sh.cmd 'LATEST_DUB=$('\
-              'curl https://api.github.com/repos/D-Programming-Language/dub/tags | '\
-              'sed -n \'s|.*"name": "v\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\)".*|\1|p\' |'\
-              'sort | tail -n 1)', echo: false
+            sh.cmd 'LATEST_DUB=$(curl http://code.dlang.org/download/LATEST)', echo: false
             sh.cmd "curl http://code.dlang.org/files/dub-${LATEST_DUB}-#{os}-x86_64.tar.gz"\
               " | tar -C ~/#{binpath} -xzf -"
             sh.cmd "export PATH=\"${HOME}/#{binpath}:${PATH}\""
