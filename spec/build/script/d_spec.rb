@@ -31,6 +31,10 @@ describe Travis::Build::Script::D, :sexp do
       should include_sexp [:cmd, 'dmd --help | head -n 2', echo: true]
     end
 
+    it 'announces dub' do
+      should include_sexp [:cmd, 'dub --help | tail -n 1', echo: true]
+    end
+
     it 'runs dub test with dmd' do
       should include_sexp [:cmd, 'dub test --compiler=dmd', echo: true, timing: true]
     end
@@ -49,6 +53,17 @@ describe Travis::Build::Script::D, :sexp do
 
     it 'downloads a specific dmd version' do
       should include_sexp [:cmd, %r{downloads\.dlang\.org/releases/.*/dmd.*2\.066\.0.*\.zip},
+                           assert: true, echo: true, timing: true]
+    end
+  end
+
+  context 'when a prerelease version is configured' do
+    before do
+      data[:config][:d] = 'dmd-2.067.0-rc1'
+    end
+
+    it 'downloads from ftp.digitalmars.com' do
+      should include_sexp [:cmd, %r{ftp\.digitalmars\.com/dmd.*2\.067\.0-rc1.*\.zip},
                            assert: true, echo: true, timing: true]
     end
   end

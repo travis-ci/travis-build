@@ -55,10 +55,7 @@ module Travis
                 "~/#{binpath}/gdmd && chmod +x ~/#{binpath}/gdmd"
             end
 
-            sh.cmd 'LATEST_DUB=$('\
-              'curl https://api.github.com/repos/D-Programming-Language/dub/tags | '\
-              'sed -n \'s|.*"name": "v\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\)".*|\1|p\' |'\
-              'sort | tail -n 1)', echo: false
+            sh.cmd 'LATEST_DUB=$(curl http://code.dlang.org/download/LATEST)', echo: false
             sh.cmd "curl http://code.dlang.org/files/dub-${LATEST_DUB}-#{os}-x86_64.tar.gz"\
               " | tar -C ~/#{binpath} -xzf -"
             sh.cmd "export PATH=\"${HOME}/#{binpath}:${PATH}\""
@@ -73,6 +70,7 @@ module Travis
           else
             sh.cmd "#{compiler_cmd} --version"
           end
+          sh.cmd 'dub --help | tail -n 1'
         end
 
         def script
@@ -87,19 +85,23 @@ module Travis
 
         def compiler_url(compiler = config[:d])
           case compiler
-          # dmd-2.062, dmd-2.065.0, dmd-2.066.1-rc.3
-          when /^dmd-2\.(\d{3}(\.\d(-.*)?)?)$/
-            if $1.to_i <= 61
-              "http://downloads.dlang.org/releases/2012/dmd.2.#{$1}.zip"
-            elsif $1.to_i <= 64
-              "http://downloads.dlang.org/releases/2013/dmd.2.#{$1}.zip"
+          # dmd-2.062, dmd-2.065.0, dmd-2.066.1-rc3
+          when /^dmd-2\.(?<maj>\d{3})(?<min>\.\d)?(?<suffix>-.*)?$/
+            basename = "dmd.2.#{$~[:maj]}#{$~[:min]}#{$~[:suffix]}"
+            # smaller OS specific zips available since 2.065
+            basename += '.'+os if $~[:maj].to_i >= 65
+            # get prereleases from FTP server
+            if $~[:suffix]
+              "http://ftp.digitalmars.com/#{basename}.zip"
             else
-              "http://downloads.dlang.org/releases/2014/dmd.2.#{$1}.#{os}.zip"
+              "http://downloads.dlang.org/releases/2.x/2.#{$~[:maj]}#{$~[:min]}/#{basename}.zip"
             end
+
           # ldc-0.12.1 or ldc-0.15.0-alpha1
           when /^ldc-(\d+\.\d+\.\d+(-.*)?)$/
             'https://github.com/ldc-developers/ldc/releases/download'\
               "/v#{$1}/ldc2-#{$1}-#{os}-x86_64.tar.xz"
+
           # gdc-4.8.2 or gdc-4.9.0-alpha1
           when /^gdc-(\d+\.\d+\.\d+(-.*)?)$/
             case os
