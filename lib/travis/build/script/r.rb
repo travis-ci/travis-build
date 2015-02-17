@@ -8,6 +8,7 @@ module Travis
           warnings_are_errors: false,
           # Dependencies (installed in this order)
           apt_packages: [],
+          brew_packages: [],
           r_binary_packages: [],
           r_packages: [],
           bioc_packages: [],
@@ -114,6 +115,7 @@ module Travis
 
           # Install any declared packages
           apt_install config[:apt_packages]
+          brew_install config[:brew_packages]
           r_binary_install config[:r_binary_packages]
           r_install config[:r_packages]
           bioc_install config[:bioc_packages]
@@ -219,9 +221,17 @@ module Travis
         end
 
         def apt_install(packages)
+          return unless (config[:os] == 'linux')
           pkg_arg = packages.join(' ')
           sh.echo "Installing apt packages: #{packages.join(', ')}"
           sh.cmd "sudo apt-get install #{pkg_arg}", retry: true
+        end
+
+        def brew_install(packages)
+          return unless (config[:os] == 'osx')
+          pkg_arg = packages.join(' ')
+          sh.echo "Installing brew packages: #{packages.join(', ')}"
+          sh.cmd "brew install #{pkg_arg}", retry: true
         end
 
         def bioc_install(packages)
