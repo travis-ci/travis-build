@@ -57,6 +57,17 @@ describe Travis::Build::Script::D, :sexp do
     end
   end
 
+  context 'when a prerelease version is configured' do
+    before do
+      data[:config][:d] = 'dmd-2.067.0-rc1'
+    end
+
+    it 'downloads from ftp.digitalmars.com' do
+      should include_sexp [:cmd, %r{ftp\.digitalmars\.com/dmd.*2\.067\.0-rc1.*\.zip},
+                           assert: true, echo: true, timing: true]
+    end
+  end
+
   context 'when a ldc version is configured' do
     before do
       data[:config][:d] = 'ldc-0.14.0'
