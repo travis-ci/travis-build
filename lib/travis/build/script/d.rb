@@ -70,6 +70,7 @@ module Travis
           else
             sh.cmd "#{compiler_cmd} --version"
           end
+          sh.cmd 'dub --help | tail -n 1'
         end
 
         def script

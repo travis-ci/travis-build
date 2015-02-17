@@ -31,6 +31,10 @@ describe Travis::Build::Script::D, :sexp do
       should include_sexp [:cmd, 'dmd --help | head -n 2', echo: true]
     end
 
+    it 'announces dub' do
+      should include_sexp [:cmd, 'dub --help | tail -n 1', echo: true]
+    end
+
     it 'runs dub test with dmd' do
       should include_sexp [:cmd, 'dub test --compiler=dmd', echo: true, timing: true]
     end
