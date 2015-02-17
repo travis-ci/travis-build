@@ -21,4 +21,34 @@ describe Travis::Build::Script::Dart, :sexp do
   it "announces `dart --version`" do
     should include_sexp [:cmd, "dart --version", echo: true]
   end
+
+  it "does not install content_shell by default" do
+    should_not include_sexp [:echo, "Installing Content Shell dependencies",
+      ansi: :yellow]
+    should_not include_sexp [:echo, "Installing Content Shell", ansi: :yellow]
+  end
+
+  it "runs tests by default" do
+    should include_sexp [:cmd,
+      "pub global run test_runner --disable-ansi --skip-browser-tests",
+      echo: true, timing: true]
+  end
+
+  describe 'installs content_shell if config has a :with_content_shell key set with true' do
+    before do
+      data[:config][:with_content_shell] = 'true'
+    end
+
+    it "installs content_shell" do
+      should include_sexp [:echo, "Installing Content Shell dependencies",
+        ansi: :yellow]
+      should include_sexp [:echo, "Installing Content Shell", ansi: :yellow]
+    end
+
+    it "runs tests with xvfb" do
+      should include_sexp [:cmd,
+        "xvfb-run -s '-screen 0 1024x768x24' pub global run test_runner --disable-ansi",
+        echo: true, timing: true]
+    end
+  end
 end
