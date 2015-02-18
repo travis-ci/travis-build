@@ -19,7 +19,7 @@ module Travis
           r_check_cran_incoming: false,
           r_check_revdep: false,
           # Heavy dependencies
-          pandoc: false,
+          pandoc: true,
           pandoc_version: '1.13.1',
           # Bioconductor
           bioc: 'http://bioconductor.org/biocLite.R',
