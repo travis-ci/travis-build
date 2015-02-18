@@ -146,7 +146,7 @@ module Travis
             end
 
             def warning_message(message)
-              sh.echo "Skipping deployment with the #{config[:provider]} provider because #{message}", ansi: :yellow
+              sh.echo "Skipping a deployment with the #{config[:provider]} provider because #{message}", ansi: :yellow
             end
 
             def negate_condition(conditions)
