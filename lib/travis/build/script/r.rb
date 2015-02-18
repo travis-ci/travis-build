@@ -20,7 +20,7 @@ module Travis
           r_check_revdep: false,
           # Heavy dependencies
           pandoc: false,
-          pandoc_version: '1.12.4.2',
+          pandoc_version: '1.13.1',
           # Bioconductor
           bioc: 'http://bioconductor.org/biocLite.R',
           bioc_required: false,
@@ -362,14 +362,18 @@ module Travis
 
           pandoc_url = 'https://s3.amazonaws.com/rstudio-buildtools/pandoc-' +
                        "#{config[:pandoc_version]}.zip"
-          pandoc_srcdir = "pandoc-#{config[:pandoc_version]}/#{os_path}/pandoc "
+          pandoc_srcdir = "pandoc-#{config[:pandoc_version]}/#{os_path}"
           pandoc_destdir = File.join(Dir.home(), 'opt/pandoc')
           pandoc_tmpfile = "/tmp/pandoc-#{config[:pandoc_version]}.zip"
           
           sh.mkdir pandoc_destdir, recursive: true
           sh.cmd "curl -o #{pandoc_tmpfile} #{pandoc_url}"
-          sh.cmd "unzip -j #{pandoc_tmpfile} #{pandoc_srcdir} -d #{pandoc_destdir}"
-          sh.chmod '+x', "#{pandoc_destdir}/pandoc"
+          ['pandoc', 'pandoc-citeproc'].each do |filename|
+            binary_srcpath = File.join(pandoc_srcdir, filename)
+            sh.cmd "unzip -j #{pandoc_tmpfile} #{binary_srcpath} " +
+                   "-d #{pandoc_destdir}"
+            sh.chmod '+x', "#{File.join(pandoc_destdir, filename)}"
+          end
           
           sh.export 'PATH', "$PATH:#{pandoc_destdir}"
         end
