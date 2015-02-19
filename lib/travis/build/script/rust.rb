@@ -7,11 +7,6 @@ module Travis
           linux: 'https://static.rust-lang.org/dist/rust-%s-x86_64-unknown-linux-gnu.tar.gz'
         }
 
-        CARGO_URLS = {
-          osx:   'https://static.rust-lang.org/cargo-dist/cargo-nightly-x86_64-apple-darwin.tar.gz',
-          linux: 'https://static.rust-lang.org/cargo-dist/cargo-nightly-x86_64-unknown-linux-gnu.tar.gz'
-        }
-
         DEFAULTS = {
           rust: 'nightly',
         }
@@ -25,13 +20,14 @@ module Travis
         def setup
           super
 
-          sh.cmd 'mkdir -p ~/rust', echo: false
+          sh.cmd 'mkdir -p ~/rust-installer', echo: false
           sh.echo ''
 
           sh.fold('rust-download') do
-            sh.echo 'Installing Rust and Cargo', ansi: :yellow
-            sh.cmd "curl -sL #{rust_url} | tar --strip-components=1 -C ~/rust -xzf -"
-            sh.cmd "curl -sL #{cargo_url} | tar --strip-components=1 -C ~/rust -xzf -"
+            sh.echo 'Installing Rust', ansi: :yellow
+            sh.cmd "curl -sL #{rust_url} | tar --strip-components=1 -C ~/rust-installer -xzf -"
+            # Installing docs takes more time and space and we don't need them
+            sh.cmd "sh ~/rust-installer/install.sh --prefix=~/rust --without=rust-docs"
           end
 
           sh.cmd 'export PATH="$PATH:$HOME/rust/bin"', assert: false, echo: false
@@ -64,10 +60,6 @@ module Travis
 
           def rust_url
             RUST_URLS[os] % version.shellescape
-          end
-
-          def cargo_url
-            CARGO_URLS[os] % version.shellescape
           end
       end
     end

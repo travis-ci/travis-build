@@ -17,8 +17,16 @@ describe Travis::Build::Script::Rust, :sexp do
     should include_sexp [:cmd, %r(curl .*dist/rust-nightly.*\.tar\.gz), assert: true, echo: true, timing: true]
   end
 
-  it 'downloads and installs Cargo' do
-    should include_sexp [:cmd, %r(curl .*cargo-dist/cargo-nightly.*\.tar\.gz), assert: true, echo: true, timing: true]
+  it 'announces rust version' do
+    should include_sexp [:cmd, 'rustc --version', echo: true]
+  end
+
+  it 'announces cargo version' do
+    should include_sexp [:cmd, 'cargo --version', echo: true]
+  end
+
+  it 'runs cargo test' do
+    should include_sexp [:cmd, 'cargo test --verbose', echo: true, timing: true]
   end
 
   it 'runs cargo build' do
