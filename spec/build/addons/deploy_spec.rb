@@ -86,7 +86,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
     let(:sexp)   { sexp_find(subject, [:if, '($TRAVIS_BRANCH = master) && ($FOO = foo)'], [:else]) }
 
     let(:is_pull_request)  { [:echo, 'Skipping a deployment with the heroku provider because the current build is a pull request.', ansi: :yellow] }
-    let(:not_permitted)    { [:echo, "Skipping a deployment with the heroku provider because this branch does not meet a condition", ansi: :yellow] }
+    let(:not_permitted)    { [:echo, 'Skipping a deployment with the heroku provider because this branch is not permitted', ansi: :yellow] }
     let(:custom_condition) { [:echo, 'Skipping a deployment with the heroku provider because a custom condition was not met', ansi: :yellow] }
 
     # it { p subject; p sexp; expect(sexp_find(sexp, [:if, '(! (-z $TRAVIS_PULL_REQUEST))'])).to include_sexp is_pull_request }
