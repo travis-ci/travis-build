@@ -51,8 +51,8 @@ module Travis
                   ansi: :green
           sh.echo '  https://github.com/travis-ci/travis-ci/issues' +
                   '/new?labels=community:r', ansi: :green
-          sh.echo 'and mention \`@craigcitro\`, \`@eddelbuettel\` and ' +
-                  '\`@hadley\` in the issue', ansi: :green
+          sh.echo 'and mention @craigcitro, @eddelbuettel and ' +
+                  '@hadley in the issue', ansi: :green
 
           # TODO(craigcitro): python-software-properties?
           sh.echo 'Installing R'
@@ -363,7 +363,7 @@ module Travis
           pandoc_url = 'https://s3.amazonaws.com/rstudio-buildtools/pandoc-' +
                        "#{config[:pandoc_version]}.zip"
           pandoc_srcdir = "pandoc-#{config[:pandoc_version]}/#{os_path}"
-          pandoc_destdir = File.join(Dir.home(), 'opt/pandoc')
+          pandoc_destdir = '${HOME}/opt/pandoc'
           pandoc_tmpfile = "/tmp/pandoc-#{config[:pandoc_version]}.zip"
           
           sh.mkdir pandoc_destdir, recursive: true
