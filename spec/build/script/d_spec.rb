@@ -68,6 +68,17 @@ describe Travis::Build::Script::D, :sexp do
     end
   end
 
+  context 'when a pre 2.065 version is configured' do
+    before do
+      data[:config][:d] = 'dmd-2.064.2'
+    end
+
+    it 'downloads from a folder without minor version' do
+      should include_sexp [:cmd, %r{downloads\.dlang\.org/releases/2\.x/2\.064/dmd.*2\.064\.2.*\.zip},
+                           assert: true, echo: true, timing: true]
+    end
+  end
+
   context 'when a ldc version is configured' do
     before do
       data[:config][:d] = 'ldc-0.14.0'
