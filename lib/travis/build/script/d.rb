@@ -90,9 +90,8 @@ module Travis
             basename = "dmd.2.#{$~[:maj]}#{$~[:min]}#{$~[:suffix]}"
             # smaller OS specific zips available since 2.065
             basename += '.'+os if $~[:maj].to_i >= 65
-            # get prereleases from FTP server
-            if $~[:suffix]
-              "http://ftp.digitalmars.com/#{basename}.zip"
+            if $~[:suffix] # pre-release
+              "http://downloads.dlang.org/pre-releases/2.x/2.#{$~[:maj]}#{$~[:min]}/#{basename}.zip"
             else
               "http://downloads.dlang.org/releases/2.x/2.#{$~[:maj]}#{$~[:min]}/#{basename}.zip"
             end

@@ -62,8 +62,8 @@ describe Travis::Build::Script::D, :sexp do
       data[:config][:d] = 'dmd-2.067.0-rc1'
     end
 
-    it 'downloads from ftp.digitalmars.com' do
-      should include_sexp [:cmd, %r{ftp\.digitalmars\.com/dmd.*2\.067\.0-rc1.*\.zip},
+    it 'downloads from the prerelease path' do
+      should include_sexp [:cmd, %r{downloads\.dlang\.org/pre-releases/2\.x/2\.067\.0/dmd.*2\.067\.0-rc1.*\.zip},
                            assert: true, echo: true, timing: true]
     end
   end
