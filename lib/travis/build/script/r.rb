@@ -16,7 +16,6 @@ module Travis
           # Build/test options
           r_build_args: '',
           r_check_args: '--as-cran',
-          r_check_cran_incoming: false,
           r_check_revdep: false,
           # Heavy dependencies
           pandoc: true,
@@ -140,11 +139,6 @@ module Travis
           # Test the package
           sh.echo 'Testing with: R CMD check "${PKG_TARBALL}" ' +
                   "#{config[:r_check_args]}"
-          sh.export '_R_CHECK_CRAN_INCOMING_', as_r_boolean(
-                      config[:r_check_cran_incoming])
-          if config[:r_check_cran_incoming]
-            sh.echo "(CRAN incoming checks are off)"
-          end
           sh.cmd "R CMD check \"${PKG_TARBALL}\" #{config[:r_check_args]}"
 
           # Turn warnings into errors, if requested.
