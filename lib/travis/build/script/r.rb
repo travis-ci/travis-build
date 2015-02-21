@@ -252,7 +252,7 @@ module Travis
             ].join('; ')
           else
             install_script = [
-              'options(repos = biocinstallRepos())',
+              'options(repos = BiocInstaller::biocinstallRepos())',
               'devtools::install_deps(dependencies = TRUE)',
             ].join('; ')
           end
