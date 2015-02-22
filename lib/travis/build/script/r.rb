@@ -144,7 +144,9 @@ module Travis
           # Turn warnings into errors, if requested.
           if config[:warnings_are_errors]
             export_rcheck_dir
-            sh.if 'grep -q -R "${RCHECK_DIR}/**/*.00check" "WARNING"' do
+            sh.cmd 'grep -q -R "${RCHECK_DIR}/**/*.00check" "WARNING"; ' +
+                   'RETVAL=$?'
+            sh.if '${RETVAL} -eq 0' do
               sh.failure "Found warnings, treating as errors (as requested)."
             end
           end
@@ -187,6 +189,7 @@ module Travis
         end
 
         def r_install(packages)
+          return if packages.empty?
           sh.echo "Installing R packages: #{packages.join(', ')}"
           pkg_arg = packages_as_arg(packages)
           sh.cmd "Rscript -e 'install.packages(#{pkg_arg}, " +
@@ -194,6 +197,7 @@ module Travis
         end
 
         def r_github_install(packages)
+          return if packages.empty?
           setup_devtools
           sh.echo "Installing R packages from github: #{packages.join(', ')}"
           pkg_arg = packages_as_arg(packages)
@@ -205,6 +209,7 @@ module Travis
         end
         
         def r_binary_install(packages)
+          return if packages.empty?
           case config[:os]
           when 'linux'
             sh.echo "Installing *binary* R packages: #{packages.join(', ')}"
@@ -217,6 +222,7 @@ module Travis
         end
 
         def apt_install(packages)
+          return if packages.empty?
           return unless (config[:os] == 'linux')
           pkg_arg = packages.join(' ')
           sh.echo "Installing apt packages: #{packages.join(', ')}"
@@ -224,6 +230,7 @@ module Travis
         end
 
         def brew_install(packages)
+          return if packages.empty?
           return unless (config[:os] == 'osx')
           pkg_arg = packages.join(' ')
           sh.echo "Installing brew packages: #{packages.join(', ')}"
@@ -231,6 +238,7 @@ module Travis
         end
 
         def bioc_install(packages)
+          return if packages.empty?
           return unless needs_bioc?
           setup_bioc
           sh.echo "Installing bioc packages: #{packages.join(', ')}"
