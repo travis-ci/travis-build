@@ -88,13 +88,18 @@ module Travis
           # dmd-2.062, dmd-2.065.0, dmd-2.066.1-rc3
           when /^dmd-2\.(?<maj>\d{3})(?<min>\.\d)?(?<suffix>-.*)?$/
             basename = "dmd.2.#{$~[:maj]}#{$~[:min]}#{$~[:suffix]}"
-            # smaller OS specific zips available since 2.065
-            basename += '.'+os if $~[:maj].to_i >= 65
-            # get prereleases from FTP server
-            if $~[:suffix]
-              "http://ftp.digitalmars.com/#{basename}.zip"
+            folder = '2.'+$~[:maj]
+
+            # since 2.065
+            if $~[:maj].to_i >= 65
+              basename += '.'+os # use smaller OS specific zips
+              folder += $~[:min] # folder uses .minor
+            end
+
+            if $~[:suffix] # pre-release
+              "http://downloads.dlang.org/pre-releases/2.x/#{folder}/#{basename}.zip"
             else
-              "http://downloads.dlang.org/releases/2.x/2.#{$~[:maj]}#{$~[:min]}/#{basename}.zip"
+              "http://downloads.dlang.org/releases/2.x/#{folder}/#{basename}.zip"
             end
 
           # ldc-0.12.1 or ldc-0.15.0-alpha1
