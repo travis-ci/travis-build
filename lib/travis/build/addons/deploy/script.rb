@@ -22,7 +22,7 @@ module Travis
 
           def deploy
             if data.pull_request
-              failure_message "the current build is a pull request."
+              warning_message "the current build is a pull request."
               return
             end
 
@@ -40,18 +40,18 @@ module Travis
               end
 
               sh.else do
-                failure_message_unless(repo_condition, "this repo's name does not match one specified in .travis.yml's deploy.on.repo: #{on[:repo]}")
-                failure_message_unless(branch_condition, "this branch '$TRAVIS_BRANCH' is not permitted to deploy")
-                failure_message_unless(runtime_conditions, "this is not on the required runtime")
-                failure_message_unless(custom_conditions, "a custom condition was not met")
-                failure_message_unless(tags_condition, "this is not a tagged commit")
+                warning_message_unless(repo_condition, "this repo's name does not match one specified in .travis.yml's deploy.on.repo: #{on[:repo]}")
+                warning_message_unless(branch_condition, "this branch is not permitted")
+                warning_message_unless(runtime_conditions, "this is not on the required runtime")
+                warning_message_unless(custom_conditions, "a custom condition was not met")
+                warning_message_unless(tags_condition, "this is not a tagged commit")
               end
             end
 
-            def failure_message_unless(condition, message)
+            def warning_message_unless(condition, message)
               return if negate_condition(condition) == ""
 
-              sh.if(negate_condition(condition)) { failure_message(message) }
+              sh.if(negate_condition(condition)) { warning_message(message) }
             end
 
             def on
@@ -145,8 +145,8 @@ module Travis
               config.flat_map { |k,v| option(k,v) }.compact.join(" ")
             end
 
-            def failure_message(message)
-              sh.echo "Skipping deployment with the #{config[:provider]} provider because #{message}", ansi: :red
+            def warning_message(message)
+              sh.echo "Skipping a deployment with the #{config[:provider]} provider because #{message}", ansi: :yellow
             end
 
             def negate_condition(conditions)

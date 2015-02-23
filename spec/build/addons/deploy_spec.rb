@@ -85,9 +85,9 @@ describe Travis::Build::Addons::Deploy, :sexp do
     # let(:sexp)   { sexp_find(subject, [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master) && ($FOO = foo)'], [:else]) }
     let(:sexp)   { sexp_find(subject, [:if, '($TRAVIS_BRANCH = master) && ($FOO = foo)'], [:else]) }
 
-    let(:is_pull_request)  { [:echo, 'Skipping deployment with the heroku provider because the current build is a pull request.', ansi: :red] }
-    let(:not_permitted)    { [:echo, "Skipping deployment with the heroku provider because this branch '$TRAVIS_BRANCH' is not permitted to deploy", ansi: :red] }
-    let(:custom_condition) { [:echo, 'Skipping deployment with the heroku provider because a custom condition was not met', ansi: :red] }
+    let(:is_pull_request)  { [:echo, 'Skipping a deployment with the heroku provider because the current build is a pull request.', ansi: :yellow] }
+    let(:not_permitted)    { [:echo, 'Skipping a deployment with the heroku provider because this branch is not permitted', ansi: :yellow] }
+    let(:custom_condition) { [:echo, 'Skipping a deployment with the heroku provider because a custom condition was not met', ansi: :yellow] }
 
     # it { p subject; p sexp; expect(sexp_find(sexp, [:if, '(! (-z $TRAVIS_PULL_REQUEST))'])).to include_sexp is_pull_request }
     # it { expect(sexp_find(sexp, [:if, '(! ($TRAVIS_BRANCH = master))'])).to include_sexp not_permitted }
@@ -100,7 +100,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
     let(:config) { { provider: 'heroku', on: { tags: true} } }
     let(:sexp)   { sexp_find(subject, [:if, '("$TRAVIS_TAG" != "")']) }
 
-    let(:not_tag) { [:echo, "Skipping deployment with the heroku provider because this is not a tagged commit", ansi: :red] }
+    let(:not_tag) { [:echo, "Skipping a deployment with the heroku provider because this is not a tagged commit", ansi: :yellow] }
 
     it { expect(sexp_find(sexp, [:if, ' ! "$TRAVIS_TAG" != ""'])).to include_sexp not_tag }
   end
