@@ -15,8 +15,6 @@ describe Travis::Build::Addons::SauceConnect, :sexp do
 
   shared_examples_for 'starts sauce connect' do
     it { should include_sexp [:echo, 'Starting Sauce Connect', ansi: :yellow] }
-    # it { should include_sexp [:cmd, 'curl -L https://gist.githubusercontent.com/henrikhodne/9322897/raw/sauce-connect.sh | bash'] }
-    it { should include_sexp [:cmd, 'curl -L https://gist.githubusercontent.com/henrikhodne/9322897/raw/sauce-connect.sh | bash', echo: true, timing: true] }
     it { should include_sexp [:export, ['TRAVIS_SAUCE_CONNECT', 'true']] }
   end
 
