@@ -97,9 +97,9 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
         end
 
         def install_php_7
-          sh.cmd 'curl -s -o php-7-archive.tar.bz2 https://s3.amazonaws.com/travis-php-archives/php-7-archive.tar.bz2'
-          sh.cmd 'tar xjf php-7-archive.tar.bz2 --directory ~/.phpenv/versions/'
-          sh.cmd 'rm php-7-archive.tar.bz2'
+          sh.cmd 'curl -s -o php-7-archive.tar.bz2 https://s3.amazonaws.com/travis-php-archives/php-7-archive.tar.bz2', echo: false
+          sh.cmd 'tar xjf php-7-archive.tar.bz2 --directory ~/.phpenv/versions/', echo: false
+          sh.cmd 'rm php-7-archive.tar.bz2', echo: false
         end
       end
     end
