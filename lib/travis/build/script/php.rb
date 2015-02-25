@@ -19,8 +19,12 @@ module Travis
 
         def setup
           super
-          if version == '7'
-            install_php_7
+          if version == 'nightly'
+            install_php_nightly
+          end
+
+          if version == '7' || version == '7.0'
+            setup_nightly_alias(version)
           end
           sh.cmd "phpenv global #{version}", assert: true
         end
@@ -96,10 +100,15 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
           sh.raw "grep session.save_path #{ini_file_path} | cut -d= -f2 | sudo xargs mkdir -m 01733 -p"
         end
 
-        def install_php_7
-          sh.cmd 'curl -s -o php-7-archive.tar.bz2 https://s3.amazonaws.com/travis-php-archives/php-7-archive.tar.bz2', echo: false
-          sh.cmd 'tar xjf php-7-archive.tar.bz2 --directory ~/.phpenv/versions/', echo: false
-          sh.cmd 'rm php-7-archive.tar.bz2', echo: false
+        def install_php_nightly
+          sh.cmd 'curl -s -o php-nightly-archive.tar.bz2 https://s3.amazonaws.com/travis-php-archives/php-nightly-archive.tar.bz2', echo: false
+          sh.cmd 'tar xjf php-nightly-archive.tar.bz2 --directory ~/.phpenv/versions/', echo: false
+          sh.cmd 'rm php-nightly-archive.tar.bz2', echo: false
+        end
+
+        def setup_nightly_alias(version)
+          install_php_nightly
+          sh.cmd "ln -s ~/.phpenv/versions/nightly ~/.phpenv/versions/#{version}", echo: false
         end
       end
     end

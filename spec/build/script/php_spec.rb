@@ -33,9 +33,14 @@ describe Travis::Build::Script::Php, :sexp do
     should include_sexp [:cmd, 'phpunit', echo: true, timing: true]
   end
 
-  describe 'installs php 7 nightly' do
+  describe 'installs php nightly' do
+    before { data[:config][:php] = 'nightly' }
+    it { should include_sexp [:cmd, 'curl -s -o php-nightly-archive.tar.bz2 https://s3.amazonaws.com/travis-php-archives/php-nightly-archive.tar.bz2', assert: true, timing: true] }
+  end
+
+  describe 'installs php 7' do
     before { data[:config][:php] = '7' }
-    it { should include_sexp [:cmd, 'curl -s -o php-7-archive.tar.bz2 https://s3.amazonaws.com/travis-php-archives/php-7-archive.tar.bz2', assert: true, timing: true] }
+    it { should include_sexp [:cmd, 'ln -s ~/.phpenv/versions/nightly ~/.phpenv/versions/7', assert: true, timing: true] }
   end
 
   describe 'fixes php.ini for hhvm' do
