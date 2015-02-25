@@ -19,6 +19,9 @@ module Travis
 
         def setup
           super
+          if version == '7'
+            install_php_7
+          end
           sh.cmd "phpenv global #{version}", assert: true
         end
 
@@ -91,6 +94,12 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
           # Ensure that the configured session storage directory exists if
           # specified in the ini file.
           sh.raw "grep session.save_path #{ini_file_path} | cut -d= -f2 | sudo xargs mkdir -m 01733 -p"
+        end
+
+        def install_php_7
+          sh.cmd 'curl -s -o php-7-archive.tar.bz2 https://s3.amazonaws.com/travis-php-archives/php-7-archive.tar.bz2'
+          sh.cmd 'tar xjf php-7-archive.tar.bz2 --directory ~/.phpenv/versions/'
+          sh.cmd 'rm php-7-archive.tar.bz2'
         end
       end
     end
