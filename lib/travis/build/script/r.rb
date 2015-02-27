@@ -193,7 +193,7 @@ module Travis
           sh.echo "Installing R packages: #{packages.join(', ')}"
           pkg_arg = packages_as_arg(packages)
           sh.cmd "Rscript -e 'install.packages(#{pkg_arg}, " +
-                 "repos=\"#{config[:cran]}]\")'"
+                 "repos=\"#{config[:cran]}\")'"
         end
 
         def r_github_install(packages)
