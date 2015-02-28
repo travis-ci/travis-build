@@ -131,9 +131,9 @@ module Travis
           sh.echo "Building with: R CMD build ${R_BUILD_ARGS}"
           sh.cmd "R CMD build #{config[:r_build_args]} ."
           tarball_script = [
-            'pkg <- devtools::as.package(".")',
-            'cat(paste0(pkg$package, "_", pkg$version, ".tar.gz"))',
-          ].join('; ')
+            'pkg <- devtools::as.package(".");',
+            'cat(paste0(pkg$package, "_", pkg$version, ".tar.gz"));',
+          ].join(' ')
           sh.export 'PKG_TARBALL', "$(Rscript -e '#{tarball_script}')"
 
           # Test the package
@@ -192,8 +192,13 @@ module Travis
           return if packages.empty?
           sh.echo "Installing R packages: #{packages.join(', ')}"
           pkg_arg = packages_as_arg(packages)
-          sh.cmd "Rscript -e 'install.packages(#{pkg_arg}, " +
-                 "repos=\"#{config[:cran]}\")'"
+          install_script = [
+            "install.packages(#{pkg_arg}, repos=\"#{config[:cran]}\");",
+            "if (!all(#{pkg_arg} %in% installed.packages())) {",
+            ' q(status = 1, save = "no")',
+            '}',
+          ].join(' ')
+          sh.cmd "Rscript -e '#{install_script}'"
         end
 
         def r_github_install(packages)
@@ -202,9 +207,14 @@ module Travis
           sh.echo "Installing R packages from github: #{packages.join(', ')}"
           pkg_arg = packages_as_arg(packages)
           install_script = [
-            "options(repos = c(CRAN = \"#{config[:cran]}\"))",
-            "devtools::install_github(#{pkg_arg}, build_vignettes = FALSE)",
-          ].join('; ')
+            "options(repos = c(CRAN = \"#{config[:cran]}\"));",
+            'tryCatch({',
+            "  devtools::install_github(#{pkg_arg}, build_vignettes = FALSE)",
+            '}, error = function(e) {',
+            '  message(e);',
+            '  q(status = 1, save = "no")',
+            '})',
+          ].join(' ')
           sh.cmd "Rscript -e '#{install_script}'"
         end
         
@@ -244,26 +254,35 @@ module Travis
           sh.echo "Installing bioc packages: #{packages.join(', ')}"
           pkg_arg = packages_as_arg(packages)
           install_script = [
-            "source(\"#{config[:bioc]}\")",
-            'options(repos=biocinstallRepos())',
-            "biocLite(#{pkg_arg})",
-          ].join('; ')
+            "source(\"#{config[:bioc]}\");",
+            'options(repos=biocinstallRepos());',
+            "biocLite(#{pkg_arg});",
+            "if (!all(#{pkg_arg} %in% installed.packages())) {",
+            ' q(status = 1, save = "no")',
+            '}',
+          ].join(' ')
           sh.cmd "Rscript -e '#{install_script}'"
         end
 
         def install_deps
           setup_devtools
           if not needs_bioc?
-            install_script = [
-              "options(repos = c(CRAN = \"#{config[:cran]}\"))",
-              'devtools::install_deps(dependencies = TRUE)',
-            ].join('; ')
+            repos = "\"#{config[:cran]}\""
           else
-            install_script = [
-              'options(repos = BiocInstaller::biocinstallRepos())',
-              'devtools::install_deps(dependencies = TRUE)',
-            ].join('; ')
+            repos = 'BiocInstaller::biocinstallRepos()'
           end
+          install_script = [
+            "options(repos = #{repos});",
+            'tryCatch({',
+            '  deps <- devtools::install_deps(dependencies = TRUE)',
+            '}, error = function(e) {',
+            '  message(e);',
+            '  q(status=1)',
+            '});',
+            'if (!all(deps %in% installed.packages())) {',
+            ' q(status = 1, save = "no")',
+            '}',
+          ].join(' ')
           sh.cmd "Rscript -e '#{install_script}'"
         end
 
