@@ -129,7 +129,8 @@ module Travis
         def script
           # Build the package
           sh.echo "Building with: R CMD build ${R_BUILD_ARGS}"
-          sh.cmd "R CMD build #{config[:r_build_args]} ."
+          sh.cmd "R CMD build #{config[:r_build_args]} .",
+                 assert: true
           tarball_script = [
             'pkg <- devtools::as.package(".")',
             'cat(paste0(pkg$package, "_", pkg$version, ".tar.gz"))',
@@ -139,7 +140,8 @@ module Travis
           # Test the package
           sh.echo 'Testing with: R CMD check "${PKG_TARBALL}" ' +
                   "#{config[:r_check_args]}"
-          sh.cmd "R CMD check \"${PKG_TARBALL}\" #{config[:r_check_args]}"
+          sh.cmd "R CMD check \"${PKG_TARBALL}\" #{config[:r_check_args]}",
+                 assert: true
 
           # Turn warnings into errors, if requested.
           if config[:warnings_are_errors]
@@ -163,7 +165,7 @@ module Travis
               ' q(status = 1, save = "no");',
               '}',
             ].join(' ')
-            sh.cmd "Rscript -e '#{revdep_script}'"
+            sh.cmd "Rscript -e '#{revdep_script}'", assert: true
           end
 
         end
