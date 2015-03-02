@@ -356,7 +356,7 @@ module Travis
             sh.cmd 'sudo apt-get install --no-install-recommends ' +
                    "#{latex_packages.join(' ')}",
                    retry: true
-          when 'mac'
+          when 'osx'
             # We use mactex-basic due to disk space constraints.
             mactex = 'mactex-basic.pkg'
             # TODO(craigcitro): Confirm that this will route us to the
@@ -379,7 +379,7 @@ module Travis
           case config[:os]
           when 'linux'
             os_path = 'linux/debian/x86_64'
-          when 'mac'
+          when 'osx'
             os_path = 'mac'
           end
 
