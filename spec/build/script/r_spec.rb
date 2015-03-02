@@ -21,6 +21,13 @@ describe Travis::Build::Script::R, :sexp do
                          assert: true, echo: true, timing: true]
   end
 
+  it 'fails on package build and test failures' do
+    should include_sexp [:cmd, /.*R CMD build.*/,
+                         assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, /.*R CMD check.*/,
+                         assert: true, echo: true, timing: true]
+  end
+
   describe 'bioc configuration is optional' do
     it 'does not install bioc if not required' do
       should_not include_sexp [:cmd, /.*biocLite.*/,
