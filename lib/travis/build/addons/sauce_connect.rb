@@ -5,7 +5,11 @@ module Travis
     class Addons
       class SauceConnect < Base
         SUPER_USER_SAFE = true
-        SOURCE_URL = 'https://gist.githubusercontent.com/henrikhodne/9322897/raw/sauce-connect.sh'
+        TEMPLATES_PATH = File.expand_path('templates', __FILE__.sub('.rb', ''))
+
+        def after_header
+          sh.raw template('sauce_connect.sh')
+        end
 
         def before_before_script
           sh.export 'SAUCE_USERNAME', username, echo: false if username
@@ -13,7 +17,7 @@ module Travis
 
           sh.fold 'sauce_connect' do
             sh.echo 'Starting Sauce Connect', ansi: :yellow
-            sh.cmd "curl -L #{SOURCE_URL} | bash", assert: false, echo: true, timing: true
+            sh.cmd 'travis_start_sauce_connect', assert: false, echo: true, timing: true
             sh.export 'TRAVIS_SAUCE_CONNECT', 'true', echo: false
           end
         end
