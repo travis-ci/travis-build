@@ -9,7 +9,11 @@ module Travis
         end
 
         def apply?
-          data[:fix_etc_hosts] || !data[:skip_etc_hosts_fix]
+          if data.key?(:fix_etc_hosts)
+            data[:fix_etc_hosts]
+          else
+            !data[:skip_etc_hosts_fix]
+          end
         end
       end
     end
