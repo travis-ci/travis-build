@@ -18,4 +18,9 @@ nameserver 208.67.220.220
     data[:skip_resolv_updates] = true
     should_not include_sexp [:raw, fix_resolv_conf]
   end
+
+  it 'skips fixing the DNS entries in /etc/resolv.conf if fix_resolv_conf=false' do
+    data[:fix_resolv_conf] = false
+    should_not include_sexp [:raw, fix_resolv_conf]
+  end
 end

@@ -30,6 +30,10 @@ module Travis
         data[key]
       end
 
+      def key?(key)
+        data.key?(key)
+      end
+
       def language
         config[:language]
       end
