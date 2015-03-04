@@ -25,7 +25,7 @@ If you wish to just run the specs, you can just run `bundle exec rspec spec`.
 
 ## Use as addon for CLI
 
-You can set travis-build up as a plugin for the [command line client](https://github.com/travis-ci/travis):
+You can set travis-build up as a plugin for the [command line client](https://github.com/travis-ci/travis.rb):
 
     ln -s PATH_TO_TRAVIS_BUILD ~/.travis/travis-build
 
