@@ -1,3 +1,7 @@
+#!/bin/bash
+
+export _SC_PID=unset
+
 function travis_start_sauce_connect() {
   if [ -z "${SAUCE_USERNAME}" ] || [ -z "${SAUCE_ACCESS_KEY}" ]; then
       echo "This script can't run without your Sauce credentials"
@@ -7,54 +11,68 @@ function travis_start_sauce_connect() {
       return 1
   fi
 
-  SAUCE_TMP_DIR="$(mktemp -d -t sc.XXXX)"
-  echo "Using temp dir $SAUCE_TMP_DIR"
-  pushd $SAUCE_TMP_DIR
+  local sc_tmp sc_platform sc_distro sc_distro_fmt sc_distro_shasum \
+    sc_readyfile sc_logfile sc_dir sc_tunnel_id_arg sc_actual_shasum
 
-  SAUCE_CONNECT_PLATFORM=$(uname | sed -e 's/Darwin/osx/' -e 's/Linux/linux/')
-  case "${SAUCE_CONNECT_PLATFORM}" in
+  sc_tmp="$(mktemp -d -t sc.XXXX)"
+  echo "Using temp dir $sc_tmp"
+  pushd $sc_tmp
+
+  sc_platform=$(uname | sed -e 's/Darwin/osx/' -e 's/Linux/linux/')
+  case "${sc_platform}" in
       linux)
-          SC_DISTRIBUTION_FMT=tar.gz
-          SC_DISTRIBUTION_SHASUM=0d7d2dc12766ac137e62a3e4dad3025b590f9782;;
+          sc_distro_fmt=tar.gz
+          sc_distro_shasum=0d7d2dc12766ac137e62a3e4dad3025b590f9782;;
       osx)
-          SC_DISTRIBUTION_FMT=zip
-          SC_DISTRIBUTION_SHASUM=0921965149b07ec90296aa2757d35c54e43cd197;;
+          sc_distro_fmt=zip
+          sc_distro_shasum=0921965149b07ec90296aa2757d35c54e43cd197;;
   esac
-  SC_DISTRIBUTION=sc-4.3.6-${SAUCE_CONNECT_PLATFORM}.${SC_DISTRIBUTION_FMT}
-  SC_READYFILE=sauce-connect-ready-$RANDOM
-  SC_LOGFILE=$HOME/sauce-connect.log
+  sc_distro=sc-4.3.6-${sc_platform}.${sc_distro_fmt}
+  sc_readyfile=sauce-connect-ready-$RANDOM
+  sc_logfile=$HOME/sauce-connect.log
   if [ ! -z "${TRAVIS_JOB_NUMBER}" ]; then
-    SC_TUNNEL_ID="-i ${TRAVIS_JOB_NUMBER}"
+    sc_tunnel_id_arg="-i ${TRAVIS_JOB_NUMBER}"
   fi
   echo "Downloading Sauce Connect"
-  wget http://saucelabs.com/downloads/${SC_DISTRIBUTION}
-  SC_ACTUAL_SHASUM="$(openssl sha1 ${SC_DISTRIBUTION} | cut -d' ' -f2)"
-  if [[ "$SC_ACTUAL_SHASUM" != "$SC_DISTRIBUTION_SHASUM" ]]; then
+  wget http://saucelabs.com/downloads/${sc_distro}
+  sc_actual_shasum="$(openssl sha1 ${sc_distro} | cut -d' ' -f2)"
+  if [[ "$sc_actual_shasum" != "$sc_distro_shasum" ]]; then
       echo "SHA1 sum of Sauce Connect file didn't match!"
       return 1
   fi
-  SC_DIR=$(tar -ztf ${SC_DISTRIBUTION} | head -n1)
+  sc_dir=$(tar -ztf ${sc_distro} | head -n1)
 
   echo "Extracting Sauce Connect"
-  case "${SC_DISTRIBUTION_FMT}" in
+  case "${sc_distro_fmt}" in
       tar.gz)
-          tar zxf $SC_DISTRIBUTION;;
+          tar zxf $sc_distro;;
       zip)
-          unzip $SC_DISTRIBUTION;;
+          unzip $sc_distro;;
   esac
 
   echo "Starting Sauce Connect"
-  ${SC_DIR}/bin/sc \
-    ${SC_TUNNEL_ID} \
-    -f ${SC_READYFILE} \
-    -l ${SC_LOGFILE} &
+  ${sc_dir}/bin/sc \
+    ${sc_tunnel_id_arg} \
+    -f ${sc_readyfile} \
+    -l ${sc_logfile} &
+  _SC_PID="$!"
 
   echo "Waiting for Sauce Connect readyfile"
-  while [ ! -f ${SC_READYFILE} ]; do
+  while [ ! -f ${sc_readyfile} ]; do
     sleep .5
   done
 
-  unset SAUCE_CONNECT_PLATFORM SAUCE_TMP_DIR SC_DIR SC_DISTRIBUTION SC_READYFILE SC_LOGFILE SC_TUNNEL_ID
-
   popd
+}
+
+function travis_stop_sauce_connect() {
+  if [[ ${_SC_PID} = unset ]] ; then
+    echo "No running Sauce Connect tunnel found"
+    return 1
+  fi
+
+  echo "Stopping Sauce Connect"
+  kill ${_SC_PID}
+  sleep 2
+  kill -9 ${_SC_PID}
 }
