@@ -50,7 +50,6 @@ function travis_start_sauce_connect() {
           unzip $sc_distro;;
   esac
 
-  echo "Starting Sauce Connect"
   ${sc_dir}/bin/sc \
     ${sc_tunnel_id_arg} \
     -f ${sc_readyfile} \
@@ -71,8 +70,12 @@ function travis_stop_sauce_connect() {
     return 1
   fi
 
-  echo "Stopping Sauce Connect"
   kill ${_SC_PID}
-  sleep 2
+  for i in 0 1 2 3 4 ; do
+    if ! kill -0 ${_SC_PID} ; then
+      return 0
+    fi
+    sleep 1
+  done
   kill -9 ${_SC_PID}
 }
