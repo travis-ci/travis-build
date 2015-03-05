@@ -14,7 +14,12 @@ module Travis
 
         def announce
           super
-          sh.cmd "if [[ ! $(kiex list | grep -F #{elixir_version} >/dev/null) ]]; then echo 'Installing Elixir #{elixir_version}'; kiex install #{elixir_version} && kiex use #{elixir_version}; fi", echo: false
+          sh.fold "kiex" do
+            sh.if "! $(kiex list | grep -F #{elixir_version} >/dev/null)" do
+              sh.echo "Installing Elixir #{elixir_version}", ansi: :yellow
+              sh.cmd "kiex install #{elixir_version} && kiex use #{elixir_version}"
+            end
+          end
           sh.cmd "elixir --version"
         end
 
