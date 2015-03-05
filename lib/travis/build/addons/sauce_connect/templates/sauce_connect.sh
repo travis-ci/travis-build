@@ -75,7 +75,9 @@ function travis_stop_sauce_connect() {
     if ! kill -0 ${_SC_PID} ; then
       return 0
     fi
+    echo "Waiting for graceful Sauce Connect shutdown"
     sleep 1
   done
+  echo "Forcefully terminating Sauce Connect"
   kill -9 ${_SC_PID}
 }
