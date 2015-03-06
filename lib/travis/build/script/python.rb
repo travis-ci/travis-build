@@ -10,6 +10,8 @@ module Travis
         REQUIREMENTS_MISSING = 'Could not locate requirements.txt. Override the install: key in your .travis.yml to install dependencies.'
         SCRIPT_MISSING       = 'Please override the script: key in your .travis.yml to run tests.'
 
+        DEV_VERSIONS = %w( 3.5 3.5-dev )
+
         def export
           super
           sh.export 'TRAVIS_PYTHON_VERSION', version, echo: false
@@ -17,6 +19,9 @@ module Travis
 
         def setup
           super
+          if DEV_VERSIONS.include? version
+            install_python_dev
+          end
           sh.cmd "source #{virtualenv_activate}"
         end
 
@@ -75,6 +80,12 @@ module Travis
 
           def system_site_packages
             '_with_system_site_packages' if config[:virtualenv][:system_site_packages]
+          end
+
+          def install_python_dev
+            sh.cmd 'curl -s -o python-3.5-dev.tar.bz2 https://s3.amazonaws.com/travis-python-archives/python-3.5-dev.tar.bz2', echo: false
+            sh.cmd 'sudo tar xjf python-3.5-dev.tar.bz2 --directory /', echo: false
+            sh.cmd 'rm python-3.5-dev.tar.bz2', echo: false
           end
       end
     end
