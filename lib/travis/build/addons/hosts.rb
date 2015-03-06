@@ -6,11 +6,12 @@ module Travis
     class Addons
       class Hosts < Base
         SUPER_USER_SAFE = true
+        HOSTS_FILE = '/etc/hosts'
 
         def after_prepare
           sh.fold 'hosts' do
-            sh.cmd "sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '#{hosts}'/' -i'.bak' /etc/hosts"
-            sh.cmd "sudo sed -e 's/^\\(::1.*\\)$/\\1 '#{hosts}'/' -i'.bak' /etc/hosts"
+            sh.cmd "cat #{HOSTS_FILE} | sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 #{hosts}/' | sudo tee #{HOSTS_FILE} > /dev/null"
+            sh.cmd "cat #{HOSTS_FILE} | sed -e 's/^\\(::1.*\\)$/\\1 #{hosts}/'             | sudo tee #{HOSTS_FILE} > /dev/null"
           end
         end
 
