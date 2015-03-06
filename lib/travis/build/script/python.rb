@@ -17,11 +17,15 @@ module Travis
           sh.export 'TRAVIS_PYTHON_VERSION', version, echo: false
         end
 
-        def setup
+        def configure
           super
           if DEV_VERSIONS.include? version
             install_python_dev
           end
+        end
+
+        def setup
+          super
           sh.cmd "source #{virtualenv_activate}"
         end
 
