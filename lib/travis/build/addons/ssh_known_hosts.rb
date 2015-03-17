@@ -26,13 +26,22 @@ module Travis
             sh.fold 'ssh_known_hosts.0' do
               sh.echo "Adding ssh known hosts (BETA)", ansi: :yellow
               config.each do |host|
-                host_uri = URI("ssh://#{host}")
+                begin
+                  host_uri = URI("ssh://#{host}")
+                rescue => e
+                  sh.echo "Skipping malformed host #{host.inspect}", ansi: :red
+                  warn e
+                  next
+                end
+
                 unless host_uri.host
                   sh.echo "Skipping malformed host #{host.inspect}", ansi: :red
                   next
                 end
-                ssh_keyscan_command = "ssh-keyscan -t rsa,dsa -H #{host_uri.host}"
+
+                ssh_keyscan_command = "ssh-keyscan -t rsa,dsa"
                 ssh_keyscan_command << " -p #{host_uri.port}" if host_uri.port
+                ssh_keyscan_command << " -H #{host_uri.host}"
                 sh.cmd "#{ssh_keyscan_command} 2>&1 | tee -a #{Travis::Build::HOME_DIR}/.ssh/known_hosts", echo: true, timing: true
               end
             end

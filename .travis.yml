@@ -4,6 +4,10 @@ cache: bundler
 
 sudo: false
 
+env:
+  global:
+  - RUBYOPT='-W0'
+
 script: "bundle exec rspec spec"
 before_deploy: ruby script/build_s3_index_html.rb
 

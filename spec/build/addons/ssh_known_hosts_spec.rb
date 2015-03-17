@@ -10,15 +10,16 @@ describe Travis::Build::Addons::SshKnownHosts, :sexp do
   before       { addon.before_checkout }
 
   def add_host_cmd(host, port = nil)
-    "ssh-keyscan -t rsa,dsa -H #{host}#{" -p #{port}" if port} 2>&1 | tee -a #{Travis::Build::HOME_DIR}/.ssh/known_hosts"
+    "ssh-keyscan -t rsa,dsa#{" -p #{port}" if port} -H #{host} 2>&1 | tee -a #{Travis::Build::HOME_DIR}/.ssh/known_hosts"
   end
 
   context 'with multiple host config' do
-    let(:config) { ['git.example.org', 'git.example.biz', 'custom.example.com:9999'] }
+    let(:config) { ['git.example.org', 'git.example.biz', 'custom.example.com:9999', '_zz$'] }
 
     it { should include_sexp [:cmd, add_host_cmd('git.example.org'), echo: true, timing: true] }
     it { should include_sexp [:cmd, add_host_cmd('git.example.biz'), echo: true, timing: true] }
     it { should include_sexp [:cmd, add_host_cmd('custom.example.com', 9999), echo: true, timing: true] }
+    it { should_not include_sexp [:cmd, add_host_cmd('_zz$'), echo: true, timing: true] }
     it { store_example }
   end
 
