@@ -13,15 +13,61 @@ describe Travis::Build::Script::Csharp, :sexp do
 
   describe 'configure' do
     it 'sets up package repository' do
-      should include_sexp [:cmd, 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF']
-      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy main' >> /etc/apt/sources.list.d/mono-xamarin.list\""]
-      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy-libtiff-compat main' >> /etc/apt/sources.list.d/mono-xamarin.list\""]
-      should include_sexp [:cmd, 'sudo apt-get update -qq', timing: true]
+      should include_sexp [:cmd, 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF', assert: true]
+      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", assert: true]
+      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy-libtiff-compat main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", assert: true]
+      should include_sexp [:cmd, 'sudo apt-get update -qq', timing: true, assert: true]
     end
 
     it 'installs mono' do
-      should include_sexp [:cmd, 'sudo apt-get install -qq mono-complete referenceassemblies-pcl nuget mono-vbnc fsharp', timing: true]
+      should include_sexp [:cmd, 'sudo apt-get install -qq mono-complete mono-vbnc fsharp nuget referenceassemblies-pcl', timing: true, assert: true]
       should include_sexp [:cmd, 'mozroots --import --sync --quiet', timing: true]
+    end
+  end
+
+  describe 'version switching' do
+    it 'throws a error with a invalid version' do
+      data[:config][:mono] = 'foo'
+      should include_sexp [:echo, '"foo" is not a valid version of mono.', {:ansi=>:red}]
+    end
+
+    it 'throws a error with a invalid version' do
+      data[:config][:mono] = '12.55.523'
+      should include_sexp [:echo, '"12.55.523" is not a valid version of mono.', {:ansi=>:red}]
+    end
+
+    it 'throws a error for invalid version of mono 2' do
+      data[:config][:mono] = '2.1.1'
+      should include_sexp [:echo, '"2.1.1" is not a valid version of mono.', {:ansi=>:red}]
+    end
+
+    it 'throws a error for mono 1' do
+      data[:config][:mono] = '1.1.8'
+      should include_sexp [:echo, '"1.1.8" is not a valid version of mono.', {:ansi=>:red}]
+    end
+
+    it 'selects mono 2' do
+      data[:config][:mono] = '2.10.8'
+      should include_sexp [:cmd,'sudo apt-get install -qq mono-complete mono-vbnc', timing: true, assert: true]
+    end
+
+    it 'selects mono 3.2.8' do
+      data[:config][:mono] = '3.2.8'
+      should include_sexp [:cmd,'sudo apt-get install -qq mono-complete mono-vbnc fsharp', timing: true, assert: true]
+    end
+
+    it 'does not install PCL on mono 3.8.0' do
+      data[:config][:mono] = '3.8.0'
+      should include_sexp [:cmd, 'sudo apt-get install -qq mono-complete mono-vbnc fsharp nuget ', timing: true, assert: true]
+    end
+
+    it 'selects latest version by default' do
+      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", assert: true]
+    end
+
+    it 'selects correct version' do
+      data[:config][:mono] = '3.12.0'
+      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy/snapshots/3.12.0 main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", assert: true]
     end
   end
 
