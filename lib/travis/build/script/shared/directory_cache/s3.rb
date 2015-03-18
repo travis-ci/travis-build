@@ -17,6 +17,19 @@ module Travis
             secret_access_key: 'secret access key'
           }
 
+          CURL_FORMAT = <<-EOF
+             time_namelookup:  %{time_namelookup} s
+                time_connect:  %{time_connect} s
+             time_appconnect:  %{time_appconnect} s
+            time_pretransfer:  %{time_pretransfer} s
+               time_redirect:  %{time_redirect} s
+          time_starttransfer:  %{time_starttransfer} s
+              speed_download:  %{speed_download} bytes/s
+               url_effective:  %{url_effective}
+                             ----------
+                  time_total:  %{time_total} s
+          EOF
+
           KeyPair = Struct.new(:id, :secret)
 
           Location = Struct.new(:scheme, :region, :bucket, :path) do
@@ -171,7 +184,7 @@ module Travis
             end
 
             def debug_flags
-              '-v' if data.cache[:code_fetch_verbose]
+              "-v -w '#{CURL_FORMAT}'" if data.cache[:code_fetch_verbose]
             end
         end
       end
