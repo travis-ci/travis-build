@@ -47,7 +47,7 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
     before { cache.install }
 
     let(:url) { "https://raw.githubusercontent.com/travis-ci/casher/#{branch}/bin/casher" }
-    let(:cmd) { [:cmd,  "curl #{url} -L -o $CASHER_DIR/bin/casher -s --fail", retry: true, display: 'Installing caching utilities'] }
+    let(:cmd) { [:cmd,  "curl #{url}  -L -o $CASHER_DIR/bin/casher -s --fail", retry: true, display: 'Installing caching utilities'] }
 
     describe 'uses casher production in default mode' do
       let(:branch) { 'production' }
@@ -66,6 +66,12 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
     describe 'passing a casher branch' do
       let(:branch) { 'foo' }
       let(:config) { { cache: { branch: branch } } }
+      it { should include_sexp :cmd }
+    end
+
+    describe 'using debug flag' do
+      let(:config) { { cache: { code_fetch_verbose: true } } }
+      let(:cmd) { [:cmd,  "curl #{url} -v -L -o $CASHER_DIR/bin/casher -s --fail", retry: true, display: 'Installing caching utilities'] }
       it { should include_sexp :cmd }
     end
   end

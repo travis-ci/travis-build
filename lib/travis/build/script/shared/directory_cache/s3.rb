@@ -57,7 +57,7 @@ module Travis
             sh.export 'CASHER_DIR', '$HOME/.casher'
 
             sh.mkdir '$CASHER_DIR/bin', echo: false, recursive: true
-            sh.cmd "curl #{casher_url} -L -o #{BIN_PATH} -s --fail", retry: true, echo: 'Installing caching utilities'
+            sh.cmd "curl #{casher_url} #{debug_flags} -L -o #{BIN_PATH} -s --fail", retry: true, echo: 'Installing caching utilities'
             sh.raw "[ $? -ne 0 ] && echo 'Failed to fetch casher from GitHub, disabling cache.' && echo > #{BIN_PATH}"
 
             sh.if "-f #{BIN_PATH}" do
@@ -168,6 +168,10 @@ module Travis
               else
                 data.cache?(:edge) ? 'master' : 'production'
               end
+            end
+
+            def debug_flags
+              '-v' if data.cache[:code_fetch_verbose]
             end
         end
       end
