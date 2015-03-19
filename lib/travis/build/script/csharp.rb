@@ -17,7 +17,7 @@ module Travis
           super
 
           sh.echo ''
-          sh.echo 'BETA Warning: Travis-CI C# support is in beta and may be changed or removed at any time.', ansi: :red
+          sh.echo 'C# support for Travis-CI is community maintained.', ansi: :red
           sh.echo 'Please open any issues at https://github.com/travis-ci/travis-ci/issues/new and cc @joshua-anderson @akoeplinger @nterry', ansi: :red
 
 
