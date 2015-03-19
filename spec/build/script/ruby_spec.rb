@@ -40,7 +40,7 @@ describe Travis::Build::Script::Ruby, :sexp do
 
     it 'sets up rvm from .ruby-version' do
       sexp = sexp_find(subject, [:if, '-f .ruby-version'], [:then])
-      expect(sexp).to include_sexp [:cmd, 'rvm use $(< .ruby-version) --install --binary --fuzzy"', assert: true, echo: true, timing: true]
+      expect(sexp).to include_sexp [:cmd, 'rvm use $(< .ruby-version) --install --binary --fuzzy', assert: true, echo: true, timing: true]
     end
 
     it 'sets the default ruby otherwise' do
