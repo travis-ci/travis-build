@@ -184,7 +184,7 @@ module Travis
             end
 
             def debug_flags
-              "-v -w '#{CURL_FORMAT}'" if data.cache[:code_fetch_verbose]
+              "-v -w '#{CURL_FORMAT}'" if data.cache[:debug]
             end
         end
       end

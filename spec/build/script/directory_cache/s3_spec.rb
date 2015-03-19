@@ -70,7 +70,7 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
     end
 
     describe 'using debug flag' do
-      let(:config) { { cache: { code_fetch_verbose: true } } }
+      let(:config) { { cache: { debug: true } } }
       let(:cmd) { [:cmd,  "curl #{url} -v #{described_class::CURL_FORMAT} -L -o $CASHER_DIR/bin/casher -s --fail", retry: true, display: 'Installing caching utilities'] }
       it { should include_sexp :cmd }
     end
