@@ -9,8 +9,7 @@ module Travis
     class Stages
       STAGES = [
         :builtin,     [:header, :configure, :checkout, :prepare, :disable_sudo, :export, :setup, :announce],
-        :custom,      [:before_install, :install, :before_script, :script],
-        :custom,      [:before_cache],
+        :custom,      [:before_install, :install, :before_script, :script, :before_cache],
         :builtin,     [:cache],
         :conditional, [:after_success],
         # :addon,       [:deploy_all],
