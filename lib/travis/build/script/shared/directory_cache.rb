@@ -29,7 +29,7 @@ module Travis
           super
         end
 
-        def after_result
+        def cache
           directory_cache.fold('store build cache') do
             prepare_cache
             directory_cache.push
