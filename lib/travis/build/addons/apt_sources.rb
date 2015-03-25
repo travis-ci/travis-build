@@ -16,7 +16,8 @@ module Travis
           def load_whitelist
             require 'faraday'
             response = Faraday.get(ENV['TRAVIS_BUILD_APT_SOURCE_WHITELIST'])
-            JSON.parse(response.body.to_s)
+            entries = JSON.parse(response.body.to_s)
+            Hash[entries.reject { |e| !e.key?('alias') }.map { |e| [e.fetch('alias'), e] }]
           rescue => e
             warn e
             {}
@@ -31,11 +32,9 @@ module Travis
             disallowed = []
 
             config.each do |source_alias|
-              if whitelist.keys.include?(source_alias)
-                whitelisted << whitelist[source_alias]
-              else
-                disallowed << source_alias
-              end
+              source = whitelist[source_alias]
+              whitelisted << source.clone if source && source['sourceline']
+              disallowed << source_alias if source.nil?
             end
 
             unless disallowed.empty?
@@ -48,9 +47,8 @@ module Travis
             unless whitelisted.empty?
               sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
               whitelisted.each do |source|
-                sourceline, key_url = source
-                sh.cmd "curl -sSL #{key_url.inspect} | sudo -E apt-key add -", echo: true, assert: true, timing: true if key_url
-                sh.cmd "sudo -E apt-add-repository -y #{sourceline.inspect}", echo: true, assert: true, timing: true
+                sh.cmd "curl -sSL #{source['key_url'].untaint.inspect} | sudo -E apt-key add -", echo: true, assert: true, timing: true if source['key_url']
+                sh.cmd "sudo -E apt-add-repository -y #{source['sourceline'].untaint.inspect}", echo: true, assert: true, timing: true
               end
               sh.cmd "sudo -E apt-get -yq update &>> ~/apt-get-update.log", echo: true, timing: true
             end
