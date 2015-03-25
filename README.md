@@ -7,12 +7,12 @@ with the resulting output streamed back to Travis.
 
 This code base has gone through several iterations of development, and was
 originally extracted from [Travis
-Worker](https://github.com/travis-ci/travis-worker), before taking it's current
+Worker](https://github.com/travis-ci/travis-worker), before taking its current
 form.
 
 ## Running test suites
 
-Since the specs runs the generated build script, we recommend running it in a
+Since the specs run the generated build script, we recommend running it in a
 virtual machine to contain the changes. There's a Vagrantfile in this
 repository, so you can use [Vagrant](http://www.vagrantup.com) for this:
 
@@ -35,7 +35,7 @@ variables are not defined, and that the build matrix expansion is not considered
 
 ### _Important_
 
-The resulting script contains command that make changes to the system on which it is executed
+The resulting script contains commands that make changes to the system on which it is executed
 (e.g., edit `/etc/resolv.conf`, install software).
 Some require `sudo` privileges and they are not easily undone.
 
@@ -45,7 +45,7 @@ It is highly recommended that you run this on a virtual machine.
 
 The command can be invoked in 3 ways:
 
-1. Without argument, it produces the bash script for the local `.travis.yml` without considering `env` and `matrix` values
+1. Without an argument, it produces the bash script for the local `.travis.yml` without considering `env` and `matrix` values
 (`travis-build` is unable to expand these keys correctly).
 
     `$ travis compile`
@@ -59,7 +59,7 @@ The command can be invoked in 3 ways:
 
     `$ travis compile 351.2`
 
-The resultant script can be used on a (virtual) machine that closely mimic Travis CI's build
+The resultant script can be used on a (virtual) machine that closely mimics Travis CI's build
 environment to aid you in debugging the build failures.
 
 ## License & copyright information
