@@ -196,6 +196,12 @@ decrypt() {
   echo $1 | base64 -d | openssl rsautl -decrypt -inkey ~/.ssh/id_rsa.repo
 }
 
+# XXX Forcefully removing rabbitmq source until next build env update
+# XXX See http://www.traviscistatus.com/incidents/6xtkpm1zglg3
+if [[ -f /etc/apt/sources.list.d/rabbitmq-source.list ]] ; then
+  sudo rm -f /etc/apt/sources.list.d/rabbitmq-source.list
+fi
+
 mkdir -p <%= build_dir %>
 cd       <%= build_dir %>
 
