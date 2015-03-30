@@ -72,24 +72,6 @@ describe Travis::Build::Addons::Apt, :sexp do
     end
   end
 
-  context 'when given neither sources nor packages' do
-    let(:config) { { packages: [], sources: [] } }
-    before { addon.after_prepare }
-
-    it 'will not run #after_prepare' do
-      expect(addon.send(:after_prepare?)).to be_false
-    end
-  end
-
-  context 'when given only sources' do
-    let(:config) { { packages: [], sources: %w(testing) } }
-    before { addon.after_prepare }
-
-    it 'will not run #after_prepare' do
-      expect(addon.send(:after_prepare?)).to be_false
-    end
-  end
-
   context 'with packages' do
     before do
       addon.stubs(:package_whitelist).returns(package_whitelist)

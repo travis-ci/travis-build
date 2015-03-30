@@ -53,11 +53,6 @@ module Travis
           end
         end
 
-        def after_prepare?
-          return false if config_packages.empty?
-          !config_sources.empty? && !config_packages.empty?
-        end
-
         def after_prepare
           sh.fold('apt') do
             add_apt_sources unless config_sources.empty?
