@@ -44,6 +44,21 @@ describe Travis::Build::Script::D, :sexp do
     it_behaves_like 'dmd'
   end
 
+  context 'when dmd is configured' do
+    before do
+      data[:config][:d] = 'dmd'
+    end
+
+    it_behaves_like 'dmd'
+
+    it 'downloads the latest dmd version' do
+      should include_sexp [:cmd, %r{LATEST_DMD=.*curl.*},
+                           assert: true, timing: true]
+      should include_sexp [:cmd, %r{downloads\.dlang\.org/releases/.*/dmd.*\${LATEST_DMD}.*\.zip},
+                           assert: true, echo: true, timing: true]
+    end
+  end
+
   context 'when a dmd version is configured' do
     before do
       data[:config][:d] = 'dmd-2.066.0'
@@ -79,16 +94,8 @@ describe Travis::Build::Script::D, :sexp do
     end
   end
 
-  context 'when a ldc version is configured' do
-    before do
-      data[:config][:d] = 'ldc-0.14.0'
-    end
-
-    it 'downloads and installs ldc' do
-      should include_sexp [:cmd, %r{ldc/releases/download/.*/ldc2.*0\.14\.0.*.tar.*},
-                           assert: true, echo: true, timing: true]
-    end
-
+  # LDC
+  shared_examples 'ldc' do
     it 'sets DC and DMD from config :d' do
       should include_sexp [:export, ['DC', 'ldc2'], echo: true]
       should include_sexp [:export, ['DMD', 'ldmd2'], echo: true]
@@ -103,16 +110,36 @@ describe Travis::Build::Script::D, :sexp do
     end
   end
 
-  context 'when a gdc version is configured' do
+  context 'when ldc is configured' do
     before do
-      data[:config][:d] = 'gdc-4.8.2'
+      data[:config][:d] = 'ldc'
     end
 
-    it 'downloads and installs gdc' do
-      should include_sexp [:cmd, %r{gdcproject\.org/downloads/.*4\.8\.2.*\.tar\..*},
+    it_behaves_like 'ldc'
+
+    it 'downloads the latest ldc version' do
+      should include_sexp [:cmd, %r{LATEST_LDC=.*curl.*},
+                           assert: true, timing: true]
+      should include_sexp [:cmd, %r{ldc/releases/download/.*/ldc2.*\${LATEST_LDC}.*.tar.*},
                            assert: true, echo: true, timing: true]
     end
+  end
 
+  context 'when a ldc version is configured' do
+    before do
+      data[:config][:d] = 'ldc-0.14.0'
+    end
+
+    it_behaves_like 'ldc'
+
+    it 'downloads and installs ldc' do
+      should include_sexp [:cmd, %r{ldc/releases/download/.*/ldc2.*0\.14\.0.*.tar.*},
+                           assert: true, echo: true, timing: true]
+    end
+  end
+
+  # GDC
+  shared_examples 'gdc' do
     it 'sets DC and DMD from config :d' do
       should include_sexp [:export, ['DC', 'gdc'], echo: true]
       should include_sexp [:export, ['DMD', 'gdmd'], echo: true]
@@ -124,6 +151,34 @@ describe Travis::Build::Script::D, :sexp do
 
     it 'runs dub test with gdc' do
       should include_sexp [:cmd, 'dub test --compiler=gdc', echo: true, timing: true]
+    end
+  end
+
+  context 'when gdc is configured' do
+    before do
+      data[:config][:d] = 'gdc'
+    end
+
+    it_behaves_like 'gdc'
+
+    it 'downloads and installs gdc' do
+      should include_sexp [:cmd, %r{LATEST_GDC=.*curl.*},
+                           assert: true, timing: true]
+      should include_sexp [:cmd, %r{gdcproject\.org/downloads/.*\${LATEST_GDC}.*\.tar\..*},
+                           assert: true, echo: true, timing: true]
+    end
+  end
+
+  context 'when a gdc version is configured' do
+    before do
+      data[:config][:d] = 'gdc-4.8.2'
+    end
+
+    it_behaves_like 'gdc'
+
+    it 'downloads and installs gdc' do
+      should include_sexp [:cmd, %r{gdcproject\.org/downloads/.*4\.8\.2.*\.tar\..*},
+                           assert: true, echo: true, timing: true]
     end
   end
 end

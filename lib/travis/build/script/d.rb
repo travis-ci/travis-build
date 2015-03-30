@@ -7,7 +7,7 @@ module Travis
     class Script
       class D < Script
         DEFAULTS = {
-          d: 'dmd-2.066.1'
+          d: 'dmd'
         }
 
         def cache_slug
@@ -85,6 +85,11 @@ module Travis
 
         def compiler_url(compiler = config[:d])
           case compiler
+          # latest DMD
+          when 'dmd'
+            sh.cmd 'LATEST_DMD=$(curl http://ftp.digitalmars.com/LATEST)', echo: false
+            "http://downloads.dlang.org/releases/2.x/${LATEST_DMD}/dmd.${LATEST_DMD}.#{os}.zip"
+
           # dmd-2.062, dmd-2.065.0, dmd-2.066.1-rc3
           when /^dmd-2\.(?<maj>\d{3})(?<min>\.\d)?(?<suffix>-.*)?$/
             basename = "dmd.2.#{$~[:maj]}#{$~[:min]}#{$~[:suffix]}"
@@ -102,22 +107,36 @@ module Travis
               "http://downloads.dlang.org/releases/2.x/#{folder}/#{basename}.zip"
             end
 
+          # latest LDC
+          when 'ldc'
+            sh.cmd 'LATEST_LDC=$(curl https://ldc-developers.github.io/LATEST)', echo: false
+            'https://github.com/ldc-developers/ldc/releases/download'\
+              "/v${LATEST_LDC}/ldc2-${LATEST_LDC}-#{os}-x86_64.tar.xz"
+
           # ldc-0.12.1 or ldc-0.15.0-alpha1
           when /^ldc-(\d+\.\d+\.\d+(-.*)?)$/
             'https://github.com/ldc-developers/ldc/releases/download'\
               "/v#{$1}/ldc2-#{$1}-#{os}-x86_64.tar.xz"
 
+          # latest GDC
+          when 'gdc'
+            sh.cmd 'LATEST_GDC=$(curl http://ftp.digitalmars.com/LATEST_GDC)', echo: false
+            "http://gdcproject.org/downloads/binaries/#{gdc_host_triplet os}/gdc-${LATEST_GDC}.tar.xz"
+
           # gdc-4.8.2 or gdc-4.9.0-alpha1
           when /^gdc-(\d+\.\d+\.\d+(-.*)?)$/
-            case os
-            when 'linux'
-              host_triplet = 'x86_64-linux-gnu'
-            when 'osx'
-              host_triplet = 'x86_64-apple-darwin'
-            else
-              fail "GDC is currently not supported on #{os}."
-            end
-            "http://gdcproject.org/downloads/binaries/#{host_triplet}/gdc-#{$1}.tar.xz"
+            "http://gdcproject.org/downloads/binaries/#{gdc_host_triplet os}/gdc-#{$1}.tar.xz"
+          end
+        end
+
+        def gdc_host_triplet os
+          case os
+          when 'linux'
+            'x86_64-linux-gnu'
+          when 'osx'
+            'x86_64-apple-darwin'
+          else
+            fail "GDC is currently not supported on #{os}."
           end
         end
 
