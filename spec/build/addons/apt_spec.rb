@@ -68,4 +68,20 @@ describe Travis::Build::Addons::Apt, :sexp do
       expect(described_class.source_whitelist).to eql({})
     end
   end
+
+  context 'when given neither sources nor packages' do
+    let(:config) { { packages: [], sources: [] } }
+
+    it 'will not run #after_prepare' do
+      expect(addon.send(:after_prepare?)).to be_false
+    end
+  end
+
+  context 'when given only sources' do
+    let(:config) { { packages: [], sources: %w(testing) } }
+
+    it 'will not run #after_prepare' do
+      expect(addon.send(:after_prepare?)).to be_false
+    end
+  end
 end

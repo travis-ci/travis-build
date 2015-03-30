@@ -54,6 +54,7 @@ module Travis
         end
 
         def after_prepare?
+          return false if config_packages.empty?
           !config_sources.empty? && !config_packages.empty?
         end
 
