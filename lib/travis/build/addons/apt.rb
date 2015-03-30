@@ -60,8 +60,8 @@ module Travis
 
         def after_prepare
           sh.fold('apt') do
-            sh.fold('apt.sources') { add_apt_sources } unless config_sources.empty?
-            sh.fold('apt.packages') { add_apt_packages } unless config_packages.empty?
+            add_apt_sources unless config_sources.empty?
+            add_apt_packages unless config_packages.empty?
           end
         end
 
