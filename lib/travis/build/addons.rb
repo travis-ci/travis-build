@@ -1,6 +1,6 @@
 require 'active_support/core_ext/string/inflections.rb'
+require 'travis/build/addons/apt'
 require 'travis/build/addons/apt_packages'
-require 'travis/build/addons/apt_sources'
 require 'travis/build/addons/artifacts'
 require 'travis/build/addons/code_climate'
 require 'travis/build/addons/coverity_scan'

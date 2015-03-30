@@ -1,3 +1,4 @@
+require 'simplecov'
 require 'fileutils'
 require 'sinatra/test_helpers'
 require 'travis/build'

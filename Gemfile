@@ -20,6 +20,8 @@ end
 
 group :test do
   gem 'mocha',       '~> 0.10.0'
+  gem 'pry'
   gem 'rspec',       '~> 3.0'
+  gem 'simplecov',   require: false
   gem 'sinatra-contrib'
 end
