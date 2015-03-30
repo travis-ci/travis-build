@@ -8,3 +8,4 @@ play/*.sh
 examples/*.txt
 rspec.log
 .vagrant
+coverage/

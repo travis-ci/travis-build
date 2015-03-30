@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Travis::Build::Addons::AptSources, :sexp do
   let(:script)    { stub('script') }
   let(:data)      { payload_for(:push, :ruby, config: { addons: { apt_sources: config } }) }
@@ -28,7 +26,7 @@ describe Travis::Build::Addons::AptSources, :sexp do
   subject         { sh.to_sexp }
 
   before do
-    addon.stubs(:whitelist).returns(whitelist)
+    addon.stubs(:source_whitelist).returns(whitelist)
     addon.after_prepare
   end
 
