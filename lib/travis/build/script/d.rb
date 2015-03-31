@@ -7,7 +7,7 @@ module Travis
     class Script
       class D < Script
         DEFAULTS = {
-          d: 'dmd-2.066.1'
+          d: 'dmd-2.067.0'
         }
 
         def cache_slug
