@@ -5,6 +5,9 @@ module Travis
     class Addons
       class Apt < Base
         SUPER_USER_SAFE = true
+        SUPPORTED_OPERATING_SYSTEMS = %w(
+          linux
+        ).freeze
 
         class << self
           def package_whitelist
@@ -51,6 +54,10 @@ module Travis
           def source_whitelist_url
             ENV['TRAVIS_BUILD_APT_SOURCE_WHITELIST']
           end
+        end
+
+        def after_prepare?
+          SUPPORTED_OPERATING_SYSTEMS.include?(data[:config][:os].to_s)
         end
 
         def after_prepare

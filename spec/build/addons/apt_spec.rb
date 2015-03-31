@@ -20,6 +20,22 @@ describe Travis::Build::Addons::Apt, :sexp do
     described_class.instance_variable_set(:@source_whitelist, nil)
   end
 
+  context 'when on osx' do
+    let(:data) { payload_for(:push, :ruby, config: { os: 'osx' }) }
+
+    it 'will not run' do
+      expect(addon.after_prepare?).to eql(false)
+    end
+  end
+
+  context 'when on linux' do
+    let(:data) { payload_for(:push, :ruby, config: { os: 'linux' }) }
+
+    it 'will run' do
+      expect(addon.after_prepare?).to eql(true)
+    end
+  end
+
   context 'when the package whitelist is provided' do
     before do
       described_class.stubs(:fetch_package_whitelist).returns(package_whitelist.join("\n"))
