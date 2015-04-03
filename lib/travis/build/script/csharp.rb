@@ -47,6 +47,8 @@ module Travis
         end
 
         def setup
+          super
+
           unless mono_version_valid?
             sh.echo "\"#{config[:mono]}\" is not a valid version of mono.", ansi: :red
             sh.cmd 'false', echo: false, timing: false
