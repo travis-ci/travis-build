@@ -43,13 +43,13 @@ module Travis
           sh.echo 'Installing Neko', ansi: :yellow
           sh.cmd 'mkdir -p ~/neko'
           sh.cmd %Q{curl -s -L --retry 3 '#{neko_url}' } \
-                 '| tar -C ~/neko -x --strip-components=1 -f -'
+                 '| tar -C ~/neko -x -z --strip-components=1 -f -'
           sh.cmd 'export PATH="${PATH}:${HOME}/neko"'
 
           sh.echo 'Installing Haxe', ansi: :yellow
           sh.cmd 'mkdir -p ~/haxe'
           sh.cmd %Q{curl -s -L --retry 3 '#{haxe_url}' } \
-                 '| tar -C ~/haxe -x --strip-components=1 -f -'
+                 '| tar -C ~/haxe -x -z --strip-components=1 -f -'
           sh.cmd 'export PATH="${PATH}:${HOME}/haxe"'
           sh.cmd 'mkdir -p ~/haxe/lib'
           sh.cmd 'haxelib setup ~/haxe/lib'
