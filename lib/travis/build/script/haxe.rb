@@ -21,6 +21,18 @@ module Travis
           neko: '2.0.0'
         }
 
+        def configure
+          super
+
+          case config[:os]
+          when 'linux'
+            sh.cmd 'sudo apt-get update -qq'
+            sh.cmd 'sudo apt-get install libgc1c2 -qq' # required by neko
+          when 'osx'
+            # pass
+          end
+        end
+
         def export
           super
 
@@ -44,6 +56,7 @@ module Travis
           sh.cmd 'mkdir -p ~/neko'
           sh.cmd %Q{curl -s -L --retry 3 '#{neko_url}' } \
                  '| tar -C ~/neko -x -z --strip-components=1 -f -'
+          sh.cmd 'export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${HOME}/neko"' # for loading libneko.so
           sh.cmd 'export PATH="${PATH}:${HOME}/neko"'
 
           sh.echo 'Installing Haxe', ansi: :yellow
@@ -58,8 +71,10 @@ module Travis
         def announce
           super
 
-          sh.cmd "haxe -version"
-          sh.cmd "neko -version"
+          # Neko 2.0.0 output the version number without linebreak.
+          # The webpage has trouble displaying it without wrapping with echo.
+          sh.cmd "echo $(haxe -version)"
+          sh.cmd "echo $(neko -version)"
         end
 
         def install
@@ -75,7 +90,7 @@ module Travis
           def neko_url
             case config[:os]
             when 'linux'
-              os = 'linux'
+              os = 'linux64'
             when 'osx'
               os = 'osx'
             end
@@ -88,7 +103,7 @@ module Travis
             when 'development'
               os = case config[:os]
               when 'linux'
-                'linux32'
+                'linux64'
               when 'osx'
                 'mac'
               end
@@ -96,11 +111,11 @@ module Travis
             else
               os = case config[:os]
               when 'linux'
-                'linux32'
+                'linux64'
               when 'osx'
                 'osx'
               end
-              version = config[:haxe]
+              version = config[:haxe].to_s
               "http://haxe.org/website-content/downloads/#{version.gsub('.',',')}/downloads/haxe-#{version}-#{os}.tar.gz"
             end
           end
