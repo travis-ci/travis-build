@@ -83,11 +83,19 @@ module Travis
         end
 
         def install
-          Dir["*.hxml"].each{|hxml| sh.cmd "yes | haxelib install '#{hxml}'", retry: true}
+          if config[:hxml]
+            config[:hxml].each do |hxml|
+              sh.cmd "yes | haxelib install '#{hxml}'", retry: true
+            end
+          end
         end
 
         def script
-          Dir["*.hxml"].each{|hxml| sh.cmd "haxe '#{hxml}'"}
+          if config[:hxml]
+            config[:hxml].each do |hxml|
+              sh.cmd "haxe '#{hxml}'"
+            end
+          end
         end
 
         private
