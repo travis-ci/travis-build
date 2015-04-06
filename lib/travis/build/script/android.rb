@@ -24,7 +24,7 @@ module Travis
             sh.cmd 'mvn install -B', echo: true
           end
           sh.else do
-            sh.cmd 'ant debug installt test'
+            sh.cmd 'ant debug install test'
           end
         end
 
