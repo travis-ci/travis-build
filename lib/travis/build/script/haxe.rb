@@ -64,6 +64,7 @@ module Travis
           sh.cmd %Q{curl -s -L --retry 3 '#{haxe_url}' } \
                  '| tar -C ~/haxe -x -z --strip-components=1 -f -'
           sh.cmd 'export PATH="${PATH}:${HOME}/haxe"'
+          sh.cmd 'export HAXE_STD_PATH="${HOME}/haxe/std"'
           sh.cmd 'mkdir -p ~/haxe/lib'
           sh.cmd 'haxelib setup ~/haxe/lib'
         end
