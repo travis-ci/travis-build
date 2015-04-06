@@ -52,21 +52,25 @@ module Travis
           sh.echo 'and mention \`@andyli\`, \`@waneck\`, and \`@Simn\`'\
                   ' in the issue', ansi: :green
 
-          sh.echo 'Installing Neko', ansi: :yellow
-          sh.cmd 'mkdir -p ~/neko'
-          sh.cmd %Q{curl -s -L --retry 3 '#{neko_url}' } \
-                 '| tar -C ~/neko -x -z --strip-components=1 -f -'
-          sh.cmd 'export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${HOME}/neko"' # for loading libneko.so
-          sh.cmd 'export PATH="${PATH}:${HOME}/neko"'
+          sh.fold('neko-install') do
+            sh.echo 'Installing Neko', ansi: :yellow
+            sh.cmd 'mkdir -p ~/neko'
+            sh.cmd %Q{curl -s -L --retry 3 '#{neko_url}' } \
+                   '| tar -C ~/neko -x -z --strip-components=1 -f -'
+            sh.cmd 'export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${HOME}/neko"' # for loading libneko.so
+            sh.cmd 'export PATH="${PATH}:${HOME}/neko"'
+          end
 
-          sh.echo 'Installing Haxe', ansi: :yellow
-          sh.cmd 'mkdir -p ~/haxe'
-          sh.cmd %Q{curl -s -L --retry 3 '#{haxe_url}' } \
-                 '| tar -C ~/haxe -x -z --strip-components=1 -f -'
-          sh.cmd 'export PATH="${PATH}:${HOME}/haxe"'
-          sh.cmd 'export HAXE_STD_PATH="${HOME}/haxe/std"'
-          sh.cmd 'mkdir -p ~/haxe/lib'
-          sh.cmd 'haxelib setup ~/haxe/lib'
+          sh.fold('haxe-install') do
+            sh.echo 'Installing Haxe', ansi: :yellow
+            sh.cmd 'mkdir -p ~/haxe'
+            sh.cmd %Q{curl -s -L --retry 3 '#{haxe_url}' } \
+                   '| tar -C ~/haxe -x -z --strip-components=1 -f -'
+            sh.cmd 'export PATH="${PATH}:${HOME}/haxe"'
+            sh.cmd 'export HAXE_STD_PATH="${HOME}/haxe/std"'
+            sh.cmd 'mkdir -p ~/haxe/lib'
+            sh.cmd 'haxelib setup ~/haxe/lib'
+          end
         end
 
         def announce
