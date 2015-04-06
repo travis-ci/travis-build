@@ -21,7 +21,7 @@ module Travis
             end
             sh.else do
               sh.echo "Installing Elixir #{elixir_version}", ansi: :yellow
-              sh.cmd "kiex install #{elixir_version} && kiex use #{elixir_version}"
+              sh.cmd "travis_retry kiex install #{elixir_version} && kiex use #{elixir_version}"
             end
           end
           sh.cmd "elixir --version"
