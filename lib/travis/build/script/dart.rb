@@ -106,7 +106,7 @@ module Travis
             if not ["stable", "dev"].include?(config[:dart])
               sh.failure "Only 'stable' and 'dev' can be used as dart version for now"
             end
-            "http://storage.googleapis.com/dart-archive/channels/#{config[:dart]}/release/latest"
+            "https://storage.googleapis.com/dart-archive/channels/#{config[:dart]}/release/latest"
           end
 
           def with_content_shell
