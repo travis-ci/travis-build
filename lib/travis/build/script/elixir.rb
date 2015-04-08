@@ -3,8 +3,8 @@ module Travis
     class Script
       class Elixir < Erlang
         DEFAULTS = {
-          elixir: '1.0.2',
-          otp_release: '17.4'
+          elixir: '1.0.4',
+          otp_release: '17.5'
         }
 
         def export

@@ -12,11 +12,11 @@ describe Travis::Build::Script::Elixir, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'sets TRAVIS_OTP_RELEASE' do
-    should include_sexp [:export, ['TRAVIS_OTP_RELEASE', '17.4']] #, echo: true
+    should include_sexp [:export, ['TRAVIS_OTP_RELEASE', '17.5']] #, echo: true
   end
 
   it 'sets TRAVIS_ELIXIR_VERSION' do
-    should include_sexp [:export, ['TRAVIS_ELIXIR_VERSION', '1.0.2']] #, echo: true
+    should include_sexp [:export, ['TRAVIS_ELIXIR_VERSION', '1.0.4']] #, echo: true
   end
 
   it 'announces elixir version' do
@@ -40,7 +40,7 @@ describe Travis::Build::Script::Elixir, :sexp do
 
   describe '#cache_slug' do
     subject { described_class.new(data).cache_slug }
-    it { is_expected.to eq('cache--otp-17.4--elixir-1.0.2') }
+    it { is_expected.to eq('cache--otp-17.5--elixir-1.0.4') }
   end
 end
 
