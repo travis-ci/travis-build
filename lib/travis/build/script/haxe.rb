@@ -26,8 +26,8 @@ module Travis
 
           case config[:os]
           when 'linux'
-            sh.cmd 'sudo apt-get update -qq'
-            sh.cmd 'sudo apt-get install libgc1c2 -qq' # required by neko
+            sh.cmd 'sudo apt-get update -qq', retry: true
+            sh.cmd 'sudo apt-get install libgc1c2 -qq', retry: true # required by neko
           when 'osx'
             # pass
           end
