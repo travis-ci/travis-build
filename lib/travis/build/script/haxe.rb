@@ -85,7 +85,7 @@ module Travis
         def install
           if config[:hxml]
             config[:hxml].each do |hxml|
-              sh.cmd "yes | haxelib install '#{hxml}'", retry: true
+              sh.cmd "yes | haxelib install \"#{hxml}\"", retry: true
             end
           end
         end
@@ -93,7 +93,7 @@ module Travis
         def script
           if config[:hxml]
             config[:hxml].each do |hxml|
-              sh.cmd "haxe '#{hxml}'"
+              sh.cmd "haxe \"#{hxml}\""
             end
           end
         end
