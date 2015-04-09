@@ -95,6 +95,8 @@ module Travis
             config[:hxml].each do |hxml|
               sh.cmd "haxe \"#{hxml}\""
             end
+          else
+            sh.failure 'No "hxml:" and "script:" is specified. Please specify at least one of them in your .travis.yml to run tests.'
           end
         end
 
