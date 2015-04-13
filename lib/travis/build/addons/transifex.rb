@@ -41,10 +41,10 @@ module Travis
           def configure
             sh.echo 'Writing ~/.transifexrc', ansi: :yellow
             sh.cmd <<-EOF.gsub(/^ {14}/, ''), echo: false
-              echo "[#{tx_config[:host]}]
-              hostname = #{tx_config[:host]}
-              username = ${TX_USER:-#{tx_config[:username]}}
-              password = ${TX_PASSWD:-#{tx_config[:password]}}
+              echo "[${TX_HOSTNAME:-#{tx_config[:host]}}]
+              hostname = ${TX_HOSTNAME:-#{tx_config[:host]}}
+              username = ${TX_USERNAME:-#{tx_config[:username]}}
+              password = ${TX_PASSWORD:-#{tx_config[:password]}}
               token = ${TX_TOKEN:-#{tx_config[:token]}}" > #{Travis::Build::HOME_DIR}/.transifexrc
             EOF
           end
