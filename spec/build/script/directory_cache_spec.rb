@@ -32,6 +32,14 @@ describe Travis::Build::Script::DirectoryCache, :sexp do
     # it { store_example 'directory caching' }
   end
 
+  describe 'uses S3 with caching enabled and before_cache defined' do
+    let(:cmd)    { 'echo foo'}
+    let(:config) { { cache: { directories: ['foo'] }, before_cache: cmd } }
+    it { expect(script).to be_use_directory_cache }
+    it { expect(cache).to be_a(Travis::Build::Script::DirectoryCache::S3) }
+    it { expect(sexp).to include_sexp [:cmd, cmd, echo: true, timing: true] }
+  end
+
   # not quite sure where to put this atm, but there probably should be tests
   # specific to bundler caching
   describe 'bundler caching' do

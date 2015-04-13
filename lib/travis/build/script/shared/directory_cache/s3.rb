@@ -17,6 +17,19 @@ module Travis
             secret_access_key: 'secret access key'
           }
 
+          CURL_FORMAT = <<-EOF
+             time_namelookup:  %{time_namelookup} s
+                time_connect:  %{time_connect} s
+             time_appconnect:  %{time_appconnect} s
+            time_pretransfer:  %{time_pretransfer} s
+               time_redirect:  %{time_redirect} s
+          time_starttransfer:  %{time_starttransfer} s
+              speed_download:  %{speed_download} bytes/s
+               url_effective:  %{url_effective}
+                             ----------
+                  time_total:  %{time_total} s
+          EOF
+
           KeyPair = Struct.new(:id, :secret)
 
           Location = Struct.new(:scheme, :region, :bucket, :path) do
@@ -57,7 +70,7 @@ module Travis
             sh.export 'CASHER_DIR', '$HOME/.casher'
 
             sh.mkdir '$CASHER_DIR/bin', echo: false, recursive: true
-            sh.cmd "curl #{casher_url} -L -o #{BIN_PATH} -s --fail", retry: true, echo: 'Installing caching utilities'
+            sh.cmd "curl #{casher_url} #{debug_flags} -L -o #{BIN_PATH} -s --fail", retry: true, echo: 'Installing caching utilities'
             sh.raw "[ $? -ne 0 ] && echo 'Failed to fetch casher from GitHub, disabling cache.' && echo > #{BIN_PATH}"
 
             sh.if "-f #{BIN_PATH}" do
@@ -168,6 +181,10 @@ module Travis
               else
                 data.cache?(:edge) ? 'master' : 'production'
               end
+            end
+
+            def debug_flags
+              "-v -w '#{CURL_FORMAT}'" if data.cache[:debug]
             end
         end
       end

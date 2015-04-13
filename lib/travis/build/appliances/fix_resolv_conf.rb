@@ -23,7 +23,11 @@ nameserver 208.67.220.220
         end
 
         def apply?
-          data[:fix_resolv_conf] || !data[:skip_resolv_updates]
+          if data.key?(:fix_resolv_conf)
+            data[:fix_resolv_conf]
+          else
+            !data[:skip_resolv_updates]
+          end
         end
       end
     end

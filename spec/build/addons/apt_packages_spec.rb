@@ -1,21 +1,20 @@
 require 'ostruct'
-require 'spec_helper'
 
 describe Travis::Build::Addons::AptPackages, :sexp do
   let(:script)    { stub('script') }
   let(:data)      { payload_for(:push, :ruby, config: { addons: { apt_packages: config } }) }
   let(:sh)        { Travis::Shell::Builder.new }
   let(:addon)     { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
-  let(:whitelist) { ['curl', 'git'] }
+  let(:package_whitelist) { ['curl', 'git'] }
   subject         { sh.to_sexp }
 
   before do
-    addon.stubs(:whitelist).returns(whitelist)
+    addon.stubs(:package_whitelist).returns(package_whitelist)
     addon.after_prepare
   end
 
   def apt_get_install_command(*packages)
-    "sudo -E apt-get -yq --no-install-suggests --no-install-recommends install #{packages.join(' ')}"
+    "sudo -E apt-get -yq --no-install-suggests --no-install-recommends --force-yes install #{packages.join(' ')}"
   end
 
   context 'with multiple whitelisted packages' do

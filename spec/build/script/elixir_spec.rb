@@ -7,7 +7,6 @@ describe Travis::Build::Script::Elixir, :sexp do
 
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=elixir'] }
-    let(:cmds) { ['kiex use 1.0.2'] }
   end
 
   it_behaves_like 'a build script sexp'
@@ -18,10 +17,6 @@ describe Travis::Build::Script::Elixir, :sexp do
 
   it 'sets TRAVIS_ELIXIR_VERSION' do
     should include_sexp [:export, ['TRAVIS_ELIXIR_VERSION', '1.0.2']] #, echo: true
-  end
-
-  it 'uses elixir' do
-    should include_sexp [:cmd, 'kiex use 1.0.2 || kiex install 1.0.2', echo: true]
   end
 
   it 'announces elixir version' do

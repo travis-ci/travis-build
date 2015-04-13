@@ -14,10 +14,12 @@ describe Travis::Build::Addons::SauceConnect, :sexp do
   end
 
   shared_examples_for 'starts sauce connect' do
-    it { should include_sexp [:echo, 'Starting Sauce Connect', ansi: :yellow] }
-    # it { should include_sexp [:cmd, 'curl -L https://gist.githubusercontent.com/henrikhodne/9322897/raw/sauce-connect.sh | bash'] }
-    it { should include_sexp [:cmd, 'curl -L https://gist.githubusercontent.com/henrikhodne/9322897/raw/sauce-connect.sh | bash', echo: true, timing: true] }
+    it { should include_sexp [:cmd, 'travis_start_sauce_connect', echo: true, timing: true] }
     it { should include_sexp [:export, ['TRAVIS_SAUCE_CONNECT', 'true']] }
+  end
+
+  shared_examples_for 'stops sauce connect' do
+    it { should include_sexp [:cmd, 'travis_stop_sauce_connect', echo: true, timing: true] }
   end
 
   describe 'without credentials' do
