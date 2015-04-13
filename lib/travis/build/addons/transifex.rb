@@ -7,7 +7,7 @@ module Travis
         CLIENT_VERSION = '>=0.11'
         SUPER_USER_SAFE = true
         DEFAULTS = {
-          host: 'https://www.transifex.com',
+          hostname: 'https://www.transifex.com',
           username: '',
           password: '',
           token: ''
@@ -41,8 +41,8 @@ module Travis
           def configure
             sh.echo 'Writing ~/.transifexrc', ansi: :yellow
             sh.cmd <<-EOF.gsub(/^ {14}/, ''), echo: false
-              echo "[${TX_HOSTNAME:-#{tx_config[:host]}}]
-              hostname = ${TX_HOSTNAME:-#{tx_config[:host]}}
+              echo "[${TX_HOSTNAME:-#{tx_config[:hostname]}}]
+              hostname = ${TX_HOSTNAME:-#{tx_config[:hostname]}}
               username = ${TX_USERNAME:-#{tx_config[:username]}}
               password = ${TX_PASSWORD:-#{tx_config[:password]}}
               token = ${TX_TOKEN:-#{tx_config[:token]}}" > #{Travis::Build::HOME_DIR}/.transifexrc
@@ -54,7 +54,7 @@ module Travis
           end
 
           def tx_config
-            @tx_config ||= DEFAULTS.merge((config[:transifex] || {}).deep_symbolize_keys)
+            @tx_config ||= DEFAULTS.merge((config || {}).deep_symbolize_keys)
           end
       end
     end
