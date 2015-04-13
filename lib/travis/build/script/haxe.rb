@@ -26,8 +26,8 @@ module Travis
 
           case config[:os]
           when 'linux'
-            sh.cmd 'sudo apt-get update -qq'
-            sh.cmd 'sudo apt-get install libgc1c2 -qq' # required by neko
+            sh.cmd 'sudo apt-get update -qq', retry: true
+            sh.cmd 'sudo apt-get install libgc1c2 -qq', retry: true # required by neko
           when 'osx'
             # pass
           end
@@ -85,7 +85,7 @@ module Travis
         def install
           if config[:hxml]
             config[:hxml].each do |hxml|
-              sh.cmd "yes | haxelib install '#{hxml}'", retry: true
+              sh.cmd "yes | haxelib install \"#{hxml}\"", retry: true
             end
           end
         end
@@ -93,8 +93,10 @@ module Travis
         def script
           if config[:hxml]
             config[:hxml].each do |hxml|
-              sh.cmd "haxe '#{hxml}'"
+              sh.cmd "haxe \"#{hxml}\""
             end
+          else
+            sh.failure 'No "hxml:" and "script:" is specified. Please specify at least one of them in your .travis.yml to run tests.'
           end
         end
 
