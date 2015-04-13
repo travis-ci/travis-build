@@ -62,6 +62,12 @@ module Travis
                 sh.echo 'Pushing to Transifex', ansi: :yellow
                 sh.cmd 'tx push --source --no-interactive', echo: true
               end
+              sh.else do
+                sh.echo "Not Pushing to Transifex for branch '$TRAVIS_BRANCH'", ansi: :yellow
+              end
+            end
+            sh.else do
+              sh.echo "Not pushing to Transifex for job '$TRAVIS_JOB_NUMBER'", ansi: :yellow
             end
           end
 
