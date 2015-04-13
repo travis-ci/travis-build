@@ -29,7 +29,7 @@ module Travis
           end
 
           def run_after
-            update
+            source_push
           end
 
           def install
@@ -49,7 +49,7 @@ module Travis
             EOF
           end
 
-          def update
+          def source_push
             sh.cmd "tx push --source --no-interactive", echo: true
           end
 
