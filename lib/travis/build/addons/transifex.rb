@@ -17,7 +17,7 @@ module Travis
           run_before
         end
 
-        def after_script
+        def after_success
           run_after
         end
 
