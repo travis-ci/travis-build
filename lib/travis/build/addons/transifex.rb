@@ -10,27 +10,20 @@ module Travis
           hostname: 'https://www.transifex.com',
           username: '',
           password: '',
-          token: ''
+          token: '',
+          auto_push: 'enabled'
         }.freeze
 
         def before_script
-          run_before
+          install
+          configure
         end
 
         def after_success
-          run_after
+          source_push unless tx_config[:auto_push] == 'disabled'
         end
 
         private
-
-          def run_before
-            install
-            configure
-          end
-
-          def run_after
-            source_push
-          end
 
           def install
             sh.echo 'Installing Transifex Client (beta)', ansi: :yellow
@@ -50,7 +43,8 @@ module Travis
           end
 
           def source_push
-            sh.cmd "tx push --source --no-interactive", echo: true
+            sh.echo 'Pushing to Transifex', ansi: :yellow
+            sh.cmd 'tx push --source --no-interactive', echo: true
           end
 
           def tx_config
