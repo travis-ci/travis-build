@@ -54,7 +54,7 @@ module Travis
           end
 
           def tx_config
-            @tx_config ||= config[:transifex].deep_symbolize_keys.reverse_merge(DEFAULTS)
+            @tx_config ||= (config[:transifex] || {}).deep_symbolize_keys.reverse_merge(DEFAULTS)
           end
       end
     end
