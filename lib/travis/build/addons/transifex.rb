@@ -11,7 +11,11 @@ module Travis
           username: '',
           password: '',
           token: '',
-          auto_push: 'enabled'
+          auto_push: {
+            enabled: true,
+            job: 1,
+            branches: %w(master)
+          }
         }.freeze
 
         def before_script
@@ -20,7 +24,7 @@ module Travis
         end
 
         def after_success
-          source_push unless tx_config[:auto_push] == 'disabled'
+          source_push if tx_config[:auto_push][:enabled]
         end
 
         private
@@ -43,12 +47,16 @@ module Travis
           end
 
           def source_push
-            sh.echo 'Pushing to Transifex', ansi: :yellow
-            sh.cmd 'tx push --source --no-interactive', echo: true
+            sh.if "$TRAVIS_JOB_NUMBER =~ '\\.#{tx_config[:auto_push][:job]}$'" do
+              sh.if "$TRAVIS_BRANCH =~ '^(#{tx_config[:auto_push][:branches].join('|')})$'" do
+                sh.echo 'Pushing to Transifex', ansi: :yellow
+                sh.cmd 'tx push --source --no-interactive', echo: true
+              end
+            end
           end
 
           def tx_config
-            @tx_config ||= DEFAULTS.merge((config || {}).deep_symbolize_keys)
+            @tx_config ||= DEFAULTS.deep_merge((config || {}).deep_symbolize_keys)
           end
       end
     end
