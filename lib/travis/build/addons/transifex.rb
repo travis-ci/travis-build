@@ -57,7 +57,9 @@ module Travis
           end
 
           def source_push
-            sh.if "$TRAVIS_JOB_NUMBER =~ '\\.#{tx_config[:auto_push][:job]}$'" do
+            sh.raw "echo $TRAVIS_JOB_NUMBER | grep -q -E '\\.#{tx_config[:auto_push][:job]}$'",
+                   assert: false, echo: false
+            sh.if '$? != 0' do
               sh.if "$TRAVIS_BRANCH =~ '^(#{tx_config[:auto_push][:branches].join('|')})$'" do
                 sh.echo 'Pushing to Transifex', ansi: :yellow
                 sh.cmd 'tx push --source --no-interactive', echo: true
