@@ -18,12 +18,12 @@ module Travis
           }
         }.freeze
 
-        def before_script
+        def before_before_script
           install
           configure
         end
 
-        def after_success
+        def after_after_success
           source_push if tx_config[:auto_push][:enabled]
         end
 
