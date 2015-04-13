@@ -23,12 +23,14 @@ module Travis
           configure
         end
 
-        def after_after_success
-          sh.fold 'transifex.push' do
-            if tx_config[:auto_push][:enabled]
-              source_push
-            else
-              sh.echo 'Skipping push to Transifex', ansi: :yellow
+        def after_after_script
+          sh.if '$TRAVIS_TEST_RESULT = 0' do
+            sh.fold 'transifex.push' do
+              if tx_config[:auto_push][:enabled]
+                source_push
+              else
+                sh.echo 'Skipping push to Transifex', ansi: :yellow
+              end
             end
           end
         end
