@@ -50,7 +50,7 @@ module Travis
           end
 
           def update
-            sh.cmd "tx push --source --translations --no-interactive", echo: true
+            sh.cmd "tx push --source --no-interactive", echo: true
           end
 
           def tx_config
