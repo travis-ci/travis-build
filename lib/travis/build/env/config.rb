@@ -17,7 +17,8 @@ module Travis
           def env_vars
             vars = Array(config[:global_env]) + Array(config[:env])
             vars = vars.compact.reject(&:empty?)
-            vars.flat_map { |var| Var.parse(var) }
+            vars = vars.flat_map { |var| Var.parse(var) }.
+              map { |var| var[1] = var[1].shellescape; var }
           end
       end
     end

@@ -16,7 +16,7 @@ module Travis
 
           def env_vars
             data.env_vars.map do |var|
-              [var[:name], var[:value], secure: !var[:public]]
+              [var[:name], var[:value].shellescape, secure: !var[:public]]
             end
           end
       end
