@@ -25,7 +25,7 @@ describe Travis::Build::Script::R, :sexp do
     should include_sexp [:cmd, /.*R CMD build.*/,
                          assert: true, echo: true, timing: true]
     should include_sexp [:cmd, /.*R CMD check.*/,
-                         assert: true, echo: true, timing: true]
+                         echo: true, timing: true]
   end
 
   describe 'bioc configuration is optional' do
