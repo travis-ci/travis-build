@@ -121,6 +121,12 @@ describe Travis::Build::Addons::Apt, :sexp do
 
       it { should_not include_sexp [:cmd, apt_get_install_command('git'), echo: true, timing: true] }
     end
+
+    context 'with nested arrays of packages' do
+      let(:config) { { packages: [%w(git curl)] } }
+
+      it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true] }
+    end
   end
 
   context 'with sources' do
