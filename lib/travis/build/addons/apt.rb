@@ -132,11 +132,11 @@ module Travis
           end
 
           def config_sources
-            Array(config[:sources])
+            @config_sources ||= Array(config[:sources]).flatten.compact
           end
 
           def config_packages
-            Array(config[:packages])
+            @config_packages ||= Array(config[:packages]).flatten.compact
           end
 
           def package_whitelist
