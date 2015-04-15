@@ -145,7 +145,7 @@ module Travis
           sh.cmd "R CMD check \"${PKG_TARBALL}\" #{config[:r_check_args]}",
                  assert: false
           # Build fails if R CMD check fails
-          sh.if '$? -neq 0' do
+          sh.if '$? -ne 0' do
             sh.echo 'R CMD check failed, dumping logs'
             dump_logs
             sh.failure 'R CMD check failed'
