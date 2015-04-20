@@ -33,6 +33,10 @@ describe Travis::Build::Script, :sexp do
     should include_sexp [:export, ['PS4', '+']]
   end
 
+  it 'restarts MySQL' do
+    should include_sexp [:cmd, '(ls /var/run/mysqld/mysqld.sock >& /dev/null) || sudo service mysql restart']
+  end
+
   it 'disables sudo' do
     should include_sexp [:cmd, %r(rm -f /etc/sudoers.d/travis)]
   end
