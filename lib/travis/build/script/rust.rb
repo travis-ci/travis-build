@@ -22,8 +22,8 @@ module Travis
 
           sh.fold('rust-download') do
             sh.echo 'Installing Rust', ansi: :yellow
-            # Installing docs takes more time and space and we don't need them
-            sh.cmd ("curl -sL #{RUST_RUSTUP} | sh --prefix=~/rust --spec=%s --without=rust-docs" % version.shellescape)
+            sh.cmd "curl -sL #{RUST_RUSTUP} -o ~/rust-installer/rustup.sh"
+            sh.cmd "sh ~/rust-installer/rustup.sh #{rustup_args}"
           end
 
           sh.cmd 'export PATH="$PATH:$HOME/rust/bin"', assert: false, echo: false
@@ -48,6 +48,10 @@ module Travis
 
           def version
             config[:rust].to_s
+          end
+
+          def rustup_args
+            "--prefix=~/rust --spec=%s" % version.shellescape
           end
       end
     end
