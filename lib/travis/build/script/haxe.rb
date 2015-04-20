@@ -57,8 +57,9 @@ module Travis
             sh.cmd 'mkdir -p ~/neko'
             sh.cmd %Q{curl -s -L --retry 3 '#{neko_url}' } \
                    '| tar -C ~/neko -x -z --strip-components=1 -f -'
-            sh.cmd 'export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${HOME}/neko"' # for loading libneko.so
-            sh.cmd 'export PATH="${PATH}:${HOME}/neko"'
+            sh.cmd 'export NEKOPATH="${HOME}/neko"' # required by `nekotools boot ...`
+            sh.cmd 'export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${NEKOPATH}"' # for loading libneko.so
+            sh.cmd 'export PATH="${PATH}:${NEKOPATH}"'
           end
 
           sh.fold('haxe-install') do
