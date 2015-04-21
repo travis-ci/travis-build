@@ -2,10 +2,7 @@ module Travis
   module Build
     class Script
       class Rust < Script
-        RUST_URLS = {
-          osx:   'https://static.rust-lang.org/dist/rust-%s-x86_64-apple-darwin.tar.gz',
-          linux: 'https://static.rust-lang.org/dist/rust-%s-x86_64-unknown-linux-gnu.tar.gz'
-        }
+        RUST_RUSTUP = 'https://static.rust-lang.org/rustup.sh'
 
         DEFAULTS = {
           rust: 'nightly',
@@ -25,9 +22,8 @@ module Travis
 
           sh.fold('rust-download') do
             sh.echo 'Installing Rust', ansi: :yellow
-            sh.cmd "curl -sL #{rust_url} | tar --strip-components=1 -C ~/rust-installer -xzf -"
-            # Installing docs takes more time and space and we don't need them
-            sh.cmd "sh ~/rust-installer/install.sh --prefix=~/rust --without=rust-docs"
+            sh.cmd "curl -sL #{RUST_RUSTUP} -o ~/rust-installer/rustup.sh"
+            sh.cmd "sh ~/rust-installer/rustup.sh #{rustup_args}"
           end
 
           sh.cmd 'export PATH="$PATH:$HOME/rust/bin"', assert: false, echo: false
@@ -54,12 +50,8 @@ module Travis
             config[:rust].to_s
           end
 
-          def os
-            config[:os] == 'osx' ? :osx : :linux
-          end
-
-          def rust_url
-            RUST_URLS[os] % version.shellescape
+          def rustup_args
+            "--prefix=~/rust --spec=%s" % version.shellescape
           end
       end
     end
