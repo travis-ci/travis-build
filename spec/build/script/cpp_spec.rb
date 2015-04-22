@@ -92,21 +92,8 @@ describe Travis::Build::Script::Cpp, :sexp do
     should include_sexp [:cmd, './configure && make && make test', echo: true, timing: true]
   end
 
-  it 'sets CCACHE_DISABLE to true' do
-    should include_sexp [:export, ['CCACHE_DISABLE', 'true']]
-  end
-
   describe '#cache_slug' do
     subject { described_class.new(data).cache_slug }
     it { is_expected.to eq('cache--compiler-gpp') }
-  end
-
-  describe 'ccache caching' do
-    let(:options) { { fetch_timeout: 20, push_timeout: 30, type: 's3', s3: { bucket: 's3_bucket', secret_access_key: 's3_secret_access_key', access_key_id: 's3_access_key_id' } } }
-    let(:data)    { payload_for(:push, :cpp, config: { cache: 'ccache' }, cache_options: options) }
-
-    it 'sets CCACHE_DISABLE to false' do
-      should include_sexp [:export, ['CCACHE_DISABLE', 'false']]
-    end
   end
 end
