@@ -23,7 +23,9 @@ module Travis
           sh.fold('rust-download') do
             sh.echo 'Installing Rust', ansi: :yellow
             sh.cmd "curl -sL #{RUST_RUSTUP} -o ~/rust-installer/rustup.sh"
-            sh.cmd "sh ~/rust-installer/rustup.sh #{rustup_args}"
+            # We silence rustup.sh for now, as it has a very verbose progress bar
+            sh.echo 'Running rustup.sh'
+            sh.cmd "sh ~/rust-installer/rustup.sh #{rustup_args}", echo: false
           end
 
           sh.cmd 'export PATH="$PATH:$HOME/rust/bin"', assert: false, echo: false
