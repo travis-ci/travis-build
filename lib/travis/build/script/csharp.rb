@@ -84,7 +84,7 @@ module Travis
 
         def mono_repo
           if config[:mono] == 'latest'
-            'wheezy'
+            'wheezy/snapshots/3.12.0'  # FIXME: hotfix for Mono 4.0 bug on Travis, remove once fixed
           else
             'wheezy/snapshots/' << config[:mono]
           end
