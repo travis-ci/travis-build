@@ -15,7 +15,7 @@ describe Travis::Build::Script::Go, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'sets GOPATH' do
-    should include_sexp [:export, ['GOPATH', '$HOME/gopath:'], echo: true]
+    should include_sexp [:export, ['GOPATH', '$HOME/gopath'], echo: true]
   end
 
   it 'sets TRAVIS_GO_VERSION' do
