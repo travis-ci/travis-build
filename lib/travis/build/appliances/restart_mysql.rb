@@ -5,7 +5,7 @@ module Travis
     module Appliances
       class RestartMysql < Base
         def apply
-          sh.cmd 'test -S /var/run/mysqld/mysqld.sock || sudo service mysql restart'
+          sh.cmd '(ls /var/run/mysqld/mysqld.sock >& /dev/null) || sudo service mysql restart'
         end
       end
     end

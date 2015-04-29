@@ -34,7 +34,7 @@ describe Travis::Build::Script, :sexp do
   end
 
   it 'restarts MySQL' do
-    should include_sexp [:cmd, 'test -S /var/run/mysqld/mysqld.sock || sudo service mysql restart']
+    should include_sexp [:cmd, '(ls /var/run/mysqld/mysqld.sock >& /dev/null) || sudo service mysql restart']
   end
 
   it 'disables sudo' do
