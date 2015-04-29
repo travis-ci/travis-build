@@ -37,10 +37,6 @@ describe Travis::Build::Script, :sexp do
     should include_sexp [:cmd, 'test -S /var/run/mysqld/mysqld.sock || sudo service mysql restart']
   end
 
-  it 'sets MYSQL_HOST' do
-    should include_sexp [:export, ['MYSQL_HOST', '127.0.0.1']]
-  end
-
   it 'disables sudo' do
     should include_sexp [:cmd, %r(rm -f /etc/sudoers.d/travis)]
   end
