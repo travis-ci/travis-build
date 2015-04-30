@@ -13,6 +13,11 @@ describe Travis::Build::Script::DirectoryCache, :sexp do
     let(:cmds)   { ['cache.1', 'cache.2', 'casher fetch', 'casher add', 'casher push'] }
   end
 
+  describe 'with timeout' do
+    let(:config) { { cache: { timeout: 1 } } }
+    it { expect(sexp).to include_sexp [:export, ['CASHER_TIME_OUT', 1]] }
+  end
+
   describe 'with no caching enabled' do
     let(:config) { {} }
     it { expect(script).not_to be_use_directory_cache }
