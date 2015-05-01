@@ -30,6 +30,7 @@ module Travis
         def install
           sh.cmd 'mix local.hex --force'
           sh.cmd 'mix deps.get'
+          sh.cmd 'MIX_ENV=test mix compile'
         end
 
         def script
