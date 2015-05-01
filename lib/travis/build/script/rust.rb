@@ -52,7 +52,7 @@ module Travis
           end
 
           def rustup_args
-            "--prefix=~/rust --spec=%s" % version.shellescape
+            "--prefix=~/rust --spec=%s -y --disable-sudo" % version.shellescape
           end
       end
     end
