@@ -132,7 +132,7 @@ module Travis
                 'osx'
               end
               version = config[:haxe].to_s
-              "http://haxe.org/website-content/downloads/#{version.gsub('.',',')}/downloads/haxe-#{version}-#{os}.tar.gz"
+              "http://haxe.org/website-content/downloads/#{version}/downloads/haxe-#{version}-#{os}.tar.gz"
             end
           end
 
