@@ -19,7 +19,7 @@ module Travis
           super
           if uses_java?
             sh.cmd 'java -Xmx32m -version'
-            sh.cmd 'javac -Xmx32m -version'
+            sh.cmd 'javac -J-Xmx32m -version'
           end
         end
 
