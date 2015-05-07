@@ -30,7 +30,7 @@ module Travis
           private
 
             def normalize(env)
-              env.dup.each { |k, v| env[k.to_s.gsub(/-/, '_')] = v }
+              env.dup.each { |k, v| env[k.to_s.gsub(/-/, '_')] = env.delete(k) }
               env = DEFAULT.merge(target_paths: target_paths).merge(env.deep_symbolize_keys)
               env = env.merge(FORCE)
               env = env.map { |key, value| [to_key(key), to_value(value)] }
