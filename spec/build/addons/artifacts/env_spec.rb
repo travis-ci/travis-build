@@ -4,11 +4,24 @@ describe Travis::Build::Addons::Artifacts::Env do
   DISALLOWED_CONFIG = { concurrency: 0, max_size: 0, unknown: true }
 
   let(:data)   { payload_for(:push) }
-  let(:config) { { key: 'key', secret: 'secret', bucket: 'bucket', private: true }.merge(DISALLOWED_CONFIG) }
+  let(:config) do
+    {
+      key: 'key',
+      secret: 'secret',
+      bucket: 'bucket',
+      private: true,
+      'fizz-buzz' => 2
+    }.merge(DISALLOWED_CONFIG)
+  end
+
   subject      { described_class.new(Travis::Build::Data.new(data), config) }
 
   it 'prefixes $PATH with $HOME/bin' do
     expect(subject.env['PATH']).to eql('$HOME/bin:$PATH')
+  end
+
+  it 'replaces "-" with "_" in keys prior to merge' do
+    expect(subject.env['ARTIFACTS_FIZZ_BUZZ']).to eql('2')
   end
 
   it 'sets :key' do
