@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Travis::Build::Addons::Artifacts::Env do
-  DISALLOWED_CONFIG = { concurrency: 0, max_size: 0, target_paths: 'no', unknown: true }
+  DISALLOWED_CONFIG = { concurrency: 0, max_size: 0, unknown: true }
 
   let(:data)   { payload_for(:push) }
   let(:config) { { key: 'key', secret: 'secret', bucket: 'bucket', private: true }.merge(DISALLOWED_CONFIG) }
@@ -31,16 +31,16 @@ describe Travis::Build::Addons::Artifacts::Env do
     expect(subject.env['ARTIFACTS_LOG_FORMAT']).to eql('multiline')
   end
 
+  it 'defaults :target_paths to' do
+    expect(subject.env['ARTIFACTS_TARGET_PATHS']).to eql('travis-ci/travis-ci/1/1.1')
+  end
+
   it 'forces concurrency to 5' do
     expect(subject.env['ARTIFACTS_CONCURRENCY']).to eql('5')
   end
 
   it 'forces max_size to 50MB' do
     expect(subject.env['ARTIFACTS_MAX_SIZE']).to eql('52428800.0')
-  end
-
-  it 'forces target_paths to' do
-    expect(subject.env['ARTIFACTS_TARGET_PATHS']).to eql('travis-ci/travis-ci/1/1.1')
   end
 
   it 'joins values given as an array using :' do
