@@ -202,14 +202,6 @@ if [[ -f /etc/apt/sources.list.d/rabbitmq-source.list ]] ; then
   sudo rm -f /etc/apt/sources.list.d/rabbitmq-source.list
 fi
 
-# XXX Ensure $PATH is prepended with a few entries to ease development in
-# container-based infrastructure.
-for path_entry in $HOME/.local/bin $HOME/bin ; do
-  if [[ ${PATH%%:*} != $path_entry ]] ; then
-    export PATH="$path_entry:$PATH"
-  fi
-done
-
 mkdir -p <%= build_dir %>
 cd       <%= build_dir %>
 
