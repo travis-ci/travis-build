@@ -54,7 +54,7 @@ module Travis
           end
 
           def build_tools_desired
-            config.fetch(:android, {}).fetch(:components, {}).map { |component|
+            components.map { |component|
               match = /build-tools-(?<version>[\d\.]+)/.match(component)
               match[:version] if match
             }
