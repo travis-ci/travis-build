@@ -10,6 +10,14 @@ module Travis
 
         def setup
           super
+
+          if build_tools_desired.empty?
+            sh.echo "No build-tools version is specified in android.components. Consider adding one of:", ansi: :yellow
+            sh.cmd  "android list sdk --extended --no-ui --all | awk -F\\\" '/^id.*build-tools/ {print $2}'", echo: false
+            sh.echo "The following versions are pre-installed:", ansi: :yellow
+            sh.cmd  "for v in $(ls /usr/local/android-sdk/build-tools/ | sort -r 2>/dev/null); do echo build-tools-$v; done", echo: false
+          end
+
           install_sdk_components unless components.empty?
         end
 
@@ -43,6 +51,13 @@ module Travis
             code = "android-update-sdk --components=#{name}"
             code << " --accept-licenses='#{licenses.join('|')}'" unless licenses.empty?
             code
+          end
+
+          def build_tools_desired
+            config.fetch(:android, {}).fetch(:components, {}).map { |component|
+              match = /build-tools-(?<version>[\d\.]+)/.match(component)
+              match[:version] if match
+            }
           end
         end
 
