@@ -9,7 +9,7 @@ module Travis
 
         def setup
           super
-          sh.export '_JAVA_OPTIONS', '-Xmx512m'
+          sh.export 'JAVA_TOOL_OPTIONS', '-Xmx512m'
           sh.cmd "jdk_switcher use #{config[:jdk]}", timing: false if uses_jdk?
           sh.if '-f build.gradle' do
             sh.export 'TERM', 'dumb'
