@@ -370,9 +370,9 @@ module Travis
             sh.echo 'Installing OS X binary package for MacTeX'
             sh.cmd "sudo installer -pkg \"/tmp/#{mactex}\" -target /"
             sh.rm "/tmp/#{mactex}"
-            sh.cmd 'sudo tlmgr update --self'
-            sh.cmd 'sudo tlmgr install inconsolata upquote courier ' +
-                   'courier-scaled helvetic'
+            sh.cmd 'sudo /usr/texbin/tlmgr update --self'
+            sh.cmd 'sudo /usr/texbin/tlmgr install inconsolata upquote ' +
+                   'courier courier-scaled helvetic'
 
             sh.export 'PATH', '$PATH:/usr/texbin'
           end
