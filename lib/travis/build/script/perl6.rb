@@ -17,14 +17,22 @@ module Travis
           sh.echo 'Please open any issues at https://github.com/travis-ci/travis-ci/issues/new', ansi: :red
 
           sh.echo 'Installing Rakudo (MoarVM)', ansi: :yellow
-          sh.cmd 'git clone https://github.com/rakudo/rakudo.git'
-          sh.cmd 'cd rakudo'
-          sh.cmd 'sudo perl Configure.pl --backends=moar --gen-nqp --gen-moar --prefix=/usr'
-          sh.cmd 'sudo make install'
+          sh.cmd 'git clone https://github.com/tadzik/rakudobrew.git $HOME/.rakudobrew'
+          sh.export 'PATH', '$HOME/.rakudobrew/bin:$PATH', echo: false
+        end
+
+        def export
+          super
+          sh.export 'TRAVIS_PERL6_VERSION', version, echo: false
         end
 
         def setup
           super
+          if version == "latest"
+            sh.cmd 'rakudobrew build moar', assert: false
+          else
+            sh.cmd "rakudobrew triple #{version} #{version} #{version}", assert: false
+          end
         end
 
         def announce
@@ -39,6 +47,13 @@ module Travis
           sh.cmd 'make test'
         end
 
+        def cache_slug
+          super << '--perl6-' << version
+        end
+
+        def version
+          config[:perl6].to_s
+        end
       end
     end
   end
