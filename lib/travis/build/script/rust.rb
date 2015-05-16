@@ -5,7 +5,7 @@ module Travis
         RUST_RUSTUP = 'https://static.rust-lang.org/rustup.sh'
 
         DEFAULTS = {
-          rust: 'nightly',
+          rust: 'stable',
         }
 
         def export
