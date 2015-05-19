@@ -37,5 +37,16 @@ describe Travis::Build::Addons::SauceConnect, :sexp do
     it_behaves_like 'starts sauce connect'
     it { store_example }
   end
+
+  describe 'with domain arguments' do
+    let(:config) { { :direct_domains => 'travis-ci.org', :no_ssl_bump_domains=> 'travis-ci.org', :tunnel_domains => 'localhost' } }
+
+    it { should include_sexp [:export, ['SAUCE_DIRECT_DOMAINS', '-D travis-ci.org']] }
+    it { should include_sexp [:export, ['SAUCE_NO_SSL_BUMP_DOMAINS', '-B travis-ci.org']] }
+    it { should include_sexp [:export, ['SAUCE_TUNNEL_DOMAINS', '-t localhost']] }
+
+    it_behaves_like 'starts sauce connect'
+    it { store_example }
+  end
 end
 
