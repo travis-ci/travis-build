@@ -9,9 +9,17 @@ module Travis
         HOSTS_FILE = '/etc/hosts'
 
         def after_prepare
+          sh.fold 'hosts.before' do
+            sh.echo ""
+            sh.cmd "cat #{HOSTS_FILE}"
+          end
           sh.fold 'hosts' do
             sh.cmd "cat #{HOSTS_FILE} | sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 #{hosts}/' | sudo tee #{HOSTS_FILE} > /dev/null"
             sh.cmd "cat #{HOSTS_FILE} | sed -e 's/^\\(::1.*\\)$/\\1 #{hosts}/'             | sudo tee #{HOSTS_FILE} > /dev/null"
+          end
+          sh.fold 'hosts.after' do
+            sh.echo ""
+            sh.cmd "cat #{HOSTS_FILE}"
           end
         end
 
