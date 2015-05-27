@@ -17,7 +17,7 @@ describe Travis::Build::Addons::Hosts, :sexp do
 
   # it { should include_sexp [:cmd, "sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 'one.local\\ two.local'/' -i'.bak' /etc/hosts", sudo: true] }
   # it { should include_sexp [:cmd, "sed -e 's/^\\(::1.*\\)$/\\1 'one.local\\ two.local'/' -i'.bak' /etc/hosts", sudo: true] }
-  it { should include_sexp [:cmd, "HOSTS_FILE_CONTENT=$(sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 one.local\\ two.local/' /etc/hosts | sed -e 's/^\\(::1.*\\)$/\\1 one.local\\ two.local/')"] }
-  it { should include_sexp [:cmd, "echo $HOSTS_FILE_CONTENT | sudo tee /etc/hosts > /dev/null"] }
+  it { should include_sexp [:cmd, "sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 one.local\\ two.local/' /etc/hosts | sed -e 's/^\\(::1.*\\)$/\\1 one.local\\ two.local/' > /tmp/hosts"] }
+  it { should include_sexp [:cmd, "cat /tmp/hosts | sudo tee /etc/hosts > /dev/null"] }
 end
 
