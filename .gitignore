@@ -9,3 +9,4 @@ examples/*.txt
 rspec.log
 .vagrant
 coverage/
+.*env
