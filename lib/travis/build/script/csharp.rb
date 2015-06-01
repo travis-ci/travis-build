@@ -95,6 +95,9 @@ module Travis
           when 'beta'
             repos << 'wheezy'
             repos << 'beta'
+          when 'nightly'
+            repos << 'wheezy'
+            repos << 'nightly'
           else
             repos << "wheezy/snapshots/#{config[:mono]}"
           end
@@ -103,7 +106,7 @@ module Travis
         end
 
         def mono_version_valid?
-          return true if ['latest', 'alpha', 'beta'].include? config[:mono]
+          return true if ['latest', 'alpha', 'beta', 'nightly'].include? config[:mono]
           return false unless MONO_VERSION_REGEXP === config[:mono]
 
           return false if MONO_VERSION_REGEXP.match(config[:mono])[1] == '2' && !is_mono_2_10_8
