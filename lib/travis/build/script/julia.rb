@@ -76,7 +76,7 @@ module Travis
           sh.else do
             sh.echo '\`src/${JL_PKG}.jl\` not found, repository is not a '\
               'valid Julia package so the default test script is empty',
-              ansi: :green
+              ansi: :yellow
           end
         end
 
