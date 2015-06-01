@@ -79,6 +79,11 @@ describe Travis::Build::Script::Csharp, :sexp do
       data[:config][:mono] = 'beta'
       should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian beta main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", assert: true]
     end
+
+    it 'selects nightly version when specified' do
+      data[:config][:mono] = 'nightly'
+      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian nightly main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", assert: true]
+    end
   end
 
   describe 'export' do
