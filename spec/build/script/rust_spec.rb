@@ -14,7 +14,7 @@ describe Travis::Build::Script::Rust, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'downloads and installs Rust' do
-    should include_sexp [:cmd, %r(curl .*dist/rust-nightly.*\.tar\.gz), assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, %r(curl .*rustup.sh), assert: true, echo: true, timing: true]
   end
 
   it 'announces rust version' do

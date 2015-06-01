@@ -18,8 +18,8 @@ module Travis
         def announce
           super
           if uses_java?
-            sh.cmd 'java -version'
-            sh.cmd 'javac -version'
+            sh.cmd 'java -Xmx32m -version'
+            sh.cmd 'javac -J-Xmx32m -version'
           end
         end
 

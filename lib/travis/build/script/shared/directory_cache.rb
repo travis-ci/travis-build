@@ -21,6 +21,9 @@ module Travis
         end
 
         def use_directory_cache?
+          if data.cache[:timeout]
+            sh.export 'CASHER_TIME_OUT', data.cache[:timeout], echo: false
+          end
           data.cache?(:directories)
         end
 

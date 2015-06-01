@@ -96,6 +96,7 @@ module Travis
           apply :fix_resolv_conf
           apply :fix_etc_hosts
           apply :put_localhost_first
+          apply :home_paths
         end
 
         def checkout

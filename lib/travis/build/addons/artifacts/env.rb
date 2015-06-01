@@ -13,8 +13,7 @@ module Travis
 
           FORCE = {
             concurrency: 5,
-            max_size: Float(1024 * 1024 * 50),
-            target_paths: nil
+            max_size: Float(1024 * 1024 * 50)
           }
 
           attr_reader :data, :env
@@ -31,8 +30,9 @@ module Travis
           private
 
             def normalize(env)
-              env = DEFAULT.merge(env.deep_symbolize_keys)
-              env = env.merge(FORCE.merge(target_paths: target_paths))
+              env.dup.each { |k, v| env[k.to_s.gsub(/-/, '_')] = env.delete(k) }
+              env = DEFAULT.merge(target_paths: target_paths).merge(env.deep_symbolize_keys)
+              env = env.merge(FORCE)
               env = env.map { |key, value| [to_key(key), to_value(value)] }
               env = ['PATH', '$HOME/bin:$PATH'] + env
               env = Hash[*env.flatten]

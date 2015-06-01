@@ -47,10 +47,10 @@ end
 
 shared_examples_for 'announces java versions' do
   it 'runs java -version' do
-    should include_sexp [:cmd, 'java -version', echo: true]
+    should include_sexp [:cmd, 'java -Xmx32m -version', echo: true]
   end
 
   it 'runs javac -version' do
-    should include_sexp [:cmd, 'javac -version', echo: true]
+    should include_sexp [:cmd, 'javac -J-Xmx32m -version', echo: true]
   end
 end
