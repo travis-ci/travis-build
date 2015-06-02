@@ -61,21 +61,13 @@ module Travis
             EOF
           end
 
-          def source_push
-            sh.raw "echo $TRAVIS_JOB_NUMBER | grep -q -E '\\.#{tx_config[:auto_push][:job]}$'",
-                   assert: false, echo: false
-            sh.if '$? != 0' do
-              sh.if "$TRAVIS_BRANCH =~ '^(#{tx_config[:auto_push][:branches].join('|')})$'" do
-                sh.echo 'Pushing to Transifex', ansi: :yellow
-                sh.cmd 'tx push --source --no-interactive', echo: true
-              end
-              sh.else do
-                sh.echo "Not Pushing to Transifex for branch '$TRAVIS_BRANCH'", ansi: :yellow
-              end
-            end
-            sh.else do
-              sh.echo "Not pushing to Transifex for job '$TRAVIS_JOB_NUMBER'", ansi: :yellow
-            end
+        def source_push
+          sh.if "$TRAVIS_BRANCH =~ '^(#{tx_config[:auto_push][:branches].join('|')})$'" do
+            sh.echo 'Pushing to Transifex', ansi: :yellow
+            sh.cmd 'tx push --source --no-interactive', echo: true
+          end
+          sh.else do
+            sh.echo "Not Pushing to Transifex for branch '$TRAVIS_BRANCH'", ansi: :yellow
           end
 
           def tx_config
