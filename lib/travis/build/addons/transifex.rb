@@ -40,7 +40,12 @@ module Travis
           def install
             sh.fold 'transifex.install' do
               sh.echo 'Installing Transifex Client (beta)', ansi: :yellow
-              sh.cmd "pip install --user 'transifex-client#{CLIENT_VERSION}'", echo: true
+              sh.if '$VIRTUAL_ENV' do
+                sh.cmd "pip install 'transifex-client#{CLIENT_VERSION}'", echo: true
+              end
+              sh.else do
+                sh.cmd "pip install --user 'transifex-client#{CLIENT_VERSION}'", echo: true
+              end
               sh.export 'PATH', '$HOME/.local/bin:$PATH', echo: true
             end
           end
