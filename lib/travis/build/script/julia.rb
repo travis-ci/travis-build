@@ -59,6 +59,8 @@ module Travis
         def script
           sh.echo 'Executing the default test script', ansi: :green
           set_jl_pkg
+          sh.echo 'Package name determined from repository url to be ${JL_PKG}',
+            ansi: :green
           # Check if the repository is a Julia package.
           sh.if "-f src/${JL_PKG}.jl" do
             sh.if '-a .git/shallow' do
@@ -70,6 +72,11 @@ module Travis
               sh.cmd 'julia --check-bounds=yes --color=yes ' \
                 '-e "Pkg.test(\"${JL_PKG}\", coverage=true)"'
             end
+          end
+          sh.else do
+            sh.echo '\`src/${JL_PKG}.jl\` not found, repository is not a '\
+              'valid Julia package so the default test script is empty',
+              ansi: :yellow
           end
         end
 
