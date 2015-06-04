@@ -45,6 +45,10 @@ module Travis
           end
 
           def export
+            Env::FORCE.keys.each do |key|
+              sh.cmd 'unset', "ARTIFACTS_#{key.to_s.upcase}", echo: false
+            end
+
             env.each do |key, value|
               sh.if "-z $#{key}" do
                 sh.export key, value.inspect, echo: key == 'ARTIFACTS_PATHS'
