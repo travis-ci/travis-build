@@ -46,7 +46,9 @@ module Travis
 
           def export
             env.each do |key, value|
-              sh.export key, value.inspect, echo: key == 'ARTIFACTS_PATHS'
+              sh.if "-z $#{key}" do
+                sh.export key, value.inspect, echo: key == 'ARTIFACTS_PATHS'
+              end
             end
           end
 
