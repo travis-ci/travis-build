@@ -46,7 +46,7 @@ module Travis
 
           def export
             Env::FORCE.keys.each do |key|
-              sh.cmd 'unset', "ARTIFACTS_#{key.to_s.upcase}", echo: false
+              sh.cmd "unset ARTIFACTS_#{key.to_s.upcase}", echo: false
             end
 
             env.each do |key, value|
