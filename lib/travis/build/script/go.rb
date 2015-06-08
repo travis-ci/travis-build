@@ -19,6 +19,9 @@ module Travis
         def export
           super
           sh.export 'TRAVIS_GO_VERSION', go_version, echo: false
+          sh.if '-z $GOMAXPROCS' do
+            sh.export 'GOMAXPROCS', '$(nproc 2>/dev/null || sysctl -n hw.physicalcpu 2>/dev/null || echo 2)', echo: false
+          end
         end
 
         def prepare
