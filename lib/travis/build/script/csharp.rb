@@ -11,7 +11,7 @@ module Travis
           mono: 'latest',
         }
 
-        MONO_VERSION_REGEXP = /^(\d{1})\.(\d{1,2})\.\d{1,2}$/
+        MONO_VERSION_REGEXP = /^(\d{1})\.(\d{1,2})\.\d{1,2}(\.(\d{1,3}))?$/
 
         def configure
           super
