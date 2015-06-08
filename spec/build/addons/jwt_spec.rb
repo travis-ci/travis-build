@@ -13,7 +13,7 @@ describe Travis::Build::Addons::Jwt, :sexp do
     let(:config) { 'MY_ACCESS_KEY=987654321' }
     it "should work" do
       subject.should include_sexp [:echo, 'Initializing JWT', ansi: :yellow]
-      expected = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzbHVnIjoidHJhdmlzLWNpL3RyYXZpcy1jaSIsInB1bGwtcmVxdWVzdCI6IiIsImlhdCI6MH0.vHZdjuxQt6CdFmWPEJLAsVbI_KCxbwJVbgT7jaTxkK4"
+      expected = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzbHVnIjoidHJhdmlzLWNpL3RyYXZpcy1jaSIsInB1bGwtcmVxdWVzdCI6IiIsImV4cCI6NTQwMCwiaWF0IjowfQ.SEfKPH4IxXp3c1FheGVd6poMULkfHRZ9YFMBYpquIFs"
       subject.should include_sexp [:export, ['MY_ACCESS_KEY', expected]]
     end
   end
@@ -25,9 +25,9 @@ describe Travis::Build::Addons::Jwt, :sexp do
     } }
     it "should work" do
       subject.should include_sexp [:echo, 'Initializing JWT', ansi: :yellow]
-      expected1 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzbHVnIjoidHJhdmlzLWNpL3RyYXZpcy1jaSIsInB1bGwtcmVxdWVzdCI6IiIsImlhdCI6MH0.iO-I8CNXhQlgw_dL8R9CDaDPplSC3yf9J399Uumn6CE"
+      expected1 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzbHVnIjoidHJhdmlzLWNpL3RyYXZpcy1jaSIsInB1bGwtcmVxdWVzdCI6IiIsImV4cCI6NTQwMCwiaWF0IjowfQ.ZNsODFURduRtDw2IyuC9_fZGF-fb4b4EW_aXZ1ZZHFs"
       subject.should include_sexp [:export, ['MY_ACCESS_KEY_1', expected1]]
-      expected2 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzbHVnIjoidHJhdmlzLWNpL3RyYXZpcy1jaSIsInB1bGwtcmVxdWVzdCI6IiIsImlhdCI6MH0.p1B9HnYCh-z5Igek5tr_QVPb1zV1ucwcPZNvY039WKg"
+      expected2 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzbHVnIjoidHJhdmlzLWNpL3RyYXZpcy1jaSIsInB1bGwtcmVxdWVzdCI6IiIsImV4cCI6NTQwMCwiaWF0IjowfQ.mmnY9xdgMAR0yTfnIaZMOAB4QE0J1HiT0XBFJGKnLxs"
       subject.should include_sexp [:export, ['MY_ACCESS_KEY_2', expected2]]
     end
   end

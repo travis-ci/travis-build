@@ -19,9 +19,11 @@ module Travis
           secrets.each do |secret|
             key, secret = secret.split('=').map(&:strip)
             pull_request = self.data.pull_request ? self.data.pull_request : ""
+            now = Time.now.to_i()
             payload = {"slug" => self.data.slug,
                       "pull-request" => pull_request,
-                      "iat" => Time.now.to_i()}
+                      "exp" => now+5400,
+                      "iat" => now}
             token = JWT.encode(payload, secret)
             tokens[key] = token
           end
