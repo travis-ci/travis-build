@@ -22,6 +22,7 @@ module Travis
           sh.echo ''
           sh.echo 'Perl6 support for Travis-CI is community maintained.', ansi: :red
           sh.echo 'Please open any issues at https://github.com/travis-ci/travis-ci/issues/new', ansi: :red
+          sh.echo 'and cc @paultcochrane, @hoelzro, and @ugexe', ansi: :red
 
           sh.echo 'Installing Rakudo (MoarVM)', ansi: :yellow
           sh.cmd 'git clone https://github.com/tadzik/rakudobrew.git $HOME/.rakudobrew'
