@@ -29,9 +29,11 @@ module Travis
         def setup
           super
           if version == "latest"
-            sh.cmd 'rakudobrew build moar', assert: false, fold: 'setup'
+            sh.cmd 'rakudobrew build moar',
+              assert: false, fold: 'setup', timing: true
           else
-            sh.cmd "rakudobrew triple #{version} #{version} #{version}", assert: false, fold: 'setup'
+            sh.cmd "rakudobrew triple #{version} #{version} #{version}",
+              assert: false, fold: 'setup', timing: true
           end
         end
 
