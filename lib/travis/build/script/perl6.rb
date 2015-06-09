@@ -1,5 +1,7 @@
 # Maintained by:
 # Paul Cochrane    @paultcochrane   paul@liekut.de
+# Rob Hoelz        @hoelzro         rob@hoelz.ro
+# Nick Logan       @ugexe           nlogan@gmail.com
 
 module Travis
   module Build
