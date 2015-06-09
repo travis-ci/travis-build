@@ -35,7 +35,7 @@ module Travis
             sh.cmd 'rakudobrew build moar',
               assert: false, fold: 'setup', timing: true
           else
-            sh.cmd "rakudobrew triple #{version} #{version} #{version}",
+            sh.cmd "rakudobrew build moar #{version}",
               assert: false, fold: 'setup', timing: true
           end
         end
