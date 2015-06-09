@@ -9,6 +9,11 @@ module Travis
           perl6: 'latest'
         }
 
+        def export
+          super
+          sh.export 'TRAVIS_PERL6_VERSION', version, echo: false
+        end
+
         def configure
           super
 
@@ -19,11 +24,6 @@ module Travis
           sh.echo 'Installing Rakudo (MoarVM)', ansi: :yellow
           sh.cmd 'git clone https://github.com/tadzik/rakudobrew.git $HOME/.rakudobrew'
           sh.export 'PATH', '$HOME/.rakudobrew/bin:$PATH', echo: false
-        end
-
-        def export
-          super
-          sh.export 'TRAVIS_PERL6_VERSION', version, echo: false
         end
 
         def setup
