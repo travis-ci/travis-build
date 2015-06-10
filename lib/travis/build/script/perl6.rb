@@ -49,7 +49,7 @@ module Travis
         end
 
         def script
-          sh.cmd 'PERL6LIB=lib prove --exec=perl6 -r t'
+          sh.cmd 'panda-test'
         end
 
         def cache_slug
