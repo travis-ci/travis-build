@@ -23,7 +23,7 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   it 'conditionally sets GOMAXPROCS to 2' do
-    expect(sexp_find(subject, [:if, '-z $GOMAXPROCS'])).to include_sexp [:export, ['GOMAXPROCS', '$(nproc 2>/dev/null || sysctl -n hw.physicalcpu 2>/dev/null || echo 2)']]
+    expect(sexp_find(subject, [:if, '-z $GOMAXPROCS'])).to include_sexp [:export, ['GOMAXPROCS', '2']]
   end
 
   it 'sets the default go version if not :go config given' do
