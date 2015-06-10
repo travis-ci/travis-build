@@ -49,7 +49,7 @@ module Travis
         end
 
         def script
-          sh.cmd 'make test'
+          sh.cmd 'PERL6LIB=lib prove --exec=perl6 -r t'
         end
 
         def cache_slug
