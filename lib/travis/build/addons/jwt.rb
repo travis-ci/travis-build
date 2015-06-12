@@ -20,7 +20,8 @@ module Travis
             key, secret = secret.split('=').map(&:strip)
             pull_request = self.data.pull_request ? self.data.pull_request : ""
             now = Time.now.to_i()
-            payload = {"slug" => self.data.slug,
+            payload = {"iss" => "travis-ci.org",
+                      "slug" => self.data.slug,
                       "pull-request" => pull_request,
                       "exp" => now+5400,
                       "iat" => now}
