@@ -11,7 +11,7 @@ module Travis
 
           sh.fold 'crystal_install' do
             sh.echo 'Installing Crystal', ansi: :yellow
-            sh.cmd %q(sudo apt-get install crystal')
+            sh.cmd %q(sudo apt-get install crystal)
           end
         end
 
