@@ -35,12 +35,8 @@ module Travis
           if version == "latest"
             sh.cmd 'rakudobrew build moar',
               assert: false, fold: 'setup', timing: true
-            sh.cmd 'rakduobrew build-panda',
-              assert: false, fold: 'setup', timing: true
           else
             sh.cmd "rakudobrew build moar #{version}",
-              assert: false, fold: 'setup', timing: true
-            sh.cmd "rakudobrew build-panda #{version}",
               assert: false, fold: 'setup', timing: true
           end
         end
@@ -54,7 +50,7 @@ module Travis
         end
 
         def script
-          sh.cmd 'panda-test'
+          sh.cmd "PERL6LIB=lib prove -v -r --exec=perl6 t/"
         end
 
         def cache_slug
