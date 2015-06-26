@@ -93,11 +93,11 @@ module Travis
           end
 
           def fetch_url(branch = group)
-            url('GET', prefixed(branch), expires: fetch_timeout)
+            url('GET', prefixed(branch, '.tbz'), expires: fetch_timeout)
           end
 
           def push_url(branch = group)
-            url('PUT', prefixed(branch), expires: push_timeout)
+            url('PUT', prefixed(branch, '.tgz'), expires: push_timeout)
           end
 
           def fold(message = nil)
@@ -148,10 +148,10 @@ module Travis
               )
             end
 
-            def prefixed(branch)
+            def prefixed(branch, ext = '.tgz')
               args = [data.github_id, branch, slug].compact
               args.map! { |arg| arg.to_s.gsub(/[^\w\.\_\-]+/, '') }
-              '/' << args.join('/') << '.tbz'
+              '/' << args.join('/') << ext
             end
 
             def url(verb, path, options = {})

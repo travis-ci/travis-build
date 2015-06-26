@@ -14,11 +14,11 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
 
   let(:master_fetch_signature) { "163b2a236fcfda37d58c1d50c27d86fbd04efb4a6d97219134f71854e3e0383b" }
   let(:fetch_signature)        { master_fetch_signature }
-  let(:push_signature)         { "926885a758f00d51eaad281522a26cf7151fdd530aa1272c1d8c607c2e778570" }
+  let(:push_signature)         { "e7e04f36f46920e9011580d53b16f2fc492094a8b4ec89076411a9d6800cf0ac" }
 
   let(:url)           { url_for(branch) }
   let(:fetch_url)     { Shellwords.escape "#{url}&X-Amz-Expires=20&X-Amz-Signature=#{fetch_signature}&X-Amz-SignedHeaders=host" }
-  let(:push_url)      { Shellwords.escape "#{url}&X-Amz-Expires=30&X-Amz-Signature=#{push_signature}&X-Amz-SignedHeaders=host" }
+  let(:push_url)      { Shellwords.escape("#{url}&X-Amz-Expires=30&X-Amz-Signature=#{push_signature}&X-Amz-SignedHeaders=host").gsub(/\.tbz(\?)?/, '.tgz\1') }
 
   let(:s3_options)    { { bucket: 's3_bucket', secret_access_key: 's3_secret_access_key', access_key_id: 's3_access_key_id' } }
   let(:cache_options) { { fetch_timeout: 20, push_timeout: 30, type: 's3', s3: s3_options } }
@@ -94,7 +94,7 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
   describe 'on a different branch' do
     let(:branch)          { 'featurefoo' }
     let(:fetch_signature) { 'cbce59b97e29ba90e1810a9cbedc1d5cd76df8235064c0016a53dea232124d60' }
-    let(:push_signature)  { '256ffe8e059f07c9d4e3f2491068fe22ad92722d120590e05671467fb5fda252' }
+    let(:push_signature)  { '3642ae12b63114366d42c964e221b7e9dcf736286a6fde1fd93be3fa21acb324' }
     let(:fallback_url)    { signed_url_for('master', master_fetch_signature) }
 
     describe 'fetch' do
@@ -116,7 +116,7 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
   describe 'on a pull request' do
     let(:pull_request)    { 15 }
     let(:fetch_signature) { 'b1db673b9a243ecbc792fd476c4f5b45462449dd73b65987d11710b42f180773' }
-    let(:push_signature)  { '863f53cbb1cff7780c5a53689cd849f0b6032e30de428515fe181d65be20e13e' }
+    let(:push_signature)  { '4aa0c287dca37b5c7f9d14e84be0680c4151c8230b2d0c6e8299d031d4bebd29' }
     let(:url)             { url_for("PR.#{pull_request}") }
     let(:fallback_url)    { signed_url_for('master', master_fetch_signature) }
 
@@ -140,7 +140,7 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
     let(:pull_request)    { 15 }
     let(:branch)          { 'foo' }
     let(:fetch_signature) { 'b1db673b9a243ecbc792fd476c4f5b45462449dd73b65987d11710b42f180773' }
-    let(:push_signature)  { '863f53cbb1cff7780c5a53689cd849f0b6032e30de428515fe181d65be20e13e' }
+    let(:push_signature)  { '4aa0c287dca37b5c7f9d14e84be0680c4151c8230b2d0c6e8299d031d4bebd29' }
     let(:url)             { url_for("PR.#{pull_request}") }
     let(:fallback_url)    { signed_url_for('master', master_fetch_signature) }
     let(:branch_fallback_url) { signed_url_for('foo', 'd72269ea040415d06cea7382c25f211f05b5a701c68299c03bbecd861a5e820b') }
