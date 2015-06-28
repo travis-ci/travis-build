@@ -82,9 +82,18 @@ module Travis
           end
 
           def fetch
-            urls = [Shellwords.escape(fetch_url.to_s)]
-            urls << Shellwords.escape(fetch_url(data.branch).to_s) if data.pull_request
-            urls << Shellwords.escape(fetch_url('master').to_s)    if data.branch != 'master'
+            urls = [
+              Shellwords.escape(fetch_url(group, '.tgz').to_s),
+              Shellwords.escape(fetch_url.to_s)
+            ]
+            if data.pull_request
+              urls << Shellwords.escape(fetch_url(data.branch, '.tgz').to_s)
+              urls << Shellwords.escape(fetch_url(data.branch).to_s)
+            end
+            if data.branch != 'master'
+              urls << Shellwords.escape(fetch_url('master', '.tgz').to_s)
+              urls << Shellwords.escape(fetch_url('master').to_s)
+            end
             run('fetch', urls)
           end
 
@@ -92,8 +101,8 @@ module Travis
             run('push', Shellwords.escape(push_url.to_s), assert: false)
           end
 
-          def fetch_url(branch = group)
-            url('GET', prefixed(branch, '.tbz'), expires: fetch_timeout)
+          def fetch_url(branch = group, ext = '.tbz')
+            url('GET', prefixed(branch, ext), expires: fetch_timeout)
           end
 
           def push_url(branch = group)
