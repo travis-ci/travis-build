@@ -13,8 +13,9 @@ module Travis
 
         def setup
           super
-          sh.cmd "nvm install #{version}"
-          sh.cmd 'npm config set spin false', echo: false, timing: false
+          convert_legacy_nodejs_config
+          nvm_install
+          npm_disable_spinner
           npm_disable_strict_ssl unless npm_strict_ssl?
           setup_npm_cache if use_npm_cache?
         end
@@ -47,13 +48,50 @@ module Travis
 
         private
 
+          def convert_legacy_nodejs_config
+            # TODO deprecate :nodejs
+            # some old projects use language: nodejs. MK.
+            if config[:nodejs] && !config[:node_js]
+              config[:node_js] = config[:nodejs]
+            end
+          end
+
+          def node_js?
+            !!config[:node_js]
+          end
+
           def version
             @version ||= begin
-              # TODO deprecate :nodejs
-              version = config[:node_js] || config[:nodejs] # some old projects use language: nodejs. MK.
+              version = config[:node_js]
               version = version.first if version.is_a?(Array) # it seems travis-core does not exand on nodejs anymore so we end up with an array here?
               version == 0.1 ? '0.10' : version.to_s
             end
+          end
+
+          def nvm_install
+            if node_js?
+              use_nvm_version
+            else
+              use_nvm_default
+            end
+          end
+
+          def use_nvm_default
+            sh.if '-f .nvmrc' do
+              sh.echo "Using nodejs version from .nvmrc", ansi: :yellow
+              sh.cmd "nvm install"
+            end
+            sh.else do
+              sh.cmd "nvm install 0.10"
+            end
+          end
+
+          def use_nvm_version
+            sh.cmd "nvm install #{version}"
+          end
+
+          def npm_disable_spinner
+            sh.cmd 'npm config set spin false', echo: false, timing: false
           end
 
           def npm_disable_strict_ssl
