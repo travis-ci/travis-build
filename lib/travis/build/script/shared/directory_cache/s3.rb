@@ -86,11 +86,11 @@ module Travis
             urls = [Shellwords.escape(fetch_url.to_s)]
             urls << Shellwords.escape(fetch_url(data.branch).to_s) if data.pull_request
             urls << Shellwords.escape(fetch_url('master').to_s)    if data.branch != 'master'
-            run('fetch', urls)
+            run('fetch', urls, timing: true)
           end
 
           def push
-            run('push', Shellwords.escape(push_url.to_s), assert: false)
+            run('push', Shellwords.escape(push_url.to_s), assert: false, timing: true)
           end
 
           def fetch_url(branch = group)
