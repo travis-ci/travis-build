@@ -82,7 +82,7 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
 
   describe 'fetch' do
     before { cache.fetch }
-    it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fetch_url}"] }
+    it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fetch_url}", timing: true] }
   end
 
   describe 'add' do
@@ -92,7 +92,7 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
 
   describe 'push' do
     before { cache.push }
-    it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher push #{push_url}"] }
+    it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher push #{push_url}", timing: true] }
   end
 
   describe 'on a different branch' do
@@ -105,7 +105,7 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
 
     describe 'fetch' do
       before { cache.fetch }
-      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fetch_url} #{fallback_url_tgz} #{fallback_url}"] }
+      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fetch_url} #{fallback_url_tgz} #{fallback_url}", timing: true] }
     end
 
     describe 'add' do
@@ -115,7 +115,7 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
 
     describe 'push' do
       before { cache.push }
-      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher push #{push_url}"] }
+      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher push #{push_url}", timing: true] }
     end
   end
 
@@ -131,7 +131,7 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
 
     describe 'fetch' do
       before { cache.fetch }
-      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fetch_url} #{fallback_url_tgz} #{fallback_url}"] }
+      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fetch_url} #{fallback_url_tgz} #{fallback_url}", timing: true] }
     end
 
     describe 'add' do
@@ -141,7 +141,7 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
 
     describe 'push' do
       before { cache.push }
-      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher push #{push_url}"] }
+      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher push #{push_url}", timing: true] }
     end
   end
 
@@ -160,7 +160,7 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
 
     describe 'fetch' do
       before { cache.fetch }
-      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fetch_url} #{branch_fallback_url_tgz} #{branch_fallback_url} #{fallback_url_tgz} #{fallback_url}"] }
+      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fetch_url} #{branch_fallback_url_tgz} #{branch_fallback_url} #{fallback_url_tgz} #{fallback_url}", timing: true] }
     end
 
     describe 'add' do
@@ -170,7 +170,7 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
 
     describe 'push' do
       before { cache.push }
-      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher push #{push_url}"] }
+      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher push #{push_url}", timing: true] }
     end
   end
 
