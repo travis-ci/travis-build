@@ -98,7 +98,7 @@ module Travis
           end
 
           def push
-            run('push', Shellwords.escape(push_url.to_s).tap {|x| puts "pushing #{x}"}, assert: false)
+            run('push', Shellwords.escape(push_url.to_s), assert: false)
           end
 
           def fetch_url(branch = group, ext = '.tbz')
