@@ -17,8 +17,19 @@ describe Travis::Build::Script::Erlang, :sexp do
     should include_sexp [:export, ['TRAVIS_OTP_RELEASE', 'R14B04']] #, echo: true
   end
 
-  it 'activates otp' do
-    should include_sexp [:cmd, 'source $HOME/otp/R14B04/activate', assert: true, echo: true, timing: true]
+  describe 'setup' do
+    let(:cond) { '-f $HOME/otp/R14B04/activate' }
+    let(:sexp) { sexp_find(subject, [:if, cond]) }
+
+    it 'activates otp' do
+      branch = sexp_find(sexp, [:then])
+      expect(branch).to include_sexp [:cmd, 'source $HOME/otp/R14B04/activate', assert: true, echo: true, timing: true]
+    end
+
+    it 'downloads OTP archive on demand when the desired release is not pre-installed' do
+      branch = sexp_find(sexp, [:else])
+      expect(branch).to include_sexp [:cmd, 'wget https://s3.amazonaws.com/travis-otp-releases/ubuntu/$(lsb_release -rs)/erlang-R14B04-x86_64.tar.bz2', assert: true, echo: true, timing: true]
+    end
   end
 
   describe 'install' do

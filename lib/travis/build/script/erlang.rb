@@ -13,7 +13,17 @@ module Travis
 
         def setup
           super
-          sh.cmd "source #{HOME_DIR}/otp/#{otp_release}/activate"
+          sh.if "-f #{activate_file}" do
+            sh.cmd "source #{activate_file}"
+          end
+          sh.else do
+            sh.echo "#{otp_release} is not installed. Downloading and installing pre-build binary.", ansi: :yellow
+            sh.cmd "kerl update releases"
+            sh.cmd "wget #{erlang_archive_url(otp_release)}"
+            sh.cmd "tar xf #{archive_name(otp_release)} -C ~/otp/"
+            sh.cmd "echo '#{otp_release},#{otp_release}' >> ~/.kerl/otp_builds", echo: false
+            sh.cmd "echo '#{otp_release} #{HOME_DIR}/otp/#{otp_release}' >> ~/.kerl/otp_builds", echo: false
+          end
         end
 
         def install
@@ -49,6 +59,18 @@ module Travis
 
           def rebar_configured
             '(-f rebar.config || -f Rebar.config)'
+          end
+
+          def activate_file
+            "#{HOME_DIR}/otp/#{otp_release}/activate"
+          end
+
+          def erlang_archive_url(release)
+            "https://s3.amazonaws.com/travis-otp-releases/ubuntu/$(lsb_release -rs)/erlang-#{release}-x86_64.tar.bz2"
+          end
+
+          def archive_name(release)
+            "erlang-#{release}-x86_64.tar.bz2"
           end
       end
     end
