@@ -13,10 +13,7 @@ module Travis
 
         def setup
           super
-          sh.if "-f #{activate_file}" do
-            sh.cmd "source #{activate_file}"
-          end
-          sh.else do
+          sh.if "! -f #{activate_file}" do
             sh.echo "#{otp_release} is not installed. Downloading and installing pre-build binary.", ansi: :yellow
             sh.cmd "kerl update releases"
             sh.cmd "wget #{erlang_archive_url(otp_release)}"
@@ -24,6 +21,7 @@ module Travis
             sh.cmd "echo '#{otp_release},#{otp_release}' >> ~/.kerl/otp_builds", echo: false
             sh.cmd "echo '#{otp_release} #{HOME_DIR}/otp/#{otp_release}' >> ~/.kerl/otp_builds", echo: false
           end
+          sh.cmd "source #{activate_file}"
         end
 
         def install
