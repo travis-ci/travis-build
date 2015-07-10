@@ -8,7 +8,7 @@ module Travis
   module Build
     class Stages
       STAGES = [
-        :builtin,     [:header, :configure, :checkout, :prepare, :disable_sudo, :export, :setup, :announce],
+        :builtin,     [:header, :configure, :checkout, :export, :prepare, :disable_sudo, :setup, :announce],
         :custom,      [:before_install, :install, :before_script, :script, :before_cache],
         :builtin,     [:cache],
         :conditional, [:after_success],
