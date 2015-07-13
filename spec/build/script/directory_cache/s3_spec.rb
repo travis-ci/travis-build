@@ -88,6 +88,13 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
   describe 'add' do
     before { cache.add('/foo/bar') }
     it { should include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher add /foo/bar'] }
+
+    context 'when multiple directories are given' do
+      before { cache.setup }
+      let(:config) { { cache: { directories: ['/foo/bar', '/bar/baz'] } } }
+
+      it { should include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher add /foo/bar /bar/baz'] }
+    end
   end
 
   describe 'push' do

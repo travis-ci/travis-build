@@ -61,7 +61,7 @@ module Travis
             fold 'Setting up build cache' do
               install
               fetch
-              directories.each { |dir| add(dir) } if data.cache?(:directories)
+              add(directories) if data.cache?(:directories)
             end
           end
 
@@ -77,8 +77,8 @@ module Travis
             end
           end
 
-          def add(path)
-            run('add', path) if path
+          def add(*paths)
+            run('add', paths) if paths
           end
 
           def fetch
