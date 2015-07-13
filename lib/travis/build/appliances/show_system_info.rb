@@ -1,4 +1,5 @@
 require 'travis/build/appliances/base'
+require 'shellwords'
 
 module Travis
   module Build
@@ -20,7 +21,7 @@ module Travis
             sh.echo 'Build system information', ansi: :yellow
             [:language, :group, :dist].each do |name|
               value = data.send(name)
-              sh.echo "Build #{name}: #{value}" if value
+              sh.echo "Build #{name}: #{Shellwords.escape(value)}" if value
             end
           end
 

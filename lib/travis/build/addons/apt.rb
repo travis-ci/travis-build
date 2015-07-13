@@ -1,4 +1,5 @@
 require 'travis/build/addons/base'
+require 'shellwords'
 
 module Travis
   module Build
@@ -82,7 +83,7 @@ module Travis
             end
 
             unless disallowed.empty?
-              sh.echo "Disallowing sources: #{disallowed.join(', ')}", ansi: :red
+              sh.echo "Disallowing sources: #{disallowed.map { |source| Shellwords.escape(source) }.join(', ')}", ansi: :red
               sh.echo 'If you require these sources, please review the source ' \
                 'approval process at: ' \
                 'https://github.com/travis-ci/apt-source-whitelist#source-approval-process'
@@ -113,7 +114,7 @@ module Travis
             end
 
             unless disallowed.empty?
-              sh.echo "Disallowing packages: #{disallowed.join(', ')}", ansi: :red
+              sh.echo "Disallowing packages: #{disallowed.map { |package| Shellwords.escape(package) }.join(', ')}", ansi: :red
               sh.echo 'If you require these packages, please review the package ' \
                 'approval process at: ' \
                 'https://github.com/travis-ci/apt-package-whitelist#package-approval-process'
