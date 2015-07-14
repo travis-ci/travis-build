@@ -30,6 +30,10 @@ module Travis
                   time_total:  %{time_total} s
           EOF
 
+          # maximum number of directories to be 'added' to cache via casher
+          # in one invocation
+          ADD_DIR_MAX = 100
+
           KeyPair = Struct.new(:id, :secret)
 
           Location = Struct.new(:scheme, :region, :bucket, :path) do
@@ -61,7 +65,7 @@ module Travis
             fold 'Setting up build cache' do
               install
               fetch
-              directories.each { |dir| add(dir) } if data.cache?(:directories)
+              add(directories) if data.cache?(:directories)
             end
           end
 
@@ -77,8 +81,10 @@ module Travis
             end
           end
 
-          def add(path)
-            run('add', path) if path
+          def add(*paths)
+            if paths
+              paths.flatten.each_slice(ADD_DIR_MAX) { |dirs| run('add', dirs) }
+            end
           end
 
           def fetch
