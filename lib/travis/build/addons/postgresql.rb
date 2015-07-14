@@ -9,13 +9,17 @@ module Travis
 
         def after_prepare
           sh.fold 'postgresql' do
-            sh.export "PATH", "/usr/lib/postgresql/#{version}/bin:$PATH", echo: false
+            sh.export 'PATH', "/usr/lib/postgresql/#{version}/bin:$PATH", echo: false
             sh.echo "Starting PostgreSQL v#{version}", ansi: :yellow
-            sh.cmd "service postgresql stop", assert: false, sudo: true, echo: true, timing: true
+            sh.cmd 'service postgresql stop', assert: false, sudo: true, echo: true, timing: true
             sh.if "-d /var/ramfs && ! -d /var/ramfs/postgresql/#{version}", echo: false do
               sh.cmd "cp -rp /var/lib/postgresql/#{version} /var/ramfs/postgresql/#{version}", sudo: true, assert: false, echo: false, timing: false
             end
             sh.cmd "service postgresql start #{version}", assert: false, sudo: true, echo: true, timing: true
+            %w(5432 5433).each do |pgport|
+              sh.raw "sudo -u postgres createuser -p #{pgport} travis", assert: false, echo: true, timing: true
+              sh.raw "sudo -u postgres createdb -p #{pgport} travis", assert: false, echo: true, timing: true
+            end
           end
         end
 
