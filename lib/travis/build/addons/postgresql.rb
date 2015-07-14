@@ -17,8 +17,8 @@ module Travis
             end
             sh.cmd "service postgresql start #{version}", assert: false, sudo: true, echo: true, timing: true
             %w(5432 5433).each do |pgport|
-              sh.raw "sudo -u postgres createuser -p #{pgport} travis", assert: false, echo: true, timing: true
-              sh.raw "sudo -u postgres createdb -p #{pgport} travis", assert: false, echo: true, timing: true
+              sh.raw "sudo -u postgres createuser -p #{pgport} travis &>/dev/null", assert: false, echo: true, timing: true
+              sh.raw "sudo -u postgres createdb -p #{pgport} travis &>/dev/null", assert: false, echo: true, timing: true
             end
           end
         end
