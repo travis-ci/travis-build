@@ -6,69 +6,79 @@ module Travis
           :node_js => '0.10'
         }
 
-        def cache_slug
-          super << "--node-" << config[:node_js].to_s
-        end
-
         def export
           super
-          config[:node_js] ||= config[:nodejs] # some old projects use language: nodejs. MK.
-          set 'TRAVIS_NODE_VERSION', config[:node_js], echo: false
+          sh.export 'TRAVIS_NODE_VERSION', version, echo: false
         end
 
         def setup
           super
-          cmd "nvm install #{node_version}"
-          cmd "npm config set spin false", echo: false
-          if npm_should_disable_strict_ssl?
-            cmd 'echo "### Disabling strict SSL ###"'
-            cmd 'npm conf set strict-ssl false'
-          end
-          setup_npm_cache if npm_cache_required?
+          sh.cmd "nvm install #{version}"
+          sh.cmd 'npm config set spin false', echo: false, timing: false
+          npm_disable_strict_ssl unless npm_strict_ssl?
+          setup_npm_cache if use_npm_cache?
         end
 
         def announce
           super
-          cmd 'node --version'
-          cmd 'npm --version'
+          sh.cmd 'node --version'
+          sh.cmd 'npm --version'
+          sh.cmd 'nvm --version'
         end
 
         def install
-          uses_npm? then: "npm install #{config[:npm_args]}", fold: 'install', retry: true
+          sh.if '-f package.json' do
+            sh.cmd "npm install #{config[:npm_args]}", retry: true, fold: 'install'
+          end
         end
 
         def script
-          uses_npm? then: 'npm test', else: 'make test'
-        end
-
-        def npm_cache_required?
-          Array(config[:cache]).include?('npm')
-        end
-
-        def setup_npm_cache
-          if data.hosts && data.hosts[:npm_cache]
-            cmd 'npm config set registry http://registry.npmjs.org/', echo: false, assert: false
-            cmd "npm config set proxy #{data.hosts[:npm_cache]}", echo: false, assert: false
+          sh.if '-f package.json' do
+            sh.cmd 'npm test'
           end
+          sh.else do
+            sh.cmd 'make test'
+          end
+        end
+
+        def cache_slug
+          super << '--node-' << version
         end
 
         private
 
-          def uses_npm?(*args)
-            self.if '-f package.json', *args
+          def version
+            @version ||= begin
+              # TODO deprecate :nodejs
+              version = config[:node_js] || config[:nodejs] # some old projects use language: nodejs. MK.
+              version = version.first if version.is_a?(Array) # it seems travis-core does not exand on nodejs anymore so we end up with an array here?
+              version == 0.1 ? '0.10' : version.to_s
+            end
+          end
+
+          def npm_disable_strict_ssl
+            # sh.echo '### Disabling strict SSL ###', ansi: :red
+            sh.cmd 'echo "### Disabling strict SSL ###"'
+            sh.cmd 'npm conf set strict-ssl false', echo: true
+          end
+
+          def npm_strict_ssl?
+            !node_0_6?
           end
 
           def node_0_6?
             (config[:node_js] || '').to_s.split('.')[0..1] == %w(0 6)
           end
 
-          def npm_should_disable_strict_ssl?
-            node_0_6?
+          def use_npm_cache?
+            Array(config[:cache]).include?('npm')
           end
 
-          def node_version
-            # this check is needed because safe_yaml parses the string 0.10 to 0.1
-            config[:node_js] == 0.1 ? "0.10" : config[:node_js]
+          def setup_npm_cache
+            if data.hosts && data.hosts[:npm_cache]
+              sh.cmd 'npm config set registry http://registry.npmjs.org/', timing: false
+              sh.cmd "npm config set proxy #{data.hosts[:npm_cache]}", timing: false
+            end
           end
       end
     end

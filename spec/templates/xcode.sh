@@ -1,1 +1,0 @@
-../../lib/travis/build/script/templates/xcode.sh

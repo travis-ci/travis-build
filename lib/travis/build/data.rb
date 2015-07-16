@@ -1,22 +1,21 @@
 require 'core_ext/hash/deep_merge'
 require 'core_ext/hash/deep_symbolize_keys'
-require 'base64'
+require 'travis/build/data/ssh_key'
 
 # actually, the worker payload can be cleaned up a lot ...
 
 module Travis
   module Build
     class Data
-      autoload :Env, 'travis/build/data/env'
-      autoload :Var, 'travis/build/data/var'
-
       DEFAULTS = { }
 
       DEFAULT_CACHES = {
         apt:       false,
         bundler:   false,
         cocoapods: false,
-        composer:  false
+        composer:  false,
+        ccache:    false,
+        pip:       false
       }
 
       attr_reader :data
@@ -25,6 +24,26 @@ module Travis
         data = data.deep_symbolize_keys
         defaults = defaults.deep_symbolize_keys
         @data = DEFAULTS.deep_merge(defaults.deep_merge(data))
+      end
+
+      def [](key)
+        data[key]
+      end
+
+      def key?(key)
+        data.key?(key)
+      end
+
+      def language
+        config[:language]
+      end
+
+      def group
+        config[:group]
+      end
+
+      def dist
+        config[:dist]
       end
 
       def urls
@@ -37,18 +56,6 @@ module Travis
 
       def hosts
         data[:hosts] || {}
-      end
-
-      def paranoid_mode?
-        data.fetch(:paranoid, false)
-      end
-
-      def skip_resolv_updates?
-        data.fetch(:skip_resolv_updates, false)
-      end
-
-      def skip_etc_hosts_fix?
-        data.fetch(:skip_etc_hosts_fix, false)
       end
 
       def cache_options
@@ -72,36 +79,7 @@ module Travis
       end
 
       def env_vars
-        @env_vars ||= Env.new(self).vars
-      end
-
-      def env_vars_groups
-        @env_vars_groups ||= Env.new(self).vars_groups
-      end
-
-      def raw_env_vars
         data[:env_vars] || []
-      end
-
-      class SshKey < Struct.new(:value, :source, :encoded)
-        def value
-          if encoded?
-            Base64.decode64(super)
-          else
-            super
-          end
-        end
-
-        def encoded?
-          encoded
-        end
-
-        def fingerprint
-          rsa_key = OpenSSL::PKey::RSA.new(value)
-          public_ssh_rsa = "\x00\x00\x00\x07ssh-rsa" + rsa_key.e.to_s(0) + rsa_key.n.to_s(0)
-          OpenSSL::Digest::MD5.new(public_ssh_rsa).hexdigest.scan(/../).join(':')
-        rescue OpenSSL::PKey::RSAError
-        end
       end
 
       def ssh_key
@@ -112,12 +90,20 @@ module Travis
         end
       end
 
+      def pull_request?
+        !!pull_request
+      end
+
       def pull_request
         job[:pull_request]
       end
 
-      def secure_env_enabled?
-        job[:secure_env_enabled]
+      def secure_env?
+        !!job[:secure_env_enabled]
+      end
+
+      def disable_sudo?
+        !!data[:paranoid]
       end
 
       def source_host
@@ -133,15 +119,19 @@ module Travis
       end
 
       def slug
-        repository[:slug]
+        repository[:slug] || raise('data.slug must not be empty')
+      end
+
+      def github_id
+        repository.fetch(:github_id)
       end
 
       def commit
-        job[:commit]
+        job[:commit] || ''
       end
 
       def branch
-        job[:branch]
+        job[:branch] || ''
       end
 
       def ref

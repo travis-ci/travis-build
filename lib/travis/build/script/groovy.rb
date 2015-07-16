@@ -1,3 +1,5 @@
+require 'travis/build/script/shared/jvm'
+
 module Travis
   module Build
     class Script

@@ -2,64 +2,58 @@ module Travis
   module Build
     class Script
       class Rust < Script
+        RUST_RUSTUP = 'https://static.rust-lang.org/rustup.sh'
+
         DEFAULTS = {
-          rust: 'nightly',
+          rust: 'stable',
         }
 
         def export
           super
 
-          set 'TRAVIS_RUST_VERSION', config[:rust].to_s.shellescape, echo: false
+          sh.export 'TRAVIS_RUST_VERSION', config[:rust].to_s.shellescape, echo: false
         end
 
         def setup
           super
 
-          cmd 'mkdir -p ~/rust', echo: false
+          sh.cmd 'mkdir -p ~/rust-installer', echo: false
+          sh.echo ''
 
-          echo ""
-          fold("rust-download") do
-            echo "Installing Rust and Cargo", ansi: :yellow
-            cmd "curl -sL #{rust_url} | tar --strip-components=1 -C ~/rust -xzf -"
-            cmd "curl -sL #{cargo_url} | tar --strip-components=1 -C ~/rust -xzf -"
+          sh.fold('rust-download') do
+            sh.echo 'Installing Rust', ansi: :yellow
+            sh.cmd "curl -sL #{RUST_RUSTUP} -o ~/rust-installer/rustup.sh"
+            # We silence the stderr of rustup.sh for now, as it has a very verbose progress bar
+            sh.cmd "sh ~/rust-installer/rustup.sh #{rustup_args} 2> /dev/null"
           end
 
-          cmd 'export PATH="$PATH:$HOME/rust/bin"', assert: false, echo: false
-          cmd 'export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/rust/lib"', assert: false, echo: false
+          sh.cmd 'export PATH="$PATH:$HOME/rust/bin"', assert: false, echo: false
+          sh.cmd 'export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/rust/lib"', assert: false, echo: false
+          sh.cmd 'export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:$HOME/rust/lib"', assert: false, echo: false
         end
 
         def announce
           super
 
-          cmd "rustc --version"
-          cmd "cargo --version"
-          echo ""
+          sh.cmd 'rustc --version'
+          sh.cmd 'cargo --version'
+          sh.echo ''
         end
 
         def script
-          cmd "cargo build --verbose"
-          cmd "cargo test --verbose"
+          sh.cmd 'cargo build --verbose'
+          sh.cmd 'cargo test --verbose'
         end
 
         private
 
-        def rust_url
-          case config[:os]
-          when "osx"
-            "https://static.rust-lang.org/dist/rust-#{config[:rust].to_s.shellescape}-x86_64-apple-darwin.tar.gz"
-          else
-            "https://static.rust-lang.org/dist/rust-#{config[:rust].to_s.shellescape}-x86_64-unknown-linux-gnu.tar.gz"
+          def version
+            config[:rust].to_s
           end
-        end
 
-        def cargo_url
-          case config[:os]
-          when "osx"
-            "https://static.rust-lang.org/cargo-dist/cargo-nightly-x86_64-apple-darwin.tar.gz"
-          else
-            "https://static.rust-lang.org/cargo-dist/cargo-nightly-x86_64-unknown-linux-gnu.tar.gz"
+          def rustup_args
+            "--prefix=~/rust --spec=%s -y --disable-sudo" % version.shellescape
           end
-        end
       end
     end
   end

@@ -1,4 +1,7 @@
 require 'shellwords'
+require 'travis/build/script/shared/bundler'
+require 'travis/build/script/shared/chruby'
+require 'travis/build/script/shared/rvm'
 
 module Travis
   module Build
@@ -13,96 +16,101 @@ module Travis
         include RVM
         include Bundler
 
-        def use_directory_cache?
-          super || data.cache?(:cocoapods)
-        end
-
         def announce
           super
-          fold 'announce' do
-            cmd 'xcodebuild -version -sdk'
-            cmd 'xctool -version'
+          sh.fold 'announce' do
+            sh.cmd 'xcodebuild -version -sdk'
+            sh.cmd 'xctool -version'
           end
-          uses_rubymotion? then: 'motion --version'
-          podfile? then: 'pod --version'
+
+          sh.if use_ruby_motion do
+            sh.cmd 'motion --version'
+          end
+          sh.if podfile? do
+            sh.cmd 'pod --version'
+          end
         end
 
         def export
           super
-
-          set 'TRAVIS_XCODE_SDK', config[:xcode_sdk].to_s.shellescape, echo: false
-          set 'TRAVIS_XCODE_SCHEME', config[:xcode_scheme].to_s.shellescape, echo: false
-          set 'TRAVIS_XCODE_PROJECT', config[:xcode_project].to_s.shellescape, echo: false
-          set 'TRAVIS_XCODE_WORKSPACE', config[:xcode_workspace].to_s.shellescape, echo: false
+          [:sdk, :scheme, :project, :workspace].each do |key|
+            sh.export "TRAVIS_XCODE_#{key.upcase}", config[:"xcode_#{key}"].to_s.shellescape, echo: false
+          end
         end
 
         def setup
           super
-
-          cmd "echo '#!/bin/bash\n# no-op' > /usr/local/bin/actool", echo: false
-          cmd "chmod +x /usr/local/bin/actool", echo: false
+          sh.cmd "echo '#!/bin/bash\n# no-op' > /usr/local/bin/actool", echo: false
+          sh.cmd 'chmod +x /usr/local/bin/actool', echo: false
         end
 
         def install
           super
-
-          podfile? do |sh|
-            # cache cocoapods if it has been enabled
-            directory_cache.add(sh, "#{pod_dir}/Pods") if data.cache?(:cocoapods)
-
-            sh.if "! ([[ -f #{pod_dir}/Podfile.lock && -f #{pod_dir}/Pods/Manifest.lock ]] && cmp --silent #{pod_dir}/Podfile.lock #{pod_dir}/Pods/Manifest.lock)", raw_condition: true do |pod_script|
-              pod_script.fold("install.cocoapods") do |pod_fold|
-                pod_fold.echo "Installing Pods with 'pod install'", ansi: :yellow
-                pod_fold.cmd "pushd #{pod_dir}"
-                pod_fold.cmd "pod install", retry: true
-                pod_fold.cmd "popd"
+          sh.if podfile? do
+            directory_cache.add("#{pod_dir}/Pods") if data.cache?(:cocoapods)
+            sh.if "! ([[ -f #{pod_dir}/Podfile.lock && -f #{pod_dir}/Pods/Manifest.lock ]] && cmp --silent #{pod_dir}/Podfile.lock #{pod_dir}/Pods/Manifest.lock)", raw: true do
+              sh.fold('install.cocoapods') do
+                sh.echo "Installing Pods with 'pod install'", ansi: :yellow
+                sh.cmd "pushd #{pod_dir}"
+                sh.cmd 'pod install', retry: true
+                sh.cmd 'popd'
               end
             end
           end
         end
 
         def script
-          uses_rubymotion?(with_bundler: true, then: 'bundle exec rake spec')
-          uses_rubymotion?(elif: true, then: 'rake spec')
+          sh.if use_ruby_motion(with_bundler: true) do
+            sh.cmd 'bundle exec rake spec'
+          end
 
-          self.else do |script|
+          sh.elif use_ruby_motion do
+            sh.cmd 'rake spec'
+          end
+
+          sh.else do
             if config[:xcode_scheme] && (config[:xcode_project] || config[:xcode_workspace])
-              script.cmd "xctool #{xctool_args} build test"
+              sh.cmd "xctool #{xctool_args} build test"
             else
-              script.cmd "echo -e \"\\033[33;1mWARNING:\\033[33m Using Objective-C testing without specifying a scheme and either a workspace or a project is deprecated.\"", echo: false
-              script.cmd "echo \"  Check out our documentation for more information: http://about.travis-ci.org/docs/user/languages/objective-c/\"", echo: false
+              # deprecate DEPRECATED_MISSING_WORKSPACE_OR_PROJECT
+              sh.cmd "echo -e \"\\033[33;1mWARNING:\\033[33m Using Objective-C testing without specifying a scheme and either a workspace or a project is deprecated.\"", echo: false, timing: true
+              sh.cmd "echo \"  Check out our documentation for more information: http://about.travis-ci.org/docs/user/languages/objective-c/\"", echo: false, timing: true
             end
           end
+        end
+
+        def use_directory_cache?
+          super || data.cache?(:cocoapods)
         end
 
         private
 
-        def podfile?(*args, &block)
-          self.if "-f #{config[:podfile].to_s.shellescape}", *args, &block
-        end
-
-        def pod_dir
-          File.dirname(config[:podfile]).shellescape
-        end
-
-        def uses_rubymotion?(*args)
-          conditional = '-f Rakefile && "$(cat Rakefile)" =~ require\ [\\"\\\']motion/project'
-          conditional << ' && -f Gemfile' if args.first && args.first.is_a?(Hash) && args.first.delete(:with_bundler)
-
-          if args.first && args.first.is_a?(Hash) && args.first.delete(:elif)
-            self.elif conditional, *args
-          else
-            self.if conditional, *args
+          def podfile?
+            "-f #{config[:podfile].to_s.shellescape}"
           end
-        end
 
-        def xctool_args
-          config[:xctool_args].to_s.tap do |xctool_args|
-            %w[project workspace scheme sdk].each do |var|
-              xctool_args << " -#{var} #{config[:"xcode_#{var}"].to_s.shellescape}" if config[:"xcode_#{var}"]
-            end
-          end.strip
-        end
+          def pod_dir
+            File.dirname(config[:podfile]).shellescape
+          end
+
+          def use_ruby_motion(options = {})
+            condition = '-f Rakefile && "$(cat Rakefile)" =~ require\ [\\"\\\']motion/project'
+            condition << ' && -f Gemfile' if options.delete(:with_bundler)
+            condition
+          end
+
+          def xctool_args
+            config[:xctool_args].to_s.tap do |xctool_args|
+              %w[project workspace scheme sdk].each do |var|
+                xctool_args << " -#{var} #{config[:"xcode_#{var}"].to_s.shellescape}" if config[:"xcode_#{var}"]
+              end
+            end.strip
+          end
+
+          # DEPRECATED_MISSING_WORKSPACE_OR_PROJECT = <<-msg
+          #   Using Objective-C testing without specifying a scheme and either a workspace or a project is deprecated.
+          #   Check out our documentation for more information: http://about.travis-ci.org/docs/user/languages/objective-c/
+          # msg
       end
     end
   end

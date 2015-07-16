@@ -1,12 +1,11 @@
 require 'core_ext/hash/deep_symbolize_keys'
+require 'travis/shell'
+require 'travis/build/data'
+require 'travis/build/env'
+require 'travis/build/script'
 
 module Travis
   module Build
-    autoload :Data,     'travis/build/data'
-    autoload :Script,   'travis/build/script'
-    autoload :Services, 'travis/build/services'
-    autoload :Shell,    'travis/build/shell'
-
     HOME_DIR  = '$HOME'
     BUILD_DIR = File.join(HOME_DIR, 'build')
 
@@ -15,11 +14,11 @@ module Travis
         Travis.services.add(key, self)
       end
 
-      def script(data, options = {})
+      def script(data)
         data  = data.deep_symbolize_keys
-        lang  = (Array(data[:config][:language]).first || 'ruby').downcase.strip
+        lang  = (Array(data[:config][:language]).first || 'ruby').to_s.downcase.strip
         const = by_lang(lang)
-        const.new(data, options)
+        const.new(data)
       end
 
       def by_lang(lang)
@@ -28,8 +27,10 @@ module Travis
           Script::PureJava
         when "c++", "cpp", "cplusplus" then
           Script::Cpp
-        when 'objective-c'
+        when 'objective-c', 'swift' then
           Script::ObjectiveC
+        when 'bash', 'sh', 'shell' then
+          Script::Generic
         else
           name = lang.split('_').map { |w| w.capitalize }.join
           Script.const_get(name, false) rescue Script::Ruby

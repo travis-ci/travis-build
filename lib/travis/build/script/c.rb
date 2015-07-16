@@ -6,23 +6,40 @@ module Travis
           compiler: 'gcc'
         }
 
-        def cache_slug
-          super << "--compiler-" << config[:compiler].to_s
-        end
-
         def export
           super
-          set 'CC', config[:compiler]
+          sh.export 'CC', compiler
         end
 
         def announce
           super
-          cmd "#{config[:compiler]} --version"
+          sh.cmd "#{compiler} --version"
         end
 
         def script
-          cmd './configure && make && make test'
+          sh.cmd './configure && make && make test'
         end
+
+        def cache_slug
+          super << '--compiler-' << compiler
+        end
+
+        def install
+          super
+          if data.cache?(:ccache)
+            directory_cache.add('~/.ccache')
+          end
+        end
+
+        def use_directory_cache?
+          super || data.cache?(:ccache)
+        end
+
+        private
+
+          def compiler
+            config[:compiler].to_s
+          end
       end
     end
   end
