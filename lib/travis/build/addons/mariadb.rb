@@ -4,7 +4,7 @@ require 'travis/build/addons/base'
 module Travis
   module Build
     class Addons
-      class MariaDB < Base
+      class Mariadb < Base
         SUPER_USER_SAFE = true
 
         MARIADB_GPG_KEY = '0xcbcb082a1bb943db'
