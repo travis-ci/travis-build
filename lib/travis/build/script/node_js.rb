@@ -2,10 +2,6 @@ module Travis
   module Build
     class Script
       class NodeJs < Script
-        DEFAULTS = {
-          :node_js => '0.10'
-        }
-
         def export
           super
           sh.export 'TRAVIS_NODE_VERSION', version, echo: false
