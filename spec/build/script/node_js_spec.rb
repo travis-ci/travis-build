@@ -17,8 +17,21 @@ describe Travis::Build::Script::NodeJs, :sexp do
     should include_sexp [:export, ['TRAVIS_NODE_VERSION', '0.10']]
   end
 
-  it 'sets up the node version' do
-    should include_sexp [:cmd, 'nvm install 0.10', echo: true, assert: true, timing: true]
+  describe 'nvm install' do
+    it 'sets the version from config :node_js' do
+      data[:config][:node_js] = 0.9
+      should include_sexp [:cmd, 'nvm install 0.9', assert: true, echo: true, timing: true]
+    end
+
+    it 'sets the version from .nvmrc' do
+      sexp = sexp_filter(subject, [:if, '-f .nvmrc'], [:then])
+      expect(sexp).to include_sexp [:cmd, 'nvm install', assert: true, echo: true, timing: true]
+    end
+
+    it 'sets the version to 0.10 otherwise' do
+      sexp = sexp_filter(subject, [:if, '-f .nvmrc'], [:else])
+      expect(sexp).to include_sexp [:cmd, 'nvm install 0.10', assert: true, echo: true, timing: true]
+    end
   end
 
   it 'announces node --version' do
