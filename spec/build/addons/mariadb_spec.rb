@@ -17,7 +17,7 @@ describe Travis::Build::Addons::Mariadb, :sexp do
 
   it { should include_sexp [:cmd, "service mysql stop", sudo: true] }
   it { should include_sexp [:cmd, "apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 #{Travis::Build::Addons::Mariadb::MARIADB_GPG_KEY}", sudo: true] }
-  it { should include_sexp [:cmd, "add-apt-repository 'deb http://#{Travis::Build::Addons::Mariadb::MARIADB_MIRROR}/mariadb/repo/#{config}/ubuntu ${TRAVIS_UBUNTU_RELEASE} main'", sudo: true] }
+  it { should include_sexp [:cmd, "add-apt-repository 'deb http://#{Travis::Build::Addons::Mariadb::MARIADB_MIRROR}/mariadb/repo/#{config}/ubuntu precise main'", sudo: true] }
   it { should include_sexp [:cmd, "apt-get update -qq", sudo: true] }
   it { should include_sexp [:cmd, "apt-get install -o Dpkg::Options::='--force-confnew' mariadb-server", sudo: true, echo: true, timing: true] }
   it { should include_sexp [:cmd, "service mysql start", sudo: true, echo: true, timing: true] }

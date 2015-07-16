@@ -14,9 +14,8 @@ module Travis
           sh.fold 'mariadb' do
             sh.cmd "service mysql stop", sudo: true
             sh.echo "Installing MariaDB version #{mariadb_version}", ansi: :yellow
-            sh.cmd 'TRAVIS_UBUNTU_RELEASE=$(lsb_release -cs)'
             sh.cmd "apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 #{MARIADB_GPG_KEY}", sudo: true
-            sh.cmd "add-apt-repository 'deb http://#{MARIADB_MIRROR}/mariadb/repo/#{mariadb_version}/ubuntu ${TRAVIS_UBUNTU_RELEASE} main'", sudo: true
+            sh.cmd "add-apt-repository 'deb http://#{MARIADB_MIRROR}/mariadb/repo/#{mariadb_version}/ubuntu precise main'", sudo: true
             sh.cmd "apt-get update -qq", assert: false, sudo: true
             sh.cmd "apt-get install -o Dpkg::Options::='--force-confnew' mariadb-server", sudo: true, echo: true, timing: true
             sh.echo "Starting MariaDB v#{mariadb_version}", ansi: :yellow
