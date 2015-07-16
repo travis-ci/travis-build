@@ -12,8 +12,8 @@ module Travis
 
         def after_prepare
           sh.fold 'mariadb' do
-            sh.cmd "service mysql stop", sudo: true
             sh.echo "Installing MariaDB version #{mariadb_version}", ansi: :yellow
+            sh.cmd "service mysql stop", sudo: true
             sh.cmd "apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 #{MARIADB_GPG_KEY}", sudo: true
             sh.cmd 'add-apt-repository "deb http://%p/mariadb/repo/%p/ubuntu $(lsb_release -cs) main"' % [MARIADB_MIRROR, mariadb_version], sudo: true
             sh.cmd "apt-get update -qq", assert: false, sudo: true
