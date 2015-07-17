@@ -361,8 +361,8 @@ module Travis
                    "#{latex_packages.join(' ')}",
                    retry: true
           when 'osx'
-            # We use mactex-basic due to disk space constraints.
-            mactex = 'mactex-basic.pkg'
+            # We use basictex due to disk space constraints.
+            mactex = 'BasicTeX.pkg'
             # TODO(craigcitro): Confirm that this will route us to the
             # nearest mirror.
             sh.cmd 'wget http://mirror.ctan.org/systems/mac/mactex/' +
