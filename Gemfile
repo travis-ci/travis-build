@@ -16,7 +16,6 @@ gem 'coder'
 
 group :development do
   gem 'rerun'
-  gem 'coveralls'
 end
 
 group :test do
@@ -25,4 +24,5 @@ group :test do
   gem 'rspec',       '~> 3.0'
   gem 'simplecov',   require: false
   gem 'sinatra-contrib'
+  gem "codeclimate-test-reporter", group: :test, require: nil
 end
