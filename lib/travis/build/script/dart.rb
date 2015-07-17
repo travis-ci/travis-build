@@ -48,12 +48,12 @@ module Travis
 
           sh.fold 'dart_install' do
             sh.echo 'Installing Dart', ansi: :yellow
-            sh.cmd "curl #{archive_url}/sdk/dartsdk-linux-x64-release.zip > dartsdk.zip"
-            sh.cmd "unzip dartsdk.zip > /dev/null"
-            sh.cmd "rm dartsdk.zip"
-            sh.cmd 'export DART_SDK="${PWD%/}/dart-sdk"'
+            sh.cmd "curl #{archive_url}/sdk/dartsdk-linux-x64-release.zip > $HOME/dartsdk.zip"
+            sh.cmd "unzip $HOME/dartsdk.zip -d $HOME > /dev/null"
+            sh.cmd "rm $HOME/dartsdk.zip"
+            sh.cmd 'export DART_SDK="$HOME/dart-sdk"'
             sh.cmd 'export PATH="$DART_SDK/bin:$PATH"'
-            sh.cmd 'export PATH="~/.pub-cache/bin:$PATH"'
+            sh.cmd 'export PATH="$HOME/.pub-cache/bin:$PATH"'
           end
 
           if with_content_shell
@@ -61,8 +61,8 @@ module Travis
               sh.echo 'Installing Content Shell', ansi: :yellow
 
               # Download and install Content Shell
-              sh.cmd "mkdir content_shell"
-              sh.cmd "cd content_shell"
+              sh.cmd "mkdir $HOME/content_shell"
+              sh.cmd "cd $HOME/content_shell"
               sh.cmd "curl #{archive_url}/dartium/content_shell-linux-x64-release.zip > content_shell.zip"
               sh.cmd "unzip content_shell.zip > /dev/null"
               sh.cmd "rm content_shell.zip"

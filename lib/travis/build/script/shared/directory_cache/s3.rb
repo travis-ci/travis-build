@@ -30,6 +30,10 @@ module Travis
                   time_total:  %{time_total} s
           EOF
 
+          # maximum number of directories to be 'added' to cache via casher
+          # in one invocation
+          ADD_DIR_MAX = 100
+
           KeyPair = Struct.new(:id, :secret)
 
           Location = Struct.new(:scheme, :region, :bucket, :path) do
@@ -38,7 +42,6 @@ module Travis
             end
           end
 
-          # TODO: Switch to different branch from master?
           CASHER_URL = 'https://raw.githubusercontent.com/travis-ci/casher/%s/bin/casher'
           USE_RUBY   = '1.9.3'
           BIN_PATH   = '$CASHER_DIR/bin/casher'
@@ -62,7 +65,7 @@ module Travis
             fold 'Setting up build cache' do
               install
               fetch
-              directories.each { |dir| add(dir) } if data.cache?(:directories)
+              add(directories) if data.cache?(:directories)
             end
           end
 
@@ -78,27 +81,38 @@ module Travis
             end
           end
 
-          def add(path)
-            run('add', path) if path
+          def add(*paths)
+            if paths
+              paths.flatten.each_slice(ADD_DIR_MAX) { |dirs| run('add', dirs) }
+            end
           end
 
           def fetch
-            urls = [Shellwords.escape(fetch_url.to_s)]
-            urls << Shellwords.escape(fetch_url(data.branch).to_s) if data.pull_request
-            urls << Shellwords.escape(fetch_url('master').to_s)    if data.branch != 'master'
-            run('fetch', urls)
+            urls = [
+              Shellwords.escape(fetch_url(group, '.tgz').to_s),
+              Shellwords.escape(fetch_url.to_s)
+            ]
+            if data.pull_request
+              urls << Shellwords.escape(fetch_url(data.branch, '.tgz').to_s)
+              urls << Shellwords.escape(fetch_url(data.branch).to_s)
+            end
+            if data.branch != 'master'
+              urls << Shellwords.escape(fetch_url('master', '.tgz').to_s)
+              urls << Shellwords.escape(fetch_url('master').to_s)
+            end
+            run('fetch', urls, timing: true)
           end
 
           def push
-            run('push', Shellwords.escape(push_url.to_s), assert: false)
+            run('push', Shellwords.escape(push_url.to_s), assert: false, timing: true)
           end
 
-          def fetch_url(branch = group)
-            url('GET', prefixed(branch), expires: fetch_timeout)
+          def fetch_url(branch = group, ext = '.tbz')
+            url('GET', prefixed(branch, ext), expires: fetch_timeout)
           end
 
           def push_url(branch = group)
-            url('PUT', prefixed(branch), expires: push_timeout)
+            url('PUT', prefixed(branch, '.tgz'), expires: push_timeout)
           end
 
           def fold(message = nil)
@@ -149,10 +163,10 @@ module Travis
               )
             end
 
-            def prefixed(branch)
+            def prefixed(branch, ext = '.tgz')
               args = [data.github_id, branch, slug].compact
               args.map! { |arg| arg.to_s.gsub(/[^\w\.\_\-]+/, '') }
-              '/' << args.join('/') << '.tbz'
+              '/' << args.join('/') << ext
             end
 
             def url(verb, path, options = {})

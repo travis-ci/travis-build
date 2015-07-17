@@ -34,8 +34,9 @@ module Travis
                 sh.cmd 'sudo apt-get install -qq mono-complete mono-vbnc fsharp', timing: true, assert: true
               else
                 sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF', echo: false, assert: true
-                sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian #{mono_repo} main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false, assert: true
-                sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy-libtiff-compat main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false, assert: true
+                mono_repos.each do |repo|
+                  sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian #{repo} main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false, assert: true
+                end
                 sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
                 sh.cmd "sudo apt-get install -qq mono-complete mono-vbnc fsharp nuget #{'referenceassemblies-pcl' if !is_mono_3_8_0}", timing: true, assert: true
                                                                                       # PCL Assemblies only supported on mono 3.10 and greater
@@ -82,16 +83,30 @@ module Travis
           end
         end
 
-        def mono_repo
-          if config[:mono] == 'latest'
-            'wheezy'
+        def mono_repos
+          repos = ['wheezy-libtiff-compat']
+
+          case config[:mono]
+          when 'latest'
+            repos << 'wheezy'
+          when 'alpha'
+            repos << 'wheezy'
+            repos << 'alpha'
+          when 'beta'
+            repos << 'wheezy'
+            repos << 'beta'
+          when 'nightly'
+            repos << 'wheezy'
+            repos << 'nightly'
           else
-            'wheezy/snapshots/' << config[:mono]
+            repos << "wheezy/snapshots/#{config[:mono]}"
           end
+
+          repos
         end
 
         def mono_version_valid?
-          return true if config[:mono] == 'latest'
+          return true if ['latest', 'alpha', 'beta', 'nightly'].include? config[:mono]
           return false unless MONO_VERSION_REGEXP === config[:mono]
 
           return false if MONO_VERSION_REGEXP.match(config[:mono])[1] == '2' && !is_mono_2_10_8

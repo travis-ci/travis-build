@@ -9,7 +9,7 @@ module Travis
           gimme_config: {
             url: "#{ENV.fetch(
               'TRAVIS_BUILD_GIMME_URL',
-              'https://raw.githubusercontent.com/meatballhat/gimme/v0.2.3/gimme'
+              'https://raw.githubusercontent.com/travis-ci/gimme/v0.2.4/gimme'
             )}".untaint,
             force_reinstall: !!ENV['TRAVIS_BUILD_GIMME_FORCE_REINSTALL']
           },
@@ -19,6 +19,9 @@ module Travis
         def export
           super
           sh.export 'TRAVIS_GO_VERSION', go_version, echo: false
+          sh.if '-z $GOMAXPROCS' do
+            sh.export 'GOMAXPROCS', '2', echo: false
+          end
         end
 
         def prepare

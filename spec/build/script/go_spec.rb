@@ -22,6 +22,10 @@ describe Travis::Build::Script::Go, :sexp do
     should include_sexp [:export, ['TRAVIS_GO_VERSION', '1.4.1']]
   end
 
+  it 'conditionally sets GOMAXPROCS to 2' do
+    expect(sexp_find(subject, [:if, '-z $GOMAXPROCS'])).to include_sexp [:export, ['GOMAXPROCS', '2']]
+  end
+
   it 'sets the default go version if not :go config given' do
     should include_sexp [:cmd, 'eval "$(gimme 1.4.1)"', assert: true, echo: true, timing: true]
   end
