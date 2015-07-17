@@ -2,6 +2,9 @@ require 'simplecov'
 require 'fileutils'
 require 'sinatra/test_helpers'
 require 'travis/build'
+require 'coveralls'
+
+Coveralls.wear!
 
 paths = ['spec/spec_helpers', 'spec/support', 'spec/**/shared']
 paths = "{#{paths.join(',')}}/**/*.rb"

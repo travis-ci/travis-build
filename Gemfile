@@ -16,6 +16,7 @@ gem 'coder'
 
 group :development do
   gem 'rerun'
+  gem 'coveralls'
 end
 
 group :test do
