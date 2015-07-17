@@ -17,11 +17,6 @@ module Travis
 
         def configure
           super
-          if version == 'nightly'
-            install_python_nightly
-            return
-          end
-
           sh.if "! -f #{virtualenv_activate}" do
             sh.echo "#{version} is not installed; attempting download", ansi: :yellow
             install_python_archive( version )
@@ -88,10 +83,6 @@ module Travis
 
           def system_site_packages
             '_with_system_site_packages' if config[:virtualenv][:system_site_packages]
-          end
-
-          def install_python_nightly
-            install_python_archive
           end
 
           def install_python_archive(version = 'nightly')
