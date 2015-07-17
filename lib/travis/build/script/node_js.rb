@@ -2,9 +2,13 @@ module Travis
   module Build
     class Script
       class NodeJs < Script
+        DEFAULT_VERSION = '0.10'
+
         def export
           super
-          sh.export 'TRAVIS_NODE_VERSION', version, echo: false
+          if node_js_given_in_config?
+            sh.export 'TRAVIS_NODE_VERSION', version, echo: false
+          end
         end
 
         def setup
@@ -52,20 +56,19 @@ module Travis
             end
           end
 
-          def node_js?
+          def node_js_given_in_config?
             !!config[:node_js]
           end
 
           def version
             @version ||= begin
-              version = config[:node_js]
-              version = version.first if version.is_a?(Array) # it seems travis-core does not exand on nodejs anymore so we end up with an array here?
+              version = Array(config[:node_js]).first
               version == 0.1 ? '0.10' : version.to_s
             end
           end
 
           def nvm_install
-            if node_js?
+            if node_js_given_in_config?
               use_nvm_version
             else
               use_nvm_default
@@ -76,14 +79,17 @@ module Travis
             sh.if '-f .nvmrc' do
               sh.echo "Using nodejs version from .nvmrc", ansi: :yellow
               sh.cmd "nvm install"
+              sh.export 'TRAVIS_NODE_VERSION', '$(< .nvmrc)', echo: false
             end
             sh.else do
-              sh.cmd "nvm install 0.10"
+              sh.cmd "nvm install #{DEFAULT_VERSION}"
+              sh.export 'TRAVIS_NODE_VERSION', DEFAULT_VERSION, echo: false
             end
           end
 
           def use_nvm_version
             sh.cmd "nvm install #{version}"
+            sh.export 'TRAVIS_NODE_VERSION', version, echo: false
           end
 
           def npm_disable_spinner
