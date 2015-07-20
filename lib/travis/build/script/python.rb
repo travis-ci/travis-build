@@ -17,8 +17,9 @@ module Travis
 
         def configure
           super
-          if version == 'nightly'
-            install_python_nightly
+          sh.if "! -f #{virtualenv_activate}" do
+            sh.echo "#{version} is not installed; attempting download", ansi: :yellow
+            install_python_archive( version )
           end
         end
 
@@ -84,10 +85,10 @@ module Travis
             '_with_system_site_packages' if config[:virtualenv][:system_site_packages]
           end
 
-          def install_python_nightly
-            sh.cmd "curl -s -o python-nightly.tar.bz2 https://s3.amazonaws.com/travis-python-archives/python-nightly.tar.bz2", echo: false
-            sh.cmd "sudo tar xjf python-nightly.tar.bz2 --directory /", echo: false
-            sh.cmd "rm python-nightly.tar.bz2", echo: false
+          def install_python_archive(version = 'nightly')
+            sh.cmd "curl -s -o python-#{version}.tar.bz2 https://s3.amazonaws.com/travis-python-archives/python-#{version}.tar.bz2", echo: false
+            sh.cmd "sudo tar xjf python-#{version}.tar.bz2 --directory /", echo: false
+            sh.cmd "rm python-#{version}.tar.bz2", echo: false
           end
       end
     end
