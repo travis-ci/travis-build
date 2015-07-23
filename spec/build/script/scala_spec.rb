@@ -3,6 +3,9 @@ require 'spec_helper'
 describe Travis::Build::Script::Scala, :sexp do
   let(:data)   { payload_for(:push, :scala) }
   let(:script) { described_class.new(data) }
+  let(:sbt_path) { '/usr/local/bin/sbt'}
+  let(:sbt_sha) { 'b9c8cb273d38e0d8da9211902a18018fe82aa14e'}
+  let(:sbt_url) { "https://raw.githubusercontent.com/paulp/sbt-extras/#{sbt_sha}/sbt"}
   subject      { script.sexp }
   it           { store_example }
 
@@ -28,6 +31,10 @@ describe Travis::Build::Script::Scala, :sexp do
 
   describe 'if ./project directory or build.sbt file exists' do
     let(:sexp) { sexp_find(subject, [:if, '-d project || -f build.sbt']) }
+
+    it "updates SBT" do
+      should include_sexp [:cmd, "sudo curl -sS -o #{sbt_path} #{sbt_url}"]
+    end
 
     it 'sets JVM_OPTS' do
       should include_sexp export_jvm_opts
