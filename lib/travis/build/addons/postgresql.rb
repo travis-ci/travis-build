@@ -7,6 +7,9 @@ module Travis
       class Postgresql < Base
         SUPER_USER_SAFE = true
 
+        DEFAULT_PORT = 5432
+        DEFAULT_FALLBACK_PORT = 5433
+
         def after_prepare
           sh.fold 'postgresql' do
             sh.export 'PATH', "/usr/lib/postgresql/#{version}/bin:$PATH", echo: false
@@ -16,7 +19,7 @@ module Travis
               sh.cmd "cp -rp /var/lib/postgresql/#{version} /var/ramfs/postgresql/#{version}", sudo: true, assert: false, echo: false, timing: false
             end
             sh.cmd "service postgresql start #{version}", assert: false, sudo: true, echo: true, timing: true
-            %w(5432 5433).each do |pgport|
+            [DEFAULT_PORT, DEFAULT_FALLBACK_PORT].each do |pgport|
               sh.cmd "sudo -u postgres createuser -p #{pgport} travis &>/dev/null", assert: false, echo: true, timing: true
               sh.cmd "sudo -u postgres createdb -p #{pgport} travis &>/dev/null", assert: false, echo: true, timing: true
             end
