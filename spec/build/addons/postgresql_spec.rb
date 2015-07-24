@@ -20,4 +20,8 @@ describe Travis::Build::Addons::Postgresql, :sexp do
   it { should include_sexp [:cmd, 'service postgresql stop', sudo: true, echo: true, timing: true] }
   it { should include_sexp [:cmd, 'cp -rp /var/lib/postgresql/9.3 /var/ramfs/postgresql/9.3', sudo: true] }
   it { should include_sexp [:cmd, 'service postgresql start 9.3', sudo: true, echo: true, timing: true] }
+  it { should include_sexp [:cmd, "sudo -u postgres createuser -p #{described_class::DEFAULT_PORT} travis &>/dev/null", echo: true, timing: true] }
+  it { should include_sexp [:cmd, "sudo -u postgres createuser -p #{described_class::DEFAULT_FALLBACK_PORT} travis &>/dev/null", echo: true, timing: true] }
+  it { should include_sexp [:cmd, "sudo -u postgres createdb -p #{described_class::DEFAULT_PORT} travis &>/dev/null", echo: true, timing: true] }
+  it { should include_sexp [:cmd, "sudo -u postgres createdb -p #{described_class::DEFAULT_FALLBACK_PORT} travis &>/dev/null", echo: true, timing: true] }
 end
