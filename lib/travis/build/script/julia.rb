@@ -83,21 +83,29 @@ module Travis
         private
 
           def julia_url
+            case config[:os]
+            when 'linux'
+              status = 'linux-x86_64'
+              osarch = 'linux/x64'
+              ext = "#{status}.tar.gz"
+            when 'osx'
+              status = 'osx10.7+'
+              osarch = 'osx/x64'
+              ext = "#{status}.dmg"
+            end
             case config[:julia]
             when 'release'
-              version = 'stable'
+              url = "status.julialang.org/stable/#{status}"
             when 'nightly'
-              version = 'download'
+              url = "status.julialang.org/download/#{status}"
+            when /^(\d+\.\d+)\.\d+$/
+              url = "s3.amazonaws.com/julialang/bin/#{osarch}/#{$1}/julia-#{config[:julia]}-#{ext}"
+            when /^(\d+\.\d+)$/
+              url = "s3.amazonaws.com/julialang/bin/#{osarch}/#{$1}/julia-#{$1}-latest-#{ext}"
             else
               sh.failure "Unknown Julia version: #{config[:julia]}"
             end
-            case config[:os]
-            when 'linux'
-              os = 'linux-x86_64'
-            when 'osx'
-              os = 'osx10.7+'
-            end
-            "https://status.julialang.org/#{version}/#{os}"
+            "https://#{url}"
           end
 
           def set_jl_pkg
