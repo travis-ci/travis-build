@@ -28,22 +28,22 @@ describe Travis::Build::Script::Csharp, :sexp do
   describe 'version switching' do
     it 'throws a error with a invalid version' do
       data[:config][:mono] = 'foo'
-      should include_sexp [:echo, '"foo" is not a valid version of mono.', {:ansi=>:red}]
+      should include_sexp [:echo, "\"foo\" is either a invalid version of mono or unsupported on linux.\nView valid versions of mono at http://docs.travis-ci.com/user/languages/csharp/"]
     end
 
     it 'throws a error with a invalid version' do
       data[:config][:mono] = '12.55.523'
-      should include_sexp [:echo, '"12.55.523" is not a valid version of mono.', {:ansi=>:red}]
+      should include_sexp [:echo, "\"12.55.523\" is either a invalid version of mono or unsupported on linux.\nView valid versions of mono at http://docs.travis-ci.com/user/languages/csharp/"]
     end
 
     it 'throws a error for invalid version of mono 2' do
       data[:config][:mono] = '2.1.1'
-      should include_sexp [:echo, '"2.1.1" is not a valid version of mono.', {:ansi=>:red}]
+      should include_sexp [:echo, "\"2.1.1\" is either a invalid version of mono or unsupported on linux.\nView valid versions of mono at http://docs.travis-ci.com/user/languages/csharp/"]
     end
 
     it 'throws a error for mono 1' do
       data[:config][:mono] = '1.1.8'
-      should include_sexp [:echo, '"1.1.8" is not a valid version of mono.', {:ansi=>:red}]
+      should include_sexp [:echo, "\"1.1.8\" is either a invalid version of mono or unsupported on linux.\nView valid versions of mono at http://docs.travis-ci.com/user/languages/csharp/"]
     end
 
     it 'selects mono 2' do
@@ -111,18 +111,52 @@ describe Travis::Build::Script::Csharp, :sexp do
   describe 'install' do
     it 'restores nuget from solution' do
       data[:config][:solution] = 'foo.sln'
+      data[:config][:os] = 'linux'
       should include_sexp [:cmd, 'nuget restore foo.sln', assert: true, echo: true, timing: true, retry: true]
     end
   end
 
   describe 'script' do
     it 'throws an error when no script or solution is defined' do
-      should include_sexp [:cmd, 'false']
+      should include_sexp [:echo, 'No solution or script defined, exiting']
     end
 
     it 'builds specified solution' do
       data[:config][:solution] = 'foo.sln'
       should include_sexp [:cmd, 'xbuild /p:Configuration=Release foo.sln', echo: true, timing: true]
+    end
+  end
+
+  describe 'osx' do
+    it 'installs' do
+      data[:config][:os] = 'osx'
+      should include_sexp [:cmd, "curl -o \"/tmp/mdk.pkg\" -L http://download.mono-project.com/archive/mdk-latest.pkg", timing: true, assert: true]
+      should include_sexp [:cmd, "sudo installer -package \"/tmp/mdk.pkg\" -target \"/\"", timing: true, assert: true]
+      should include_sexp [:cmd, 'mozroots --import --sync --quiet', timing: true]
+    end
+
+    it 'selects alpha' do
+      data[:config][:os] = 'osx'
+      data[:config][:mono] = 'alpha'
+      should include_sexp [:cmd, "curl -o \"/tmp/mdk.pkg\" -L http://download.mono-project.com/archive/mdk-latest-alpha.pkg", timing: true, assert: true]
+    end
+
+    it 'selects beta' do
+      data[:config][:os] = 'osx'
+      data[:config][:mono] = 'beta'
+      should include_sexp [:cmd, "curl -o \"/tmp/mdk.pkg\" -L http://download.mono-project.com/archive/mdk-latest-beta.pkg", timing: true, assert: true]
+    end
+
+    it 'selects weekly' do
+      data[:config][:os] = 'osx'
+      data[:config][:mono] = 'weekly'
+      should include_sexp [:cmd, "curl -o \"/tmp/mdk.pkg\" -L http://download.mono-project.com/archive/mdk-latest-weekly.pkg", timing: true, assert: true]
+    end
+
+    it 'selects 4.0.1' do
+      data[:config][:os] = 'osx'
+      data[:config][:mono] = '4.0.1'
+      should include_sexp [:cmd, "curl -o \"/tmp/mdk.pkg\" -L http://download.mono-project.com/archive/4.0.1/macos-10-x86/MonoFramework-MDK-4.0.1.macos10.xamarin.x86.pkg", timing: true, assert: true]
     end
   end
 end
