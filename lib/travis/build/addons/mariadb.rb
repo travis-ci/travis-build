@@ -10,6 +10,11 @@ module Travis
         MARIADB_GPG_KEY = '0xcbcb082a1bb943db'
         MARIADB_MIRROR  = 'nyc2.mirrors.digitalocean.com'
 
+        def export
+          super
+          sh.export 'TRAVIS_MARIADB_VERSION', mariadb_version, echo: false
+        end
+
         def after_prepare
           sh.fold 'mariadb' do
             sh.echo "Installing MariaDB version #{mariadb_version}", ansi: :yellow
