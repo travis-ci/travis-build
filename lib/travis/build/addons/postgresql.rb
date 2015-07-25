@@ -18,6 +18,7 @@ module Travis
             sh.if "-d /var/ramfs && ! -d /var/ramfs/postgresql/#{version}", echo: false do
               sh.cmd "cp -rp /var/lib/postgresql/#{version} /var/ramfs/postgresql/#{version}", sudo: true, assert: false, echo: false, timing: false
             end
+            sh.cmd "apt-get install postgresql-#{version}", sudo: true, echo: true, timing: true
             sh.cmd "service postgresql start #{version}", assert: false, sudo: true, echo: true, timing: true
             [DEFAULT_PORT, DEFAULT_FALLBACK_PORT].each do |pgport|
               sh.cmd "sudo -u postgres createuser -p #{pgport} travis &>/dev/null", assert: false, echo: true, timing: true
