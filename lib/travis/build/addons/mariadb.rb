@@ -23,6 +23,11 @@ module Travis
           end
         end
 
+        def announce
+          super
+          sh.cmd "mysql --skip-column-names -Be 'select VERSION()'"
+        end
+
         private
         def mariadb_version
           config.to_s.shellescape
