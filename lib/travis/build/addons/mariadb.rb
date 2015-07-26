@@ -25,7 +25,6 @@ module Travis
         end
 
         def announce
-          super
           sh.cmd "mysql --skip-column-names -Be 'select VERSION()'"
         end
 
