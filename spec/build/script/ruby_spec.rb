@@ -1,7 +1,8 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Ruby, :sexp do
-  let(:data)   { payload_for(:push, :ruby) }
+  let(:config) { { rvm: 'default', gemfile: 'Gemfile' } }
+  let(:data)   { payload_for(:push, :ruby, :config => config) }
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
   it           { store_example }
