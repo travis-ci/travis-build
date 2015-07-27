@@ -20,8 +20,8 @@ module Travis
             end
             sh.cmd "service postgresql start #{version}", assert: false, sudo: true, echo: true, timing: true
             [DEFAULT_PORT, DEFAULT_FALLBACK_PORT].each do |pgport|
-              sh.cmd "sudo -u postgres createuser -p #{pgport} travis &>/dev/null", assert: false, echo: true, timing: true
-              sh.cmd "sudo -u postgres createdb -p #{pgport} travis &>/dev/null", assert: false, echo: true, timing: true
+              sh.cmd "sudo -u postgres createuser -s -p #{pgport} travis &>/dev/null", assert: false, echo: true, timing: true
+              sh.cmd "sudo -u postgres createdb -O travis -p #{pgport} travis &>/dev/null", assert: false, echo: true, timing: true
             end
           end
         end
