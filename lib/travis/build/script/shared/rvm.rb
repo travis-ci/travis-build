@@ -42,7 +42,7 @@ module Travis
         end
 
         def cache_slug
-          super.tap { |slug| slug << "--#{version_manager}-" << ruby_version.to_s unless chruby? }
+          super.tap { |slug| slug << "--#{version_manager}-" << ruby_version.to_s }
         end
 
         private
@@ -51,7 +51,7 @@ module Travis
             if rvm?
               config[:rvm].to_s
             elsif chruby?
-              config[:chruby].to_s
+              config[:ruby].to_s
             else
               DEFALUT_VERSION
             end

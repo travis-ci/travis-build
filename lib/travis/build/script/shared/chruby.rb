@@ -12,10 +12,6 @@ module Travis
           sh.cmd 'chruby --version' if chruby?
         end
 
-        def cache_slug
-          super.tap { |slug| slug << "--rvm-" << config[:ruby].to_s if chruby? }
-        end
-
         private
 
           def chruby?

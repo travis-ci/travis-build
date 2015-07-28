@@ -50,7 +50,7 @@ describe Travis::Build::Script::Ruby, :sexp do
     end
   end
 
-  describe 'uses chruby if config has a :ruby key set' do
+  context 'config has a :ruby key set' do
     before do
       config[:ruby] = '2.1.1'
     end
@@ -73,6 +73,33 @@ describe Travis::Build::Script::Ruby, :sexp do
 
     it 'does not announce rvm version' do
       should_not include_sexp [:cmd, 'rvm --version', echo: true]
+    end
+
+    describe '#cache_slug' do
+      let(:script) { described_class.new(data) }
+
+      describe 'default' do
+        subject { script.cache_slug }
+        it { is_expected.to eq('cache--chruby-2.1.1--gemfile-Gemfile') }
+      end
+
+      describe 'with custom gemfile' do
+        before { data[:config][:gemfile] = 'Gemfile.ci' }
+        subject { script.cache_slug }
+        it { is_expected.to eq('cache--chruby-2.1.1--gemfile-Gemfile.ci') }
+      end
+
+      describe 'with custom ruby version' do
+        before { data[:config][:ruby] = 'jruby' }
+        subject { script.cache_slug }
+        it { is_expected.to eq('cache--chruby-jruby--gemfile-Gemfile') }
+      end
+
+      describe 'with custom jdk version' do
+        before { data.deep_merge!(config: { ruby: 'jruby', jdk: 'openjdk7' }) }
+        subject { script.cache_slug }
+        it { is_expected.to eq('cache--jdk-openjdk7--chruby-jruby--gemfile-Gemfile') }
+      end
     end
   end
 
