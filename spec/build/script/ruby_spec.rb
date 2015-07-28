@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Ruby, :sexp do
-  let(:config) { { rvm: 'default', gemfile: 'Gemfile' } }
+  let(:config) { { gemfile: 'Gemfile' } }
   let(:data)   { payload_for(:push, :ruby, :config => config) }
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
@@ -52,7 +52,7 @@ describe Travis::Build::Script::Ruby, :sexp do
 
   describe 'uses chruby if config has a :ruby key set' do
     before do
-      data[:config][:ruby] = '2.1.1'
+      config[:ruby] = '2.1.1'
     end
 
     it 'announces the chruby version' do
@@ -60,8 +60,19 @@ describe Travis::Build::Script::Ruby, :sexp do
     end
 
     it 'uses chruby to set the version' do
-      # should include_sexp [:cmd, 'chruby 2.1.1', assert: true, echo: true]
       should include_sexp [:cmd, 'chruby 2.1.1', assert: true, echo: true, timing: true]
+    end
+
+    it 'sets TRAVIS_RUBY_VERSION' do
+      should include_sexp [:export, ['TRAVIS_RUBY_VERSION', '2.1.1']]
+    end
+
+    it 'does not invoke rvm use' do
+      should_not include_sexp [:cmd, "rvm use default", {:assert=>true, :echo=>true, :timing=>true}]
+    end
+
+    it 'does not announce rvm version' do
+      should_not include_sexp [:cmd, 'rvm --version', echo: true]
     end
   end
 
