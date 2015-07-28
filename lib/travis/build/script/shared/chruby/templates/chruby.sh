@@ -121,8 +121,10 @@ function chruby()
 
 		chruby_log "Couldn't find Ruby $version, attempting download"
 
-                ruby="${version%%-*}"
-                ruby="${ruby:-ruby}"
+                ruby="${version%%-*}" # remove trailing '-*'
+                if [[ $ruby == $version ]]; then
+                	ruby='ruby'
+                fi
                 version="${version#$ruby}"
                 version="${version#-}"
 
@@ -141,7 +143,7 @@ function chruby()
 				ln -fs jruby ~/.rvm/rubies/jruby-${version#*-}/bin/ruby
 				;;
 			*)
-				wget -O- https://rubies.travis-ci.org/ubuntu/12.04/x86_64/$ruby-${version}.tar.bz2 | tar -jx -C ~/.rvm/rubies
+				wget -O- https://rubies.travis-ci.org/$(lsb_release -is | tr 'A-Z' 'a-z')/$(lsb_release -rs)/$(uname -m)/$ruby-${version}.tar.bz2 | tar -jx -C ~/.rvm/rubies
 				;;
 		esac
 
