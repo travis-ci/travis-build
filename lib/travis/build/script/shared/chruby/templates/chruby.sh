@@ -109,7 +109,11 @@ function chruby()
 		dir="${dir%%/}"
 		case "${dir##*/}" in
 			"$version")	match="$dir" && break ;;
-			*"$version"*)	match="$dir" ;;
+			*"$version"*)
+				if [[ $match_exact == "false" ]]; then
+					match="$dir"
+				fi
+				;;
 		esac
 	done
 
@@ -148,7 +152,7 @@ function chruby()
 		esac
 
                 RUBIES=(~/.rvm/rubies/*)
-                chruby_attempted_install=true chruby "$@"
+                chruby_attempted_install=true match_exact=false chruby "$@"
 
                 chruby_log "Installing Rake and Bundler"
                 gem install bundler rake
