@@ -20,7 +20,7 @@ module Travis
         def export
           super
           # for now, we take the rvm key if both are defined
-          # see also:`#version` and `#version_manager`
+          # see also:`#version` and `#cache_name_component`
           if rvm?
             sh.export 'TRAVIS_RUBY_VERSION', config[:rvm], echo: false
           elsif config[:ruby]
@@ -42,7 +42,7 @@ module Travis
         end
 
         def cache_slug
-          super.tap { |slug| slug << "--#{version_manager}-" << ruby_version.to_s }
+          super.tap { |slug| slug << "--#{cache_name_component}-" << ruby_version.to_s }
         end
 
         private
@@ -126,11 +126,11 @@ module Travis
             sh.cmd "rvm autolibs disable", echo: false, timing: false
           end
 
-          def version_manager
+          def cache_name_component
             if rvm?
               'rvm'
             elsif chruby?
-              'chruby'
+              'ruby'
             else
               'rvm'
             end

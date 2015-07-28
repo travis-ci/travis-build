@@ -80,25 +80,25 @@ describe Travis::Build::Script::Ruby, :sexp do
 
       describe 'default' do
         subject { script.cache_slug }
-        it { is_expected.to eq('cache--chruby-2.1.1--gemfile-Gemfile') }
+        it { is_expected.to eq('cache--ruby-2.1.1--gemfile-Gemfile') }
       end
 
       describe 'with custom gemfile' do
         before { data[:config][:gemfile] = 'Gemfile.ci' }
         subject { script.cache_slug }
-        it { is_expected.to eq('cache--chruby-2.1.1--gemfile-Gemfile.ci') }
+        it { is_expected.to eq('cache--ruby-2.1.1--gemfile-Gemfile.ci') }
       end
 
       describe 'with custom ruby version' do
         before { data[:config][:ruby] = 'jruby' }
         subject { script.cache_slug }
-        it { is_expected.to eq('cache--chruby-jruby--gemfile-Gemfile') }
+        it { is_expected.to eq('cache--ruby-jruby--gemfile-Gemfile') }
       end
 
       describe 'with custom jdk version' do
         before { data.deep_merge!(config: { ruby: 'jruby', jdk: 'openjdk7' }) }
         subject { script.cache_slug }
-        it { is_expected.to eq('cache--jdk-openjdk7--chruby-jruby--gemfile-Gemfile') }
+        it { is_expected.to eq('cache--jdk-openjdk7--ruby-jruby--gemfile-Gemfile') }
       end
     end
   end
