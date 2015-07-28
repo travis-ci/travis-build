@@ -5,7 +5,7 @@ module Travis
         def setup
           super
           if chruby?
-            sh.raw File.read(File.join(File.expand_path('templates', __FILE__.sub('.rb', '')), 'chruby.sh'))
+            sh.raw File.read(File.join(File.expand_path('templates', __FILE__.sub('.rb', '')), 'chruby.sh')).untaint
             setup_chruby
           end
         end
