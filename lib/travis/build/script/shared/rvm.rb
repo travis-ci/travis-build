@@ -15,7 +15,7 @@ module Travis
           rvm_remote_server_verify_downloads3=1
         )
 
-        DEFALUT_VERSION = 'default'
+        DEFAULT_VERSION = 'default'
 
         def export
           super
@@ -26,7 +26,7 @@ module Travis
           elsif config[:ruby]
             sh.export 'TRAVIS_RUBY_VERSION', config[:ruby], echo: false
           else
-            sh.export 'TRAVIS_RUBY_VERSION', DEFALUT_VERSION, echo: false
+            sh.export 'TRAVIS_RUBY_VERSION', DEFAULT_VERSION, echo: false
           end
         end
 
@@ -53,7 +53,7 @@ module Travis
             elsif chruby?
               config[:ruby].to_s
             else
-              DEFALUT_VERSION
+              DEFAULT_VERSION
             end
           end
 
