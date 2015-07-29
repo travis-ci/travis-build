@@ -93,7 +93,7 @@ module Travis
               osarch = 'osx/x64'
               ext = "#{status}.dmg"
             end
-            case config[:julia]
+            case config[:julia].to_s
             when 'release'
               url = "status.julialang.org/stable/#{status}"
             when 'nightly'
