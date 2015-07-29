@@ -20,6 +20,7 @@ module Travis
             sh.cmd "apt-get install -o Dpkg::Options::='--force-confnew' mariadb-server", sudo: true, echo: true, timing: true
             sh.echo "Starting MariaDB v#{mariadb_version}", ansi: :yellow
             sh.cmd "service mysql start", sudo: true, assert: false, echo: true, timing: true
+            sh.cmd "mysql --version", assert: false, echo: true
           end
         end
 
