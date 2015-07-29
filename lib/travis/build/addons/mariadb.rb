@@ -21,6 +21,11 @@ module Travis
             sh.echo "Starting MariaDB v#{mariadb_version}", ansi: :yellow
             sh.cmd "service mysql start", sudo: true, assert: false, echo: true, timing: true
           end
+          announce
+        end
+
+        def announce
+          sh.cmd "mysql --skip-column-names -Be 'select VERSION()'"
         end
 
         private

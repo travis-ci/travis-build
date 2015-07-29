@@ -22,4 +22,11 @@ describe Travis::Build::Addons::Mariadb, :sexp do
   it { should include_sexp [:cmd, "apt-get install -o Dpkg::Options::='--force-confnew' mariadb-server", sudo: true, echo: true, timing: true] }
   it { should include_sexp [:cmd, "service mysql start", sudo: true, echo: true, timing: true] }
 
+  it 'announces version' do
+    should include_sexp [:cmd, /VERSION\(\)/, echo: true]
+  end
+
+  it 'announces version which contains MariaDB' do
+    should include_sexp [:cmd, /MariaDB/, echo: true]
+  end
 end
