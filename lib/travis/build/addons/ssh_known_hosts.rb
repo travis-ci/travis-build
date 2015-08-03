@@ -39,7 +39,7 @@ module Travis
                   next
                 end
 
-                ssh_keyscan_command = "ssh-keyscan -t rsa,dsa"
+                ssh_keyscan_command = "ssh-keyscan -t rsa,dsa,ecdsa"
                 ssh_keyscan_command << " -p #{Shellwords.escape(host_uri.port)}" if host_uri.port
                 ssh_keyscan_command << " -H #{Shellwords.escape(host_uri.host)}"
                 sh.cmd "#{ssh_keyscan_command} 2>&1 | tee -a #{Travis::Build::HOME_DIR}/.ssh/known_hosts", echo: true, timing: true
