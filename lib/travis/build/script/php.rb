@@ -24,6 +24,7 @@ module Travis
             install_php_on_demand(version)
             sh.cmd "phpenv global #{version}", assert: true
           end
+          sh.cmd "phpenv rehash", assert: false, echo: false, timing: false
         end
 
         def announce
