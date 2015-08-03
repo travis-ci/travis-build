@@ -19,6 +19,7 @@ describe Travis::Build::Script::Php, :sexp do
 
   it 'sets up the php version' do
     should include_sexp [:cmd, 'phpenv global 5.5 2>/dev/null', echo: true, timing: true]
+    should include_sexp [:cmd, 'phpenv rehash']
   end
 
   it 'announces php --version' do
