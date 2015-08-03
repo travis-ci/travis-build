@@ -19,14 +19,11 @@ module Travis
 
         def setup
           super
-          if version == 'nightly'
-            install_php_nightly
+          sh.cmd "phpenv global #{version} 2>/dev/null", assert: false
+          sh.if "$? -ne 0" do
+            install_php_on_demand(version)
+            sh.cmd "phpenv global #{version}", assert: true
           end
-
-          if version == '7' || version == '7.0'
-            setup_nightly_alias(version)
-          end
-          sh.cmd "phpenv global #{version}", assert: true
         end
 
         def announce
@@ -104,14 +101,17 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
           sh.raw "grep session.save_path #{ini_file_path} | cut -d= -f2 | sudo xargs mkdir -m 01733 -p"
         end
 
-        def install_php_nightly
-          sh.cmd 'curl -s -o php-nightly-archive.tar.bz2 https://s3.amazonaws.com/travis-php-archives/php-nightly-archive.tar.bz2', echo: false
-          sh.cmd 'tar xjf php-nightly-archive.tar.bz2 --directory ~/.phpenv/versions/', echo: false
-          sh.cmd 'rm php-nightly-archive.tar.bz2', echo: false
+        def install_php_on_demand(version='nightly')
+          sh.echo "#{version} is not pre-installed; installing", ansi: :yellow
+          if version == '7' || version == '7.0'
+            setup_nightly_alias(version)
+            version = 'nightly'
+          end
+          sh.cmd "curl -s -o archive.tar.bz2 https://s3.amazonaws.com/travis-php-archives/php-#{version}-archive.tar.bz2 && tar xjf archive.tar.bz2 --directory ~/.phpenv/versions/", echo: false, assert: false
+          sh.cmd "rm -f archive.tar.bz2", echo: false
         end
 
         def setup_nightly_alias(version)
-          install_php_nightly
           sh.cmd "ln -s ~/.phpenv/versions/nightly ~/.phpenv/versions/#{version}", echo: false
         end
       end
