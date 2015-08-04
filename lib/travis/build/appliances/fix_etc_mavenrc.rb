@@ -6,6 +6,7 @@ module Travis
       class FixEtcMavenrc < Base
         def apply
           sh.raw %(test -f /etc/mavenrc && sudo sed -e 's/M2_HOME=\\(.\\+\\)$/M2_HOME=${M2_HOME:-\\1}/' -i'.bak' /etc/mavenrc)
+          sh.raw %(test -f /etc/mavenrc && sudo sed -e 's/MAVEN_OPTS=\\(.\\+\\)$/MAVEN_OPTS=${MAVEN_OPTS:-\\1}/' -i'.bak' /etc/mavenrc)
         end
       end
     end
