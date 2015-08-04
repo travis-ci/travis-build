@@ -41,7 +41,6 @@ module Travis
         end
 
         def setup
-          super
           sh.cmd %Q'eval "$(gimme #{go_version})"'
 
           # NOTE: $GOPATH is a plural ":"-separated var a la $PATH.  We export
@@ -56,6 +55,12 @@ module Travis
 
           sh.export "TRAVIS_BUILD_DIR", "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}"
           sh.cd "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}", assert: true
+
+          # Defer setting up cache until we have changed directories, so that
+          # cache.directories can be properly resolved relative to the directory
+          # in which the user-controlled portion of the build starts
+          # See https://github.com/travis-ci/travis-ci/issues/3055
+          super
         end
 
         def install
