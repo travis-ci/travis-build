@@ -24,22 +24,29 @@ module Travis
           sh.fold('mono-install') do
             if mono_version_valid?
               sh.echo 'Installing Mono', ansi: :yellow
-
-              if is_mono_2_10_8
-                sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
-                sh.cmd 'sudo apt-get install -qq mono-complete mono-vbnc', timing: true, assert: true
-              elsif is_mono_3_2_8
-                sh.cmd 'sudo apt-add-repository ppa:directhex/ppa -y', assert: true # Official ppa of the mono debian maintainer
-                sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
-                sh.cmd 'sudo apt-get install -qq mono-complete mono-vbnc fsharp', timing: true, assert: true
-              else
-                sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF', echo: false, assert: true
-                mono_repos.each do |repo|
-                  sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian #{repo} main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false, assert: true
+              case config[:os]
+              when 'linux'
+                if is_mono_2_10_8
+                  sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
+                  sh.cmd 'sudo apt-get install -qq mono-complete mono-vbnc', timing: true, assert: true
+                elsif is_mono_3_2_8
+                  sh.cmd 'sudo apt-add-repository ppa:directhex/ppa -y', assert: true # Official ppa of the mono debian maintainer
+                  sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
+                  sh.cmd 'sudo apt-get install -qq mono-complete mono-vbnc fsharp', timing: true, assert: true
+                else
+                  sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF', echo: false, assert: true
+                  mono_repos.each do |repo|
+                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian #{repo} main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false, assert: true
+                  end
+                  sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
+                  sh.cmd "sudo apt-get install -qq mono-complete mono-vbnc fsharp nuget #{'referenceassemblies-pcl' if !is_mono_3_8_0}", timing: true, assert: true
+                                                                                        # PCL Assemblies only supported on mono 3.10 and greater
                 end
-                sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
-                sh.cmd "sudo apt-get install -qq mono-complete mono-vbnc fsharp nuget #{'referenceassemblies-pcl' if !is_mono_3_8_0}", timing: true, assert: true
-                                                                                      # PCL Assemblies only supported on mono 3.10 and greater
+              when 'osx'
+                sh.cmd "curl -o \"/tmp/mdk.pkg\" -L #{mono_osx_url}", timing: true, assert: true
+                sh.cmd 'sudo installer -package "/tmp/mdk.pkg" -target "/"', timing: true, assert: true
+              else
+                sh.failure "Operating system not supported: #{config[:os]}"
               end
 
               sh.cmd 'mozroots --import --sync --quiet', timing: true
@@ -51,8 +58,8 @@ module Travis
           super
 
           unless mono_version_valid?
-            sh.echo "\"#{config[:mono]}\" is not a valid version of mono.", ansi: :red
-            sh.cmd 'false', echo: false, timing: false
+            sh.failure "\"#{config[:mono]}\" is either a invalid version of mono or unsupported on #{config[:os]}.
+View valid versions of mono at http://docs.travis-ci.com/user/languages/csharp/"
           end
         end
 
@@ -78,8 +85,7 @@ module Travis
           if config[:solution]
             sh.cmd "xbuild /p:Configuration=Release #{config[:solution]}", timing: true
           else
-            sh.echo 'No solution or script defined, exiting', ansi: :red
-            sh.cmd 'false', echo: false, timing: false
+            sh.failure 'No solution or script defined, exiting'
           end
         end
 
@@ -105,12 +111,29 @@ module Travis
           repos
         end
 
+        def mono_osx_url
+          base_url = 'http://download.mono-project.com/archive/'
+
+          case config[:mono]
+          when 'latest'
+            return base_url + 'mdk-latest.pkg'
+          when 'alpha'
+            return base_url + 'mdk-latest-alpha.pkg'
+          when 'beta'
+            return base_url + 'mdk-latest-beta.pkg'
+          when 'weekly', 'nightly'
+            return base_url + 'mdk-latest-weekly.pkg'
+          else
+            return base_url + config[:mono] + "/macos-10-x86/MonoFramework-MDK-#{config[:mono]}.macos10.xamarin.x86.pkg"
+          end
+        end
+
         def mono_version_valid?
           return true if ['latest', 'alpha', 'beta', 'weekly', 'nightly'].include? config[:mono]
           return false unless MONO_VERSION_REGEXP === config[:mono]
 
-          return false if MONO_VERSION_REGEXP.match(config[:mono])[1] == '2' && !is_mono_2_10_8
-          return false if MONO_VERSION_REGEXP.match(config[:mono])[1].to_i < 2
+          return false if MONO_VERSION_REGEXP.match(config[:mono])[1] == '2' && !is_mono_2_10_8 && config[:os] == 'linux'
+          return false if MONO_VERSION_REGEXP.match(config[:mono])[1].to_i < 2 && config[:os] == 'linux'
 
           true
         end
