@@ -28,6 +28,21 @@ describe Travis::Build::Addons::Firefox, :sexp do
     it { should include_sexp [:cd, :back, stack: true] }
   end
 
+  context 'given a valid version "latest"' do
+    let(:config) { 'latest' }
+    it { should include_sexp [:cmd, 'sudo ln -sf $HOME/firefox-latest/firefox/firefox /usr/local/bin/firefox'] }
+  end
+
+  context 'given a valid version "latest-beta"' do
+    let(:config) { 'latest-beta' }
+    it { should include_sexp [:cmd, 'sudo ln -sf $HOME/firefox-latest-beta/firefox/firefox /usr/local/bin/firefox'] }
+  end
+
+  context 'given a valid version "latest-esr"' do
+    let(:config) { 'latest-esr' }
+    it { should include_sexp [:cmd, 'sudo ln -sf $HOME/firefox-latest-esr/firefox/firefox /usr/local/bin/firefox'] }
+  end
+
   context 'given a invalid version string' do
     let(:config) { '20.0; sudo rm -rf /' }
 

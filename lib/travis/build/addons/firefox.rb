@@ -35,7 +35,7 @@ module Travis
           end
 
           def sanitize(input)
-            (m = /\A(?<version>[\d\.]+(?:esr)?)\z/.match(input.chomp)) && m[:version]
+            (m = /\A(?<version>[\d\.]+(?:esr)?|latest(?:-(?:beta|esr))?)\z/.match(input.chomp)) && m[:version]
           end
 
           def install_dir
