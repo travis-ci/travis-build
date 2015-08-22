@@ -37,7 +37,6 @@ module Travis
         after_deploy:   { assert: false, echo: true,  timing: true  },
         before_finish:  { assert: true,  echo: true,  timing: true  },
         finish:         { assert: true,  echo: true,  timing: true  },
-        before_finish:  { assert: true,  echo: true,  timing: true  }
       }
 
       attr_reader :script, :sh, :config
