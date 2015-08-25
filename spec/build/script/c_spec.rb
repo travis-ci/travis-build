@@ -35,7 +35,7 @@ describe Travis::Build::Script::C, :sexp do
 
     describe '#export' do
       it 'prepends /usr/lib/ccache/bin to PATH' do
-        should include_sexp [:export, ['PATH', '/usr/lib/ccache/bin:$PATH'], echo: true]
+        should include_sexp [:export, ['PATH', '/usr/lib/ccache:$PATH'], echo: true]
       end
     end
   end

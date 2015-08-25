@@ -10,7 +10,7 @@ module Travis
           super
           sh.export 'CC', compiler
           if data.cache?(:ccache)
-            sh.export 'PATH', "/usr/lib/ccache/bin:$PATH"
+            sh.export 'PATH', "/usr/lib/ccache:$PATH"
           end
         end
 
