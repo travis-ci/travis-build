@@ -108,20 +108,7 @@ module Travis
 
             def install(edge = config[:edge])
               if edge.respond_to? :fetch
-                begin
-                  owner  = 'travis-ci'
-                  repo   = 'dpl'
-                  branch = edge.fetch(:branch, 'master')
-
-                  sh.cmd("git clone https://github.com/#{owner}/#{repo}", echo: false, assert: !allow_failure, timing: true)
-                  sh.cmd("cd dpl",                                        echo: false, assert: !allow_failure, timing: true)
-                  sh.cmd("git checkout #{branch}",                        echo: false, assert: !allow_failure, timing: true)
-                  cmd("gem build dpl.gemspec",                            echo: false, assert: !allow_failure, timing: true)
-                  sh.cmd("mv dpl-*.gem ..",                               echo: false, assert: !allow_failure, timing: true)
-                  sh.cmd("cd ..",                                         echo: false, assert: !allow_failure, timing: true)
-                ensure
-                  sh.cmd("test -e dpl && rm -rf dpl", echo: false, assert: false, timing: true)
-                end
+                deploy_with_branch(edge.fetch(:branch, 'master'))
               end
               command = "gem install dpl"
               command << "-*.gem --local" if edge == 'local' || edge.respond_to?(:fetch)
@@ -167,6 +154,20 @@ module Travis
 
             def negate_condition(conditions)
               Array(conditions).flatten.compact.map { |condition| " ! #{condition}" }.join(" && ")
+            end
+
+            def deploy_with_branch(branch)
+              owner  = 'travis-ci'
+              repo   = 'dpl'
+
+              sh.cmd("git clone https://github.com/#{owner}/#{repo}", echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("cd dpl",                                        echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("git checkout #{branch}",                        echo: false, assert: !allow_failure, timing: true)
+              cmd("gem build dpl.gemspec",                            echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("mv dpl-*.gem ..",                               echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("cd ..",                                         echo: false, assert: !allow_failure, timing: true)
+            ensure
+              sh.cmd("test -e dpl && rm -rf dpl", echo: false, assert: false, timing: true)
             end
         end
       end
