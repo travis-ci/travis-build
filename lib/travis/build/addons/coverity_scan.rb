@@ -70,7 +70,7 @@ SH
           sh.if "${TRAVIS_TEST_RESULT} = 0", echo: true do
             sh.fold('build_coverity') do
               env = []
-              env << "COVERITY_SCAN_PROJECT_NAME=\"$TRAVIS_REPO_SLUG\""
+              env << "COVERITY_SCAN_PROJECT_NAME=\"$PROJECT_NAME\""
               env << "COVERITY_SCAN_NOTIFICATION_EMAIL=\"#{@config[:notification_email]}\""
               env << "COVERITY_SCAN_BUILD_COMMAND=\"#{@config[:build_command]}\""
               env << "COVERITY_SCAN_BUILD_COMMAND_PREPEND=\"#{@config[:build_command_prepend]}\""
