@@ -17,6 +17,8 @@ before_deploy: ruby script/build_s3_index_html.rb
 
 deploy:
   provider: s3
+  edge:
+    branch: ha-test-s3-aws-sdk-v2
   access_key_id:
     secure: bxFEFpuTK00a/ZKQJK9B3ausZweNSd5ZmaeKSk9ozSkaXtqIQEt56C3hlq62PEyltXnnZhirbtYjw9QIrgggMhupKQCkwXEB7l/zgq/y9BDjDNZK8PW2YsJUkLIM5K3hITbW2zgWLJX7zic9W0EHQdoSZ7NW4FlNg47FlyIIJss=
   secret_access_key:
