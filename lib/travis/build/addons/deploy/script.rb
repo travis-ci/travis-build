@@ -157,8 +157,8 @@ module Travis
             end
 
             def build_gem_locally_from(source, branch)
-              sh.echo "Building dpl gem locally", ansi: :yellow
-              sh.cmd("pushd $TMPDIR",                          echo: false, assert: !allow_failure, timing: true)
+              sh.echo "Building dpl gem locally with source #{source} and branch #{branch}", ansi: :yellow
+              sh.cmd("pushd /tmp",                             echo: false, assert: !allow_failure, timing: true)
               sh.cmd("git clone https://github.com/#{source}", echo: false, assert: !allow_failure, timing: true)
               sh.cmd("cd dpl",                                 echo: false, assert: !allow_failure, timing: true)
               sh.cmd("git checkout #{branch}",                 echo: false, assert: !allow_failure, timing: true)
@@ -166,7 +166,7 @@ module Travis
               sh.cmd("mv dpl-*.gem $TRAVIS_BUILD_DIR",         echo: false, assert: !allow_failure, timing: true)
               sh.cmd("popd",                                   echo: false, assert: !allow_failure, timing: true)
             ensure
-              sh.cmd("test -e dpl && rm -rf dpl", echo: false, assert: false, timing: true)
+              sh.cmd("test -e /tmp/dpl && rm -rf dpl", echo: false, assert: false, timing: true)
             end
         end
       end
