@@ -75,7 +75,7 @@ module Travis
             sh.cmd 'true', retry: true, fold: 'install' # TODO instead negate the condition
           end
           sh.else do
-            sh.cmd "#{go_get_cmd} #{config[:gobuild_args]} ./...", retry: true, fold: 'install'
+            sh.cmd "#{go_get_cmd} #{gobuild_args} ./...", retry: true, fold: 'install'
           end
         end
 
@@ -84,7 +84,7 @@ module Travis
             sh.cmd 'make'
           end
           sh.else do
-            sh.cmd "go test #{config[:gobuild_args]} ./..."
+            sh.cmd "go test #{gobuild_args} ./..."
           end
         end
 
