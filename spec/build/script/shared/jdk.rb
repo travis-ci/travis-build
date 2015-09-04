@@ -20,6 +20,10 @@ shared_examples_for 'a jdk build sexp' do
     it 'does not run jdk_switcher' do
       should_not include_sexp run_jdk_switcher
     end
+
+    it 'sets JAVA_TOOL_OPTIONS' do
+      should include_sexp [:export, ['JAVA_TOOL_OPTIONS', '-Xmx512m'], echo: true]
+    end
   end
 
   describe 'if jdk is given' do
