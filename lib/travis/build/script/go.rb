@@ -51,11 +51,11 @@ module Travis
           sh.export 'GOPATH', "#{HOME_DIR}/gopath", echo: true
           sh.export 'PATH', "#{HOME_DIR}/gopath/bin:$PATH", echo: true
 
-          sh.mkdir "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}", recursive: true, assert: false, timing: false
-          sh.cmd "rsync -az ${TRAVIS_BUILD_DIR}/ #{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}/", assert: false, timing: false
+          sh.mkdir "#{HOME_DIR}/gopath/src/#{go_import_path}", recursive: true, assert: false, timing: false
+          sh.cmd "rsync -az ${TRAVIS_BUILD_DIR}/ #{HOME_DIR}/gopath/src/#{go_import_path}/", assert: false, timing: false
 
-          sh.export "TRAVIS_BUILD_DIR", "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}"
-          sh.cd "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}", assert: true
+          sh.export "TRAVIS_BUILD_DIR", "#{HOME_DIR}/gopath/src/#{go_import_path}"
+          sh.cd "#{HOME_DIR}/gopath/src/#{go_import_path}", assert: true
         end
 
         def install
@@ -100,6 +100,10 @@ module Travis
 
           def gobuild_args
             config[:gobuild_args]
+          end
+
+          def go_import_path
+            config[:go_import_path] || "#{data.source_host}/#{data.slug}"
           end
 
           def go_version
