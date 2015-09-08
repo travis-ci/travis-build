@@ -120,11 +120,11 @@ module Travis
 
           # latest GDC
           when 'gdc'
-            sh.cmd 'LATEST_GDC=$(curl http://ftp.digitalmars.com/LATEST_GDC)', echo: false
+            sh.cmd 'LATEST_GDC=$(curl http://gdcproject.org/downloads/LATEST)', echo: false
             "http://gdcproject.org/downloads/binaries/#{gdc_host_triplet os}/gdc-${LATEST_GDC}.tar.xz"
 
-          # gdc-4.8.2 or gdc-4.9.0-alpha1
-          when /^gdc-(\d+\.\d+\.\d+(-.*)?)$/
+          # gdc-4.8.2, gdc-4.9.0-alpha1, gdc-5.2, or gdc-5.2-alpha1
+          when /^gdc-(\d+\.\d+(\.\d+)?(-.*)?)$/
             "http://gdcproject.org/downloads/binaries/#{gdc_host_triplet os}/gdc-#{$1}.tar.xz"
           end
         end

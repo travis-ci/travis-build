@@ -16,15 +16,15 @@ module Travis
           sh.export 'SAUCE_ACCESS_KEY', access_key, echo: false if access_key
 
           if direct_domains
-            sh.export 'SAUCE_DIRECT_DOMAINS', "-D #{direct_domains}", echo: false
+            sh.export 'SAUCE_DIRECT_DOMAINS', "'-D #{direct_domains}'", echo: false
           end
 
           if no_ssl_bump_domains
-            sh.export 'SAUCE_NO_SSL_BUMP_DOMAINS', "-B #{no_ssl_bump_domains}", echo: false
+            sh.export 'SAUCE_NO_SSL_BUMP_DOMAINS', "'-B #{no_ssl_bump_domains}'", echo: false
           end
 
           if tunnel_domains
-            sh.export 'SAUCE_TUNNEL_DOMAINS', "-t #{tunnel_domains}", echo: false
+            sh.export 'SAUCE_TUNNEL_DOMAINS', "'-t #{tunnel_domains}'", echo: false
           end
 
           sh.fold 'sauce_connect.start' do

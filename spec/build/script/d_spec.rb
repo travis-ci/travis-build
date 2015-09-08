@@ -181,4 +181,17 @@ describe Travis::Build::Script::D, :sexp do
                            assert: true, echo: true, timing: true]
     end
   end
+
+  context 'when a gdc 5.x version is configured' do
+    before do
+      data[:config][:d] = 'gdc-5.2'
+    end
+
+    it_behaves_like 'gdc'
+
+    it 'downloads and installs gdc' do
+      should include_sexp [:cmd, %r{gdcproject\.org/downloads/.*5\.2.*\.tar\..*},
+                           assert: true, echo: true, timing: true]
+    end
+  end
 end

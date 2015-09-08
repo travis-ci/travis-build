@@ -84,6 +84,7 @@ module Travis
       def failure(message)
         export 'TRAVIS_CMD', 'no_script', echo: false
         echo message
+        raw 'set -e'
         raw 'false'
       end
 
