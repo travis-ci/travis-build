@@ -46,11 +46,11 @@ module Travis
         private
 
           def gemfile?
-            "-f #{config[:gemfile]}"
+            "-f ${BUNDLE_GEMFILE:-#{config[:gemfile]}}"
           end
 
           def gemfile_lock?
-            "-f #{config[:gemfile]}.lock"
+            "-f ${BUNDLE_GEMFILE:-#{config[:gemfile]}}.lock"
           end
 
           def gemfile_path(*path)
