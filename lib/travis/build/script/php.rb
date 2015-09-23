@@ -74,12 +74,24 @@ module Travis
         end
 
         def configure_hhvm
-          install_hhvm_nightly if nightly?
+          if nightly?
+            install_hhvm_nightly
+          elsif hhvm?
+            update_hhvm
+          end
           fix_hhvm_php_ini
         end
 
+        def update_hhvm
+          sh.if '"$(lsb_release -sc &> /dev/null)" = "precise"' do
+            sh.echo 'Updating HHVM', ansi: :yellow
+            sh.cmd 'sudo apt-get update -qq'
+            sh.cmd 'sudo apt-get install hhvm 2>&1 >/dev/null'
+          end
+        end
+
         def install_hhvm_nightly
-          sh.if '$(lsb_release -sc) = "precise"' do
+          sh.if '"$(lsb_release -sc &> /dev/null)" = "precise"' do
             sh.echo "HHVM nightly is no longer supported on Ubuntu Precise. See https://github.com/travis-ci/travis-ci/issues/3788 and https://github.com/facebook/hhvm/issues/5220", ansi: :yellow
             sh.raw "travis_terminate 1"
           end
