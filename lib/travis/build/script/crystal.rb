@@ -5,6 +5,7 @@ module Travis
 
         def configure
           super
+
           sh.fold 'crystal_install' do
             sh.echo 'Installing Crystal', ansi: :yellow
 
@@ -13,6 +14,13 @@ module Travis
             sh.cmd %q(sudo sh -c 'apt-get update')
 
             sh.cmd %q(sudo apt-get install crystal)
+
+            sh.echo 'Installing Shards', ansi: :yellow
+
+            sh.cmd %q(curl -sL https://github.com/ysbaddaden/shards/releases/latest | \
+                      egrep -o '/ysbaddaden/shards/releases/download/v[0-9\.]*/shards.*linux_amd64.tar.gz' | \
+                      wget --base=http://github.com/ -i - -O - | \
+                      sudo tar xz -C /usr/local/bin)
           end
         end
 
@@ -29,11 +37,12 @@ module Travis
           super
 
           sh.cmd 'crystal --version'
+          sh.cmd 'crystal deps --version'
           sh.echo ''
         end
 
         def install
-          sh.if '-f Projectfile' do
+          sh.if '-f shard.yml' do
             sh.cmd "crystal deps"
           end
         end
