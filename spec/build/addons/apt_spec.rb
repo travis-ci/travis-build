@@ -163,7 +163,7 @@ describe Travis::Build::Addons::Apt, :sexp do
     end
 
     def apt_sources_append_command(sourceline)
-      "echo '#{sourceline.inspect}' | sudo tee -a /etc/apt/sources.list > /dev/null"
+      "echo #{sourceline.inspect} | sudo tee -a /etc/apt/sources.list > /dev/null"
     end
 
     def apt_key_add_command(key_url)

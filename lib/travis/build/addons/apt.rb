@@ -97,7 +97,7 @@ module Travis
                   sh.cmd "sudo -E apt-add-repository -y #{source['sourceline'].untaint.inspect}", echo: true, assert: true, timing: true
                 else
                   # Avoid adding deb-src lines to work around https://bugs.launchpad.net/ubuntu/+source/software-properties/+bug/987264
-                  sh.cmd "echo '#{source['sourceline'].untaint.inspect}' | sudo tee -a /etc/apt/sources.list > /dev/null", echo: true, assert: true, timing: true
+                  sh.cmd "echo #{source['sourceline'].untaint.inspect} | sudo tee -a /etc/apt/sources.list > /dev/null", echo: true, assert: true, timing: true
                 end
               end
             end
