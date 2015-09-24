@@ -162,6 +162,10 @@ describe Travis::Build::Addons::Apt, :sexp do
       "sudo -E apt-add-repository -y #{sourceline.inspect}"
     end
 
+    def apt_sources_append_command(sourceline)
+      "echo '#{sourceline.inspect}' | sudo tee -a /etc/apt/sources.list > /dev/null"
+    end
+
     def apt_key_add_command(key_url)
       "curl -sSL #{key_url.inspect} | sudo -E apt-key add -"
     end
@@ -176,7 +180,7 @@ describe Travis::Build::Addons::Apt, :sexp do
     context 'with multiple sources, some whitelisted' do
       let(:config) { { sources: ['packagecloud-precise', 'deadsnakes-precise', 'evilbadthings'] } }
 
-      it { should include_sexp [:cmd, apt_add_repository_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
+      it { should include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
       it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
       it { should include_sexp [:cmd, apt_key_add_command(packagecloud['key_url']), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_key_add_command(deadsnakes['key_url']), echo: true, assert: true, timing: true] }
@@ -185,7 +189,7 @@ describe Travis::Build::Addons::Apt, :sexp do
     context 'with singular whitelisted source' do
       let(:config) { { sources: 'packagecloud-precise' } }
 
-      it { should include_sexp [:cmd, apt_add_repository_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
+      it { should include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
     end
 
     context 'with no whitelisted sources' do
