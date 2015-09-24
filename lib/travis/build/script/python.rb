@@ -37,10 +37,13 @@ module Travis
           sh.cmd 'pip --version'
         end
 
-        def install
+        def setup_cache
           if data.cache?(:pip)
             directory_cache.add '$HOME/.cache/pip'
           end
+        end
+
+        def install
           sh.if '-f Requirements.txt' do
             sh.cmd 'pip install -r Requirements.txt', fold: 'install', retry: true
           end

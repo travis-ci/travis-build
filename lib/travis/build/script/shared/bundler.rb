@@ -21,7 +21,7 @@ module Travis
           sh.cmd 'bundle --version'
         end
 
-        def install
+        def setup_cache
           sh.if gemfile? do
             sh.if gemfile_lock? do
               directory_cache.add(bundler_path(false)) if data.cache?(:bundler)

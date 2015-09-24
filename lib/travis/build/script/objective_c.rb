@@ -44,10 +44,16 @@ module Travis
           sh.cmd 'chmod +x /usr/local/bin/actool', echo: false
         end
 
-        def install
+        def setup_cache
           super
           sh.if podfile? do
             directory_cache.add("#{pod_dir}/Pods") if data.cache?(:cocoapods)
+          end
+        end
+
+        def install
+          super
+          sh.if podfile? do
             sh.if "! ([[ -f #{pod_dir}/Podfile.lock && -f #{pod_dir}/Pods/Manifest.lock ]] && cmp --silent #{pod_dir}/Podfile.lock #{pod_dir}/Pods/Manifest.lock)", raw: true do
               sh.fold('install.cocoapods') do
                 sh.echo "Installing Pods with 'pod install'", ansi: :yellow
