@@ -11,12 +11,15 @@ module Travis
           sh.export 'TRAVIS_PERL_VERSION', version, echo: false
         end
 
-        def setup
-          super
+        def configure
           sh.if "! -x $HOME/perl5/perlbrew/perls/#{version}/bin/perl" do
             sh.echo "#{version} is not installed; attempting download", ansi: :yellow
             install_perl_archive(version)
           end
+        end
+
+        def setup
+          super
           sh.cmd "perlbrew use #{version}", assert: false
         end
 
