@@ -13,6 +13,10 @@ module Travis
 
         def setup
           super
+          sh.if "! -x $HOME/perl5/perlbrew/perls/#{version}/bin/perl" do
+            sh.echo "#{version} is not installed; attempting download", ansi: :yellow
+            install_perl_archive(version)
+          end
           sh.cmd "perlbrew use #{version}", assert: false
         end
 
@@ -52,6 +56,13 @@ module Travis
           version = config[:perl].to_s
           VERSIONS[version] || version
         end
+
+        def install_perl_archive(version)
+          sh.cmd "curl -s -o perl-#{version}.tar.bz2 https://s3.amazonaws.com/travis-perl-archives/$(lsb_release -rs)/perl-#{version}.tar.bz2", echo: false
+          sh.cmd "sudo tar xjf perl-#{version}.tar.bz2 --directory /", echo: false
+          sh.cmd "rm perl-#{version}.tar.bz2", echo: false
+        end
+
       end
     end
   end
