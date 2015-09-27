@@ -36,6 +36,7 @@ export MIX_ARCHIVES=#{KIEX_MIX_HOME}elixir-#{elixir_version}' > #{KIEX_ELIXIR_HO
         def install
           sh.cmd 'mix local.hex --force'
           sh.cmd 'mix deps.get'
+          sh.cmd 'MIX_ENV=test mix compile'
         end
 
         def script
