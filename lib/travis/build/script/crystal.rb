@@ -17,10 +17,11 @@ module Travis
 
             sh.echo 'Installing Shards', ansi: :yellow
 
-            sh.cmd %q(curl -sL https://github.com/ysbaddaden/shards/releases/latest | \
-                      egrep -o '/ysbaddaden/shards/releases/download/v[0-9\.]*/shards.*linux_amd64.tar.gz' | \
+            sh.cmd %q(sudo sh -c "curl -sL https://github.com/ysbaddaden/shards/releases/latest | \
+                      egrep -o '/ysbaddaden/shards/releases/download/v[0-9\.]*/shards.*linux_.*64.gz' | \
                       wget --base=http://github.com/ -i - -O - | \
-                      sudo tar xz -C /usr/local/bin)
+                      gunzip > /usr/local/bin/shards && \
+                      chmod +x /usr/local/bin/shards")
           end
         end
 

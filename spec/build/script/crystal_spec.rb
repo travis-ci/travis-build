@@ -11,7 +11,7 @@ describe Travis::Build::Script::Crystal, :sexp do
     should include_sexp [:cmd, "crystal --version", echo: true]
   end
 
-  it "announces `crystal deps --version" do
+  it "announces `crystal deps --version`" do
     should include_sexp [:cmd, "crystal deps --version", echo: true]
   end
 
