@@ -60,12 +60,17 @@ export MIX_ARCHIVES=#{KIEX_MIX_HOME}elixir-#{elixir_version}' > #{KIEX_ELIXIR_HO
         end
 
         def otp_release_requirement_satisfied?
-          ( elixir_1_2_0_or_higher? &&  otp_release_18_0_or_higher?) ||
-          (!elixir_1_2_0_or_higher? && !otp_release_18_0_or_higher?)
+          !( elixir_1_0_x? &&  otp_release_18_0_or_higher?) &&
+          !( elixir_1_2_0_or_higher? && !otp_release_18_0_or_higher?)
         end
 
         def elixir_1_2_0_or_higher?
           Gem::Version.new(elixir_version) > Gem::Version.new('1.1.999') # use this for pre-release 1.2.0
+        end
+
+        def elixir_1_0_x?
+          Gem::Version.new(elixir_version) < Gem::Version.new('1.1') &&
+          Gem::Version.new(elixir_version) >= Gem::Version.new('1.0.0')
         end
 
         def otp_release_18_0_or_higher?
