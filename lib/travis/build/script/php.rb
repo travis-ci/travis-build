@@ -117,15 +117,15 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
         def install_php_on_demand(version='nightly')
           sh.echo "#{version} is not pre-installed; installing", ansi: :yellow
           if version == '7' || version == '7.0'
-            setup_nightly_alias(version)
-            version = 'nightly'
+            setup_alias(version, '7.0snapshot')
+            version = '7.0snapshot'
           end
           sh.cmd "curl -s -o archive.tar.bz2 https://s3.amazonaws.com/travis-php-archives/php-#{version}-archive.tar.bz2 && tar xjf archive.tar.bz2 --directory ~/.phpenv/versions/", echo: false, assert: false
           sh.cmd "rm -f archive.tar.bz2", echo: false
         end
 
-        def setup_nightly_alias(version)
-          sh.cmd "ln -s ~/.phpenv/versions/nightly ~/.phpenv/versions/#{version}", echo: false
+        def setup_alias(from, to)
+          sh.cmd "ln -s ~/.phpenv/versions/#{to} ~/.phpenv/versions/#{from}", echo: false
         end
       end
     end
