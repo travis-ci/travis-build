@@ -10,10 +10,16 @@ module Travis
             sh.echo 'Installing Crystal', ansi: :yellow
 
             sh.cmd %q(sudo sh -c 'apt-key adv --keyserver keys.gnupg.net --recv-keys 09617FD37CC06B54')
-            sh.cmd %q(sudo sh -c 'echo "deb http://dist.crystal-lang.org/apt crystal main" > /etc/apt/sources.list.d/crystal.list')
-            sh.cmd %q(sudo sh -c 'apt-get update')
 
-            sh.cmd %q(sudo apt-get install crystal)
+            if config[:crystal] == 'nightly'
+              sh.cmd %q(sudo sh -c 'echo "deb http://crystal-dist.aeshna.de/apt crystal main" > /etc/apt/sources.list.d/crystal-nightly.list')
+              sh.cmd %q(sudo sh -c 'apt-get update')
+              sh.cmd %q(sudo apt-get install crystal-nightly)
+            else
+              sh.cmd %q(sudo sh -c 'echo "deb http://dist.crystal-lang.org/apt crystal main" > /etc/apt/sources.list.d/crystal.list')
+              sh.cmd %q(sudo sh -c 'apt-get update')
+              sh.cmd %q(sudo apt-get install crystal)
+            end
 
             sh.echo 'Installing Shards', ansi: :yellow
 

@@ -20,4 +20,15 @@ describe Travis::Build::Script::Crystal, :sexp do
       "crystal spec",
       echo: true, timing: true]
   end
+
+  context "versions" do
+    it "installs latest released version by default" do
+      should include_sexp [:cmd, "sudo apt-get install crystal"]
+    end
+
+    it "installs nightly when specified" do
+      data[:config][:crystal] = 'nightly'
+      should include_sexp [:cmd, "sudo apt-get install crystal-nightly"]
+    end
+  end
 end
