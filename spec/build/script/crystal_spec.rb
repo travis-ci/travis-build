@@ -26,9 +26,19 @@ describe Travis::Build::Script::Crystal, :sexp do
       should include_sexp [:cmd, "sudo apt-get install crystal"]
     end
 
+    it "installs latest released version when explicitly asked for" do
+      data[:config][:crystal] = "latest"
+      should include_sexp [:cmd, "sudo apt-get install crystal"]
+    end
+
     it "installs nightly when specified" do
-      data[:config][:crystal] = 'nightly'
+      data[:config][:crystal] = "nightly"
       should include_sexp [:cmd, "sudo apt-get install crystal-nightly"]
+    end
+
+    it 'throws a error with a invalid version' do
+      data[:config][:crystal] = "foo"
+      should include_sexp [:echo, "\"foo\" is an invalid version of Crystal.\nView valid versions of Crystal at http://docs.travis-ci.com/user/languages/crystal/"]
     end
   end
 end
