@@ -40,7 +40,9 @@ function travis_cmd() {
   else
     eval "$cmd"
   fi
-  result=$?
+  TRAVIS_PIPESTATUS=( "${PIPESTATUS[@]}")
+  # in bash < 4, do like ${arr[$((${#arr[@]}-1))]} for the last element instead
+  result=${TRAVIS_PIPESTATUS[-1]}
 
   if [[ -n "$timing" ]]; then
     travis_time_finish
