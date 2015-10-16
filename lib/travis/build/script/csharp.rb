@@ -35,6 +35,9 @@ module Travis
                   sh.cmd 'sudo apt-get install -qq mono-complete mono-vbnc fsharp', timing: true, assert: true
                 else
                   sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF', echo: false, assert: true
+                  sh.if '$(lsb_release -cs) = precise' do
+                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy-libtiff-compat main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false, assert: true
+                  end
                   mono_repos.each do |repo|
                     sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian #{repo} main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false, assert: true
                   end
@@ -90,7 +93,7 @@ View valid versions of mono at http://docs.travis-ci.com/user/languages/csharp/"
         end
 
         def mono_repos
-          repos = ['wheezy-libtiff-compat']
+          repos = []
 
           case config[:mono]
           when 'latest'
