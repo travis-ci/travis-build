@@ -1,13 +1,16 @@
 module Travis
   module Build
     class Script
-      class SmalltalkSqueak < Script
+      class Smalltalk < Script
         DEFAULTS = {}
 
         def setup
           super
           sh.cmd 'sudo apt-get install --no-install-recommends libc6:i386 ' +
                    'libuuid1:i386', retry: true
+          sh.if '-z "$SMALLTALK"' do
+            sh.export 'SMALLTALK', 'Squeak5.0'
+          end
           sh.cmd "export PROJECT_HOME=\"$(pwd)\""
           sh.cmd "cd $HOME"
           sh.cmd "wget -q -O filetreeCI.zip https://github.com/hpi-swa/filetreeCI/archive/master.zip"
