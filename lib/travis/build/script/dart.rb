@@ -87,26 +87,26 @@ module Travis
 
         def script
           # tests with test package
-          sh.if '[[ -d packages/test ]] || ( [[ -f .packages ]] && grep -q "^test:" .packages )', raw: true do
+          sh.if '[[ -d packages/test ]] || grep -q ^test: .packages 2> /dev/null', raw: true do
             if with_content_shell
-              sh.cmd 'export DISPLAY=:99.0'
+              sh.export 'DISPLAY', ':99.0'
               sh.cmd 'sh -e /etc/init.d/xvfb start'
-              sh.cmd "pub run test -p vm -p content-shell -p firefox"
+              sh.cmd 'pub run test -p vm -p content-shell -p firefox'
             else
-              sh.cmd "pub run test"
+              sh.cmd 'pub run test'
             end
           end
           # tests with test_runner for old tests written with unittest package
-          sh.elif '[[ -d packages/unittest ]] || ( [[ -f .packages ]] && grep -q "^unittest:" .packages )', raw: true do
+          sh.elif '[[ -d packages/unittest ]] || grep -q ^unittest: .packages 2> /dev/null', raw: true do
             sh.fold 'test_runner_install' do
               sh.echo 'Installing Test Runner', ansi: :yellow
-              sh.cmd "pub global activate test_runner"
+              sh.cmd 'pub global activate test_runner'
             end
 
             if with_content_shell
-              sh.cmd "xvfb-run -s '-screen 0 1024x768x24' pub global run test_runner --disable-ansi"
+              sh.cmd 'xvfb-run -s "-screen 0 1024x768x24" pub global run test_runner --disable-ansi'
             else
-              sh.cmd "pub global run test_runner --disable-ansi --skip-browser-tests"
+              sh.cmd 'pub global run test_runner --disable-ansi --skip-browser-tests'
             end
           end
         end
