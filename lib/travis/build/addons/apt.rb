@@ -84,9 +84,7 @@ module Travis
 
             unless disallowed.empty?
               sh.echo "Disallowing sources: #{disallowed.map { |source| Shellwords.escape(source) }.join(', ')}", ansi: :red
-              sh.echo 'If you require these sources, please review the source ' \
-                'approval process at: ' \
-                'https://github.com/travis-ci/apt-source-whitelist#source-approval-process'
+              sh.echo 'If you require these sources, please use `sudo` on legacy infrastructure or Trusty images to manage APT pacakges.'
             end
 
             unless whitelisted.empty?
