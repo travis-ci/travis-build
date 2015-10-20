@@ -44,11 +44,5 @@ describe Travis::Build::Script::Dart, :sexp do
         ansi: :yellow]
       should include_sexp [:echo, "Installing Content Shell", ansi: :yellow]
     end
-
-    it "runs tests with xvfb" do
-      should include_sexp [:cmd,
-        "xvfb-run -s '-screen 0 1024x768x24' pub global run test_runner --disable-ansi",
-        echo: true, timing: true]
-    end
   end
 end
