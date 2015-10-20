@@ -231,14 +231,28 @@ describe Travis::Shell::Generator::Bash, :include_node_helpers do
   end
 
   describe :if do
-    it 'generates an if statement' do
-      @sexp = [:if, '-f Gemfile', [:cmds, [[:cmd, 'foo']]]]
-      expect(code).to eql("if [[ -f Gemfile ]]; then\n  foo\nfi")
+    describe 'given bash conditions' do
+      it 'generates an if statement' do
+        @sexp = [:if, '-f Gemfile', [:cmds, [[:cmd, 'foo']]]]
+        expect(code).to eql("if [[ -f Gemfile ]]; then\n  foo\nfi")
+      end
+
+      it 'with an elif branch' do
+        @sexp = [:if, '-f Gemfile', [:cmds, [[:cmd, 'foo']]], [:elif, '-f Gemfile.lock', [:cmds, [[:cmd, 'bar']]]]]
+        expect(code).to eql("if [[ -f Gemfile ]]; then\n  foo\nelif [[ -f Gemfile.lock ]]; then\n  bar\nfi")
+      end
     end
 
-    it 'with an elif branch' do
-      @sexp = [:if, '-f Gemfile', [:cmds, [[:cmd, 'foo']]], [:elif, '-f Gemfile.lock', [:cmds, [[:cmd, 'bar']]]]]
-      expect(code).to eql("if [[ -f Gemfile ]]; then\n  foo\nelif [[ -f Gemfile.lock ]]; then\n  bar\nfi")
+    describe 'given raw sh conditions' do
+      it 'generates an if statement' do
+        @sexp = [:if, 'grep FOO .bar 2> /dev/null', [:cmds, [[:cmd, 'foo']]], raw: true]
+        expect(code).to eql("if grep FOO .bar 2> /dev/null; then\n  foo\nfi")
+      end
+
+      it 'with an elif branch' do
+        @sexp = [:if, '-f Gemfile', [:cmds, [[:cmd, 'foo']]], [:elif, 'grep FOO .bar 2> /dev/null', [:cmds, [[:cmd, 'bar']]], raw: true]]
+        expect(code).to eql("if [[ -f Gemfile ]]; then\n  foo\nelif grep FOO .bar 2> /dev/null; then\n  bar\nfi")
+      end
     end
 
     it 'with an else branch' do
