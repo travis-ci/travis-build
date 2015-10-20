@@ -10,10 +10,13 @@ module Travis
             sh.echo 'Installing Crystal', ansi: :yellow
 
             sh.cmd %q(sudo sh -c 'apt-key adv --keyserver keys.gnupg.net --recv-keys 09617FD37CC06B54')
-            sh.cmd %q(sudo sh -c 'echo "deb http://dist.crystal-lang.org/apt crystal main" > /etc/apt/sources.list.d/crystal.list')
-            sh.cmd %q(sudo sh -c 'apt-get update')
 
-            sh.cmd %q(sudo apt-get install crystal)
+            version = select_version
+            return unless version
+
+            sh.cmd %Q(sudo sh -c 'echo "deb #{version[:url]} crystal main" > /etc/apt/sources.list.d/crystal-nightly.list')
+            sh.cmd %q(sudo sh -c 'apt-get update')
+            sh.cmd %Q(sudo apt-get install #{version[:package]})
 
             sh.echo 'Installing Shards', ansi: :yellow
 
@@ -50,6 +53,26 @@ module Travis
 
         def script
           sh.cmd "crystal spec"
+        end
+
+        private
+
+        def select_version
+          case config[:crystal]
+          when nil, "latest"
+            {
+              url: "http://dist.crystal-lang.org/apt",
+              package: "crystal"
+            }
+          when "nightly"
+            {
+              url: "http://nightly.crystal-lang.org/apt",
+              package: "crystal-nightly"
+            }
+          else
+            sh.failure %Q("#{config[:crystal]}" is an invalid version of Crystal.\nView valid versions of Crystal at http://docs.travis-ci.com/user/languages/crystal/)
+            nil
+          end
         end
 
       end
