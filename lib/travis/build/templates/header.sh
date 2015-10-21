@@ -9,7 +9,7 @@ ANSI_CLEAR="\033[0K"
 TRAVIS_TEST_RESULT=
 TRAVIS_CMD=
 
-function travis_cmd() {
+travis_cmd() {
   local assert output display retry timing cmd result
 
   cmd=$1
@@ -39,8 +39,8 @@ function travis_cmd() {
     travis_retry eval "$cmd"
   else
     eval "$cmd"
+    result=$? TRAVIS_PIPESTATUS=( "${PIPESTATUS[@]}")
   fi
-  result=$?
 
   if [[ -n "$timing" ]]; then
     travis_time_finish
@@ -67,7 +67,7 @@ travis_time_finish() {
   return $result
 }
 
-function travis_nanoseconds() {
+travis_nanoseconds() {
   local cmd="date"
   local format="+%s%N"
   local os=$(uname)
@@ -83,7 +83,7 @@ function travis_nanoseconds() {
 
 travis_assert() {
   local result=${1:-$?}
-  if [ $result -ne 0 ]; then
+  if (( result != 0 )); then
     echo -e "\n${ANSI_RED}The command \"$TRAVIS_CMD\" failed and exited with $result during $TRAVIS_STAGE.${ANSI_RESET}\n\nYour build has been stopped."
     travis_terminate 2
   fi
@@ -91,9 +91,9 @@ travis_assert() {
 
 travis_result() {
   local result=$1
-  export TRAVIS_TEST_RESULT=$(( ${TRAVIS_TEST_RESULT:-0} | $(($result != 0)) ))
+  export TRAVIS_TEST_RESULT=$(( TRAVIS_TEST_RESULT | (result != 0) ))
 
-  if [ $result -eq 0 ]; then
+  if (( result == 0 )); then
     echo -e "\n${ANSI_GREEN}The command \"$TRAVIS_CMD\" exited with $result.${ANSI_RESET}"
   else
     echo -e "\n${ANSI_RED}The command \"$TRAVIS_CMD\" exited with $result.${ANSI_RESET}"
@@ -132,7 +132,7 @@ travis_wait() {
     ps -p$jigger_pid &>/dev/null && kill $jigger_pid
   } || return 1
 
-  if [ $result -eq 0 ]; then
+  if (( result == 0 )); then
     echo -e "\n${ANSI_GREEN}The command \"$TRAVIS_CMD\" exited with $result.${ANSI_RESET}"
   else
     echo -e "\n${ANSI_RED}The command \"$TRAVIS_CMD\" exited with $result.${ANSI_RESET}"
@@ -155,8 +155,8 @@ travis_jigger() {
   # clear the line
   echo -e "\n"
 
-  while [ $count -lt $timeout ]; do
-    count=$(($count + 1))
+  while (( count < timeout )); do
+    ((count = count + 1))
     echo -ne "Still running ($count of $timeout): $@\r"
     sleep 60
   done
@@ -168,14 +168,14 @@ travis_jigger() {
 travis_retry() {
   local result=0
   local count=1
-  while [ $count -le 3 ]; do
-    [ $result -ne 0 ] && {
+  while (( count < 3 )); do
+    (( result != 0 )) && {
       echo -e "\n${ANSI_RED}The command \"$@\" failed. Retrying, $count of 3.${ANSI_RESET}\n" >&2
     }
     "$@"
-    result=$?
-    [ $result -eq 0 ] && break
-    count=$(($count + 1))
+    result=$? TRAVIS_PIPESTATUS=( "${PIPESTATUS[@]}")
+    (( $result == 0 )) && break
+    ((count = count + 1))
     sleep 1
   done
 
