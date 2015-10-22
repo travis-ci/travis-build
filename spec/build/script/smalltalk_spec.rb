@@ -18,4 +18,14 @@ describe Travis::Build::Script::Smalltalk, :sexp do
     should include_sexp [:cmd, "popd; popd", assert: true, echo: true, timing: true]
   end
 
+  describe 'set smalltalk version' do
+    before do
+      data[:config][:smalltalk] = 'Squeak5.0'
+    end
+
+    it 'sets SMALLTALK to correct version' do
+      should include_sexp [:export, ['SMALLTALK', 'Squeak5.0']]
+    end
+  end
+
 end
