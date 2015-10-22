@@ -6,11 +6,16 @@ module Travis
 
         def configure
           super
-          sh.fold 'install_packages' do
-            sh.echo 'Installing libc6:i386 and libuuid1:i386', ansi: :yellow
-            sh.cmd 'sudo apt-get update -qq', retry: true
-            sh.cmd 'sudo apt-get install --no-install-recommends libc6:i386 ' +
-                   'libuuid1:i386', retry: true
+          case config[:os]
+          when 'linux'
+            sh.fold 'install_packages' do
+              sh.echo 'Installing libc6:i386 and libuuid1:i386', ansi: :yellow
+              sh.cmd 'sudo apt-get update -qq', retry: true
+              sh.cmd 'sudo apt-get install --no-install-recommends ' +
+                     'libc6:i386 libuuid1:i386', retry: true
+            end
+          when 'osx'
+            # pass
           end
         end
 
