@@ -6,9 +6,12 @@ module Travis
 
         def configure
           super
-          sh.cmd 'sudo apt-get update -qq', retry: true
-          sh.cmd 'sudo apt-get install --no-install-recommends libc6:i386 ' +
+          sh.fold 'install_packages' do
+            sh.echo 'Installing libc6:i386 and libuuid1:i386', ansi: :yellow
+            sh.cmd 'sudo apt-get update -qq', retry: true
+            sh.cmd 'sudo apt-get install --no-install-recommends libc6:i386 ' +
                    'libuuid1:i386', retry: true
+          end
         end
 
         def export
@@ -26,9 +29,9 @@ module Travis
             sh.cmd "unzip -q -o filetreeCI.zip"
             sh.cmd "pushd filetreeCI-*"
             sh.cmd "export FILETREE_CI_HOME=\"$(pwd)\""
+            sh.cmd "popd; popd"
           end
           sh.cmd "$FILETREE_CI_HOME/run.sh"
-          sh.cmd "popd; popd"
         end
 
       end
