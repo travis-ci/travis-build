@@ -31,6 +31,10 @@ module Travis
             sh.cmd "export FILETREE_CI_HOME=\"$(pwd)\""
             sh.cmd "popd; popd", echo: false
           end
+        end
+
+        def script
+          super
           sh.cmd "$FILETREE_CI_HOME/run.sh"
         end
 
