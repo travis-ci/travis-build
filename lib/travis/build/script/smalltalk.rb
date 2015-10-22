@@ -6,6 +6,7 @@ module Travis
 
         def configure
           super
+          sh.cmd 'sudo apt-get update -qq', retry: true
           sh.cmd 'sudo apt-get install --no-install-recommends libc6:i386 ' +
                    'libuuid1:i386', retry: true
         end
