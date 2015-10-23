@@ -3,8 +3,8 @@ module Travis
     class Script
       class Pharo < Script
         DEFAULTS = {
-          version: 'stable',
-          sourceDir: '.'
+          pharo: 'stable',  # stable, alpha, 50, 40"
+          source_dir: '.'    # where the pharo sources actually are (usually root, ./mc or ./repository)
         }
         # baseline
         # test
@@ -23,6 +23,13 @@ module Travis
           end
         end
 
+        def announce
+          super
+          sh.echo ''
+          sh.cmd './pharo Pharo.image printVersion'
+          sh.echo ''
+        end
+
         def setup
           super
           sh.cmd "export PROJECT_HOME=\"$(pwd)\""
@@ -31,12 +38,20 @@ module Travis
 
         def install
           super
-          sh.cmd "./pharo Pharo.image eval --save \"Metacello new filetreeDirectory: '#{config[:sourceDir]}'; baseline: '#{config[:baseline]}'; load.\""
+          if config[:baseline]
+            sh.cmd "./pharo Pharo.image eval --save \"Metacello new filetreeDirectory: '#{config[:source_dir]}'; baseline: '#{config[:baseline]}'; load.\""
+          else
+            sh.failure "No baseline defined, exiting"
+          end
         end
 
         def script
           super
-          sh.cmd "./pharo Pharo.image test --fail-on-failure \"#{config[:test]}\""
+          if config[:test]
+            sh.cmd "./pharo Pharo.image test --fail-on-failure \"#{config[:test]}\""
+          else
+            sh.failure "No test packages defined, exiting"
+          end
         end
 
         def export

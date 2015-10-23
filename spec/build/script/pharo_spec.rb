@@ -15,7 +15,7 @@ describe Travis::Build::Script::Pharo, :sexp do
     end
 
     it 'sets PHARO to correct version' do
-      should include_sexp [:export, ['PHARO_VERSION', 'stable']]
+      should include_sexp [:export, ['PHARO', 'stable']]
     end
   end
 
