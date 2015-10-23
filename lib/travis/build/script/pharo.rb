@@ -33,7 +33,7 @@ module Travis
         def setup
           super
           sh.cmd "export PROJECT_HOME=\"$(pwd)\""
-          sh.cmd "wget --quiet get.pharo.org/#{config[:version]}+vm | bash"
+          sh.cmd "wget --quiet get.pharo.org/#{config[:pharo]}+vm | bash"
         end
 
         def install
