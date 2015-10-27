@@ -11,10 +11,6 @@ module Travis
         def setup
           super
           setup_cache
-
-          sh.if gemfile? do
-            sh.export 'BUNDLE_GEMFILE', "$PWD/#{config[:gemfile]}"
-          end
         end
 
         def announce
@@ -24,6 +20,7 @@ module Travis
 
         def setup_cache
           sh.if gemfile? do
+            sh.export 'BUNDLE_GEMFILE', "$PWD/#{config[:gemfile]}"
             sh.if gemfile_lock? do
               directory_cache.add(bundler_path(false)) if data.cache?(:bundler)
               sh.cmd bundler_install("--deployment"), fold: "install.bundler", retry: true
