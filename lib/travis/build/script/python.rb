@@ -29,6 +29,7 @@ module Travis
 
         def setup
           super
+          setup_cache
           sh.cmd "source #{virtualenv_activate}"
         end
 

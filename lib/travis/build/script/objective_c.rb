@@ -40,6 +40,7 @@ module Travis
 
         def setup
           super
+          setup_cache
           sh.cmd "echo '#!/bin/bash\n# no-op' > /usr/local/bin/actool", echo: false
           sh.cmd 'chmod +x /usr/local/bin/actool', echo: false
         end

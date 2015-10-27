@@ -27,6 +27,11 @@ module Travis
           super << '--compiler-' << compiler
         end
 
+        def setup
+          super
+          setup_cache
+        end
+
         def setup_cache
           if data.cache?(:ccache)
             directory_cache.add('~/.ccache')
