@@ -10,7 +10,7 @@ describe Travis::Build::Addons::AptPackages, :sexp do
 
   before do
     addon.stubs(:package_whitelist).returns(package_whitelist)
-    addon.after_prepare
+    addon.before_prepare
   end
 
   def apt_get_install_command(*packages)
