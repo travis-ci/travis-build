@@ -33,7 +33,7 @@ module Travis
             sh.cmd "wget -q -O filetreeCI.zip https://github.com/hpi-swa/filetreeCI/archive/master.zip"
             sh.cmd "unzip -q -o filetreeCI.zip"
             sh.cmd "pushd filetreeCI-*", echo: false
-            sh.cmd "export FILETREE_CI_HOME=\"$(pwd)\""
+            sh.cmd "source env_vars"
             sh.cmd "popd; popd", echo: false
           end
         end

@@ -14,7 +14,7 @@ describe Travis::Build::Script::Smalltalk, :sexp do
     should include_sexp [:cmd, "wget -q -O filetreeCI.zip https://github.com/hpi-swa/filetreeCI/archive/master.zip", assert: true, echo: true, timing: true]
     should include_sexp [:cmd, "unzip -q -o filetreeCI.zip", assert: true, echo: true, timing: true]
     should include_sexp [:cmd, "pushd filetreeCI-*", assert: true, timing: true]
-    should include_sexp [:cmd, "export FILETREE_CI_HOME=\"$(pwd)\"", assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, "source env_vars", assert: true, echo: true, timing: true]
     should include_sexp [:cmd, "popd; popd", assert: true, timing: true]
   end
 
