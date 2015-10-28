@@ -24,7 +24,7 @@ describe Travis::Build::Addons::Apt, :sexp do
     let(:data) { payload_for(:push, :ruby, config: { os: 'osx' }) }
 
     it 'will not run' do
-      expect(addon.after_prepare?).to eql(false)
+      expect(addon.before_prepare?).to eql(false)
     end
   end
 
@@ -32,14 +32,14 @@ describe Travis::Build::Addons::Apt, :sexp do
     let(:data) { payload_for(:push, :ruby, config: { os: 'linux' }) }
 
     it 'will run' do
-      expect(addon.after_prepare?).to eql(true)
+      expect(addon.before_prepare?).to eql(true)
     end
   end
 
   context 'when the package whitelist is provided' do
     before do
       described_class.stubs(:fetch_package_whitelist).returns(package_whitelist.join("\n"))
-      addon.after_prepare
+      addon.before_prepare
     end
 
     it 'exposes a package whitelist' do
@@ -54,7 +54,7 @@ describe Travis::Build::Addons::Apt, :sexp do
   context 'when the source whitelist is provided' do
     before do
       described_class.stubs(:fetch_source_whitelist).returns(JSON.dump(source_whitelist))
-      addon.after_prepare
+      addon.before_prepare
     end
 
     it 'exposes a source whitelist' do
@@ -69,7 +69,7 @@ describe Travis::Build::Addons::Apt, :sexp do
   context 'when the package whitelist cannot be fetched' do
     before do
       described_class.stubs(:fetch_package_whitelist).raises(StandardError)
-      addon.after_prepare
+      addon.before_prepare
     end
 
     it 'defaults package whitelist to empty array' do
@@ -80,7 +80,7 @@ describe Travis::Build::Addons::Apt, :sexp do
   context 'when the source whitelist cannot be fetched' do
     before do
       described_class.stubs(:fetch_source_whitelist).raises(StandardError)
-      addon.after_prepare
+      addon.before_prepare
     end
 
     it 'defaults source whitelist to empty hash' do
@@ -91,7 +91,7 @@ describe Travis::Build::Addons::Apt, :sexp do
   context 'with packages' do
     before do
       addon.stubs(:package_whitelist).returns(package_whitelist)
-      addon.after_prepare
+      addon.before_prepare
     end
 
     def apt_get_install_command(*packages)
@@ -155,7 +155,7 @@ describe Travis::Build::Addons::Apt, :sexp do
 
     before do
       addon.stubs(:source_whitelist).returns(source_whitelist)
-      addon.after_prepare
+      addon.before_prepare
     end
 
     def apt_add_repository_command(sourceline)
