@@ -57,11 +57,11 @@ module Travis
           end
         end
 
-        def after_prepare?
+        def before_prepare?
           SUPPORTED_OPERATING_SYSTEMS.include?(data[:config][:os].to_s)
         end
 
-        def after_prepare
+        def before_prepare
           sh.fold('apt') do
             add_apt_sources unless config_sources.empty?
             add_apt_packages unless config_packages.empty?
