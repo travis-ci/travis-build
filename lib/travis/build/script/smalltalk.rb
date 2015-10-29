@@ -26,6 +26,12 @@ module Travis
 
         def setup
           super
+
+          sh.echo 'Smalltalk for Travis-CI is not officially supported, but is community maintained.', ansi: :green
+          sh.echo 'Please file any issues using the following link', ansi: :green
+          sh.echo '  https://github.com/travis-ci/travis-ci/issues/new?labels=community:smalltalk', ansi: :green
+          sh.echo 'and mention \`@bahnfahren\`, \`@chistopher\`, \`@fniephaus\`, \`@jchromik\` and \`@Nef10\` in the issue', ansi: :green
+
           sh.cmd "export PROJECT_HOME=\"$(pwd)\""
           sh.cmd "pushd $HOME", echo: false
           sh.fold 'download_filetreeci' do
