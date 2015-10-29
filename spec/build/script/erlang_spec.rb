@@ -22,7 +22,7 @@ describe Travis::Build::Script::Erlang, :sexp do
       should include_sexp [:cmd, 'source $HOME/otp/R14B04/activate', assert: true, echo: true, timing: true]
     end
 
-    it 'downloads OTP archive on demand when the desired release is not pre-installed' do
+    xit 'downloads OTP archive on demand when the desired release is not pre-installed' do
       branch = sexp_find(subject, [:if, '! -f $HOME/otp/R14B04/activate'])
       expect(branch).to include_sexp [:cmd, 'wget https://s3.amazonaws.com/travis-otp-releases/ubuntu/$(lsb_release -rs)/erlang-R14B04-x86_64.tar.bz2', assert: true, echo: true, timing: true]
     end

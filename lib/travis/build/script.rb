@@ -2,6 +2,7 @@ require 'core_ext/hash/deep_merge'
 require 'core_ext/hash/deep_symbolize_keys'
 require 'core_ext/object/false'
 require 'erb'
+require 'rbconfig'
 
 require 'travis/build/addons'
 require 'travis/build/appliances'
@@ -78,6 +79,12 @@ module Travis
         'cache'
       end
 
+      def archive_url_for(bucket, version, ext = 'bz2')
+        lang = self.class.name.split('::').last.downcase
+
+        "https://s3.amazonaws.com/#{bucket}/binaries/#{host_os}/#{rel_version}/$(uname -m)/#{lang}-#{version}.tar.#{ext}"
+      end
+
       private
 
         def config
@@ -124,6 +131,24 @@ module Travis
         def config_env_vars
           @config_env_vars ||= Build::Env::Config.new(data, config)
           Array(@config_env_vars.data[:env])
+        end
+
+        def host_os
+          case RbConfig::CONFIG["host_os"]
+          when /^(?i:linux)/
+            '$(lsb_release -is | tr "A-Z" "a-z")'
+          when /^(?i:darwin)/
+            'osx'
+          end
+        end
+
+        def rel_version
+          case RbConfig::CONFIG["host_os"]
+          when /^(?i:linux)/
+            '$(lsb_release -rs)'
+          when /^(?i:darwin)/
+            '${$(sw_vers -productVersion)%*.*}'
+          end
         end
     end
   end

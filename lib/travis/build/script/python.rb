@@ -90,7 +90,8 @@ module Travis
           end
 
           def install_python_archive(version = 'nightly')
-            sh.cmd "curl -s -o python-#{version}.tar.bz2 https://s3.amazonaws.com/travis-python-archives/$(lsb_release -rs)/python-#{version}.tar.bz2", echo: false
+            puts archive_url_for('travis-python-archives', version)
+            sh.cmd "curl -s -o python-#{version}.tar.bz2 #{archive_url_for('travis-python-archives', version)}", echo: false
             sh.cmd "sudo tar xjf python-#{version}.tar.bz2 --directory /", echo: false
             sh.cmd "rm python-#{version}.tar.bz2", echo: false
           end

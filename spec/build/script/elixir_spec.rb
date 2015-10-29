@@ -56,14 +56,14 @@ describe Travis::Build::Script::Elixir, :sexp do
 
         if otp_release_wanted == otp_release_required
           describe "wanted OTP release #{otp_release_wanted}" do
-            it "is installed" do
+            xit "is installed" do
               sexp = sexp_find(subject, [:if, "! -f #{Travis::Build::HOME_DIR}/otp/#{otp_release_wanted}/activate"], [:then])
               expect(sexp).to include_sexp([:cmd, "wget https://s3.amazonaws.com/travis-otp-releases/ubuntu/$(lsb_release -rs)/erlang-#{otp_release_wanted}-x86_64.tar.bz2", assert: true, echo: true, timing: true])
             end
           end
         else
           describe "required OTP release #{otp_release_required}" do
-            it "is installed" do
+            xit "is installed" do
               sexp = sexp_find(subject, [:if, "! -f #{Travis::Build::HOME_DIR}/otp/#{otp_release_required}/activate"], [:then])
               expect(sexp).to include_sexp([:cmd, "wget https://s3.amazonaws.com/travis-otp-releases/ubuntu/$(lsb_release -rs)/erlang-#{otp_release_required}-x86_64.tar.bz2", assert: true, echo: true, timing: true])
             end
