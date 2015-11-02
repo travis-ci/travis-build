@@ -9,10 +9,10 @@ module Travis
           case config[:os]
           when 'linux'
             sh.fold 'install_packages' do
-              sh.echo 'Installing libc6:i386 and libuuid1:i386', ansi: :yellow
+              sh.echo 'Installing dependencies', ansi: :yellow
               sh.cmd 'sudo apt-get update -qq', retry: true
               sh.cmd 'sudo apt-get install --no-install-recommends ' +
-                     'libc6:i386 libuuid1:i386', retry: true
+                     'libc6:i386 libuuid1:i386 libfreetype6:i386', retry: true
             end
           when 'osx'
             # pass
@@ -33,20 +33,20 @@ module Travis
           sh.echo 'and mention \`@bahnfahren\`, \`@chistopher\`, \`@fniephaus\`, \`@jchromik\` and \`@Nef10\` in the issue', ansi: :green
 
           sh.cmd "export PROJECT_HOME=\"$(pwd)\""
-          sh.cmd "pushd $HOME", echo: false
-          sh.fold 'download_filetreeci' do
-            sh.echo 'Downloading and extracting filetreeCI', ansi: :yellow
-            sh.cmd "wget -q -O filetreeCI.zip https://github.com/hpi-swa/filetreeCI/archive/master.zip"
-            sh.cmd "unzip -q -o filetreeCI.zip"
-            sh.cmd "pushd filetreeCI-*", echo: false
+          sh.cmd "pushd $HOME > /dev/null", echo: false
+          sh.fold 'download_smalltalkci' do
+            sh.echo 'Downloading and extracting smalltalkCI', ansi: :yellow
+            sh.cmd "wget -q -O smalltalkCI.zip https://github.com/hpi-swa/smalltalkCI/archive/master.zip"
+            sh.cmd "unzip -q -o smalltalkCI.zip"
+            sh.cmd "pushd smalltalkCI-* > /dev/null", echo: false
             sh.cmd "source env_vars"
-            sh.cmd "popd; popd", echo: false
+            sh.cmd "popd > /dev/null; popd > /dev/null", echo: false
           end
         end
 
         def script
           super
-          sh.cmd "$FILETREE_CI_HOME/run.sh"
+          sh.cmd "$SMALLTALK_CI_HOME/run.sh"
         end
 
       end
