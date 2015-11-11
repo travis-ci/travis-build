@@ -75,7 +75,7 @@ module Travis
             # Install an R development environment. qpdf is also needed for
             # --as-cran checks:
             #   https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
-            sh.cmd 'sudo apt-get install --no-install-recommends r-base-dev ' +
+            sh.cmd 'sudo apt-get install -y --no-install-recommends r-base-dev ' +
                    'r-recommended qpdf', retry: true
 
             # Change permissions for /usr/local/lib/R/site-library
@@ -241,7 +241,7 @@ module Travis
           return unless (config[:os] == 'linux')
           pkg_arg = packages.join(' ')
           sh.echo "Installing apt packages: #{packages.join(', ')}"
-          sh.cmd "sudo apt-get install #{pkg_arg}", retry: true
+          sh.cmd "sudo apt-get install -y #{pkg_arg}", retry: true
         end
 
         def brew_install(packages)
@@ -357,7 +357,7 @@ module Travis
                    texlive-generic-recommended texlive-latex-base
                    texlive-latex-extra texlive-latex-recommended
             ]
-            sh.cmd 'sudo apt-get install --no-install-recommends ' +
+            sh.cmd 'sudo apt-get install -y --no-install-recommends ' +
                    "#{latex_packages.join(' ')}",
                    retry: true
           when 'osx'
