@@ -48,8 +48,8 @@ module Travis
         end
 
         def rbenv_ruby(version)
-          %{$(rbenv shell "$(echo $(rbenv versions 2>/dev/null | } \
-            %{grep -E '[^\.]#{version}' | sort | tail -1))" 2>/dev/null ;} \
+          %{$(rbenv shell "$(echo $(rbenv versions 2>/dev/null | } <<
+            %{grep -E '[^\.]#{version}' | sort | tail -1))" 2>/dev/null ;} <<
             %{rbenv which ruby 2>/dev/null)}
         end
 
