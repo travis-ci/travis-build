@@ -141,6 +141,7 @@ module Travis
             end
 
             def cmd(cmd, *args)
+              sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
               sh.cmd("rvm #{USE_RUBY} --fuzzy do ruby -S #{cmd}", *args)
             end
 
