@@ -22,6 +22,7 @@ module Travis
         def export
           super
           sh.export 'SMALLTALK', config[:smalltalk], echo: false
+          sh.export 'BASELINE', config[:baseline], echo: false
          end
 
         def setup
