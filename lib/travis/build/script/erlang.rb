@@ -69,7 +69,7 @@ module Travis
           def install_erlang(release)
             sh.echo "#{release} is not installed. Downloading and installing pre-build binary.", ansi: :yellow
             sh.cmd "kerl update releases"
-            sh.cmd "wget #{archive_url_for('travis-otp-releases',release)}"
+            sh.cmd "wget #{archive_url_for('travis-otp-releases',release, 'erlang')}"
             sh.cmd "tar xf #{archive_name(release)} -C ~/otp/"
             sh.cmd "echo '#{release},#{release}' >> ~/.kerl/otp_builds", echo: false
             sh.cmd "echo '#{release} #{HOME_DIR}/otp/#{release}' >> ~/.kerl/otp_builds", echo: false
