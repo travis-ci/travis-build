@@ -1,4 +1,5 @@
 require 'travis/build/appliances/checkout'
+require 'travis/build/appliances/define_internal_ruby'
 require 'travis/build/appliances/deprecations'
 require 'travis/build/appliances/disable_sudo'
 require 'travis/build/appliances/env'
