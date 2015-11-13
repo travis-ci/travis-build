@@ -1,6 +1,10 @@
 #!/bin/bash
 source /etc/profile
 
+if [[ -s ~/.bash_profile ]] ; then
+  source ~/.bash_profile
+fi
+
 ANSI_RED="\033[31;1m"
 ANSI_GREEN="\033[32;1m"
 ANSI_RESET="\033[0m"

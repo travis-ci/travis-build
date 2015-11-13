@@ -79,9 +79,7 @@ module Travis
         'cache'
       end
 
-      def archive_url_for(bucket, version, ext = 'bz2')
-        lang = self.class.name.split('::').last.downcase
-
+      def archive_url_for(bucket, version, lang = self.class.name.split('::').last.downcase, ext = 'bz2')
         "https://s3.amazonaws.com/#{bucket}/binaries/#{host_os}/#{rel_version}/$(uname -m)/#{lang}-#{version}.tar.#{ext}"
       end
 

@@ -120,7 +120,7 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
             setup_alias(version, '7.0snapshot')
             version = '7.0snapshot'
           end
-          sh.cmd "curl -s -o archive.tar.bz2 #{archive_url_for('travis-php-archives', version)} && tar xjf archive.tar.bz2 --directory ~/.phpenv/versions/", echo: false, assert: false
+          sh.cmd "curl -s -o archive.tar.bz2 #{archive_url_for('travis-php-archives', version)} && tar xjf archive.tar.bz2 --directory /", echo: false, assert: false
           sh.cmd "rm -f archive.tar.bz2", echo: false
         end
 
