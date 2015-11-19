@@ -31,8 +31,8 @@ module Travis
               sh.cmd "wget -O /tmp/#{filename} $FIREFOX_SOURCE_URL", echo: true, timing: true, retry: true
               sh.cmd "tar xf /tmp/#{filename}"
               sh.cmd "sudo ln -sf #{install_dir}/firefox/firefox /usr/local/bin/firefox", echo: false
-              sh.cd :back, echo: false, stack: true
             end
+            sh.cd :back, echo: false, stack: true
           end
         end
 
