@@ -6,8 +6,9 @@ describe Travis::Build::Addons::Firefox, :sexp do
   let(:sh)     { Travis::Shell::Builder.new }
   let(:addon)  { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
   let(:home)   { Travis::Build::HOME_DIR }
-  let(:host)   { 'releases.mozilla.org'}
-  let(:path)   { "pub/firefox/releases/#{config}/linux-x86_64/en-US/"}
+  let(:host)   { 'download.mozilla.org'}
+  let(:os)     { 'linux64' }
+  let(:path)   { "?product=firefox-#{config}&lang=en-US&os=#{os}"}
   subject      { sh.to_sexp }
   before       { addon.after_prepare }
 
@@ -24,14 +25,12 @@ describe Travis::Build::Addons::Firefox, :sexp do
     it { should include_sexp [:mkdir, '$HOME/firefox-20.0', recursive: true] }
     it { should include_sexp [:chown, ['travis', '$HOME/firefox-20.0'], recursive: true] }
     it { should include_sexp [:cd, '$HOME/firefox-20.0', stack: true] }
-    it { should include_sexp [:export, ['FIREFOX_SOURCE_URL', "http://#{host}/#{path}firefox-20.0.tar.bz2"], echo: true] }
+    it { should include_sexp [:export, ['FIREFOX_SOURCE_URL', "'http://#{host}/#{path}'"], echo: true] }
 
-    let(:sexp) { sexp_find(sexp_filter(subject, [:if, 'z$FIREFOX_SOURCE_URL == "z"']), [:else]) }
-
-    it { expect(sexp).to include_sexp [:cmd, 'wget -O /tmp/firefox-20.0.tar.bz2 $FIREFOX_SOURCE_URL', echo: true, timing: true, retry: true] }
-    it { expect(sexp).to include_sexp [:cmd, 'tar xf /tmp/firefox-20.0.tar.bz2'] }
-    it { expect(sexp).to include_sexp [:cmd, 'sudo ln -sf $HOME/firefox-20.0/firefox/firefox /usr/local/bin/firefox'] }
-    it { expect(sexp).to include_sexp [:cd, :back, stack: true] }
+    it { should include_sexp [:cmd, 'wget -O /tmp/firefox-20.0.tar.bz2 $FIREFOX_SOURCE_URL', echo: true, timing: true, retry: true] }
+    it { should include_sexp [:cmd, 'tar xf /tmp/firefox-20.0.tar.bz2'] }
+    it { should include_sexp [:cmd, 'sudo ln -sf $HOME/firefox-20.0/firefox/firefox /usr/local/bin/firefox'] }
+    it { should include_sexp [:cd, :back, stack: true] }
   end
 
   context 'given a valid version "latest"' do

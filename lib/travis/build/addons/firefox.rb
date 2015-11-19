@@ -7,8 +7,12 @@ module Travis
       class Firefox < Base
         SUPER_USER_SAFE = true
 
+        attr_reader :version, :latest
+
         def after_prepare
           sh.fold 'install_firefox' do
+            sanitize(raw_version)
+
             unless version
               sh.echo "Invalid version '#{raw_version}' given.", ansi: :red
               return
@@ -19,31 +23,23 @@ module Travis
             sh.mkdir install_dir, echo: false, recursive: true
             sh.chown 'travis', install_dir, recursive: true
             sh.cd install_dir, echo: false, stack: true
-            sh.if 'z$FIREFOX_SOURCE_URL == "z"' do
-              sh.echo "Unable to find Firefox #{version}"
-            end
-            sh.else do
-              sh.echo "Found Firefox $FIREFOX_SOURCE_URL"
-              sh.cmd "wget -O /tmp/#{filename} $FIREFOX_SOURCE_URL", echo: true, timing: true, retry: true
-              sh.cmd "tar xf /tmp/#{filename}"
-              sh.cmd "sudo ln -sf #{install_dir}/firefox/firefox /usr/local/bin/firefox", echo: false
-              sh.cd :back, echo: false, stack: true
-            end
+            sh.cmd "wget -O /tmp/#{filename} $FIREFOX_SOURCE_URL", echo: true, timing: true, retry: true
+            sh.cmd "tar xf /tmp/#{filename}"
+            sh.cmd "sudo ln -sf #{install_dir}/firefox/firefox /usr/local/bin/firefox", echo: false
+            sh.cd :back, echo: false, stack: true
           end
         end
 
         private
-
-          def version
-            sanitize raw_version
-          end
-
           def raw_version
             config.to_s.strip.shellescape
           end
 
           def sanitize(input)
-            (m = /\A(?<version>[\d\.]+(?:esr)?|latest(?:-(?:beta|esr))?)\z/.match(input.chomp)) && m[:version]
+            if m = /\A(?<version>[\d\.]+(?:esr)?|(?<latest>latest(?:-(?:beta|esr))?)?)\z/.match(input.chomp)
+              @version = m[:version]
+              @latest  = m[:latest]
+            end
           end
 
           def install_dir
@@ -55,12 +51,24 @@ module Travis
           end
 
           def export_source_url
-            host = 'releases.mozilla.org'
-            path = "pub/firefox/releases/#{version}/linux-x86_64/en-US/"
-            if version.include? 'latest'
-              sh.export 'FIREFOX_SOURCE_URL', "http://#{host}/#{path}$(curl -o- -s http://#{host}/#{path} | grep -o -E 'firefox-[0-9]+(\.[0-9]+)+(b[0-9]|esr)?\.tar\.bz2' | head -1)"
+            product = case latest
+            when 'latest'
+              'firefox-latest'
+            when 'latest-beta'
+              'firefox-beta-latest'
+            when 'latest-esr'
+              'firefox-esr-latest'
             else
-              sh.export 'FIREFOX_SOURCE_URL', "http://#{host}/#{path}#{filename}"
+              "firefox-#{version}"
+            end
+
+            host = 'download.mozilla.org'
+
+            sh.if "$(uname) = 'Linux'" do
+              sh.export 'FIREFOX_SOURCE_URL', "'http://#{host}/?product=#{product}&lang=en-US&os=linux64'"
+            end
+            sh.else do
+              sh.export 'FIREFOX_SOURCE_URL', "'http://#{host}/?product=#{product}&lang=en-US&os=osx'"
             end
           end
 
