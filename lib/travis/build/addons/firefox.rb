@@ -70,7 +70,7 @@ module Travis
 
             host = 'download.mozilla.org'
 
-            sh.if "$TRAVIS_OS_NAME = 'linux'" do
+            sh.if "$(uname) = 'Linux'" do
               sh.export 'FIREFOX_SOURCE_URL', "http://#{host}/?product=#{product}&lang=en-US&os=linux64"
             end
             sh.else do
