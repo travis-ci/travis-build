@@ -23,15 +23,9 @@ module Travis
             sh.mkdir install_dir, echo: false, recursive: true
             sh.chown 'travis', install_dir, recursive: true
             sh.cd install_dir, echo: false, stack: true
-            sh.if 'z$FIREFOX_SOURCE_URL == "z"' do
-              sh.echo "Unable to find Firefox #{version}"
-            end
-            sh.else do
-              sh.echo "Found Firefox $FIREFOX_SOURCE_URL"
-              sh.cmd "wget -O /tmp/#{filename} $FIREFOX_SOURCE_URL", echo: true, timing: true, retry: true
-              sh.cmd "tar xf /tmp/#{filename}"
-              sh.cmd "sudo ln -sf #{install_dir}/firefox/firefox /usr/local/bin/firefox", echo: false
-            end
+            sh.cmd "wget -O /tmp/#{filename} $FIREFOX_SOURCE_URL", echo: true, timing: true, retry: true
+            sh.cmd "tar xf /tmp/#{filename}"
+            sh.cmd "sudo ln -sf #{install_dir}/firefox/firefox /usr/local/bin/firefox", echo: false
             sh.cd :back, echo: false, stack: true
           end
         end

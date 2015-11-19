@@ -27,12 +27,10 @@ describe Travis::Build::Addons::Firefox, :sexp do
     it { should include_sexp [:cd, '$HOME/firefox-20.0', stack: true] }
     it { should include_sexp [:export, ['FIREFOX_SOURCE_URL', "http://#{host}/#{path}"], echo: true] }
 
-    let(:sexp) { sexp_find(sexp_filter(subject, [:if, 'z$FIREFOX_SOURCE_URL == "z"']), [:else]) }
-
-    it { expect(sexp).to include_sexp [:cmd, 'wget -O /tmp/firefox-20.0.tar.bz2 $FIREFOX_SOURCE_URL', echo: true, timing: true, retry: true] }
-    it { expect(sexp).to include_sexp [:cmd, 'tar xf /tmp/firefox-20.0.tar.bz2'] }
-    it { expect(sexp).to include_sexp [:cmd, 'sudo ln -sf $HOME/firefox-20.0/firefox/firefox /usr/local/bin/firefox'] }
-    it { expect(sexp).to include_sexp [:cd, :back, stack: true] }
+    it { should include_sexp [:cmd, 'wget -O /tmp/firefox-20.0.tar.bz2 $FIREFOX_SOURCE_URL', echo: true, timing: true, retry: true] }
+    it { should include_sexp [:cmd, 'tar xf /tmp/firefox-20.0.tar.bz2'] }
+    it { should include_sexp [:cmd, 'sudo ln -sf $HOME/firefox-20.0/firefox/firefox /usr/local/bin/firefox'] }
+    it { should include_sexp [:cd, :back, stack: true] }
   end
 
   context 'given a valid version "latest"' do
