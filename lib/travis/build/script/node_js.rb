@@ -22,6 +22,13 @@ module Travis
 
         def announce
           super
+          if iojs_3_plus?
+            sh.cmd 'echo "int main() {return 0;}" > foo.cpp', echo: false
+            sh.raw "! ($CXX -std=c++11 -o /dev/null foo.cpp >&/dev/null || g++ -std=c++11 -o /dev/null foo.cpp >&/dev/null)" do
+              sh.echo "Starting with io.js 3 and Node.js 4, building native extensions requires C++11-compatible compiler, which seems unavailable on this VM. Please read THIS DOC.", ansi: :yellow
+            end
+            sh.cmd 'rm -f foo.app', echo: false
+          end
           sh.cmd 'node --version'
           sh.cmd 'npm --version'
           sh.cmd 'nvm --version'
@@ -119,6 +126,10 @@ module Travis
               sh.cmd 'npm config set registry http://registry.npmjs.org/', timing: false
               sh.cmd "npm config set proxy #{data.hosts[:npm_cache]}", timing: false
             end
+          end
+
+          def iojs_3_plus?
+            (config[:node_js] || '').to_s.split('.')[0].to_i >= 3
           end
       end
     end
