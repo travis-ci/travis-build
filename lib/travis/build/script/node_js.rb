@@ -25,7 +25,7 @@ module Travis
           if iojs_3_plus?
             sh.cmd 'echo -e "#include <array>\nstd::array<int, 1> arr = {0}; int main() {return 0;}" > foo.cpp', echo: false
             sh.raw "! ($CXX -std=c++11 -o /dev/null foo.cpp >&/dev/null || g++ -std=c++11 -o /dev/null foo.cpp >&/dev/null)" do
-              sh.echo "Starting with io.js 3 and Node.js 4, building native extensions requires C++11-compatible compiler, which seems unavailable on this VM. Please read THIS DOC.", ansi: :yellow
+              sh.echo "Starting with io.js 3 and Node.js 4, building native extensions requires C++11-compatible compiler, which seems unavailable on this VM. Please read https://docs.travis-ci.com/user/languages/javascript-with-nodejs#Node.js-v4-(or-io.js-v3)-compiler-requirements.", ansi: :yellow
             end
             sh.cmd 'rm -f foo.app', echo: false
           end
