@@ -85,19 +85,20 @@ module Travis
           def julia_url
             case config[:os]
             when 'linux'
-              status = 'linux-x86_64'
               osarch = 'linux/x64'
-              ext = "#{status}.tar.gz"
+              ext = 'linux-x86_64.tar.gz'
+              nightlyext = 'linux64.tar.gz'
             when 'osx'
-              status = 'osx10.7+'
               osarch = 'osx/x64'
-              ext = "#{status}.dmg"
+              ext = 'osx10.7+.dmg'
+              nightlyext = 'osx.dmg'
             end
             case config[:julia].to_s
             when 'release'
-              url = "status.julialang.org/stable/#{status}"
+              # CHANGEME on new minor releases (once or twice a year)
+              url = "s3.amazonaws.com/julialang/bin/#{osarch}/0.4/julia-0.4-latest-#{ext}"
             when 'nightly'
-              url = "status.julialang.org/download/#{status}"
+              url = "s3.amazonaws.com/julianightlies/bin/#{osarch}/julia-latest-#{nightlyext}"
             when /^(\d+\.\d+)\.\d+$/
               url = "s3.amazonaws.com/julialang/bin/#{osarch}/#{$1}/julia-#{config[:julia]}-#{ext}"
             when /^(\d+\.\d+)$/
