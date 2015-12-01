@@ -22,6 +22,14 @@ module Travis
         end
 
         def install
+          unless setup_cache_has_run_for[:bundler]
+            setup_cache
+          end
+        end
+
+        def setup_cache
+          return if setup_cache_has_run_for[:bundler]
+
           sh.if gemfile? do
             sh.if gemfile_lock? do
               directory_cache.add(bundler_path(false)) if data.cache?(:bundler)
@@ -33,6 +41,8 @@ module Travis
               sh.cmd bundler_install, fold: "install.bundler", retry: true
             end
           end
+
+          setup_cache_has_run_for[:bundler] = true
         end
 
         def prepare_cache

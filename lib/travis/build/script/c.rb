@@ -29,9 +29,19 @@ module Travis
 
         def install
           super
+          unless setup_cache_has_run_for[:c]
+            setup_cache
+          end
+        end
+
+        def setup_cache
+          return if setup_cache_has_run_for[:c]
+
           if data.cache?(:ccache)
             directory_cache.add('~/.ccache')
           end
+
+          setup_cache_has_run_for[:c] = true
         end
 
         def use_directory_cache?
