@@ -5,8 +5,7 @@ module Travis
         include Chruby
 
         MSGS = {
-          setup_ruby_head:   'Setting up latest %s',
-          ruby_version_file: 'BETA: Using Ruby version from .ruby-version. This is a beta feature and may be removed in the future.'
+          setup_ruby_head:   'Setting up latest %s'
         }
 
         CONFIG = %w(
@@ -84,7 +83,6 @@ module Travis
           end
 
           def use_ruby_version_file
-            sh.echo MSGS[:ruby_version_file], ansi: :yellow
             sh.fold('rvm') do
               sh.cmd 'rvm use $(< .ruby-version) --install --binary --fuzzy'
             end
