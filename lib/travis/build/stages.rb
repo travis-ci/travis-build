@@ -19,7 +19,7 @@ module Travis
       ]
 
       STAGES_WITH_SETUP_CACHE = [
-        :builtin,     [:header, :configure, :checkout, :prepare, :disable_sudo, :export, :setup, :announce, :setup_cache],
+        :builtin,     [:header, :configure, :checkout, :prepare, :disable_sudo, :export, :setup, :setup_cache, :announce],
         :custom,      [:before_install, :install, :before_script, :script, :before_cache],
         :builtin,     [:cache],
         :conditional, [:after_success],
