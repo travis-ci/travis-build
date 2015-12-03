@@ -43,6 +43,7 @@ module Travis
               # Cache bundler if it has been explicitly enabled
               if data.cache?(:bundler, false)
                 sh.fold 'cache.bundler' do
+                  sh.echo ''
                   directory_cache.add(bundler_path(false))
                 end
               end

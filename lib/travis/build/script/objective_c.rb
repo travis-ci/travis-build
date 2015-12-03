@@ -58,6 +58,7 @@ module Travis
           sh.if podfile? do
             if data.cache?(:cocoapods)
               sh.fold 'cache.cocoapods' do
+                sh.echo ''
                 directory_cache.add("#{pod_dir}/Pods")
               end
             end
