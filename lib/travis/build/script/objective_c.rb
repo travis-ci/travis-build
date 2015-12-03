@@ -38,12 +38,6 @@ module Travis
           end
         end
 
-        def setup
-          super
-          sh.cmd "echo '#!/bin/bash\n# no-op' > /usr/local/bin/actool", echo: false
-          sh.cmd 'chmod +x /usr/local/bin/actool', echo: false
-        end
-
         def install
           super
           sh.if podfile? do
