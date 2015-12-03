@@ -36,7 +36,9 @@ module Travis
           return if setup_cache_has_run_for[:cpp]
 
           if data.cache?(:ccache)
-            directory_cache.add('~/.ccache')
+            sh.fold 'cache.ccache' do
+              directory_cache.add('~/.ccache')
+            end
           end
 
           setup_cache_has_run_for[:cpp] = true

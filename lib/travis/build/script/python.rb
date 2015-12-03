@@ -47,7 +47,9 @@ module Travis
           return if setup_cache_has_run_for[:python]
 
           if data.cache?(:pip)
-            directory_cache.add '$HOME/.cache/pip'
+            sh.fold 'cache.pip' do
+              directory_cache.add '$HOME/.cache/pip'
+            end
           end
           sh.if '-f Requirements.txt' do
             sh.cmd 'pip install -r Requirements.txt', fold: 'install', retry: true
