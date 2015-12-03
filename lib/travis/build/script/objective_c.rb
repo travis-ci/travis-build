@@ -40,8 +40,22 @@ module Travis
 
         def install
           super
+          unless setup_cache_has_run_for[:objective_c]
+            setup_cache
+          end
+        end
+
+        def setup_cache
+          super
+          return if setup_cache_has_run_for[:objective_c]
+
           sh.if podfile? do
-            directory_cache.add("#{pod_dir}/Pods") if data.cache?(:cocoapods)
+            if data.cache?(:cocoapods)
+              sh.fold 'cache.cocoapods' do
+                sh.echo ''
+                directory_cache.add("#{pod_dir}/Pods")
+              end
+            end
             sh.if "! ([[ -f #{pod_dir}/Podfile.lock && -f #{pod_dir}/Pods/Manifest.lock ]] && cmp --silent #{pod_dir}/Podfile.lock #{pod_dir}/Pods/Manifest.lock)", raw: true do
               sh.fold('install.cocoapods') do
                 sh.echo "Installing Pods with 'pod install'", ansi: :yellow
@@ -51,6 +65,8 @@ module Travis
               end
             end
           end
+
+          setup_cache_has_run_for[:objective_c] = true
         end
 
         def script
