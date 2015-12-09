@@ -116,9 +116,9 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
 
         def install_php_on_demand(version='nightly')
           sh.echo "#{version} is not pre-installed; installing", ansi: :yellow
-          if version == '7' || version == '7.0'
-            setup_alias(version, '7.0snapshot')
-            version = '7.0snapshot'
+          if version == '7'
+            setup_alias(version, '7.0')
+            version = '7.0'
           end
           sh.cmd "curl -s -o archive.tar.bz2 #{archive_url_for('travis-php-archives', version)} && tar xjf archive.tar.bz2 --directory /", echo: false, assert: false
           sh.cmd "rm -f archive.tar.bz2", echo: false
