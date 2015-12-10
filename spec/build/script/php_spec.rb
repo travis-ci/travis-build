@@ -41,7 +41,7 @@ describe Travis::Build::Script::Php, :sexp do
 
   describe 'installs php 7' do
     before { data[:config][:php] = '7' }
-    it { should include_sexp [:cmd, 'ln -s ~/.phpenv/versions/7.0snapshot ~/.phpenv/versions/7', assert: true, timing: true] }
+    it { should include_sexp [:cmd, 'ln -s ~/.phpenv/versions/7.0 ~/.phpenv/versions/7', assert: true, timing: true] }
   end
 
   describe 'fixes php.ini for hhvm' do
