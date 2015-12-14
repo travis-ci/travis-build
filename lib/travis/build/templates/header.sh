@@ -214,7 +214,7 @@ if grep -q 'us-central1\.gce\.archive' /etc/apt/sources.list ; then
     's/us-central1\.gce\.archive/us-central1.gce.clouds.archive/' \
     /etc/apt/sources.list
   sudo apt-get update
-  travis_fold stop gce.apt_hack
+  travis_fold end gce.apt_hack
 fi
 
 mkdir -p <%= build_dir %>
