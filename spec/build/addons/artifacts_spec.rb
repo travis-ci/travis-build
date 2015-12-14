@@ -12,7 +12,7 @@ describe Travis::Build::Addons::Artifacts, :sexp do
   before :each do
     addon.validator.stubs(valid?: true)
     addon.after_header
-    addon.before_finish
+    addon.after_script
   end
 
   it_behaves_like 'compiled script' do
@@ -60,13 +60,13 @@ describe Travis::Build::Addons::Artifacts, :sexp do
     end
 
     it 'echoes the messages' do
-      addon.before_finish
+      addon.after_script
       should include_sexp [:echo, 'kaputt 1', ansi: :red], [:echo, 'kaputt 2', ansi: :red]
     end
 
     it 'does not run the addon' do
       subject.expects(:run).never
-      addon.before_finish
+      addon.after_script
     end
   end
 end
