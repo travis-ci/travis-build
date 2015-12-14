@@ -3,7 +3,7 @@ module Travis
     class Compile < RepoCommand
       description "compiles a build script from .travis.yml"
 
-      attr_accessor :slug
+      attr_accessor :slug, :source_url
 
       def setup
         error "run command is not available on #{RUBY_VERSION}" if RUBY_VERSION < '1.9.3'
@@ -11,8 +11,15 @@ module Travis
         require 'travis/build'
       end
 
+      def find_source_url
+          git_head    = `git name-rev --name-only HEAD 2>#{IO::NULL}`.chomp
+          git_remote  = `git config --get branch.#{git_head}.remote 2>#{IO::NULL}`.chomp
+          return `git ls-remote --get-url #{git_remote} 2>#{IO::NULL}`.chomp
+      end
+
       def run(*arg)
         @slug = find_slug
+        @source_url = find_source_url
         if match_data = /\A(?<build>\d+)(\.(?<job>\d+))?\z/.match(arg.first)
           set_up_config(match_data)
         elsif arg.length > 0
@@ -45,7 +52,8 @@ module Travis
           {
             :config => @config,
             :repository => {
-              :slug => slug
+              :slug => slug,
+              :source_url => source_url
             }
           }
         end
