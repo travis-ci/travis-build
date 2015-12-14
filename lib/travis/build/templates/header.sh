@@ -210,6 +210,7 @@ fi
 # See https://www.traviscistatus.com/incidents/61yf8nr701zz
 if grep -q 'us-central1\.gce\.archive' /etc/apt/sources.list ; then
   travis_fold start gce.apt_hack
+  echo 'Editing and updating APT sources'
   sudo sed -i \
     's/us-central1\.gce\.archive/us-central1.gce.clouds.archive/' \
     /etc/apt/sources.list
