@@ -206,6 +206,17 @@ if [[ -f /etc/apt/sources.list.d/rabbitmq-source.list ]] ; then
   sudo rm -f /etc/apt/sources.list.d/rabbitmq-source.list
 fi
 
+# XXX Edit GCE mirrors to work around known issue in us-central1
+# See https://www.traviscistatus.com/incidents/61yf8nr701zz
+if grep -q 'us-central1\.gce\.archive' /etc/apt/sources.list ; then
+  travis_fold start gce.apt_hack
+  sudo sed -i \
+    's/us-central1\.gce\.archive/us-central1.gce.clouds.archive/' \
+    /etc/apt/sources.list
+  sudo apt-get update
+  travis_fold stop gce.apt_hack
+fi
+
 mkdir -p <%= build_dir %>
 cd       <%= build_dir %>
 
