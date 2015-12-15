@@ -22,7 +22,7 @@ module Travis
           sh.raw template('artifacts.sh')
         end
 
-        def after_script
+        def after_after_script
           sh.newline
           validator.valid? ? run : warn
           sh.newline
