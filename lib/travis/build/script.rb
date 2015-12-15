@@ -108,6 +108,7 @@ module Travis
           apply :fix_etc_mavenrc
           apply :put_localhost_first
           apply :home_paths
+          apply :remove_zmq_source
         end
 
         def checkout
