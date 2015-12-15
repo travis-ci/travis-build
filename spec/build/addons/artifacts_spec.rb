@@ -17,7 +17,7 @@ describe Travis::Build::Addons::Artifacts, :sexp do
 
   it_behaves_like 'compiled script' do
     let(:code) { ['function travis_artifacts_install()'] }
-    let(:cmds) { ['artifacts.setup', 'artifacts upload'] }
+    let(:cmds) { ['artifacts.setup'] }
   end
 
   it 'adds the artifacts install function' do
@@ -70,4 +70,3 @@ describe Travis::Build::Addons::Artifacts, :sexp do
     end
   end
 end
-
