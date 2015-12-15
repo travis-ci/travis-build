@@ -17,7 +17,7 @@ describe Travis::Build::Addons::Artifacts, :sexp do
 
   it_behaves_like 'compiled script' do
     let(:code) { ['function travis_artifacts_install()'] }
-    let(:cmds) { ['artifacts.setup'] }
+    let(:cmds) { ['artifacts.setup', 'artifacts upload'] }
   end
 
   it 'adds the artifacts install function' do
@@ -49,7 +49,7 @@ describe Travis::Build::Addons::Artifacts, :sexp do
     it 'runs the command' do
       # fold = sexp_filter(subject, [:fold, 'artifacts.upload'])
       # expect(fold).to include_sexp [:cmd, 'artifacts upload']
-      should include_sexp [:cmd, 'artifacts upload']
+      should include_sexp [:cmd, 'artifacts upload', echo: true]
     end
   end
 

@@ -55,7 +55,7 @@ module Travis
           end
 
           def upload
-            sh.cmd "artifacts upload #{options}".strip
+            sh.cmd "artifacts upload #{options}".strip, echo: true
           end
 
           def warn
