@@ -85,6 +85,10 @@ module Travis
         def update_hhvm
           sh.if '"$(lsb_release -sc 2>/dev/null)"' do
             sh.echo 'Updating HHVM', ansi: :yellow
+            sh.if "! $(grep -r hhvm\\.com /etc/apt/sources* 2>/dev/null)" do
+              sh.cmd 'sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0x5a16e7281be7a449'
+              sh.cmd 'echo "deb http://dl.hhvm.com/ubuntu $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list'
+            end
             sh.cmd 'sudo apt-get update -qq'
             sh.cmd 'sudo apt-get install hhvm 2>&1 >/dev/null'
           end
