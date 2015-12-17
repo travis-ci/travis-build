@@ -83,7 +83,7 @@ module Travis
         end
 
         def update_hhvm
-          sh.if '"$(lsb_release -sc 2>/dev/null)" = "precise"' do
+          sh.if '"$(lsb_release -sc 2>/dev/null)"' do
             sh.echo 'Updating HHVM', ansi: :yellow
             sh.cmd 'sudo apt-get update -qq'
             sh.cmd 'sudo apt-get install hhvm 2>&1 >/dev/null'
