@@ -90,7 +90,7 @@ module Travis
               sh.cmd 'echo "deb http://dl.hhvm.com/ubuntu $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list'
             end
             sh.cmd 'sudo apt-get update -qq'
-            sh.cmd 'sudo apt-get install hhvm 2>&1 >/dev/null'
+            sh.cmd 'sudo apt-get install -y hhvm 2>&1 >/dev/null'
           end
         end
 
@@ -101,7 +101,7 @@ module Travis
           end
           sh.echo 'Installing HHVM nightly', ansi: :yellow
           sh.cmd 'sudo apt-get update -qq'
-          sh.cmd 'sudo apt-get install hhvm-nightly 2>&1 >/dev/null'
+          sh.cmd 'sudo apt-get install hhvm-nightly -y 2>&1 >/dev/null'
         end
 
         def fix_hhvm_php_ini
