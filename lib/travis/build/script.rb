@@ -107,6 +107,7 @@ module Travis
           apply :fix_etc_hosts
           apply :fix_etc_mavenrc
           apply :put_localhost_first
+          apply :limit_hostname_length
           apply :home_paths
         end
 
