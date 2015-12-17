@@ -134,12 +134,12 @@ travis_wait() {
     wait $cmd_pid 2>/dev/null
     result=$?
     ps -p$jigger_pid &>/dev/null && kill $jigger_pid
-  } || return 1
+  }
 
   if [ $result -eq 0 ]; then
-    echo -e "\n${ANSI_GREEN}The command \"$TRAVIS_CMD\" exited with $result.${ANSI_RESET}"
+    echo -e "\n${ANSI_GREEN}The command $cmd exited with $result.${ANSI_RESET}"
   else
-    echo -e "\n${ANSI_RED}The command \"$TRAVIS_CMD\" exited with $result.${ANSI_RESET}"
+    echo -e "\n${ANSI_RED}The command $cmd exited with $result.${ANSI_RESET}"
   fi
 
   echo -e "\n${ANSI_GREEN}Log:${ANSI_RESET}\n"
