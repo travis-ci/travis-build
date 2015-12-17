@@ -19,10 +19,12 @@ module Travis
 
         def setup
           super
-          sh.cmd "phpenv global #{version} 2>/dev/null", assert: false
-          sh.if "$? -ne 0" do
-            install_php_on_demand(version)
-            sh.cmd "phpenv global #{version}", assert: true
+          unless hhvm?
+            sh.cmd "phpenv global #{version} 2>/dev/null", assert: false
+            sh.if "$? -ne 0" do
+              install_php_on_demand(version)
+              sh.cmd "phpenv global #{version}", assert: true
+            end
           end
           sh.cmd "phpenv rehash", assert: false, echo: false, timing: false
         end
