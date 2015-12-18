@@ -57,11 +57,11 @@ module Travis
           end
         end
 
-        def after_prepare?
+        def before_prepare?
           SUPPORTED_OPERATING_SYSTEMS.include?(data[:config][:os].to_s)
         end
 
-        def after_prepare
+        def before_prepare
           sh.fold('apt') do
             add_apt_sources unless config_sources.empty?
             add_apt_packages unless config_packages.empty?
@@ -93,7 +93,12 @@ module Travis
               sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
               whitelisted.each do |source|
                 sh.cmd "curl -sSL #{source['key_url'].untaint.inspect} | sudo -E apt-key add -", echo: true, assert: true, timing: true if source['key_url']
-                sh.cmd "sudo -E apt-add-repository -y #{source['sourceline'].untaint.inspect}", echo: true, assert: true, timing: true
+                if source['sourceline'].start_with? 'ppa:'
+                  sh.cmd "sudo -E apt-add-repository -y #{source['sourceline'].untaint.inspect}", echo: true, assert: true, timing: true
+                else
+                  # Avoid adding deb-src lines to work around https://bugs.launchpad.net/ubuntu/+source/software-properties/+bug/987264
+                  sh.cmd "echo #{source['sourceline'].untaint.inspect} | sudo tee -a /etc/apt/sources.list > /dev/null", echo: true, assert: true, timing: true
+                end
               end
             end
           end

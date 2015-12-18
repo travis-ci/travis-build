@@ -34,8 +34,8 @@ describe Travis::Build::Script::C, :sexp do
     let(:data) { payload_for(:push, :c, config: { cache: 'ccache' }) }
 
     describe '#export' do
-      it 'prepends /usr/lib/ccache/bin to PATH' do
-        should include_sexp [:export, ['PATH', '/usr/lib/ccache/bin:$PATH'], echo: true]
+      it 'prepends /usr/lib/ccache to PATH' do
+        should include_sexp [:export, ['PATH', '/usr/lib/ccache:$PATH'], echo: true]
       end
     end
   end

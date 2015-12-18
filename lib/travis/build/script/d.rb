@@ -39,8 +39,12 @@ module Travis
                 'linux' => ['dmd2/linux/bin64', 'dmd2/linux/lib64'],
                 'osx' => ['dmd2/osx/bin', 'dmd2/osx/lib'] }[os]
 
-              sh.cmd "curl #{compiler_url} > ~/dmd.zip"
-              sh.cmd 'unzip -q -d ~ ~/dmd.zip'
+              if compiler_url.end_with? 'tar.xz'
+                sh.cmd "curl #{compiler_url} | tar -C ~ -Jxf -"
+              else
+                sh.cmd "curl #{compiler_url} > ~/dmd.zip"
+                sh.cmd 'unzip -q -d ~ ~/dmd.zip'
+              end
             when 'ldc2'
               binpath, libpath = 'ldc/bin', 'ldc/lib'
 
@@ -57,7 +61,7 @@ module Travis
 
             sh.cmd 'LATEST_DUB=$(curl http://code.dlang.org/download/LATEST)', echo: false
             sh.cmd "curl http://code.dlang.org/files/dub-${LATEST_DUB}-#{os}-x86_64.tar.gz"\
-              " | tar -C ~/#{binpath} -xzf -"
+              " | tar -C ~/#{binpath} -zxf -"
             sh.cmd "export PATH=\"${HOME}/#{binpath}:${PATH}\""
             sh.cmd "export LD_LIBRARY_PATH=\"${HOME}/#{libpath}:${LD_LIBRARY_PATH}\""
           end
@@ -88,23 +92,23 @@ module Travis
           # latest DMD
           when 'dmd'
             sh.cmd 'LATEST_DMD=$(curl http://ftp.digitalmars.com/LATEST)', echo: false
-            "http://downloads.dlang.org/releases/2.x/${LATEST_DMD}/dmd.${LATEST_DMD}.#{os}.zip"
+            "http://downloads.dlang.org/releases/2.x/${LATEST_DMD}/dmd.${LATEST_DMD}.#{os}.tar.xz"
 
           # dmd-2.062, dmd-2.065.0, dmd-2.066.1-rc3
           when /^dmd-2\.(?<maj>\d{3})(?<min>\.\d)?(?<suffix>-.*)?$/
             basename = "dmd.2.#{$~[:maj]}#{$~[:min]}#{$~[:suffix]}"
-            folder = '2.'+$~[:maj]
+            version = '2.'+$~[:maj]
 
-            # since 2.065
-            if $~[:maj].to_i >= 65
-              basename += '.'+os # use smaller OS specific zips
-              folder += $~[:min] # folder uses .minor
+            if version >= '2.065'
+              basename += '.'+os # use smaller OS specific archives
+              version += $~[:min] # version uses .minor
             end
+            arch = version >= '2.068.1' ? 'tar.xz' : 'zip'
 
             if $~[:suffix] # pre-release
-              "http://downloads.dlang.org/pre-releases/2.x/#{folder}/#{basename}.zip"
+              "http://downloads.dlang.org/pre-releases/2.x/#{version}/#{basename}.#{arch}"
             else
-              "http://downloads.dlang.org/releases/2.x/#{folder}/#{basename}.zip"
+              "http://downloads.dlang.org/releases/2.x/#{version}/#{basename}.#{arch}"
             end
 
           # latest LDC
@@ -120,11 +124,11 @@ module Travis
 
           # latest GDC
           when 'gdc'
-            sh.cmd 'LATEST_GDC=$(curl http://ftp.digitalmars.com/LATEST_GDC)', echo: false
+            sh.cmd 'LATEST_GDC=$(curl http://gdcproject.org/downloads/LATEST)', echo: false
             "http://gdcproject.org/downloads/binaries/#{gdc_host_triplet os}/gdc-${LATEST_GDC}.tar.xz"
 
-          # gdc-4.8.2 or gdc-4.9.0-alpha1
-          when /^gdc-(\d+\.\d+\.\d+(-.*)?)$/
+          # gdc-4.8.2, gdc-4.9.0-alpha1, gdc-5.2, or gdc-5.2-alpha1
+          when /^gdc-(\d+\.\d+(\.\d+)?(-.*)?)$/
             "http://gdcproject.org/downloads/binaries/#{gdc_host_triplet os}/gdc-#{$1}.tar.xz"
           end
         end

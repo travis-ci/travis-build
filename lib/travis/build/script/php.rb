@@ -74,12 +74,24 @@ module Travis
         end
 
         def configure_hhvm
-          install_hhvm_nightly if nightly?
+          if nightly?
+            install_hhvm_nightly
+          elsif hhvm?
+            update_hhvm
+          end
           fix_hhvm_php_ini
         end
 
+        def update_hhvm
+          sh.if '"$(lsb_release -sc 2>/dev/null)" = "precise"' do
+            sh.echo 'Updating HHVM', ansi: :yellow
+            sh.cmd 'sudo apt-get update -qq'
+            sh.cmd 'sudo apt-get install hhvm 2>&1 >/dev/null'
+          end
+        end
+
         def install_hhvm_nightly
-          sh.if '$(lsb_release -sc) = "precise"' do
+          sh.if '"$(lsb_release -sc 2>/dev/null)" = "precise"' do
             sh.echo "HHVM nightly is no longer supported on Ubuntu Precise. See https://github.com/travis-ci/travis-ci/issues/3788 and https://github.com/facebook/hhvm/issues/5220", ansi: :yellow
             sh.raw "travis_terminate 1"
           end
@@ -104,16 +116,16 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
 
         def install_php_on_demand(version='nightly')
           sh.echo "#{version} is not pre-installed; installing", ansi: :yellow
-          if version == '7' || version == '7.0'
-            setup_nightly_alias(version)
-            version = 'nightly'
+          if version == '7'
+            setup_alias(version, '7.0')
+            version = '7.0'
           end
-          sh.cmd "curl -s -o archive.tar.bz2 https://s3.amazonaws.com/travis-php-archives/php-#{version}-archive.tar.bz2 && tar xjf archive.tar.bz2 --directory ~/.phpenv/versions/", echo: false, assert: false
+          sh.cmd "curl -s -o archive.tar.bz2 #{archive_url_for('travis-php-archives', version)} && tar xjf archive.tar.bz2 --directory /", echo: false, assert: false
           sh.cmd "rm -f archive.tar.bz2", echo: false
         end
 
-        def setup_nightly_alias(version)
-          sh.cmd "ln -s ~/.phpenv/versions/nightly ~/.phpenv/versions/#{version}", echo: false
+        def setup_alias(from, to)
+          sh.cmd "ln -s ~/.phpenv/versions/#{to} ~/.phpenv/versions/#{from}", echo: false
         end
       end
     end

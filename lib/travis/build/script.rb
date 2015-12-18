@@ -2,6 +2,7 @@ require 'core_ext/hash/deep_merge'
 require 'core_ext/hash/deep_symbolize_keys'
 require 'core_ext/object/false'
 require 'erb'
+require 'rbconfig'
 
 require 'travis/build/addons'
 require 'travis/build/appliances'
@@ -36,6 +37,7 @@ require 'travis/build/script/r'
 require 'travis/build/script/ruby'
 require 'travis/build/script/rust'
 require 'travis/build/script/scala'
+require 'travis/build/script/smalltalk'
 require 'travis/build/script/shared/directory_cache'
 
 module Travis
@@ -54,6 +56,7 @@ module Travis
       include Appliances, DirectoryCache, Deprecation, Template
 
       attr_reader :sh, :data, :options, :validator, :addons, :stages
+      attr_accessor :setup_cache_has_run_for
 
       def initialize(data)
         @data = Data.new({ config: self.class.defaults }.deep_merge(data.deep_symbolize_keys))
@@ -62,6 +65,7 @@ module Travis
         @sh = Shell::Builder.new
         @addons = Addons.new(self, sh, self.data, config)
         @stages = Stages.new(self, sh, config)
+        @setup_cache_has_run_for = {}
       end
 
       def compile(ignore_taint = false)
@@ -75,6 +79,10 @@ module Travis
 
       def cache_slug
         'cache'
+      end
+
+      def archive_url_for(bucket, version, lang = self.class.name.split('::').last.downcase, ext = 'bz2')
+        "https://s3.amazonaws.com/#{bucket}/binaries/#{host_os}/#{rel_version}/$(uname -m)/#{lang}-#{version}.tar.#{ext}"
       end
 
       private
@@ -123,6 +131,24 @@ module Travis
         def config_env_vars
           @config_env_vars ||= Build::Env::Config.new(data, config)
           Array(@config_env_vars.data[:env])
+        end
+
+        def host_os
+          case RbConfig::CONFIG["host_os"]
+          when /^(?i:linux)/
+            '$(lsb_release -is | tr "A-Z" "a-z")'
+          when /^(?i:darwin)/
+            'osx'
+          end
+        end
+
+        def rel_version
+          case RbConfig::CONFIG["host_os"]
+          when /^(?i:linux)/
+            '$(lsb_release -rs)'
+          when /^(?i:darwin)/
+            '${$(sw_vers -productVersion)%*.*}'
+          end
         end
     end
   end

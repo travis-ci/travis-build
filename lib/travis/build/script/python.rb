@@ -10,6 +10,9 @@ module Travis
         REQUIREMENTS_MISSING = 'Could not locate requirements.txt. Override the install: key in your .travis.yml to install dependencies.'
         SCRIPT_MISSING       = 'Please override the script: key in your .travis.yml to run tests.'
 
+        PYENV_PATH_FILE      = '/etc/profile.d/pyenv.sh'
+        TEMP_PYENV_PATH_FILE = '/tmp/pyenv.sh'
+
         def export
           super
           sh.export 'TRAVIS_PYTHON_VERSION', version, echo: false
@@ -19,7 +22,8 @@ module Travis
           super
           sh.if "! -f #{virtualenv_activate}" do
             sh.echo "#{version} is not installed; attempting download", ansi: :yellow
-            install_python_archive( version )
+            install_python_archive version
+            setup_path version
           end
         end
 
@@ -34,8 +38,19 @@ module Travis
         end
 
         def install
+          unless setup_cache_has_run_for[:python]
+            setup_cache
+          end
+        end
+
+        def setup_cache
+          return if setup_cache_has_run_for[:python]
+
           if data.cache?(:pip)
-            directory_cache.add '$HOME/.cache/pip'
+            sh.fold 'cache.pip' do
+              sh.echo ''
+              directory_cache.add '$HOME/.cache/pip'
+            end
           end
           sh.if '-f Requirements.txt' do
             sh.cmd 'pip install -r Requirements.txt', fold: 'install', retry: true
@@ -46,6 +61,8 @@ module Travis
           sh.else do
             sh.echo REQUIREMENTS_MISSING # , ansi: :red
           end
+
+          setup_cache_has_run_for[:python] = true
         end
 
         def script
@@ -86,9 +103,15 @@ module Travis
           end
 
           def install_python_archive(version = 'nightly')
-            sh.cmd "curl -s -o python-#{version}.tar.bz2 https://s3.amazonaws.com/travis-python-archives/python-#{version}.tar.bz2", echo: false
+            puts archive_url_for('travis-python-archives', version)
+            sh.cmd "curl -s -o python-#{version}.tar.bz2 #{archive_url_for('travis-python-archives', version)}", echo: false
             sh.cmd "sudo tar xjf python-#{version}.tar.bz2 --directory /", echo: false
             sh.cmd "rm python-#{version}.tar.bz2", echo: false
+          end
+
+          def setup_path(version = 'nightly')
+            sh.cmd "sed -e 's|export PATH=\\(.*\\)$|export PATH=/opt/python/#{version}/bin:\\1|' #{PYENV_PATH_FILE} > #{TEMP_PYENV_PATH_FILE}"
+            sh.cmd "cat #{TEMP_PYENV_PATH_FILE} | sudo tee #{PYENV_PATH_FILE} > /dev/null"
           end
       end
     end

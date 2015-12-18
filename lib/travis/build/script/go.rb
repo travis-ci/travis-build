@@ -41,7 +41,6 @@ module Travis
         end
 
         def setup
-          super
           sh.cmd %Q'eval "$(gimme #{go_version})"'
 
           # NOTE: $GOPATH is a plural ":"-separated var a la $PATH.  We export
@@ -51,11 +50,17 @@ module Travis
           sh.export 'GOPATH', "#{HOME_DIR}/gopath", echo: true
           sh.export 'PATH', "#{HOME_DIR}/gopath/bin:$PATH", echo: true
 
-          sh.mkdir "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}", recursive: true, assert: false, timing: false
-          sh.cmd "rsync -az ${TRAVIS_BUILD_DIR}/ #{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}/", assert: false, timing: false
+          sh.mkdir "#{HOME_DIR}/gopath/src/#{go_import_path}", recursive: true, assert: false, timing: false
+          sh.cmd "rsync -az ${TRAVIS_BUILD_DIR}/ #{HOME_DIR}/gopath/src/#{go_import_path}/", assert: false, timing: false
 
-          sh.export "TRAVIS_BUILD_DIR", "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}"
-          sh.cd "#{HOME_DIR}/gopath/src/#{data.source_host}/#{data.slug}", assert: true
+          sh.export "TRAVIS_BUILD_DIR", "#{HOME_DIR}/gopath/src/#{go_import_path}"
+          sh.cd "#{HOME_DIR}/gopath/src/#{go_import_path}", assert: true
+
+          # Defer setting up cache until we have changed directories, so that
+          # cache.directories can be properly resolved relative to the directory
+          # in which the user-controlled portion of the build starts
+          # See https://github.com/travis-ci/travis-ci/issues/3055
+          super
         end
 
         def install
@@ -75,7 +80,7 @@ module Travis
             sh.cmd 'true', retry: true, fold: 'install' # TODO instead negate the condition
           end
           sh.else do
-            sh.cmd "#{go_get_cmd} #{config[:gobuild_args]} ./...", retry: true, fold: 'install'
+            sh.cmd "#{go_get_cmd} #{gobuild_args} ./...", retry: true, fold: 'install'
           end
         end
 
@@ -84,7 +89,7 @@ module Travis
             sh.cmd 'make'
           end
           sh.else do
-            sh.cmd "go test #{config[:gobuild_args]} ./..."
+            sh.cmd "go test #{gobuild_args} ./..."
           end
         end
 
@@ -100,6 +105,10 @@ module Travis
 
           def gobuild_args
             config[:gobuild_args]
+          end
+
+          def go_import_path
+            config[:go_import_path] || "#{data.source_host}/#{data.slug}"
           end
 
           def go_version

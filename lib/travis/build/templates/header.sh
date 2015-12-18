@@ -1,6 +1,10 @@
 #!/bin/bash
 source /etc/profile
 
+if [[ -s ~/.bash_profile ]] ; then
+  source ~/.bash_profile
+fi
+
 ANSI_RED="\033[31;1m"
 ANSI_GREEN="\033[32;1m"
 ANSI_RESET="\033[0m"
@@ -130,12 +134,12 @@ travis_wait() {
     wait $cmd_pid 2>/dev/null
     result=$?
     ps -p$jigger_pid &>/dev/null && kill $jigger_pid
-  } || return 1
+  }
 
   if [ $result -eq 0 ]; then
-    echo -e "\n${ANSI_GREEN}The command \"$TRAVIS_CMD\" exited with $result.${ANSI_RESET}"
+    echo -e "\n${ANSI_GREEN}The command $cmd exited with $result.${ANSI_RESET}"
   else
-    echo -e "\n${ANSI_RED}The command \"$TRAVIS_CMD\" exited with $result.${ANSI_RESET}"
+    echo -e "\n${ANSI_RED}The command $cmd exited with $result.${ANSI_RESET}"
   fi
 
   echo -e "\n${ANSI_GREEN}Log:${ANSI_RESET}\n"

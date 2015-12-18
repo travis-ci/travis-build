@@ -22,7 +22,7 @@ module Travis
           sh.raw template('artifacts.sh')
         end
 
-        def before_finish
+        def after_after_script
           sh.newline
           validator.valid? ? run : warn
           sh.newline
@@ -55,7 +55,7 @@ module Travis
           end
 
           def upload
-            sh.cmd "artifacts upload #{options}".strip
+            sh.cmd "artifacts upload #{options}".strip, echo: true
           end
 
           def warn

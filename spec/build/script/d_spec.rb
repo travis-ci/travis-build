@@ -54,7 +54,7 @@ describe Travis::Build::Script::D, :sexp do
     it 'downloads the latest dmd version' do
       should include_sexp [:cmd, %r{LATEST_DMD=.*curl.*},
                            assert: true, timing: true]
-      should include_sexp [:cmd, %r{downloads\.dlang\.org/releases/.*/dmd.*\${LATEST_DMD}.*\.zip},
+      should include_sexp [:cmd, %r{downloads\.dlang\.org/releases/.*/dmd.*\${LATEST_DMD}.*\.tar\.xz},
                            assert: true, echo: true, timing: true]
     end
   end
@@ -90,6 +90,30 @@ describe Travis::Build::Script::D, :sexp do
 
     it 'downloads from a folder without minor version' do
       should include_sexp [:cmd, %r{downloads\.dlang\.org/releases/2\.x/2\.064/dmd.*2\.064\.2.*\.zip},
+                           assert: true, echo: true, timing: true]
+    end
+  end
+
+  context 'when a < 2.068.1 version is configured' do
+    before do
+      data[:config][:d] = 'dmd-2.068.0'
+    end
+
+    it 'downloads a zip archive' do
+      should include_sexp [:cmd, %r{downloads\.dlang\.org/releases/2\.x/2\.068\.0/dmd.*2\.068\.0.*\.zip},
+                           assert: true, echo: true, timing: true]
+      should include_sexp [:cmd, %r{unzip},
+                           assert: true, echo: true, timing: true]
+    end
+  end
+
+  context 'when a >= 2.068.1 version is configured' do
+    before do
+      data[:config][:d] = 'dmd-2.068.1'
+    end
+
+    it 'downloads an LZMA archive' do
+      should include_sexp [:cmd, %r{downloads\.dlang\.org/releases/2\.x/2\.068\.1/dmd.*2\.068\.1.*\.tar\.xz \| tar.*-Jx},
                            assert: true, echo: true, timing: true]
     end
   end
@@ -178,6 +202,19 @@ describe Travis::Build::Script::D, :sexp do
 
     it 'downloads and installs gdc' do
       should include_sexp [:cmd, %r{gdcproject\.org/downloads/.*4\.8\.2.*\.tar\..*},
+                           assert: true, echo: true, timing: true]
+    end
+  end
+
+  context 'when a gdc 5.x version is configured' do
+    before do
+      data[:config][:d] = 'gdc-5.2'
+    end
+
+    it_behaves_like 'gdc'
+
+    it 'downloads and installs gdc' do
+      should include_sexp [:cmd, %r{gdcproject\.org/downloads/.*5\.2.*\.tar\..*},
                            assert: true, echo: true, timing: true]
     end
   end

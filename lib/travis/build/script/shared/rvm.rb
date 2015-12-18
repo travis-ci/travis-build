@@ -50,6 +50,7 @@ module Travis
           end
 
           def setup_rvm
+            sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
             sh.file '$rvm_path/user/db', CONFIG.join("\n")
             send rvm_strategy
           end
