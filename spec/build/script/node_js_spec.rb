@@ -33,7 +33,7 @@ describe Travis::Build::Script::NodeJs, :sexp do
         let(:sexp)   { sexp_filter(subject, [:if, '-f .nvmrc'], [:then]) }
 
         it 'sets the version from .nvmrc' do
-          expect(sexp).to include_sexp [:cmd, 'nvm install', assert: true, echo: true, timing: true]
+          expect(sexp).to include_sexp [:cmd, 'nvm install $(< .nvmrc)', assert: true, echo: true, timing: true]
         end
 
         it 'sets TRAVIS_NODE_VERSION form .nvmrc' do
