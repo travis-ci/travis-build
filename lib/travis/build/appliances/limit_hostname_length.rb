@@ -10,6 +10,10 @@ module Travis
           sh.raw 'sudo hostname "$(hostname | cut -d. -f1 | cut -d- -f1-2)-job-' + job[:id].to_s + '"', echo: true
           sh.raw 'sed -e "s/^\\(127\\.0\\.0\\.1.*\\)/\\1 $(hostname -f | cut -d. -f1 | cut -d- -f1-2)-job-' + job[:id].to_s + '/" /etc/hosts | sudo tee /etc/hosts', echo: true
         end
+
+        def apply?
+          ! data.disable_sudo?
+        end
       end
     end
   end
