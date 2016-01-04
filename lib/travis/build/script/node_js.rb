@@ -97,7 +97,7 @@ module Travis
           end
 
           def install_version(ver)
-            sh.cmd "nvm install #{ver}"
+            sh.cmd "nvm install #{ver}", assert: false
             sh.if '$? -ne 0' do
               sh.echo "Remote repository may not be reachable", ansi: :yellow
               sh.cmd "nvm use #{ver}"
