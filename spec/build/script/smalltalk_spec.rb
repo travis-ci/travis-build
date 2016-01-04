@@ -23,7 +23,7 @@ describe Travis::Build::Script::Smalltalk, :sexp do
       data[:config][:os] = 'linux'
     end
     it 'installs the dependencies' do
-      should include_sexp [:cmd, "sudo apt-get install --no-install-recommends libc6:i386 libuuid1:i386 libfreetype6:i386", retry: true]
+      should include_sexp [:cmd, "sudo apt-get install --no-install-recommends libc6:i386 libuuid1:i386 libfreetype6:i386 libssl1.0.0:i386", retry: true]
     end
   end
 
@@ -32,7 +32,7 @@ describe Travis::Build::Script::Smalltalk, :sexp do
       data[:config][:os] = 'osx'
     end
     it 'does not try to call apt-get' do
-      should_not include_sexp [:cmd, "sudo apt-get install --no-install-recommends libc6:i386 libuuid1:i386 libfreetype6:i386", retry: true]
+      should_not include_sexp [:cmd, "sudo apt-get install --no-install-recommends libc6:i386 libuuid1:i386 libfreetype6:i386 libssl1.0.0:i386", retry: true]
     end
   end
 
