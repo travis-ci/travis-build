@@ -28,6 +28,8 @@ If you wish to just run the specs, you can just run `bundle exec rspec spec`.
 You can set travis-build up as a plugin for the [command line client](https://github.com/travis-ci/travis.rb):
 
     ln -s PATH_TO_TRAVIS_BUILD ~/.travis/travis-build
+    gem install bundler
+    bundle install --gemfile ~/.travis/travis-build/Gemfile
 
 This will add the `compile` command to travis CLI, which produces
 the bash script that runs the specified job, except that the secure environment
