@@ -12,7 +12,7 @@ module Travis
               sh.echo 'Installing dependencies', ansi: :yellow
               sh.cmd 'sudo apt-get update -qq', retry: true
               sh.cmd 'sudo apt-get install --no-install-recommends ' +
-                     'libc6:i386 libuuid1:i386 libfreetype6:i386', retry: true
+                     'libc6:i386 libuuid1:i386 libfreetype6:i386 libssl1.0.0:i386', retry: true
             end
           when 'osx'
             # pass
@@ -22,6 +22,7 @@ module Travis
         def export
           super
           sh.export 'SMALLTALK', config[:smalltalk], echo: false
+          sh.export 'BASELINE', config[:baseline], echo: false
          end
 
         def setup

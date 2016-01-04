@@ -19,12 +19,10 @@ module Travis
 
         def setup
           super
-          unless hhvm?
-            sh.cmd "phpenv global #{version} 2>/dev/null", assert: false
-            sh.if "$? -ne 0" do
-              install_php_on_demand(version)
-              sh.cmd "phpenv global #{version}", assert: true
-            end
+          sh.cmd "phpenv global #{version} 2>/dev/null", assert: false
+          sh.if "$? -ne 0" do
+            install_php_on_demand(version)
+            sh.cmd "phpenv global #{version}", assert: true
           end
           sh.cmd "phpenv rehash", assert: false, echo: false, timing: false
         end
@@ -85,14 +83,10 @@ module Travis
         end
 
         def update_hhvm
-          sh.if '"$(lsb_release -sc 2>/dev/null)"' do
+          sh.if '"$(lsb_release -sc 2>/dev/null)" = "precise"' do
             sh.echo 'Updating HHVM', ansi: :yellow
-            sh.if "! $(grep -r hhvm\\.com /etc/apt/sources* 2>/dev/null)" do
-              sh.cmd 'sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0x5a16e7281be7a449'
-              sh.cmd 'echo "deb http://dl.hhvm.com/ubuntu $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list'
-            end
             sh.cmd 'sudo apt-get update -qq'
-            sh.cmd 'sudo apt-get install -y hhvm 2>&1 >/dev/null'
+            sh.cmd 'sudo apt-get install hhvm 2>&1 >/dev/null'
           end
         end
 
@@ -103,7 +97,7 @@ module Travis
           end
           sh.echo 'Installing HHVM nightly', ansi: :yellow
           sh.cmd 'sudo apt-get update -qq'
-          sh.cmd 'sudo apt-get install hhvm-nightly -y 2>&1 >/dev/null'
+          sh.cmd 'sudo apt-get install hhvm-nightly 2>&1 >/dev/null'
         end
 
         def fix_hhvm_php_ini

@@ -56,7 +56,7 @@ describe Travis::Build::Script::Php, :sexp do
   describe 'installs hhvm-nightly' do
     before { data[:config][:php] = 'hhvm-nightly' }
     it { should include_sexp [:cmd, 'sudo apt-get update -qq'] }
-    it { should include_sexp [:cmd, 'sudo apt-get install hhvm-nightly -y 2>&1 >/dev/null'] }
+    it { should include_sexp [:cmd, 'sudo apt-get install hhvm-nightly 2>&1 >/dev/null'] }
   end
 
   describe 'when desired PHP version is not found' do
