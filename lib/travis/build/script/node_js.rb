@@ -101,9 +101,6 @@ module Travis
             sh.if '$? -ne 0' do
               sh.echo "Remote repository may not be reachable", ansi: :yellow
               sh.cmd "nvm use #{ver}"
-              sh.if '$? -ne 0' do
-                sh.terminate 2, "Node.js version #{ver} is unavailable"
-              end
             end
             sh.export 'TRAVIS_NODE_VERSION', ver, echo: false
           end
