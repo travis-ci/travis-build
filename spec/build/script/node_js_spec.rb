@@ -67,16 +67,8 @@ describe Travis::Build::Script::NodeJs, :sexp do
     should include_sexp [:cmd, 'npm config set spin false', assert: true]
   end
 
-  context 'when package.json defines .engines.npm' do
-    let(:sexp) { sexp_find(sexp_find(sexp_filter(subject, [:if, '-f package.json'])[0], [:then]), [:if, '$? -eq 0']) }
-
-    it "installs specified npm" do
-      expect(sexp).to include_sexp [:cmd, "npm install -g npm@$(jq -r .engines.npm package.json)", echo: true, timing: true]
-    end
-  end
-
   describe 'if package.json exists' do
-    let(:sexp) { sexp_find(sexp_filter(subject, [:if, '-f package.json'])[1], [:then]) }
+    let(:sexp) { sexp_find(subject, [:if, '-f package.json'], [:then]) }
 
     it 'installs with npm install --npm-args' do
       data[:config][:npm_args] = '--npm-args'
@@ -85,7 +77,7 @@ describe Travis::Build::Script::NodeJs, :sexp do
   end
 
   describe 'script' do
-    let(:sexp) { sexp_filter(subject, [:if, '-f package.json'])[2] }
+    let(:sexp) { sexp_filter(subject, [:if, '-f package.json'])[1] }
 
     it 'runs npm test if package.json exists' do
       branch = sexp_find(sexp, [:then])
