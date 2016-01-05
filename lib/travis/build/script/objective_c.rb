@@ -21,6 +21,7 @@ module Travis
           sh.fold 'announce' do
             sh.cmd 'xcodebuild -version -sdk'
             sh.cmd 'xctool -version'
+            sh.cmd 'xcrun simctl list'
           end
 
           sh.if use_ruby_motion do
