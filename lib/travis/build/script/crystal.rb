@@ -9,22 +9,29 @@ module Travis
           sh.fold 'crystal_install' do
             sh.echo 'Installing Crystal', ansi: :yellow
 
-            sh.cmd %q(sudo sh -c 'apt-key adv --keyserver keys.gnupg.net --recv-keys 09617FD37CC06B54')
-
             version = select_version
             return unless version
 
-            sh.cmd %Q(sudo sh -c 'echo "deb #{version[:url]} crystal main" > /etc/apt/sources.list.d/crystal-nightly.list')
-            sh.cmd %q(sudo sh -c 'apt-get update')
-            sh.cmd %Q(sudo apt-get install #{version[:package]})
+            case config[:os]
+            when 'linux'
+              sh.cmd %q(sudo sh -c 'apt-key adv --keyserver keys.gnupg.net --recv-keys 09617FD37CC06B54')
+              sh.cmd %Q(sudo sh -c 'echo "deb #{version[:apt][:url]} crystal main" > /etc/apt/sources.list.d/crystal-nightly.list')
+              sh.cmd %q(sudo sh -c 'apt-get update')
+              sh.cmd %Q(sudo apt-get install #{version[:apt][:package]})
 
-            sh.echo 'Installing Shards', ansi: :yellow
+              sh.echo 'Installing Shards', ansi: :yellow
 
-            sh.cmd %q(sudo sh -c "curl -sL https://github.com/ysbaddaden/shards/releases/latest | \
-                      egrep -o '/ysbaddaden/shards/releases/download/v[0-9\.]*/shards.*linux_.*64.gz' | \
-                      wget --base=http://github.com/ -i - -O - | \
-                      gunzip > /usr/local/bin/shards && \
-                      chmod +x /usr/local/bin/shards")
+              sh.cmd %q(sudo sh -c "curl -sL https://github.com/ysbaddaden/shards/releases/latest | \
+                        egrep -o '/ysbaddaden/shards/releases/download/v[0-9\.]*/shards.*linux_.*64.gz' | \
+                        wget --base=http://github.com/ -i - -O - | \
+                        gunzip > /usr/local/bin/shards && \
+                        chmod +x /usr/local/bin/shards")
+            when 'osx'
+              sh.cmd %q(brew update)
+              sh.cmd %Q(brew install #{version[:brew][:package]})
+            else
+              sh.failure "Unsupported OS #{config[:os]}. Must be linux or osx"
+            end
           end
         end
 
@@ -61,13 +68,23 @@ module Travis
           case config[:crystal]
           when nil, "latest"
             {
-              url: "http://dist.crystal-lang.org/apt",
-              package: "crystal"
+              apt: {
+                url: "http://dist.crystal-lang.org/apt",
+                package: "crystal"
+              },
+              brew: {
+                package: "crystal-lang"
+              }
             }
           when "nightly"
             {
-              url: "http://nightly.crystal-lang.org/apt",
-              package: "crystal-nightly"
+              apt: {
+                url: "http://nightly.crystal-lang.org/apt",
+                package: "crystal-nightly"
+              },
+              brew: {
+                package: "crystal-lang --HEAD"
+              }
             }
           else
             sh.failure %Q("#{config[:crystal]}" is an invalid version of Crystal.\nView valid versions of Crystal at http://docs.travis-ci.com/user/languages/crystal/)
