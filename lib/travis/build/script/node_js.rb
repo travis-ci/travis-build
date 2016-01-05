@@ -18,6 +18,7 @@ module Travis
           npm_disable_spinner
           npm_disable_strict_ssl unless npm_strict_ssl?
           setup_npm_cache if use_npm_cache?
+          install_npm_from_package_json
         end
 
         def announce
@@ -130,6 +131,16 @@ module Travis
 
           def iojs_3_plus?
             (config[:node_js] || '').to_s.split('.')[0].to_i >= 3
+          end
+
+          def install_npm_from_package_json
+            sh.if '-f package.json' do
+              sh.cmd 'jq -e .engines.npm package.json >/dev/null', echo: false, assert: false
+              sh.if '$? -eq 0' do
+                sh.echo "Installing npm specified in package.json: $(jq -r .engines.npm package.json)", ansi: :yellow
+                sh.cmd "npm install -g npm@$(jq -r .engines.npm package.json)", echo: true, assert: false
+              end
+            end
           end
       end
     end
