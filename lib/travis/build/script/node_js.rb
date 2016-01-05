@@ -86,18 +86,24 @@ module Travis
           def use_nvm_default
             sh.if '-f .nvmrc' do
               sh.echo "Using nodejs version from .nvmrc", ansi: :yellow
-              sh.cmd "nvm install"
-              sh.export 'TRAVIS_NODE_VERSION', '$(< .nvmrc)', echo: false
+              install_version '$(< .nvmrc)'
             end
             sh.else do
-              sh.cmd "nvm install #{DEFAULT_VERSION}"
-              sh.export 'TRAVIS_NODE_VERSION', DEFAULT_VERSION, echo: false
+              install_version DEFAULT_VERSION
             end
           end
 
           def use_nvm_version
-            sh.cmd "nvm install #{version}"
-            sh.export 'TRAVIS_NODE_VERSION', version, echo: false
+            install_version version
+          end
+
+          def install_version(ver)
+            sh.cmd "nvm install #{ver}", assert: false
+            sh.if '$? -ne 0' do
+              sh.echo "Remote repository may not be reachable", ansi: :yellow
+              sh.cmd "nvm use #{ver}"
+            end
+            sh.export 'TRAVIS_NODE_VERSION', ver, echo: false
           end
 
           def npm_disable_spinner
