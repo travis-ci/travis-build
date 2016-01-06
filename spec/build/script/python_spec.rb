@@ -39,7 +39,7 @@ describe Travis::Build::Script::Python, :sexp do
 
   it 'sets up the python version nightly' do
     data[:config][:python] = 'nightly'
-    should include_sexp [:cmd,  'sudo tar xjf python-nightly.tar.bz2 --directory /']
+    should include_sexp [:cmd,  'sudo tar -xjf python-nightly.tar.bz2 --directory /']
     should include_sexp [:cmd,  'source ~/virtualenv/pythonnightly/bin/activate', assert: true, echo: true, timing: true]
   end
 

@@ -28,7 +28,7 @@ describe Travis::Build::Addons::Firefox, :sexp do
     it { should include_sexp [:export, ['FIREFOX_SOURCE_URL', "'https://#{host}/#{path}'"], echo: true] }
 
     it { should include_sexp [:cmd, 'wget -O /tmp/firefox-20.0.tar.bz2 $FIREFOX_SOURCE_URL', echo: true, timing: true, retry: true] }
-    it { should include_sexp [:cmd, 'tar xf /tmp/firefox-20.0.tar.bz2'] }
+    it { should include_sexp [:cmd, 'tar -xf /tmp/firefox-20.0.tar.bz2'] }
     it { should include_sexp [:cmd, 'sudo ln -sf $HOME/firefox-20.0/firefox/firefox /usr/local/bin/firefox'] }
     it { should include_sexp [:cd, :back, stack: true] }
   end

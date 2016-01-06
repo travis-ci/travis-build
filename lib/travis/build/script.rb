@@ -134,7 +134,7 @@ module Travis
         end
 
         def host_os
-          case RbConfig::CONFIG["host_os"]
+          case rbconfig_host_os
           when /^(?i:linux)/
             '$(lsb_release -is | tr "A-Z" "a-z")'
           when /^(?i:darwin)/
@@ -143,12 +143,16 @@ module Travis
         end
 
         def rel_version
-          case RbConfig::CONFIG["host_os"]
+          case rbconfig_host_os
           when /^(?i:linux)/
             '$(lsb_release -rs)'
           when /^(?i:darwin)/
             '${$(sw_vers -productVersion)%*.*}'
           end
+        end
+
+        def rbconfig_host_os
+          RbConfig::CONFIG["host_os"]
         end
     end
   end

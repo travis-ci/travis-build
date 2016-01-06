@@ -1,10 +1,16 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Php, :sexp do
-  let(:data)     { payload_for(:push, :php) }
-  let(:script)   { described_class.new(data) }
+  let(:data) { payload_for(:push, :php) }
+  let(:script) { described_class.new(data) }
+
   subject(:sexp) { script.sexp }
-  it             { store_example }
+
+  before do
+    script.stubs(:rbconfig_host_os).returns('linux')
+  end
+
+  it { store_example }
 
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=php'] }
@@ -36,7 +42,15 @@ describe Travis::Build::Script::Php, :sexp do
 
   describe 'installs php nightly' do
     before { data[:config][:php] = 'nightly' }
-    xit { should include_sexp [:cmd, 'curl -s -o archive.tar.bz2 https://s3.amazonaws.com/travis-php-archives/php-nightly-archive.tar.bz2 && tar xjf archive.tar.bz2 --directory /', timing: true] }
+    it do
+      should include_sexp(
+        [
+          :cmd,
+          'curl -s -o archive.tar.bz2 https://s3.amazonaws.com/travis-php-archives/binaries/$(lsb_release -is | tr "A-Z" "a-z")/$(lsb_release -rs)/$(uname -m)/php-nightly.tar.bz2 && tar -xjf archive.tar.bz2 --directory /',
+          timing: true
+        ]
+      )
+    end
   end
 
   describe 'installs php 7' do
@@ -64,8 +78,14 @@ describe Travis::Build::Script::Php, :sexp do
     let(:data) { payload_for(:push, :php, config: { php: version }) }
     let(:sexp) { sexp_find(subject, [:if, "$? -ne 0"], [:then]) }
 
-    xit 'installs PHP version on demand' do
-      expect(sexp).to include_sexp [:cmd, "curl -s -o archive.tar.bz2 https://s3.amazonaws.com/travis-php-archives/php-#{version}-archive.tar.bz2 && tar xjf archive.tar.bz2 --directory /", timing: true]
+    it 'installs PHP version on demand' do
+      expect(sexp).to include_sexp(
+        [
+          :cmd,
+          %{curl -s -o archive.tar.bz2 https://s3.amazonaws.com/travis-php-archives/binaries/$(lsb_release -is | tr "A-Z" "a-z")/$(lsb_release -rs)/$(uname -m)/php-#{version}.tar.bz2 && tar -xjf archive.tar.bz2 --directory /},
+          timing: true
+        ]
+      )
     end
   end
 

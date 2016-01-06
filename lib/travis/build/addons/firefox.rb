@@ -24,7 +24,7 @@ module Travis
             sh.chown 'travis', install_dir, recursive: true
             sh.cd install_dir, echo: false, stack: true
             sh.cmd "wget -O /tmp/#{filename} $FIREFOX_SOURCE_URL", echo: true, timing: true, retry: true
-            sh.cmd "tar xf /tmp/#{filename}"
+            sh.cmd "tar -xf /tmp/#{filename}"
             sh.cmd "sudo ln -sf #{install_dir}/firefox/firefox /usr/local/bin/firefox", echo: false
             sh.cd :back, echo: false, stack: true
           end

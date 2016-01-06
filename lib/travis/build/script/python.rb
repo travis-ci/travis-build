@@ -105,7 +105,7 @@ module Travis
           def install_python_archive(version = 'nightly')
             puts archive_url_for('travis-python-archives', version)
             sh.cmd "curl -s -o python-#{version}.tar.bz2 #{archive_url_for('travis-python-archives', version)}", echo: false
-            sh.cmd "sudo tar xjf python-#{version}.tar.bz2 --directory /", echo: false
+            sh.cmd "sudo tar -xjf python-#{version}.tar.bz2 --directory /", echo: false
             sh.cmd "rm python-#{version}.tar.bz2", echo: false
           end
 

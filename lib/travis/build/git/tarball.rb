@@ -24,7 +24,7 @@ module Travis
           end
 
           def extract
-            sh.cmd "tar xfz #{filename}"
+            sh.cmd "tar -xfz #{filename}"
           end
 
           def move

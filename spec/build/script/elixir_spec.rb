@@ -1,9 +1,14 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Elixir, :sexp do
-  let(:data)   { payload_for(:push, :elixir) }
+  let(:data) { payload_for(:push, :elixir) }
   let(:script) { described_class.new(data) }
-  subject      { script.sexp }
+
+  subject { script.sexp }
+
+  before do
+    script.stubs(:rbconfig_host_os).returns('linux')
+  end
 
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=elixir'] }
@@ -56,16 +61,28 @@ describe Travis::Build::Script::Elixir, :sexp do
 
         if otp_release_wanted == otp_release_required
           describe "wanted OTP release #{otp_release_wanted}" do
-            xit "is installed" do
+            it "is installed" do
               sexp = sexp_find(subject, [:if, "! -f #{Travis::Build::HOME_DIR}/otp/#{otp_release_wanted}/activate"], [:then])
-              expect(sexp).to include_sexp([:cmd, "wget https://s3.amazonaws.com/travis-otp-releases/ubuntu/$(lsb_release -rs)/erlang-#{otp_release_wanted}-x86_64.tar.bz2", assert: true, echo: true, timing: true])
+              expect(sexp).to include_sexp(
+                [
+                  :cmd,
+                  %{wget https://s3.amazonaws.com/travis-otp-releases/binaries/$(lsb_release -is | tr "A-Z" "a-z")/$(lsb_release -rs)/$(uname -m)/erlang-#{otp_release_wanted}-nonroot.tar.bz2},
+                  assert: true, echo: true, timing: true
+                ]
+              )
             end
           end
         else
           describe "required OTP release #{otp_release_required}" do
-            xit "is installed" do
+            it "is installed" do
               sexp = sexp_find(subject, [:if, "! -f #{Travis::Build::HOME_DIR}/otp/#{otp_release_required}/activate"], [:then])
-              expect(sexp).to include_sexp([:cmd, "wget https://s3.amazonaws.com/travis-otp-releases/ubuntu/$(lsb_release -rs)/erlang-#{otp_release_required}-x86_64.tar.bz2", assert: true, echo: true, timing: true])
+              expect(sexp).to include_sexp(
+                [
+                  :cmd,
+                  %{wget https://s3.amazonaws.com/travis-otp-releases/binaries/$(lsb_release -is | tr "A-Z" "a-z")/$(lsb_release -rs)/$(uname -m)/erlang-#{otp_release_required}-nonroot.tar.bz2},
+                  assert: true, echo: true, timing: true
+                ]
+              )
             end
           end
         end

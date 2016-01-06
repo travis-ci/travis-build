@@ -21,7 +21,7 @@ describe Travis::Build::Git::Clone, :sexp do
   let(:curl)     { "curl -o #{file} -H \"Authorization: token #{token}\" -L #{url}" }
   let(:echo)     { "curl -o #{file} -H \"Authorization: token [SECURE]\" -L #{url}" }
   let(:download) { [:cmd, curl, assert: true, echo: echo, retry: true, timing: true] }
-  let(:extract)  { [:cmd, "tar xfz #{file}", assert: true, echo: true, timing: true] }
+  let(:extract)  { [:cmd, "tar -xfz #{file}", assert: true, echo: true, timing: true] }
   let(:move)     { [:mv, ['travis-ci-travis-ci-313f61b/*', 'travis-ci/travis-ci'], assert: true] }
   let(:cd)       { [:cd, 'travis-ci/travis-ci', echo: true] }
 
