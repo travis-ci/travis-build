@@ -1,3 +1,4 @@
+require 'travis/build/appliances/add_github_host_key'
 require 'travis/build/appliances/checkout'
 require 'travis/build/appliances/deprecations'
 require 'travis/build/appliances/disable_sudo'
