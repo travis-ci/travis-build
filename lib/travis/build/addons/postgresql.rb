@@ -11,6 +11,7 @@ module Travis
         DEFAULT_FALLBACK_PORT = 5433
 
         def after_prepare
+          install(version)
           sh.fold 'postgresql' do
             sh.export 'PATH', "/usr/lib/postgresql/#{version}/bin:$PATH", echo: false
             sh.echo "Starting PostgreSQL v#{version}", ansi: :yellow
@@ -30,6 +31,20 @@ module Travis
 
           def version
             config.to_s.shellescape
+          end
+
+          def install(version)
+            sh.if "! (#{version_installed?(version)})" do
+              sh.fold "install.postgresql_#{version}" do
+                sh.echo "Installing PostgreSQL #{version}", ansi: :yellow
+                sh.cmd "sudo apt-get update -qq"
+                sh.cmd "sudo apt-get install postgresql-contrib-#{version}", echo: true
+              end
+            end
+          end
+
+          def version_installed?(version)
+            "test -d /usr/lib/postgresql/#{version}/bin"
           end
       end
     end
