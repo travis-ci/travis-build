@@ -34,7 +34,7 @@ module Travis
           end
 
           def install(version)
-            sh.if "! (#{version_installed?(version)})" do
+            sh.if "!(#{version_installed?(version)})" do
               sh.fold "install.postgresql_#{version}" do
                 sh.echo "Installing PostgreSQL #{version}", ansi: :yellow
                 sh.cmd "sudo apt-get update -qq"
