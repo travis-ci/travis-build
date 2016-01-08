@@ -34,7 +34,7 @@ module Travis
           end
 
           def install(version)
-            sh.if "!(#{version_installed?(version)})" do
+            sh.if "! -x #{postgresql_executable(version)}" do
               sh.fold "install.postgresql_#{version}" do
                 sh.echo "Installing PostgreSQL #{version}", ansi: :yellow
                 sh.cmd 'service postgresql stop', assert: false, sudo: true, echo: true, timing: true
@@ -44,8 +44,8 @@ module Travis
             end
           end
 
-          def version_installed?(version)
-            "test -d /usr/lib/postgresql/#{version}/bin"
+          def postgresql_executable(version)
+            "/usr/lib/postgresql/#{version}/bin/postgres"
           end
       end
     end
