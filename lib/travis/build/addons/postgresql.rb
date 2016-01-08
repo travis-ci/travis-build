@@ -39,7 +39,7 @@ module Travis
                 sh.echo "Installing PostgreSQL #{version}", ansi: :yellow
                 sh.cmd 'service postgresql stop', assert: false, sudo: true, echo: true, timing: true
                 sh.cmd "sudo apt-get update -qq"
-                sh.cmd "sudo apt-get install postgresql-contrib-#{version}", echo: true
+                sh.cmd "sudo apt-get install -y postgresql-contrib-#{version}", echo: true
               end
             end
           end
