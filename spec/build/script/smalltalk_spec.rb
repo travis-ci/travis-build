@@ -4,6 +4,7 @@ describe Travis::Build::Script::Smalltalk, :sexp do
   let(:data)   { payload_for(:push, :smalltalk) }
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
+  it           { store_example }
 
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=smalltalk'] }
@@ -20,6 +21,7 @@ describe Travis::Build::Script::Smalltalk, :sexp do
 
   describe 'on Linux' do
     before do
+      data[:config][:smalltalk] = 'Squeak-5.0'
       data[:config][:os] = 'linux'
     end
     it 'installs the dependencies' do
@@ -41,8 +43,8 @@ describe Travis::Build::Script::Smalltalk, :sexp do
       data[:config][:smalltalk] = 'Squeak-5.0'
     end
 
-    it 'sets SMALLTALK to correct version' do
-      should include_sexp [:export, ['SMALLTALK', 'Squeak-5.0']]
+    it 'sets TRAVIS_SMALLTALK_VERSION to correct version' do
+      should include_sexp [:export, ['TRAVIS_SMALLTALK_VERSION', 'Squeak-5.0']]
     end
   end
 
