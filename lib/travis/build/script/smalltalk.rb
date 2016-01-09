@@ -6,7 +6,8 @@ module Travis
     class Script
       class Smalltalk < Script
         DEFAULTS = {
-          gemstone_hostname: 'travis.dev'
+          gemstone_hostname: 'travis.dev',
+          release_version: '#{rel_version}'
         }
         HOSTS_FILE = '/etc/hosts'
         TEMP_HOSTS_FILE = '/tmp/hosts'
@@ -27,17 +28,17 @@ module Travis
           elsif is_gemstone?
 
             sh.fold 'gemstone_prepare_dependencies' do
-            sh.echo 'Preparing build for GemStone', ansi: :yellow
-              add_host('#{gemstone_hostname}')
+              sh.echo 'Preparing build for GemStone', ansi: :yellow
+              add_host("#{DEFAULTS[:gemstone_hostname]}")
 
               case config[:os]
               when 'linux'
-                sh.cmd 'sudo hostname #{gemstone_hostname}'
+                sh.cmd "sudo hostname #{DEFAULTS[:gemstone_hostname]}"
 
                 gemstone_prepare_linux_shared_memory
                 gemstone_prepare_linux_dependencies
               when 'osx'
-                sh.cmd 'sudo scutil --set HostName #{gemstone_hostname}'
+                sh.cmd "sudo scutil --set HostName #{DEFAULTS[:gemstone_hostname]}"
 
                 gemstone_prepare_osx_shared_memory
               end
@@ -102,8 +103,8 @@ module Travis
             config[:smalltalk].to_s.downcase.start_with?(name)
           end
 
-          def add_host(name)
-            sh.cmd "sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 #{host}/' #{HOSTS_FILE} | sed -e 's/^\\(::1.*\\)$/\\1 #{host}/' > #{TEMP_HOSTS_FILE}"
+          def add_host(hostname)
+            sh.cmd "sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 #{hostname}/' #{HOSTS_FILE} | sed -e 's/^\\(::1.*\\)$/\\1 #{hostname}/' > #{TEMP_HOSTS_FILE}"
             sh.cmd "cat #{TEMP_HOSTS_FILE} | sudo tee #{HOSTS_FILE} > /dev/null"
           end
 
@@ -111,7 +112,7 @@ module Travis
             sh.fold 'install_packages' do
               sh.echo 'Installing dependencies', ansi: :yellow
 
-              case rel_version
+              case DEFAULTS[:release_version]
               when '14.04'
                 sh.cmd 'sudo dpkg --add-architecture i386'
               end
@@ -131,7 +132,9 @@ module Travis
               sh.cmd 'SMALLTALK_CI_SHMALL=`cat /proc/sys/kernel/shmall`'
 
               sh.cmd 'SMALLTALK_CI_SHMMAX_NEW=$(($SMALLTALK_CI_TOTALMEM * 3/4))'
-              sh.cmd '[[ $SMALLTALK_CI_SHMMAX_NEW -gt 2147483648 ]] && SMALLTALK_CI_SHMMAX_NEW=2147483648'
+              sh.if '$SMALLTALK_CI_SHMMAX_NEW -gt 2147483648' do
+                sh.cmd 'SMALLTALK_CI_SHMMAX_NEW=2147483648'
+              end
 
               sh.if '$SMALLTALK_CI_SHMMAX_NEW -gt $SMALLTALK_CI_SHMMAX' do
                 sh.cmd 'sudo bash -c "echo $SMALLTALK_CI_SHMMAX_NEW > /proc/sys/kernel/shmmax"'
@@ -139,7 +142,9 @@ module Travis
               end
 
               sh.cmd 'SMALLTALK_CI_SHMALL_NEW=$(($SMALLTALK_CI_SHMALL / 4096))'
-              sh.cmd '[[ $SMALLTALK_CI_SHMALL_NEW -lt $SMALLTALK_CI_SHMALL ]] && SMALLTALK_CI_SHMALL_NEW=$SMALLTALK_CI_SHMALL'
+              sh.if '$SMALLTALK_CI_SHMALL_NEW -lt $SMALLTALK_CI_SHMALL' do
+                sh.cmd 'SMALLTALK_CI_SHMALL_NEW=$SMALLTALK_CI_SHMALL'
+              end
 
               sh.if '$SMALLTALK_CI_SHMALL_NEW -gt $SMALLTALK_CI_SHMALL' do
                 sh.cmd 'sudo bash -c "echo $SMALLTALK_CI_SHMALL_NEW > /proc/sys/kernel/shmall"'
@@ -163,14 +168,18 @@ module Travis
               sh.cmd 'SMALLTALK_CI_SHMALL=`sysctl kern.sysv.shmall | cut -f2 -d' '`'
 
               sh.cmd 'SMALLTALK_CI_SHMMAX_NEW=$(($SMALLTALK_CI_TOTALMEM * 3/4))'
-              sh.cmd '[[ $SMALLTALK_CI_SHMMAX_NEW -gt 2147483648 ]] && SMALLTALK_CI_SHMMAX_NEW=2147483648'
+              sh.if '$SMALLTALK_CI_SHMMAX_NEW -gt 2147483648' do
+                sh.cmd 'SMALLTALK_CI_SHMMAX_NEW=2147483648'
+              end
 
               sh.if '$SMALLTALK_CI_SHMMAX_NEW -gt $SMALLTALK_CI_SHMMAX' do
                 sh.cmd 'sudo sysctl -w kern.sysv.shmmax=$SMALLTALK_CI_SHMMAX_NEW'
               end
 
               sh.cmd 'SMALLTALK_CI_SHMALL_NEW=$(($SMALLTALK_CI_SHMALL / 4096))'
-              sh.cmd '[[ $SMALLTALK_CI_SHMALL_NEW -lt $SMALLTALK_CI_SHMALL ]] && SMALLTALK_CI_SHMALL_NEW=$SMALLTALK_CI_SHMALL'
+              sh.if '$SMALLTALK_CI_SHMALL_NEW -lt $SMALLTALK_CI_SHMALL' do
+                sh.cmd 'SMALLTALK_CI_SHMALL_NEW=$SMALLTALK_CI_SHMALL'
+              end
 
               sh.if '$SMALLTALK_CI_SHMALL_NEW -gt $SMALLTALK_CI_SHMALL' do
                 sh.cmd 'sudo sysctl -w kern.sysv.shmall=$SMALLTALK_CI_SHMALL_NEW'
@@ -187,7 +196,7 @@ module Travis
           end
 
           def gemstone_prepare_linux_dependencies
-            case rel_version
+            case DEFAULTS[:release_version]
             when '12.04'
               gemstone_install_linux_dependencies
               sh.cmd 'sudo ln -f -s /lib/i386-linux-gnu/libpam.so.0 /lib/libpam.so.0'
