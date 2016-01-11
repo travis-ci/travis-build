@@ -9,12 +9,6 @@ module Travis
           ruby_version_file: 'BETA: Using Ruby version from .ruby-version. This is a beta feature and may be removed in the future.'
         }
 
-        CONFIG = %w(
-          rvm_remote_server_url3=https://s3.amazonaws.com/travis-rubies/binaries
-          rvm_remote_server_type3=rubies
-          rvm_remote_server_verify_downloads3=1
-        )
-
         def export
           super
           sh.export 'TRAVIS_RUBY_VERSION', config[:rvm], echo: false if rvm?
@@ -51,7 +45,6 @@ module Travis
 
           def setup_rvm
             sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
-            sh.file '$rvm_path/user/db', CONFIG.join("\n")
             send rvm_strategy
           end
 
