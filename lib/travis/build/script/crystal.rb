@@ -70,7 +70,7 @@ module Travis
               package: "crystal-nightly"
             }
           else
-            sh.failure %Q("#{config[:crystal]}" is an invalid version of Crystal.\nView valid versions of Crystal at http://docs.travis-ci.com/user/languages/crystal/)
+            sh.failure %Q("#{config[:crystal]}" is an invalid version of Crystal.\nView valid versions of Crystal at https://docs.travis-ci.com/user/languages/crystal/)
             nil
           end
         end
