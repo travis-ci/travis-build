@@ -38,7 +38,7 @@ describe Travis::Build::Script::Crystal, :sexp do
 
     it 'throws a error with a invalid version' do
       data[:config][:crystal] = "foo"
-      should include_sexp [:echo, "\"foo\" is an invalid version of Crystal.\nView valid versions of Crystal at http://docs.travis-ci.com/user/languages/crystal/"]
+      should include_sexp [:echo, "\"foo\" is an invalid version of Crystal.\nView valid versions of Crystal at https://docs.travis-ci.com/user/languages/crystal/"]
     end
   end
 end
