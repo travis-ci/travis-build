@@ -50,7 +50,7 @@ module Travis
                   ansi: :green
           sh.echo '  https://github.com/travis-ci/travis-ci/issues' +
                   '/new?labels=community:r', ansi: :green
-          sh.echo 'and mention @craigcitro and @hadley in the issue',
+          sh.echo 'and mention @craigcitro, @hadley and @jimhester in the issue',
                   ansi: :green
 
           # TODO(craigcitro): python-software-properties?
