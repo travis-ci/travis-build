@@ -1,6 +1,7 @@
 require 'travis/build/appliances/checkout'
 require 'travis/build/appliances/deprecations'
 require 'travis/build/appliances/disable_sudo'
+require 'travis/build/appliances/disable_ssh_roaming'
 require 'travis/build/appliances/env'
 require 'travis/build/appliances/fix_etc_hosts'
 require 'travis/build/appliances/fix_etc_mavenrc'
