@@ -213,12 +213,7 @@ module Travis
           pkg_arg = packages_as_arg(packages)
           install_script = [
             "options(repos = c(CRAN = \"#{config[:cran]}\"));",
-            'tryCatch({',
-            "  devtools::install_github(#{pkg_arg}, build_vignettes = FALSE)",
-            '}, error = function(e) {',
-            '  message(e);',
-            '  q(status = 1, save = "no")',
-            '})',
+            "devtools::install_github(#{pkg_arg}, build_vignettes = FALSE)",
           ].join(' ')
           sh.cmd "Rscript -e '#{install_script}'"
         end
@@ -278,12 +273,7 @@ module Travis
           end
           install_script = [
             "options(repos = #{repos});",
-            'tryCatch({',
-            '  deps <- devtools::install_deps(dependencies = TRUE)',
-            '}, error = function(e) {',
-            '  message(e);',
-            '  q(status=1)',
-            '});',
+            'deps <- devtools::install_deps(dependencies = TRUE);',
             'if (!all(deps %in% installed.packages())) {',
             ' message("missing: ", paste(setdiff(deps, installed.packages()), collapse=", "));',
             ' q(status = 1, save = "no")',
