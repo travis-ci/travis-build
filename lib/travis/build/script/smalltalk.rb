@@ -127,9 +127,9 @@ module Travis
             sh.fold 'gemstone_shared_memory' do
               sh.echo 'Setting up shared memory', ansi: :yellow
 
-              sh.cmd 'SMALLTALK_CI_TOTALMEM=$(($(awk "/MemTotal:/{print($2);}"" /proc/meminfo) * 1024))'
-              sh.cmd 'SMALLTALK_CI_SHMMAX=`cat /proc/sys/kernel/shmmax`'
-              sh.cmd 'SMALLTALK_CI_SHMALL=`cat /proc/sys/kernel/shmall`'
+              sh.cmd 'SMALLTALK_CI_TOTALMEM=$(($(awk \'/MemTotal:/{print($2);}\' /proc/meminfo) * 1024))'
+              sh.cmd 'SMALLTALK_CI_SHMMAX=$(cat /proc/sys/kernel/shmmax)'
+              sh.cmd 'SMALLTALK_CI_SHMALL=$(cat /proc/sys/kernel/shmall)'
 
               sh.cmd 'SMALLTALK_CI_SHMMAX_NEW=$(($SMALLTALK_CI_TOTALMEM * 3/4))'
               sh.if '$SMALLTALK_CI_SHMMAX_NEW -gt 2147483648' do
@@ -150,9 +150,9 @@ module Travis
                 sh.cmd 'sudo bash -c "echo $SMALLTALK_CI_SHMALL_NEW > /proc/sys/kernel/shmall"'
               end
 
-              sh.if "! -f #{SYSCTL_FILE} || `grep -sc \"kern.*m\" #{SYSCTL_FILE}` -eq 0" do
-                sh.cmd "echo \"kernelmmax=`cat /proc/sys/kernel/shmmax`\" >> #{TEMP_SYSCTL_FILE}"
-                sh.cmd "echo \"kernelmall=`cat /proc/sys/kernel/shmall`\" >> #{TEMP_SYSCTL_FILE}"
+              sh.if "! -f #{SYSCTL_FILE} || $(grep -sc \"kern.*m\" #{SYSCTL_FILE}) -eq 0" do
+                sh.cmd "echo \"kernelmmax=$(cat /proc/sys/kernel/shmmax)\" >> #{TEMP_SYSCTL_FILE}"
+                sh.cmd "echo \"kernelmall=$(cat /proc/sys/kernel/shmall)\" >> #{TEMP_SYSCTL_FILE}"
                 sh.cmd "sudo bash -c \"cat #{TEMP_SYSCTL_FILE} >> #{SYSCTL_FILE}\""
                 sh.cmd "/bin/rm -f #{TEMP_SYSCTL_FILE}"
               end
@@ -163,9 +163,9 @@ module Travis
             sh.fold 'gemstone_shared_memory' do
               sh.echo 'Setting up shared memory', ansi: :yellow
 
-              sh.cmd 'SMALLTALK_CI_TOTALMEM=$(($(sysctl hw.memsize | cut -f2 -d' ') * 1024))'
-              sh.cmd 'SMALLTALK_CI_SHMMAX=`sysctl kern.sysv.shmmax | cut -f2 -d' '`'
-              sh.cmd 'SMALLTALK_CI_SHMALL=`sysctl kern.sysv.shmall | cut -f2 -d' '`'
+              sh.cmd 'SMALLTALK_CI_TOTALMEM=$(($(sysctl hw.memsize | cut -f2 -d\' \') * 1024))'
+              sh.cmd 'SMALLTALK_CI_SHMMAX=$(sysctl kern.sysv.shmmax | cut -f2 -d\' \')'
+              sh.cmd 'SMALLTALK_CI_SHMALL=$(sysctl kern.sysv.shmall | cut -f2 -d\' \')'
 
               sh.cmd 'SMALLTALK_CI_SHMMAX_NEW=$(($SMALLTALK_CI_TOTALMEM * 3/4))'
               sh.if '$SMALLTALK_CI_SHMMAX_NEW -gt 2147483648' do
@@ -185,9 +185,8 @@ module Travis
                 sh.cmd 'sudo sysctl -w kern.sysv.shmall=$SMALLTALK_CI_SHMALL_NEW'
               end
 
-              sh.if "! -f #{SYSCTL_FILE} || `grep -sc \"kern.*m\" #{SYSCTL_FILE}` -eq 0" do
-                sh.cmd 'sysctl kern.sysv.shmmax kern.sysv.shmall kern.sysv.shmmin kern.sysv.shmmni'
-                sh.cmd "kern.sysv.mseg  | tr \":\" \"=\" | tr -d \" \" >> #{TEMP_SYSCTL_FILE}"
+              sh.if "! -f #{SYSCTL_FILE} || $(grep -sc \"kern.*m\" #{SYSCTL_FILE}) -eq 0" do
+                sh.cmd "sysctl kern.sysv.shmmax kern.sysv.shmall kern.sysv.shmmin kern.sysv.shmmni kern.sysv.mseg  | tr \":\" \"=\" | tr -d \" \" >> #{TEMP_SYSCTL_FILE}"
                 sh.cmd "sudo bash -c \"cat #{TEMP_SYSCTL_FILE} >> #{SYSCTL_FILE}\""
                 sh.cmd "/bin/rm -f #{TEMP_SYSCTL_FILE}"
               end
@@ -221,7 +220,7 @@ module Travis
           end
 
           def gemstone_prepare_netldi
-            sh.if '`grep -sc "^gs64ldi" /etc/services` -eq 0' do
+            sh.if '$(grep -sc "^gs64ldi" /etc/services) -eq 0' do
               sh.fold 'gemstone_netldi' do
                 sh.echo 'Setting up GemStone netldi service port', ansi: :yellow
                 sh.cmd "sudo bash -c 'echo \"gs64ldi         50377/tcp        # Gemstone netldi\"  >> /etc/services'"
