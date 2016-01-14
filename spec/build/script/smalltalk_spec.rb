@@ -52,6 +52,15 @@ describe Travis::Build::Script::Smalltalk, :sexp do
       should include_sexp [:cmd, "cat /tmp/hosts | sudo tee /etc/hosts > /dev/null"]
     end
 
+    it 'prepare shared memory' do
+      should include_sexp [:cmd, 'SMALLTALK_CI_TOTALMEM=$(($(awk \'/MemTotal:/{print($2);}\' /proc/meminfo) * 1024))']
+    end
+
+    it 'prepare netldi if necessary' do
+      sexp = sexp_find(subject, [:if, '$(grep -sc "^gs64ldi" /etc/services) -eq 0'], [:then])
+      expect(sexp).to include_sexp [:cmd, "sudo bash -c 'echo \"gs64ldi         50377/tcp        # Gemstone netldi\"  >> /etc/services'"]
+    end
+
     it 'installs the dependencies' do
       should include_sexp [:cmd, "sudo apt-get install --no-install-recommends " +
                      "curl git zip unzip libpam0g:i386 libssl1.0.0:i386 " +
@@ -69,6 +78,16 @@ describe Travis::Build::Script::Smalltalk, :sexp do
     it 'set hostname' do
       should include_sexp [:cmd, "sudo scutil --set HostName " + defaults[:gemstone_hostname]]
       should include_sexp [:cmd, "cat /tmp/hosts | sudo tee /etc/hosts > /dev/null"]
+    end
+
+    it 'prepare shared memory' do
+      should include_sexp [:cmd, 'SMALLTALK_CI_TOTALMEM=$(($(sysctl hw.memsize | cut -f2 -d\' \') * 1024))']
+      should include_sexp [:cmd, "sysctl kern.sysv.shmmax kern.sysv.shmall kern.sysv.shmmin kern.sysv.shmmni kern.sysv.mseg  | tr \":\" \"=\" | tr -d \" \" >> /tmp/sysctl.conf"]
+    end
+
+    it 'prepare netldi if necessary' do
+      sexp = sexp_find(subject, [:if, '$(grep -sc "^gs64ldi" /etc/services) -eq 0'], [:then])
+      expect(sexp).to include_sexp [:cmd, "sudo bash -c 'echo \"gs64ldi         50377/tcp        # Gemstone netldi\"  >> /etc/services'"]
     end
 
     it 'does not try to call apt-get' do
