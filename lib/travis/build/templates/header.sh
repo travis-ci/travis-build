@@ -74,7 +74,8 @@ travis_time_finish() {
 function travis_nanoseconds() {
   local cmd="date"
   local format="+%s%N"
-  local os=$(uname)
+  local os
+  os=$(uname)
 
   if hash gdate > /dev/null 2>&1; then
     cmd="gdate" # use gdate if available
