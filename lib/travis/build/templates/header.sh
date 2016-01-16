@@ -121,7 +121,7 @@ travis_wait() {
     timeout=20
   fi
 
-  local cmd="$@"
+  local cmd="$*"
   local log_file=travis_wait_$$.log
 
   $cmd &>$log_file &
