@@ -66,7 +66,7 @@ travis_time_start() {
 travis_time_finish() {
   local result=$?
   travis_end_time=$(travis_nanoseconds)
-  local duration=$(($travis_end_time-$travis_start_time))
+  local duration=$((travis_end_time-travis_start_time))
   echo -en "travis_time:end:$travis_timer_id:start=$travis_start_time,finish=$travis_end_time,duration=$duration\r${ANSI_CLEAR}"
   return $result
 }
@@ -95,7 +95,7 @@ travis_assert() {
 
 travis_result() {
   local result=$1
-  export TRAVIS_TEST_RESULT=$(( ${TRAVIS_TEST_RESULT:-0} | $(($result != 0)) ))
+  export TRAVIS_TEST_RESULT=$(( ${TRAVIS_TEST_RESULT:-0} | $((result != 0)) ))
 
   if [ $result -eq 0 ]; then
     echo -e "\n${ANSI_GREEN}The command \"$TRAVIS_CMD\" exited with $result.${ANSI_RESET}"
@@ -160,7 +160,7 @@ travis_jigger() {
   echo -e "\n"
 
   while [ $count -lt $timeout ]; do
-    count=$(($count + 1))
+    count=$((count + 1))
     echo -ne "Still running ($count of $timeout): $@\r"
     sleep 60
   done
@@ -179,7 +179,7 @@ travis_retry() {
     "$@"
     result=$?
     [ $result -eq 0 ] && break
-    count=$(($count + 1))
+    count=$((count + 1))
     sleep 1
   done
 
