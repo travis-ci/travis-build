@@ -88,7 +88,7 @@ function travis_nanoseconds() {
 
 travis_assert() {
   local result=${1:-$?}
-  if [ $result -ne 0 ]; then
+  if [ "$result" -ne 0 ]; then
     echo -e "\n${ANSI_RED}The command \"$TRAVIS_CMD\" failed and exited with $result during $TRAVIS_STAGE.${ANSI_RESET}\n\nYour build has been stopped."
     travis_terminate 2
   fi
@@ -98,7 +98,7 @@ travis_result() {
   local result=$1
   export TRAVIS_TEST_RESULT=$(( ${TRAVIS_TEST_RESULT:-0} | $((result != 0)) ))
 
-  if [ $result -eq 0 ]; then
+  if [ "$result" -eq 0 ]; then
     echo -e "\n${ANSI_GREEN}The command \"$TRAVIS_CMD\" exited with $result.${ANSI_RESET}"
   else
     echo -e "\n${ANSI_RED}The command \"$TRAVIS_CMD\" exited with $result.${ANSI_RESET}"
@@ -107,7 +107,7 @@ travis_result() {
 
 travis_terminate() {
   pkill -9 -P $$ &> /dev/null || true
-  exit $1
+  exit "$1"
 }
 
 travis_wait() {
@@ -127,7 +127,7 @@ travis_wait() {
   $cmd &>$log_file &
   local cmd_pid=$!
 
-  travis_jigger $! $timeout $cmd &
+  travis_jigger $! $timeout "$cmd" &
   local jigger_pid=$!
   local result
 
@@ -160,14 +160,14 @@ travis_jigger() {
   # clear the line
   echo -e "\n"
 
-  while [ $count -lt $timeout ]; do
+  while [ $count -lt "$timeout" ]; do
     count=$((count + 1))
     echo -ne "Still running ($count of $timeout): $@\r"
     sleep 60
   done
 
   echo -e "\n${ANSI_RED}Timeout (${timeout} minutes) reached. Terminating \"$@\"${ANSI_RESET}\n"
-  kill -9 $cmd_pid
+  kill -9 "$cmd_pid"
 }
 
 travis_retry() {
@@ -198,7 +198,7 @@ travis_fold() {
 }
 
 decrypt() {
-  echo $1 | base64 -d | openssl rsautl -decrypt -inkey ~/.ssh/id_rsa.repo
+  echo "$1" | base64 -d | openssl rsautl -decrypt -inkey ~/.ssh/id_rsa.repo
 }
 
 # XXX Forcefully removing rabbitmq source until next build env update
@@ -207,6 +207,6 @@ if [[ -f /etc/apt/sources.list.d/rabbitmq-source.list ]] ; then
   sudo rm -f /etc/apt/sources.list.d/rabbitmq-source.list
 fi
 
-mkdir -p <%= build_dir %>
-cd       <%= build_dir %>
+mkdir -p "<%= build_dir %>"
+cd       "<%= build_dir %>"
 
