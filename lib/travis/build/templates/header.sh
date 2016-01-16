@@ -162,11 +162,11 @@ travis_jigger() {
 
   while [ $count -lt "$timeout" ]; do
     count=$((count + 1))
-    echo -ne "Still running ($count of $timeout): $@\r"
+    echo -ne "Still running ($count of $timeout): $*\r"
     sleep 60
   done
 
-  echo -e "\n${ANSI_RED}Timeout (${timeout} minutes) reached. Terminating \"$@\"${ANSI_RESET}\n"
+  echo -e "\n${ANSI_RED}Timeout (${timeout} minutes) reached. Terminating \"$*\"${ANSI_RESET}\n"
   kill -9 "$cmd_pid"
 }
 
@@ -175,7 +175,7 @@ travis_retry() {
   local count=1
   while [ $count -le 3 ]; do
     [ $result -ne 0 ] && {
-      echo -e "\n${ANSI_RED}The command \"$@\" failed. Retrying, $count of 3.${ANSI_RESET}\n" >&2
+      echo -e "\n${ANSI_RED}The command \"$*\" failed. Retrying, $count of 3.${ANSI_RESET}\n" >&2
     }
     "$@"
     result=$?
@@ -185,7 +185,7 @@ travis_retry() {
   done
 
   [ $count -gt 3 ] && {
-    echo -e "\n${ANSI_RED}The command \"$@\" failed 3 times.${ANSI_RESET}\n" >&2
+    echo -e "\n${ANSI_RED}The command \"$*\" failed 3 times.${ANSI_RESET}\n" >&2
   }
 
   return $result
