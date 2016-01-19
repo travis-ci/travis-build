@@ -1,7 +1,8 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Ruby, :sexp do
-  let(:data)   { payload_for(:push, :ruby) }
+  let(:config) { { gemfile: 'Gemfile' } }
+  let(:data)   { payload_for(:push, :ruby, :config => config) }
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
   it           { store_example }
@@ -49,9 +50,9 @@ describe Travis::Build::Script::Ruby, :sexp do
     end
   end
 
-  describe 'uses chruby if config has a :ruby key set' do
+  context 'config has a :ruby key set' do
     before do
-      data[:config][:ruby] = '2.1.1'
+      config[:ruby] = '2.1.1'
     end
 
     it 'announces the chruby version' do
@@ -59,8 +60,46 @@ describe Travis::Build::Script::Ruby, :sexp do
     end
 
     it 'uses chruby to set the version' do
-      # should include_sexp [:cmd, 'chruby 2.1.1', assert: true, echo: true]
       should include_sexp [:cmd, 'chruby 2.1.1', assert: true, echo: true, timing: true]
+    end
+
+    it 'sets TRAVIS_RUBY_VERSION' do
+      should include_sexp [:export, ['TRAVIS_RUBY_VERSION', '2.1.1']]
+    end
+
+    it 'does not invoke rvm use' do
+      should_not include_sexp [:cmd, "rvm use default", {:assert=>true, :echo=>true, :timing=>true}]
+    end
+
+    it 'does not announce rvm version' do
+      should_not include_sexp [:cmd, 'rvm --version', echo: true]
+    end
+
+    describe '#cache_slug' do
+      let(:script) { described_class.new(data) }
+
+      describe 'default' do
+        subject { script.cache_slug }
+        it { is_expected.to eq('cache--ruby-2.1.1--gemfile-Gemfile') }
+      end
+
+      describe 'with custom gemfile' do
+        before { data[:config][:gemfile] = 'Gemfile.ci' }
+        subject { script.cache_slug }
+        it { is_expected.to eq('cache--ruby-2.1.1--gemfile-Gemfile.ci') }
+      end
+
+      describe 'with custom ruby version' do
+        before { data[:config][:ruby] = 'jruby' }
+        subject { script.cache_slug }
+        it { is_expected.to eq('cache--ruby-jruby--gemfile-Gemfile') }
+      end
+
+      describe 'with custom jdk version' do
+        before { data.deep_merge!(config: { ruby: 'jruby', jdk: 'openjdk7' }) }
+        subject { script.cache_slug }
+        it { is_expected.to eq('cache--jdk-openjdk7--ruby-jruby--gemfile-Gemfile') }
+      end
     end
   end
 

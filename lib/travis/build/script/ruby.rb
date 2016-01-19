@@ -7,7 +7,6 @@ module Travis
     class Script
       class Ruby < Script
         DEFAULTS = {
-          rvm:     'default',
           gemfile: 'Gemfile'
         }
 

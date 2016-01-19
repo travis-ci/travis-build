@@ -15,30 +15,46 @@ module Travis
           rvm_remote_server_verify_downloads3=1
         )
 
+        DEFAULT_VERSION = 'default'
+
         def export
           super
-          sh.export 'TRAVIS_RUBY_VERSION', config[:rvm], echo: false if rvm?
+          # for now, we take the rvm key if both are defined
+          # see also:`#version` and `#cache_name_component`
+          if rvm?
+            sh.export 'TRAVIS_RUBY_VERSION', config[:rvm], echo: false
+          elsif config[:ruby]
+            sh.export 'TRAVIS_RUBY_VERSION', config[:ruby], echo: false
+          else
+            sh.export 'TRAVIS_RUBY_VERSION', DEFAULT_VERSION, echo: false
+          end
         end
 
         def setup
           super
-          setup_rvm if rvm?
+          setup_rvm unless chruby?
         end
 
         def announce
           super
           sh.cmd 'ruby --version'
-          sh.cmd 'rvm --version' if rvm?
+          sh.cmd 'rvm --version' unless chruby?
         end
 
         def cache_slug
-          super.tap { |slug| slug << "--rvm-" << ruby_version.to_s if rvm? }
+          super.tap { |slug| slug << "--#{cache_name_component}-" << ruby_version.to_s }
         end
 
         private
 
           def version
-            config[:rvm].to_s
+            if rvm?
+              config[:rvm].to_s
+            elsif chruby?
+              config[:ruby].to_s
+            else
+              DEFAULT_VERSION
+            end
           end
 
           def rvm?
@@ -46,7 +62,7 @@ module Travis
           end
 
           def ruby_version
-            config[:rvm].to_s.gsub(/-(1[89]|2[01])mode$/, '-d\1')
+            version.to_s.gsub(/-(1[89]|2[01])mode$/, '-d\1')
           end
 
           def setup_rvm
@@ -109,6 +125,16 @@ module Travis
 
           def skip_deps_install
             sh.cmd "rvm autolibs disable", echo: false, timing: false
+          end
+
+          def cache_name_component
+            if rvm?
+              'rvm'
+            elsif chruby?
+              'ruby'
+            else
+              'rvm'
+            end
           end
       end
     end
