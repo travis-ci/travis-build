@@ -47,8 +47,6 @@ module Travis
         def configure
           super
 
-          # TODO(craigcitro): Confirm that these do, in fact, print as
-          # green. (They're yellow under vagrant.)
           sh.echo 'R for Travis-CI is not officially supported, ' +
                   'but is community maintained.', ansi: :green
           sh.echo 'Please file any issues using the following link',
@@ -60,7 +58,6 @@ module Travis
 
           sh.fold("R-install") do
             sh.with_options({ assert: true,  echo: true,  timing: true  }) do
-              # TODO(craigcitro): python-software-properties?
               sh.echo 'Installing R', ansi: :yellow
               case config[:os]
               when 'linux'
@@ -169,7 +166,7 @@ module Travis
               sh.failure "Found warnings, treating as errors (as requested)."
             end
           end
-          
+
           # Check revdeps, if requested.
           if config[:r_check_revdep]
             sh.echo "Checking reverse dependencies"
@@ -226,7 +223,7 @@ module Travis
           ].join(' ')
           sh.cmd "Rscript -e '#{install_script}'"
         end
-        
+
         def r_binary_install(packages)
           return if packages.empty?
           case config[:os]
@@ -297,7 +294,7 @@ module Travis
           )
           sh.export 'RCHECK_DIR', "$(Rscript -e '#{pkg_script}')"
         end
-        
+
         def dump_logs
           export_rcheck_dir
           ['out', 'log', 'fail'].each do |ext|
@@ -312,7 +309,7 @@ module Travis
             sh.cmd cmd
           end
         end
-        
+
         def setup_bioc
           unless @bioc_installed
             sh.echo 'Installing BioConductor'
@@ -391,7 +388,7 @@ module Travis
           pandoc_srcdir = "pandoc-#{config[:pandoc_version]}/#{os_path}"
           pandoc_destdir = '${HOME}/opt/pandoc'
           pandoc_tmpfile = "/tmp/pandoc-#{config[:pandoc_version]}.zip"
-          
+
           sh.mkdir pandoc_destdir, recursive: true
           sh.cmd "curl -o #{pandoc_tmpfile} #{pandoc_url}"
           ['pandoc', 'pandoc-citeproc'].each do |filename|
@@ -400,10 +397,9 @@ module Travis
                    "-d #{pandoc_destdir}"
             sh.chmod '+x', "#{File.join(pandoc_destdir, filename)}"
           end
-          
+
           sh.export 'PATH', "$PATH:#{pandoc_destdir}"
         end
-        
       end
     end
   end
