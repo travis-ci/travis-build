@@ -101,31 +101,31 @@ describe Travis::Build::Addons::Apt, :sexp do
     context 'with multiple whitelisted packages' do
       let(:config) { { packages: ['git', 'curl'] } }
 
-      it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true] }
+      it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true, retry: true] }
     end
 
     context 'with multiple packages, some whitelisted' do
       let(:config) { { packages: ['git', 'curl', 'darkcoin'] } }
 
-      it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true] }
+      it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true, retry: true] }
     end
 
     context 'with singular whitelisted package' do
       let(:config) { { packages: 'git' } }
 
-      it { should include_sexp [:cmd, apt_get_install_command('git'), echo: true, timing: true] }
+      it { should include_sexp [:cmd, apt_get_install_command('git'), echo: true, timing: true, retry: true] }
     end
 
     context 'with no whitelisted packages' do
       let(:config) { { packages: nil } }
 
-      it { should_not include_sexp [:cmd, apt_get_install_command('git'), echo: true, timing: true] }
+      it { should_not include_sexp [:cmd, apt_get_install_command('git'), echo: true, timing: true, retry: true] }
     end
 
     context 'with nested arrays of packages' do
       let(:config) { { packages: [%w(git curl)] } }
 
-      it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true] }
+      it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true, retry: true] }
     end
   end
 
