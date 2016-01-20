@@ -54,58 +54,59 @@ module Travis
                   ansi: :green
 
           sh.fold("R-install") do
+            sh.with_options({ assert: true,  echo: true,  timing: true  }) do
+              # TODO(craigcitro): python-software-properties?
+              sh.echo 'Installing R', ansi: :yellow
+              case config[:os]
+              when 'linux'
+                # Set up our CRAN mirror.
+                sh.cmd 'sudo add-apt-repository ' +
+                  "\"deb #{config[:cran]}/bin/linux/ubuntu " +
+                  "$(lsb_release -cs)/\""
+                sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com ' +
+                  '--recv-keys E084DAB9'
 
-            # TODO(craigcitro): python-software-properties?
-            sh.echo 'Installing R'
-            case config[:os]
-            when 'linux'
-              # Set up our CRAN mirror.
-              sh.cmd 'sudo add-apt-repository ' +
-                "\"deb #{config[:cran]}/bin/linux/ubuntu " +
-                "$(lsb_release -cs)/\""
-              sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com ' +
-                '--recv-keys E084DAB9'
+                # Add marutter's c2d4u repository.
+                sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter"'
+                sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u"'
 
-              # Add marutter's c2d4u repository.
-              sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter"'
-              sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u"'
+                # Update after adding all repositories. Retry several
+                # times to work around flaky connection to Launchpad PPAs.
+                sh.cmd 'sudo apt-get update -qq', retry: true
 
-              # Update after adding all repositories. Retry several
-              # times to work around flaky connection to Launchpad PPAs.
-              sh.cmd 'sudo apt-get update -qq', retry: true
+                # Install an R development environment. qpdf is also needed for
+                # --as-cran checks:
+                #   https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
+                sh.cmd 'sudo apt-get install -y --no-install-recommends r-base-dev ' +
+                  'r-recommended qpdf', retry: true
 
-              # Install an R development environment. qpdf is also needed for
-              # --as-cran checks:
-              #   https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
-              sh.cmd 'sudo apt-get install -y --no-install-recommends r-base-dev ' +
-                'r-recommended qpdf', retry: true
+                # Change permissions for /usr/local/lib/R/site-library
+                # This should really be via 'sudo adduser travis staff'
+                # but that may affect only the next shell
+                sh.cmd 'sudo chmod 2777 /usr/local/lib/R /usr/local/lib/R/site-library'
 
-              # Change permissions for /usr/local/lib/R/site-library
-              # This should really be via 'sudo adduser travis staff'
-              # but that may affect only the next shell
-              sh.cmd 'sudo chmod 2777 /usr/local/lib/R /usr/local/lib/R/site-library'
+              when 'osx'
+                # We want to update, but we don't need the 800+ lines of
+                # output.
+                sh.cmd 'brew update >/dev/null', retry: true
 
-            when 'osx'
-              # We want to update, but we don't need the 800+ lines of
-              # output.
-              sh.cmd 'brew update >/dev/null', retry: true
+                # Install from latest CRAN binary build for OS X
+                sh.cmd "wget #{config[:cran]}/bin/macosx/R-latest.pkg " +
+                  '-O /tmp/R-latest.pkg'
 
-              # Install from latest CRAN binary build for OS X
-              sh.cmd "wget #{config[:cran]}/bin/macosx/R-latest.pkg " +
-                '-O /tmp/R-latest.pkg'
+                sh.echo 'Installing OS X binary package for R'
+                sh.cmd 'sudo installer -pkg "/tmp/R-latest.pkg" -target /'
+                sh.rm '/tmp/R-latest.pkg'
 
-              sh.echo 'Installing OS X binary package for R'
-              sh.cmd 'sudo installer -pkg "/tmp/R-latest.pkg" -target /'
-              sh.rm '/tmp/R-latest.pkg'
+              else
+                sh.failure "Operating system not supported: #{config[:os]}"
+              end
 
-            else
-              sh.failure "Operating system not supported: #{config[:os]}"
+              setup_latex
+
+              setup_bioc if needs_bioc?
+              setup_pandoc if config[:pandoc]
             end
-
-            setup_latex
-
-            setup_bioc if needs_bioc?
-            setup_pandoc if config[:pandoc]
           end
         end
 
