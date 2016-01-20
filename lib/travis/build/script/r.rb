@@ -1,3 +1,8 @@
+# Maintained by:
+# Jim Hester     @jimhester       james.hester@rstudio.com
+# Craig Citro    @craigcitro      craigcitro@google.com
+# Hadley Wickham @hadley          hadley@rstudio.com
+#
 module Travis
   module Build
     class Script
