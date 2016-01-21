@@ -29,6 +29,7 @@ module Travis
           bioc: 'http://bioconductor.org/biocLite.R',
           bioc_required: false,
           bioc_use_devel: false,
+          R: 'release'
         }
 
         def initialize(data)
@@ -41,7 +42,8 @@ module Travis
 
         def export
           super
-          sh.export 'TRAVIS_R_VERSION', 'release', echo: false
+          sh.export 'TRAVIS_R_VERSION', version, echo: false
+          sh.export 'R_LIBS_USER', '~/R/Library', echo: false
         end
 
         def configure
@@ -121,6 +123,9 @@ module Travis
 
         def install
           super
+          unless setup_cache_has_run_for[:R]
+            setup_cache
+          end
 
           # Install any declared packages
           apt_install config[:apt_packages]
@@ -182,6 +187,26 @@ module Travis
             sh.cmd "Rscript -e '#{revdep_script}'", assert: true
           end
 
+        end
+
+        def setup_cache
+          return if setup_cache_has_run_for[:R]
+
+          if data.cache?(:R)
+            sh.fold 'cache.R' do
+              sh.echo ''
+              directory_cache.add '$R_LIBS_USER'
+            end
+          end
+          setup_cache_has_run_for[:R] = true
+        end
+
+        def cache_slug
+          super << '--R-' << version
+        end
+
+        def use_directory_cache?
+          super || data.cache?(:R)
         end
 
         private
@@ -406,6 +431,19 @@ module Travis
 
             # Cleanup
             sh.rm "/tmp/#{pandoc_filename}"
+          end
+        end
+
+        def version
+          @version ||= normalized_version
+        end
+
+        def normalized_version
+          v = config[:R].to_s
+          case v
+          when 'release' then '3.2.3'
+          when 'oldrel' then '3.1.3'
+          else v
           end
         end
       end

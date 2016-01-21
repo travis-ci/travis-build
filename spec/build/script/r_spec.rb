@@ -8,7 +8,8 @@ describe Travis::Build::Script::R, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'exports TRAVIS_R_VERSION' do
-    should include_sexp [:export, ['TRAVIS_R_VERSION', 'release']]
+    data[:config][:R] = '3.2.3'
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.2.3']]
   end
 
   it 'downloads and installs R' do
@@ -65,4 +66,20 @@ describe Travis::Build::Script::R, :sexp do
     end
   end
 
+  describe '#cache_slug' do
+    subject { described_class.new(data).cache_slug }
+    it {
+      data[:config][:R] = '3.2.3'
+      should eq('cache--R-3.2.3')
+    }
+
+    it {
+      data[:config][:R] = 'release'
+      should eq('cache--R-3.2.3')
+    }
+    it {
+      data[:config][:R] = 'devel'
+      should eq('cache--R-devel')
+    }
+  end
 end
