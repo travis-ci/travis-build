@@ -14,7 +14,7 @@ describe Travis::Build::Script, :sexp do
   end
 
   it 'uses $HOME/build as a working directory' do
-    expect(code).to match %r(cd +\$HOME/build)
+    expect(code).to match %r(cd +"\$HOME/build")
   end
 
   it 'sets up apt cache' do
