@@ -24,7 +24,7 @@ module Travis
           r_check_revdep: false,
           # Heavy dependencies
           pandoc: true,
-          pandoc_version: '1.13.1',
+          pandoc_version: '1.15.2',
           # Bioconductor
           bioc: 'http://bioconductor.org/biocLite.R',
           bioc_required: false,
@@ -382,27 +382,31 @@ module Travis
         def setup_pandoc
           case config[:os]
           when 'linux'
-            os_path = 'linux/debian/x86_64'
+            pandoc_filename = "pandoc-#{config[:pandoc_version]}-1-amd64.deb"
+            pandoc_url = "https://github.com/jgm/pandoc/releases/download/#{config[:pandoc_version]}/" +
+              "#{pandoc_filename}"
+
+            # Download and install pandoc
+            sh.cmd "curl -Lo /tmp/#{pandoc_filename} #{pandoc_url}"
+            sh.cmd "sudo dpkg -i /tmp/#{pandoc_filename}"
+
+            # Fix any missing dependencies
+            sh.cmd "sudo apt-get install -f"
+
+            # Cleanup
+            sh.rm "/tmp/#{pandoc_filename}"
           when 'osx'
-            os_path = 'mac'
+            pandoc_filename = "pandoc-#{config[:pandoc_version]}-osx.pkg"
+            pandoc_url = "https://github.com/jgm/pandoc/releases/download/#{config[:pandoc_version]}/" +
+              "#{pandoc_filename}"
+
+            # Download and install pandoc
+            sh.cmd "curl -Lo /tmp/#{pandoc_filename} #{pandoc_url}"
+            sh.cmd "sudo installer -pkg \"/tmp/#{pandoc_filename}\""
+
+            # Cleanup
+            sh.rm "/tmp/#{pandoc_filename}"
           end
-
-          pandoc_url = 'https://s3.amazonaws.com/rstudio-buildtools/pandoc-' +
-                       "#{config[:pandoc_version]}.zip"
-          pandoc_srcdir = "pandoc-#{config[:pandoc_version]}/#{os_path}"
-          pandoc_destdir = '${HOME}/opt/pandoc'
-          pandoc_tmpfile = "/tmp/pandoc-#{config[:pandoc_version]}.zip"
-
-          sh.mkdir pandoc_destdir, recursive: true
-          sh.cmd "curl -o #{pandoc_tmpfile} #{pandoc_url}"
-          ['pandoc', 'pandoc-citeproc'].each do |filename|
-            binary_srcpath = File.join(pandoc_srcdir, filename)
-            sh.cmd "unzip -j #{pandoc_tmpfile} #{binary_srcpath} " +
-                   "-d #{pandoc_destdir}"
-            sh.chmod '+x', "#{File.join(pandoc_destdir, filename)}"
-          end
-
-          sh.export 'PATH', "$PATH:#{pandoc_destdir}"
         end
       end
     end
