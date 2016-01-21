@@ -20,24 +20,24 @@ describe Travis::Build::Addons::AptPackages, :sexp do
   context 'with multiple whitelisted packages' do
     let(:config) { ['git', 'curl'] }
 
-    it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true, retry: true] }
+    it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true] }
   end
 
   context 'with multiple packages, some whitelisted' do
     let(:config) { ['git', 'curl', 'darkcoin'] }
 
-    it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true, retry: true] }
+    it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true] }
   end
 
   context 'with singular whitelisted package' do
     let(:config) { 'git' }
 
-    it { should include_sexp [:cmd, apt_get_install_command('git'), echo: true, timing: true, retry: true] }
+    it { should include_sexp [:cmd, apt_get_install_command('git'), echo: true, timing: true] }
   end
 
   context 'with no whitelisted packages' do
     let(:config) { nil }
 
-    it { should_not include_sexp [:cmd, apt_get_install_command('git'), echo: true, timing: true, retry: true] }
+    it { should_not include_sexp [:cmd, apt_get_install_command('git'), echo: true, timing: true] }
   end
 end
