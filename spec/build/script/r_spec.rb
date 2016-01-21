@@ -21,6 +21,20 @@ describe Travis::Build::Script::R, :sexp do
                          assert: true, echo: true, timing: true]
   end
 
+  it 'installs binary devtools if sudo: true' do
+    should include_sexp [:cmd, /sudo apt-get install.*r-cran-devtools/,
+                         assert: true, echo: true, timing: true, retry: true]
+  end
+
+  it 'installs source devtools if sudo: false' do
+    data[:config][:sudo] =  'false'
+    should include_sexp [:cmd, /Rscript -e 'install\.packages\(c\(\"devtools\"\)/,
+                         assert: true, echo: true, timing: true]
+
+    should_not include_sexp [:cmd, /sudo apt-get install.*r-cran-devtools/,
+                         assert: true, echo: true, timing: true, retry: true]
+  end
+
   it 'fails on package build and test failures' do
     should include_sexp [:cmd, /.*R CMD build.*/,
                          assert: true, echo: true, timing: true]

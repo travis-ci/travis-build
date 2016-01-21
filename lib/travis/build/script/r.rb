@@ -226,8 +226,12 @@ module Travis
 
         def r_binary_install(packages)
           return if packages.empty?
-          case config[:os]
-          when 'linux'
+          if config[:os] == 'linux'
+            if config[:sudo] == 'false'
+              sh.echo "R binary packages not supported with 'sudo: false', " +
+                ' falling back to source install'
+              return r_install packages
+            end
             sh.echo "Installing *binary* R packages: #{packages.join(', ')}"
             apt_install packages.collect{|p| "r-cran-#{p.downcase}"}
           else
