@@ -27,7 +27,7 @@ describe Travis::Build::Script::R, :sexp do
   end
 
   it 'installs source devtools if sudo: false' do
-    data[:config][:sudo] =  'false'
+    data[:config][:sudo] = false
     should include_sexp [:cmd, /Rscript -e 'install\.packages\(c\(\"devtools\"\)/,
                          assert: true, echo: true, timing: true]
 

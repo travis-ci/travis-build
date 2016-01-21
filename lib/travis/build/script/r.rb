@@ -227,7 +227,7 @@ module Travis
         def r_binary_install(packages)
           return if packages.empty?
           if config[:os] == 'linux'
-            if config[:sudo] == 'false'
+            if config[:sudo] == false
               sh.echo "R binary packages not supported with 'sudo: false', " +
                 ' falling back to source install'
               return r_install packages
