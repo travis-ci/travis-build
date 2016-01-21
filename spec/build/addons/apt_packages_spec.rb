@@ -13,31 +13,39 @@ describe Travis::Build::Addons::AptPackages, :sexp do
     addon.before_prepare
   end
 
+  def apt_get_download_command(*packages)
+    "sudo -E apt-get -yq --no-install-suggests --no-install-recommends --download-only --force-yes install #{packages.join(' ')}"
+  end
+
   def apt_get_install_command(*packages)
-    "sudo -E apt-get -yq --no-install-suggests --no-install-recommends --force-yes install #{packages.join(' ')}"
+    "sudo -E apt-get -yq --no-install-suggests --no-install-recommends --no-download --force-yes install #{packages.join(' ')}"
   end
 
   context 'with multiple whitelisted packages' do
     let(:config) { ['git', 'curl'] }
 
-    it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true] }
+    it { should include_sexp [:cmd, apt_get_download_command('git', 'curl'), echo: true, timing: true, retry: true, assert: true] }
+    it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true, assert: true] }
   end
 
   context 'with multiple packages, some whitelisted' do
     let(:config) { ['git', 'curl', 'darkcoin'] }
 
-    it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true] }
+    it { should include_sexp [:cmd, apt_get_download_command('git', 'curl'), echo: true, timing: true, retry: true, assert: true] }
+    it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true, assert: true] }
   end
 
   context 'with singular whitelisted package' do
     let(:config) { 'git' }
 
-    it { should include_sexp [:cmd, apt_get_install_command('git'), echo: true, timing: true] }
+    it { should include_sexp [:cmd, apt_get_download_command('git'), echo: true, timing: true, retry: true, assert: true] }
+    it { should include_sexp [:cmd, apt_get_install_command('git'), echo: true, timing: true, assert: true] }
   end
 
   context 'with no whitelisted packages' do
     let(:config) { nil }
 
-    it { should_not include_sexp [:cmd, apt_get_install_command('git'), echo: true, timing: true] }
+    it { should_not include_sexp [:cmd, apt_get_download_command('git'), echo: true, timing: true, retry: true, assert: true] }
+    it { should_not include_sexp [:cmd, apt_get_install_command('git'), echo: true, timing: true, assert: true] }
   end
 end
