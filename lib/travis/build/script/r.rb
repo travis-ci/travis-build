@@ -194,7 +194,7 @@ module Travis
 
           if data.cache?(:R)
             sh.fold 'cache.R' do
-              sh.echo ''
+              sh.sh 'mkdir -p $R_LIBS_USER'
               directory_cache.add '$R_LIBS_USER'
             end
           end
