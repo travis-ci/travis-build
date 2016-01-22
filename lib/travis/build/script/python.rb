@@ -35,6 +35,7 @@ module Travis
         def announce
           sh.cmd 'python --version'
           sh.cmd 'pip --version'
+          sh.export 'PIP_DISABLE_PIP_VERSION_CHECK', '1', echo: false
         end
 
         def install
