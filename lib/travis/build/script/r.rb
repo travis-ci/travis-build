@@ -44,7 +44,7 @@ module Travis
           super
           sh.export 'TRAVIS_R_VERSION', version, echo: false
           sh.export 'R_LIBS_USER', '~/R/Library', echo: false
-          sh.export 'TEXMFHOME', '~/texmf'
+          sh.export 'TEXMFHOME', '~/texmf', echo: false
         end
 
         def configure
@@ -372,20 +372,30 @@ module Travis
         end
 
         def setup_latex
+          # Setup the TEXMFHOME based on the shell variable TEXMFHOME and
+          # initialize the user tree
+          sh.cmd "sudo /usr/texbin/tlmgr conf texmf TEXMFHOME \"{${TEXMFHOME}}\""
+          sh.cmd "sudo /usr/texbin/tlmgr init-usertree"
+
+          # Alias tlmgr to start in usermode
+          sh.cmd "echo \"alias tlmgr=\\\"tlmgr --usermode\\\"\" >> .bashrc"
           case config[:os]
           when 'linux'
             # We add a backports PPA for more recent TeX packages.
             sh.cmd 'sudo add-apt-repository -y "ppa:texlive-backports/ppa"'
 
             latex_packages = %w[
-                   lmodern texinfo texlive-base texlive-extra-utils
-                   texlive-fonts-extra texlive-fonts-recommended
-                   texlive-generic-recommended texlive-latex-base
-                   texlive-latex-extra texlive-latex-recommended
+                   texlive-base texinfo lmodern texlive-extra-utils
+                   texlive-fonts-recommended texlive-generic-recommended
+                   texlive-latex-base texlive-latex-extra
+                   texlive-latex-recommended
             ]
             sh.cmd 'sudo apt-get install -y --no-install-recommends ' +
                    "#{latex_packages.join(' ')}",
                    retry: true
+            sh.cmd 'tlmgr update --self'
+            sh.cmd 'tlmgr install inconsolata upquote ' +
+                   'courier courier-scaled helvetic'
           when 'osx'
             # We use basictex due to disk space constraints.
             mactex = 'BasicTeX.pkg'
@@ -397,8 +407,8 @@ module Travis
             sh.echo 'Installing OS X binary package for MacTeX'
             sh.cmd "sudo installer -pkg \"/tmp/#{mactex}\" -target /"
             sh.rm "/tmp/#{mactex}"
-            sh.cmd 'sudo /usr/texbin/tlmgr update --self'
-            sh.cmd 'sudo /usr/texbin/tlmgr install inconsolata upquote ' +
+            sh.cmd 'tlmgr update --self'
+            sh.cmd 'tlmgr install inconsolata upquote ' +
                    'courier courier-scaled helvetic'
 
             sh.export 'PATH', '$PATH:/usr/texbin'
