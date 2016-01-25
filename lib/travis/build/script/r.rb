@@ -44,6 +44,7 @@ module Travis
           super
           sh.export 'TRAVIS_R_VERSION', version, echo: false
           sh.export 'R_LIBS_USER', '~/R/Library', echo: false
+          sh.export 'TEXMFHOME', '~/texmf'
         end
 
         def configure
@@ -123,7 +124,7 @@ module Travis
 
         def install
           super
-          unless setup_cache_has_run_for[:R]
+          unless setup_cache_has_run_for[:packages]
             setup_cache
           end
 
@@ -190,15 +191,15 @@ module Travis
         end
 
         def setup_cache
-          return if setup_cache_has_run_for[:R]
+          return if setup_cache_has_run_for[:packages]
 
-          if data.cache?(:R)
+          if data.cache?(:packages)
             sh.fold 'cache.R' do
               sh.sh 'mkdir -p $R_LIBS_USER'
               directory_cache.add '$R_LIBS_USER'
             end
           end
-          setup_cache_has_run_for[:R] = true
+          setup_cache_has_run_for[:packages] = true
         end
 
         def cache_slug
@@ -206,7 +207,7 @@ module Travis
         end
 
         def use_directory_cache?
-          super || data.cache?(:R)
+          super || data.cache?(:packages)
         end
 
         private
