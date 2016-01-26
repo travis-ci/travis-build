@@ -44,7 +44,7 @@ module Travis
           super
           sh.export 'TRAVIS_R_VERSION', version, echo: false
           sh.export 'R_LIBS_USER', '~/R/Library', echo: false
-          sh.export 'TEXMFHOME', '~/texmf'
+          sh.export 'TEXMFHOME', '~/texmf', echo: false
         end
 
         def configure
@@ -83,7 +83,7 @@ module Travis
                 # --as-cran checks:
                 #   https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
                 sh.cmd 'sudo apt-get install -y --no-install-recommends r-base-dev ' +
-                  'r-recommended qpdf', retry: true
+                  'r-recommended qpdf texinfo', retry: true
 
                 # Change permissions for /usr/local/lib/R/site-library
                 # This should really be via 'sudo adduser travis staff'
@@ -374,18 +374,13 @@ module Travis
         def setup_latex
           case config[:os]
           when 'linux'
-            # We add a backports PPA for more recent TeX packages.
-            sh.cmd 'sudo add-apt-repository -y "ppa:texlive-backports/ppa"'
-
-            latex_packages = %w[
-                   lmodern texinfo texlive-base texlive-extra-utils
-                   texlive-fonts-extra texlive-fonts-recommended
-                   texlive-generic-recommended texlive-latex-base
-                   texlive-latex-extra texlive-latex-recommended
-            ]
-            sh.cmd 'sudo apt-get install -y --no-install-recommends ' +
-                   "#{latex_packages.join(' ')}",
-                   retry: true
+            texlive_filename = 'texlive.tar.gz'
+            texlive_url = 'https://github.com/yihui/ubuntu-bin/releases/download/latest/texlive.tar.gz'
+            sh.cmd "curl -Lo /tmp/#{texlive_filename} #{texlive_url}"
+            sh.cmd "tar xzC ~ /tmp/#{texlive_filename}"
+            sh.export 'PATH', "#PATH:/$HOME/texlive/bin/x86_64-linux"
+            # Alias tlmgr to start in user mode
+            sh.cmd 'sed -i "/# If not running interactively, don\'t do anything/ishopt -s expand_aliases;alias tlmgr=\"/usr/texbin/tlmgr --usermode\"" ~/.bashrc'
           when 'osx'
             # We use basictex due to disk space constraints.
             mactex = 'BasicTeX.pkg'
@@ -397,12 +392,21 @@ module Travis
             sh.echo 'Installing OS X binary package for MacTeX'
             sh.cmd "sudo installer -pkg \"/tmp/#{mactex}\" -target /"
             sh.rm "/tmp/#{mactex}"
-            sh.cmd 'sudo /usr/texbin/tlmgr update --self'
-            sh.cmd 'sudo /usr/texbin/tlmgr install inconsolata upquote ' +
-                   'courier courier-scaled helvetic'
-
             sh.export 'PATH', '$PATH:/usr/texbin'
+            # Alias tlmgr to start in user mode, OSX doesn't have a .bashrc by default.
+            sh.cmd 'echo "shopt -s expand_aliases;alias tlmgr=\"/usr/texbin/tlmgr --usermode\"" > ~/.bashrc'
           end
+          # Setup the TEXMFHOME based on the shell variable TEXMFHOME and
+          # initialize the user tree
+          sh.cmd "tlmgr conf texmf TEXMFHOME ${TEXMFHOME}"
+          sh.cmd "tlmgr init-usertree"
+
+          # init-usertree does not creat a backups directory
+          sh.cmd "mkdir -p $TEXMFHOME/tlpkg/backups"
+
+          sh.cmd 'tlmgr update --self'
+          sh.cmd 'tlmgr install inconsolata upquote ' +
+            'courier courier-scaled helvetic'
         end
 
         def setup_pandoc
