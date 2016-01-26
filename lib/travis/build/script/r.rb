@@ -377,7 +377,7 @@ module Travis
             texlive_filename = 'texlive.tar.gz'
             texlive_url = 'https://github.com/yihui/ubuntu-bin/releases/download/latest/texlive.tar.gz'
             sh.cmd "curl -Lo /tmp/#{texlive_filename} #{texlive_url}"
-            sh.cmd "tar xzC ~ /tmp/#{texlive_filename}"
+            sh.cmd "tar xf /tmp/#{texlive_filename} -C ~"
             sh.export 'PATH', "#PATH:/$HOME/texlive/bin/x86_64-linux"
             # Alias tlmgr to start in user mode
             sh.cmd 'sed -i "/# If not running interactively, don\'t do anything/ishopt -s expand_aliases;alias tlmgr=\"/usr/texbin/tlmgr --usermode\"" ~/.bashrc'
