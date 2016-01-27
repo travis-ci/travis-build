@@ -378,9 +378,7 @@ module Travis
             texlive_url = 'https://github.com/yihui/ubuntu-bin/releases/download/latest/texlive.tar.gz'
             sh.cmd "curl -Lo /tmp/#{texlive_filename} #{texlive_url}"
             sh.cmd "tar xf /tmp/#{texlive_filename} -C ~"
-            sh.export 'PATH', "#PATH:/$HOME/texlive/bin/x86_64-linux"
-            # Alias tlmgr to start in user mode
-            sh.cmd 'sed -i "/# If not running interactively, don\'t do anything/ishopt -s expand_aliases;alias tlmgr=\"/usr/texbin/tlmgr --usermode\"" ~/.bashrc'
+            sh.export 'PATH', "$PATH:/$HOME/texlive/bin/x86_64-linux"
           when 'osx'
             # We use basictex due to disk space constraints.
             mactex = 'BasicTeX.pkg'
@@ -393,17 +391,7 @@ module Travis
             sh.cmd "sudo installer -pkg \"/tmp/#{mactex}\" -target /"
             sh.rm "/tmp/#{mactex}"
             sh.export 'PATH', '$PATH:/usr/texbin'
-            # Alias tlmgr to start in user mode, OSX doesn't have a .bashrc by default.
-            sh.cmd 'echo "shopt -s expand_aliases;alias tlmgr=\"/usr/texbin/tlmgr --usermode\"" > ~/.bashrc'
           end
-          # Setup the TEXMFHOME based on the shell variable TEXMFHOME and
-          # initialize the user tree
-          sh.cmd "tlmgr conf texmf TEXMFHOME ${TEXMFHOME}"
-          sh.cmd "tlmgr init-usertree"
-
-          # init-usertree does not creat a backups directory
-          sh.cmd "mkdir -p $TEXMFHOME/tlpkg/backups"
-
           sh.cmd 'tlmgr update --self'
           sh.cmd 'tlmgr install inconsolata upquote ' +
             'courier courier-scaled helvetic'
