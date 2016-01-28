@@ -1,3 +1,8 @@
+# Maintained by:
+# Jim Hester     @jimhester       james.hester@rstudio.com
+# Craig Citro    @craigcitro      craigcitro@google.com
+# Hadley Wickham @hadley          hadley@rstudio.com
+#
 module Travis
   module Build
     class Script
@@ -19,11 +24,12 @@ module Travis
           r_check_revdep: false,
           # Heavy dependencies
           pandoc: true,
-          pandoc_version: '1.13.1',
+          pandoc_version: '1.15.2',
           # Bioconductor
           bioc: 'http://bioconductor.org/biocLite.R',
           bioc_required: false,
           bioc_use_devel: false,
+          R: 'release'
         }
 
         def initialize(data)
@@ -36,74 +42,77 @@ module Travis
 
         def export
           super
-          sh.export 'TRAVIS_R_VERSION', 'release', echo: false
+          sh.export 'TRAVIS_R_VERSION', version, echo: false
+          sh.export 'R_LIBS_USER', '~/R/Library', echo: false
+          sh.export 'TEXMFHOME', '~/texmf', echo: false
         end
 
-        def setup
+        def configure
           super
 
-          # TODO(craigcitro): Confirm that these do, in fact, print as
-          # green. (They're yellow under vagrant.)
           sh.echo 'R for Travis-CI is not officially supported, ' +
                   'but is community maintained.', ansi: :green
           sh.echo 'Please file any issues using the following link',
                   ansi: :green
           sh.echo '  https://github.com/travis-ci/travis-ci/issues' +
                   '/new?labels=community:r', ansi: :green
-          sh.echo 'and mention @craigcitro and @hadley in the issue',
+          sh.echo 'and mention @craigcitro, @hadley and @jimhester in the issue',
                   ansi: :green
 
-          # TODO(craigcitro): python-software-properties?
-          sh.echo 'Installing R'
-          case config[:os]
-          when 'linux'
-            # Set up our CRAN mirror.
-            sh.cmd 'sudo add-apt-repository ' +
-                   "\"deb #{config[:cran]}/bin/linux/ubuntu " +
-                   "$(lsb_release -cs)/\""
-            sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com ' +
-                   '--recv-keys E084DAB9'
+          sh.fold("R-install") do
+            sh.with_options({ assert: true,  echo: true,  timing: true  }) do
+              sh.echo 'Installing R', ansi: :yellow
+              case config[:os]
+              when 'linux'
+                # Set up our CRAN mirror.
+                sh.cmd 'sudo add-apt-repository ' +
+                  "\"deb #{config[:cran]}/bin/linux/ubuntu " +
+                  "$(lsb_release -cs)/\""
+                sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com ' +
+                  '--recv-keys E084DAB9'
 
-            # Add marutter's c2d4u repository.
-            sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter"'
-            sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u"'
+                # Add marutter's c2d4u repository.
+                sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter"'
+                sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u"'
 
-            # Update after adding all repositories. Retry several
-            # times to work around flaky connection to Launchpad PPAs.
-            sh.cmd 'sudo apt-get update -qq', retry: true
+                # Update after adding all repositories. Retry several
+                # times to work around flaky connection to Launchpad PPAs.
+                sh.cmd 'sudo apt-get update -qq', retry: true
 
-            # Install an R development environment. qpdf is also needed for
-            # --as-cran checks:
-            #   https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
-            sh.cmd 'sudo apt-get install -y --no-install-recommends r-base-dev ' +
-                   'r-recommended qpdf', retry: true
+                # Install an R development environment. qpdf is also needed for
+                # --as-cran checks:
+                #   https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
+                sh.cmd 'sudo apt-get install -y --no-install-recommends r-base-dev ' +
+                  'r-recommended qpdf texinfo', retry: true
 
-            # Change permissions for /usr/local/lib/R/site-library
-            # This should really be via 'sudo adduser travis staff'
-            # but that may affect only the next shell
-            sh.cmd 'sudo chmod 2777 /usr/local/lib/R /usr/local/lib/R/site-library'
+                # Change permissions for /usr/local/lib/R/site-library
+                # This should really be via 'sudo adduser travis staff'
+                # but that may affect only the next shell
+                sh.cmd 'sudo chmod 2777 /usr/local/lib/R /usr/local/lib/R/site-library'
 
-          when 'osx'
-            # We want to update, but we don't need the 800+ lines of
-            # output.
-            sh.cmd 'brew update >/dev/null', retry: true
+              when 'osx'
+                # We want to update, but we don't need the 800+ lines of
+                # output.
+                sh.cmd 'brew update >/dev/null', retry: true
 
-            # Install from latest CRAN binary build for OS X
-            sh.cmd "wget #{config[:cran]}/bin/macosx/R-latest.pkg " +
-                   '-O /tmp/R-latest.pkg'
+                # Install from latest CRAN binary build for OS X
+                sh.cmd "wget #{config[:cran]}/bin/macosx/R-latest.pkg " +
+                  '-O /tmp/R-latest.pkg'
 
-            sh.echo 'Installing OS X binary package for R'
-            sh.cmd 'sudo installer -pkg "/tmp/R-latest.pkg" -target /'
-            sh.rm '/tmp/R-latest.pkg'
+                sh.echo 'Installing OS X binary package for R'
+                sh.cmd 'sudo installer -pkg "/tmp/R-latest.pkg" -target /'
+                sh.rm '/tmp/R-latest.pkg'
 
-          else
-            sh.failure "Operating system not supported: #{config[:os]}"
+              else
+                sh.failure "Operating system not supported: #{config[:os]}"
+              end
+
+              setup_latex
+
+              setup_bioc if needs_bioc?
+              setup_pandoc if config[:pandoc]
+            end
           end
-
-          setup_latex
-          
-          setup_bioc if needs_bioc?
-          setup_pandoc if config[:pandoc]
         end
 
         def announce
@@ -115,6 +124,9 @@ module Travis
 
         def install
           super
+          unless setup_cache_has_run_for[:packages]
+            setup_cache
+          end
 
           # Install any declared packages
           apt_install config[:apt_packages]
@@ -160,7 +172,7 @@ module Travis
               sh.failure "Found warnings, treating as errors (as requested)."
             end
           end
-          
+
           # Check revdeps, if requested.
           if config[:r_check_revdep]
             sh.echo "Checking reverse dependencies"
@@ -176,6 +188,26 @@ module Travis
             sh.cmd "Rscript -e '#{revdep_script}'", assert: true
           end
 
+        end
+
+        def setup_cache
+          return if setup_cache_has_run_for[:packages]
+
+          if data.cache?(:packages)
+            sh.fold 'cache.R' do
+              sh.sh 'mkdir -p $R_LIBS_USER'
+              directory_cache.add '$R_LIBS_USER'
+            end
+          end
+          setup_cache_has_run_for[:packages] = true
+        end
+
+        def cache_slug
+          super << '--R-' << version
+        end
+
+        def use_directory_cache?
+          super || data.cache?(:packages)
         end
 
         private
@@ -213,20 +245,19 @@ module Travis
           pkg_arg = packages_as_arg(packages)
           install_script = [
             "options(repos = c(CRAN = \"#{config[:cran]}\"));",
-            'tryCatch({',
-            "  devtools::install_github(#{pkg_arg}, build_vignettes = FALSE)",
-            '}, error = function(e) {',
-            '  message(e);',
-            '  q(status = 1, save = "no")',
-            '})',
+            "devtools::install_github(#{pkg_arg}, build_vignettes = FALSE)",
           ].join(' ')
           sh.cmd "Rscript -e '#{install_script}'"
         end
-        
+
         def r_binary_install(packages)
           return if packages.empty?
-          case config[:os]
-          when 'linux'
+          if config[:os] == 'linux'
+            unless config[:sudo]
+              sh.echo "R binary packages not supported with 'sudo: false', " +
+                ' falling back to source install'
+              return r_install packages
+            end
             sh.echo "Installing *binary* R packages: #{packages.join(', ')}"
             apt_install packages.collect{|p| "r-cran-#{p.downcase}"}
           else
@@ -278,12 +309,7 @@ module Travis
           end
           install_script = [
             "options(repos = #{repos});",
-            'tryCatch({',
-            '  deps <- devtools::install_deps(dependencies = TRUE)',
-            '}, error = function(e) {',
-            '  message(e);',
-            '  q(status=1)',
-            '});',
+            'deps <- devtools::install_deps(dependencies = TRUE);',
             'if (!all(deps %in% installed.packages())) {',
             ' message("missing: ", paste(setdiff(deps, installed.packages()), collapse=", "));',
             ' q(status = 1, save = "no")',
@@ -298,7 +324,7 @@ module Travis
           )
           sh.export 'RCHECK_DIR', "$(Rscript -e '#{pkg_script}')"
         end
-        
+
         def dump_logs
           export_rcheck_dir
           ['out', 'log', 'fail'].each do |ext|
@@ -313,7 +339,7 @@ module Travis
             sh.cmd cmd
           end
         end
-        
+
         def setup_bioc
           unless @bioc_installed
             sh.echo 'Installing BioConductor'
@@ -348,18 +374,13 @@ module Travis
         def setup_latex
           case config[:os]
           when 'linux'
-            # We add a backports PPA for more recent TeX packages.
-            sh.cmd 'sudo add-apt-repository -y "ppa:texlive-backports/ppa"'
-
-            latex_packages = %w[
-                   lmodern texinfo texlive-base texlive-extra-utils
-                   texlive-fonts-extra texlive-fonts-recommended
-                   texlive-generic-recommended texlive-latex-base
-                   texlive-latex-extra texlive-latex-recommended
-            ]
-            sh.cmd 'sudo apt-get install -y --no-install-recommends ' +
-                   "#{latex_packages.join(' ')}",
-                   retry: true
+            texlive_filename = 'texlive.tar.gz'
+            texlive_url = 'https://github.com/yihui/ubuntu-bin/releases/download/latest/texlive.tar.gz'
+            sh.cmd "curl -Lo /tmp/#{texlive_filename} #{texlive_url}"
+            sh.cmd "tar xf /tmp/#{texlive_filename} -C ~"
+            sh.export 'PATH', "#PATH:/$HOME/texlive/bin/x86_64-linux"
+            # Alias tlmgr to start in user mode
+            sh.cmd 'sed -i "/# If not running interactively, don\'t do anything/ishopt -s expand_aliases;alias tlmgr=\"/usr/texbin/tlmgr --usermode\"" ~/.bashrc'
           when 'osx'
             # We use basictex due to disk space constraints.
             mactex = 'BasicTeX.pkg'
@@ -371,40 +392,65 @@ module Travis
             sh.echo 'Installing OS X binary package for MacTeX'
             sh.cmd "sudo installer -pkg \"/tmp/#{mactex}\" -target /"
             sh.rm "/tmp/#{mactex}"
-            sh.cmd 'sudo /usr/texbin/tlmgr update --self'
-            sh.cmd 'sudo /usr/texbin/tlmgr install inconsolata upquote ' +
-                   'courier courier-scaled helvetic'
-
             sh.export 'PATH', '$PATH:/usr/texbin'
+            # Alias tlmgr to start in user mode, OSX doesn't have a .bashrc by default.
+            sh.cmd 'echo "shopt -s expand_aliases;alias tlmgr=\"/usr/texbin/tlmgr --usermode\"" > ~/.bashrc'
           end
+          # Setup the TEXMFHOME based on the shell variable TEXMFHOME and
+          # initialize the user tree
+          sh.cmd "tlmgr conf texmf TEXMFHOME ${TEXMFHOME}"
+          sh.cmd "tlmgr init-usertree"
+
+          # init-usertree does not creat a backups directory
+          sh.cmd "mkdir -p $TEXMFHOME/tlpkg/backups"
+
+          sh.cmd 'tlmgr update --self'
+          sh.cmd 'tlmgr install inconsolata upquote ' +
+            'courier courier-scaled helvetic'
         end
 
         def setup_pandoc
           case config[:os]
           when 'linux'
-            os_path = 'linux/debian/x86_64'
-          when 'osx'
-            os_path = 'mac'
-          end
+            pandoc_filename = "pandoc-#{config[:pandoc_version]}-1-amd64.deb"
+            pandoc_url = "https://github.com/jgm/pandoc/releases/download/#{config[:pandoc_version]}/" +
+              "#{pandoc_filename}"
 
-          pandoc_url = 'https://s3.amazonaws.com/rstudio-buildtools/pandoc-' +
-                       "#{config[:pandoc_version]}.zip"
-          pandoc_srcdir = "pandoc-#{config[:pandoc_version]}/#{os_path}"
-          pandoc_destdir = '${HOME}/opt/pandoc'
-          pandoc_tmpfile = "/tmp/pandoc-#{config[:pandoc_version]}.zip"
-          
-          sh.mkdir pandoc_destdir, recursive: true
-          sh.cmd "curl -o #{pandoc_tmpfile} #{pandoc_url}"
-          ['pandoc', 'pandoc-citeproc'].each do |filename|
-            binary_srcpath = File.join(pandoc_srcdir, filename)
-            sh.cmd "unzip -j #{pandoc_tmpfile} #{binary_srcpath} " +
-                   "-d #{pandoc_destdir}"
-            sh.chmod '+x', "#{File.join(pandoc_destdir, filename)}"
+            # Download and install pandoc
+            sh.cmd "curl -Lo /tmp/#{pandoc_filename} #{pandoc_url}"
+            sh.cmd "sudo dpkg -i /tmp/#{pandoc_filename}"
+
+            # Fix any missing dependencies
+            sh.cmd "sudo apt-get install -f"
+
+            # Cleanup
+            sh.rm "/tmp/#{pandoc_filename}"
+          when 'osx'
+            pandoc_filename = "pandoc-#{config[:pandoc_version]}-osx.pkg"
+            pandoc_url = "https://github.com/jgm/pandoc/releases/download/#{config[:pandoc_version]}/" +
+              "#{pandoc_filename}"
+
+            # Download and install pandoc
+            sh.cmd "curl -Lo /tmp/#{pandoc_filename} #{pandoc_url}"
+            sh.cmd "sudo installer -pkg \"/tmp/#{pandoc_filename}\""
+
+            # Cleanup
+            sh.rm "/tmp/#{pandoc_filename}"
           end
-          
-          sh.export 'PATH', "$PATH:#{pandoc_destdir}"
         end
-        
+
+        def version
+          @version ||= normalized_version
+        end
+
+        def normalized_version
+          v = config[:R].to_s
+          case v
+          when 'release' then '3.2.3'
+          when 'oldrel' then '3.1.3'
+          else v
+          end
+        end
       end
     end
   end

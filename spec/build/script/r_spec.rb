@@ -8,7 +8,8 @@ describe Travis::Build::Script::R, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'exports TRAVIS_R_VERSION' do
-    should include_sexp [:export, ['TRAVIS_R_VERSION', 'release']]
+    data[:config][:R] = '3.2.3'
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.2.3']]
   end
 
   it 'downloads and installs R' do
@@ -16,9 +17,36 @@ describe Travis::Build::Script::R, :sexp do
                          assert: true, echo: true, retry: true, timing: true]
   end
 
-  it 'installs pandoc into ${HOME}' do
-    should include_sexp [:cmd, /unzip -j \/tmp\/pandoc-.* \$\{HOME\}\/opt\/pandoc/,
+  it 'downloads pandoc and installs into /usr/bin/pandoc' do
+    data[:config][:pandoc_version] = '1.15.2'
+    should include_sexp [:cmd, %r{curl -Lo /tmp/pandoc-1\.15\.2-1-amd64.deb https://github\.com/jgm/pandoc/releases/download/1.15.2/pandoc-1\.15\.2-1-amd64.deb},
                          assert: true, echo: true, timing: true]
+
+    should include_sexp [:cmd, %r{sudo dpkg -i /tmp/pandoc-},
+                         assert: true, echo: true, timing: true]
+  end
+
+  it 'installs binary devtools if sudo: required' do
+    data[:config][:sudo] = 'required'
+    should include_sexp [:cmd, /sudo apt-get install.*r-cran-devtools/,
+                         assert: true, echo: true, timing: true, retry: true]
+  end
+
+  it 'installs source devtools if sudo: is missing' do
+    should include_sexp [:cmd, /Rscript -e 'install\.packages\(c\(\"devtools\"\)/,
+                         assert: true, echo: true, timing: true]
+
+    should_not include_sexp [:cmd, /sudo apt-get install.*r-cran-devtools/,
+                         assert: true, echo: true, timing: true, retry: true]
+  end
+
+  it 'installs source devtools if sudo: false' do
+    data[:config][:sudo] = false
+    should include_sexp [:cmd, /Rscript -e 'install\.packages\(c\(\"devtools\"\)/,
+                         assert: true, echo: true, timing: true]
+
+    should_not include_sexp [:cmd, /sudo apt-get install.*r-cran-devtools/,
+                         assert: true, echo: true, timing: true, retry: true]
   end
 
   it 'fails on package build and test failures' do
@@ -47,4 +75,20 @@ describe Travis::Build::Script::R, :sexp do
     end
   end
 
+  describe '#cache_slug' do
+    subject { described_class.new(data).cache_slug }
+    it {
+      data[:config][:R] = '3.2.3'
+      should eq('cache--R-3.2.3')
+    }
+
+    it {
+      data[:config][:R] = 'release'
+      should eq('cache--R-3.2.3')
+    }
+    it {
+      data[:config][:R] = 'devel'
+      should eq('cache--R-devel')
+    }
+  end
 end

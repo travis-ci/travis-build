@@ -67,7 +67,7 @@ travis_time_finish() {
   local result=$?
   travis_end_time=$(travis_nanoseconds)
   local duration=$(($travis_end_time-$travis_start_time))
-  echo -en "travis_time:end:$travis_timer_id:start=$travis_start_time,finish=$travis_end_time,duration=$duration\r${ANSI_CLEAR}"
+  echo -en "\ntravis_time:end:$travis_timer_id:start=$travis_start_time,finish=$travis_end_time,duration=$duration\r${ANSI_CLEAR}"
   return $result
 }
 

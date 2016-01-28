@@ -1,9 +1,11 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Smalltalk, :sexp do
-  let(:data)   { payload_for(:push, :smalltalk) }
-  let(:script) { described_class.new(data) }
-  subject      { script.sexp }
+  let(:data)      { payload_for(:push, :smalltalk) }
+  let(:script)    { described_class.new(data) }
+  let(:defaults)  { described_class::DEFAULTS }
+  subject         { script.sexp }
+  it              { store_example }
 
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=smalltalk'] }
@@ -18,8 +20,9 @@ describe Travis::Build::Script::Smalltalk, :sexp do
     should include_sexp [:cmd, "popd > /dev/null; popd > /dev/null", assert: true, timing: true]
   end
 
-  describe 'on Linux' do
+  describe 'Squeak on Linux' do
     before do
+      data[:config][:smalltalk] = 'Squeak-5.0'
       data[:config][:os] = 'linux'
     end
     it 'installs the dependencies' do
@@ -27,12 +30,71 @@ describe Travis::Build::Script::Smalltalk, :sexp do
     end
   end
 
-  describe 'on OS X' do
+  describe 'Squeak on OS X' do
     before do
+      data[:config][:smalltalk] = 'Squeak-5.0'
       data[:config][:os] = 'osx'
     end
     it 'does not try to call apt-get' do
       should_not include_sexp [:cmd, "sudo apt-get install --no-install-recommends libc6:i386 libuuid1:i386 libfreetype6:i386 libssl1.0.0:i386", retry: true]
+    end
+  end
+
+  describe 'GemStone on Linux' do
+    before do
+      data[:config][:smalltalk] = 'GemStone-3.2.12'
+      data[:config][:os] = 'linux'
+      defaults[:release_version] = '12.04'
+    end
+
+    it 'set hostname' do
+      should include_sexp [:cmd, "sudo hostname " + defaults[:gemstone_hostname]]
+      should include_sexp [:cmd, "cat /tmp/hosts | sudo tee /etc/hosts > /dev/null"]
+    end
+
+    it 'prepare shared memory' do
+      should include_sexp [:cmd, 'SMALLTALK_CI_TOTALMEM=$(($(awk \'/MemTotal:/{print($2);}\' /proc/meminfo) * 1024))']
+    end
+
+    it 'prepare netldi if necessary' do
+      sexp = sexp_find(subject, [:if, '$(grep -sc "^gs64ldi" /etc/services) -eq 0'], [:then])
+      expect(sexp).to include_sexp [:cmd, "sudo bash -c 'echo \"gs64ldi         50377/tcp        # Gemstone netldi\"  >> /etc/services'"]
+    end
+
+    it 'installs the dependencies' do
+      should include_sexp [:cmd, "sudo apt-get install --no-install-recommends " +
+                     "curl git zip unzip libpam0g:i386 libssl1.0.0:i386 " +
+                     "gcc-multilib libstdc++6:i386 gdb libfreetype6:i386 " +
+                     "pstack libgl1-mesa-glx:i386 libxcb-dri2-0:i386", retry: true]
+    end
+  end
+
+  describe 'GemStone on OS X' do
+    before do
+      data[:config][:smalltalk] = 'GemStone-3.2.12'
+      data[:config][:os] = 'osx'
+    end
+
+    it 'set hostname' do
+      should include_sexp [:cmd, "sudo scutil --set HostName " + defaults[:gemstone_hostname]]
+      should include_sexp [:cmd, "cat /tmp/hosts | sudo tee /etc/hosts > /dev/null"]
+    end
+
+    it 'prepare shared memory' do
+      should include_sexp [:cmd, 'SMALLTALK_CI_TOTALMEM=$(($(sysctl hw.memsize | cut -f2 -d\' \') * 1024))']
+      should include_sexp [:cmd, "sysctl kern.sysv.shmmax kern.sysv.shmall kern.sysv.shmmin kern.sysv.shmmni kern.sysv.mseg  | tr \":\" \"=\" | tr -d \" \" >> /tmp/sysctl.conf"]
+    end
+
+    it 'prepare netldi if necessary' do
+      sexp = sexp_find(subject, [:if, '$(grep -sc "^gs64ldi" /etc/services) -eq 0'], [:then])
+      expect(sexp).to include_sexp [:cmd, "sudo bash -c 'echo \"gs64ldi         50377/tcp        # Gemstone netldi\"  >> /etc/services'"]
+    end
+
+    it 'does not try to call apt-get' do
+      should_not include_sexp [:cmd, "sudo apt-get install --no-install-recommends " +
+                     "curl git zip unzip libpam0g:i386 libssl1.0.0:i386 " +
+                     "gcc-multilib libstdc++6:i386 gdb libfreetype6:i386 " +
+                     "pstack libgl1-mesa-glx:i386 libxcb-dri2-0:i386", retry: true]
     end
   end
 
@@ -41,8 +103,8 @@ describe Travis::Build::Script::Smalltalk, :sexp do
       data[:config][:smalltalk] = 'Squeak-5.0'
     end
 
-    it 'sets SMALLTALK to correct version' do
-      should include_sexp [:export, ['SMALLTALK', 'Squeak-5.0']]
+    it 'sets TRAVIS_SMALLTALK_VERSION to correct version' do
+      should include_sexp [:export, ['TRAVIS_SMALLTALK_VERSION', 'Squeak-5.0']]
     end
   end
 

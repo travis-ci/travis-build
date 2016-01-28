@@ -68,5 +68,5 @@ environment to aid you in debugging the build failures.
 
 See LICENSE file.
 
-Copyright (c) 2011-2014 [Travis CI development
+Copyright (c) 2011-2016 [Travis CI development
 team](https://github.com/travis-ci).
