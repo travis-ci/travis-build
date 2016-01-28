@@ -377,7 +377,7 @@ module Travis
             texlive_filename = 'texlive.tar.gz'
             texlive_url = 'https://github.com/yihui/ubuntu-bin/releases/download/latest/texlive.tar.gz'
             sh.cmd "curl -Lo /tmp/#{texlive_filename} #{texlive_url}"
-            sh.cmd "tar xf /tmp/#{texlive_filename} -C ~"
+            sh.cmd "tar xzf /tmp/#{texlive_filename} -C ~"
             sh.export 'PATH', "$PATH:/$HOME/texlive/bin/x86_64-linux"
           when 'osx'
             # We use basictex due to disk space constraints.
