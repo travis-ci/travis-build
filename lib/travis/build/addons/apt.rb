@@ -21,6 +21,17 @@ module Travis
 
           private
 
+          def get_whitelist(url_base, url_path)
+            require 'faraday'
+            conn = Faraday.new(url_base) do |c|
+              c.use Faraday::Response::RaiseError
+              c.use Faraday::Adapter::NetHttp
+            end
+
+            response = conn.get url_path
+            return response.body.to_s
+          end
+
           def load_package_whitelist
             require 'faraday'
             response = fetch_package_whitelist
@@ -41,19 +52,25 @@ module Travis
           end
 
           def fetch_package_whitelist
-            Faraday.get(package_whitelist_url).body.to_s
+            get_whitelist(package_whitelist_url)
           end
 
           def fetch_source_whitelist
-            Faraday.get(source_whitelist_url).body.to_s
+            get_whitelist(source_whitelist_url)
           end
 
           def package_whitelist_url
-            ENV['TRAVIS_BUILD_APT_PACKAGE_WHITELIST'] || ENV['TRAVIS_BUILD_APT_WHITELIST']
+            url_base = ENV['TRAVIS_BUILD_APT_BASE_URL']
+            url_path = ENV['TRAVIS_BUILD_APT_PACKAGE_WHITELIST_PATH'] || ENV['TRAVIS_BUILD_APT_WHITELIST_PATH']
+
+            return url_base,  url_path
           end
 
           def source_whitelist_url
-            ENV['TRAVIS_BUILD_APT_SOURCE_WHITELIST']
+            url_base = ENV['TRAVIS_BUILD_APT_BASE_URL']
+            url_path = ENV['TRAVIS_BUILD_APT_SOURCE_WHITELIST_PATH']
+
+            return url_base, url_path
           end
         end
 
