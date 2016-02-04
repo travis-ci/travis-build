@@ -175,9 +175,7 @@ module Travis
             # Turn warnings into errors, if requested.
             if config[:warnings_are_errors]
               export_rcheck_dir
-              sh.cmd 'grep -q -R "WARNING" "${RCHECK_DIR}/00check.log"; '\
-                     'RETVAL=$?', echo: false
-              sh.if '${RETVAL} -eq 0' do
+              sh.if 'grep -q -R "WARNING" "${RCHECK_DIR}/00check.log"' do
                 sh.failure "Found warnings, treating as errors (as requested)."
               end
             end
@@ -290,7 +288,7 @@ module Travis
 
         def install_deps
           sh.fold "R-dependencies" do
-            sh.echo 'Installing package dependencies', ansi: :yellow
+            sh.echo 'Installing Package Dependencies', ansi: :yellow
             setup_devtools
             install_script =
               'deps <- devtools::install_deps(dependencies = TRUE);'\
