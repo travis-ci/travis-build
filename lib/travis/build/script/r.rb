@@ -9,7 +9,7 @@ module Travis
       class R < Script
         DEFAULTS = {
           # Basic config options
-          cran: 'https://cloud.r-project.org',
+          cran: 'http://cloud.r-project.org',
           repos: {},
           warnings_are_errors: true,
           # Dependencies (installed in this order)
