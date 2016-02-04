@@ -62,7 +62,7 @@ module Travis
 
           unless mono_version_valid?
             sh.failure "\"#{config[:mono]}\" is either a invalid version of mono or unsupported on #{config[:os]}.
-View valid versions of mono at http://docs.travis-ci.com/user/languages/csharp/"
+View valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/"
           end
         end
 

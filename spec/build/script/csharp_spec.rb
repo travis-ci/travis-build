@@ -28,22 +28,22 @@ describe Travis::Build::Script::Csharp, :sexp do
   describe 'version switching' do
     it 'throws a error with a invalid version' do
       data[:config][:mono] = 'foo'
-      should include_sexp [:echo, "\"foo\" is either a invalid version of mono or unsupported on linux.\nView valid versions of mono at http://docs.travis-ci.com/user/languages/csharp/"]
+      should include_sexp [:echo, "\"foo\" is either a invalid version of mono or unsupported on linux.\nView valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/"]
     end
 
     it 'throws a error with a invalid version' do
       data[:config][:mono] = '12.55.523'
-      should include_sexp [:echo, "\"12.55.523\" is either a invalid version of mono or unsupported on linux.\nView valid versions of mono at http://docs.travis-ci.com/user/languages/csharp/"]
+      should include_sexp [:echo, "\"12.55.523\" is either a invalid version of mono or unsupported on linux.\nView valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/"]
     end
 
     it 'throws a error for invalid version of mono 2' do
       data[:config][:mono] = '2.1.1'
-      should include_sexp [:echo, "\"2.1.1\" is either a invalid version of mono or unsupported on linux.\nView valid versions of mono at http://docs.travis-ci.com/user/languages/csharp/"]
+      should include_sexp [:echo, "\"2.1.1\" is either a invalid version of mono or unsupported on linux.\nView valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/"]
     end
 
     it 'throws a error for mono 1' do
       data[:config][:mono] = '1.1.8'
-      should include_sexp [:echo, "\"1.1.8\" is either a invalid version of mono or unsupported on linux.\nView valid versions of mono at http://docs.travis-ci.com/user/languages/csharp/"]
+      should include_sexp [:echo, "\"1.1.8\" is either a invalid version of mono or unsupported on linux.\nView valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/"]
     end
 
     it 'selects mono 2' do
