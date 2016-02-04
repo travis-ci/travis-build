@@ -45,7 +45,7 @@ module Travis
           super
           sh.export 'TRAVIS_R_VERSION', version, echo: false
           sh.export 'R_LIBS_USER', '~/R/Library', echo: false
-          sh.export 'R_CHECK_CRAN_INCOMING', 'false', echo: false
+          sh.export '_R_CHECK_CRAN_INCOMING', 'false', echo: false
         end
 
         def configure
