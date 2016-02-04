@@ -152,18 +152,18 @@ module Travis
               'cat(paste0(pkg$package, "_", pkg$version, ".tar.gz"));',
             ].join(' ')
             sh.export 'PKG_TARBALL', "$(Rscript -e '#{tarball_script}')"
+          end
 
-            # Test the package
-            sh.echo 'Testing with: R CMD check "${PKG_TARBALL}" ' +
-                    "#{config[:r_check_args]}"
-            sh.cmd "R CMD check \"${PKG_TARBALL}\" #{config[:r_check_args]}",
-                   assert: false
-            # Build fails if R CMD check fails
-            sh.if '$? -ne 0' do
-              sh.echo 'R CMD check failed, dumping logs'
-              dump_logs
-              sh.failure 'R CMD check failed'
-            end
+          # Test the package
+          sh.echo 'Testing with: R CMD check "${PKG_TARBALL}" ' +
+            "#{config[:r_check_args]}"
+          sh.cmd "R CMD check \"${PKG_TARBALL}\" #{config[:r_check_args]}",
+            assert: false
+          # Build fails if R CMD check fails
+          sh.if '$? -ne 0' do
+            sh.echo 'R CMD check failed, dumping logs'
+            dump_logs
+            sh.failure 'R CMD check failed'
           end
 
           # Turn warnings into errors, if requested.
