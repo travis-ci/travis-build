@@ -52,8 +52,8 @@ module Travis
           super
 
           sh.echo 'R for Travis-CI is not officially supported, '\
-                  'but is community maintained.\n'\
-                  'Please file any issues at '\
+                  'but is community maintained.', ansi: :green
+          sh.echo 'Please file any issues at '\
                   'https://github.com/travis-ci/travis-ci/issues '\
                   'and mention @craigcitro, @hadley and @jimhester in the issue', ansi: :green
 
