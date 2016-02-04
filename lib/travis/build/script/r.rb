@@ -175,7 +175,8 @@ module Travis
             # Turn warnings into errors, if requested.
             if config[:warnings_are_errors]
               export_rcheck_dir
-              sh.if 'grep -q -R "WARNING" "${RCHECK_DIR}/00check.log"' do
+              sh.cmd 'grep -q -R "WARNING" "${RCHECK_DIR}/00check.log"', echo: false
+              sh.if '$? -eq 0' do
                 sh.failure "Found warnings, treating as errors (as requested)."
               end
             end
