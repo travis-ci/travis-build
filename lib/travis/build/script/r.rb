@@ -51,14 +51,11 @@ module Travis
         def configure
           super
 
-          sh.echo 'R for Travis-CI is not officially supported, ' +
-                  'but is community maintained.', ansi: :green
-          sh.echo 'Please file any issues using the following link',
-                  ansi: :green
-          sh.echo '  https://github.com/travis-ci/travis-ci/issues' +
-                  '/new?labels=community:r', ansi: :green
-          sh.echo 'and mention @craigcitro, @hadley and @jimhester in the issue',
-                  ansi: :green
+          sh.echo 'R for Travis-CI is not officially supported, '\
+                  'but is community maintained.\n'\
+                  'Please file any issues at '\
+                  'https://github.com/travis-ci/travis-ci/issues '\
+                  'and mention @craigcitro, @hadley and @jimhester in the issue', ansi: :green
 
           sh.fold 'R-install' do
             sh.with_options({ assert: true,  echo: true,  timing: true  }) do
