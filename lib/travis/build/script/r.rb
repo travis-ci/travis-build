@@ -63,10 +63,10 @@ module Travis
               case config[:os]
               when 'linux'
                 # Set up our CRAN mirror.
-                sh.cmd 'sudo add-apt-repository ' +
-                  "\"deb #{config[:cran]}/bin/linux/ubuntu " +
+                sh.cmd 'sudo add-apt-repository '\
+                  "\"deb #{config[:cran]}/bin/linux/ubuntu "\
                   "$(lsb_release -cs)/\""
-                sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com ' +
+                sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com '\
                   '--recv-keys E084DAB9'
 
                 # Add marutter's c2d4u repository.
@@ -80,7 +80,7 @@ module Travis
                 # Install an R development environment. qpdf is also needed for
                 # --as-cran checks:
                 #   https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
-                sh.cmd 'sudo apt-get install -y --no-install-recommends r-base-dev ' +
+                sh.cmd 'sudo apt-get install -y --no-install-recommends r-base-dev '\
                   'r-recommended qpdf texinfo', retry: true
 
                 # Change permissions for /usr/local/lib/R/site-library
@@ -94,7 +94,7 @@ module Travis
                 sh.cmd 'brew update >/dev/null', retry: true
 
                 # Install from latest CRAN binary build for OS X
-                sh.cmd "wget #{config[:cran]}/bin/macosx/R-latest.pkg " +
+                sh.cmd "wget #{config[:cran]}/bin/macosx/R-latest.pkg "\
                   '-O /tmp/R-latest.pkg'
 
                 sh.echo 'Installing OS X binary package for R'
@@ -153,7 +153,7 @@ module Travis
           end
 
           # Test the package
-          sh.echo 'Testing with: R CMD check "${PKG_TARBALL}" ' +
+          sh.echo 'Testing with: R CMD check "${PKG_TARBALL}" '\
             "#{config[:r_check_args]}"
           sh.cmd "R CMD check \"${PKG_TARBALL}\" #{config[:r_check_args]}",
             assert: false
@@ -167,7 +167,7 @@ module Travis
           # Turn warnings into errors, if requested.
           if config[:warnings_are_errors]
             export_rcheck_dir
-            sh.cmd 'grep -q -R "WARNING" "${RCHECK_DIR}/00check.log"; ' +
+            sh.cmd 'grep -q -R "WARNING" "${RCHECK_DIR}/00check.log"; '\
                    'RETVAL=$?', echo: false
             sh.if '${RETVAL} -eq 0' do
               sh.failure "Found warnings, treating as errors (as requested)."
@@ -255,14 +255,14 @@ module Travis
           return if packages.empty?
           if config[:os] == 'linux'
             unless config[:sudo]
-              sh.echo "R binary packages not supported with 'sudo: false', " +
+              sh.echo "R binary packages not supported with 'sudo: false', "\
                 ' falling back to source install'
               return r_install packages
             end
             sh.echo "Installing *binary* R packages: #{packages.join(', ')}"
             apt_install packages.collect{|p| "r-cran-#{p.downcase}"}
           else
-            sh.echo "R binary packages not supported on #{config[:os]}, " +
+            sh.echo "R binary packages not supported on #{config[:os]}, "\
                     'falling back to source install'
             r_install packages
           end
@@ -366,7 +366,7 @@ module Travis
               r_binary_install ['devtools']
             else
               devtools_check = '!requireNamespace("devtools", quietly = TRUE)'
-              devtools_install = 'install.packages(c("devtools"), ' +
+              devtools_install = 'install.packages(c("devtools"), '\
                                  "repos=\"#{config[:cran]}\")"
               sh.cmd "Rscript -e 'if (#{devtools_check}) #{devtools_install}'",
                      retry: true
@@ -388,7 +388,7 @@ module Travis
             mactex = 'BasicTeX.pkg'
             # TODO(craigcitro): Confirm that this will route us to the
             # nearest mirror.
-            sh.cmd 'wget http://mirror.ctan.org/systems/mac/mactex/' +
+            sh.cmd 'wget http://mirror.ctan.org/systems/mac/mactex/'\
                    "#{mactex} -O \"/tmp/#{mactex}\""
 
             sh.echo 'Installing OS X binary package for MacTeX'
@@ -397,7 +397,7 @@ module Travis
             sh.export 'PATH', '$PATH:/usr/texbin'
           end
           sh.cmd 'tlmgr update --self'
-          sh.cmd 'tlmgr install inconsolata upquote ' +
+          sh.cmd 'tlmgr install inconsolata upquote '\
             'courier courier-scaled helvetic'
         end
 
@@ -405,7 +405,7 @@ module Travis
           case config[:os]
           when 'linux'
             pandoc_filename = "pandoc-#{config[:pandoc_version]}-1-amd64.deb"
-            pandoc_url = "https://github.com/jgm/pandoc/releases/download/#{config[:pandoc_version]}/" +
+            pandoc_url = "https://github.com/jgm/pandoc/releases/download/#{config[:pandoc_version]}/"\
               "#{pandoc_filename}"
 
             # Download and install pandoc
@@ -419,7 +419,7 @@ module Travis
             sh.rm "/tmp/#{pandoc_filename}"
           when 'osx'
             pandoc_filename = "pandoc-#{config[:pandoc_version]}-osx.pkg"
-            pandoc_url = "https://github.com/jgm/pandoc/releases/download/#{config[:pandoc_version]}/" +
+            pandoc_url = "https://github.com/jgm/pandoc/releases/download/#{config[:pandoc_version]}/"\
               "#{pandoc_filename}"
 
             # Download and install pandoc
