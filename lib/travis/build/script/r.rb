@@ -118,8 +118,10 @@ module Travis
 
         def announce
           super
-
-          sh.cmd 'Rscript -e \'sessionInfo()\''
+          sh.fold 'R-session-info' do
+            sh.echo 'R Session Information'
+            sh.cmd 'Rscript -e \'sessionInfo()\''
+          end
         end
 
         def install
@@ -155,25 +157,29 @@ module Travis
             sh.export 'PKG_TARBALL', "$(Rscript -e '#{tarball_script}')"
           end
 
-          # Test the package
-          sh.echo 'Testing with: R CMD check "${PKG_TARBALL}" '\
-            "#{config[:r_check_args]}"
-          sh.cmd "R CMD check \"${PKG_TARBALL}\" #{config[:r_check_args]}",
-            assert: false
-          # Build fails if R CMD check fails
-          sh.if '$? -ne 0' do
-            sh.echo 'R CMD check failed, dumping logs'
-            dump_logs
-            sh.failure 'R CMD check failed'
-          end
+          # Build the package
+          sh.fold 'R-check' do
+            sh.echo 'Checking Package', ansi: :yellow
+            # Test the package
+            sh.echo 'Checking with: R CMD check "${PKG_TARBALL}" '\
+              "#{config[:r_check_args]}"
+            sh.cmd "R CMD check \"${PKG_TARBALL}\" #{config[:r_check_args]}",
+              assert: false
+            # Build fails if R CMD check fails
+            sh.if '$? -ne 0' do
+              sh.echo 'R CMD check failed, dumping logs'
+              dump_logs
+              sh.failure 'R CMD check failed'
+            end
 
-          # Turn warnings into errors, if requested.
-          if config[:warnings_are_errors]
-            export_rcheck_dir
-            sh.cmd 'grep -q -R "WARNING" "${RCHECK_DIR}/00check.log"; '\
-                   'RETVAL=$?', echo: false
-            sh.if '${RETVAL} -eq 0' do
-              sh.failure "Found warnings, treating as errors (as requested)."
+            # Turn warnings into errors, if requested.
+            if config[:warnings_are_errors]
+              export_rcheck_dir
+              sh.cmd 'grep -q -R "WARNING" "${RCHECK_DIR}/00check.log"; '\
+                     'RETVAL=$?', echo: false
+              sh.if '${RETVAL} -eq 0' do
+                sh.failure "Found warnings, treating as errors (as requested)."
+              end
             end
           end
 
@@ -421,11 +427,9 @@ module Travis
         # If CRAN is not set in repos set it with cran
         def normalized_repos
           v = config[:repos]
-          STDERR.puts v
           if not v.has_key?(:CRAN)
             v[:CRAN] = config[:cran]
           end
-          STDERR.puts v
           v
         end
       end
