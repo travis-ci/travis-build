@@ -11,7 +11,7 @@ module Travis
           # Basic config options
           cran: 'https://cloud.r-project.org',
           repos: {},
-          warnings_are_errors: false,
+          warnings_are_errors: true,
           # Dependencies (installed in this order)
           apt_packages: [],
           brew_packages: [],
