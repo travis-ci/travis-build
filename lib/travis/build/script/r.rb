@@ -9,7 +9,8 @@ module Travis
       class R < Script
         DEFAULTS = {
           # Basic config options
-          cran: 'http://cran.rstudio.com',
+          cran: 'https://cloud.r-project.org/',
+          repos: {CRAN: 'https://cloud.r-project.org/'},
           warnings_are_errors: false,
           # Dependencies (installed in this order)
           apt_packages: [],
@@ -44,7 +45,6 @@ module Travis
           super
           sh.export 'TRAVIS_R_VERSION', version, echo: false
           sh.export 'R_LIBS_USER', '~/R/Library', echo: false
-          sh.export 'TEXMFHOME', '~/texmf', echo: false
           sh.export 'R_CHECK_CRAN_INCOMING', 'false', echo: false
         end
 
@@ -94,7 +94,7 @@ module Travis
                 sh.cmd 'brew update >/dev/null', retry: true
 
                 # Install from latest CRAN binary build for OS X
-                sh.cmd "wget #{config[:cran]}/bin/macosx/R-latest.pkg "\
+                sh.cmd "wget #{config[:repos][:CRAN]}/bin/macosx/R-latest.pkg "\
                   '-O /tmp/R-latest.pkg'
 
                 sh.echo 'Installing OS X binary package for R'
@@ -104,6 +104,9 @@ module Travis
               else
                 sh.failure "Operating system not supported: #{config[:os]}"
               end
+
+              # Set repos in ~/.Rprofile
+              sh.cmd "options(c(repos = CRAN = \"http://cran.rstudio.com\", blah = \"t2\"))"
 
               setup_latex
 
@@ -122,7 +125,7 @@ module Travis
 
         def install
           super
-          unless setup_cache_has_run_for[:packages]
+          unless setup_cache_has_run_for[:r]
             setup_cache
           end
 
@@ -192,15 +195,15 @@ module Travis
         end
 
         def setup_cache
-          return if setup_cache_has_run_for[:packages]
+          return if setup_cache_has_run_for[:r]
 
           if data.cache?(:packages)
             sh.fold 'cache.R' do
-              sh.sh 'mkdir -p $R_LIBS_USER'
+              sh.echo ''
               directory_cache.add '$R_LIBS_USER'
             end
           end
-          setup_cache_has_run_for[:packages] = true
+          setup_cache_has_run_for[:r] = true
         end
 
         def cache_slug
