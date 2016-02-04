@@ -27,7 +27,7 @@ describe Travis::Build::Script::R, :sexp do
   end
 
   it 'sets repos in ~/.Rprofile with defaults' do
-    should include_sexp [:cmd, "echo 'options(repos = c(CRAN = \"https://cloud.r-project.org\"))' > ~/.Rprofile",
+    should include_sexp [:cmd, "echo 'options(repos = c(CRAN = \"http://cloud.r-project.org\"))' > ~/.Rprofile",
                          assert: true, echo: true, timing: true]
   end
 
