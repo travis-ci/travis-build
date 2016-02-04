@@ -9,8 +9,8 @@ module Travis
       class R < Script
         DEFAULTS = {
           # Basic config options
-          cran: 'https://cloud.r-project.org/',
-          repos: {CRAN: 'https://cloud.r-project.org/'},
+          cran: 'https://cloud.r-project.org',
+          repos: {},
           warnings_are_errors: false,
           # Dependencies (installed in this order)
           apt_packages: [],
@@ -64,7 +64,7 @@ module Travis
               when 'linux'
                 # Set up our CRAN mirror.
                 sh.cmd 'sudo add-apt-repository '\
-                  "\"deb #{config[:cran]}/bin/linux/ubuntu "\
+                  "\"deb #{repos[:CRAN]}/bin/linux/ubuntu "\
                   "$(lsb_release -cs)/\""
                 sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com '\
                   '--recv-keys E084DAB9'
@@ -94,7 +94,7 @@ module Travis
                 sh.cmd 'brew update >/dev/null', retry: true
 
                 # Install from latest CRAN binary build for OS X
-                sh.cmd "wget #{config[:repos][:CRAN]}/bin/macosx/R-latest.pkg "\
+                sh.cmd "wget #{repos[:CRAN]}/bin/macosx/R-latest.pkg "\
                   '-O /tmp/R-latest.pkg'
 
                 sh.echo 'Installing OS X binary package for R'
@@ -106,7 +106,8 @@ module Travis
               end
 
               # Set repos in ~/.Rprofile
-              sh.cmd "options(c(repos = CRAN = \"http://cran.rstudio.com\", blah = \"t2\"))"
+              options_repos = "options(repos = c(#{repos.collect {|k,v| "#{k} = \"#{v}\""}.join(", ")}))"
+              sh.cmd %Q{echo '#{options_repos}' > ~/.Rprofile}
 
               setup_latex
 
@@ -120,7 +121,6 @@ module Travis
           super
 
           sh.cmd 'Rscript -e \'sessionInfo()\''
-          sh.echo ''
         end
 
         def install
@@ -134,7 +134,7 @@ module Travis
           brew_install config[:brew_packages]
           r_binary_install config[:r_binary_packages]
           r_install config[:r_packages]
-          bioc_install config[:bioc_packages]
+          r_install config[:bioc_packages]
           r_github_install config[:r_github_packages]
 
           # Install dependencies for the package we're testing.
@@ -148,10 +148,11 @@ module Travis
             sh.echo "Building with: R CMD build ${R_BUILD_ARGS}"
             sh.cmd "R CMD build #{config[:r_build_args]} .",
                    assert: true
-            tarball_script = [
-              'pkg <- devtools::as.package(".");',
-              'cat(paste0(pkg$package, "_", pkg$version, ".tar.gz"));',
-            ].join(' ')
+
+            tarball_script =
+              'pkg <- devtools::as.package(".");'\
+              'cat(paste0(pkg$package, "_", pkg$version, ".tar.gz"));'
+
             sh.export 'PKG_TARBALL', "$(Rscript -e '#{tarball_script}')"
           end
 
@@ -180,15 +181,14 @@ module Travis
           # Check revdeps, if requested.
           if config[:r_check_revdep]
             sh.echo "Checking reverse dependencies"
-            revdep_script = [
-              'library("devtools");',
-              'res <- revdep_check();',
-              'if (length(res) > 0) {',
-              ' revdep_check_summary(res);',
-              ' revdep_check_save_logs(res);',
-              ' q(status = 1, save = "no");',
-              '}',
-            ].join(' ')
+            revdep_script =
+              'library("devtools");'/
+              'res <- revdep_check();'/
+              'if (length(res) > 0) {'/
+              ' revdep_check_summary(res);'/
+              ' revdep_check_save_logs(res);'/
+              ' q(status = 1, save = "no");'/
+              '}'
             sh.cmd "Rscript -e '#{revdep_script}'", assert: true
           end
 
@@ -233,12 +233,11 @@ module Travis
           return if packages.empty?
           sh.echo "Installing R packages: #{packages.join(', ')}"
           pkg_arg = packages_as_arg(packages)
-          install_script = [
-            "install.packages(#{pkg_arg}, repos=\"#{config[:cran]}\");",
-            "if (!all(#{pkg_arg} %in% installed.packages())) {",
-            ' q(status = 1, save = "no")',
-            '}',
-          ].join(' ')
+          install_script =
+            "install.packages(#{pkg_arg});"\
+            "if (!all(#{pkg_arg} %in% installed.packages())) {"\
+            ' q(status = 1, save = "no")'\
+            '}'
           sh.cmd "Rscript -e '#{install_script}'"
         end
 
@@ -247,10 +246,7 @@ module Travis
           setup_devtools
           sh.echo "Installing R packages from github: #{packages.join(', ')}"
           pkg_arg = packages_as_arg(packages)
-          install_script = [
-            "options(repos = c(CRAN = \"#{config[:cran]}\"));",
-            "devtools::install_github(#{pkg_arg}, build_vignettes = FALSE)",
-          ].join(' ')
+          install_script = "devtools::install_github(#{pkg_arg}, build_vignettes = FALSE)"
           sh.cmd "Rscript -e '#{install_script}'"
         end
 
@@ -287,62 +283,35 @@ module Travis
           sh.cmd "brew install #{pkg_arg}", retry: true
         end
 
-        def bioc_install(packages)
-          return if packages.empty?
-          return unless needs_bioc?
-          setup_bioc
-          sh.echo "Installing bioc packages: #{packages.join(', ')}"
-          pkg_arg = packages_as_arg(packages)
-          install_script = [
-            "source(\"#{config[:bioc]}\");",
-            'options(repos=biocinstallRepos());',
-            "biocLite(#{pkg_arg});",
-            "if (!all(#{pkg_arg} %in% installed.packages())) {",
-            ' q(status = 1, save = "no")',
-            '}',
-          ].join(' ')
-          sh.cmd "Rscript -e '#{install_script}'"
-        end
-
         def install_deps
           sh.fold "R-dependencies" do
             sh.echo 'Installing package dependencies', ansi: :yellow
             setup_devtools
-            if not needs_bioc?
-              repos = "\"#{config[:cran]}\""
-            else
-              repos = 'BiocInstaller::biocinstallRepos()'
-            end
-            install_script = [
-              "options(repos = #{repos});",
-              'deps <- devtools::install_deps(dependencies = TRUE);',
-                'if (!all(deps %in% installed.packages())) {',
-                ' message("missing: ", paste(setdiff(deps, installed.packages()), collapse=", "));',
-                ' q(status = 1, save = "no")',
-                '}',
-            ].join(' ')
+            install_script =
+              'deps <- devtools::install_deps(dependencies = TRUE);'\
+                'if (!all(deps %in% installed.packages())) {'\
+                ' message("missing: ", paste(setdiff(deps, installed.packages()), collapse=", "));'\
+                ' q(status = 1, save = "no")'\
+                '}'
             sh.cmd "Rscript -e '#{install_script}'"
           end
         end
 
         def export_rcheck_dir
-          pkg_script = (
-            'cat(paste0(devtools::as.package(".")$package, ".Rcheck"))'
-          )
+          pkg_script = 'cat(paste0(devtools::as.package(".")$package, ".Rcheck"))'
           sh.export 'RCHECK_DIR', "$(Rscript -e '#{pkg_script}')"
         end
 
         def dump_logs
           export_rcheck_dir
           ['out', 'log', 'fail'].each do |ext|
-            cmd = [
-              'for name in',
-              "$(find \"${RCHECK_DIR}\" -type f -name \"*#{ext}\");",
-              'do',
-              'echo ">>> Filename: ${name} <<<";',
-              'cat ${name};',
-              'done',
-            ].join(' ')
+            cmd =
+              'for name in'\
+              "$(find \"${RCHECK_DIR}\" -type f -name \"*#{ext}\");"\
+              'do'\
+              'echo ">>> Filename: ${name} <<<";'\
+              'cat ${name};'\
+              'done'
             sh.cmd cmd
           end
         end
@@ -350,13 +319,13 @@ module Travis
         def setup_bioc
           unless @bioc_installed
             sh.echo 'Installing BioConductor'
-            bioc_install_script = [
-              "source(\"#{config[:bioc]}\");",
-              'tryCatch(',
-              " useDevel(#{as_r_boolean(config[:bioc_use_devel])}),",
-              ' error=function(e) {if (!grepl("already in use", e$message)) {e}}',
-              ');',
-            ].join(' ')
+            bioc_install_script =
+              "source(\"#{config[:bioc]}\");"\
+              'tryCatch('\
+              " useDevel(#{as_r_boolean(config[:bioc_use_devel])}),"\
+              ' error=function(e) {if (!grepl("already in use", e$message)) {e}}'\
+              ');'\
+              'cat(file = "~/.Rprofile", "options(repos = BiocInstaller::biocinstallRepos()))'
             sh.cmd "Rscript -e '#{bioc_install_script}'", retry: true
           end
           @bioc_installed = true
@@ -369,8 +338,7 @@ module Travis
               r_binary_install ['devtools']
             else
               devtools_check = '!requireNamespace("devtools", quietly = TRUE)'
-              devtools_install = 'install.packages(c("devtools"), '\
-                                 "repos=\"#{config[:cran]}\")"
+              devtools_install = 'install.packages("devtools")'
               sh.cmd "Rscript -e 'if (#{devtools_check}) #{devtools_install}'",
                      retry: true
             end
@@ -445,6 +413,21 @@ module Travis
           when 'oldrel' then '3.1.3'
           else v
           end
+        end
+
+        def repos
+          @repos ||= normalized_repos
+        end
+
+        # If CRAN is not set in repos set it with cran
+        def normalized_repos
+          v = config[:repos]
+          STDERR.puts v
+          if not v.has_key?(:CRAN)
+            v[:CRAN] = config[:cran]
+          end
+          STDERR.puts v
+          v
         end
       end
     end

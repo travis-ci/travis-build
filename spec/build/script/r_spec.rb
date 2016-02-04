@@ -26,6 +26,23 @@ describe Travis::Build::Script::R, :sexp do
                          assert: true, echo: true, timing: true]
   end
 
+  it 'sets repos in ~/.Rprofile with defaults' do
+    should include_sexp [:cmd, "echo 'options(repos = c(CRAN = \"https://cloud.r-project.org\"))' > ~/.Rprofile",
+                         assert: true, echo: true, timing: true]
+  end
+
+  it 'sets repos in ~/.Rprofile with user specified repos' do
+    data[:config][:cran] = 'https://cran.rstudio.org'
+    should include_sexp [:cmd, "echo 'options(repos = c(CRAN = \"https://cran.rstudio.org\"))' > ~/.Rprofile",
+                         assert: true, echo: true, timing: true]
+  end
+
+  it 'sets repos in ~/.Rprofile with additional user specified repos' do
+    data[:config][:repos] = {CRAN: 'https://cran.rstudio.org', ropensci: 'https://packages.ropensci.org'}
+    should include_sexp [:cmd, "echo 'options(repos = c(CRAN = \"https://cran.rstudio.org\", ropensci = \"https://packages.ropensci.org\"))' > ~/.Rprofile",
+                         assert: true, echo: true, timing: true]
+  end
+
   it 'installs binary devtools if sudo: required' do
     data[:config][:sudo] = 'required'
     should include_sexp [:cmd, /sudo apt-get install.*r-cran-devtools/,
