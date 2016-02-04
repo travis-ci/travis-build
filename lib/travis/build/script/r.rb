@@ -59,7 +59,7 @@ module Travis
           sh.echo 'and mention @craigcitro, @hadley and @jimhester in the issue',
                   ansi: :green
 
-          sh.fold("R-install") do
+          sh.fold 'R-install' do
             sh.with_options({ assert: true,  echo: true,  timing: true  }) do
               sh.echo 'Installing R', ansi: :yellow
               case config[:os]
@@ -142,32 +142,35 @@ module Travis
 
         def script
           # Build the package
-          sh.echo "Building with: R CMD build ${R_BUILD_ARGS}"
-          sh.cmd "R CMD build #{config[:r_build_args]} .",
-                 assert: true
-          tarball_script = [
-            'pkg <- devtools::as.package(".");',
-            'cat(paste0(pkg$package, "_", pkg$version, ".tar.gz"));',
-          ].join(' ')
-          sh.export 'PKG_TARBALL', "$(Rscript -e '#{tarball_script}')"
+          sh.fold 'R-build' do
+            sh.echo 'Building Package', ansi: :yellow
+            sh.echo "Building with: R CMD build ${R_BUILD_ARGS}"
+            sh.cmd "R CMD build #{config[:r_build_args]} .",
+                   assert: true
+            tarball_script = [
+              'pkg <- devtools::as.package(".");',
+              'cat(paste0(pkg$package, "_", pkg$version, ".tar.gz"));',
+            ].join(' ')
+            sh.export 'PKG_TARBALL', "$(Rscript -e '#{tarball_script}')"
 
-          # Test the package
-          sh.echo 'Testing with: R CMD check "${PKG_TARBALL}" ' +
-                  "#{config[:r_check_args]}"
-          sh.cmd "R CMD check \"${PKG_TARBALL}\" #{config[:r_check_args]}",
-                 assert: false
-          # Build fails if R CMD check fails
-          sh.if '$? -ne 0' do
-            sh.echo 'R CMD check failed, dumping logs'
-            dump_logs
-            sh.failure 'R CMD check failed'
+            # Test the package
+            sh.echo 'Testing with: R CMD check "${PKG_TARBALL}" ' +
+                    "#{config[:r_check_args]}"
+            sh.cmd "R CMD check \"${PKG_TARBALL}\" #{config[:r_check_args]}",
+                   assert: false
+            # Build fails if R CMD check fails
+            sh.if '$? -ne 0' do
+              sh.echo 'R CMD check failed, dumping logs'
+              dump_logs
+              sh.failure 'R CMD check failed'
+            end
           end
 
           # Turn warnings into errors, if requested.
           if config[:warnings_are_errors]
             export_rcheck_dir
             sh.cmd 'grep -q -R "WARNING" "${RCHECK_DIR}/00check.log"; ' +
-                   'RETVAL=$?'
+                   'RETVAL=$?', echo: false
             sh.if '${RETVAL} -eq 0' do
               sh.failure "Found warnings, treating as errors (as requested)."
             end
@@ -301,21 +304,24 @@ module Travis
         end
 
         def install_deps
-          setup_devtools
-          if not needs_bioc?
-            repos = "\"#{config[:cran]}\""
-          else
-            repos = 'BiocInstaller::biocinstallRepos()'
+          sh.fold "R-dependencies" do
+            sh.echo 'Installing package dependencies', ansi: :yellow
+            setup_devtools
+            if not needs_bioc?
+              repos = "\"#{config[:cran]}\""
+            else
+              repos = 'BiocInstaller::biocinstallRepos()'
+            end
+            install_script = [
+              "options(repos = #{repos});",
+              'deps <- devtools::install_deps(dependencies = TRUE);',
+                'if (!all(deps %in% installed.packages())) {',
+                ' message("missing: ", paste(setdiff(deps, installed.packages()), collapse=", "));',
+                ' q(status = 1, save = "no")',
+                '}',
+            ].join(' ')
+            sh.cmd "Rscript -e '#{install_script}'"
           end
-          install_script = [
-            "options(repos = #{repos});",
-            'deps <- devtools::install_deps(dependencies = TRUE);',
-            'if (!all(deps %in% installed.packages())) {',
-            ' message("missing: ", paste(setdiff(deps, installed.packages()), collapse=", "));',
-            ' q(status = 1, save = "no")',
-            '}',
-          ].join(' ')
-          sh.cmd "Rscript -e '#{install_script}'"
         end
 
         def export_rcheck_dir
