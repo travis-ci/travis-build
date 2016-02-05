@@ -119,7 +119,7 @@ module Travis
         def announce
           super
           sh.fold 'R-session-info' do
-            sh.echo 'R Session Information'
+            sh.echo 'R session information'
             sh.cmd 'Rscript -e \'sessionInfo()\''
           end
         end
@@ -145,7 +145,7 @@ module Travis
         def script
           # Build the package
           sh.fold 'R-build' do
-            sh.echo 'Building Package', ansi: :yellow
+            sh.echo 'Building package', ansi: :yellow
             sh.echo "Building with: R CMD build ${R_BUILD_ARGS}"
             sh.cmd "R CMD build #{config[:r_build_args]} .",
                    assert: true
@@ -159,7 +159,7 @@ module Travis
 
           # Build the package
           sh.fold 'R-check' do
-            sh.echo 'Checking Package', ansi: :yellow
+            sh.echo 'Checking package', ansi: :yellow
             # Test the package
             sh.echo 'Checking with: R CMD check "${PKG_TARBALL}" '\
               "#{config[:r_check_args]}"
@@ -172,13 +172,17 @@ module Travis
               sh.failure 'R CMD check failed'
             end
 
-            # Turn warnings into errors, if requested.
-            if config[:warnings_are_errors]
-              export_rcheck_dir
-              sh.cmd 'grep -q -R "WARNING" "${RCHECK_DIR}/00check.log"', echo: false, assert: false
-              sh.if '$? -eq 0' do
-                sh.failure "Found warnings, treating as errors (as requested)."
-              end
+          end
+          export_rcheck_dir
+
+          # Output check summary
+          sh.cmd 'Rscript -e "cat(devtools::check_failures(path = \"${RCHECK_DIR}\"), \"\\\n\")"'
+
+          # Turn warnings into errors, if requested.
+          if config[:warnings_are_errors]
+            sh.cmd 'grep -q -R "WARNING" "${RCHECK_DIR}/00check.log"', echo: false, assert: false
+            sh.if '$? -eq 0' do
+              sh.failure "Found warnings, treating as errors (as requested)."
             end
           end
 
@@ -203,7 +207,7 @@ module Travis
 
           if data.cache?(:packages)
             sh.fold 'cache packages' do
-              sh.echo 'Package Cache', ansi: :yellow
+              sh.echo 'Caching packages', ansi: :yellow
               directory_cache.add '$R_LIBS_USER'
             end
           end
@@ -310,9 +314,9 @@ module Travis
           export_rcheck_dir
           ['out', 'log', 'fail'].each do |ext|
             cmd =
-              'for name in'\
+              'for name in '\
               "$(find \"${RCHECK_DIR}\" -type f -name \"*#{ext}\");"\
-              'do'\
+              'do '\
               'echo ">>> Filename: ${name} <<<";'\
               'cat ${name};'\
               'done'
@@ -322,14 +326,14 @@ module Travis
 
         def setup_bioc
           unless @bioc_installed
-            sh.echo 'Installing BioConductor'
+            sh.echo 'Installing Bioconductor'
             bioc_install_script =
               "source(\"#{config[:bioc]}\");"\
               'tryCatch('\
               " useDevel(#{as_r_boolean(config[:bioc_use_devel])}),"\
               ' error=function(e) {if (!grepl("already in use", e$message)) {e}}'\
               ');'\
-              'cat(file = "~/.Rprofile", "options(repos = BiocInstaller::biocinstallRepos()))'
+              'cat(file = "~/.Rprofile", "options(repos = BiocInstaller::biocinstallRepos())")'
             sh.cmd "Rscript -e '#{bioc_install_script}'", retry: true
           end
           @bioc_installed = true
