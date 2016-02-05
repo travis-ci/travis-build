@@ -314,9 +314,9 @@ module Travis
           export_rcheck_dir
           ['out', 'log', 'fail'].each do |ext|
             cmd =
-              'for name in'\
+              'for name in '\
               "$(find \"${RCHECK_DIR}\" -type f -name \"*#{ext}\");"\
-              'do'\
+              'do '\
               'echo ">>> Filename: ${name} <<<";'\
               'cat ${name};'\
               'done'
