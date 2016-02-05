@@ -167,8 +167,10 @@ module Travis
               assert: false
             # Build fails if R CMD check fails
             sh.if '$? -ne 0' do
-              sh.echo 'R CMD check failed, dumping logs'
-              dump_logs
+              sh.fold "Check logs" do
+                sh.echo 'R CMD check logs', ansi: :yellow
+                dump_logs
+              end
               sh.failure 'R CMD check failed'
             end
 
