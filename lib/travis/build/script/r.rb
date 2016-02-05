@@ -208,8 +208,8 @@ module Travis
           return if setup_cache_has_run_for[:r]
 
           if data.cache?(:packages)
-            sh.fold 'cache packages' do
-              sh.echo 'Caching packages', ansi: :yellow
+            sh.fold 'package cache' do
+              sh.echo 'Setting up package cache', ansi: :yellow
               directory_cache.add '$R_LIBS_USER'
             end
           end
