@@ -61,9 +61,7 @@ module Travis
             sh.file '$rvm_path/user/db', CONFIG.join("\n")
 
             ALIASES.each do |alias_name, ruby_version|
-              sh.cmd "rvm alias create #{alias_name} #{ruby_version}",
-                echo: false,
-                assert: false
+              sh.cmd "rvm alias create #{alias_name} #{ruby_version}"
             end
 
             send rvm_strategy
