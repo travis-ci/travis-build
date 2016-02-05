@@ -176,7 +176,7 @@ module Travis
           export_rcheck_dir
 
           # Output check summary
-          sh.cmd 'Rscript -e "cat(devtools::check_failures(path = \"${RCHECK_DIR}\"))"'
+          sh.cmd 'Rscript -e "cat(devtools::check_failures(path = \"${RCHECK_DIR}\"), \"\\\n\")"'
 
           # Turn warnings into errors, if requested.
           if config[:warnings_are_errors]
