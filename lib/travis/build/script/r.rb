@@ -167,8 +167,10 @@ module Travis
               assert: false
             # Build fails if R CMD check fails
             sh.if '$? -ne 0' do
-              sh.echo 'R CMD check failed, dumping logs'
-              dump_logs
+              sh.fold "Check logs" do
+                sh.echo 'R CMD check logs', ansi: :yellow
+                dump_logs
+              end
               sh.failure 'R CMD check failed'
             end
 
@@ -176,7 +178,7 @@ module Travis
           export_rcheck_dir
 
           # Output check summary
-          sh.cmd 'Rscript -e "cat(devtools::check_failures(path = \"${RCHECK_DIR}\"), \"\\\n\")"'
+          sh.cmd 'Rscript -e "cat(devtools::check_failures(path = \"${RCHECK_DIR}\"), \"\\\n\")"', echo: false
 
           # Turn warnings into errors, if requested.
           if config[:warnings_are_errors]
@@ -206,8 +208,8 @@ module Travis
           return if setup_cache_has_run_for[:r]
 
           if data.cache?(:packages)
-            sh.fold 'cache packages' do
-              sh.echo 'Caching packages', ansi: :yellow
+            sh.fold 'package cache' do
+              sh.echo 'Setting up package cache', ansi: :yellow
               directory_cache.add '$R_LIBS_USER'
             end
           end
@@ -252,7 +254,7 @@ module Travis
         def r_github_install(packages)
           return if packages.empty?
           setup_devtools
-          sh.echo "Installing R packages from github: #{packages.join(', ')}"
+          sh.echo "Installing R packages from GitHub: #{packages.join(', ')}"
           pkg_arg = packages_as_arg(packages)
           install_script = "devtools::install_github(#{pkg_arg}, build_vignettes = FALSE)"
           sh.cmd "Rscript -e '#{install_script}'"
@@ -293,7 +295,7 @@ module Travis
 
         def install_deps
           sh.fold "R-dependencies" do
-            sh.echo 'Installing Package Dependencies', ansi: :yellow
+            sh.echo 'Installing package dependencies', ansi: :yellow
             setup_devtools
             install_script =
               'deps <- devtools::install_deps(dependencies = TRUE);'\
@@ -307,7 +309,7 @@ module Travis
 
         def export_rcheck_dir
           pkg_script = 'cat(paste0(devtools::as.package(".")$package, ".Rcheck"))'
-          sh.export 'RCHECK_DIR', "$(Rscript -e '#{pkg_script}')"
+          sh.export 'RCHECK_DIR', "$(Rscript -e '#{pkg_script}')", echo: false
         end
 
         def dump_logs
@@ -333,7 +335,7 @@ module Travis
               " useDevel(#{as_r_boolean(config[:bioc_use_devel])}),"\
               ' error=function(e) {if (!grepl("already in use", e$message)) {e}}'\
               ');'\
-              'cat(file = "~/.Rprofile", "options(repos = BiocInstaller::biocinstallRepos())")'
+              'cat(append = TRUE, file = "~/.Rprofile", "options(repos = BiocInstaller::biocinstallRepos());")'
             sh.cmd "Rscript -e '#{bioc_install_script}'", retry: true
           end
           @bioc_installed = true
@@ -343,7 +345,11 @@ module Travis
           unless @devtools_installed
             case config[:os]
             when 'linux'
-              r_binary_install ['devtools']
+              if config[:sudo]
+                r_binary_install ['devtools']
+              else
+                r_install ['devtools']
+              end
             else
               devtools_check = '!requireNamespace("devtools", quietly = TRUE)'
               devtools_install = 'install.packages("devtools")'
