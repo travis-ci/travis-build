@@ -254,7 +254,7 @@ module Travis
         def r_github_install(packages)
           return if packages.empty?
           setup_devtools
-          sh.echo "Installing R packages from github: #{packages.join(', ')}"
+          sh.echo "Installing R packages from GitHub: #{packages.join(', ')}"
           pkg_arg = packages_as_arg(packages)
           install_script = "devtools::install_github(#{pkg_arg}, build_vignettes = FALSE)"
           sh.cmd "Rscript -e '#{install_script}'"
@@ -295,7 +295,7 @@ module Travis
 
         def install_deps
           sh.fold "R-dependencies" do
-            sh.echo 'Installing Package Dependencies', ansi: :yellow
+            sh.echo 'Installing package dependencies', ansi: :yellow
             setup_devtools
             install_script =
               'deps <- devtools::install_deps(dependencies = TRUE);'\
