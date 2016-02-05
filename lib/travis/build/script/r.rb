@@ -329,7 +329,7 @@ module Travis
               " useDevel(#{as_r_boolean(config[:bioc_use_devel])}),"\
               ' error=function(e) {if (!grepl("already in use", e$message)) {e}}'\
               ');'\
-              'cat(file = "~/.Rprofile", "options(repos = BiocInstaller::biocinstallRepos()))'
+              'cat(file = "~/.Rprofile", "options(repos = BiocInstaller::biocinstallRepos())")'
             sh.cmd "Rscript -e '#{bioc_install_script}'", retry: true
           end
           @bioc_installed = true
