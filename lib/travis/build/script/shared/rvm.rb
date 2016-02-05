@@ -5,8 +5,7 @@ module Travis
         include Chruby
 
         MSGS = {
-          setup_ruby_head:   'Setting up latest %s',
-          ruby_version_file: 'BETA: Using Ruby version from .ruby-version. This is a beta feature and may be removed in the future.'
+          setup_ruby_head:   'Setting up latest %s'
         }
 
         CONFIG = %w(
@@ -14,6 +13,14 @@ module Travis
           rvm_remote_server_type3=rubies
           rvm_remote_server_verify_downloads3=1
         )
+
+        # This list should contain the latest patch version of Ruby
+        ALIASES = {
+          "2.0" => "ruby-2.0.0-p648",
+          "2.1" => "ruby-2.1.8",
+          "2.2" => "ruby-2.2.4",
+          "2.3" => "ruby-2.3.0"
+        }
 
         def export
           super
@@ -52,6 +59,11 @@ module Travis
           def setup_rvm
             sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
             sh.file '$rvm_path/user/db', CONFIG.join("\n")
+
+            ALIASES.each do |alias_name, ruby_version|
+              sh.cmd "rvm alias create #{alias_name} #{ruby_version}"
+            end
+
             send rvm_strategy
           end
 
@@ -84,7 +96,6 @@ module Travis
           end
 
           def use_ruby_version_file
-            sh.echo MSGS[:ruby_version_file], ansi: :yellow
             sh.fold('rvm') do
               sh.cmd 'rvm use $(< .ruby-version) --install --binary --fuzzy'
             end
