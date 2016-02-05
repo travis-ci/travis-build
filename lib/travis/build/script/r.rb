@@ -345,7 +345,11 @@ module Travis
           unless @devtools_installed
             case config[:os]
             when 'linux'
-              r_binary_install ['devtools']
+              if config[:sudo]
+                r_binary_install ['devtools']
+              else
+                r_install ['devtools']
+              end
             else
               devtools_check = '!requireNamespace("devtools", quietly = TRUE)'
               devtools_install = 'install.packages("devtools")'
