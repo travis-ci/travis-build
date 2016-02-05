@@ -173,13 +173,13 @@ module Travis
             end
 
           end
+          export_rcheck_dir
 
           # Output check summary
           sh.cmd 'Rscript -e "cat(devtools::check_failures(path = \"${RCHECK_DIR}\"))"'
 
           # Turn warnings into errors, if requested.
           if config[:warnings_are_errors]
-            export_rcheck_dir
             sh.cmd 'grep -q -R "WARNING" "${RCHECK_DIR}/00check.log"', echo: false, assert: false
             sh.if '$? -eq 0' do
               sh.failure "Found warnings, treating as errors (as requested)."
