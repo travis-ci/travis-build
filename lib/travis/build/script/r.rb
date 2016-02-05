@@ -178,7 +178,7 @@ module Travis
           export_rcheck_dir
 
           # Output check summary
-          sh.cmd 'Rscript -e "cat(devtools::check_failures(path = \"${RCHECK_DIR}\"), \"\\\n\")"'
+          sh.cmd 'Rscript -e "cat(devtools::check_failures(path = \"${RCHECK_DIR}\"), \"\\\n\")"', echo: false
 
           # Turn warnings into errors, if requested.
           if config[:warnings_are_errors]
@@ -309,7 +309,7 @@ module Travis
 
         def export_rcheck_dir
           pkg_script = 'cat(paste0(devtools::as.package(".")$package, ".Rcheck"))'
-          sh.export 'RCHECK_DIR', "$(Rscript -e '#{pkg_script}')"
+          sh.export 'RCHECK_DIR', "$(Rscript -e '#{pkg_script}')", echo: false
         end
 
         def dump_logs
@@ -335,7 +335,7 @@ module Travis
               " useDevel(#{as_r_boolean(config[:bioc_use_devel])}),"\
               ' error=function(e) {if (!grepl("already in use", e$message)) {e}}'\
               ');'\
-              'cat(file = "~/.Rprofile", "options(repos = BiocInstaller::biocinstallRepos())")'
+              'cat(append = TRUE, file = "~/.Rprofile", "options(repos = BiocInstaller::biocinstallRepos());")'
             sh.cmd "Rscript -e '#{bioc_install_script}'", retry: true
           end
           @bioc_installed = true
