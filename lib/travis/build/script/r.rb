@@ -119,7 +119,7 @@ module Travis
         def announce
           super
           sh.fold 'R-session-info' do
-            sh.echo 'R Session Information'
+            sh.echo 'R session information'
             sh.cmd 'Rscript -e \'sessionInfo()\''
           end
         end
@@ -145,7 +145,7 @@ module Travis
         def script
           # Build the package
           sh.fold 'R-build' do
-            sh.echo 'Building Package', ansi: :yellow
+            sh.echo 'Building package', ansi: :yellow
             sh.echo "Building with: R CMD build ${R_BUILD_ARGS}"
             sh.cmd "R CMD build #{config[:r_build_args]} .",
                    assert: true
@@ -159,7 +159,7 @@ module Travis
 
           # Build the package
           sh.fold 'R-check' do
-            sh.echo 'Checking Package', ansi: :yellow
+            sh.echo 'Checking package', ansi: :yellow
             # Test the package
             sh.echo 'Checking with: R CMD check "${PKG_TARBALL}" '\
               "#{config[:r_check_args]}"
@@ -203,7 +203,7 @@ module Travis
 
           if data.cache?(:packages)
             sh.fold 'cache packages' do
-              sh.echo 'Package Cache', ansi: :yellow
+              sh.echo 'Caching packages', ansi: :yellow
               directory_cache.add '$R_LIBS_USER'
             end
           end
@@ -322,7 +322,7 @@ module Travis
 
         def setup_bioc
           unless @bioc_installed
-            sh.echo 'Installing BioConductor'
+            sh.echo 'Installing Bioconductor'
             bioc_install_script =
               "source(\"#{config[:bioc]}\");"\
               'tryCatch('\
