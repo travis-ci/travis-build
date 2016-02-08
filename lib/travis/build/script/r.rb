@@ -9,7 +9,7 @@ module Travis
       class R < Script
         DEFAULTS = {
           # Basic config options
-          cran: 'http://cloud.r-project.org',
+          cran: 'https://cloud.r-project.org',
           repos: {},
           warnings_are_errors: true,
           # Dependencies (installed in this order)
@@ -27,7 +27,7 @@ module Travis
           pandoc: true,
           pandoc_version: '1.15.2',
           # Bioconductor
-          bioc: 'http://bioconductor.org/biocLite.R',
+          bioc: 'https://bioconductor.org/biocLite.R',
           bioc_required: false,
           bioc_use_devel: false,
           R: 'release'
@@ -105,7 +105,9 @@ module Travis
               end
 
               # Set repos in ~/.Rprofile
-              options_repos = "options(repos = c(#{repos.collect {|k,v| "#{k} = \"#{v}\""}.join(", ")}))"
+              repos_str = repos.collect {|k,v| "#{k} = \"#{v}\""}.join(", ")
+              options_repos = "options(repos = c(#{repos_str}), "\
+                              "download.file.method = \"curl\")"
               sh.cmd %Q{echo '#{options_repos}' > ~/.Rprofile}
 
               setup_latex

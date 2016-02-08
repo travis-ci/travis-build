@@ -27,19 +27,19 @@ describe Travis::Build::Script::R, :sexp do
   end
 
   it 'sets repos in ~/.Rprofile with defaults' do
-    should include_sexp [:cmd, "echo 'options(repos = c(CRAN = \"http://cloud.r-project.org\"))' > ~/.Rprofile",
+    should include_sexp [:cmd, "echo 'options(repos = c(CRAN = \"https://cloud.r-project.org\"), download.file.method = \"curl\")' > ~/.Rprofile",
                          assert: true, echo: true, timing: true]
   end
 
   it 'sets repos in ~/.Rprofile with user specified repos' do
     data[:config][:cran] = 'https://cran.rstudio.org'
-    should include_sexp [:cmd, "echo 'options(repos = c(CRAN = \"https://cran.rstudio.org\"))' > ~/.Rprofile",
+    should include_sexp [:cmd, "echo 'options(repos = c(CRAN = \"https://cran.rstudio.org\"), download.file.method = \"curl\")' > ~/.Rprofile",
                          assert: true, echo: true, timing: true]
   end
 
   it 'sets repos in ~/.Rprofile with additional user specified repos' do
-    data[:config][:repos] = {CRAN: 'https://cran.rstudio.org', ropensci: 'https://packages.ropensci.org'}
-    should include_sexp [:cmd, "echo 'options(repos = c(CRAN = \"https://cran.rstudio.org\", ropensci = \"https://packages.ropensci.org\"))' > ~/.Rprofile",
+    data[:config][:repos] = {CRAN: 'https://cran.rstudio.org', ropensci: 'http://packages.ropensci.org'}
+    should include_sexp [:cmd, "echo 'options(repos = c(CRAN = \"https://cran.rstudio.org\", ropensci = \"http://packages.ropensci.org\"), download.file.method = \"curl\")' > ~/.Rprofile",
                          assert: true, echo: true, timing: true]
   end
 
