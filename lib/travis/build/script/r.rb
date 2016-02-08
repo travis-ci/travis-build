@@ -165,22 +165,22 @@ module Travis
             # Test the package
             sh.echo 'Checking with: R CMD check "${PKG_TARBALL}" '\
               "#{config[:r_check_args]}"
-            sh.cmd "R CMD check \"${PKG_TARBALL}\" #{config[:r_check_args]}",
-              assert: false
-            # Build fails if R CMD check fails
-            sh.if '$? -ne 0' do
-              sh.fold "Check logs" do
-                sh.echo 'R CMD check logs', ansi: :yellow
-                dump_logs
-              end
-              sh.failure 'R CMD check failed'
-            end
-
+            sh.cmd "R CMD check \"${PKG_TARBALL}\" #{config[:r_check_args]}; "\
+              "CHECK_RET=$?", assert: false
           end
           export_rcheck_dir
 
           # Output check summary
           sh.cmd 'Rscript -e "cat(devtools::check_failures(path = \"${RCHECK_DIR}\"), \"\\\n\")"', echo: false
+
+          # Build fails if R CMD check fails
+          sh.if 'CHECK_RET=$? -ne 0' do
+            sh.fold "Check logs" do
+              sh.echo 'R CMD check logs', ansi: :yellow
+              dump_logs
+            end
+            sh.failure 'R CMD check failed'
+          end
 
           # Turn warnings into errors, if requested.
           if config[:warnings_are_errors]
