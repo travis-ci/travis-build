@@ -132,16 +132,20 @@ module Travis
             setup_cache
           end
 
-          # Install any declared packages
-          apt_install config[:apt_packages]
-          brew_install config[:brew_packages]
-          r_binary_install config[:r_binary_packages]
-          r_install config[:r_packages]
-          r_install config[:bioc_packages]
-          r_github_install config[:r_github_packages]
+          sh.fold "R-dependencies" do
+            sh.echo 'Installing package dependencies', ansi: :yellow
 
-          # Install dependencies for the package we're testing.
-          install_deps
+            # Install any declared packages
+            apt_install config[:apt_packages]
+            brew_install config[:brew_packages]
+            r_binary_install config[:r_binary_packages]
+            r_install config[:r_packages]
+            r_install config[:bioc_packages]
+            r_github_install config[:r_github_packages]
+
+            # Install dependencies for the package we're testing.
+            install_deps
+          end
         end
 
         def script
@@ -294,17 +298,14 @@ module Travis
         end
 
         def install_deps
-          sh.fold "R-dependencies" do
-            sh.echo 'Installing package dependencies', ansi: :yellow
-            setup_devtools
-            install_script =
-              'deps <- devtools::install_deps(dependencies = TRUE);'\
-                'if (!all(deps %in% installed.packages())) {'\
-                ' message("missing: ", paste(setdiff(deps, installed.packages()), collapse=", "));'\
-                ' q(status = 1, save = "no")'\
-                '}'
-            sh.cmd "Rscript -e '#{install_script}'"
-          end
+          setup_devtools
+          install_script =
+            'deps <- devtools::install_deps(dependencies = TRUE);'\
+            'if (!all(deps %in% installed.packages())) {'\
+            ' message("missing: ", paste(setdiff(deps, installed.packages()), collapse=", "));'\
+            ' q(status = 1, save = "no")'\
+            '}'
+          sh.cmd "Rscript -e '#{install_script}'"
         end
 
         def export_rcheck_dir
