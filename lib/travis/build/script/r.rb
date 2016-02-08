@@ -175,10 +175,7 @@ module Travis
 
           # Build fails if R CMD check fails
           sh.if 'CHECK_RET=$? -ne 0' do
-            sh.fold "Check logs" do
-              sh.echo 'R CMD check logs', ansi: :yellow
-              dump_logs
-            end
+            dump_logs
             sh.failure 'R CMD check failed'
           end
 
@@ -186,6 +183,7 @@ module Travis
           if config[:warnings_are_errors]
             sh.cmd 'grep -q -R "WARNING" "${RCHECK_DIR}/00check.log"', echo: false, assert: false
             sh.if '$? -eq 0' do
+              dump_logs
               sh.failure "Found warnings, treating as errors (as requested)."
             end
           end
@@ -315,16 +313,19 @@ module Travis
         end
 
         def dump_logs
-          export_rcheck_dir
-          ['out', 'log', 'fail'].each do |ext|
-            cmd =
-              'for name in '\
-              "$(find \"${RCHECK_DIR}\" -type f -name \"*#{ext}\");"\
+          sh.fold "Check logs" do
+            export_rcheck_dir
+            sh.echo 'R CMD check logs', ansi: :yellow
+            ['out', 'log', 'fail'].each do |ext|
+              cmd =
+                'for name in '\
+                "$(find \"${RCHECK_DIR}\" -type f -name \"*#{ext}\");"\
               'do '\
-              'echo ">>> Filename: ${name} <<<";'\
-              'cat ${name};'\
-              'done'
-            sh.cmd cmd
+                'echo ">>> Filename: ${name} <<<";'\
+                'cat ${name};'\
+                'done'
+              sh.cmd cmd
+            end
           end
         end
 
