@@ -333,7 +333,7 @@ module Travis
         def setup_bioc
           unless @bioc_installed
             sh.fold 'Bioconductor' do
-              sh.echo 'Installing Bioconductor'
+              sh.echo 'Installing Bioconductor', ansi: :yellow
               bioc_install_script =
                 "source(\"#{config[:bioc]}\");"\
                 'tryCatch('\
