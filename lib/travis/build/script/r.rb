@@ -121,7 +121,7 @@ module Travis
         def announce
           super
           sh.fold 'R-session-info' do
-            sh.echo 'R session information'
+            sh.echo 'R session information', ansi: :yellow
             sh.cmd 'Rscript -e \'sessionInfo()\''
           end
         end
