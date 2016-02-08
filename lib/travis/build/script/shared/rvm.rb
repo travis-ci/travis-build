@@ -49,6 +49,7 @@ module Travis
           end
 
           def setup_rvm
+            write_default_gems
             sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
             sh.file '$rvm_path/user/db', CONFIG.join("\n")
             send rvm_strategy
@@ -107,6 +108,11 @@ module Travis
 
           def skip_deps_install
             sh.cmd "rvm autolibs disable", echo: false, timing: false
+          end
+
+          def write_default_gems
+            sh.mkdir '$rvm_path/gemsets', recursive: true
+            sh.cmd 'test -f $rvm_path/gemsets/global.gems || echo -e "gem-wrappers\nrubygems-bundler\nbundler\nrake\nrvm\n" >> $rvm_path/gemsets/global.gems'
           end
       end
     end
