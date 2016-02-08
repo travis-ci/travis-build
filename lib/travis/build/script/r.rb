@@ -330,15 +330,17 @@ module Travis
 
         def setup_bioc
           unless @bioc_installed
-            sh.echo 'Installing Bioconductor'
-            bioc_install_script =
-              "source(\"#{config[:bioc]}\");"\
-              'tryCatch('\
-              " useDevel(#{as_r_boolean(config[:bioc_use_devel])}),"\
-              ' error=function(e) {if (!grepl("already in use", e$message)) {e}}'\
-              ');'\
-              'cat(append = TRUE, file = "~/.Rprofile", "options(repos = BiocInstaller::biocinstallRepos());")'
-            sh.cmd "Rscript -e '#{bioc_install_script}'", retry: true
+            sh.fold 'Bioconductor' do
+              sh.echo 'Installing Bioconductor'
+              bioc_install_script =
+                "source(\"#{config[:bioc]}\");"\
+                'tryCatch('\
+                " useDevel(#{as_r_boolean(config[:bioc_use_devel])}),"\
+                ' error=function(e) {if (!grepl("already in use", e$message)) {e}}'\
+                  ');'\
+                  'cat(append = TRUE, file = "~/.Rprofile", "options(repos = BiocInstaller::biocinstallRepos());")'
+                sh.cmd "Rscript -e '#{bioc_install_script}'", retry: true
+            end
           end
           @bioc_installed = true
         end
