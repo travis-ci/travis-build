@@ -111,8 +111,8 @@ module Travis
           end
 
           def write_default_gems
-            sh.mkdir '$rvm_path/gemsets', recursive: true
-            sh.cmd 'test -f $rvm_path/gemsets/global.gems || echo -e "gem-wrappers\nrubygems-bundler\nbundler\nrake\nrvm\n" >> $rvm_path/gemsets/global.gems'
+            sh.mkdir '$rvm_path/gemsets', recursive: true, echo: false
+            sh.cmd 'test -f $rvm_path/gemsets/global.gems || echo -e "gem-wrappers\nrubygems-bundler\nbundler\nrake\nrvm\n" >> $rvm_path/gemsets/global.gems', echo: false
           end
       end
     end
