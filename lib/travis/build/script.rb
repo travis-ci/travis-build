@@ -107,6 +107,7 @@ module Travis
           apply :fix_etc_hosts
           apply :fix_etc_mavenrc
           apply :put_localhost_first
+          apply :add_github_host_key
           apply :home_paths
           apply :disable_ssh_roaming
         end
