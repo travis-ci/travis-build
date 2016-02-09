@@ -43,7 +43,7 @@ module Travis
 
         def export
           super
-          sh.export 'TRAVIS_R_VERSION', version, echo: false
+          sh.export 'TRAVIS_R_VERSION', r_version, echo: false
           sh.export 'R_LIBS_USER', '~/R/Library', echo: false
           sh.export '_R_CHECK_CRAN_INCOMING_', 'false', echo: false
           sh.export 'NOT_CRAN', 'true', echo: false
@@ -77,16 +77,26 @@ module Travis
                 # times to work around flaky connection to Launchpad PPAs.
                 sh.cmd 'sudo apt-get update -qq', retry: true
 
-                # Install an R development environment. qpdf is also needed for
-                # --as-cran checks:
-                #   https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
+                # Install an R development environment. Do not install
+                # libpcre3-dev or r-base-core because they will be included in
+                # the R binary tarball. qpdf is also needed for --as-cran
+                # checks:
+                # https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
                 sh.cmd 'sudo apt-get install -y --no-install-recommends r-base-dev '\
-                  'r-recommended qpdf texinfo', retry: true
+                  'qpdf texinfo libpcre3-dev- r-base-core-', retry: true
 
                 # Change permissions for /usr/local/lib/R/site-library
                 # This should really be via 'sudo adduser travis staff'
                 # but that may affect only the next shell
                 sh.cmd 'sudo chmod 2777 /usr/local/lib/R /usr/local/lib/R/site-library'
+
+                r_filename = "R-#{r_version}.xz"
+                r_url = "https://s3.amazonaws.com/rstudio-travis/R-#{r_version}.xz"
+                sh.cmd "curl -Lo /tmp/#{r_filename} #{r_url}"
+                sh.cmd "tar xzf /tmp/#{r_filename} -C ~"
+                sh.export 'PATH', "$HOME/R-bin/bin:$PATH"
+                sh.export 'LD_LIBRARY_PATH', "$HOME/R-bin/lib:$LD_LIBRARY_PATH"
+                sh.rm "/tmp/#{r_filename}"
 
               when 'osx'
                 # We want to update, but we don't need the 800+ lines of
@@ -222,7 +232,7 @@ module Travis
         end
 
         def cache_slug
-          super << '--R-' << version
+          super << '--R-' << r_version
         end
 
         def use_directory_cache?
@@ -423,15 +433,17 @@ module Travis
           end
         end
 
-        def version
-          @version ||= normalized_version
+        def r_version
+          @r_version ||= normalized_r_version
         end
 
-        def normalized_version
+        def normalized_r_version
           v = config[:R].to_s
           case v
           when 'release' then '3.2.3'
           when 'oldrel' then '3.1.3'
+          when '3.1' then '3.1.3'
+          when '3.2' then '3.2.3'
           else v
           end
         end
