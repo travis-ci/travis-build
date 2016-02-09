@@ -92,7 +92,7 @@ module Travis
 
                 r_filename = "R-#{r_version}.xz"
                 r_url = "https://s3.amazonaws.com/rstudio-travis/R-#{r_version}.xz"
-                sh.cmd "curl -Lo /tmp/#{r_filename} #{r_url}"
+                sh.cmd "curl -Lo /tmp/#{r_filename} #{r_url}", retry: true
                 sh.cmd "tar xzf /tmp/#{r_filename} -C ~"
                 sh.export 'PATH', "$HOME/R-bin/bin:$PATH"
                 sh.export 'LD_LIBRARY_PATH', "$HOME/R-bin/lib:$LD_LIBRARY_PATH"
