@@ -374,7 +374,7 @@ module Travis
             texlive_url = 'https://github.com/yihui/ubuntu-bin/releases/download/latest/texlive.tar.gz'
             sh.cmd "curl -Lo /tmp/#{texlive_filename} #{texlive_url}"
             sh.cmd "tar xzf /tmp/#{texlive_filename} -C ~"
-            sh.export 'PATH', "$PATH:/$HOME/texlive/bin/x86_64-linux"
+            sh.export 'PATH', "/$HOME/texlive/bin/x86_64-linux:$PATH"
           when 'osx'
             # We use basictex due to disk space constraints.
             mactex = 'BasicTeX.pkg'
@@ -386,7 +386,7 @@ module Travis
             sh.echo 'Installing OS X binary package for MacTeX'
             sh.cmd "sudo installer -pkg \"/tmp/#{mactex}\" -target /"
             sh.rm "/tmp/#{mactex}"
-            sh.export 'PATH', '$PATH:/usr/texbin'
+            sh.export 'PATH', '/usr/texbin:$PATH'
           end
           sh.cmd 'tlmgr update --self'
           sh.cmd 'tlmgr install inconsolata upquote '\
