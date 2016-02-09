@@ -39,7 +39,7 @@ module Travis
                   next
                 end
 
-                sh.if "$TRAVIS_OS_NAME = 'osx'" do
+                sh.if "$(uname) = 'Darwin'" do
                   sh.cmd "TRAVIS_SSH_KEY_TYPES='rsa,dsa'"
                 end
                 sh.else do
