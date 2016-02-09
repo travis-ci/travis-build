@@ -13,7 +13,25 @@ describe Travis::Build::Script::R, :sexp do
   end
 
   it 'downloads and installs R' do
-    should include_sexp [:cmd, /sudo apt-get install.*r-base-dev/,
+    should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-3.2.3.xz},
+                         assert: true, echo: true, retry: true, timing: true]
+  end
+
+  it 'downloads and installs R 3.1' do
+    data[:config][:R] = '3.1'
+    should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-3.1.3.xz},
+                         assert: true, echo: true, retry: true, timing: true]
+  end
+
+  it 'downloads and installs R 3.2' do
+    data[:config][:R] = '3.2'
+    should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-3.2.3.xz},
+                         assert: true, echo: true, retry: true, timing: true]
+  end
+
+  it 'downloads and installs R devel' do
+    data[:config][:R] = 'devel'
+    should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-devel.xz},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
