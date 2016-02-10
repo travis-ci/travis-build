@@ -18,19 +18,19 @@ describe Travis::Build::Script::R, :sexp do
   end
 
   it 'downloads and installs R 3.1' do
-    data[:config][:R] = '3.1'
+    data[:config][:r] = '3.1'
     should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-3.1.3.xz},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
   it 'downloads and installs R 3.2' do
-    data[:config][:R] = '3.2'
+    data[:config][:r] = '3.2'
     should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-3.2.3.xz},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
   it 'downloads and installs R devel' do
-    data[:config][:R] = 'devel'
+    data[:config][:r] = 'devel'
     should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-devel.xz},
                          assert: true, echo: true, retry: true, timing: true]
   end
@@ -45,19 +45,19 @@ describe Travis::Build::Script::R, :sexp do
   end
 
   it 'sets repos in ~/.Rprofile with defaults' do
-    should include_sexp [:cmd, "echo 'options(repos = c(CRAN = \"https://cloud.r-project.org\"), download.file.method = \"curl\")' > ~/.Rprofile",
+    should include_sexp [:cmd, "echo 'options(repos = c(CRAN = \"https://cloud.r-project.org\"))' > ~/.Rprofile",
                          assert: true, echo: true, timing: true]
   end
 
   it 'sets repos in ~/.Rprofile with user specified repos' do
     data[:config][:cran] = 'https://cran.rstudio.org'
-    should include_sexp [:cmd, "echo 'options(repos = c(CRAN = \"https://cran.rstudio.org\"), download.file.method = \"curl\")' > ~/.Rprofile",
+    should include_sexp [:cmd, "echo 'options(repos = c(CRAN = \"https://cran.rstudio.org\"))' > ~/.Rprofile",
                          assert: true, echo: true, timing: true]
   end
 
   it 'sets repos in ~/.Rprofile with additional user specified repos' do
     data[:config][:repos] = {CRAN: 'https://cran.rstudio.org', ropensci: 'http://packages.ropensci.org'}
-    should include_sexp [:cmd, "echo 'options(repos = c(CRAN = \"https://cran.rstudio.org\", ropensci = \"http://packages.ropensci.org\"), download.file.method = \"curl\")' > ~/.Rprofile",
+    should include_sexp [:cmd, "echo 'options(repos = c(CRAN = \"https://cran.rstudio.org\", ropensci = \"http://packages.ropensci.org\"))' > ~/.Rprofile",
                          assert: true, echo: true, timing: true]
   end
 
@@ -113,16 +113,23 @@ describe Travis::Build::Script::R, :sexp do
   describe '#cache_slug' do
     subject { described_class.new(data).cache_slug }
     it {
-      data[:config][:R] = '3.2.3'
-      should eq('cache--R-3.2.3')
-    }
-
-    it {
-      data[:config][:R] = 'release'
+      data[:config][:r] = '3.2.3'
       should eq('cache--R-3.2.3')
     }
     it {
-      data[:config][:R] = 'devel'
+      data[:config][:r] = '3.2'
+      should eq('cache--R-3.2.3')
+    }
+    it {
+      data[:config][:r] = 'release'
+      should eq('cache--R-3.2.3')
+    }
+    it {
+      data[:config][:r] = '3.1'
+      should eq('cache--R-3.1.3')
+    }
+    it {
+      data[:config][:r] = 'devel'
       should eq('cache--R-devel')
     }
   end
