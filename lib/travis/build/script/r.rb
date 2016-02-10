@@ -117,8 +117,7 @@ module Travis
 
               # Set repos in ~/.Rprofile
               repos_str = repos.collect {|k,v| "#{k} = \"#{v}\""}.join(", ")
-              options_repos = "options(repos = c(#{repos_str}), "\
-                              "download.file.method = \"curl\")"
+              options_repos = "options(repos = c(#{repos_str}))"
               sh.cmd %Q{echo '#{options_repos}' > ~/.Rprofile}
 
               setup_latex
