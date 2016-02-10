@@ -30,7 +30,7 @@ module Travis
           bioc: 'https://bioconductor.org/biocLite.R',
           bioc_required: false,
           bioc_use_devel: false,
-          R: 'release'
+          r: 'release'
         }
 
         def initialize(data)
@@ -438,7 +438,7 @@ module Travis
         end
 
         def normalized_r_version
-          v = config[:R].to_s
+          v = config[:r].to_s
           case v
           when 'release' then '3.2.3'
           when 'oldrel' then '3.1.3'
