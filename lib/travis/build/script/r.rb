@@ -9,7 +9,7 @@ module Travis
       class R < Script
         DEFAULTS = {
           # Basic config options
-          cran: 'http://cloud.r-project.org',
+          cran: 'https://cloud.r-project.org',
           repos: {},
           warnings_are_errors: true,
           # Dependencies (installed in this order)
@@ -27,10 +27,10 @@ module Travis
           pandoc: true,
           pandoc_version: '1.15.2',
           # Bioconductor
-          bioc: 'http://bioconductor.org/biocLite.R',
+          bioc: 'https://bioconductor.org/biocLite.R',
           bioc_required: false,
           bioc_use_devel: false,
-          R: 'release'
+          r: 'release'
         }
 
         def initialize(data)
@@ -43,9 +43,11 @@ module Travis
 
         def export
           super
-          sh.export 'TRAVIS_R_VERSION', version, echo: false
+          sh.export 'TRAVIS_R_VERSION', r_version, echo: false
           sh.export 'R_LIBS_USER', '~/R/Library', echo: false
           sh.export '_R_CHECK_CRAN_INCOMING_', 'false', echo: false
+          sh.export 'NOT_CRAN', 'true', echo: false
+          sh.export 'R_PROFILE', "~/.Rprofile.site", echo: false
         end
 
         def configure
@@ -76,16 +78,24 @@ module Travis
                 # times to work around flaky connection to Launchpad PPAs.
                 sh.cmd 'sudo apt-get update -qq', retry: true
 
-                # Install an R development environment. qpdf is also needed for
-                # --as-cran checks:
-                #   https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
-                sh.cmd 'sudo apt-get install -y --no-install-recommends r-base-dev '\
-                  'r-recommended qpdf texinfo', retry: true
+                # Install only the dependencies for an R development environment except for
+                # libpcre3-dev or r-base-core because they will be included in
+                # the R binary tarball.
+                # Dependencies queried with `apt-cache depends -i r-base-dev`.
+                # qpdf and texinfo are also needed for --as-cran # checks:
+                # https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
+                sh.cmd 'sudo apt-get install -y --no-install-recommends '\
+                  'build-essential gcc g++ gfortran libblas-dev liblapack-dev '\
+                  'libncurses5-dev libreadline-dev libjpeg-dev '\
+                  'libpng-dev zlib1g-dev libbz2-dev liblzma-dev cdbs qpdf texinfo'
 
-                # Change permissions for /usr/local/lib/R/site-library
-                # This should really be via 'sudo adduser travis staff'
-                # but that may affect only the next shell
-                sh.cmd 'sudo chmod 2777 /usr/local/lib/R /usr/local/lib/R/site-library'
+                r_filename = "R-#{r_version}.xz"
+                r_url = "https://s3.amazonaws.com/rstudio-travis/R-#{r_version}.xz"
+                sh.cmd "curl -Lo /tmp/#{r_filename} #{r_url}", retry: true
+                sh.cmd "tar xJf /tmp/#{r_filename} -C ~"
+                sh.export 'PATH', "$HOME/R-bin/bin:$PATH"
+                sh.export 'LD_LIBRARY_PATH', "$HOME/R-bin/lib:$LD_LIBRARY_PATH"
+                sh.rm "/tmp/#{r_filename}"
 
               when 'osx'
                 # We want to update, but we don't need the 800+ lines of
@@ -105,8 +115,9 @@ module Travis
               end
 
               # Set repos in ~/.Rprofile
-              options_repos = "options(repos = c(#{repos.collect {|k,v| "#{k} = \"#{v}\""}.join(", ")}))"
-              sh.cmd %Q{echo '#{options_repos}' > ~/.Rprofile}
+              repos_str = repos.collect {|k,v| "#{k} = \"#{v}\""}.join(", ")
+              options_repos = "options(repos = c(#{repos_str}))"
+              sh.cmd %Q{echo '#{options_repos}' > ~/.Rprofile.site}
 
               setup_latex
 
@@ -119,7 +130,7 @@ module Travis
         def announce
           super
           sh.fold 'R-session-info' do
-            sh.echo 'R session information'
+            sh.echo 'R session information', ansi: :yellow
             sh.cmd 'Rscript -e \'sessionInfo()\''
           end
         end
@@ -130,16 +141,20 @@ module Travis
             setup_cache
           end
 
-          # Install any declared packages
-          apt_install config[:apt_packages]
-          brew_install config[:brew_packages]
-          r_binary_install config[:r_binary_packages]
-          r_install config[:r_packages]
-          r_install config[:bioc_packages]
-          r_github_install config[:r_github_packages]
+          sh.fold "R-dependencies" do
+            sh.echo 'Installing package dependencies', ansi: :yellow
 
-          # Install dependencies for the package we're testing.
-          install_deps
+            # Install any declared packages
+            apt_install config[:apt_packages]
+            brew_install config[:brew_packages]
+            r_binary_install config[:r_binary_packages]
+            r_install config[:r_packages]
+            r_install config[:bioc_packages]
+            r_github_install config[:r_github_packages]
+
+            # Install dependencies for the package we're testing.
+            install_deps
+          end
         end
 
         def script
@@ -163,27 +178,25 @@ module Travis
             # Test the package
             sh.echo 'Checking with: R CMD check "${PKG_TARBALL}" '\
               "#{config[:r_check_args]}"
-            sh.cmd "R CMD check \"${PKG_TARBALL}\" #{config[:r_check_args]}",
-              assert: false
-            # Build fails if R CMD check fails
-            sh.if '$? -ne 0' do
-              sh.fold "Check logs" do
-                sh.echo 'R CMD check logs', ansi: :yellow
-                dump_logs
-              end
-              sh.failure 'R CMD check failed'
-            end
-
+            sh.cmd "R CMD check \"${PKG_TARBALL}\" #{config[:r_check_args]}; "\
+              "CHECK_RET=$?", assert: false
           end
           export_rcheck_dir
 
           # Output check summary
           sh.cmd 'Rscript -e "cat(devtools::check_failures(path = \"${RCHECK_DIR}\"), \"\\\n\")"', echo: false
 
+          # Build fails if R CMD check fails
+          sh.if 'CHECK_RET=$? -ne 0' do
+            dump_logs
+            sh.failure 'R CMD check failed'
+          end
+
           # Turn warnings into errors, if requested.
           if config[:warnings_are_errors]
             sh.cmd 'grep -q -R "WARNING" "${RCHECK_DIR}/00check.log"', echo: false, assert: false
             sh.if '$? -eq 0' do
+              dump_logs
               sh.failure "Found warnings, treating as errors (as requested)."
             end
           end
@@ -217,7 +230,7 @@ module Travis
         end
 
         def cache_slug
-          super << '--R-' << version
+          super << '--R-' << r_version
         end
 
         def use_directory_cache?
@@ -294,17 +307,14 @@ module Travis
         end
 
         def install_deps
-          sh.fold "R-dependencies" do
-            sh.echo 'Installing package dependencies', ansi: :yellow
-            setup_devtools
-            install_script =
-              'deps <- devtools::install_deps(dependencies = TRUE);'\
-                'if (!all(deps %in% installed.packages())) {'\
-                ' message("missing: ", paste(setdiff(deps, installed.packages()), collapse=", "));'\
-                ' q(status = 1, save = "no")'\
-                '}'
-            sh.cmd "Rscript -e '#{install_script}'"
-          end
+          setup_devtools
+          install_script =
+            'deps <- devtools::install_deps(dependencies = TRUE);'\
+            'if (!all(deps %in% installed.packages())) {'\
+            ' message("missing: ", paste(setdiff(deps, installed.packages()), collapse=", "));'\
+            ' q(status = 1, save = "no")'\
+            '}'
+          sh.cmd "Rscript -e '#{install_script}'"
         end
 
         def export_rcheck_dir
@@ -313,30 +323,35 @@ module Travis
         end
 
         def dump_logs
-          export_rcheck_dir
-          ['out', 'log', 'fail'].each do |ext|
-            cmd =
-              'for name in '\
-              "$(find \"${RCHECK_DIR}\" -type f -name \"*#{ext}\");"\
+          sh.fold "Check logs" do
+            export_rcheck_dir
+            sh.echo 'R CMD check logs', ansi: :yellow
+            ['out', 'log', 'fail'].each do |ext|
+              cmd =
+                'for name in '\
+                "$(find \"${RCHECK_DIR}\" -type f -name \"*#{ext}\");"\
               'do '\
-              'echo ">>> Filename: ${name} <<<";'\
-              'cat ${name};'\
-              'done'
-            sh.cmd cmd
+                'echo ">>> Filename: ${name} <<<";'\
+                'cat ${name};'\
+                'done'
+              sh.cmd cmd
+            end
           end
         end
 
         def setup_bioc
           unless @bioc_installed
-            sh.echo 'Installing Bioconductor'
-            bioc_install_script =
-              "source(\"#{config[:bioc]}\");"\
-              'tryCatch('\
-              " useDevel(#{as_r_boolean(config[:bioc_use_devel])}),"\
-              ' error=function(e) {if (!grepl("already in use", e$message)) {e}}'\
-              ');'\
-              'cat(append = TRUE, file = "~/.Rprofile", "options(repos = BiocInstaller::biocinstallRepos());")'
-            sh.cmd "Rscript -e '#{bioc_install_script}'", retry: true
+            sh.fold 'Bioconductor' do
+              sh.echo 'Installing Bioconductor', ansi: :yellow
+              bioc_install_script =
+                "source(\"#{config[:bioc]}\");"\
+                'tryCatch('\
+                " useDevel(#{as_r_boolean(config[:bioc_use_devel])}),"\
+                ' error=function(e) {if (!grepl("already in use", e$message)) {e}}'\
+                  ');'\
+                  'cat(append = TRUE, file = "~/.Rprofile.site", "options(repos = BiocInstaller::biocinstallRepos());")'
+                sh.cmd "Rscript -e '#{bioc_install_script}'", retry: true
+            end
           end
           @bioc_installed = true
         end
@@ -367,7 +382,8 @@ module Travis
             texlive_url = 'https://github.com/yihui/ubuntu-bin/releases/download/latest/texlive.tar.gz'
             sh.cmd "curl -Lo /tmp/#{texlive_filename} #{texlive_url}"
             sh.cmd "tar xzf /tmp/#{texlive_filename} -C ~"
-            sh.export 'PATH', "$PATH:/$HOME/texlive/bin/x86_64-linux"
+            sh.export 'PATH', "/$HOME/texlive/bin/x86_64-linux:$PATH"
+            sh.cmd 'tlmgr update --self'
           when 'osx'
             # We use basictex due to disk space constraints.
             mactex = 'BasicTeX.pkg'
@@ -379,11 +395,16 @@ module Travis
             sh.echo 'Installing OS X binary package for MacTeX'
             sh.cmd "sudo installer -pkg \"/tmp/#{mactex}\" -target /"
             sh.rm "/tmp/#{mactex}"
-            sh.export 'PATH', '$PATH:/usr/texbin'
+            sh.export 'PATH', '/usr/texbin:$PATH'
+
+            # set tlpkg writable so no sudo is needed
+            ch.cmd "sudo 757 /usr/local/texlive/2015/tlpkg/"
+            sh.cmd 'tlmgr update --self'
+
+            # Install common packages
+            sh.cmd 'tlmgr install inconsolata upquote '\
+              'courier courier-scaled helvetic'
           end
-          sh.cmd 'tlmgr update --self'
-          sh.cmd 'tlmgr install inconsolata upquote '\
-            'courier courier-scaled helvetic'
         end
 
         def setup_pandoc
@@ -416,15 +437,17 @@ module Travis
           end
         end
 
-        def version
-          @version ||= normalized_version
+        def r_version
+          @r_version ||= normalized_r_version
         end
 
-        def normalized_version
-          v = config[:R].to_s
+        def normalized_r_version
+          v = config[:r].to_s
           case v
           when 'release' then '3.2.3'
           when 'oldrel' then '3.1.3'
+          when '3.1' then '3.1.3'
+          when '3.2' then '3.2.3'
           else v
           end
         end
@@ -438,6 +461,11 @@ module Travis
           v = config[:repos]
           if not v.has_key?(:CRAN)
             v[:CRAN] = config[:cran]
+          end
+          # If the version is less than 3.2 we need to use http repositories
+          if r_version < '3.2'
+            v.each {|_, url| url.sub!(/^https:/, "http:")}
+            config[:bioc].sub!(/^https:/, "http:")
           end
           v
         end
