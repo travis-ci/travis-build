@@ -82,12 +82,12 @@ module Travis
                 # libpcre3-dev or r-base-core because they will be included in
                 # the R binary tarball.
                 # Dependencies queried with `apt-cache depends -i r-base-dev`.
-                # qpdf is also needed for --as-cran # checks:
+                # qpdf and texinfo are also needed for --as-cran # checks:
                 # https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
                 sh.cmd 'sudo apt-get install -y --no-install-recommends '\
                   'build-essential gcc g++ gfortran libblas-dev liblapack-dev '\
                   'libncurses5-dev libreadline-dev libjpeg-dev '\
-                  'libpng-dev zlib1g-dev libbz2-dev liblzma-dev cdbs'
+                  'libpng-dev zlib1g-dev libbz2-dev liblzma-dev cdbs qpdf texinfo'
 
                 r_filename = "R-#{r_version}.xz"
                 r_url = "https://s3.amazonaws.com/rstudio-travis/R-#{r_version}.xz"
