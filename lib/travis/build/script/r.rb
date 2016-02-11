@@ -463,7 +463,7 @@ module Travis
             v[:CRAN] = config[:cran]
           end
           # If the version is less than 3.2 we need to use http repositories
-          if r_version < 3.2
+          if r_version < '3.2'
             v.each {|_, url| url.sub!(/^https:/, "http:")}
             config[:bioc].sub!(/^https:/, "http:")
           end
