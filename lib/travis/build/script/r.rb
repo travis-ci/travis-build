@@ -384,6 +384,7 @@ module Travis
             sh.cmd "curl -Lo /tmp/#{texlive_filename} #{texlive_url}"
             sh.cmd "tar xzf /tmp/#{texlive_filename} -C ~"
             sh.export 'PATH', "/$HOME/texlive/bin/x86_64-linux:$PATH"
+            sh.cmd 'tlmgr update --self'
           when 'osx'
             # We use basictex due to disk space constraints.
             mactex = 'BasicTeX.pkg'
@@ -396,10 +397,15 @@ module Travis
             sh.cmd "sudo installer -pkg \"/tmp/#{mactex}\" -target /"
             sh.rm "/tmp/#{mactex}"
             sh.export 'PATH', '/usr/texbin:$PATH'
+
+            # set tlpkg writable so no sudo is needed
+            ch.cmd "sudo 757 /usr/local/texlive/2015/tlpkg/"
+            sh.cmd 'tlmgr update --self'
+
+            # Install common packages
+            sh.cmd 'tlmgr install inconsolata upquote '\
+              'courier courier-scaled helvetic'
           end
-          sh.cmd 'tlmgr update --self'
-          sh.cmd 'tlmgr install inconsolata upquote '\
-            'courier courier-scaled helvetic'
         end
 
         def setup_pandoc
