@@ -89,11 +89,6 @@ module Travis
                   'libncurses5-dev libreadline-dev libjpeg-dev '\
                   'libpng-dev zlib1g-dev libbz2-dev liblzma-dev cdbs'
 
-                # Change permissions for /usr/local/lib/R/site-library
-                # This should really be via 'sudo adduser travis staff'
-                # but that may affect only the next shell
-                sh.cmd 'sudo chmod 2777 /usr/local/lib/R /usr/local/lib/R/site-library'
-
                 r_filename = "R-#{r_version}.xz"
                 r_url = "https://s3.amazonaws.com/rstudio-travis/R-#{r_version}.xz"
                 sh.cmd "curl -Lo /tmp/#{r_filename} #{r_url}", retry: true
