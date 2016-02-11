@@ -462,6 +462,10 @@ module Travis
           if not v.has_key?(:CRAN)
             v[:CRAN] = config[:cran]
           end
+          # If the version is less than 3.2 we need to use http repositories
+          if r_version < 3.2
+            v.each {|_, url| url.sub!(/^https:/, "http:")}
+          end
           v
         end
       end
