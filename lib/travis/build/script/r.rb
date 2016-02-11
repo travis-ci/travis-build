@@ -78,13 +78,16 @@ module Travis
                 # times to work around flaky connection to Launchpad PPAs.
                 sh.cmd 'sudo apt-get update -qq', retry: true
 
-                # Install an R development environment. Do not install
+                # Install only the dependencies for an R development environment except for
                 # libpcre3-dev or r-base-core because they will be included in
-                # the R binary tarball. qpdf is also needed for --as-cran
-                # checks:
+                # the R binary tarball.
+                # Dependencies queried with `apt-cache depends -i r-base-dev`.
+                # qpdf is also needed for --as-cran # checks:
                 # https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
-                sh.cmd 'sudo apt-get install -y --no-install-recommends r-base-dev '\
-                  'qpdf texinfo libpcre3-dev- r-base-core-', retry: true
+                sh.cmd 'sudo apt-get install -y --no-install-recommends '\
+                  'build-essential gcc g++ gfortran libblas-dev liblapack-dev '\
+                  'libncurses5-dev libreadline-dev libjpeg-dev '\
+                  'libpng-dev zlib1g-dev libbz2-dev liblzma-dev cdbs'
 
                 # Change permissions for /usr/local/lib/R/site-library
                 # This should really be via 'sudo adduser travis staff'
