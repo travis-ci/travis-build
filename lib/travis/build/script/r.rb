@@ -47,6 +47,7 @@ module Travis
           sh.export 'R_LIBS_USER', '~/R/Library', echo: false
           sh.export '_R_CHECK_CRAN_INCOMING_', 'false', echo: false
           sh.export 'NOT_CRAN', 'true', echo: false
+          sh.export 'R_PROFILE', "~/.Rprofile.site", echo: false
         end
 
         def configure
@@ -118,7 +119,7 @@ module Travis
               # Set repos in ~/.Rprofile
               repos_str = repos.collect {|k,v| "#{k} = \"#{v}\""}.join(", ")
               options_repos = "options(repos = c(#{repos_str}))"
-              sh.cmd %Q{echo '#{options_repos}' > ~/.Rprofile}
+              sh.cmd %Q{echo '#{options_repos}' > ~/.Rprofile.site}
 
               setup_latex
 
@@ -350,7 +351,7 @@ module Travis
                 " useDevel(#{as_r_boolean(config[:bioc_use_devel])}),"\
                 ' error=function(e) {if (!grepl("already in use", e$message)) {e}}'\
                   ');'\
-                  'cat(append = TRUE, file = "~/.Rprofile", "options(repos = BiocInstaller::biocinstallRepos());")'
+                  'cat(append = TRUE, file = "~/.Rprofile.site", "options(repos = BiocInstaller::biocinstallRepos());")'
                 sh.cmd "Rscript -e '#{bioc_install_script}'", retry: true
             end
           end
