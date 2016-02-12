@@ -34,7 +34,7 @@ module Travis
         export:         { assert: false, echo: false, timing: false },
         setup:          { assert: true,  echo: true,  timing: true  },
         announce:       { assert: false, echo: true,  timing: false },
-        setup_cache:    { assert: false, echo: true,  timing: false },
+        setup_cache:    { assert: false, echo: true,  timing: true  },
         before_install: { assert: true,  echo: true,  timing: true  },
         install:        { assert: true,  echo: true,  timing: true  },
         before_script:  { assert: true,  echo: true,  timing: true  },
