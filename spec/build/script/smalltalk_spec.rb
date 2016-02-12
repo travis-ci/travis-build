@@ -48,7 +48,7 @@ describe Travis::Build::Script::Smalltalk, :sexp do
     end
 
     it 'set hostname' do
-      should include_sexp [:cmd, "sudo hostname " + defaults[:gemstone_hostname]]
+      should include_sexp [:cmd, "sed -e \"s/^\\(127\\.0\\.0\\.1.*\\)$/\\1 $(hostname)/\" /etc/hosts | sed -e \"s/^\\(::1.*\\)$/\\1 $(hostname)/\" > /tmp/hosts"]
       should include_sexp [:cmd, "cat /tmp/hosts | sudo tee /etc/hosts > /dev/null"]
     end
 
@@ -63,9 +63,8 @@ describe Travis::Build::Script::Smalltalk, :sexp do
 
     it 'installs the dependencies' do
       should include_sexp [:cmd, "sudo apt-get install --no-install-recommends " +
-                     "curl git zip unzip libpam0g:i386 libssl1.0.0:i386 " +
-                     "gcc-multilib libstdc++6:i386 gdb libfreetype6:i386 " +
-                     "pstack libgl1-mesa-glx:i386 libxcb-dri2-0:i386", retry: true]
+                     "libpam0g:i386 libssl1.0.0:i386 gcc-multilib libstdc++6:i386 " +
+                     "libfreetype6:i386 pstack libgl1-mesa-glx:i386 libxcb-dri2-0:i386", retry: true]
     end
   end
 
@@ -76,13 +75,13 @@ describe Travis::Build::Script::Smalltalk, :sexp do
     end
 
     it 'set hostname' do
-      should include_sexp [:cmd, "sudo scutil --set HostName " + defaults[:gemstone_hostname]]
+      should include_sexp [:cmd, "sed -e \"s/^\\(127\\.0\\.0\\.1.*\\)$/\\1 $(scutil --get HostName)/\" /etc/hosts | sed -e \"s/^\\(::1.*\\)$/\\1 $(scutil --get HostName)/\" > /tmp/hosts"]
       should include_sexp [:cmd, "cat /tmp/hosts | sudo tee /etc/hosts > /dev/null"]
     end
 
     it 'prepare shared memory' do
       should include_sexp [:cmd, 'SMALLTALK_CI_TOTALMEM=$(($(sysctl hw.memsize | cut -f2 -d\' \') * 1024))']
-      should include_sexp [:cmd, "sysctl kern.sysv.shmmax kern.sysv.shmall kern.sysv.shmmin kern.sysv.shmmni kern.sysv.mseg  | tr \":\" \"=\" | tr -d \" \" >> /tmp/sysctl.conf"]
+      should include_sexp [:cmd, "sysctl kern.sysv.shmmax kern.sysv.shmall kern.sysv.shmmin kern.sysv.shmmni | tr \":\" \"=\" | tr -d \" \" >> /tmp/sysctl.conf"]
     end
 
     it 'prepare netldi if necessary' do
@@ -92,9 +91,8 @@ describe Travis::Build::Script::Smalltalk, :sexp do
 
     it 'does not try to call apt-get' do
       should_not include_sexp [:cmd, "sudo apt-get install --no-install-recommends " +
-                     "curl git zip unzip libpam0g:i386 libssl1.0.0:i386 " +
-                     "gcc-multilib libstdc++6:i386 gdb libfreetype6:i386 " +
-                     "pstack libgl1-mesa-glx:i386 libxcb-dri2-0:i386", retry: true]
+                     "libpam0g:i386 libssl1.0.0:i386 gcc-multilib libstdc++6:i386 " +
+                     "libfreetype6:i386 pstack libgl1-mesa-glx:i386 libxcb-dri2-0:i386", retry: true]
     end
   end
 
