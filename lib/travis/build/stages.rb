@@ -8,17 +8,6 @@ module Travis
   module Build
     class Stages
       STAGES = [
-        :builtin,     [:header, :configure, :checkout, :prepare, :disable_sudo, :export, :setup, :announce],
-        :custom,      [:before_install, :install, :before_script, :script, :before_cache],
-        :builtin,     [:cache],
-        :conditional, [:after_success],
-        # :addon,       [:deploy_all],
-        :conditional, [:after_failure],
-        :custom,      [:after_script],
-        :builtin,     [:finish]
-      ]
-
-      STAGES_WITH_SETUP_CACHE = [
         :builtin,     [:header, :configure, :checkout, :prepare, :disable_sudo, :export, :setup, :setup_cache, :announce],
         :custom,      [:before_install, :install, :before_script, :script, :before_cache],
         :builtin,     [:cache],
@@ -60,9 +49,7 @@ module Travis
       end
 
       def run
-        stages = STAGES_WITH_SETUP_CACHE
-
-        stages.each_slice(2) do |type, names|
+        STAGES.each_slice(2) do |type, names|
           names.each { |name| run_stage(type, name) }
         end
       end
