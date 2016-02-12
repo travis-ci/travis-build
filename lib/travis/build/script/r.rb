@@ -45,6 +45,7 @@ module Travis
           super
           sh.export 'TRAVIS_R_VERSION', r_version, echo: false
           sh.export 'R_LIBS_USER', '~/R/Library', echo: false
+          sh.export 'R_LIBS_SITE', '/usr/local/lib/R/site-library:/usr/lib/R/site-library'
           sh.export '_R_CHECK_CRAN_INCOMING_', 'false', echo: false
           sh.export 'NOT_CRAN', 'true', echo: false
           sh.export 'R_PROFILE', "~/.Rprofile.site", echo: false
@@ -78,25 +79,43 @@ module Travis
                 # times to work around flaky connection to Launchpad PPAs.
                 sh.cmd 'sudo apt-get update -qq', retry: true
 
-                # Install only the dependencies for an R development environment except for
-                # libpcre3-dev or r-base-core because they will be included in
-                # the R binary tarball.
-                # Dependencies queried with `apt-cache depends -i r-base-dev`.
-                # qpdf and texinfo are also needed for --as-cran # checks:
-                # https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
-                sh.cmd 'sudo apt-get install -y --no-install-recommends '\
-                  'build-essential gcc g++ gfortran libblas-dev liblapack-dev '\
-                  'libncurses5-dev libreadline-dev libjpeg-dev '\
-                  'libpng-dev zlib1g-dev libbz2-dev liblzma-dev cdbs qpdf texinfo'
+                # Install precompiled R if on precise
+                sh.if '$(lsb_release -cs) == "precise"' do
+                  # Install only the dependencies for an R development environment except for
+                  # libpcre3-dev or r-base-core because they will be included in
+                  # the R binary tarball.
+                  # Dependencies queried with `apt-cache depends -i r-base-dev`.
+                  # qpdf and texinfo are also needed for --as-cran # checks:
+                  # https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
+                  sh.cmd 'sudo apt-get install -y --no-install-recommends '\
+                    'build-essential gcc g++ gfortran libblas-dev liblapack-dev '\
+                    'libncurses5-dev libreadline-dev libjpeg-dev '\
+                    'libpng-dev zlib1g-dev libbz2-dev liblzma-dev cdbs qpdf texinfo', retry: true
 
-                r_filename = "R-#{r_version}.xz"
-                r_url = "https://s3.amazonaws.com/rstudio-travis/R-#{r_version}.xz"
-                sh.cmd "curl -Lo /tmp/#{r_filename} #{r_url}", retry: true
-                sh.cmd "tar xJf /tmp/#{r_filename} -C ~"
-                sh.export 'PATH', "$HOME/R-bin/bin:$PATH"
-                sh.export 'LD_LIBRARY_PATH', "$HOME/R-bin/lib:$LD_LIBRARY_PATH"
-                sh.rm "/tmp/#{r_filename}"
+                  r_filename = "R-#{r_version}.xz"
+                  r_url = "https://s3.amazonaws.com/rstudio-travis/R-#{r_version}.xz"
+                  sh.cmd "curl -Lo /tmp/#{r_filename} #{r_url}", retry: true
+                  sh.cmd "tar xJf /tmp/#{r_filename} -C ~"
+                  sh.export 'PATH', "$HOME/R-bin/bin:$PATH"
+                  sh.export 'LD_LIBRARY_PATH', "$HOME/R-bin/lib:$LD_LIBRARY_PATH"
+                  sh.rm "/tmp/#{r_filename}"
+                end
 
+                # If on trusty just use the ubuntu package
+                sh.if '$(lsb_release -cs) == "trusty"' do
+                  # Install an R development environment. qpdf is also needed for
+                  # --as-cran checks:
+                  #   https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
+                  sh.cmd 'sudo apt-get install -y --no-install-recommends r-base-dev ' +
+                    'r-recommended qpdf', retry: true
+
+                  # Change permissions for /usr/local/lib/R/site-library
+                  # This should really be via 'sudo adduser travis staff'
+                  # but that may affect only the next shell
+                  sh.cmd 'sudo chmod 2777 /usr/local/lib/R /usr/local/lib/R/site-library'
+                end
+                sh.cmd "mkdir -p /usr/local/lib/R/site-library $R_LIBS_USER"
+                sh.cmd 'sudo chmod 2777 /usr/local/lib/R /usr/local/lib/R/site-library $R_LIBS_USER'
               when 'osx'
                 # We want to update, but we don't need the 800+ lines of
                 # output.
