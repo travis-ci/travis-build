@@ -60,11 +60,8 @@ module Travis
       end
 
       def run
-        if config[:cache].is_a?(Hash) && config[:cache][:custom_install]
-          stages = STAGES_WITH_SETUP_CACHE
-        else
-          stages = STAGES
-        end
+        stages = STAGES_WITH_SETUP_CACHE
+
         stages.each_slice(2) do |type, names|
           names.each { |name| run_stage(type, name) }
         end
