@@ -21,12 +21,6 @@ module Travis
           sh.cmd 'bundle --version'
         end
 
-        def install
-          unless setup_cache_has_run_for[:bundler]
-            setup_cache
-          end
-        end
-
         def setup_cache
           return if setup_cache_has_run_for[:bundler]
 

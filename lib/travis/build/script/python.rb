@@ -38,12 +38,6 @@ module Travis
           sh.export 'PIP_DISABLE_PIP_VERSION_CHECK', '1', echo: false
         end
 
-        def install
-          unless setup_cache_has_run_for[:python]
-            setup_cache
-          end
-        end
-
         def setup_cache
           return if setup_cache_has_run_for[:python]
 

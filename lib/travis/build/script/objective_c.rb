@@ -39,13 +39,6 @@ module Travis
           end
         end
 
-        def install
-          super
-          unless setup_cache_has_run_for[:objective_c]
-            setup_cache
-          end
-        end
-
         def setup_cache
           super
           return if setup_cache_has_run_for[:objective_c]
