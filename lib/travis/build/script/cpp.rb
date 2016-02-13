@@ -25,13 +25,6 @@ module Travis
           super << '--compiler-' << compiler.tr('+', 'p')
         end
 
-        def install
-          super
-          unless setup_cache_has_run_for[:cpp]
-            setup_cache
-          end
-        end
-
         def setup_cache
           return if setup_cache_has_run_for[:cpp]
 
