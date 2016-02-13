@@ -102,7 +102,7 @@ module Travis
 
               sh.cmd 'sudo dpkg --add-architecture i386'
               sh.cmd 'sudo apt-get update -qq', retry: true
-              sh.cmd 'sudo apt-get install --no-install-recommends ' +
+              sh.cmd 'sudo apt-get install -y --no-install-recommends ' +
                      'libc6:i386 libuuid1:i386 libfreetype6:i386 libssl1.0.0:i386', retry: true
             end
           end
@@ -203,7 +203,7 @@ module Travis
 
               sh.cmd 'sudo dpkg --add-architecture i386'
               sh.cmd 'sudo apt-get update -qq', retry: true
-              sh.cmd 'sudo apt-get install --no-install-recommends ' +
+              sh.cmd 'sudo apt-get install -y --no-install-recommends ' +
                      'libpam0g:i386 libssl1.0.0:i386 gcc-multilib ' +
                      'libstdc++6:i386 libfreetype6:i386 pstack ' +
                      'libgl1-mesa-glx:i386 libxcb-dri2-0:i386', retry: true
