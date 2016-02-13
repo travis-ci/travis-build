@@ -41,7 +41,6 @@ module Travis
 
         def setup_cache
           super
-          return if setup_cache_has_run_for[:objective_c]
 
           sh.if podfile? do
             if data.cache?(:cocoapods)
@@ -59,8 +58,6 @@ module Travis
               end
             end
           end
-
-          setup_cache_has_run_for[:objective_c] = true
         end
 
         def script

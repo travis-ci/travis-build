@@ -39,8 +39,6 @@ module Travis
         end
 
         def setup_cache
-          return if setup_cache_has_run_for[:python]
-
           if data.cache?(:pip)
             sh.fold 'cache.pip' do
               sh.echo ''
@@ -56,8 +54,6 @@ module Travis
           sh.else do
             sh.echo REQUIREMENTS_MISSING # , ansi: :red
           end
-
-          setup_cache_has_run_for[:python] = true
         end
 
         def script

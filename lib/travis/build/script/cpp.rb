@@ -26,16 +26,12 @@ module Travis
         end
 
         def setup_cache
-          return if setup_cache_has_run_for[:cpp]
-
           if data.cache?(:ccache)
             sh.fold 'cache.ccache' do
               sh.echo ''
               directory_cache.add('~/.ccache')
             end
           end
-
-          setup_cache_has_run_for[:cpp] = true
         end
 
         def use_directory_cache?
