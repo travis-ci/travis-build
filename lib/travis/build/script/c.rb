@@ -3,7 +3,7 @@ module Travis
     class Script
       class C < Script
         DEFAULTS = {
-          compiler: 'gcc'
+          compiler: ''
         }
 
         def export
@@ -43,7 +43,13 @@ module Travis
         private
 
           def compiler
-            config[:compiler].to_s
+            case config[:compiler].to_s
+            when /^gcc/i, /^clang/i
+              config[:compiler].to_s
+            else
+              { 'linux' => 'gcc', 
+                'osx' => 'clang' }[config[:os]]
+            end
           end
       end
     end

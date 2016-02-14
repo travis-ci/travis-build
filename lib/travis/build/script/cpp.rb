@@ -3,7 +3,7 @@ module Travis
     class Script
       class Cpp < Script
         DEFAULTS = {
-          compiler: 'g++'
+          compiler: ''
         }
 
         def export
@@ -41,28 +41,30 @@ module Travis
         private
 
           def compiler
-            config[:compiler].to_s
+            cxx
           end
 
           def cxx
-            case compiler
-            when /^gcc/i, /^g\+\+/i then
-              'g++'
-            when /^clang/i, /^clang\+\+/i then
-              'clang++'
+            case config[:compiler].to_s
+            when /^gcc(.*)$/i, /^g\+\+(.*)$/i
+              'g++' + $1
+            when /^clang([^+]*)$/i, /^clang\+\+(.*)$/i
+              'clang++' + $1
             else
-              'g++'
+              { 'linux' => 'g++', 
+                'osx' => 'clang++' }[config[:os]]
             end
           end
 
           def cc
-            case compiler
-            when /^gcc/i, /^g\+\+/i then
-              'gcc'
-            when /^clang/i, /^clang\+\+/i then
-              'clang'
+            case config[:compiler].to_s
+            when /^gcc(.*)$/i, /^g\+\+(.*)$/i
+              'gcc' + $1
+            when /^clang([^+]*)$/i, /^clang\+\+(.*)$/i
+              'clang' + $1
             else
-              'gcc'
+              { 'linux' => 'gcc', 
+                'osx' => 'clang' }[config[:os]]
             end
           end
       end
