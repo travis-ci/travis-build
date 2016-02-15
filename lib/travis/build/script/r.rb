@@ -206,7 +206,7 @@ module Travis
           sh.cmd 'Rscript -e "cat(devtools::check_failures(path = \"${RCHECK_DIR}\"), \"\\\n\")"', echo: false
 
           # Build fails if R CMD check fails
-          sh.if 'CHECK_RET=$? -ne 0' do
+          sh.if '$CHECK_RET -ne 0' do
             dump_logs
             sh.failure 'R CMD check failed'
           end
