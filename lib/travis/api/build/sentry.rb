@@ -1,4 +1,5 @@
 require 'raven'
+require 'raven/integrations/rack'
 require 'sinatra/base'
 
 module Travis
