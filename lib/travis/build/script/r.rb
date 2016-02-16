@@ -107,7 +107,7 @@ module Travis
                   # --as-cran checks:
                   #   https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
                   sh.cmd 'sudo apt-get install -y --no-install-recommends r-base-dev ' +
-                    'r-recommended qpdf', retry: true
+                    'r-recommended qpdf texinfo', retry: true
 
                   # Change permissions for /usr/local/lib/R/site-library
                   # This should really be via 'sudo adduser travis staff'
@@ -675,7 +675,7 @@ module Travis
           sh.cmd 'Rscript -e "cat(devtools::check_failures(path = \"${RCHECK_DIR}\"), \"\\\n\")"', echo: false
 
           # Build fails if R CMD check fails
-          sh.if 'CHECK_RET=$? -ne 0' do
+          sh.if '$CHECK_RET -ne 0' do
             dump_logs
             sh.failure 'R CMD check failed'
           end

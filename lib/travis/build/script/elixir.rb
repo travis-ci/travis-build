@@ -41,8 +41,8 @@ export MIX_ARCHIVES=#{KIEX_MIX_HOME}elixir-#{elixir_version}' > #{KIEX_ELIXIR_HO
         end
 
         def install
-          sh.cmd 'mix local.hex --force'
-          sh.cmd 'mix deps.get'
+          sh.cmd 'mix local.hex --force', fold: "install.hex"
+          sh.cmd 'mix deps.get', fold: "install.deps"
         end
 
         def script
