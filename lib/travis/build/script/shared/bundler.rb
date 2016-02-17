@@ -45,9 +45,11 @@ module Travis
         def install
           sh.if gemfile? do
             sh.if gemfile_lock? do
+              sh.echo ''
               sh.cmd bundler_install("--deployment"), fold: "install.bundler", retry: true
             end
             sh.else do
+              sh.echo ''
               sh.cmd bundler_install, fold: "install.bundler", retry: true
             end
           end
