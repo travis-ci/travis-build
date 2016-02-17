@@ -26,6 +26,7 @@ module Travis
 
           sh.if gemfile? do
             sh.if gemfile_lock? do
+              sh.echo ''
               if data.cache?(:bundler)
                 sh.fold 'cache.bundler' do
                   directory_cache.add(bundler_path(false))
@@ -34,9 +35,9 @@ module Travis
             end
             sh.else do
               # Cache bundler if it has been explicitly enabled
+              sh.echo ''
               if data.cache?(:bundler, false)
                 sh.fold 'cache.bundler' do
-                  sh.echo ''
                   directory_cache.add(bundler_path(false))
                 end
               end
