@@ -8,7 +8,7 @@ module Travis
           lisp: 'sbcl'
         }
 
-        ROS_URL = "https://raw.githubusercontent.com/snmsts/roswell/release/scripts/install-for-ci.sh"
+        ROS_URL = "https://raw.githubusercontent.com/roswell/roswell/release/scripts/install-for-ci.sh"
 
         SYSTEM_MISSING = %Q[\
 No test script provided.
