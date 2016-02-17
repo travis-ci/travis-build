@@ -29,7 +29,6 @@ module Travis
                   directory_cache.add(bundler_path(false))
                 end
               end
-              sh.cmd bundler_install("--deployment"), fold: "install.bundler", retry: true
             end
             sh.else do
               # Cache bundler if it has been explicitly enabled
@@ -39,6 +38,16 @@ module Travis
                   directory_cache.add(bundler_path(false))
                 end
               end
+            end
+          end
+        end
+
+        def install
+          sh.if gemfile? do
+            sh.if gemfile_lock? do
+              sh.cmd bundler_install("--deployment"), fold: "install.bundler", retry: true
+            end
+            sh.else do
               sh.cmd bundler_install, fold: "install.bundler", retry: true
             end
           end
