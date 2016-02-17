@@ -106,6 +106,7 @@ module Travis
           apply :fix_resolv_conf
           apply :fix_etc_hosts
           apply :fix_etc_mavenrc
+          apply :fix_wwdr_certificate
           apply :put_localhost_first
           apply :home_paths
           apply :disable_ssh_roaming
