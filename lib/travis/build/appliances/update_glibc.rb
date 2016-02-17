@@ -6,7 +6,7 @@ module Travis
       class UpdateGlibc < Base
         def apply
           sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
-          sh.cmd <<--EOF
+          sh.cmd <<-EOF
 if [ ! $(uname|grep Darwin) ]; then
   sudo -E apt-get -yq update &>> ~/apt-get-update.log"
   sudo -E apt-get -yq --no-install-suggests --no-install-recommends "--force-yes install libc6"
