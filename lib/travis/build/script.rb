@@ -103,6 +103,7 @@ module Travis
 
         def configure
           apply :show_system_info
+          apply :update_glibc
           apply :fix_resolv_conf
           apply :fix_etc_hosts
           apply :fix_etc_mavenrc
