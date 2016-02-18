@@ -8,17 +8,6 @@ module Travis
   module Build
     class Stages
       STAGES = [
-        :builtin,     [:header, :configure, :checkout, :prepare, :disable_sudo, :export, :setup, :announce],
-        :custom,      [:before_install, :install, :before_script, :script, :before_cache],
-        :builtin,     [:cache],
-        :conditional, [:after_success],
-        # :addon,       [:deploy_all],
-        :conditional, [:after_failure],
-        :custom,      [:after_script],
-        :builtin,     [:finish]
-      ]
-
-      STAGES_WITH_SETUP_CACHE = [
         :builtin,     [:header, :configure, :checkout, :prepare, :disable_sudo, :export, :setup, :setup_cache, :announce],
         :custom,      [:before_install, :install, :before_script, :script, :before_cache],
         :builtin,     [:cache],
@@ -34,7 +23,7 @@ module Travis
         export:         { assert: false, echo: false, timing: false },
         setup:          { assert: true,  echo: true,  timing: true  },
         announce:       { assert: false, echo: true,  timing: false },
-        setup_cache:    { assert: false, echo: true,  timing: false },
+        setup_cache:    { assert: true,  echo: true,  timing: true  },
         before_install: { assert: true,  echo: true,  timing: true  },
         install:        { assert: true,  echo: true,  timing: true  },
         before_script:  { assert: true,  echo: true,  timing: true  },
@@ -60,12 +49,7 @@ module Travis
       end
 
       def run
-        if config[:cache].is_a?(Hash) && config[:cache][:custom_install]
-          stages = STAGES_WITH_SETUP_CACHE
-        else
-          stages = STAGES
-        end
-        stages.each_slice(2) do |type, names|
+        STAGES.each_slice(2) do |type, names|
           names.each { |name| run_stage(type, name) }
         end
       end

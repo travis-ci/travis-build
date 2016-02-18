@@ -21,37 +21,39 @@ module Travis
           sh.cmd 'bundle --version'
         end
 
-        def install
-          unless setup_cache_has_run_for[:bundler]
-            setup_cache
-          end
-        end
-
         def setup_cache
-          return if setup_cache_has_run_for[:bundler]
+          return unless use_directory_cache?
 
           sh.if gemfile? do
             sh.if gemfile_lock? do
+              sh.echo ''
               if data.cache?(:bundler)
                 sh.fold 'cache.bundler' do
                   directory_cache.add(bundler_path(false))
                 end
               end
-              sh.cmd bundler_install("--deployment"), fold: "install.bundler", retry: true
             end
             sh.else do
               # Cache bundler if it has been explicitly enabled
+              sh.echo ''
               if data.cache?(:bundler, false)
                 sh.fold 'cache.bundler' do
-                  sh.echo ''
                   directory_cache.add(bundler_path(false))
                 end
               end
+            end
+          end
+        end
+
+        def install
+          sh.if gemfile? do
+            sh.if gemfile_lock? do
+              sh.cmd bundler_install("--deployment"), fold: "install.bundler", retry: true
+            end
+            sh.else do
               sh.cmd bundler_install, fold: "install.bundler", retry: true
             end
           end
-
-          setup_cache_has_run_for[:bundler] = true
         end
 
         def prepare_cache

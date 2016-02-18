@@ -156,9 +156,6 @@ module Travis
 
         def install
           super
-          unless setup_cache_has_run_for[:r]
-            setup_cache
-          end
 
           sh.fold "R-dependencies" do
             sh.echo 'Installing package dependencies', ansi: :yellow
@@ -206,7 +203,7 @@ module Travis
           sh.cmd 'Rscript -e "cat(devtools::check_failures(path = \"${RCHECK_DIR}\"), \"\\\n\")"', echo: false
 
           # Build fails if R CMD check fails
-          sh.if '$CHECK_RET -ne 0' do
+          sh.if 'CHECK_RET=$? -ne 0' do
             dump_logs
             sh.failure 'R CMD check failed'
           end
@@ -237,15 +234,12 @@ module Travis
         end
 
         def setup_cache
-          return if setup_cache_has_run_for[:r]
-
           if data.cache?(:packages)
             sh.fold 'package cache' do
               sh.echo 'Setting up package cache', ansi: :yellow
               directory_cache.add '$R_LIBS_USER'
             end
           end
-          setup_cache_has_run_for[:r] = true
         end
 
         def cache_slug

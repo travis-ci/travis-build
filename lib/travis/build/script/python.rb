@@ -38,21 +38,16 @@ module Travis
           sh.export 'PIP_DISABLE_PIP_VERSION_CHECK', '1', echo: false
         end
 
-        def install
-          unless setup_cache_has_run_for[:python]
-            setup_cache
-          end
-        end
-
         def setup_cache
-          return if setup_cache_has_run_for[:python]
-
           if data.cache?(:pip)
             sh.fold 'cache.pip' do
               sh.echo ''
               directory_cache.add '$HOME/.cache/pip'
             end
           end
+        end
+
+        def install
           sh.if '-f Requirements.txt' do
             sh.cmd 'pip install -r Requirements.txt', fold: 'install', retry: true
           end
@@ -62,8 +57,6 @@ module Travis
           sh.else do
             sh.echo REQUIREMENTS_MISSING # , ansi: :red
           end
-
-          setup_cache_has_run_for[:python] = true
         end
 
         def script
