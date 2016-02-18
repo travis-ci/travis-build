@@ -41,6 +41,7 @@ module Travis
 
         def setup_cache
           sh.if podfile? do
+            sh.echo ''
             if data.cache?(:cocoapods)
               sh.fold 'cache.cocoapods' do
                 sh.echo ''
