@@ -100,9 +100,12 @@ module Travis
             sh.fold 'install_packages' do
               sh.echo 'Installing dependencies', ansi: :yellow
 
-              sh.cmd 'sudo dpkg --add-architecture i386'
+              sh.if '$(lsb_release -cs) != precise' do
+                sh.cmd 'sudo dpkg --add-architecture i386'
+              end
+
               sh.cmd 'sudo apt-get update -qq', retry: true
-              sh.cmd 'sudo apt-get install --no-install-recommends ' +
+              sh.cmd 'sudo apt-get install -y --no-install-recommends ' +
                      'libc6:i386 libuuid1:i386 libfreetype6:i386 libssl1.0.0:i386', retry: true
             end
           end
@@ -192,6 +195,7 @@ module Travis
               sh.cmd 'sudo ln -f -s /usr/lib/i386-lin-gnu/libstdc++.so.6 /usr/lib/i386-linux-gnu/libstdc++.so'
             end
             sh.if '$(lsb_release -cs) = trusty' do
+              sh.cmd 'sudo dpkg --add-architecture i386'
               gemstone_install_linux_dependencies
               sh.cmd 'sudo ln -f -s /usr/lib/i386-lin-gnu/libstdc++.so.6 /usr/lib/i386-linux-gnu/libstdc++.so'
             end
@@ -201,9 +205,8 @@ module Travis
             sh.fold 'gemstone_dependencies' do
               sh.echo 'Installing GemStone dependencies', ansi: :yellow
 
-              sh.cmd 'sudo dpkg --add-architecture i386'
               sh.cmd 'sudo apt-get update -qq', retry: true
-              sh.cmd 'sudo apt-get install --no-install-recommends ' +
+              sh.cmd 'sudo apt-get install -y --no-install-recommends ' +
                      'libpam0g:i386 libssl1.0.0:i386 gcc-multilib ' +
                      'libstdc++6:i386 libfreetype6:i386 pstack ' +
                      'libgl1-mesa-glx:i386 libxcb-dri2-0:i386', retry: true
