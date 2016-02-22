@@ -157,6 +157,10 @@ module Travis
         def install
           super
 
+          sh.if '! -e DESCRIPTION' do
+            sh.failure "No DESCRIPTION file found, user must supply their own install and script steps"
+          end
+
           sh.fold "R-dependencies" do
             sh.echo 'Installing package dependencies', ansi: :yellow
 
@@ -176,7 +180,7 @@ module Travis
         def script
           # Build the package
           sh.if '! -e DESCRIPTION' do
-            sh.failure "No DESCRIPTION file found, user must supply their own script block"
+            sh.failure "No DESCRIPTION file found, user must supply their own install and script steps"
           end
 
           tarball_script =
