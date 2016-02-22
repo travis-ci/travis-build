@@ -45,7 +45,7 @@ module Travis
           super
           sh.export 'TRAVIS_R_VERSION', r_version, echo: false
           sh.export 'R_LIBS_USER', '~/R/Library', echo: false
-          sh.export 'R_LIBS_SITE', '/usr/local/lib/R/site-library:/usr/lib/R/site-library'
+          sh.export 'R_LIBS_SITE', '/usr/local/lib/R/site-library:/usr/lib/R/site-library', echo: false
           sh.export '_R_CHECK_CRAN_INCOMING_', 'false', echo: false
           sh.export 'NOT_CRAN', 'true', echo: false
           sh.export 'R_PROFILE', "~/.Rprofile.site", echo: false
@@ -96,8 +96,8 @@ module Travis
                   r_url = "https://s3.amazonaws.com/rstudio-travis/R-#{r_version}.xz"
                   sh.cmd "curl -Lo /tmp/#{r_filename} #{r_url}", retry: true
                   sh.cmd "tar xJf /tmp/#{r_filename} -C ~"
-                  sh.export 'PATH', "$HOME/R-bin/bin:$PATH"
-                  sh.export 'LD_LIBRARY_PATH', "$HOME/R-bin/lib:$LD_LIBRARY_PATH"
+                  sh.export 'PATH', "$HOME/R-bin/bin:$PATH", echo: false
+                  sh.export 'LD_LIBRARY_PATH', "$HOME/R-bin/lib:$LD_LIBRARY_PATH", echo: false
                   sh.rm "/tmp/#{r_filename}"
                 end
 
