@@ -188,7 +188,7 @@ module Travis
             sh.export 'PKG_TARBALL', "$(Rscript -e '#{tarball_script}')"
           end
 
-          # Build the package
+          # Check the package
           sh.fold 'R-check' do
             sh.echo 'Checking package', ansi: :yellow
             # Test the package
