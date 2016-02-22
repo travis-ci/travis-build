@@ -411,7 +411,7 @@ module Travis
             sh.export 'PATH', '/usr/texbin:$PATH'
 
             # set tlpkg writable so no sudo is needed
-            ch.cmd "sudo 757 /usr/local/texlive/2015/tlpkg/"
+            sh.cmd "sudo 757 /usr/local/texlive/2015/tlpkg/"
             sh.cmd 'tlmgr update --self'
 
             # Install common packages
