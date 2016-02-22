@@ -175,17 +175,21 @@ module Travis
 
         def script
           # Build the package
+          sh.if '! -e DESCRIPTION' do
+            sh.failure "No DESCRIPTION file found, user must supply their own script block"
+          end
+
+          tarball_script =
+            '$version = $1 if (/^Version:\s(\S+)/);'\
+            '$package = $1 if (/^Package:\s*(\S+)/);'\
+            'END { print "${package}_$version.tar.gz" }'\
+
+          sh.export 'PKG_TARBALL', "$(perl -ne '#{tarball_script}' DESCRIPTION)", echo: false
           sh.fold 'R-build' do
             sh.echo 'Building package', ansi: :yellow
             sh.echo "Building with: R CMD build ${R_BUILD_ARGS}"
             sh.cmd "R CMD build #{config[:r_build_args]} .",
                    assert: true
-
-            tarball_script =
-              'pkg <- devtools::as.package(".");'\
-              'cat(paste0(pkg$package, "_", pkg$version, ".tar.gz"));'
-
-            sh.export 'PKG_TARBALL', "$(Rscript -e '#{tarball_script}')"
           end
 
           # Check the package
@@ -331,8 +335,9 @@ module Travis
         end
 
         def export_rcheck_dir
-          pkg_script = 'cat(paste0(devtools::as.package(".")$package, ".Rcheck"))'
-          sh.export 'RCHECK_DIR', "$(Rscript -e '#{pkg_script}')", echo: false
+          # Simply strip the tarball name until the last _ and add '.Rcheck',
+          # relevant R code # https://github.com/wch/r-source/blob/840a972338042b14aa5855cc431b2d0decf68234/src/library/tools/R/check.R#L4608-L4615
+          sh.export 'RCHECK_DIR', "$(expr \"$PKG_TARBALL\" : '\\(.*\\)_').Rcheck", echo: false
         end
 
         def dump_logs
