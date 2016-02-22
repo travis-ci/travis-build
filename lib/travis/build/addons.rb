@@ -4,6 +4,7 @@ require 'travis/build/addons/apt_packages'
 require 'travis/build/addons/artifacts'
 require 'travis/build/addons/code_climate'
 require 'travis/build/addons/coverity_scan'
+require 'travis/build/addons/debug'
 require 'travis/build/addons/deploy'
 require 'travis/build/addons/firefox'
 require 'travis/build/addons/hostname'
@@ -52,7 +53,13 @@ module Travis
         end
 
         def addon_config
-          config[:addons] || {}
+          inject_debug_addon(config[:addons] || {})
+        end
+
+        def inject_debug_addon(addons)
+          return addons unless Array(config[:env]).any? { |e| e.include?('ENABLE_TRAVIS_DEBUG') }
+          addons[:debug] ||= ''
+          addons
         end
     end
   end
