@@ -40,6 +40,9 @@ module Travis
         end
 
         def setup_cache
+          return unless use_directory_cache?
+          super
+
           sh.if podfile? do
             sh.echo ''
             if data.cache?(:cocoapods)
