@@ -1,4 +1,5 @@
 require 'travis/build/appliances/checkout'
+require 'travis/build/appliances/debug_tools'
 require 'travis/build/appliances/deprecations'
 require 'travis/build/appliances/disable_sudo'
 require 'travis/build/appliances/disable_ssh_roaming'

@@ -200,11 +200,6 @@ decrypt() {
   echo $1 | base64 -d | openssl rsautl -decrypt -inkey ~/.ssh/id_rsa.repo
 }
 
-travis_debug() {
-  echo -e "\n${ANSI_RED}The debug environement is not available. Please contact support.${ANSI_RESET}\n" >&2
-  false
-}
-
 # XXX Forcefully removing rabbitmq source until next build env update
 # See http://www.traviscistatus.com/incidents/6xtkpm1zglg3
 if [[ -f /etc/apt/sources.list.d/rabbitmq-source.list ]] ; then
