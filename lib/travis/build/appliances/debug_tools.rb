@@ -10,7 +10,7 @@ module Travis
         TEMPLATES_PATH = File.expand_path('templates', __FILE__.sub('.rb', ''))
 
         def enabled?
-          ENV['ENABLE_TRAVIS_DEBUG'] == '1'
+          ENV['TRAVIS_ENABLE_DEBUG_TOOLS'] == '1'
         end
 
         def apply
