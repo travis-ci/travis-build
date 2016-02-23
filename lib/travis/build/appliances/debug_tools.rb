@@ -27,8 +27,9 @@ module Travis
               sh.cmd "tar --strip-components=1 -xf tmate.tar.gz", echo: false
             end
             sh.else do
-              sh.cmd "brew update", echo: false, retry: true
-              sh.cmd "brew install tmate", echo: false, retry: true
+              sh.echo "We are setting up the debug environment. This may take a while..."
+              sh.cmd "brew update &> /dev/null", echo: false, retry: true
+              sh.cmd "brew install tmate &> /dev/null", echo: false, retry: true
             end
 
             sh.file "travis_debug.sh", template('travis_debug.sh')
