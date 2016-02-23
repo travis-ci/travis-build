@@ -13,7 +13,6 @@ $TMATE wait tmate-ready
 
 echo -e "${ANSI_YELLOW}Use any of the following connections to access the debugging environment:${ANSI_RESET}"
 $TMATE display -p `echo -e "${ANSI_GREEN}#{tmate_ssh}${ANSI_RESET}"`
-$TMATE display -p `echo -e "${ANSI_GREEN}#{tmate_web}${ANSI_RESET}"`
 
 if [ "$1" == "private" ]; then
   # TODO detect ssh connection close instead of sleeping forever.
