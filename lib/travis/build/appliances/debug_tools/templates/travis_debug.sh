@@ -26,7 +26,10 @@ echo -e "${ANSI_YELLOW}Use the following SSH command to access the debugging env
 $TMATE display -p `echo -e "${ANSI_GREEN}#{tmate_ssh}${ANSI_RESET}"`
 
 if [[ "$QUIET" == "1" ]]; then
-  for i in `seq 30`; do sleep 60; echo -n .; done
+  while $TMATE has-session &> /dev/null; do
+    sleep 1
+    (( ++i % 60 == 0 )) && echo -n .
+  done
   echo
 else
   mkfifo /tmp/travis_debug.pipe
