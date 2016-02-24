@@ -48,8 +48,10 @@ module Travis
         def install
           sh.if gemfile? do
             sh.if gemfile_lock? do
-              sh.if '$(du -ks vendor/cache | cut -f 1) -eq 0' do
-                sh.cmd 'rm -rf vendor/cache'
+              sh.if 'test -e vendor/cache' do
+                sh.if '$(du -ks vendor/cache | cut -f 1) -eq 0' do
+                  sh.cmd 'rm -rf vendor/cache', echo: false, timing: false, assert: false
+                end
               end
               sh.cmd bundler_install("--deployment"), fold: "install.bundler", retry: true
             end
