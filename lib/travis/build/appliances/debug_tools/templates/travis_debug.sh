@@ -29,7 +29,10 @@ if [[ "$QUIET" == "1" ]]; then
   echo -e "This build is running in quiet mode. No session output will be displayed.${ANSI_RESET}"
   echo -e "This debug build will stay alive for 30 minutes.${ANSI_RESET}"
   echo -n .
-  for i in `seq 30`; do sleep 60; echo -n .; done
+  while $TMATE has-session &> /dev/null; do
+    sleep 1
+    (( ++i % 60 == 0 )) && echo -n .
+  done
   echo
 else
   echo -e "Output from the interactive session will be shown below:${ANSI_RESET}"
