@@ -45,7 +45,7 @@ module Travis
           super
           sh.export 'TRAVIS_R_VERSION', r_version, echo: false
           sh.export 'R_LIBS_USER', '~/R/Library', echo: false
-          sh.export 'R_LIBS_SITE', '/usr/local/lib/R/site-library:/usr/lib/R/site-library'
+          sh.export 'R_LIBS_SITE', '/usr/local/lib/R/site-library:/usr/lib/R/site-library', echo: false
           sh.export '_R_CHECK_CRAN_INCOMING_', 'false', echo: false
           sh.export 'NOT_CRAN', 'true', echo: false
           sh.export 'R_PROFILE', "~/.Rprofile.site", echo: false
@@ -96,8 +96,8 @@ module Travis
                   r_url = "https://s3.amazonaws.com/rstudio-travis/R-#{r_version}.xz"
                   sh.cmd "curl -Lo /tmp/#{r_filename} #{r_url}", retry: true
                   sh.cmd "tar xJf /tmp/#{r_filename} -C ~"
-                  sh.export 'PATH', "$HOME/R-bin/bin:$PATH"
-                  sh.export 'LD_LIBRARY_PATH', "$HOME/R-bin/lib:$LD_LIBRARY_PATH"
+                  sh.export 'PATH', "$HOME/R-bin/bin:$PATH", echo: false
+                  sh.export 'LD_LIBRARY_PATH', "$HOME/R-bin/lib:$LD_LIBRARY_PATH", echo: false
                   sh.rm "/tmp/#{r_filename}"
                 end
 
@@ -157,6 +157,10 @@ module Travis
         def install
           super
 
+          sh.if '! -e DESCRIPTION' do
+            sh.failure "No DESCRIPTION file found, user must supply their own install and script steps"
+          end
+
           sh.fold "R-dependencies" do
             sh.echo 'Installing package dependencies', ansi: :yellow
 
@@ -175,20 +179,24 @@ module Travis
 
         def script
           # Build the package
+          sh.if '! -e DESCRIPTION' do
+            sh.failure "No DESCRIPTION file found, user must supply their own install and script steps"
+          end
+
+          tarball_script =
+            '$version = $1 if (/^Version:\s(\S+)/);'\
+            '$package = $1 if (/^Package:\s*(\S+)/);'\
+            'END { print "${package}_$version.tar.gz" }'\
+
+          sh.export 'PKG_TARBALL', "$(perl -ne '#{tarball_script}' DESCRIPTION)", echo: false
           sh.fold 'R-build' do
             sh.echo 'Building package', ansi: :yellow
             sh.echo "Building with: R CMD build ${R_BUILD_ARGS}"
             sh.cmd "R CMD build #{config[:r_build_args]} .",
                    assert: true
-
-            tarball_script =
-              'pkg <- devtools::as.package(".");'\
-              'cat(paste0(pkg$package, "_", pkg$version, ".tar.gz"));'
-
-            sh.export 'PKG_TARBALL', "$(Rscript -e '#{tarball_script}')"
           end
 
-          # Build the package
+          # Check the package
           sh.fold 'R-check' do
             sh.echo 'Checking package', ansi: :yellow
             # Test the package
@@ -331,8 +339,9 @@ module Travis
         end
 
         def export_rcheck_dir
-          pkg_script = 'cat(paste0(devtools::as.package(".")$package, ".Rcheck"))'
-          sh.export 'RCHECK_DIR', "$(Rscript -e '#{pkg_script}')", echo: false
+          # Simply strip the tarball name until the last _ and add '.Rcheck',
+          # relevant R code # https://github.com/wch/r-source/blob/840a972338042b14aa5855cc431b2d0decf68234/src/library/tools/R/check.R#L4608-L4615
+          sh.export 'RCHECK_DIR', "$(expr \"$PKG_TARBALL\" : '\\(.*\\)_').Rcheck", echo: false
         end
 
         def dump_logs
@@ -411,7 +420,7 @@ module Travis
             sh.export 'PATH', '/usr/texbin:$PATH'
 
             # set tlpkg writable so no sudo is needed
-            ch.cmd "sudo 757 /usr/local/texlive/2015/tlpkg/"
+            sh.cmd "sudo 757 /usr/local/texlive/2015/tlpkg/"
             sh.cmd 'tlmgr update --self'
 
             # Install common packages
