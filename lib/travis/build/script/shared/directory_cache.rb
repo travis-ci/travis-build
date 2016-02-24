@@ -27,8 +27,8 @@ module Travis
           data.cache?(:directories)
         end
 
-        def setup
-          directory_cache.setup
+        def setup_casher
+          directory_cache.setup_casher
           super
         end
 
