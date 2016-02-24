@@ -44,7 +44,8 @@ module Travis
 
           sh.raw 'function travis_debug() {'
             sh.raw 'travis_debug_install'
-            sh.cmd 'travis_debug.sh', stack: true
+            sh.raw 'TRAVIS_CMD=travis_debug'
+            sh.raw 'travis_debug.sh "$@"'
           sh.raw '}'
         end
 
