@@ -53,7 +53,18 @@ module Travis
             :config => @config,
             :repository => {
               :slug => slug,
-              :source_url => source_url
+              :source_url => source_url,
+              :github_id => 1234567890
+            },
+            :cache_options => {
+              :type => :s3,
+              :s3 => {
+                :bucket => 'cache_bucket',
+                :access_key_id => 'abcdef0123456789',
+                :secret_access_key => 'super_duper_secret'
+              },
+              :fetch_timeout => 60,
+              :push_timeout => 60
             }
           }
         end
