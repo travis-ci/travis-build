@@ -19,6 +19,7 @@ module Travis
 
         def apply_enabled
           sh.raw 'function travis_debug_install() {'
+            sh.echo "Setting up debug tools.", ansi: :yellow
             sh.mkdir install_dir, echo: false, recursive: true
             sh.cd install_dir, echo: false, stack: true
 
@@ -44,6 +45,7 @@ module Travis
 
           sh.raw 'function travis_debug() {'
             sh.raw 'travis_debug_install'
+            sh.echo "Preparing debug sessions.", ansi: :yellow
             sh.raw 'TRAVIS_CMD=travis_debug'
             sh.raw 'travis_debug.sh "$@"'
           sh.raw '}'
