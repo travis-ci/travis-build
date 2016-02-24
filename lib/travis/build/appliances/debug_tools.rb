@@ -45,7 +45,7 @@ module Travis
 
           sh.raw 'function travis_debug() {'
             sh.raw 'travis_debug_install'
-            sh.echo "Preparing debug sessions.", ansi: :yellow
+            sh.echo "Preparing debug sessions."
             sh.raw 'TRAVIS_CMD=travis_debug'
             sh.raw 'travis_debug.sh "$@"'
           sh.raw '}'
