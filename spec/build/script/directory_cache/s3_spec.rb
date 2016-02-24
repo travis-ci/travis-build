@@ -90,14 +90,14 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
     it { should include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher add /foo/bar'] }
 
     context 'when multiple directories are given' do
-      before { cache.setup }
+      before { cache.setup_casher }
       let(:config) { { cache: { directories: ['/foo/bar', '/bar/baz'] } } }
 
       it { should include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher add /foo/bar /bar/baz'] }
     end
 
     context 'when more than ADD_DIR_MAX directories are given' do
-      before { cache.setup }
+      before { cache.setup_casher }
       let(:dirs) { ('dir000'...'dir999').to_a }
       let(:config) { { cache: { directories: dirs } } }
 

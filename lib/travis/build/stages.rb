@@ -8,7 +8,7 @@ module Travis
   module Build
     class Stages
       STAGES = [
-        :builtin,     [:header, :configure, :checkout, :prepare, :disable_sudo, :export, :setup, :setup_cache, :announce],
+        :builtin,     [:header, :configure, :checkout, :prepare, :disable_sudo, :export, :setup, :setup_casher, :setup_cache, :announce],
         :custom,      [:before_install, :install, :before_script, :script, :before_cache],
         :builtin,     [:cache],
         :conditional, [:after_success],
@@ -23,6 +23,7 @@ module Travis
         export:         { assert: false, echo: false, timing: false },
         setup:          { assert: true,  echo: true,  timing: true  },
         announce:       { assert: false, echo: true,  timing: false },
+        setup_casher:   { assert: true,  echo: true,  timing: true  },
         setup_cache:    { assert: true,  echo: true,  timing: true  },
         before_install: { assert: true,  echo: true,  timing: true  },
         install:        { assert: true,  echo: true,  timing: true  },

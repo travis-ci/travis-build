@@ -61,7 +61,7 @@ module Travis
             msgs.empty?
           end
 
-          def setup
+          def setup_casher
             fold 'Setting up build cache' do
               install
               fetch
