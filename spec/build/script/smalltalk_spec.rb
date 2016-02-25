@@ -75,7 +75,7 @@ describe Travis::Build::Script::Smalltalk, :sexp do
     end
 
     it 'set hostname' do
-      should include_sexp [:cmd, "sed -e \"s/^\\(127\\.0\\.0\\.1.*\\)$/\\1 $(scutil --get HostName)/\" /etc/hosts | sed -e \"s/^\\(::1.*\\)$/\\1 $(scutil --get HostName)/\" > /tmp/hosts"]
+      should include_sexp [:cmd, "sed -e \"s/^\\(127\\.0\\.0\\.1.*\\)$/\\1 $(hostname)/\" /etc/hosts | sed -e \"s/^\\(::1.*\\)$/\\1 $(hostname)/\" > /tmp/hosts"]
       should include_sexp [:cmd, "cat /tmp/hosts | sudo tee /etc/hosts > /dev/null"]
     end
 
