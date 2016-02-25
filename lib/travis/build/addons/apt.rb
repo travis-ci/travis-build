@@ -127,8 +127,18 @@ module Travis
             unless whitelisted.empty?
               sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
               sh.cmd "sudo -E apt-get -yq update &>> ~/apt-get-update.log", echo: true, timing: true
-              sh.cmd 'sudo -E apt-get -yq --no-install-suggests --no-install-recommends ' \
-                "--force-yes install #{whitelisted.join(' ')}", echo: true, timing: true
+              command = 'sudo -E apt-get -yq --no-install-suggests --no-install-recommends ' \
+                "--force-yes install #{whitelisted.join(' ')}"
+              sh.cmd command, echo: true, timing: true
+              sh.raw "result=$?"
+              sh.if '$result -ne 0' do
+                sh.fold 'apt-get.diagnostics' do
+                  sh.echo "apt-get install failed", ansi: :red
+                  sh.cmd 'cat ~/apt-get-update.log', echo: true
+                end
+                sh.raw "TRAVIS_CMD='#{command}'"
+                sh.raw "travis_assert $result"
+              end
             end
           end
 
