@@ -113,12 +113,7 @@ module Travis
           def gemstone_configure_hosts()
             sh.echo 'Configuring /etc/hosts file', ansi: :yellow
 
-            case config[:os]
-            when 'linux'
-              sh.cmd "sed -e \"s/^\\(127\\.0\\.0\\.1.*\\)$/\\1 $(hostname)/\" #{HOSTS_FILE} | sed -e \"s/^\\(::1.*\\)$/\\1 $(hostname)/\" > #{TEMP_HOSTS_FILE}"
-            when 'osx'
-              sh.cmd "sed -e \"s/^\\(127\\.0\\.0\\.1.*\\)$/\\1 $(scutil --get HostName)/\" #{HOSTS_FILE} | sed -e \"s/^\\(::1.*\\)$/\\1 $(scutil --get HostName)/\" > #{TEMP_HOSTS_FILE}"
-            end
+            sh.cmd "sed -e \"s/^\\(127\\.0\\.0\\.1.*\\)$/\\1 $(hostname)/\" #{HOSTS_FILE} | sed -e \"s/^\\(::1.*\\)$/\\1 $(hostname)/\" > #{TEMP_HOSTS_FILE}"
             sh.cmd "cat #{TEMP_HOSTS_FILE} | sudo tee #{HOSTS_FILE} > /dev/null"
           end
 
