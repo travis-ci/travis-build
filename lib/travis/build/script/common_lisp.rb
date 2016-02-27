@@ -23,7 +23,7 @@ Please either override the script: key
 
         def configure
           super
-          sh.echo "Common Lisp for Travis-CI is not ufficially supported, but community-maintained", ansi: :green
+          sh.echo "Common Lisp for Travis-CI is not officially supported, but community-maintained", ansi: :green
           sh.echo "Please file any issues at https://github.com/travis-ci/travis-ci/issues"
           sh.echo "and mention @tmccombs, @luismbo, @snmsts and @sionescu in the issue"
           sh.echo "You can also use the mailing list travisci@common-lisp.net for general discussion or feature requests."
