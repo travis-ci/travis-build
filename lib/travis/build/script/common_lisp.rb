@@ -33,6 +33,7 @@ Please either override the script: key
             sh.echo "Installing roswell..."
             sh.export "LISP", lisp_impl
             sh.cmd "curl -sL #{ROS_URL} | /bin/sh"
+            sh.export 'PATH', '$HOME/.roswell/bin:$PATH', echo: false
           end
         end
 
