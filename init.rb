@@ -78,11 +78,16 @@ module Travis
         def sanitize_global_env(config)
           global_env = []
           if config.has_key? 'env'
-            if config['env']['matrix']
-              warn 'env.matrix key is ignored'
+            case config['env']
+            when hash
+              if config['env']['matrix']
+                warn 'env.matrix key is ignored'
+              end
+              global_env = config['env'].fetch('global', [])
+              global_env.delete_if { |v| v.is_a? Hash }
+            when Array
+              global_env = config['env']
             end
-            global_env = config['env'].fetch('global', [])
-            global_env.delete_if { |v| v.is_a? Hash }
           end
 
           global_env
