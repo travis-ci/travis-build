@@ -64,14 +64,19 @@ module Travis
         end
 
         def install
-          sh.if '-f Godeps/Godeps.json' do
-            sh.export 'GOPATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace:$GOPATH', retry: false
-            sh.export 'PATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace/bin:$PATH', retry: false
+          sh.if uses_15_vendoring do
+            sh.echo 'Using Go 1.5 Vendoring, not checking for Godeps'
+          end
+	  sh.else do
+	    sh .if '-f Godeps/Godeps.json' do
+              sh.export 'GOPATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace:$GOPATH', retry: false
+              sh.export 'PATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace/bin:$PATH', retry: false
 
-            if go_version >= '1.1'
-              sh.if '! -d Godeps/_workspace/src' do
-                sh.cmd "#{go_get_cmd} github.com/tools/godep", echo: true, retry: true, timing: true, assert: true
-                sh.cmd 'godep restore', retry: true, timing: true, assert: true, echo: true
+              if go_version >= '1.1'
+                sh.if '! -d Godeps/_workspace/src' do
+                  sh.cmd "#{go_get_cmd} github.com/tools/godep", echo: true, retry: true, timing: true, assert: true
+                  sh.cmd 'godep restore', retry: true, timing: true, assert: true, echo: true
+                end
               end
             end
           end
@@ -101,6 +106,13 @@ module Travis
 
           def uses_make
             '-f GNUmakefile || -f makefile || -f Makefile || -f BSDmakefile'
+          end
+
+	  def uses_15_vendoring
+            if (go_version < '1.5' || go_version == 'go1')
+              'false'
+            end
+	    (go_version < '1.6') ? '$GO15VENDOREXPERIMENT == 1' : '$GO15VENDOREXPERIMENT != 0'
           end
 
           def gobuild_args
