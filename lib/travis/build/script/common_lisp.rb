@@ -44,9 +44,8 @@ Please either override the script: key
         def announce
           super
           sh.cmd 'ros version'
-          sh.cmd %Q[\
-ros -e '(format t "~A: ~A~%" (lisp-implementation-type) (lisp-implementation-version))'
-]
+          sh.cmd 'ros config'
+          sh.cmd 'ros version=t run'
         end
 
         def script
