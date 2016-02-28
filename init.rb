@@ -103,7 +103,7 @@ module Travis
             addons_data = config.fetch('addons', {})
             config['addons'] = addons_data.merge({'deploy' => deploy_data})
           end
-          data
+          config
         end
     end
   end
