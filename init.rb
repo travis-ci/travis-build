@@ -79,7 +79,7 @@ module Travis
           global_env = []
           if config.has_key? 'env'
             case config['env']
-            when hash
+            when Hash
               if config['env']['matrix']
                 warn 'env.matrix key is ignored'
               end
