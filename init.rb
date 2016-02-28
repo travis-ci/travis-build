@@ -36,7 +36,7 @@ module Travis
             config.delete_if { |k,v| k == 'matrix' }
           end
 
-          unless config['os'].respond_to? :scan
+          if config['os'] && ! config['os'].respond_to?(:scan)
             warn "'os' key is unsupported in local build script compilation. Setting to default, 'linux'."
             config['os'] = 'linux'
           end
