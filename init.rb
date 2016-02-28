@@ -44,7 +44,7 @@ module Travis
           set_up_env(config, global_env)
         end
 
-        puts Travis::Build.script(data).compile(true)
+        puts Travis::Build.script(push_down_deploy(data)).compile(true)
       end
 
       private
@@ -96,6 +96,14 @@ module Travis
         def set_up_env(config, global_env)
           @config = config.delete_if {|k,v| k == 'env' }
           @config['env'] = global_env
+        end
+
+        def push_down_deploy(data)
+          if deploy_data = data[:config].delete('deploy')
+            addons_data = data[:config].delete('addons') || {}
+            data[:config]['addons'] = addons_data.merge({'deploy' => deploy_data})
+          end
+          data
         end
     end
   end
