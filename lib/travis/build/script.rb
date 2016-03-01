@@ -91,6 +91,14 @@ module Travis
           data.config
         end
 
+        def debug
+          if config[:debug]
+            sh.echo "Debug build initiated by #{config[:debug][:created_by]}", ansi: :yellow
+            apply :debug_tools
+            sh.raw "travis_debug"
+          end
+        end
+
         def run
           stages.run if apply :validate
           sh.raw template('footer.sh')
@@ -111,7 +119,7 @@ module Travis
           apply :put_localhost_first
           apply :home_paths
           apply :disable_ssh_roaming
-          apply :debug_tools
+          apply :debug_tools unless config[:debug]
         end
 
         def checkout
