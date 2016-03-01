@@ -53,7 +53,7 @@ module Travis
 
         def apply_disabled
           sh.raw 'function travis_debug() {'
-            sh.echo "The debug environement is not available. Please contact support.", ansi: :red
+            sh.echo "The debug environment is not available. Please contact support.", ansi: :red
             sh.raw "false"
           sh.raw '}'
         end
