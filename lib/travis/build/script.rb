@@ -95,8 +95,7 @@ module Travis
           if debug_build?
             sh.echo "Debug build initiated by #{config[:debug][:created_by]}", ansi: :yellow
             apply :debug_tools
-            sh.raw "PS1"
-            if config[:debug][:quiet]
+            if debug_quiet?
               sh.raw "travis_debug --quiet"
             else
               sh.raw "travis_debug"
@@ -145,6 +144,22 @@ module Travis
           apply :disable_sudo
         end
 
+        def reset_state
+          if debug_build?
+            raise "Debug payload does not contain 'previous_state' value." unless previous_state = config[:debug][:previous_state]
+            sh.echo "This is a debug build. The build result is reset to its previous value, \"#{previous_state}\".", ansi: :yellow
+
+            case previous_state
+            when "passed"
+              sh.export 'TRAVIS_TEST_RESULT', '0'
+            when "failed"
+              sh.export 'TRAVIS_TEST_RESULT', '1'
+            when "errored"
+              sh.raw 'travis_terminate 2'
+            end
+          end
+        end
+
         def config_env_vars
           @config_env_vars ||= Build::Env::Config.new(data, config)
           Array(@config_env_vars.data[:env])
@@ -170,6 +185,10 @@ module Travis
 
         def debug_build?
           config[:debug]
+        end
+
+        def debug_quiet?
+          debug_build? && config[:debug][:quiet]
         end
     end
   end
