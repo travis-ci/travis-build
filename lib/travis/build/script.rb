@@ -92,10 +92,15 @@ module Travis
         end
 
         def debug
-          if config[:debug]
+          if debug_build?
             sh.echo "Debug build initiated by #{config[:debug][:created_by]}", ansi: :yellow
             apply :debug_tools
-            sh.raw "travis_debug"
+            sh.raw "PS1"
+            if config[:debug][:quiet]
+              sh.raw "travis_debug --quiet"
+            else
+              sh.raw "travis_debug"
+            end
           end
         end
 
@@ -161,6 +166,10 @@ module Travis
           when /^(?i:darwin)/
             '${$(sw_vers -productVersion)%*.*}'
           end
+        end
+
+        def debug_build?
+          config[:debug]
         end
     end
   end
