@@ -151,9 +151,9 @@ module Travis
 
             case previous_state
             when "passed"
-              sh.export 'TRAVIS_TEST_RESULT', '0'
+              sh.export 'TRAVIS_TEST_RESULT', '0', echo: false
             when "failed"
-              sh.export 'TRAVIS_TEST_RESULT', '1'
+              sh.export 'TRAVIS_TEST_RESULT', '1', echo: false
             when "errored"
               sh.raw 'travis_terminate 2'
             end
