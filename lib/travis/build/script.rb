@@ -147,7 +147,7 @@ module Travis
         def reset_state
           if debug_build?
             raise "Debug payload does not contain 'previous_state' value." unless previous_state = config[:debug][:previous_state]
-            sh.echo "This is a debug build. The build result is reset to its previous value, \"#{previous_state}\".", ansi: :yellow
+            sh.echo "This is a debug build. The build result is reset to its previous value, \\\"#{previous_state}\\\".", ansi: :yellow
 
             case previous_state
             when "passed"
