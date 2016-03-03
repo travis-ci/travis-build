@@ -9,12 +9,10 @@ module Travis
         include Template
         TEMPLATES_PATH = File.expand_path('templates', __FILE__.sub('.rb', ''))
 
-        def enabled?
-          ENV['TRAVIS_ENABLE_DEBUG_TOOLS'] == '1'
-        end
+        def_instance_delegator :script, :debug_enabled?
 
         def apply
-          enabled? ? apply_enabled : apply_disabled
+          debug_enabled? ? apply_enabled : apply_disabled
         end
 
         def apply_enabled

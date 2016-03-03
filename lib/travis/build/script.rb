@@ -184,11 +184,15 @@ module Travis
         end
 
         def debug_build?
-          config[:debug]
+          debug_enabled? && config[:debug]
         end
 
         def debug_quiet?
           debug_build? && config[:debug][:quiet]
+        end
+
+        def debug_enabled?
+          ENV['TRAVIS_ENABLE_DEBUG_TOOLS'] == '1'
         end
     end
   end
