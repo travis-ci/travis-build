@@ -66,7 +66,7 @@ module Travis
             }
           when "nightly"
             {
-              url: "http://nightly.crystal-lang.org/apt",
+              url: "https://nightly.crystal-lang.org/apt",
               package: "crystal-nightly"
             }
           else
