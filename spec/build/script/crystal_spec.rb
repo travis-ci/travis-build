@@ -41,4 +41,35 @@ describe Travis::Build::Script::Crystal, :sexp do
       should include_sexp [:echo, "\"foo\" is an invalid version of Crystal.\nView valid versions of Crystal at https://docs.travis-ci.com/user/languages/crystal/"]
     end
   end
+
+  context "osx" do
+    before do
+      data[:config][:os] = "osx"
+    end
+
+    it 'updates homebrew' do
+      should include_sexp [:cmd, "brew update"]
+    end
+
+    context "versions" do
+      it "installs latest released version by default" do
+        should include_sexp [:cmd, "brew install crystal-lang"]
+      end
+
+      it "installs latest released version when explicitly asked for" do
+        data[:config][:crystal] = "latest"
+        should include_sexp [:cmd, "brew install crystal-lang"]
+      end
+
+      it "installs nightly when specified" do
+        data[:config][:crystal] = "nightly"
+        should include_sexp [:cmd, "brew install crystal-lang --HEAD"]
+      end
+
+      it 'throws a error with a invalid version' do
+        data[:config][:crystal] = "foo"
+        should include_sexp [:echo, "\"foo\" is an invalid version of Crystal.\nView valid versions of Crystal at http://docs.travis-ci.com/user/languages/crystal/"]
+      end
+    end
+  end
 end
