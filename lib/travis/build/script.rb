@@ -94,7 +94,6 @@ module Travis
         def debug
           if debug_build?
             sh.echo "Debug build initiated by #{config[:debug][:created_by]}", ansi: :yellow
-            apply :debug_tools
             if debug_quiet?
               sh.raw "travis_debug --quiet"
             else
@@ -123,7 +122,7 @@ module Travis
           apply :put_localhost_first
           apply :home_paths
           apply :disable_ssh_roaming
-          apply :debug_tools unless debug_build?
+          apply :debug_tools
         end
 
         def checkout
