@@ -153,6 +153,10 @@ module Travis
       def token
         data[:oauth_token]
       end
+
+      def debug_options
+        job[:debug_options] || {}
+      end
     end
   end
 end
