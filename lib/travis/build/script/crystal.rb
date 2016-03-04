@@ -16,7 +16,7 @@ module Travis
 
             sh.cmd %Q(sudo sh -c 'echo "deb #{version[:url]} crystal main" > /etc/apt/sources.list.d/crystal-nightly.list')
             sh.cmd %q(sudo sh -c 'apt-get update')
-            sh.cmd %Q(sudo apt-get install #{version[:package]})
+            sh.cmd %Q(sudo apt-get install #{version[:package]} libgmp-dev)
 
             sh.echo 'Installing Shards', ansi: :yellow
 
