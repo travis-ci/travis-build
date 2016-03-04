@@ -20,8 +20,8 @@ module Travis
 
             sh.echo 'Installing Shards', ansi: :yellow
 
-            sh.cmd %q(sudo sh -c "curl -sL https://github.com/ysbaddaden/shards/releases/latest | \
-                      egrep -o '/ysbaddaden/shards/releases/download/v[0-9\.]*/shards.*linux_.*64.gz' | \
+            sh.cmd %q(sudo sh -c "curl -sL https://github.com/crystal-lang/shards/releases/latest | \
+                      egrep -o '/crystal-lang/shards/releases/download/v[0-9\.]*/shards.*linux_.*64.gz' | \
                       wget --base=http://github.com/ -i - -O - | \
                       gunzip > /usr/local/bin/shards && \
                       chmod +x /usr/local/bin/shards")
