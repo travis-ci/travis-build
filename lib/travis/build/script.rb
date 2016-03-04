@@ -92,7 +92,7 @@ module Travis
         end
 
         def debug
-          if debug_build?
+          if debug_build_via_api?
             sh.echo "Debug build initiated by #{config[:debug][:created_by]}", ansi: :yellow
             if debug_quiet?
               sh.raw "travis_debug --quiet"
@@ -144,7 +144,7 @@ module Travis
         end
 
         def reset_state
-          if debug_build?
+          if debug_build_via_api?
             raise "Debug payload does not contain 'previous_state' value." unless previous_state = config[:debug][:previous_state]
             sh.echo "This is a debug build. The build result is reset to its previous value, \\\"#{previous_state}\\\".", ansi: :yellow
 
@@ -182,12 +182,12 @@ module Travis
           end
         end
 
-        def debug_build?
+        def debug_build_via_api?
           debug_enabled? && config[:debug]
         end
 
         def debug_quiet?
-          debug_build? && config[:debug][:quiet]
+          debug_build_via_api? && config[:debug][:quiet]
         end
 
         def debug_enabled?
