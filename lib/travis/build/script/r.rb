@@ -450,7 +450,7 @@ module Travis
 
             # Download and install pandoc
             sh.cmd "curl -Lo /tmp/#{pandoc_filename} #{pandoc_url}"
-            sh.cmd "sudo installer -pkg \"/tmp/#{pandoc_filename}\""
+            sh.cmd "sudo installer -pkg \"/tmp/#{pandoc_filename}\" -target /"
 
             # Cleanup
             sh.rm "/tmp/#{pandoc_filename}"
