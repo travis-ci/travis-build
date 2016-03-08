@@ -25,7 +25,7 @@ module Travis
         announce:       { assert: false, echo: true,  timing: false },
         setup_casher:   { assert: true,  echo: true,  timing: true  },
         setup_cache:    { assert: true,  echo: true,  timing: true  },
-        debug:          { assert: true,  echo: true,  timing: true  },
+        debug:          { assert: false, echo: true,  timing: true  },
         before_install: { assert: true,  echo: true,  timing: true  },
         install:        { assert: true,  echo: true,  timing: true  },
         before_script:  { assert: true,  echo: true,  timing: true  },

@@ -52,3 +52,13 @@ shared_examples_for 'a build script sexp' do
     should include_sexp [:raw, 'travis_result $?']
   end
 end
+
+shared_examples_for 'a debug script' do
+  it 'initiates a debug phase' do
+    should include_sexp [:raw, "travis_debug"]
+  end
+
+  it 'resets build status' do
+    should include_sexp [:echo, "This is a debug build. The build result is reset to its previous value, \\\"failed\\\".", ansi: :yellow]
+  end
+end
