@@ -58,6 +58,14 @@ shared_examples_for 'a debug script' do
     should include_sexp [:raw, "travis_debug"]
   end
 
+  context 'when debug_options sets "quiet" => true' do
+    before { payload[:job][:debug_options].merge!({ quiet: true }) }
+
+    it 'initiates a debug phase' do
+      should include_sexp [:raw, "travis_debug --quiet"]
+    end
+  end
+
   it 'resets build status' do
     should include_sexp [:echo, "This is a debug build. The build result is reset to its previous value, \\\"failed\\\".", ansi: :yellow]
   end
