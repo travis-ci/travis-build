@@ -125,6 +125,10 @@ module Travis
             end
 
             unless whitelisted.empty?
+              if whitelisted.any? {|pkg| pkg =~ /^postgresql/}
+                stop_postgresql
+              end
+
               sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
               sh.cmd "sudo -E apt-get -yq update &>> ~/apt-get-update.log", echo: true, timing: true
               command = 'sudo -E apt-get -yq --no-install-suggests --no-install-recommends ' \
@@ -160,6 +164,11 @@ module Travis
 
           def source_whitelist
             ::Travis::Build::Addons::Apt.source_whitelist
+          end
+
+          def stop_postgresql
+            sh.echo "PostgreSQL package is detected. Stopping postgresql service. See https://github.com/travis-ci/travis-ci/issues/5737 for more information.", ansi: :yellow
+            sh.cmd "sudo service postgresql stop", echo: true
           end
       end
     end
