@@ -18,6 +18,12 @@ module Travis
         :builtin,     [:finish]
       ]
 
+      STAGES_DEBUG = [
+        :builtin,     [:header, :configure, :checkout, :prepare, :disable_sudo, :export, :setup, :setup_casher, :setup_cache, :announce, :debug],
+        :builtin,     [:reset_state],
+        :builtin,     [:finish]
+      ]
+
       STAGE_DEFAULT_OPTIONS = {
         checkout:       { assert: true,  echo: true,  timing: true  },
         export:         { assert: false, echo: false, timing: false },
@@ -52,9 +58,13 @@ module Travis
       end
 
       def run
-        STAGES.each_slice(2) do |type, names|
+        stages.each_slice(2) do |type, names|
           names.each { |name| run_stage(type, name) }
         end
+      end
+
+      def stages
+        script.debug_build_via_api? ? STAGES_DEBUG : STAGES
       end
 
       def run_stage(type, name)

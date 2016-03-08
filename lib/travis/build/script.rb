@@ -85,6 +85,10 @@ module Travis
         "https://s3.amazonaws.com/#{bucket}/binaries/#{host_os}/#{rel_version}/$(uname -m)/#{lang}-#{version}.tar.#{ext}"
       end
 
+      def debug_build_via_api?
+        ! data.debug_options.empty?
+      end
+
       private
 
         def config
@@ -180,10 +184,6 @@ module Travis
           when /^(?i:darwin)/
             '${$(sw_vers -productVersion)%*.*}'
           end
-        end
-
-        def debug_build_via_api?
-          ! data.debug_options.empty?
         end
 
         def debug_quiet?
