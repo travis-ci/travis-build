@@ -56,4 +56,9 @@ describe Travis::Build::Script, :sexp do
       expect { code }.to_not raise_error
     end
   end
+
+  context 'when running a debug build' do
+    let(:payload) { payload_for(:push_debug, :ruby, config: { cache: ['apt', 'bundler'] }).merge(config) }
+    it_behaves_like 'a debug script'
+  end
 end

@@ -36,6 +36,11 @@ shared_examples_for 'a build script sexp' do
     let(:env_type) { 'global_env' }
   end
 
+  it 'does not initiate debug phase' do
+    should_not include_sexp [:raw, "travis_debug"]
+    should_not include_sexp [:raw, "travis_debug --quiet"]
+  end
+
   it_behaves_like 'show system info'
   it_behaves_like 'validates config'
   it_behaves_like 'paranoid mode on/off'
@@ -50,5 +55,23 @@ shared_examples_for 'a build script sexp' do
 
   it 'calls travis_result' do
     should include_sexp [:raw, 'travis_result $?']
+  end
+end
+
+shared_examples_for 'a debug script' do
+  it 'initiates debug phase' do
+    should include_sexp [:raw, "travis_debug"]
+  end
+
+  context 'when debug_options sets "quiet" => true' do
+    before { payload[:job][:debug_options].merge!({ quiet: true }) }
+
+    it 'initiates debug phase' do
+      should include_sexp [:raw, "travis_debug --quiet"]
+    end
+  end
+
+  it 'resets build status' do
+    should include_sexp [:echo, "This is a debug build. The build result is reset to its previous value, \\\"failed\\\".", ansi: :yellow]
   end
 end
