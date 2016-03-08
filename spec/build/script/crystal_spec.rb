@@ -23,17 +23,17 @@ describe Travis::Build::Script::Crystal, :sexp do
 
   context "versions" do
     it "installs latest released version by default" do
-      should include_sexp [:cmd, "sudo apt-get install crystal"]
+      should include_sexp [:cmd, "sudo apt-get install crystal libgmp-dev"]
     end
 
     it "installs latest released version when explicitly asked for" do
       data[:config][:crystal] = "latest"
-      should include_sexp [:cmd, "sudo apt-get install crystal"]
+      should include_sexp [:cmd, "sudo apt-get install crystal libgmp-dev"]
     end
 
     it "installs nightly when specified" do
       data[:config][:crystal] = "nightly"
-      should include_sexp [:cmd, "sudo apt-get install crystal-nightly"]
+      should include_sexp [:cmd, "sudo apt-get install crystal-nightly libgmp-dev"]
     end
 
     it 'throws a error with a invalid version' do

@@ -16,12 +16,12 @@ module Travis
 
             sh.cmd %Q(sudo sh -c 'echo "deb #{version[:url]} crystal main" > /etc/apt/sources.list.d/crystal-nightly.list')
             sh.cmd %q(sudo sh -c 'apt-get update')
-            sh.cmd %Q(sudo apt-get install #{version[:package]})
+            sh.cmd %Q(sudo apt-get install #{version[:package]} libgmp-dev)
 
             sh.echo 'Installing Shards', ansi: :yellow
 
-            sh.cmd %q(sudo sh -c "curl -sL https://github.com/ysbaddaden/shards/releases/latest | \
-                      egrep -o '/ysbaddaden/shards/releases/download/v[0-9\.]*/shards.*linux_.*64.gz' | \
+            sh.cmd %q(sudo sh -c "curl -sL https://github.com/crystal-lang/shards/releases/latest | \
+                      egrep -o '/crystal-lang/shards/releases/download/v[0-9\.]*/shards.*linux_.*64.gz' | \
                       wget --base=http://github.com/ -i - -O - | \
                       gunzip > /usr/local/bin/shards && \
                       chmod +x /usr/local/bin/shards")
@@ -66,7 +66,7 @@ module Travis
             }
           when "nightly"
             {
-              url: "http://nightly.crystal-lang.org/apt",
+              url: "https://nightly.crystal-lang.org/apt",
               package: "crystal-nightly"
             }
           else
