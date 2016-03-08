@@ -36,7 +36,7 @@ module Travis
             config.delete_if { |k,v| k == 'matrix' }
           end
 
-          unless config['os'].respond_to? :scan
+          if config['os'] && ! config['os'].respond_to?(:scan)
             warn "'os' key is unsupported in local build script compilation. Setting to default, 'linux'."
             config['os'] = 'linux'
           end
@@ -44,7 +44,7 @@ module Travis
           set_up_env(config, global_env)
         end
 
-        puts Travis::Build.script(data).compile(true)
+        puts Travis::Build.script(push_down_deploy(config)).compile(true)
       end
 
       private
@@ -78,11 +78,16 @@ module Travis
         def sanitize_global_env(config)
           global_env = []
           if config.has_key? 'env'
-            if config['env']['matrix']
-              warn 'env.matrix key is ignored'
+            case config['env']
+            when Hash
+              if config['env']['matrix']
+                warn 'env.matrix key is ignored'
+              end
+              global_env = config['env'].fetch('global', [])
+              global_env.delete_if { |v| v.is_a? Hash }
+            when Array
+              global_env = config['env']
             end
-            global_env = config['env'].fetch('global', [])
-            global_env.delete_if { |v| v.is_a? Hash }
           end
 
           global_env
@@ -91,6 +96,14 @@ module Travis
         def set_up_env(config, global_env)
           @config = config.delete_if {|k,v| k == 'env' }
           @config['env'] = global_env
+        end
+
+        def push_down_deploy(config)
+          if deploy_data = config.delete('deploy')
+            addons_data = config.fetch('addons', {})
+            config['addons'] = addons_data.merge({'deploy' => deploy_data})
+          end
+          config
         end
     end
   end
