@@ -105,7 +105,7 @@ module Travis
             end
 
             sh.echo
-            sh.echo "Skipping the reset.", ansi: :yellow
+            sh.echo "All remaining steps, including caching and deploy, will be skipped.", ansi: :yellow
           end
         end
 
