@@ -69,6 +69,10 @@ shared_examples_for 'a debug script' do
     it 'initiates debug phase' do
       should include_sexp [:raw, "travis_debug --quiet"]
     end
+
+    it 'does not run default script phase' do
+      should_not include_sexp [:cmd, "rake", :echo=>true, :timing=>true]
+    end
   end
 
   it 'resets build status' do

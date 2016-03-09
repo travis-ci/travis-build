@@ -85,6 +85,10 @@ module Travis
         "https://s3.amazonaws.com/#{bucket}/binaries/#{host_os}/#{rel_version}/$(uname -m)/#{lang}-#{version}.tar.#{ext}"
       end
 
+      def debug_build_via_api?
+        ! data.debug_options.empty?
+      end
+
       private
 
         def config
@@ -99,6 +103,9 @@ module Travis
             else
               sh.raw "travis_debug"
             end
+
+            sh.echo
+            sh.echo "All remaining steps, including caching and deploy, will be skipped.", ansi: :yellow
           end
         end
 
@@ -146,6 +153,8 @@ module Travis
         def reset_state
           if debug_build_via_api?
             raise "Debug payload does not contain 'previous_state' value." unless previous_state = data.debug_options[:previous_state]
+
+            sh.echo
             sh.echo "This is a debug build. The build result is reset to its previous value, \\\"#{previous_state}\\\".", ansi: :yellow
 
             case previous_state
@@ -180,10 +189,6 @@ module Travis
           when /^(?i:darwin)/
             '${$(sw_vers -productVersion)%*.*}'
           end
-        end
-
-        def debug_build_via_api?
-          ! data.debug_options.empty?
         end
 
         def debug_quiet?
