@@ -103,6 +103,9 @@ module Travis
             else
               sh.raw "travis_debug"
             end
+
+            sh.echo
+            sh.echo "Skipping the reset.", ansi: :yellow
           end
         end
 
@@ -150,6 +153,8 @@ module Travis
         def reset_state
           if debug_build_via_api?
             raise "Debug payload does not contain 'previous_state' value." unless previous_state = data.debug_options[:previous_state]
+
+            sh.echo
             sh.echo "This is a debug build. The build result is reset to its previous value, \\\"#{previous_state}\\\".", ansi: :yellow
 
             case previous_state
