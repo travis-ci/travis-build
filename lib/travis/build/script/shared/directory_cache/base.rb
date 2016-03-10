@@ -8,7 +8,7 @@ module Travis
       module DirectoryCache
         class Base
           MSGS = {
-            config_missing: 'Worker S3 config missing: %s'
+            config_missing: 'Worker %s config missing: %s'
           }
 
           VALIDATE = {
@@ -129,7 +129,7 @@ module Travis
 
             def validate
               VALIDATE.each { |key, msg| msgs << msg unless s3_options[key] }
-              sh.echo MSGS[:config_missing] % msgs.join(', '), ansi: :red unless msgs.empty?
+              sh.echo MSGS[:config_missing] % [ self.class.name.split('::').last.upcase, msgs.join(', ')], ansi: :red unless msgs.empty?
             end
 
             def run(command, args, options = {})
