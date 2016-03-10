@@ -1,12 +1,12 @@
 require 'shellwords'
 
-require 'travis/build/script/shared/directory_cache/s3/aws4_signature'
+require 'travis/build/script/shared/directory_cache/signatures/aws4_signature'
 
 module Travis
   module Build
     class Script
       module DirectoryCache
-        class S3
+        class Base
           MSGS = {
             config_missing: 'Worker S3 config missing: %s'
           }
@@ -171,7 +171,7 @@ module Travis
             end
 
             def url(verb, path, options = {})
-              AWS4Signature.new(key_pair, verb, location(path), options[:expires], start).to_uri.to_s.untaint
+              Signatures::AWS4Signature.new(key_pair, verb, location(path), options[:expires], start).to_uri.to_s.untaint
             end
 
             def key_pair

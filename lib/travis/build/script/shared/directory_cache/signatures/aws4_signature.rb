@@ -7,7 +7,7 @@ module Travis
   module Build
     class Script
       module DirectoryCache
-        class S3
+        class Signatures
           class AWS4Signature
             def initialize(key_pair, verb, location, expires, timestamp=Time.now)
               @key_pair = key_pair

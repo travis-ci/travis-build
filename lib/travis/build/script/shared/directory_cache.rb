@@ -1,3 +1,4 @@
+require 'travis/build/script/shared/directory_cache/base'
 require 'travis/build/script/shared/directory_cache/noop'
 require 'travis/build/script/shared/directory_cache/s3'
 
