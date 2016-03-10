@@ -464,10 +464,10 @@ module Travis
         def normalized_r_version
           v = config[:r].to_s
           case v
-          when 'release' then '3.2.3'
+          when 'release' then '3.2.4'
           when 'oldrel' then '3.1.3'
           when '3.1' then '3.1.3'
-          when '3.2' then '3.2.3'
+          when '3.2' then '3.2.4'
           else v
           end
         end
