@@ -36,9 +36,9 @@ module Travis
 
           KeyPair = Struct.new(:id, :secret)
 
-          Location = Struct.new(:scheme, :region, :bucket, :path) do
+          Location = Struct.new(:scheme, :region, :bucket, :path, :host_proc) do
             def hostname
-              "#{bucket}.#{region == 'us-east-1' ? 's3' : "s3-#{region}"}.amazonaws.com"
+              "#{bucket}.#{host_proc.call(region)}.amazonaws.com"
             end
           end
 
@@ -160,7 +160,8 @@ module Travis
                 s3_options.fetch(:scheme, 'https'),
                 s3_options.fetch(:region, 'us-east-1'),
                 s3_options.fetch(:bucket),
-                path
+                path,
+                host_proc
               )
             end
 

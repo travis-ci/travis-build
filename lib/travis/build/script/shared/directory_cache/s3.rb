@@ -8,6 +8,16 @@ module Travis
     class Script
       module DirectoryCache
         class S3 < Base
+          def host_proc
+            Proc.new do |region|
+              case region
+              when 'us-east-1'
+                's3'
+              else
+                "s3-#{region}"
+              end
+            end
+          end
         end
       end
     end

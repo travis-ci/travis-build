@@ -192,7 +192,7 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
   describe 'signatures' do
     it "works with Amazon's example" do
       key_pair = described_class::KeyPair.new('AKIAIOSFODNN7EXAMPLE', 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY')
-      location = described_class::Location.new('https', 'us-east-1', 'examplebucket', '/test.txt')
+      location = described_class::Location.new('https', 'us-east-1', 'examplebucket', '/test.txt', cache.host_proc)
       signature = Travis::Build::Script::DirectoryCache::Signatures::AWS4Signature.new(key_pair, 'GET', location, 86400, Time.gm(2013, 5, 24))
 
       expect(signature.to_uri.query_values['X-Amz-Signature']).to eq('aeeed9bbccd4d02ee5c0109b86d86835f995330da4c265957d157751f604d404')
