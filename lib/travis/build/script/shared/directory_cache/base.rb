@@ -1,5 +1,6 @@
 require 'shellwords'
 
+require 'travis/build/script/shared/directory_cache/signatures/aws2_signature'
 require 'travis/build/script/shared/directory_cache/signatures/aws4_signature'
 
 module Travis
@@ -59,6 +60,16 @@ module Travis
           def valid?
             validate
             msgs.empty?
+          end
+
+          def signature(verb, path, options)
+            signature_type = s3_options.fetch(:signature_version, '4')
+            case signature_type
+            when '2'
+              Signatures::AWS2Signature.new(key_pair, verb, location(path), options[:expires], start)
+            else
+              Signatures::AWS4Signature.new(key_pair, verb, location(path), options[:expires], start)
+            end
           end
 
           def setup_casher
@@ -172,11 +183,11 @@ module Travis
             end
 
             def url(verb, path, options = {})
-              Signatures::AWS4Signature.new(key_pair, verb, location(path), options[:expires], start).to_uri.to_s.untaint
+              signature(verb, path, options).to_uri.to_s.untaint
             end
 
             def key_pair
-              KeyPair.new(s3_options[:access_key_id], s3_options[:secret_access_key])
+              @key_pair ||= KeyPair.new(s3_options[:access_key_id], s3_options[:secret_access_key])
             end
 
             def s3_options
