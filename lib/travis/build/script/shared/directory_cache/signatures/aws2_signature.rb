@@ -17,7 +17,7 @@ module Travis
 
             def initialize(key_pair, verb, location, expires, timestamp=Time.now)
               @key_pair = key_pair
-              @verb = verb
+              @verb = verb.upcase
               @location = location
               @expires = expires
               @timestamp = timestamp
@@ -50,7 +50,7 @@ module Travis
 
             def canonical_headers(verb, date)
               [
-                verb.upcase,
+                verb,
                 '',
                 content_type,
                 timestamp
@@ -97,7 +97,9 @@ module Travis
             end
 
             def content_type
-              MIME::Types.type_for(@location.path.split('.').last).first.to_s
+              if verb == 'PUT'
+                MIME::Types.type_for(@location.path.split('.').last).first.to_s
+              end
             end
           end
         end

@@ -196,7 +196,6 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
       key_pair = described_class::KeyPair.new('AKIAIOSFODNN7EXAMPLE', 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY')
       location = described_class::Location.new('https', 'us-east-1', 'johnsmith', '/photos/puppy.jpg', host_proc)
       signature = Travis::Build::Script::DirectoryCache::Signatures::AWS2Signature.new(key_pair, 'GET', location, 86400, Time.gm(2007, 3, 27, 19, 36, 42))
-      signature.stubs(:content_type).returns('')
 
       expect(signature.sign).to eq('bWq2s1WEIj+Ydj0vQ697zp+IXMU=')
     end
