@@ -39,7 +39,7 @@ module Travis
 
           Location = Struct.new(:scheme, :region, :bucket, :path, :host_proc) do
             def hostname
-              "#{bucket}.#{host_proc.call(region)}.amazonaws.com"
+              "#{bucket}.#{host_proc.call(region)}"
             end
           end
 
@@ -49,12 +49,13 @@ module Travis
 
           attr_reader :sh, :data, :slug, :start, :msgs
 
-          def initialize(sh, data, slug, start = Time.now)
+          def initialize(sh, data, slug, start = Time.now, data_store = :s3)
             @sh = sh
             @data = data
             @slug = slug
             @start = start
             @msgs = []
+            @data_store = data_store
           end
 
           def valid?
@@ -63,7 +64,7 @@ module Travis
           end
 
           def signature(verb, path, options)
-            signature_type = s3_options.fetch(:signature_version, '4')
+            signature_type = data_store_options.fetch(:signature_version, '4')
             case signature_type
             when '2'
               Signatures::AWS2Signature.new(key_pair, verb, location(path), options[:expires], start)
@@ -139,7 +140,7 @@ module Travis
           private
 
             def validate
-              VALIDATE.each { |key, msg| msgs << msg unless s3_options[key] }
+              VALIDATE.each { |key, msg| msgs << msg unless data_store_options[key] }
               sh.echo MSGS[:config_missing] % [ self.class.name.split('::').last.upcase, msgs.join(', ')], ansi: :red unless msgs.empty?
             end
 
@@ -168,9 +169,9 @@ module Travis
 
             def location(path)
               Location.new(
-                s3_options.fetch(:scheme, 'https'),
-                s3_options.fetch(:region, 'us-east-1'),
-                s3_options.fetch(:bucket),
+                data_store_options.fetch(:scheme, 'https'),
+                data_store_options.fetch(:region, 'us-east-1'),
+                data_store_options.fetch(:bucket),
                 path,
                 host_proc
               )
@@ -187,11 +188,11 @@ module Travis
             end
 
             def key_pair
-              @key_pair ||= KeyPair.new(s3_options[:access_key_id], s3_options[:secret_access_key])
+              @key_pair ||= KeyPair.new(data_store_options[:access_key_id], data_store_options[:secret_access_key])
             end
 
-            def s3_options
-              options[:s3] || {}
+            def data_store_options
+              options[@data_store] || {}
             end
 
             def options
