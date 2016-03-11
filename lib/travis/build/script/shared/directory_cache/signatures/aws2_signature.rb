@@ -4,6 +4,7 @@ require 'digest/sha1'
 require 'openssl'
 require 'base64'
 require 'time'
+require 'mime-types'
 
 module Travis
   module Build
@@ -11,7 +12,6 @@ module Travis
       module DirectoryCache
         class Signatures
           class AWS2Signature
-            CONTENT_TYPE = 'application/x-gzip'
 
             attr_reader :verb, :key_pair, :location, :expires
 
@@ -52,7 +52,7 @@ module Travis
               [
                 verb.upcase,
                 '',
-                CONTENT_TYPE,
+                content_type,
                 timestamp
               ].join("\n")
             end
@@ -86,7 +86,7 @@ module Travis
 
             def request_headers
               [
-                "Content-Type: #{CONTENT_TYPE}",
+                "Content-Type: #{content_type}",
                 "Date: #{timestamp}",
                 "Authorization: AWS #{key_pair.id}:#{sign}"
               ]
@@ -96,6 +96,9 @@ module Travis
 
             end
 
+            def content_type
+              MIME::Types.type_for(@location.path.split('.').last).first.to_s
+            end
           end
         end
       end
