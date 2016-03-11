@@ -31,11 +31,16 @@ module Travis
               )
             end
 
-            private
-
-            def date
-              @timestamp.utc.strftime('%Y%m%d')
+            def sign
+              hmac = OpenSSL::HMAC.new(@key_pair.secret, OpenSSL::Digest::SHA1.new)
+              Base64.strict_encode64(
+                hmac.update(
+                  message(@verb, @date, @location.bucket, @location.path)
+                ).digest
+              )
             end
+
+            private
 
             def timestamp
               # to correspond with the time format shown in
@@ -48,7 +53,7 @@ module Travis
                 verb.upcase,
                 '',
                 CONTENT_TYPE,
-                date
+                timestamp
               ].join("\n")
             end
 
@@ -79,19 +84,10 @@ module Travis
               "\n/#{bucket}#{path}"
             end
 
-            def sign
-              hmac = OpenSSL::HMAC.new(@key_pair.secret, OpenSSL::Digest::SHA1.new)
-              Base64.strict_encode64(
-                hmac.update(
-                  message(@verb, @date, @location.bucket, @location.path)
-                ).digest
-              )
-            end
-
             def request_headers
               [
                 "Content-Type: #{CONTENT_TYPE}",
-                "Date: #{date}",
+                "Date: #{timestamp}",
                 "Authorization: AWS #{key_pair.id}:#{sign}"
               ]
             end
