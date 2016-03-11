@@ -20,7 +20,7 @@ module Travis
               @verb = verb
               @location = location
               @expires = expires
-              @timestamp = timestamp.httpdate
+              @timestamp = timestamp
             end
 
             def to_uri
