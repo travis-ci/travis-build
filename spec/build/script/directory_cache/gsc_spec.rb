@@ -189,13 +189,16 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
     end
   end
 
-  describe 'signatures' do
+  describe '#signature' do
     it "works with Amazon's example" do
-      key_pair = described_class::KeyPair.new('AKIAIOSFODNN7EXAMPLE', 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY')
-      location = described_class::Location.new('https', 'us-east-1', 'examplebucket', '/test.txt', cache.host_proc)
-      signature = Travis::Build::Script::DirectoryCache::Signatures::AWS4Signature.new(key_pair, 'GET', location, 86400, Time.gm(2013, 5, 24))
+      host_proc = lambda {|region| region == 'us-east-1' ? 's3.amazonaws.com' : "s3-#{region}.amazonaws.com" }
 
-      expect(signature.to_uri.query_values['X-Amz-Signature']).to eq('aeeed9bbccd4d02ee5c0109b86d86835f995330da4c265957d157751f604d404')
+      key_pair = described_class::KeyPair.new('AKIAIOSFODNN7EXAMPLE', 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY')
+      location = described_class::Location.new('https', 'us-east-1', 'johnsmith', '/photos/puppy.jpg', host_proc)
+      signature = Travis::Build::Script::DirectoryCache::Signatures::AWS2Signature.new(key_pair, 'GET', location, 86400, Time.gm(2007, 3, 27, 19, 36, 42))
+      signature.stubs(:content_type).returns('')
+
+      expect(signature.sign).to eq('bWq2s1WEIj+Ydj0vQ697zp+IXMU=')
     end
   end
 end
