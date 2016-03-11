@@ -139,6 +139,10 @@ module Travis
 
           private
 
+            def host_proc
+              raise "#{__method__} must be overridden"
+            end
+
             def validate
               VALIDATE.each { |key, msg| msgs << msg unless data_store_options[key] }
               sh.echo MSGS[:config_missing] % [ self.class.name.split('::').last.upcase, msgs.join(', ')], ansi: :red unless msgs.empty?
