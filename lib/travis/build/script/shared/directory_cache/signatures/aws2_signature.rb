@@ -79,7 +79,7 @@ module Travis
               "\n/#{bucket}#{path}"
             end
 
-            def sign(mesg)
+            def sign
               hmac = OpenSSL::HMAC.new(@key_pair.secret, OpenSSL::Digest::SHA1.new)
               Base64.strict_encode64(
                 hmac.update(
@@ -92,7 +92,7 @@ module Travis
               [
                 "Content-Type: #{CONTENT_TYPE}",
                 "Date: #{date}",
-                "Authorization: AWS #{key_pair.id}:#{sign(message(verb, date, location.bucket, location.path))}"
+                "Authorization: AWS #{key_pair.id}:#{sign}"
               ]
             end
 
