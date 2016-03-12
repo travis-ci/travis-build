@@ -24,8 +24,8 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
   let(:fetch_url_tgz) { Shellwords.escape "#{url_tgz}&X-Amz-Expires=20&X-Amz-Signature=#{fetch_signature_tgz}&X-Amz-SignedHeaders=host" }
   let(:push_url)      { Shellwords.escape("#{url}&X-Amz-Expires=30&X-Amz-Signature=#{push_signature}&X-Amz-SignedHeaders=host").gsub(/\.tbz(\?)?/, '.tgz\1') }
 
-  let(:gsc_options)   { { bucket: 's3_bucket', secret_access_key: 's3_secret_access_key', access_key_id: 's3_access_key_id' } }
-  let(:cache_options) { { fetch_timeout: 20, push_timeout: 30, type: 'gsc', gcs: gsc_options, signature_version: '2' } }
+  let(:gcs_options)   { { bucket: 's3_bucket', secret_access_key: 's3_secret_access_key', access_key_id: 's3_access_key_id' } }
+  let(:cache_options) { { fetch_timeout: 20, push_timeout: 30, type: 'gcs', gcs: gcs_options } }
   let(:data)          { PAYLOADS[:push].deep_merge(config: config, cache_options: cache_options, job: { branch: branch, pull_request: pull_request }) }
   let(:config)        { {} }
   let(:pull_request)  { nil }
@@ -42,7 +42,7 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
     end
 
     describe 'with s3 config missing' do
-      let(:gsc_options)  { nil }
+      let(:gcs_options)  { nil }
       it { should include_sexp [:echo, 'Worker GCS config missing: bucket name, access key id, secret access key', ansi: :red] }
     end
   end
