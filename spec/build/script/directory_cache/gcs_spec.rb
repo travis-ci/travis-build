@@ -31,7 +31,7 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
   let(:pull_request)  { nil }
   let(:branch)        { 'master' }
   let(:sh)            { Travis::Shell::Builder.new }
-  let(:cache)         { described_class.new(sh, Travis::Build::Data.new(data), 'ex a/mple', Time.at(10)) }
+  let(:cache)         { described_class.new(sh, Travis::Build::Data.new(data), 'ex a/mple', Time.at(10), described_class::DATA_STORE, described_class::SIGNATURE_VERSION) }
   let(:subject)       { sh.to_sexp }
 
   describe 'validate' do
