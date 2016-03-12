@@ -34,6 +34,12 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
   let(:cache)         { described_class.new(sh, Travis::Build::Data.new(data), 'ex a/mple', Time.at(10), described_class::DATA_STORE, described_class::SIGNATURE_VERSION) }
   let(:subject)       { sh.to_sexp }
 
+  let(:key_pair) { described_class::KeyPair.new(gcs_options[:access_key_id], [:secret_access_key]) }
+
+  before do
+    cache.signature('PUT', nil, {}).stubs(:write_curl_config_to).returns nil
+  end
+
   describe 'validate' do
     before { cache.valid? }
 

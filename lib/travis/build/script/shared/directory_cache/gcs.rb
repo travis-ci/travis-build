@@ -16,6 +16,11 @@ module Travis
               'storage.googpleapis.com'
             end
           end
+
+          def push
+            signer.write_curl_config_to(File.expand_path('curl_headers', ENV['HOME']))
+            super
+          end
         end
       end
     end

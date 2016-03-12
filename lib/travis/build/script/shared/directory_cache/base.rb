@@ -47,7 +47,7 @@ module Travis
           USE_RUBY   = '1.9.3'
           BIN_PATH   = '$CASHER_DIR/bin/casher'
 
-          attr_reader :sh, :data, :slug, :start, :msgs
+          attr_reader :sh, :data, :slug, :start, :msgs, :signer
 
           def initialize(sh, data, slug, start = Time.now, data_store = :s3, signature_version = '4')
             @sh = sh
@@ -65,7 +65,7 @@ module Travis
           end
 
           def signature(verb, path, options)
-            case @signature_version
+            @signer ||= case @signature_version
             when '2'
               Signatures::AWS2Signature.new(key_pair, verb, location(path), options[:expires], start)
             else

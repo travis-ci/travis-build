@@ -40,6 +40,15 @@ module Travis
               )
             end
 
+            def write_curl_config_to(file_path)
+              File.open(file_path, 'w') do |f|
+                request_headers.each do |hd|
+                  f.write "header=\"#{hd}\"\n"
+                end
+                f.flush
+              end
+            end
+
             private
 
             def timestamp
@@ -85,11 +94,12 @@ module Travis
             end
 
             def request_headers
-              [
-                "Content-Type: #{content_type}",
-                "Date: #{timestamp}",
-                "Authorization: AWS #{key_pair.id}:#{sign}"
-              ]
+              headers = []
+              if content_type
+                headers << "Content-Type: #{content_type}"
+              end
+              headers << "Date: #{timestamp}"
+              headers << "Authorization: AWS #{key_pair.id}:#{sign}"
             end
 
             def query_params
