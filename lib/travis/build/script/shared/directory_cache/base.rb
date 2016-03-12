@@ -49,13 +49,14 @@ module Travis
 
           attr_reader :sh, :data, :slug, :start, :msgs
 
-          def initialize(sh, data, slug, start = Time.now, data_store = :s3)
+          def initialize(sh, data, slug, start = Time.now, data_store = :s3, signature_version = '4')
             @sh = sh
             @data = data
             @slug = slug
             @start = start
             @msgs = []
             @data_store = data_store
+            @signature_version = signature_version
           end
 
           def valid?
@@ -64,8 +65,7 @@ module Travis
           end
 
           def signature(verb, path, options)
-            signature_type = data_store_options.fetch(:signature_version, '4')
-            case signature_type
+            case @signature_version
             when '2'
               Signatures::AWS2Signature.new(key_pair, verb, location(path), options[:expires], start)
             else

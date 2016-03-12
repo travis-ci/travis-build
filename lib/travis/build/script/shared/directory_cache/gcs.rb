@@ -8,9 +8,8 @@ module Travis
     class Script
       module DirectoryCache
         class Gcs < Base
-          def initialize(sh, data, slug, start = Time.now, data_store = :gcs)
-            super
-          end
+          DATA_STORE = :gcs
+          SIGNATURE_VERSION = '2'
 
           def host_proc
             Proc.new do |region|

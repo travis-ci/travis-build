@@ -3,6 +3,9 @@ module Travis
     class Script
       module DirectoryCache
         class Noop
+          DATA_STORE = nil
+          SIGNATURE_VERSION = nil
+
           def initialize(*)
           end
 
