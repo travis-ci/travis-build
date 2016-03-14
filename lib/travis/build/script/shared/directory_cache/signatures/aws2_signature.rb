@@ -40,13 +40,13 @@ module Travis
               )
             end
 
-            def write_curl_config_to(file_path)
-              File.open(file_path, 'w') do |f|
-                request_headers.each do |hd|
-                  f.write "header=\"#{hd}\"\n"
-                end
-                f.flush
+            def request_headers
+              headers = []
+              if content_type
+                headers << "Content-Type: #{content_type}"
               end
+              headers << "Date: #{timestamp}"
+              headers << "Authorization: AWS #{key_pair.id}:#{sign}"
             end
 
             private
@@ -91,15 +91,6 @@ module Travis
                 canonical_extension_headers(ext_headers)
               ].delete_if { |el| el.empty? }.join("\n")}" <<
               "\n/#{bucket}#{path}"
-            end
-
-            def request_headers
-              headers = []
-              if content_type
-                headers << "Content-Type: #{content_type}"
-              end
-              headers << "Date: #{timestamp}"
-              headers << "Authorization: AWS #{key_pair.id}:#{sign}"
             end
 
             def query_params

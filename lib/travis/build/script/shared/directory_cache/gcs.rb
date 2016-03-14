@@ -11,15 +11,12 @@ module Travis
           DATA_STORE = :gcs
           SIGNATURE_VERSION = '2'
 
+          WRITE_CURL_HEADER_FILE = true
+
           def host_proc
             Proc.new do |region|
               'storage.googpleapis.com'
             end
-          end
-
-          def push
-            signer.write_curl_config_to(File.expand_path('curl_headers', ENV['HOME']))
-            super
           end
         end
       end

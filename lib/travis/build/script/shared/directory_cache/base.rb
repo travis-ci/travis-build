@@ -47,6 +47,8 @@ module Travis
           USE_RUBY   = '1.9.3'
           BIN_PATH   = '$CASHER_DIR/bin/casher'
 
+          WRITE_CURL_HEADER_FILE = false
+
           attr_reader :sh, :data, :slug, :start, :msgs, :signer
 
           def initialize(sh, data, slug, start = Time.now, data_store = :s3, signature_version = '4')
@@ -65,7 +67,7 @@ module Travis
           end
 
           def signature(verb, path, options)
-            case @signature_version
+            @signer = case @signature_version
             when '2'
               Signatures::AWS2Signature.new(key_pair, verb, location(path), options[:expires], start)
             else
@@ -149,6 +151,13 @@ module Travis
             end
 
             def run(command, args, options = {})
+              if write_curl_header_file
+                sh.cmd "cat /dev/null > $HOME/curl_headers", echo: false, timing: false
+                @signer.request_headers.each do |header|
+                  sh.cmd "echo 'header=\"#{header}\"' >> $HOME/curl_headers", echo: false, timing: false
+                end
+              end
+
               sh.if "-f #{BIN_PATH}" do
                 sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
                 sh.cmd "rvm #{USE_RUBY} --fuzzy do #{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
@@ -217,6 +226,10 @@ module Travis
 
             def debug_flags
               "-v -w '#{CURL_FORMAT}'" if data.cache[:debug]
+            end
+
+            def write_curl_header_file
+              self.class.const_get(:WRITE_CURL_HEADER_FILE)
             end
         end
       end
