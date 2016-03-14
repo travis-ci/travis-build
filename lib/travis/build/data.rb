@@ -59,8 +59,8 @@ module Travis
       end
 
       def cache_options
-        opts = data[:cache_settings].fetch(data[:queue].to_sym) || data[:cache_options] || {}
         Travis.logger.info("cache_settings: #{cache_settings.inspect}")
+        opts = data[:cache_settings].fetch(data[:queue]) || data[:cache_options] || {}
         opts
       end
 
