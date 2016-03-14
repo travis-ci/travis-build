@@ -59,7 +59,7 @@ module Travis
       end
 
       def cache_options
-        data[:cache_settings] || data[:cache_options] || {}
+        data[:cache_settings].fetch(job[:queue].to_sym) || data[:cache_options] || {}
       end
 
       def cache(input = config[:cache])
