@@ -59,7 +59,7 @@ module Travis
       end
 
       def cache_options
-        Travis.logger.info("cache_settings: #{cache_settings.inspect}")
+        puts "cache_settings: #{cache_settings.inspect}"
         opts = data[:cache_settings].fetch(data[:queue]) || data[:cache_options] || {}
         opts
       end
