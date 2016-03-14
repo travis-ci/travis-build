@@ -65,7 +65,7 @@ module Travis
           end
 
           def signature(verb, path, options)
-            @signer ||= case @signature_version
+            case @signature_version
             when '2'
               Signatures::AWS2Signature.new(key_pair, verb, location(path), options[:expires], start)
             else
