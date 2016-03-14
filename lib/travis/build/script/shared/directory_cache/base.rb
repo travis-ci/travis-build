@@ -175,7 +175,7 @@ module Travis
               Location.new(
                 data_store_options.fetch(:scheme, 'https'),
                 data_store_options.fetch(:region, 'us-east-1'),
-                data_store_options.fetch(:bucket),
+                data_store_options.fetch(:bucket, ''),
                 path,
                 host_proc
               )
