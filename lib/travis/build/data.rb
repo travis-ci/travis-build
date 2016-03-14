@@ -59,9 +59,7 @@ module Travis
       end
 
       def cache_options
-        puts "cache_settings: #{data[:cache_settings].inspect}"
-        opts = data[:cache_settings] || data[:cache_options] || {}
-        opts
+        data[:cache_settings] || data[:cache_options] || {}
       end
 
       def cache(input = config[:cache])
