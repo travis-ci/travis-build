@@ -102,6 +102,10 @@ module Travis
           end
 
           def fetch
+            run('fetch', fetch_urls, timing: true)
+          end
+
+          def fetch_urls
             urls = [
               Shellwords.escape(fetch_url(group, '.tgz').to_s),
               Shellwords.escape(fetch_url.to_s)
@@ -114,7 +118,8 @@ module Travis
               urls << Shellwords.escape(fetch_url('master', '.tgz').to_s)
               urls << Shellwords.escape(fetch_url('master').to_s)
             end
-            run('fetch', urls, timing: true)
+
+            urls
           end
 
           def push

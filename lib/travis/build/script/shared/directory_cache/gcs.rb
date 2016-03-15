@@ -18,6 +18,16 @@ module Travis
               'storage.googleapis.com'
             end
           end
+
+          def fetch
+            # for AWS V2 compat services, we need to pass authentication
+            # information via HTTP headers
+            # we accomplish this with the help of a cURL configuration
+            # file, which will be written for *each* URL we attempt to fetch
+            fetch_urls.each do |url|
+              run('GET', url, timing: true)
+            end
+          end
         end
       end
     end
