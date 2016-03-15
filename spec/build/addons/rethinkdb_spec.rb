@@ -20,14 +20,14 @@ describe Travis::Build::Addons::Rethinkdb, :sexp do
   end
 
   it 'sets TRAVIS_RETHINKDB_PACKAGE_VERSION' do
-    should include_sexp [:export,  ['TRAVIS_RETHINKDB_PACKAGE_VERSION', '2.2.5\\~0' + `lsb_release -cs`]]
+    should include_sexp [:export,  ['TRAVIS_RETHINKDB_PACKAGE_VERSION', '$package_version']]
   end
 
   it { should include_sexp [:cmd, "service rethinkdb stop", sudo: true] }
   it { should include_sexp [:cmd, "apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 #{Travis::Build::Addons::Rethinkdb::RETHINKDB_GPG_KEY}", sudo: true] }
   it { should include_sexp [:cmd, 'add-apt-repository "deb http://download.rethinkdb.com/apt $(lsb_release -cs) main"', sudo: true] }
   it { should include_sexp [:cmd, "apt-get update -qq", sudo: true] }
-  it { should include_sexp [:cmd, "apt-get install -y -o Dpkg::Options::='--force-confnew' rethinkdb=#{'2.2.5\\~0' + `lsb_release -cs`}", sudo: true, echo: true, timing: true] }
+  it { should include_sexp [:cmd, "apt-get install -y -o Dpkg::Options::='--force-confnew' rethinkdb=$package_version", sudo: true, echo: true, timing: true] }
   it { should include_sexp [:cmd, "cp /etc/rethinkdb/default.conf.sample /etc/rethinkdb/instances.d/default.conf", sudo: true] }
   it { should include_sexp [:cmd, "service rethinkdb start", sudo: true, echo: true, timing: true] }
   it { should include_sexp [:cmd, "rethinkdb --version", echo: true] }
