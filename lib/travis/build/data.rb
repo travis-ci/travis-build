@@ -59,7 +59,7 @@ module Travis
       end
 
       def cache_options
-        data[:cache_settings] || data[:cache_options] || {}
+        data[:cache_settings].tap {|x| puts x} || data[:cache_options] || {}
       end
 
       def cache(input = config[:cache])
