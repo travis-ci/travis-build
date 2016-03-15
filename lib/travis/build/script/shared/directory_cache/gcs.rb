@@ -29,6 +29,7 @@ module Travis
             fetch_urls.each do |url|
               signer = signature('GET', URI(url).path, {})
               run('fetch', url, timing: true)
+              sh.raw "[ $? -eq 0 ] && cache_found=true"
             end
           end
         end
