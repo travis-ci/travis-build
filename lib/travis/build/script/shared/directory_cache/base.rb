@@ -161,6 +161,7 @@ module Travis
                 @signer.request_headers.each do |header|
                   sh.cmd "echo 'header=\"#{header}\"' >> $HOME/curl_headers".untaint, echo: false, timing: false
                 end
+                sh.cmd "cat $HOME/curl_headers", echo: true
               end
 
               sh.if "-f #{BIN_PATH}" do
