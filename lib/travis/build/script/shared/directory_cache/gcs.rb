@@ -15,7 +15,7 @@ module Travis
 
           def host_proc
             Proc.new do |region|
-              'storage.googpleapis.com'
+              'storage.googleapis.com'
             end
           end
         end
