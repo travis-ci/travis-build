@@ -3,6 +3,8 @@ require 'shellwords'
 require 'travis/build/script/shared/directory_cache/base'
 require 'travis/build/script/shared/directory_cache/signatures/aws2_signature'
 
+require 'uri'
+
 module Travis
   module Build
     class Script
@@ -25,6 +27,7 @@ module Travis
             # we accomplish this with the help of a cURL configuration
             # file, which will be written for *each* URL we attempt to fetch
             fetch_urls.each do |url|
+              signer = signature('GET', URI(url).path, {})
               run('fetch', url, timing: true)
             end
           end

@@ -49,7 +49,8 @@ module Travis
 
           WRITE_CURL_HEADER_FILE = false
 
-          attr_reader :sh, :data, :slug, :start, :msgs, :signer
+          attr_reader :sh, :data, :slug, :start, :msgs
+          attr_accessor :signer
 
           def initialize(sh, data, slug, start = Time.now, data_store = :s3, signature_version = '4')
             @sh = sh
