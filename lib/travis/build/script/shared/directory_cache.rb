@@ -11,7 +11,7 @@ module Travis
           @directory_cache ||= begin
             cache = cache_class.new(sh, data, cache_slug, Time.now, cache_class::DATA_STORE, cache_class::SIGNATURE_VERSION)
             cache = Noop.new(sh, data, cache_slug) unless cache.valid? && use_directory_cache?
-            cache
+            cache.tap {|x| puts "cache: #{x}"}
           end
         end
 

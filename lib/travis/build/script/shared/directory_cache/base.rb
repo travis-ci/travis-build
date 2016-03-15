@@ -146,6 +146,7 @@ module Travis
             end
 
             def validate
+              puts "data_store_options: #{data_store_options}"
               VALIDATE.each { |key, msg| msgs << msg unless data_store_options[key] }
               sh.echo MSGS[:config_missing] % [ self.class.name.split('::').last.upcase, msgs.join(', ')], ansi: :red unless msgs.empty?
             end
