@@ -25,7 +25,7 @@ module Travis
             # we accomplish this with the help of a cURL configuration
             # file, which will be written for *each* URL we attempt to fetch
             fetch_urls.each do |url|
-              run('GET', url, timing: true)
+              run('fetch', url, timing: true)
             end
           end
         end
