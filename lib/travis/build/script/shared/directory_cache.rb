@@ -10,13 +10,13 @@ module Travis
         def directory_cache
           @directory_cache ||= begin
             cache = cache_class.new(sh, data, cache_slug, Time.now, cache_class::DATA_STORE, cache_class::SIGNATURE_VERSION)
-            cache = Noop.new(sh, data, cache_slug) unless cache.valid? && use_directory_cache?
+            cache = Noop.new(sh, data, cache_slug) unless cache.valid?.tap {|x| puts "cache_valid? #{x}"} && use_directory_cache?
             cache.tap {|x| puts "cache: #{x}"}
           end
         end
 
         def cache_class
-          type = data.cache_options[:type] || :noop
+          type = data.cache_options.tap {|x| puts "cache_options: #{x}" }[:type] || :noop
           name = type.to_s.capitalize
           raise ArgumentError, 'unknown caching mode %p' % type unless DirectoryCache.const_defined?(name, false)
           DirectoryCache.const_get(name)
@@ -26,7 +26,7 @@ module Travis
           if data.cache[:timeout]
             sh.export 'CASHER_TIME_OUT', data.cache[:timeout], echo: false
           end
-          data.cache?(:directories)
+          data.cache?(:directories).tap {|x| puts "directories: #{x}"}
         end
 
         def setup_casher
