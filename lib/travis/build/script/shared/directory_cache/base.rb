@@ -39,9 +39,9 @@ module Travis
 
           KeyPair = Struct.new(:id, :secret)
 
-          Location = Struct.new(:scheme, :region, :bucket, :path, :hostname) do
+          Location = Struct.new(:scheme, :region, :bucket, :path, :host) do
             def hostname
-              "#{bucket}.#{hostname}"
+              "#{bucket}.#{host}"
             end
           end
 
