@@ -31,6 +31,8 @@ module Travis
                   time_total:  %{time_total} s
           EOF
 
+          DEFAULT_AWS_SIGNATURE_VERSION = '4'
+
           # maximum number of directories to be 'added' to cache via casher
           # in one invocation
           ADD_DIR_MAX = 100
@@ -47,19 +49,15 @@ module Travis
           USE_RUBY   = '1.9.3'
           BIN_PATH   = '$CASHER_DIR/bin/casher'
 
-          WRITE_CURL_HEADER_FILE = false
-
           attr_reader :sh, :data, :slug, :start, :msgs
           attr_accessor :signer
 
-          def initialize(sh, data, slug, start = Time.now, data_store = :s3)
+          def initialize(sh, data, slug, start = Time.now)
             @sh = sh
             @data = data
             @slug = slug
             @start = start
             @msgs = []
-            @data_store = data[:type]
-            @signature_version = data[data[:type]].fetch(:aws_signature_version, nil)
           end
 
           def valid?
@@ -68,7 +66,7 @@ module Travis
           end
 
           def signature(verb, path, options)
-            @signer = case @signature_version
+            signer = case data_store_options.fetch(:aws_signature_version, DEFAULT_AWS_SIGNATURE_VERSION)
             when '2'
               Signatures::AWS2Signature.new(key_pair, verb, location(path), options[:expires], start)
             else
@@ -180,11 +178,11 @@ module Travis
             end
 
             def fetch_timeout
-              options.fetch(:fetch_timeout)
+              cache_options.fetch(:fetch_timeout)
             end
 
             def push_timeout
-              options.fetch(:push_timeout)
+              cache_options.fetch(:push_timeout)
             end
 
             def location(path)
@@ -211,11 +209,15 @@ module Travis
               @key_pair ||= KeyPair.new(data_store_options[:access_key_id], data_store_options[:secret_access_key])
             end
 
-            def data_store_options
-              options[@data_store] || {}
+            def data_store
+              cache_options[:type]
             end
 
-            def options
+            def data_store_options
+              cache_options[data_store.to_sym] || {}
+            end
+
+            def cache_options
               data.cache_options || {}
             end
 
@@ -236,7 +238,7 @@ module Travis
             end
 
             def write_curl_header_file
-              self.class.const_get(:WRITE_CURL_HEADER_FILE)
+              signer.const_get(:WRITE_CURL_HEADER_FILE) rescue false
             end
         end
       end

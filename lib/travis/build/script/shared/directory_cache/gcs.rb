@@ -10,10 +10,6 @@ module Travis
     class Script
       module DirectoryCache
         class Gcs < Base
-          DATA_STORE = :gcs
-
-          WRITE_CURL_HEADER_FILE = true
-
           def host_proc
             Proc.new do |region|
               'storage.googleapis.com'
