@@ -191,7 +191,7 @@ module Travis
                 data_store_options.fetch(:region, 'us-east-1'),
                 data_store_options.fetch(:bucket, ''),
                 path,
-                host_proc
+                data_store_options.fetch(:hostname, host_proc)
               )
             end
 
