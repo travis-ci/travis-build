@@ -52,14 +52,14 @@ module Travis
           attr_reader :sh, :data, :slug, :start, :msgs
           attr_accessor :signer
 
-          def initialize(sh, data, slug, start = Time.now, data_store = :s3, signature_version = '4')
+          def initialize(sh, data, slug, start = Time.now, data_store = :s3)
             @sh = sh
             @data = data
             @slug = slug
             @start = start
             @msgs = []
-            @data_store = data_store
-            @signature_version = signature_version
+            @data_store = data[:type]
+            @signature_version = data[data[:type]].fetch(:aws_signature_version, nil)
           end
 
           def valid?
