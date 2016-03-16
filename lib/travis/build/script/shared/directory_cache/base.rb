@@ -240,7 +240,7 @@ module Travis
             end
 
             def write_curl_header_file
-              signer.tap {|x| puts "signer: #{x}"}.const_get(:WRITE_CURL_HEADER_FILE) rescue false
+              data_store_options.fetch(:aws_signature_version, DEFAULT_AWS_SIGNATURE_VERSION).to_s == '2'
             end
         end
       end
