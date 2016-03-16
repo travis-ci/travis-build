@@ -157,6 +157,7 @@ module Travis
             def run(command, args, options = {})
               sh.if "$cache_found != 'true'" do
                 if write_curl_header_file
+                  sh.cmd "cat /dev/null > $HOME/curl_headers"
                   signer.request_headers.each do |header|
                     sh.cmd "echo 'header=\"#{header}\"' >> $HOME/curl_headers".untaint, echo: false, timing: false
                   end
