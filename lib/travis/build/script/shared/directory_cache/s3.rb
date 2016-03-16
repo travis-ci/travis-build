@@ -9,7 +9,6 @@ module Travis
       module DirectoryCache
         class S3 < Base
           DATA_STORE = :s3
-          SIGNATURE_VERSION = '4'
 
           def host_proc
             Proc.new do |region|

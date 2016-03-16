@@ -11,7 +11,6 @@ module Travis
       module DirectoryCache
         class Gcs < Base
           DATA_STORE = :gcs
-          SIGNATURE_VERSION = '2'
 
           WRITE_CURL_HEADER_FILE = true
 
