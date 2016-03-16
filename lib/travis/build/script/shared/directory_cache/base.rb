@@ -118,11 +118,11 @@ module Travis
               urls << Shellwords.escape(fetch_url('master').to_s)
             end
 
-            urls
+            urls.each {|url| puts "fetch_url: #{url}"}
           end
 
           def push
-            run('push', Shellwords.escape(push_url.to_s), assert: false, timing: true)
+            run('push', Shellwords.escape(push_url.to_s.tap {|url| puts "push_url: #{url}"}), assert: false, timing: true)
           end
 
           def fetch_url(branch = group, ext = '.tbz')
@@ -160,6 +160,7 @@ module Travis
                   @signer.request_headers.each do |header|
                     sh.cmd "echo 'header=\"#{header}\"' >> $HOME/curl_headers".untaint, echo: false, timing: false
                   end
+                  sh.cmd "cat $HOME/curl_headers", echo: true
                 end
 
                 sh.if "-f #{BIN_PATH}" do
