@@ -157,7 +157,7 @@ module Travis
             def run(command, args, options = {})
               sh.if "$cache_found != 'true'" do
                 if write_curl_header_file
-                  @signer.request_headers.each do |header|
+                  signer.request_headers.each do |header|
                     sh.cmd "echo 'header=\"#{header}\"' >> $HOME/curl_headers".untaint, echo: false, timing: false
                   end
                   sh.cmd "cat $HOME/curl_headers", echo: true
@@ -240,7 +240,7 @@ module Travis
             end
 
             def write_curl_header_file
-              signer.const_get(:WRITE_CURL_HEADER_FILE) rescue false
+              signer.tap {|x| puts "signer: #{x}"}.const_get(:WRITE_CURL_HEADER_FILE) rescue false
             end
         end
       end
