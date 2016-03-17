@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
-  GCS_FETCH_URL  = "https://s3_bucket.storage.googleapis.com/42/%s/example.%s?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=s3_access_key_id%%2F19700101%%2Fus-east-1%%2Fs3%%2Faws4_request&X-Amz-Date=19700101T000010Z"
+  GCS_FETCH_URL  = "https://s3_bucket.storage.googleapis.com/42/%s/example.%s"
   GCS_SIGNED_URL = "%s&X-Amz-Expires=20&X-Amz-Signature=%s&X-Amz-SignedHeaders=host"
 
   def url_for(branch, ext = 'tbz')
@@ -20,9 +20,9 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
 
   let(:url)           { url_for(branch) }
   let(:url_tgz)       { url_for(branch, 'tgz') }
-  let(:fetch_url)     { Shellwords.escape "#{url}&X-Amz-Expires=20&X-Amz-Signature=#{fetch_signature}&X-Amz-SignedHeaders=host" }
-  let(:fetch_url_tgz) { Shellwords.escape "#{url_tgz}&X-Amz-Expires=20&X-Amz-Signature=#{fetch_signature_tgz}&X-Amz-SignedHeaders=host" }
-  let(:push_url)      { Shellwords.escape("#{url}&X-Amz-Expires=30&X-Amz-Signature=#{push_signature}&X-Amz-SignedHeaders=host").gsub(/\.tbz(\?)?/, '.tgz\1') }
+  let(:fetch_url)     { Shellwords.escape url }
+  let(:fetch_url_tgz) { Shellwords.escape url_tgz }
+  let(:push_url)      { Shellwords.escape(url).gsub(/\.tbz(\?)?/, '.tgz\1') }
 
   let(:gcs_options)   { { bucket: 's3_bucket', secret_access_key: 's3_secret_access_key', access_key_id: 's3_access_key_id', aws_signature_version: '2' } }
   let(:cache_options) { { fetch_timeout: 20, push_timeout: 30, type: 'gcs', gcs: gcs_options } }
@@ -86,10 +86,10 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
     end
   end
 
-  # describe 'fetch' do
-  #   before { cache.fetch }
-  #   it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fetch_url}", timing: true] }
-  # end
+  describe 'fetch' do
+    before { cache.fetch }
+    it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz}", timing: true] }
+  end
 
   describe 'add' do
     before { cache.add('/foo/bar') }
@@ -111,10 +111,10 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
     end
   end
 
-  # describe 'push' do
-  #   before { cache.push }
-  #   it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher push #{push_url}", timing: true] }
-  # end
+  describe 'push' do
+    before { cache.push }
+    it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher push #{push_url}", timing: true] }
+  end
 
   # describe 'on a different branch' do
   #   let(:branch)          { 'featurefoo' }
