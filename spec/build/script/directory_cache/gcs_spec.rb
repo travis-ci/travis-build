@@ -41,6 +41,11 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
   #   cache.signature('PUT', url_tgz, cache_options).stubs(:write_curl_config_to).returns true
   # end
 
+  before do
+    # Assume time is at Epoch, which is expected by the V2 signature's Expires header
+    Time.stubs(:now).returns 0
+  end
+
   describe 'validate' do
     before { cache.valid? }
 
