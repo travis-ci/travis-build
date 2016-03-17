@@ -65,7 +65,7 @@ module Travis
                 verb,
                 '',
                 content_type,
-                expires
+                Time.at(expires).httpdate
               ].join("\n")
             end
 
