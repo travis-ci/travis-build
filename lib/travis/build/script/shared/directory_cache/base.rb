@@ -70,7 +70,7 @@ module Travis
           def signature(verb, path, options)
             @signer = case data_store_options.fetch(:aws_signature_version, DEFAULT_AWS_SIGNATURE_VERSION).to_s
             when '2'
-              Signatures::AWS2Signature.new(key_pair, verb, location(path), (Time.now + options[:expires].to_i).to_i, start)
+              Signatures::AWS2Signature.new(key_pair, verb, location(path), (start+ options[:expires].to_i).to_i, start)
             else
               Signatures::AWS4Signature.new(key_pair, verb, location(path), options[:expires], start)
             end
