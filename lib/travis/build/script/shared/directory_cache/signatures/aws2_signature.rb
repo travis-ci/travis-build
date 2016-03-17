@@ -48,7 +48,7 @@ module Travis
               if content_type
                 headers << "Content-Type: #{content_type}"
               end
-              headers << "Date: #{timestamp}"
+              headers << "Date: #{expires}"
               headers << "Authorization: AWS #{key_pair.id}:#{sign}"
             end
 
