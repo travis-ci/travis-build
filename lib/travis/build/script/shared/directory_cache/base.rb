@@ -33,6 +33,8 @@ module Travis
 
           DEFAULT_AWS_SIGNATURE_VERSION = '4'
 
+          COMMANDS_REQUIRING_SIG = %w(fetch push)
+
           # maximum number of directories to be 'added' to cache via casher
           # in one invocation
           ADD_DIR_MAX = 100
@@ -156,12 +158,11 @@ module Travis
 
             def run(command, args, options = {})
               sh.if "$cache_found != 'true'" do
-                if write_curl_header_file
+                if write_curl_header_file && COMMANDS_REQUIRING_SIG.include?(command)
                   sh.cmd "cat /dev/null > $HOME/curl_headers"
                   signer.request_headers.each do |header|
                     sh.cmd "echo 'header=\"#{header}\"' >> $HOME/curl_headers".untaint, echo: false, timing: false
                   end
-                  sh.cmd "cat $HOME/curl_headers", echo: true
                 end
 
                 sh.if "-f #{BIN_PATH}" do
