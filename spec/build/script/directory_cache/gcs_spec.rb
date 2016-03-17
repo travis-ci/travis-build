@@ -1,11 +1,11 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
-  GCS_FETCH_URL  = "https://s3_bucket.storage.googleapis.com/42/%s/example.%s"
+  GCS_FETCH_URL  = "https://s3_bucket.storage.googleapis.com/42/%s/example.%s?Expires=%s"
   GCS_SIGNED_URL = "%s&X-Amz-Expires=20&X-Amz-Signature=%s&X-Amz-SignedHeaders=host"
 
-  def url_for(branch, ext = 'tbz')
-    GCS_FETCH_URL % [ branch, ext ]
+  def url_for(branch, ext = 'tbz', timeout = 10)
+    GCS_FETCH_URL % [ branch, ext, timeout ]
   end
 
   def signed_url_for(branch, signature, ext = 'tbz')
@@ -18,11 +18,12 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
   let(:fetch_signature_tgz)    { master_fetch_signature_tgz }
   let(:push_signature)         { "e7e04f36f46920e9011580d53b16f2fc492094a8b4ec89076411a9d6800cf0ac" }
 
+  let(:timeout)       { 10 }
   let(:url)           { url_for(branch) }
-  let(:url_tgz)       { url_for(branch, 'tgz') }
+  let(:url_tgz)       { url_for(branch, 'tgz', timeout) }
   let(:fetch_url)     { Shellwords.escape url }
   let(:fetch_url_tgz) { Shellwords.escape url_tgz }
-  let(:push_url)      { Shellwords.escape(url).gsub(/\.tbz(\?)?/, '.tgz\1') }
+  let(:push_url)      { Shellwords.escape url_tgz }
 
   let(:gcs_options)   { { bucket: 's3_bucket', secret_access_key: 's3_secret_access_key', access_key_id: 's3_access_key_id', aws_signature_version: '2' } }
   let(:cache_options) { { fetch_timeout: 20, push_timeout: 30, type: 'gcs', gcs: gcs_options } }
@@ -87,6 +88,7 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
   end
 
   describe 'fetch' do
+    let(:timeout) { cache_options[:fetch_timeout] }
     before { cache.fetch }
     it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz}", timing: true] }
   end
@@ -112,6 +114,7 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
   end
 
   describe 'push' do
+    let(:timeout) { cache_options[:push_timeout] }
     before { cache.push }
     it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher push #{push_url}", timing: true] }
   end
@@ -197,13 +200,12 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
 
   describe '#signature' do
     it "works with Amazon's example" do
-      host_proc = lambda {|region| region == 'us-east-1' ? 's3.amazonaws.com' : "s3-#{region}.amazonaws.com" }
-
+      # See http://docs.aws.amazon.com/AmazonS3/latest/dev/RESTAuthentication.html#RESTAuthenticationQueryStringAuth
       key_pair = described_class::KeyPair.new('AKIAIOSFODNN7EXAMPLE', 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY')
-      location = described_class::Location.new('https', 'us-east-1', 'johnsmith', '/photos/puppy.jpg', host_proc)
-      signature = Travis::Build::Script::DirectoryCache::Signatures::AWS2Signature.new(key_pair, 'GET', location, 86400, Time.gm(2007, 3, 27, 19, 36, 42))
+      location = described_class::Location.new('https', 'us-east-1', 'johnsmith', '/photos/puppy.jpg')
+      signature = Travis::Build::Script::DirectoryCache::Signatures::AWS2Signature.new(key_pair, 'GET', location, 1175139620, Time.gm(2007, 3, 26, 19, 37, 58))
 
-      expect(signature.sign).to eq('bWq2s1WEIj+Ydj0vQ697zp+IXMU=')
+      expect(signature.sign).to eq('NpgCjnDzrM+WFzoENXmpNDUsSn8=')
     end
   end
 end

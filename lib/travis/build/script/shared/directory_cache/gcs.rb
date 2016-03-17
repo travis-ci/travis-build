@@ -23,7 +23,7 @@ module Travis
             # file, which will be written for *each* URL we attempt to fetch
             fetch_urls.each do |url|
               signer = signature('GET', URI(url).path, {})
-              run('fetch', url, timing: true)
+              run('fetch', Shellwords.escape(url).to_s, timing: true)
               sh.raw "[ $? -eq 0 ] && cache_found=true"
             end
           end

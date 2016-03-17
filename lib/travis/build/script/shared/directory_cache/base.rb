@@ -103,21 +103,21 @@ module Travis
           end
 
           def fetch
-            run('fetch', fetch_urls, timing: true)
+            run('fetch', fetch_urls.map {|url| Shellwords.escape(url).to_s}, timing: true)
           end
 
           def fetch_urls
             urls = [
-              Shellwords.escape(fetch_url(group, '.tgz').to_s),
-              Shellwords.escape(fetch_url.to_s)
+              fetch_url(group, '.tgz'),
+              fetch_url
             ]
             if data.pull_request
-              urls << Shellwords.escape(fetch_url(data.branch, '.tgz').to_s)
-              urls << Shellwords.escape(fetch_url(data.branch).to_s)
+              urls << fetch_url(data.branch, '.tgz')
+              urls << fetch_url(data.branch)
             end
             if data.branch != 'master'
-              urls << Shellwords.escape(fetch_url('master', '.tgz').to_s)
-              urls << Shellwords.escape(fetch_url('master').to_s)
+              urls << fetch_url('master', '.tgz')
+              urls << fetch_url('master')
             end
 
             urls.each {|url| puts "fetch_url: #{url}"}

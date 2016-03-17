@@ -30,6 +30,7 @@ module Travis
                 scheme: location.scheme,
                 host: location.hostname,
                 path: location.path,
+                query_values: query_params
               )
             end
 
@@ -37,7 +38,7 @@ module Travis
               hmac = OpenSSL::HMAC.new(@key_pair.secret, OpenSSL::Digest::SHA1.new)
               Base64.strict_encode64(
                 hmac.update(
-                  message(@verb, @date, @location.bucket, @location.path)
+                  message(@verb, @date, @location.bucket, @location.path).tap {|x| puts "string to sign: #{x.inspect}"}
                 ).digest
               )
             end
@@ -64,7 +65,7 @@ module Travis
                 verb,
                 '',
                 content_type,
-                timestamp
+                expires
               ].join("\n")
             end
 
@@ -96,7 +97,9 @@ module Travis
             end
 
             def query_params
-
+              {
+                'Expires' => expires
+              }
             end
 
             def content_type
