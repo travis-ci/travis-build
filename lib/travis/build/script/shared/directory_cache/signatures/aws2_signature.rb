@@ -38,7 +38,7 @@ module Travis
               hmac = OpenSSL::HMAC.new(@key_pair.secret, OpenSSL::Digest::SHA1.new)
               Base64.strict_encode64(
                 hmac.update(
-                  message(@verb, @date, @location.bucket, @location.path, {'x-goog-acl' => 'authenticated-rea'}).tap {|x| puts "string to sign: #{x.inspect}"}
+                  message(@verb, @date, @location.bucket, @location.path).tap {|x| puts "string to sign: #{x.inspect}"}
                 ).digest
               )
             end
