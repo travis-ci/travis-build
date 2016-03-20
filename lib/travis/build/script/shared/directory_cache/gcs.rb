@@ -26,6 +26,8 @@ module Travis
               run('fetch', Shellwords.escape(url).to_s, timing: true)
               sh.raw "[ $? -eq 0 ] && cache_found=true"
             end
+
+            sh.raw 'unset cache_found'
           end
         end
       end
