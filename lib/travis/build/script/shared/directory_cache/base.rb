@@ -157,19 +157,9 @@ module Travis
             end
 
             def run(command, args, options = {})
-              sh.if "$cache_found != 'true'" do
-                if write_curl_header_file && COMMANDS_REQUIRING_SIG.include?(command)
-                  sh.cmd "cat /dev/null > $HOME/curl_headers"
-                  signer.request_headers.each do |header|
-                    sh.cmd "echo 'header=\"#{header}\"' >> $HOME/curl_headers".untaint, echo: false, timing: false
-                  end
-                  sh.cmd "cat $HOME/curl_headers"
-                end
-
-                sh.if "-f #{BIN_PATH}" do
-                  sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
-                  sh.cmd "rvm #{USE_RUBY} --fuzzy do #{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
-                end
+              sh.if "-f #{BIN_PATH}" do
+                sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
+                sh.cmd "rvm #{USE_RUBY} --fuzzy do #{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
               end
             end
 

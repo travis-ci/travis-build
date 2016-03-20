@@ -15,20 +15,6 @@ module Travis
               'storage.googleapis.com'
             end
           end
-
-          def fetch
-            # for AWS V2 compat services, we need to pass authentication
-            # information via HTTP headers
-            # we accomplish this with the help of a cURL configuration
-            # file, which will be written for *each* URL we attempt to fetch
-            fetch_urls.each do |url|
-              signer = signature('GET', URI(url).path, {})
-              run('fetch', Shellwords.escape(url).to_s, timing: true)
-              sh.raw "[ $? -eq 0 ] && cache_found=true"
-            end
-
-            sh.raw 'unset cache_found'
-          end
         end
       end
     end
