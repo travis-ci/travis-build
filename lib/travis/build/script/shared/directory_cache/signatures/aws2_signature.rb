@@ -15,8 +15,6 @@ module Travis
 
             attr_reader :verb, :key_pair, :location, :expires
 
-            WRITE_CURL_HEADER_FILE = false
-
             def initialize(key_pair, verb, location, expires, timestamp=Time.now, ext_headers={})
               @key_pair = key_pair
               @verb = verb.upcase
