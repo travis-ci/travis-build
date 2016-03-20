@@ -13,14 +13,15 @@ module Travis
         class Signatures
           class AWS2Signature
 
-            attr_reader :verb, :key_pair, :location, :expires
+            attr_reader :verb, :key_pair, :location, :expires, :access_id_param
 
-            def initialize(key_pair, verb, location, expires, timestamp=Time.now, ext_headers={})
-              @key_pair = key_pair
-              @verb = verb.upcase
+            def initialize(key:, http_verb:, location:, expires:, access_id_param: 'AWSAccessKeyId', timestamp: Time.now, ext_headers: {})
+              @key_pair = key
+              @verb = http_verb.upcase
               @location = location
               @expires = expires
               @timestamp = timestamp
+              @access_id_param = access_id_param
             end
 
             def to_uri
@@ -96,7 +97,7 @@ module Travis
 
             def query_params
               {
-                'GoogleAccessId' => key_pair.id,
+                access_id_param => key_pair.id,
                 'Expires' => expires,
                 'Signature' => sign
               }

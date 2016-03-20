@@ -208,7 +208,7 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
       # See http://docs.aws.amazon.com/AmazonS3/latest/dev/RESTAuthentication.html#RESTAuthenticationQueryStringAuth
       key_pair = described_class::KeyPair.new('AKIAIOSFODNN7EXAMPLE', 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY')
       location = described_class::Location.new('https', 'us-east-1', 'johnsmith', '/photos/puppy.jpg')
-      signature = Travis::Build::Script::DirectoryCache::Signatures::AWS2Signature.new(key_pair, 'GET', location, 1175139620, Time.gm(2007, 3, 26, 19, 37, 58))
+      signature = Travis::Build::Script::DirectoryCache::Signatures::AWS2Signature.new(key: key_pair, http_verb: 'GET', location: location, expires: 1175139620, timestamp: Time.gm(2007, 3, 26, 19, 37, 58))
 
       expect(signature.sign).to eq('NpgCjnDzrM+WFzoENXmpNDUsSn8=')
     end

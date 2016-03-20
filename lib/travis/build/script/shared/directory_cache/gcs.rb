@@ -10,6 +10,8 @@ module Travis
     class Script
       module DirectoryCache
         class Gcs < Base
+          ACCESS_ID_PARAM_NAME = 'GooglAccessId'
+
           def host_proc
             Proc.new do |region|
               'storage.googleapis.com'

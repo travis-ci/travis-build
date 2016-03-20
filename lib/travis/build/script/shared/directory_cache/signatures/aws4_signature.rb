@@ -9,9 +9,9 @@ module Travis
       module DirectoryCache
         class Signatures
           class AWS4Signature
-            def initialize(key_pair, verb, location, expires, timestamp=Time.now)
-              @key_pair = key_pair
-              @verb = verb
+            def initialize(key:, http_verb:, location:, expires:, timestamp: Time.now)
+              @key_pair = key
+              @verb = http_verb
               @location = location
               @expires = expires
               @timestamp = timestamp
