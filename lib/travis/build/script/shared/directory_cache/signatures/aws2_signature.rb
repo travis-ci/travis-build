@@ -42,15 +42,6 @@ module Travis
               )
             end
 
-            def request_headers
-              headers = []
-              if content_type
-                headers << "Content-Type: #{content_type}"
-              end
-              headers << "Date: #{Time.at(expires).httpdate}"
-              headers << "Authorization: AWS #{key_pair.id}:#{sign}"
-            end
-
             private
 
             def timestamp
@@ -101,12 +92,6 @@ module Travis
                 'Expires' => expires,
                 'Signature' => sign
               }
-            end
-
-            def content_type
-              if verb == 'PUT'
-                MIME::Types.type_for(@location.path.split('.').last).first.to_s
-              end
             end
           end
         end
