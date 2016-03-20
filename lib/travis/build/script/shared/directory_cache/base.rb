@@ -231,11 +231,6 @@ module Travis
             def debug_flags
               "-v -w '#{CURL_FORMAT}'" if data.cache[:debug]
             end
-
-            def write_curl_header_file
-              # data_store_options.fetch(:aws_signature_version, DEFAULT_AWS_SIGNATURE_VERSION).to_s == '2'
-              false
-            end
         end
       end
     end
