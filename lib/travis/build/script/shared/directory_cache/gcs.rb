@@ -10,7 +10,7 @@ module Travis
     class Script
       module DirectoryCache
         class Gcs < Base
-          ACCESS_ID_PARAM_NAME = 'GooglAccessId'
+          ACCESS_ID_PARAM_NAME = 'GoogleAccessId'
 
           def host_proc
             Proc.new do |region|
