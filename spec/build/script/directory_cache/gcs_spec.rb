@@ -24,7 +24,7 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
   let(:url_tgz)       { signed_url_for(branch, fetch_signature_tgz, 'tgz') }
   let(:fetch_url)     { url }
   let(:fetch_url_tgz) { url_tgz }
-  let(:push_url)      { signed_url_for(branch.tap {|x| puts "foo: #{x}"}, push_signature, 'tgz', timeout) }
+  let(:push_url)      { signed_url_for(branch, push_signature, 'tgz', timeout) }
 
   let(:gcs_options)   { { bucket: 's3_bucket', secret_access_key: 'google_secret_access_key', access_key_id: 'google_access_key_id', aws_signature_version: '2' } }
   let(:cache_options) { { fetch_timeout: 20, push_timeout: 30, type: 'gcs', gcs: gcs_options } }

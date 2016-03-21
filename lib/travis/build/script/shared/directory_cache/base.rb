@@ -136,7 +136,7 @@ module Travis
           end
 
           def push
-            run('push', Shellwords.escape(push_url.to_s.tap {|url| puts "push_url: #{url}"}), assert: false, timing: true)
+            run('push', Shellwords.escape(push_url.to_s), assert: false, timing: true)
           end
 
           def fetch_url(branch = group, ext = '.tbz')
