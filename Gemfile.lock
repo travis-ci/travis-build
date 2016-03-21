@@ -46,7 +46,6 @@ GEM
       atomic (~> 1.0)
       avl_tree (~> 1.1.2)
       hitimes (~> 1.1)
-    mime-types (1.25.1)
     minitest (5.8.2)
     mocha (0.10.5)
       metaclass (~> 0.0.1)
@@ -117,7 +116,6 @@ DEPENDENCIES
   jemalloc
   metriks (= 0.9.9.6)
   metriks-librato_metrics!
-  mime-types
   mocha (~> 0.10.0)
   pry
   puma

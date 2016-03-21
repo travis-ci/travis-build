@@ -13,7 +13,6 @@ gem 'rack-ssl', '~> 1.4'
 gem 'sentry-raven'
 gem 'sinatra', '~> 1.4'
 gem 'travis-support', github: 'travis-ci/travis-support'
-gem 'mime-types'
 
 group :development do
   gem 'rerun'

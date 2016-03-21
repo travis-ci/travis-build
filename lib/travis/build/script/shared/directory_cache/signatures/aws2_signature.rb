@@ -4,7 +4,6 @@ require 'digest/sha1'
 require 'openssl'
 require 'base64'
 require 'time'
-require 'mime-types'
 
 module Travis
   module Build
