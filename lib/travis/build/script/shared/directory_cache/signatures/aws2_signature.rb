@@ -43,12 +43,6 @@ module Travis
 
             private
 
-            def timestamp
-              # to correspond with the time format shown in
-              # http://docs.aws.amazon.com/AmazonS3/latest/dev/RESTAuthentication.html#RESTAuthenticationExamples
-              @timestamp.utc.strftime('%a, %e %b %Y %H:%M:%S %z')
-            end
-
             def canonical_headers(verb, date)
               [
                 verb,
