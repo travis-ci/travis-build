@@ -33,21 +33,23 @@ module Travis
           sh.echo 'and mention \`@tkelman\`, \`@ninjin\` and ' \
             '\`@staticfloat\` in the issue', ansi: :green
 
-          sh.echo 'Installing Julia', ansi: :yellow
-          case config[:os]
-          when 'linux'
-            sh.cmd 'mkdir -p ~/julia'
-            sh.cmd %Q{curl -s -L --retry 7 '#{julia_url}' } \
-              '| tar -C ~/julia -x -z --strip-components=1 -f -'
-          when 'osx'
-            sh.cmd %Q{curl -s -L -o julia.dmg '#{julia_url}'}
-            sh.cmd 'mkdir juliamnt'
-            sh.cmd 'hdiutil mount -readonly -mountpoint juliamnt julia.dmg'
-            sh.cmd 'cp -a juliamnt/*.app/Contents/Resources/julia ~/'
-          else
-            sh.failure "Operating system not supported: #{config[:os]}"
+          sh.fold 'Julia-install' do
+            sh.echo 'Installing Julia', ansi: :yellow
+            case config[:os]
+            when 'linux'
+              sh.cmd 'mkdir -p ~/julia'
+              sh.cmd %Q{curl -s -L --retry 7 '#{julia_url}' } \
+                       '| tar -C ~/julia -x -z --strip-components=1 -f -'
+            when 'osx'
+              sh.cmd %Q{curl -s -L -o julia.dmg '#{julia_url}'}
+              sh.cmd 'mkdir juliamnt'
+              sh.cmd 'hdiutil mount -readonly -mountpoint juliamnt julia.dmg'
+              sh.cmd 'cp -a juliamnt/*.app/Contents/Resources/julia ~/'
+            else
+              sh.failure "Operating system not supported: #{config[:os]}"
+            end
+            sh.cmd 'export PATH="${PATH}:${HOME}/julia/bin"'
           end
-          sh.cmd 'export PATH="${PATH}:${HOME}/julia/bin"'
         end
 
         def announce
