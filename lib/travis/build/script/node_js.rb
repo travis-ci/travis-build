@@ -18,7 +18,6 @@ module Travis
           convert_legacy_nodejs_config
           update_nvm
           nvm_install
-          npm_disable_prefix
           npm_disable_spinner
           npm_disable_strict_ssl unless npm_strict_ssl?
           setup_npm_cache if use_npm_cache?
@@ -115,12 +114,6 @@ module Travis
             sh.raw "mkdir -p $HOME/.nvm"
             sh.raw "cat > #{nvm_sh_location} <<-'NVM_EOF'\n#{File.read(File.expand_path('../../templates/nvm.sh', __FILE__)).untaint}\nNVM_EOF"
             sh.cmd "source #{nvm_sh_location}", assert: false
-          end
-
-          def npm_disable_prefix
-            sh.if "$(command -v sw_vers)" do
-              sh.cmd "npm config delete prefix"
-            end
           end
 
           def npm_disable_spinner
