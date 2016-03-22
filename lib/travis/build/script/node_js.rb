@@ -112,7 +112,7 @@ module Travis
             nvm_sh_location = "$HOME/.nvm/nvm.sh"
             sh.cmd "echo 'Updating nvm to v#{NVM_VERSION}'", assert: false, ansi: :yellow, timing: false
             sh.raw "mkdir -p $HOME/.nvm"
-            sh.raw "cat > #{nvm_sh_location} <<-'NVM_EOF'\n#{File.read(File.expand_path('../../templates/nvm.sh', __FILE__))}\nNVM_EOF"
+            sh.raw "cat > #{nvm_sh_location} <<-'NVM_EOF'\n#{File.read(File.expand_path('../../templates/nvm.sh', __FILE__)).untaint}\nNVM_EOF"
             sh.cmd "source #{nvm_sh_location}", assert: false
           end
 
