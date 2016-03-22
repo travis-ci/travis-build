@@ -4,6 +4,8 @@ module Travis
       class NodeJs < Script
         DEFAULT_VERSION = '0.10'
 
+        NVM_VERSION     = '0.31.0'
+
         def export
           super
           if node_js_given_in_config?
@@ -14,6 +16,7 @@ module Travis
         def setup
           super
           convert_legacy_nodejs_config
+          update_nvm
           nvm_install
           npm_disable_spinner
           npm_disable_strict_ssl unless npm_strict_ssl?
@@ -103,6 +106,14 @@ module Travis
               sh.cmd "nvm use #{ver}"
             end
             sh.export 'TRAVIS_NODE_VERSION', ver, echo: false
+          end
+
+          def update_nvm
+            nvm_sh_location = "$HOME/.nvm/nvm.sh"
+            sh.cmd "echo 'Updating nvm to v#{NVM_VERSION}'", assert: false, ansi: :yellow, timing: false
+            sh.raw "mkdir -p $HOME/.nvm"
+            sh.raw "cat > #{nvm_sh_location} <<-'NVM_EOF'\n#{File.read(File.expand_path('../../templates/nvm.sh', __FILE__)).untaint}\nNVM_EOF"
+            sh.cmd "source #{nvm_sh_location}", assert: false
           end
 
           def npm_disable_spinner
