@@ -109,8 +109,9 @@ module Travis
           end
 
           def update_nvm
-            nvm_sh_location = "~/.nvm/nvm.sh"
+            nvm_sh_location = "$HOME/.nvm/nvm.sh"
             sh.cmd "echo 'Updating nvm to v#{NVM_VERSION}'", assert: false, ansi: :yellow, timing: false
+            sh.raw "mkdir -p $HOME/.nvm"
             sh.cmd "curl -s -o #{nvm_sh_location} https://raw.githubusercontent.com/creationix/nvm/v#{NVM_VERSION}/nvm.sh", echo: true, assert: false
             sh.cmd "source #{nvm_sh_location}", assert: false
           end
