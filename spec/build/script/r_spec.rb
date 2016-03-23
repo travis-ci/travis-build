@@ -7,6 +7,22 @@ describe Travis::Build::Script::R, :sexp do
 
   it_behaves_like 'a build script sexp'
 
+  it 'normalizes bioc-devel correctly' do
+    data[:config][:r] = 'bioc-devel'
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.3.0']]
+    should include_sexp [:cmd, %r{source\(\"https://bioconductor.org/biocLite.R\"\)},
+                         assert: true, echo: true, timing: true, retry: true]
+    should include_sexp [:cmd, %r{useDevel\(TRUE\)},
+                         assert: true, echo: true, timing: true, retry: true]
+  end
+
+  it 'normalizes bioc-release correctly' do
+    data[:config][:r] = 'bioc-release'
+    should include_sexp [:cmd, %r{source\(\"https://bioconductor.org/biocLite.R\"\)},
+                         assert: true, echo: true, timing: true, retry: true]
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.2.4']]
+  end
+
   it 'exports TRAVIS_R_VERSION' do
     data[:config][:R] = '3.2.4'
     should include_sexp [:export, ['TRAVIS_R_VERSION', '3.2.4']]

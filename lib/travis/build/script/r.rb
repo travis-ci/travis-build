@@ -468,6 +468,15 @@ module Travis
           when 'oldrel' then '3.1.3'
           when '3.1' then '3.1.3'
           when '3.2' then '3.2.4'
+          when 'bioc-devel'
+            config[:bioc_required] = true
+            config[:bioc_use_devel] = true
+            '3.3.0'
+          when 'bioc-release'
+            config[:bioc_required] = true
+            config[:bioc_use_devel] = false
+            config[:r] = 'release'
+            normalized_r_version
           else v
           end
         end
