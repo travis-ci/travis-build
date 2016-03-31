@@ -7,13 +7,29 @@ describe Travis::Build::Script::R, :sexp do
 
   it_behaves_like 'a build script sexp'
 
+  it 'normalizes bioc-devel correctly' do
+    data[:config][:r] = 'bioc-devel'
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.3.0']]
+    should include_sexp [:cmd, %r{source\(\"https://bioconductor.org/biocLite.R\"\)},
+                         assert: true, echo: true, timing: true, retry: true]
+    should include_sexp [:cmd, %r{useDevel\(TRUE\)},
+                         assert: true, echo: true, timing: true, retry: true]
+  end
+
+  it 'normalizes bioc-release correctly' do
+    data[:config][:r] = 'bioc-release'
+    should include_sexp [:cmd, %r{source\(\"https://bioconductor.org/biocLite.R\"\)},
+                         assert: true, echo: true, timing: true, retry: true]
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.2.4']]
+  end
+
   it 'exports TRAVIS_R_VERSION' do
-    data[:config][:R] = '3.2.3'
-    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.2.3']]
+    data[:config][:R] = '3.2.4'
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.2.4']]
   end
 
   it 'downloads and installs R' do
-    should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-3.2.3.xz},
+    should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-3.2.4.xz},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
@@ -25,7 +41,7 @@ describe Travis::Build::Script::R, :sexp do
 
   it 'downloads and installs R 3.2' do
     data[:config][:r] = '3.2'
-    should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-3.2.3.xz},
+    should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-3.2.4.xz},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
@@ -114,16 +130,16 @@ describe Travis::Build::Script::R, :sexp do
   describe '#cache_slug' do
     subject { described_class.new(data).cache_slug }
     it {
-      data[:config][:r] = '3.2.3'
-      should eq('cache--R-3.2.3')
+      data[:config][:r] = '3.2.4'
+      should eq('cache--R-3.2.4')
     }
     it {
       data[:config][:r] = '3.2'
-      should eq('cache--R-3.2.3')
+      should eq('cache--R-3.2.4')
     }
     it {
       data[:config][:r] = 'release'
-      should eq('cache--R-3.2.3')
+      should eq('cache--R-3.2.4')
     }
     it {
       data[:config][:r] = '3.1'
