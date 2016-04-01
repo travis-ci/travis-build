@@ -16,7 +16,7 @@ module Travis
         def setup
           super
           convert_legacy_nodejs_config
-          update_nvm if data[:job][:id] == 35896631
+          update_nvm
           nvm_install
           npm_disable_prefix
           npm_disable_spinner

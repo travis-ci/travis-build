@@ -74,7 +74,7 @@ module Travis
 
       def sexp
         run
-        sh.to_sexp.tap { |sh| puts "script:\n#{sh}" if data[:job][:id] == 35896631 }
+        sh.to_sexp
       end
 
       def cache_slug
