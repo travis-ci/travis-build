@@ -132,7 +132,7 @@ module Travis
               urls << fetch_url('master')
             end
 
-            urls.each {|url| puts "fetch_url: #{url}"}
+            urls
           end
 
           def push
