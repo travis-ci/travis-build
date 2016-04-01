@@ -111,10 +111,10 @@ module Travis
 
           def update_nvm
             nvm_sh_location = "$HOME/.nvm/nvm.sh"
-            sh.cmd "echo 'Updating nvm to v#{NVM_VERSION}'", assert: false, ansi: :yellow, timing: false
+            sh.echo "Updating nvm to v#{NVM_VERSION}", ansi: :yellow, timing: false
             sh.raw "mkdir -p $HOME/.nvm"
-            sh.cmd "curl -s -o #{nvm_sh_location} https://build-staging.travis-ci.org/files/nvm.sh", assert: false
-            sh.cmd "source #{nvm_sh_location}", assert: false
+            sh.raw "curl -s -o #{nvm_sh_location} https://build-staging.travis-ci.org/files/nvm.sh", assert: false
+            sh.raw "source #{nvm_sh_location}", assert: false
           end
 
           def npm_disable_prefix
