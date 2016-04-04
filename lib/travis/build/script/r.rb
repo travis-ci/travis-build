@@ -265,6 +265,7 @@ module Travis
         end
 
         def packages_as_arg(packages)
+          packages = Array(packages)
           quoted_pkgs = packages.collect{|p| "\"#{p}\""}
           "c(#{quoted_pkgs.join(', ')})"
         end
@@ -275,6 +276,7 @@ module Travis
 
         def r_install(packages)
           return if packages.empty?
+          packages = Array(packages)
           sh.echo "Installing R packages: #{packages.join(', ')}"
           pkg_arg = packages_as_arg(packages)
           install_script =
@@ -287,6 +289,7 @@ module Travis
 
         def r_github_install(packages)
           return if packages.empty?
+          packages = Array(packages)
           setup_devtools
           sh.echo "Installing R packages from GitHub: #{packages.join(', ')}"
           pkg_arg = packages_as_arg(packages)
@@ -296,6 +299,7 @@ module Travis
 
         def r_binary_install(packages)
           return if packages.empty?
+          packages = Array(packages)
           if config[:os] == 'linux'
             unless config[:sudo]
               sh.echo "R binary packages not supported with 'sudo: false', "\
@@ -313,6 +317,7 @@ module Travis
 
         def apt_install(packages)
           return if packages.empty?
+          packages = Array(packages)
           return unless (config[:os] == 'linux')
           pkg_arg = packages.join(' ')
           sh.echo "Installing apt packages: #{packages.join(', ')}"
@@ -321,6 +326,7 @@ module Travis
 
         def brew_install(packages)
           return if packages.empty?
+          packages = Array(packages)
           return unless (config[:os] == 'osx')
           pkg_arg = packages.join(' ')
           sh.echo "Installing brew packages: #{packages.join(', ')}"
