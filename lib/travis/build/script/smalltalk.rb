@@ -45,8 +45,8 @@ module Travis
 
         def export
           super
-
           sh.export 'TRAVIS_SMALLTALK_VERSION', smalltalk_version, echo: false
+          sh.export 'TRAVIS_SMALLTALK_CONFIG', travis_smalltalk_config, echo: false
         end
 
         def setup
@@ -78,6 +78,10 @@ module Travis
 
           def smalltalk_version
             config[:smalltalk].to_s
+          end
+          
+          def travis_smalltalk_config
+            config[:smalltalk_config].to_s
           end
 
           def is_squeak?
