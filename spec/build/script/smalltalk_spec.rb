@@ -90,9 +90,7 @@ describe Travis::Build::Script::Smalltalk, :sexp do
     end
 
     it 'does not try to call apt-get' do
-      should_not include_sexp [:cmd, "sudo apt-get install -y --no-install-recommends " +
-                     "libpam0g:i386 libssl1.0.0:i386 gcc-multilib libstdc++6:i386 " +
-                     "libfreetype6:i386 pstack libgl1-mesa-glx:i386 libxcb-dri2-0:i386", retry: true]
+      should_not include_sexp [:cmd, "apt-get", retry: true]
     end
   end
 
