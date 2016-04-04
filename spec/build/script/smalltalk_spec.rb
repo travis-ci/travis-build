@@ -106,4 +106,14 @@ describe Travis::Build::Script::Smalltalk, :sexp do
     end
   end
 
+  describe 'set smalltalk config' do
+    before do
+      data[:config][:smalltalk_config] = 'mySuperTest.ston'
+    end
+
+    it 'sets TRAVIS_SMALLTALK_CONFIG' do
+      should include_sexp [:export, ['TRAVIS_SMALLTALK_CONFIG', 'mySuperTest.ston']]
+    end
+  end
+
 end
