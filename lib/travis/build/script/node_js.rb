@@ -4,6 +4,8 @@ module Travis
       class NodeJs < Script
         DEFAULT_VERSION = '0.10'
 
+        NVM_VERSION     = '0.31.0' # to coincide with ../files/nvm.sh version
+
         def export
           super
           if node_js_given_in_config?
@@ -14,7 +16,9 @@ module Travis
         def setup
           super
           convert_legacy_nodejs_config
+          update_nvm
           nvm_install
+          npm_disable_prefix
           npm_disable_spinner
           npm_disable_strict_ssl unless npm_strict_ssl?
           setup_npm_cache if use_npm_cache?
@@ -103,6 +107,24 @@ module Travis
               sh.cmd "nvm use #{ver}"
             end
             sh.export 'TRAVIS_NODE_VERSION', ver, echo: false
+          end
+
+          def update_nvm
+            return unless ENV['TRAVIS_BUILD_APP_HOST']
+            sh.raw "function vers() {\n  printf \"%03d%03d%03d%03d\" $(echo \"$1\" | tr '.' ' ')\n}"
+            nvm_sh_location = "$HOME/.nvm/nvm.sh"
+            sh.if "$(vers `nvm --version`) -lt $(vers #{NVM_VERSION})" do
+              sh.echo "Updating nvm to v#{NVM_VERSION}", ansi: :yellow, timing: false
+              sh.raw "mkdir -p $HOME/.nvm"
+              sh.raw "curl -s -o #{nvm_sh_location} https://#{ENV['TRAVIS_BUILD_APP_HOST']}/files/nvm.sh".untaint, assert: false
+              sh.raw "source #{nvm_sh_location}", assert: false
+            end
+          end
+
+          def npm_disable_prefix
+            sh.if "$(command -v sw_vers)" do
+              sh.cmd "npm config delete prefix"
+            end
           end
 
           def npm_disable_spinner
