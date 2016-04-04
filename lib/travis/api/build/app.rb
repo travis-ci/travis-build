@@ -62,6 +62,16 @@ module Travis
         get '/uptime' do
           status 204
         end
+
+        get %r{/files/([\w\.]+)} do |file|
+          file_path = File.expand_path("../../files/#{file}", __FILE__)
+          if File.exist? file_path
+            content_type :txt
+            File.read(file_path)
+          else
+            status 404
+          end
+        end
       end
     end
   end
