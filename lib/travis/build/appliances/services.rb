@@ -10,7 +10,8 @@ module Travis
           'memcache'     => 'memcached',
           'neo4j-server' => 'neo4j',
           'rabbitmq'     => 'rabbitmq-server',
-          'redis'        => 'redis-server'
+          'redis'        => 'redis-server',
+          'beanstalkd'   => 'beanstalkd',
         }
 
         def apply
