@@ -134,7 +134,7 @@ module Travis
               sh.cmd "sudo /bin/su -c \"echo 'kernel.shmmax=$SMALLTALK_CI_SHMMAX_NEW' >> #{SYSCTL_FILE}\""
             end
 
-            sh.cmd 'SMALLTALK_CI_SHMALL_NEW=$(($SMALLTALK_CI_SHMMAX / 4096))'
+            sh.cmd 'SMALLTALK_CI_SHMALL_NEW=$(($SMALLTALK_CI_SHMMAX_NEW / 4096))'
             sh.if '$SMALLTALK_CI_SHMALL_NEW -gt $SMALLTALK_CI_SHMALL' do
               sh.cmd 'sudo bash -c "echo $SMALLTALK_CI_SHMALL_NEW > /proc/sys/kernel/shmall"'
             end
@@ -163,7 +163,7 @@ module Travis
               sh.cmd 'sudo sysctl -w kern.sysv.shmmax=$SMALLTALK_CI_SHMMAX_NEW'
             end
 
-            sh.cmd 'SMALLTALK_CI_SHMALL_NEW=$(($SMALLTALK_CI_SHMMAX / 4096))'
+            sh.cmd 'SMALLTALK_CI_SHMALL_NEW=$(($SMALLTALK_CI_SHMMAX_NEW / 4096))'
             sh.if '$SMALLTALK_CI_SHMALL_NEW -gt $SMALLTALK_CI_SHMALL' do
               sh.cmd 'sudo sysctl -w kern.sysv.shmall=$SMALLTALK_CI_SHMALL_NEW'
             end
