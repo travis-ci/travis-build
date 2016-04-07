@@ -48,7 +48,11 @@ module Travis
 
           sh.fold 'dart_install' do
             sh.echo 'Installing Dart', ansi: :yellow
-            sh.cmd "curl #{archive_url}/sdk/dartsdk-linux-x64-release.zip > $HOME/dartsdk.zip"
+            os = case config[:os]
+            when 'linux' then 'linux-x64'
+            when 'osx' then 'macos-x64'
+            end
+            sh.cmd "curl #{archive_url}/sdk/dartsdk-#{os}-release.zip > $HOME/dartsdk.zip"
             sh.cmd "unzip $HOME/dartsdk.zip -d $HOME > /dev/null"
             sh.cmd "rm $HOME/dartsdk.zip"
             sh.cmd 'export DART_SDK="$HOME/dart-sdk"'
@@ -57,6 +61,9 @@ module Travis
           end
 
           if with_content_shell
+            if config[:os] != 'linux'
+              sh.failure 'Content shell only supported on Linux'
+            end
             sh.fold 'content_shell_install' do
               sh.echo 'Installing Content Shell', ansi: :yellow
 
