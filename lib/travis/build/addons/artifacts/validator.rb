@@ -8,7 +8,7 @@ module Travis
             branch_disabled: 'Artifacts support disabled: the current branch is not enabled as per configuration (%s)'
           }
 
-          attr_reader :data, :config, :errors
+          attr_reader :data, :errors
 
           def initialize(data, config)
             @data = data
@@ -61,6 +61,15 @@ module Travis
               msg = MSGS[type]
               msg = msg % data if data
               errors << msg
+            end
+
+            def config
+              # @config is assigned a hash with Symbols as keys,
+              # but when we access it via attr_reader, the keys are
+              # somehow strings.
+              # This causes validator to be ineffctive.
+              # See https://github.com/travis-ci/artifacts/issues/70
+              @config.deep_symbolize_keys
             end
         end
       end
