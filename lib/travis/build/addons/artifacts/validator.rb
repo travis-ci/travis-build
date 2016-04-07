@@ -24,9 +24,8 @@ module Travis
           private
 
             def validate
-              [:push_request, :branch].each do |name|
-                send(:"validate_#{name}")
-              end
+              validate_push_request
+              validate_branch
             end
 
             def validate_push_request
