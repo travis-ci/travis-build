@@ -1,21 +1,20 @@
 require 'shellwords'
 
 require 'travis/build/script/shared/directory_cache/base'
-require 'travis/build/script/shared/directory_cache/signatures/aws4_signature'
+require 'travis/build/script/shared/directory_cache/signatures/aws2_signature'
+
+require 'uri'
 
 module Travis
   module Build
     class Script
       module DirectoryCache
-        class S3 < Base
+        class Gcs < Base
+          ACCESS_ID_PARAM_NAME = 'GoogleAccessId'
+
           def host_proc
             Proc.new do |region|
-              case region
-              when 'us-east-1'
-                's3.amazonaws.com'
-              else
-                "s3-#{region}.amazonaws.com"
-              end
+              'storage.googleapis.com'
             end
           end
         end
