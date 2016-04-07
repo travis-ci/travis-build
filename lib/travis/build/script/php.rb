@@ -27,6 +27,7 @@ module Travis
           end
           sh.cmd "phpenv global #{version}", assert: true
           sh.cmd "phpenv rehash", assert: false, echo: false, timing: false
+          composer_self_update
         end
 
         def announce
@@ -134,6 +135,10 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
 
         def setup_alias(from, to)
           sh.cmd "ln -s ~/.phpenv/versions/#{to} ~/.phpenv/versions/#{from}", echo: false
+        end
+
+        def composer_self_update
+          sh.cmd "composer self-update", assert: false unless version =~ /^5\.2/
         end
       end
     end
