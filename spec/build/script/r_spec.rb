@@ -23,6 +23,18 @@ describe Travis::Build::Script::R, :sexp do
     should include_sexp [:export, ['TRAVIS_R_VERSION', '3.2.4']]
   end
 
+  it 'r_packages works with a single package set' do
+    data[:config][:r_packages] = 'test'
+    should include_sexp [:cmd, %r{install\.packages\(c\(\"test\"\)\)},
+                         assert: true, echo: true, timing: true]
+  end
+
+  it 'r_packages works with multiple packages set' do
+    data[:config][:r_packages] = ['test', 'test2']
+    should include_sexp [:cmd, %r{install\.packages\(c\(\"test\", \"test2\"\)\)},
+                         assert: true, echo: true, timing: true]
+  end
+
   it 'exports TRAVIS_R_VERSION' do
     data[:config][:R] = '3.2.4'
     should include_sexp [:export, ['TRAVIS_R_VERSION', '3.2.4']]
