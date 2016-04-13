@@ -60,7 +60,7 @@ module Travis
           sh.cmd "pushd $HOME > /dev/null", echo: false
           sh.fold 'download_smalltalkci' do
             sh.echo 'Downloading and extracting smalltalkCI', ansi: :yellow
-            sh.cmd "wget -q -O smalltalkCI.zip https://github.com/hpi-swa/smalltalkCI/archive/master.zip"
+            sh.cmd "wget -q -O smalltalkCI.zip https://github.com/" + smalltalk_ci_repo + "/archive/" + smalltalk_ci_branch + ".zip"
             sh.cmd "unzip -q -o smalltalkCI.zip"
             sh.cmd "pushd smalltalkCI-* > /dev/null", echo: false
             sh.cmd "source env_vars"
@@ -75,6 +75,22 @@ module Travis
         end
 
         private
+
+          def smalltalk_ci_repo
+            if config.key?(:smalltalk_edge) and config[:smalltalk_edge].key?(:source)
+              return config[:smalltalk_edge][:source]
+            else
+              return "hpi-swa/smalltalkCI"
+            end
+          end
+
+          def smalltalk_ci_branch
+            if config.key?(:smalltalk_edge) and config[:smalltalk_edge].key?(:branch)
+              return config[:smalltalk_edge][:branch]
+            else
+              return "master"
+            end
+          end
 
           def smalltalk_version
             config[:smalltalk].to_s

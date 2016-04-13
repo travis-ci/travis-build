@@ -20,6 +20,17 @@ describe Travis::Build::Script::Smalltalk, :sexp do
     should include_sexp [:cmd, "popd > /dev/null; popd > /dev/null", assert: true, timing: true]
   end
 
+  describe 'using edge versions' do
+    before do
+      data[:config][:smalltalk_edge] = Hash.new
+      data[:config][:smalltalk_edge][:source] = 'HPI-BP2015H/smalltalkCI'
+      data[:config][:smalltalk_edge][:branch] = 'dev'
+    end
+    it 'installs the correct script' do
+      should include_sexp [:cmd, "wget -q -O smalltalkCI.zip https://github.com/HPI-BP2015H/smalltalkCI/archive/dev.zip", assert: true, echo: true, timing: true]
+    end
+  end
+
   describe 'Squeak on Linux' do
     before do
       data[:config][:smalltalk] = 'Squeak-5.0'
