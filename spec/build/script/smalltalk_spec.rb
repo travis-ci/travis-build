@@ -22,7 +22,7 @@ describe Travis::Build::Script::Smalltalk, :sexp do
 
   describe 'using edge versions' do
     before do
-      data[:config][:smalltalk_edge] = Hash.new
+      data[:config][:smalltalk_edge] = {}
       data[:config][:smalltalk_edge][:source] = 'HPI-BP2015H/smalltalkCI'
       data[:config][:smalltalk_edge][:branch] = 'dev'
     end
