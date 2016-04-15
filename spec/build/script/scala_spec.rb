@@ -33,7 +33,7 @@ describe Travis::Build::Script::Scala, :sexp do
     let(:sexp) { sexp_find(subject, [:if, '-d project || -f build.sbt']) }
 
     it "updates SBT" do
-      should include_sexp [:cmd, "sudo curl -sS -o #{sbt_path} #{sbt_url}"]
+      should include_sexp [:cmd, "sudo curl -sS -o sbt.tmp #{sbt_url}"]
     end
 
     it 'sets JVM_OPTS' do
