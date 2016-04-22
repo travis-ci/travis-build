@@ -470,10 +470,10 @@ module Travis
         def normalized_r_version
           v = config[:r].to_s
           case v
-          when 'release' then '3.2.4'
+          when 'release' then '3.2.5'
           when 'oldrel' then '3.1.3'
           when '3.1' then '3.1.3'
-          when '3.2' then '3.2.4'
+          when '3.2' then '3.2.5'
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true
