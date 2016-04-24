@@ -120,15 +120,12 @@ module Travis
 
           def fetch_urls
             urls = [
-              fetch_url(group, '.tgz'),
               fetch_url
             ]
             if data.pull_request
-              urls << fetch_url(data.branch, '.tgz')
               urls << fetch_url(data.branch)
             end
             if data.branch != 'master'
-              urls << fetch_url('master', '.tgz')
               urls << fetch_url('master')
             end
 
@@ -139,12 +136,12 @@ module Travis
             run('push', Shellwords.escape(push_url.to_s), assert: false, timing: true)
           end
 
-          def fetch_url(branch = group, ext = '.tbz')
-            url('GET', prefixed(branch, ext), expires: fetch_timeout)
+          def fetch_url(branch = group)
+            url('GET', prefixed(branch), expires: fetch_timeout)
           end
 
           def push_url(branch = group)
-            url('PUT', prefixed(branch, '.tgz'), expires: push_timeout)
+            url('PUT', prefixed(branch), expires: push_timeout)
           end
 
           def fold(message = nil)
@@ -202,10 +199,10 @@ module Travis
               )
             end
 
-            def prefixed(branch, ext = '.tgz')
+            def prefixed(branch)
               args = [data.github_id, branch, slug].compact
               args.map! { |arg| arg.to_s.gsub(/[^\w\.\_\-]+/, '') }
-              '/' << args.join('/') << ext
+              ('/' << args.join('/') << '.tgz')
             end
 
             def url(verb, path, options = {})
