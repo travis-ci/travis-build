@@ -64,6 +64,12 @@ The command can be invoked in 3 ways:
 The resultant script can be used on a (virtual) machine that closely mimics Travis CI's build
 environment to aid you in debugging the build failures.
 
+## Raw CLI script
+
+In addition to the travis CLI plugin you can also run the standalone CLI script:
+
+    bundle exec script/compile < payload.json > build.sh
+
 ## License & copyright information
 
 See LICENSE file.
