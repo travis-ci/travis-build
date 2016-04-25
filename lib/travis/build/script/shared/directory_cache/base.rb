@@ -203,10 +203,11 @@ module Travis
             end
 
             def prefixed(branch, extras = false)
+              slug_local = slug.dup
               if ! extras
-                slug.gsub!(/^cache(.*)--/,'cache--')
+                slug_local = slug.gsub(/^cache(.*)--/,'cache--')
               end
-              args = [data.github_id, branch, slug].compact
+              args = [data.github_id, branch, slug_local].compact
               args.map! { |arg| arg.to_s.gsub(/[^\w\.\_\-]+/, '') }
               '/' << args.join('/') << '.tgz'
             end
