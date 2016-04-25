@@ -20,7 +20,6 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
 
   let(:url)           { url_for(branch) }
   let(:url_tgz)       { url_for(branch, 'tgz') }
-  let(:fetch_url)     { Shellwords.escape "#{url}&X-Amz-Expires=20&X-Amz-Signature=#{fetch_signature}&X-Amz-SignedHeaders=host" }
   let(:fetch_url_tgz) { Shellwords.escape "#{url_tgz}&X-Amz-Expires=20&X-Amz-Signature=#{fetch_signature_tgz}&X-Amz-SignedHeaders=host" }
   let(:push_url)      { Shellwords.escape("#{url}&X-Amz-Expires=30&X-Amz-Signature=#{push_signature}&X-Amz-SignedHeaders=host").gsub(/\.tbz(\?)?/, '.tgz\1') }
 
@@ -82,7 +81,7 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
 
   describe 'fetch' do
     before { cache.fetch }
-    it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fetch_url}", timing: true] }
+    it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz}", timing: true] }
   end
 
   describe 'add' do
@@ -115,12 +114,11 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
     let(:fetch_signature) { 'cbce59b97e29ba90e1810a9cbedc1d5cd76df8235064c0016a53dea232124d60' }
     let(:fetch_signature_tgz) { 'f0842c7f68c3b518502a336c5e55cfa368c90f72a06e2b58889cfd844380310b' }
     let(:push_signature)  { '3642ae12b63114366d42c964e221b7e9dcf736286a6fde1fd93be3fa21acb324' }
-    let(:fallback_url)    { signed_url_for('master', master_fetch_signature) }
     let(:fallback_url_tgz)    { signed_url_for('master', master_fetch_signature_tgz, 'tgz') }
 
     describe 'fetch' do
       before { cache.fetch }
-      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fetch_url} #{fallback_url_tgz} #{fallback_url}", timing: true] }
+      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fallback_url_tgz}", timing: true] }
     end
 
     describe 'add' do
@@ -141,12 +139,11 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
     let(:push_signature)  { '4aa0c287dca37b5c7f9d14e84be0680c4151c8230b2d0c6e8299d031d4bebd29' }
     let(:url)             { url_for("PR.#{pull_request}") }
     let(:url_tgz)         { url_for("PR.#{pull_request}", 'tgz') }
-    let(:fallback_url)    { signed_url_for('master', master_fetch_signature) }
     let(:fallback_url_tgz)    { signed_url_for('master', master_fetch_signature_tgz, 'tgz') }
 
     describe 'fetch' do
       before { cache.fetch }
-      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fetch_url} #{fallback_url_tgz} #{fallback_url}", timing: true] }
+      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fallback_url_tgz}", timing: true] }
     end
 
     describe 'add' do
@@ -168,14 +165,12 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
     let(:push_signature)  { '4aa0c287dca37b5c7f9d14e84be0680c4151c8230b2d0c6e8299d031d4bebd29' }
     let(:url)             { url_for("PR.#{pull_request}") }
     let(:url_tgz)         { url_for("PR.#{pull_request}", 'tgz') }
-    let(:fallback_url)    { signed_url_for('master', master_fetch_signature) }
     let(:fallback_url_tgz)    { signed_url_for('master', master_fetch_signature_tgz, 'tgz') }
-    let(:branch_fallback_url) { signed_url_for('foo', 'd72269ea040415d06cea7382c25f211f05b5a701c68299c03bbecd861a5e820b') }
     let(:branch_fallback_url_tgz) { signed_url_for('foo', 'e25b5a05709b557e35140cba079b597faae02da0733d7c18e848ce91140a5331', 'tgz') }
 
     describe 'fetch' do
       before { cache.fetch }
-      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fetch_url} #{branch_fallback_url_tgz} #{branch_fallback_url} #{fallback_url_tgz} #{fallback_url}", timing: true] }
+      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{branch_fallback_url_tgz} #{fallback_url_tgz}", timing: true] }
     end
 
     describe 'add' do

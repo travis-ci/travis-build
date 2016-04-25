@@ -20,9 +20,7 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
 
   let(:test_time)     { 10 }
   let(:timeout)       { cache_options[:push_timeout] + test_time }
-  let(:url)           { signed_url_for(branch, fetch_signature) }
   let(:url_tgz)       { signed_url_for(branch, fetch_signature_tgz, 'tgz') }
-  let(:fetch_url)     { url }
   let(:fetch_url_tgz) { url_tgz }
   let(:push_url)      { signed_url_for(branch, push_signature, 'tgz', timeout) }
 
@@ -92,7 +90,7 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
   describe 'fetch' do
     let(:timeout) { cache_options[:fetch_timeout] }
     before { cache.fetch }
-    it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{url_tgz} #{url}", timing: true] }
+    it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{url_tgz}", timing: true] }
   end
 
   describe 'add' do
@@ -126,12 +124,11 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
     let(:fetch_signature) { 'RCp7Cd2IKLRCvEC%2F1sZRVBUBKx8%3D' }
     let(:fetch_signature_tgz) { 'GWX9Uh4HiQ9UDasvRB9pqRoq%2FI4%3D' }
     let(:push_signature)  { 'PHCIJ5h7qNkwVF9FceW%2F52ds%2Fw0%3D' }
-    let(:fallback_url)    { signed_url_for('master', master_fetch_signature) }
     let(:fallback_url_tgz)    { signed_url_for('master', master_fetch_signature_tgz, 'tgz') }
 
     describe 'fetch' do
       before { cache.fetch }
-      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fetch_url} #{fallback_url_tgz} #{fallback_url}", timing: true] }
+      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fallback_url_tgz}", timing: true] }
     end
 
     describe 'add' do
@@ -150,15 +147,13 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
     let(:fetch_signature) { '4xhck0G2%2BSCjz%2BGFkpEA1pj27I8%3D' }
     let(:fetch_signature_tgz) { 'N0qlG8k9ihBVE9uGemKdvVVuHLA%3D' }
     let(:push_signature)  { 'gF%2Ba%2Fu559%2B97Sxy3UzGBgjThAgo%3D' }
-    let(:url)             { signed_url_for("PR.#{pull_request}", fetch_signature) }
     let(:url_tgz)         { signed_url_for("PR.#{pull_request}", fetch_signature_tgz, 'tgz') }
     let(:push_url)        { signed_url_for("PR.#{pull_request}", push_signature, 'tgz', timeout) }
-    let(:fallback_url)    { signed_url_for('master', master_fetch_signature) }
     let(:fallback_url_tgz)    { signed_url_for('master', master_fetch_signature_tgz, 'tgz') }
 
     describe 'fetch' do
       before { cache.fetch }
-      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fetch_url} #{fallback_url_tgz} #{fallback_url}", timing: true] }
+      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fallback_url_tgz}", timing: true] }
     end
 
     describe 'add' do
@@ -178,17 +173,14 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
     let(:fetch_signature) { '4xhck0G2%2BSCjz%2BGFkpEA1pj27I8%3D' }
     let(:fetch_signature_tgz) { 'N0qlG8k9ihBVE9uGemKdvVVuHLA%3D' }
     let(:push_signature)  { 'gF%2Ba%2Fu559%2B97Sxy3UzGBgjThAgo%3D' }
-    let(:url)             { signed_url_for("PR.#{pull_request}", fetch_signature) }
     let(:url_tgz)         { signed_url_for("PR.#{pull_request}", fetch_signature_tgz, 'tgz') }
     let(:push_url)        { signed_url_for("PR.#{pull_request}", push_signature, 'tgz', timeout) }
-    let(:fallback_url)    { signed_url_for('master', master_fetch_signature) }
     let(:fallback_url_tgz)    { signed_url_for('master', master_fetch_signature_tgz, 'tgz') }
-    let(:branch_fallback_url) { signed_url_for('foo', 'PSZ0uPS7zxkpliqPQReRfRW%2BJEk%3D') }
     let(:branch_fallback_url_tgz) { signed_url_for('foo', 'aEutjpVj13QxPYd7VRO%2BDdhr3cg%3D', 'tgz') }
 
     describe 'fetch' do
       before { cache.fetch }
-      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fetch_url} #{branch_fallback_url_tgz} #{branch_fallback_url} #{fallback_url_tgz} #{fallback_url}", timing: true] }
+      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{branch_fallback_url_tgz} #{fallback_url_tgz}", timing: true] }
     end
 
     describe 'add' do
