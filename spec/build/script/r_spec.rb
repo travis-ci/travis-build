@@ -143,23 +143,23 @@ describe Travis::Build::Script::R, :sexp do
     subject { described_class.new(data).cache_slug }
     it {
       data[:config][:r] = '3.2.5'
-      should eq('cache--R-3.2.5')
+      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.2.5")
     }
     it {
       data[:config][:r] = '3.2'
-      should eq('cache--R-3.2.5')
+      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.2.5")
     }
     it {
       data[:config][:r] = 'release'
-      should eq('cache--R-3.2.5')
+      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.2.5")
     }
     it {
       data[:config][:r] = '3.1'
-      should eq('cache--R-3.1.3')
+      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.1.3")
     }
     it {
       data[:config][:r] = 'devel'
-      should eq('cache--R-devel')
+      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-devel")
     }
   end
 end

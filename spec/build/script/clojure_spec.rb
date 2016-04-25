@@ -51,7 +51,7 @@ describe Travis::Build::Script::Clojure, :sexp do
 
   describe '#cache_slug' do
     subject { described_class.new(data).cache_slug }
-    it { is_expected.to eq('cache--jdk-default--lein-lein') }
+    it { is_expected.to eq("cache-#{CACHE_SLUG_EXTRAS}--jdk-default--lein-lein") }
   end
 end
 

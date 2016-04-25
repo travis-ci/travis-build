@@ -3,6 +3,7 @@ require 'core_ext/hash/deep_symbolize_keys'
 require 'core_ext/object/false'
 require 'erb'
 require 'rbconfig'
+require 'base64'
 
 require 'travis/build/addons'
 require 'travis/build/appliances'
@@ -77,8 +78,19 @@ module Travis
         sh.to_sexp
       end
 
+      def cache_slug_keys
+        plain_env_vars = Array(config[:env]).delete_if {|env| env.start_with? 'SECURE '}
+
+        [
+          'cache',
+          config[:os],
+          config[:dist],
+          OpenSSL::Digest::SHA256.hexdigest(plain_env_vars.sort.join('='))
+        ]
+      end
+
       def cache_slug
-        'cache'
+        cache_slug_keys.compact.join('-')
       end
 
       def archive_url_for(bucket, version, lang = self.class.name.split('::').last.downcase, ext = 'bz2')

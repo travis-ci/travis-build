@@ -94,6 +94,6 @@ describe Travis::Build::Script::Cpp, :sexp do
 
   describe '#cache_slug' do
     subject { described_class.new(data).cache_slug }
-    it { is_expected.to eq('cache--compiler-gpp') }
+    it { is_expected.to eq("cache-#{CACHE_SLUG_EXTRAS}--compiler-gpp") }
   end
 end
