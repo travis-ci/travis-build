@@ -144,7 +144,7 @@ module Travis
           end
 
           def push_url(branch = group)
-            url('PUT', prefixed(branch), expires: push_timeout)
+            url('PUT', prefixed(branch, true), expires: push_timeout)
           end
 
           def fold(message = nil)
