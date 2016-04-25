@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+$:.unshift File.expand_path('../../lib', __FILE__)
+require 'json'
+require 'travis/build'
+
+payload = JSON.parse(STDIN.read)
+puts Travis::Build.script(payload).compile(true)
