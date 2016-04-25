@@ -202,7 +202,7 @@ module Travis
             def prefixed(branch)
               args = [data.github_id, branch, slug].compact
               args.map! { |arg| arg.to_s.gsub(/[^\w\.\_\-]+/, '') }
-              ('/' << args.join('/') << '.tgz')
+              '/' << args.join('/') << '.tgz'
             end
 
             def url(verb, path, options = {})
