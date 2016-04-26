@@ -85,6 +85,7 @@ module Travis
           'cache',
           config[:os],
           config[:dist],
+          config[:osx_image],
           OpenSSL::Digest::SHA256.hexdigest(plain_env_vars.sort.join('='))
         ]
       end
