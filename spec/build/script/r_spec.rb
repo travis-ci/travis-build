@@ -20,7 +20,7 @@ describe Travis::Build::Script::R, :sexp do
     data[:config][:r] = 'bioc-release'
     should include_sexp [:cmd, %r{source\(\"https://bioconductor.org/biocLite.R\"\)},
                          assert: true, echo: true, timing: true, retry: true]
-    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.2.4']]
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.2.5']]
   end
 
   it 'r_packages works with a single package set' do
@@ -36,12 +36,12 @@ describe Travis::Build::Script::R, :sexp do
   end
 
   it 'exports TRAVIS_R_VERSION' do
-    data[:config][:R] = '3.2.4'
-    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.2.4']]
+    data[:config][:R] = '3.2.5'
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.2.5']]
   end
 
   it 'downloads and installs R' do
-    should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-3.2.4.xz},
+    should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-3.2.5.xz},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
@@ -53,7 +53,7 @@ describe Travis::Build::Script::R, :sexp do
 
   it 'downloads and installs R 3.2' do
     data[:config][:r] = '3.2'
-    should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-3.2.4.xz},
+    should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-3.2.5.xz},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
@@ -142,16 +142,16 @@ describe Travis::Build::Script::R, :sexp do
   describe '#cache_slug' do
     subject { described_class.new(data).cache_slug }
     it {
-      data[:config][:r] = '3.2.4'
-      should eq('cache--R-3.2.4')
+      data[:config][:r] = '3.2.5'
+      should eq('cache--R-3.2.5')
     }
     it {
       data[:config][:r] = '3.2'
-      should eq('cache--R-3.2.4')
+      should eq('cache--R-3.2.5')
     }
     it {
       data[:config][:r] = 'release'
-      should eq('cache--R-3.2.4')
+      should eq('cache--R-3.2.5')
     }
     it {
       data[:config][:r] = '3.1'
