@@ -3,7 +3,6 @@ require 'core_ext/hash/deep_symbolize_keys'
 require 'core_ext/object/false'
 require 'erb'
 require 'rbconfig'
-require 'base64'
 
 require 'travis/build/addons'
 require 'travis/build/appliances'
