@@ -77,19 +77,11 @@ module Travis
         private
 
           def smalltalk_ci_repo
-            if config.key?(:smalltalk_edge) and config[:smalltalk_edge].key?(:source)
-              return config[:smalltalk_edge][:source]
-            else
-              return "hpi-swa/smalltalkCI"
-            end
+            config.fetch(:smalltalk_edge, {}).fetch(:source, "hpi-swa/smalltalkCI")
           end
 
           def smalltalk_ci_branch
-            if config.key?(:smalltalk_edge) and config[:smalltalk_edge].key?(:branch)
-              return config[:smalltalk_edge][:branch]
-            else
-              return "master"
-            end
+            config.fetch(:smalltalk_edge, {}).fetch(:branch, "master")
           end
 
           def smalltalk_version
