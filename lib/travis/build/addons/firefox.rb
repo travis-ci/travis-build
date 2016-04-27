@@ -31,8 +31,8 @@ module Travis
             sh.elif '$(uname) = "Darwin"' do
               sh.cmd "wget -O /tmp/#{filename('dmg')} $FIREFOX_SOURCE_URL", echo: true, timing: true, retry: true
               sh.cmd "hdiutil mount -readonly -mountpoint firefox /tmp/#{filename('dmg')}"
-              sh.cmd "cp -a firefox/Firefox.app /Applications"
-              sh.cmd "sudo ln -sf #{install_dir}/Firefox.app/Contents/MacOS/firefox /usr/local/bin/firefox", echo: false
+              sh.cmd "sudo cp -a firefox/Firefox.app /Applications"
+              sh.cmd "sudo ln -sf /Applications/Firefox.app/Contents/MacOS/firefox /usr/local/bin/firefox", echo: false
               sh.cmd "hdiutil unmount firefox && rm /tmp/#{filename('dmg')}"
             end
             sh.cd :back, echo: false, stack: true
