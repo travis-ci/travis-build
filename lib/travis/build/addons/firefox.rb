@@ -23,12 +23,12 @@ module Travis
             sh.mkdir install_dir, echo: false, recursive: true
             sh.chown 'travis', install_dir, recursive: true
             sh.cd install_dir, echo: false, stack: true
-            sh.if 'z$TRAVIS_OS_NAME = "zlinux"' do
+            sh.if '$(uname) = "Linux"' do
               sh.cmd "wget -O /tmp/#{filename} $FIREFOX_SOURCE_URL", echo: true, timing: true, retry: true
               sh.cmd "tar xf /tmp/#{filename}"
               sh.cmd "sudo ln -sf #{install_dir}/firefox/firefox /usr/local/bin/firefox", echo: false
             end
-            sh.elif 'z$TRAVIS_OS_NAME = "zosx"' do
+            sh.elif '$(uname) = "Darwin"' do
               sh.cmd "wget -O /tmp/#{filename('dmg')} $FIREFOX_SOURCE_URL", echo: true, timing: true, retry: true
               sh.cmd "hdiutil mount -readonly -mountpoint firefox /tmp/#{filename('dmg')}"
               sh.cmd "cp -a firefox/Firefox.app #{install_dir}"
