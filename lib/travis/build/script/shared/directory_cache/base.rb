@@ -168,6 +168,7 @@ module Travis
             def run(command, args, options = {})
               sh.if "-f #{BIN_PATH}" do
                 sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
+                sh.raw "rvm use #{USE_RUBY} >&/dev/null"
                 sh.cmd "rvm #{USE_RUBY} --fuzzy do #{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
               end
             end
