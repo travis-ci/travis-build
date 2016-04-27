@@ -90,10 +90,15 @@ module Travis
 
           def setup_casher
             fold 'Setting up build cache' do
+              run_rvm_use
               install
               fetch
               add(directories) if data.cache?(:directories)
             end
+          end
+
+          def run_rvm_use
+            sh.raw "rvm use $(rvm current >&/dev/null) >&/dev/null"
           end
 
           def install
