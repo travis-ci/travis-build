@@ -98,7 +98,7 @@ module Travis
           end
 
           def run_rvm_use
-            sh.raw "rvm use $(rvm current) >&/dev/null"
+            sh.raw "rvm use $(rvm current >&/dev/null) >&/dev/null"
           end
 
           def install
