@@ -3,12 +3,13 @@ require 'json'
 
 describe Travis::Build::Addons::Apt, :sexp do
   let(:script)            { stub('script') }
-  let(:data)              { payload_for(:push, :ruby, config: { addons: { apt: config } }, paranoid: true) }
+  let(:data)              { payload_for(:push, :ruby, config: { addons: { apt: config } }, paranoid: paranoid) }
   let(:sh)                { Travis::Shell::Builder.new }
   let(:addon)             { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
   let(:config)            { {} }
   let(:source_whitelist)  { [{ alias: 'testing', sourceline: 'deb http://example.com/deb repo main' }] }
   let(:package_whitelist) { %w(git curl) }
+  let(:paranoid)          { true }
   subject                 { sh.to_sexp }
 
   before :all do
@@ -108,6 +109,12 @@ describe Travis::Build::Addons::Apt, :sexp do
       let(:config) { { packages: ['git', 'curl', 'darkcoin'] } }
 
       it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true] }
+
+      context 'when sudo is enabled' do
+        let(:paranoid) { false }
+
+        it { should include_sexp [:cmd, apt_get_install_command('git', 'curl', 'darkcoin'), echo: true, timing: true] }
+      end
     end
 
     context 'with singular whitelisted package' do
