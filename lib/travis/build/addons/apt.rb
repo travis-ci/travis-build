@@ -78,8 +78,11 @@ module Travis
 
             config_sources.each do |source_alias|
               source = source_whitelist[source_alias]
-              whitelisted << source.clone if source && source['sourceline']
-              disallowed << source_alias if source.nil?
+              if (source && source['sourceline']) || !data.disable_sudo?
+                whitelisted << source.clone
+              else
+                disallowed << source_alias
+              end
             end
 
             unless disallowed.empty?
