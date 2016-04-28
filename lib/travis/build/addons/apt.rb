@@ -106,7 +106,7 @@ module Travis
           def add_apt_packages
             sh.echo "Installing APT Packages (BETA)", ansi: :yellow
 
-            whitelisted, disallowed = config_packages.partition { |pkg| package_whitelist.include? pkg }
+            whitelisted, disallowed = config_packages.partition { |pkg| package_whitelisted?(package_whitelist, pkg) }
 
             unless disallowed.empty?
               sh.echo "Disallowing packages: #{disallowed.map { |package| Shellwords.escape(package) }.join(', ')}", ansi: :red
@@ -147,6 +147,10 @@ module Travis
 
           def config_packages
             @config_packages ||= Array(config[:packages]).flatten.compact
+          end
+
+          def package_whitelisted?(list, pkg)
+            list.include? pkg
           end
 
           def package_whitelist
