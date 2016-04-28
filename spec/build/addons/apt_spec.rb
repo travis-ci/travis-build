@@ -3,7 +3,7 @@ require 'json'
 
 describe Travis::Build::Addons::Apt, :sexp do
   let(:script)            { stub('script') }
-  let(:data)              { payload_for(:push, :ruby, config: { addons: { apt: config } }) }
+  let(:data)              { payload_for(:push, :ruby, config: { addons: { apt: config } }, paranoid: true) }
   let(:sh)                { Travis::Shell::Builder.new }
   let(:addon)             { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
   let(:config)            { {} }

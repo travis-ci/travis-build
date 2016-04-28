@@ -150,7 +150,7 @@ module Travis
           end
 
           def package_whitelisted?(list, pkg)
-            list.include? pkg
+            list.include?(pkg) || !data.disable_sudo?
           end
 
           def package_whitelist
