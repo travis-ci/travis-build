@@ -12,19 +12,35 @@ module Travis
 
         class << self
           def package_whitelist
-            @package_whitelist ||= load_package_whitelist
+            @package_whitelist ||= load_package_whitelist.reject { |w| w =~ regex_detecting_regex }
+          end
+
+          def package_whitelist_regexes
+            @package_whitelist_regexes ||= load_package_whitelist
+              .select { |w| w =~ regex_detecting_regex }
+              .map { |w| Regexp.compile(w) rescue nil }
+              .compact
           end
 
           def source_whitelist
             @source_whitelist ||= load_source_whitelist
           end
 
+          def reset_caches
+            @package_whitelist =
+              @package_whitelist_regexes =
+              @source_whitelist =
+              @loaded_package_whitelist = nil
+          end
+
           private
 
           def load_package_whitelist
             require 'faraday'
-            response = fetch_package_whitelist
-            response.split.map(&:strip).sort.uniq
+            @loaded_package_whitelist ||= begin
+              response = fetch_package_whitelist
+              response.split.map(&:strip).sort.uniq
+            end
           rescue => e
             warn e
             []
@@ -54,6 +70,11 @@ module Travis
 
           def source_whitelist_url
             ENV['TRAVIS_BUILD_APT_SOURCE_WHITELIST']
+          end
+
+          def regex_detecting_regex
+            # Detects only the subset of regexes supported in the apt packages whitelist
+            /[*?+()]/
           end
         end
 
@@ -110,7 +131,8 @@ module Travis
             disallowed = []
 
             config_packages.each do |package|
-              if package_whitelist.include?(package)
+              if package_whitelist.include?(package) ||
+                 package_whitelist_regexes.detect { |w| w.match(package) }
                 whitelisted << package
               else
                 disallowed << package
@@ -160,6 +182,10 @@ module Travis
 
           def package_whitelist
             ::Travis::Build::Addons::Apt.package_whitelist
+          end
+
+          def package_whitelist_regexes
+            ::Travis::Build::Addons::Apt.package_whitelist_regexes
           end
 
           def source_whitelist

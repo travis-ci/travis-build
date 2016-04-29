@@ -8,7 +8,7 @@ describe Travis::Build::Addons::Apt, :sexp do
   let(:addon)             { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
   let(:config)            { {} }
   let(:source_whitelist)  { [{ alias: 'testing', sourceline: 'deb http://example.com/deb repo main' }] }
-  let(:package_whitelist) { %w(git curl) }
+  let(:package_whitelist) { %w(git curl ^elasticsearch(-1\.[67]\.(\d+)(:i386)?)?$) }
   subject                 { sh.to_sexp }
 
   before :all do
@@ -16,8 +16,7 @@ describe Travis::Build::Addons::Apt, :sexp do
   end
 
   before do
-    described_class.instance_variable_set(:@package_whitelist, nil)
-    described_class.instance_variable_set(:@source_whitelist, nil)
+    described_class.reset_caches
   end
 
   context 'when on osx' do
@@ -43,11 +42,19 @@ describe Travis::Build::Addons::Apt, :sexp do
     end
 
     it 'exposes a package whitelist' do
-      expect(described_class.package_whitelist).to_not be_empty
+      expect(described_class.package_whitelist).to eq(%w(curl git))
     end
 
     it 'instances delegate package whitelist to class' do
       expect(described_class.package_whitelist.object_id).to eql(addon.send(:package_whitelist).object_id)
+    end
+
+    it 'exposes package whitelist regexes' do
+      expect(described_class.package_whitelist_regexes).to eq([ /^elasticsearch(-1\.[67]\.(\d+)(:i386)?)?$/ ])
+    end
+
+    it 'instances delegate package whitelist regexes to class' do
+      expect(described_class.package_whitelist_regexes.object_id).to eql(addon.send(:package_whitelist_regexes).object_id)
     end
   end
 
@@ -90,7 +97,7 @@ describe Travis::Build::Addons::Apt, :sexp do
 
   context 'with packages' do
     before do
-      addon.stubs(:package_whitelist).returns(package_whitelist)
+      described_class.stubs(:fetch_package_whitelist).returns(package_whitelist.join("\n"))
       addon.before_prepare
     end
 
@@ -105,13 +112,25 @@ describe Travis::Build::Addons::Apt, :sexp do
     end
 
     context 'with multiple packages, some whitelisted' do
-      let(:config) { { packages: ['git', 'curl', 'darkcoin'] } }
+      let(:config) { { packages: ['git', 'curl', 'elasticsearch', 'darkcoin'] } }
 
-      it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true] }
+      it { should include_sexp [:cmd, apt_get_install_command('git', 'curl', 'elasticsearch'), echo: true, timing: true] }
     end
 
     context 'with singular whitelisted package' do
       let(:config) { { packages: 'git' } }
+
+      it { should include_sexp [:cmd, apt_get_install_command('git'), echo: true, timing: true] }
+    end
+
+    context 'with a package that matches a package whitelist regex' do
+      let(:config) { { packages: [ 'git', 'elasticsearch-1.7.3:i386' ] } }
+
+      it { should include_sexp [:cmd, apt_get_install_command('git', 'elasticsearch-1.7.3:i386'), echo: true, timing: true] }
+    end
+
+    context 'with a package that does not match a package whitelist regex' do
+      let(:config) { { packages: [ 'git', 'elasticsearch-1.4.2' ] } }
 
       it { should include_sexp [:cmd, apt_get_install_command('git'), echo: true, timing: true] }
     end
