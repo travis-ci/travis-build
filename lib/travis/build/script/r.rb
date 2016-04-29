@@ -336,9 +336,10 @@ module Travis
         def install_deps
           setup_devtools
           install_script =
-            'deps <- devtools::install_deps(dependencies = TRUE);'\
-            'if (!all(deps %in% installed.packages())) {'\
-            ' message("missing: ", paste(setdiff(deps, installed.packages()), collapse=", "));'\
+            'deps <- devtools::dev_package_deps(dependencies = TRUE);'\
+            'devtools::install_deps(dependencies = TRUE);'\
+            'if (!all(deps$package %in% installed.packages())) {'\
+            ' message("missing: ", paste(setdiff(deps$package, installed.packages()), collapse=", "));'\
             ' q(status = 1, save = "no")'\
             '}'
           sh.cmd "Rscript -e '#{install_script}'"
