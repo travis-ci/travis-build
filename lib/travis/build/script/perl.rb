@@ -21,7 +21,7 @@ module Travis
 
         def setup
           super
-          sh.cmd "perlbrew use #{version}", assert: true
+          sh.cmd "perlbrew use #{version}", assert: false
         end
 
         def announce
