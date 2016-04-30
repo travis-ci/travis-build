@@ -78,7 +78,7 @@ module Travis
       end
 
       def cache_slug_keys
-        plain_env_vars = Array(config[:env]).delete_if {|env| env.start_with? 'SECURE '}
+        plain_env_vars = Array(config[:env].dup).delete_if {|env| env.start_with? 'SECURE '}
 
         [
           'cache',
