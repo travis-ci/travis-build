@@ -88,8 +88,8 @@ module Travis
                     'key_url' => src[:key_url]
                   }
                 else
-                  sh.echo "Malformed source:", ansi: :yellow
-                  sh.echo src.inspect
+                  sh.echo "`sourceline` key missing:", ansi: :yellow
+                  sh.echo Shellwords.escape(src.inspect)
                 end
               elsif source.nil?
                 disallowed << src

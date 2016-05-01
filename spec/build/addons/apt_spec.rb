@@ -219,7 +219,7 @@ describe Travis::Build::Addons::Apt, :sexp do
 
       context 'when a malformed source is given' do
         let(:config) { { sources: [{ key_url: 'deadbeef' }] } }
-        it { should include_sexp [:echo, "Malformed source:", ansi: :yellow] }
+        it { should include_sexp [:echo, "`sourceline` key missing:", ansi: :yellow] }
       end
     end
   end
