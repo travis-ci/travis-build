@@ -76,10 +76,24 @@ module Travis
             whitelisted = []
             disallowed = []
 
-            config_sources.each do |source_alias|
-              source = source_whitelist[source_alias]
-              whitelisted << source.clone if source && source['sourceline']
-              disallowed << source_alias if source.nil?
+            config_sources.each do |src|
+              source = source_whitelist[src]
+
+              if source.respond_to?(:[]) && source['sourceline']
+                whitelisted << source.clone
+              elsif ! data.disable_sudo?
+                if src.respond_to?(:[]) && src[:sourceline]
+                  whitelisted << {
+                    'sourceline' => src[:sourceline],
+                    'key_url' => src[:key_url]
+                  }
+                else
+                  sh.echo "Malformed source:", ansi: :yellow
+                  sh.echo src.inspect
+                end
+              elsif source.nil?
+                disallowed << src
+              end
             end
 
             unless disallowed.empty?
