@@ -138,7 +138,7 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
         end
 
         def composer_self_update
-          sh.cmd "composer self-update", assert: false unless version =~ /^5\.2/
+          sh.cmd "composer self-update --stable", assert: false unless version =~ /^5\.2/
         end
       end
     end
