@@ -83,7 +83,7 @@ module Travis
 
       def archive_url_for(bucket, version, lang = self.class.name.split('::').last.downcase, ext = 'bz2')
         sh.if "$(uname) = 'Linux'" do
-          sh.raw "travis_host_os=linux"
+          sh.raw "travis_host_os=$(lsb_release -is | tr 'A-Z' 'a-z')"
           sh.raw "travis_rel_version=$(lsb_release -rs)"
         end
         sh.elif "$(uname) = 'Darwin'" do
