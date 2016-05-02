@@ -44,7 +44,7 @@ module Travis
           set_up_env(config, global_env)
         end
 
-        puts Travis::Build.script(push_down_deploy(config)).compile(true)
+        puts Travis::Build.script(push_down_deploy(@config)).compile(true)
       end
 
       private
