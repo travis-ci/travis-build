@@ -88,7 +88,8 @@ module Travis
         end
         sh.elif "$(uname) = 'Darwin'" do
           sh.raw "host_os=osx"
-          sh.raw "rel_version=${$(sw_vers -productVersion)%*.*}"
+          sh.raw "rel=$(sw_vers -productVersion)"
+          sh.raw "rel_version=${rel%*.*}"
         end
         "archive_url=https://s3.amazonaws.com/#{bucket}/binaries/${host_os}/${rel_version}/$(uname -m)/#{lang}-#{version}.tar.#{ext}"
       end
