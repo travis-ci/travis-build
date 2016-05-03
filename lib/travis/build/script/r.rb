@@ -44,6 +44,7 @@ module Travis
         def export
           super
           sh.export 'TRAVIS_R_VERSION', r_version, echo: false
+          sh.export 'TRAVIS_R_VERSION_STRING', config[:r].to_s, echo: false
           sh.export 'R_LIBS_USER', '~/R/Library', echo: false
           sh.export 'R_LIBS_SITE', '/usr/local/lib/R/site-library:/usr/lib/R/site-library', echo: false
           sh.export '_R_CHECK_CRAN_INCOMING_', 'false', echo: false
@@ -471,10 +472,11 @@ module Travis
         def normalized_r_version
           v = config[:r].to_s
           case v
-          when 'release' then '3.2.5'
-          when 'oldrel' then '3.1.3'
+          when 'release' then '3.3.0'
+          when 'oldrel' then '3.2.5'
           when '3.1' then '3.1.3'
           when '3.2' then '3.2.5'
+          when '3.3' then '3.3.0'
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true
