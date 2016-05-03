@@ -46,6 +46,43 @@ describe Travis::Build::Script::Dart, :sexp do
     end
   end
 
+  describe 'archive_url for' do
+    describe 'stable' do
+      before { data[:config][:dart] = 'stable' }
+      it 'is https://storage.googleapis.com/dart-archive/channels/stable/release/latest' do
+        expect(subject.flatten.join).to include('https://storage.googleapis.com/dart-archive/channels/stable/release/latest')
+      end
+    end
+
+    describe 'dev' do
+      before { data[:config][:dart] = 'dev' }
+      it 'is https://storage.googleapis.com/dart-archive/channels/dev/release/latest' do
+        expect(subject.flatten.join).to include('https://storage.googleapis.com/dart-archive/channels/dev/release/latest')
+      end
+    end
+
+    describe 'be/raw/110749' do
+      before { data[:config][:dart] = 'be/raw/110749' }
+      it 'is https://storage.googleapis.com/dart-archive/channels/be/raw/110749' do
+        expect(subject.flatten.join).to include('https://storage.googleapis.com/dart-archive/channels/be/raw/110749')
+      end
+    end
+
+    describe '1.16.0-dev.2.0' do
+      before { data[:config][:dart] = '1.16.0-dev.2.0' }
+      it 'is https://storage.googleapis.com/dart-archive/channels/dev/release/1.16.0-dev.2.0' do
+        expect(subject.flatten.join).to include('https://storage.googleapis.com/dart-archive/channels/dev/release/1.16.0-dev.2.0')
+      end
+    end
+
+    describe '1.14.1' do
+      before { data[:config][:dart] = '1.14.1' }
+      it 'is https://storage.googleapis.com/dart-archive/channels/stable/release/1.14.1' do
+        expect(subject.flatten.join).to include('https://storage.googleapis.com/dart-archive/channels/stable/release/1.14.1')
+      end
+    end
+  end
+
   describe 'script' do
     describe 'if a directory packages/test exists or the file .packages defines a test [something ... target?]' do
       let(:sexp) { sexp_find(subject, [:if, "[[ -d packages/test ]] || grep -q ^test: .packages 2> /dev/null"]) }

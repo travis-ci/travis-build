@@ -121,10 +121,21 @@ module Travis
         private
 
           def archive_url
-            if not ["stable", "dev"].include?(config[:dart])
-              sh.failure "Only 'stable' and 'dev' can be used as dart version for now"
+            urlEnd = ''
+            # support of "dev" or "stable"
+            if ["stable", "dev"].include?(config[:dart])
+              urlEnd = "#{config[:dart]}/release/latest"
+            # support of "stable/release/1.15.0" or "be/raw/110749"
+            elsif config[:dart].include?("/")
+              urlEnd = config[:dart]
+            # support of dev versions like "1.16.0-dev.2.0" or "1.16.0-dev.2.0"
+            elsif config[:dart].include?("-dev")
+              urlEnd = "dev/release/#{config[:dart]}"
+            # support of stable versions like "1.14.0" or "1.14.1"
+            else
+              urlEnd = "stable/release/#{config[:dart]}"
             end
-            "https://storage.googleapis.com/dart-archive/channels/#{config[:dart]}/release/latest"
+            "https://storage.googleapis.com/dart-archive/channels/#{urlEnd}"
           end
 
           def with_content_shell
