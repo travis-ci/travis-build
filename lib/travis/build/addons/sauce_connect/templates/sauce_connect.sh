@@ -2,6 +2,15 @@
 
 export _SC_PID=unset
 
+function wait_for_sauce_connect_readyfile() {
+  readyfile=$1
+  echo "Waiting for Sauce Connect readyfile"
+
+  while [ ! -f ${readyfile} ]; do
+    sleep .5
+  done
+}
+
 function travis_start_sauce_connect() {
   if [ -z "${SAUCE_USERNAME}" ] || [ -z "${SAUCE_ACCESS_KEY}" ]; then
       echo "This script can't run without your Sauce credentials"
@@ -13,6 +22,8 @@ function travis_start_sauce_connect() {
 
   local sc_tmp sc_platform sc_distro sc_distro_fmt sc_distro_shasum \
     sc_readyfile sc_logfile sc_dir sc_tunnel_id_arg sc_actual_shasum
+
+  local timeout=2
 
   sc_tmp="$(mktemp -d -t sc.XXXX)"
   echo "Using temp dir $sc_tmp"
@@ -59,12 +70,30 @@ function travis_start_sauce_connect() {
     ${SAUCE_TUNNEL_DOMAINS} &
   _SC_PID="$!"
 
-  echo "Waiting for Sauce Connect readyfile"
-  while [ ! -f ${sc_readyfile} ]; do
-    sleep .5
-  done
+  local cmd="wait_for_sauce_connect_readyfile ${sc_readyfile}"
 
-  popd
+  echo "Waiting for Sauce Connect readyfile"
+  wait_for_sauce_connect_readyfile ${sc_readyfile} &>/dev/null &
+  local cmd_pid=$!
+
+  travis_jigger $! $timeout $cmd &
+  local jigger_pid=$!
+  local result
+
+  {
+    wait $cmd_pid 2>/dev/null
+    result=$?
+    ps -p$jigger_pid &>/dev/null && kill $jigger_pid
+  }
+
+  if [ $result -eq 0 ]; then
+    echo -e "\n${ANSI_GREEN}Sauce Connect ready.${ANSI_RESET}"
+    popd
+  else
+    echo -e "\n${ANSI_RED}Sauce Connect did not come up within $timeout minutes."
+    echo -e "Your build has been stopped.${ANSI_RESET}"
+    travis_terminate 2
+  fi
 }
 
 function travis_stop_sauce_connect() {
