@@ -130,8 +130,7 @@ module Travis
             end
 
             def default_branches
-              default_branches = config.values.grep(Hash).map(&:keys).flatten(1).uniq.compact
-              default_branches.any? ? default_branches : 'master'
+              config[:app].respond_to?(:keys) ? config[:app].keys : 'master'
             end
 
             def option(key, value)
