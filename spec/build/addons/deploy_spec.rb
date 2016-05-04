@@ -49,6 +49,13 @@ describe Travis::Build::Addons::Deploy, :sexp do
     it { should match_sexp [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = staging || $TRAVIS_BRANCH = production)'] }
   end
 
+  context 'when edge dpl is tested' do
+    let(:data)   { super().merge(branch: 'staging') }
+    let(:config) { { provider: 'heroku', edge: { source: 'svenvfuchs/dpl', branch: 'foo' } } }
+
+    it { should match_sexp [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master)'] }
+  end
+
   describe 'on tags' do
     let(:config) { { provider: 'heroku', on: { tags: true } } }
 
