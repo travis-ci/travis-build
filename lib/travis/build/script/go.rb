@@ -110,10 +110,10 @@ module Travis
           
           # see https://golang.org/doc/go1.6#go_command
           def uses_15_vendoring
-            if (go_version == 'go1' || comparable_go_version < Gem::Version.new('1.5'))
+            if (go_version == 'go1' || (go_version != 'tip' && comparable_go_version < Gem::Version.new('1.5')))
               return 'false'
             end
-            (comparable_go_version < Gem::Version.new('1.6')) ? '$GO15VENDOREXPERIMENT == 1' : '$GO15VENDOREXPERIMENT != 0'
+            (comparable_go_version < Gem::Version.new('1.6') && go_version != 'tip') ? '$GO15VENDOREXPERIMENT == 1' : '$GO15VENDOREXPERIMENT != 0'
           end
 
           def gobuild_args
@@ -136,6 +136,7 @@ module Travis
             when '1.0' then '1.0.3'
             when '1.2' then '1.2.2'
             when 'go1' then v
+            when 'tip' then v
             when /^go/ then v.sub(/^go/, '')
             else v
             end
@@ -149,7 +150,7 @@ module Travis
           end
 
           def go_get_cmd
-            (go_version == 'go1' || comparable_go_version < Gem::Version.new('1.2')) ? 'go get' : 'go get -t'
+            (go_version == 'go1' || (go_version != 'tip' && comparable_go_version < Gem::Version.new('1.2'))) ? 'go get' : 'go get -t'
           end
 
           def ensure_gvm_wiped
