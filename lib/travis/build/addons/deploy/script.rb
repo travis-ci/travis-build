@@ -6,7 +6,28 @@ module Travis
     class Addons
       class Deploy < Base
         class Script
-          VERSIONED_RUNTIMES = [:jdk, :node, :perl, :php, :python, :ruby, :scala, :go]
+          VERSIONED_RUNTIMES = %w(
+            d
+            dart
+            elixir
+            ghc
+            go
+            haxe
+            jdk
+            julia
+            mono
+            node
+            otp_release
+            perl
+            php
+            python
+            r
+            ruby
+            rust
+            scala
+            smalltalk
+          ).map(&:to_sym)
+
           USE_RUBY           = '1.9.3'
 
           attr_accessor :script, :sh, :data, :config, :allow_failure
