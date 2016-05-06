@@ -8,8 +8,7 @@ module Travis
           sh.if '-f .gitmodules' do
             sh.fold 'git.submodule' do
               sh.file '~/.ssh/config', "Host github.com\n\tStrictHostKeyChecking no\n", append: true
-              sh.cmd 'git submodule init'
-              sh.cmd "git submodule update #{update_args}".strip, assert: true, retry: true
+              sh.cmd "git submodule update --init --recursive #{update_args}".strip, assert: true, retry: true
             end
           end
         end

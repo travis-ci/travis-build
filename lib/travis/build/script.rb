@@ -94,7 +94,16 @@ module Travis
       end
 
       def archive_url_for(bucket, version, lang = self.class.name.split('::').last.downcase, ext = 'bz2')
-        "https://s3.amazonaws.com/#{bucket}/binaries/#{host_os}/#{rel_version}/$(uname -m)/#{lang}-#{version}.tar.#{ext}"
+        sh.if "$(uname) = 'Linux'" do
+          sh.raw "travis_host_os=$(lsb_release -is | tr 'A-Z' 'a-z')"
+          sh.raw "travis_rel_version=$(lsb_release -rs)"
+        end
+        sh.elif "$(uname) = 'Darwin'" do
+          sh.raw "travis_host_os=osx"
+          sh.raw "travis_rel=$(sw_vers -productVersion)"
+          sh.raw "travis_rel_version=${travis_rel%*.*}"
+        end
+        "archive_url=https://s3.amazonaws.com/#{bucket}/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/#{lang}-#{version}.tar.#{ext}"
       end
 
       def debug_build_via_api?

@@ -58,14 +58,16 @@ describe Travis::Build::Script::Elixir, :sexp do
           describe "wanted OTP release #{otp_release_wanted}" do
             xit "is installed" do
               sexp = sexp_find(subject, [:if, "! -f #{Travis::Build::HOME_DIR}/otp/#{otp_release_wanted}/activate"], [:then])
-              expect(sexp).to include_sexp([:cmd, "wget https://s3.amazonaws.com/travis-otp-releases/ubuntu/$(lsb_release -rs)/erlang-#{otp_release_wanted}-x86_64.tar.bz2", assert: true, echo: true, timing: true])
+              expect(sexp).to include_sexp([:raw, "archive_url=https://s3.amazonaws.com/travis-otp-releases/ubuntu/$(lsb_release -rs)/erlang-#{otp_release_wanted}-x86_64.tar.bz2"])
+              expect(sexp).to include_sexp([:cmd, "wget $archive_url", assert: true, echo: true, timing: true])
             end
           end
         else
           describe "required OTP release #{otp_release_required}" do
             xit "is installed" do
               sexp = sexp_find(subject, [:if, "! -f #{Travis::Build::HOME_DIR}/otp/#{otp_release_required}/activate"], [:then])
-              expect(sexp).to include_sexp([:cmd, "wget https://s3.amazonaws.com/travis-otp-releases/ubuntu/$(lsb_release -rs)/erlang-#{otp_release_required}-x86_64.tar.bz2", assert: true, echo: true, timing: true])
+              expect(sexp).to include_sexp([:raw, "archive_url=https://s3.amazonaws.com/travis-otp-releases/ubuntu/$(lsb_release -rs)/erlang-#{otp_release_required}-x86_64.tar.bz2"])
+              expect(sexp).to include_sexp([:cmd, "wget $archive_url", assert: true, echo: true, timing: true])
             end
           end
         end

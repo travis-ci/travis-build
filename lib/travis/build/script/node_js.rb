@@ -103,15 +103,20 @@ module Travis
           def install_version(ver)
             sh.cmd "nvm install #{ver}", assert: false
             sh.if '$? -ne 0' do
-              sh.echo "Remote repository may not be reachable", ansi: :yellow
-              sh.cmd "nvm use #{ver}"
+              sh.echo "Failed to install #{ver}. Remote repository may not be reachable.", ansi: :red
+              sh.echo "Using locally available version #{ver}, if applicable."
+              sh.cmd "nvm use #{ver}", assert: false, timing: false
+              sh.if '$? -ne 0' do
+                sh.echo "Unable to use #{ver}", ansi: :red
+                sh.cmd "false", assert: true, echo: false, timing: false
+              end
             end
             sh.export 'TRAVIS_NODE_VERSION', ver, echo: false
           end
 
           def update_nvm
             return unless ENV['TRAVIS_BUILD_APP_HOST']
-            sh.raw "function vers() {\n  printf \"%03d%03d%03d%03d\" $(echo \"$1\" | tr '.' ' ')\n}"
+            sh.raw "function vers() {\n  printf \"1%03d%03d%03d%03d\" $(echo \"$1\" | tr '.' ' ')\n}"
             nvm_sh_location = "$HOME/.nvm/nvm.sh"
             sh.if "$(vers `nvm --version`) -lt $(vers #{NVM_VERSION})" do
               sh.echo "Updating nvm to v#{NVM_VERSION}", ansi: :yellow, timing: false

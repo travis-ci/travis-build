@@ -27,12 +27,14 @@ module Travis
 
           sh.fold "elixir" do
             sh.if "! -f #{HOME_DIR}/.kiex/elixirs/elixir-#{elixir_version}.env" do
+              archive = "http://s3.hex.pm/builds/elixir/v#{elixir_version}.zip"
               sh.echo "Installing Elixir #{elixir_version}"
-              sh.cmd "wget http://s3.hex.pm/builds/elixir/v#{elixir_version}.zip", assert: true, timing: true
+              sh.cmd "wget #{archive}", assert: true, timing: true
               sh.cmd "unzip -d #{KIEX_ELIXIR_HOME}/elixir-#{elixir_version} v#{elixir_version}.zip 2>&1 > /dev/null", echo: false
               sh.cmd "echo 'export ELIXIR_VERSION=#{elixir_version}
 export PATH=#{KIEX_ELIXIR_HOME}elixir-#{elixir_version}/bin:$PATH
 export MIX_ARCHIVES=#{KIEX_MIX_HOME}elixir-#{elixir_version}' > #{KIEX_ELIXIR_HOME}elixir-#{elixir_version}.env"
+              sh.raw "rm -f #{archive}"
             end
 
             sh.cmd "kiex use #{elixir_version}"
