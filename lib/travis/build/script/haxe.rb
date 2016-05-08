@@ -18,7 +18,7 @@ module Travis
       class Haxe < Script
         DEFAULTS = {
           haxe: '3.2.1',
-          neko: '2.0.0'
+          neko: '2.1.0'
         }
 
         def configure
