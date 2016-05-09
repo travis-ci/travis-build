@@ -111,7 +111,7 @@ module Travis
           # see https://golang.org/doc/go1.6#go_command
           def uses_15_vendoring?
             if (go_version == 'go1' || (go_version != 'tip' && comparable_go_version < Gem::Version.new('1.5')))
-              return 'false'
+              return '2 -eq 5'
             end
             (comparable_go_version < Gem::Version.new('1.6') && go_version != 'tip') ? '$GO15VENDOREXPERIMENT == 1' : '$GO15VENDOREXPERIMENT != 0'
           end
