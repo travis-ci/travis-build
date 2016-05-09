@@ -120,6 +120,36 @@ describe Travis::Build::Script::Go, :sexp do
     end
   end
 
+  %w(1.4).each do |go_version|
+    describe "when using version (#{go_version}) without versioning support and Godeps/Godeps.json is found" do
+      let(:sexp) { sexp_find(sexp_filter(subject, [:if, '-f Godeps/Godeps.json'])[0], [:then]) }
+      it 'sets puts ${TRAVIS_BUILD_DIR}/Godeps/_workspace to the top of $GOPATH' do
+        data[:config][:go] = go_version
+        expect(sexp).to include_sexp [:export, ['GOPATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace:$GOPATH'], echo: true]
+      end
+    end
+  end
+
+  %w(1.5).each do |go_version|
+    describe "when using version (#{go_version}) with experimental versioning support" do
+      let(:sexp) { sexp_find(sexp_filter(subject, [:if, '$GO15VENDOREXPERIMENT == 1'])[0], [:then]) }
+      it 'tests with vendoring support with `$GO15VENDOREXPERIMENT == 1`' do
+        data[:config][:go] = go_version
+        expect(sexp).to include_sexp [:echo, 'Using Go 1.5 Vendoring, not checking for Godeps']
+      end
+    end
+  end
+
+  %w(1.6 tip).each do |go_version|
+    describe "when using version (#{go_version}) with proper versioning support" do
+      let(:sexp) { sexp_find(sexp_filter(subject, [:if, '$GO15VENDOREXPERIMENT != 0'])[0], [:then]) }
+      it 'tests with vendoring support with `$GO15VENDOREXPERIMENT != 0`' do
+        data[:config][:go] = go_version
+        expect(sexp).to include_sexp [:echo, 'Using Go 1.5 Vendoring, not checking for Godeps']
+      end
+    end
+  end
+
   makefiles = %w(GNUmakefile makefile Makefile BSDmakefile)
   makefiles.each do |makefile|
     describe "if #{makefile} exists" do
