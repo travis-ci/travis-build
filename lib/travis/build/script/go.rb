@@ -150,7 +150,11 @@ module Travis
           end
 
           def go_get_cmd
-            (go_version == 'go1' || (go_version != 'tip' && comparable_go_version < Gem::Version.new('1.2'))) ? 'go get' : 'go get -t'
+            if go_version == 'go1' || (go_version != 'tip' && comparable_go_version < Gem::Version.new('1.2'))
+              'go get'
+            else
+              'go get -t'
+            end
           end
 
           def ensure_gvm_wiped
