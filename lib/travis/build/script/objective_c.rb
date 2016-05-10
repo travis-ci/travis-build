@@ -67,7 +67,7 @@ module Travis
                   sh.cmd 'bundle exec pod install', retry: true
                 end
 
-                sh.elf do
+                sh.elif do
                   sh.echo "Installing Pods with 'pod install'", ansi: :yellow
                   sh.cmd 'pod install', retry: true
                 end
