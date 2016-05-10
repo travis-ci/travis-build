@@ -64,7 +64,7 @@ module Travis
         end
 
         def install
-          sh.if uses_15_vendoring do
+          sh.if uses_15_vendoring? do
             sh.echo 'Using Go 1.5 Vendoring, not checking for Godeps'
           end
           sh.else do
@@ -107,13 +107,13 @@ module Travis
           def uses_make
             '-f GNUmakefile || -f makefile || -f Makefile || -f BSDmakefile'
           end
-          
+
           # see https://golang.org/doc/go1.6#go_command
-          def uses_15_vendoring
-            if (go_version == 'go1' || comparable_go_version < Gem::Version.new('1.5'))
-              return 'false'
+          def uses_15_vendoring?
+            if (go_version == 'go1' || (go_version != 'tip' && comparable_go_version < Gem::Version.new('1.5')))
+              return '2 -eq 5'
             end
-            (comparable_go_version < Gem::Version.new('1.6')) ? '$GO15VENDOREXPERIMENT == 1' : '$GO15VENDOREXPERIMENT != 0'
+            (comparable_go_version < Gem::Version.new('1.6') && go_version != 'tip') ? '$GO15VENDOREXPERIMENT == 1' : '$GO15VENDOREXPERIMENT != 0'
           end
 
           def gobuild_args
@@ -136,6 +136,7 @@ module Travis
             when '1.0' then '1.0.3'
             when '1.2' then '1.2.2'
             when 'go1' then v
+            when 'tip' then v
             when /^go/ then v.sub(/^go/, '')
             else v
             end
@@ -149,7 +150,11 @@ module Travis
           end
 
           def go_get_cmd
-            (go_version == 'go1' || comparable_go_version < Gem::Version.new('1.2')) ? 'go get' : 'go get -t'
+            if go_version == 'go1' || (go_version != 'tip' && comparable_go_version < Gem::Version.new('1.2'))
+              'go get'
+            else
+              'go get -t'
+            end
           end
 
           def ensure_gvm_wiped
