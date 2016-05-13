@@ -60,6 +60,12 @@ describe Travis::Build::Script::Php, :sexp do
     it { should include_sexp [:cmd, 'sudo apt-get install hhvm-nightly -y 2>&1 >/dev/null'] }
   end
 
+  describe 'installs specific hhvm version' do
+    before { data[:config][:php] = 'hhvm-4.12' }
+    it { should include_sexp [:cmd, 'sudo apt-get update -qq'] }
+    it { should include_sexp [:cmd, 'sudo apt-get install -y hhvm=4.12', timing: true] }
+  end
+
   describe 'when desired PHP version is not found' do
     let(:version) { '7.0.0beta2' }
     let(:data) { payload_for(:push, :php, config: { php: version }) }

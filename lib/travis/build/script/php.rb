@@ -65,7 +65,14 @@ module Travis
         end
 
         def hhvm?
-          version.include?('hhvm')
+          version.start_with?('hhvm')
+        end
+
+        def hhvm_version
+          return unless hhvm?
+          if vers = version.scan(/-(\d+(?:\.\d+)?)$/).first
+            vers.first
+          end
         end
 
         def nightly?
@@ -94,7 +101,8 @@ module Travis
                 sh.cmd 'echo "deb http://dl.hhvm.com/ubuntu $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list'
               end
               sh.cmd 'sudo apt-get update -qq'
-              sh.cmd 'sudo apt-get install -y hhvm', timing: true
+              vers_suffix = "=#{hhvm_version}" if hhvm_version
+              sh.cmd "sudo apt-get install -y hhvm#{vers_suffix}", timing: true
             end
           end
         end
