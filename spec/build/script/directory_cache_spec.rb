@@ -82,7 +82,7 @@ describe Travis::Build::Script::DirectoryCache, :sexp do
       let(:config) { { cache: 'bundler' } }
       let(:file_name) { URI(cache.fetch_url).path.split('/').last }
 
-      it { expect(file_name).to eq 'cache--gemfile-Gemfile.tgz' }
+      it { expect(file_name).to eq 'cache--rvm-default--gemfile-Gemfile.tgz' }
 
       context 'when looking for cache with extra information' do
         let(:file_name) { URI(cache.fetch_url('', true)).path.split('/').last }
