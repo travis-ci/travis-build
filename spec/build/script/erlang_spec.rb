@@ -64,7 +64,7 @@ describe Travis::Build::Script::Erlang, :sexp do
 
   describe '#cache_slug' do
     subject { described_class.new(data).cache_slug }
-    it { is_expected.to eq('cache--otp-R14B04') }
+    it { is_expected.to eq("cache-#{CACHE_SLUG_EXTRAS}--otp-R14B04") }
   end
 end
 

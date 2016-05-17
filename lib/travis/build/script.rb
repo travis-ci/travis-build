@@ -77,8 +77,20 @@ module Travis
         sh.to_sexp
       end
 
+      def cache_slug_keys
+        plain_env_vars = Array((config[:env] || []).dup).delete_if {|env| env.start_with? 'SECURE '}
+
+        [
+          'cache',
+          config[:os],
+          config[:dist],
+          config[:osx_image],
+          OpenSSL::Digest::SHA256.hexdigest(plain_env_vars.sort.join('='))
+        ]
+      end
+
       def cache_slug
-        'cache'
+        cache_slug_keys.compact.join('-')
       end
 
       def archive_url_for(bucket, version, lang = self.class.name.split('::').last.downcase, ext = 'bz2')
