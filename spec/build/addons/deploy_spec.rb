@@ -49,6 +49,26 @@ describe Travis::Build::Addons::Deploy, :sexp do
     it { should match_sexp [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = staging || $TRAVIS_BRANCH = production)'] }
   end
 
+  describe 'option specific Ruby version' do
+    let(:config) { { provider: 'heroku', on: { ruby: 'foo' } } }
+
+    it { should match_sexp [:if, '($TRAVIS_BRANCH = master) && ($TRAVIS_RUBY_VERSION = foo)'] }
+  end
+
+  describe 'option specific Rust version' do
+    let(:data)   { super().merge(language: 'rust') }
+    let(:config) { { provider: 'heroku', on: { rust: 'stable', branch: 'bar' } } }
+
+    it { should match_sexp [:if, '($TRAVIS_BRANCH = bar) && ($TRAVIS_RUST_VERSION = stable)'] }
+  end
+
+  context 'when edge dpl is tested' do
+    let(:data)   { super().merge(branch: 'staging') }
+    let(:config) { { provider: 'heroku', edge: { source: 'svenvfuchs/dpl', branch: 'foo' } } }
+
+    it { should match_sexp [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master)'] }
+  end
+
   describe 'on tags' do
     let(:config) { { provider: 'heroku', on: { tags: true } } }
 

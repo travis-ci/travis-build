@@ -22,12 +22,12 @@ function travis_start_sauce_connect() {
   case "${sc_platform}" in
       linux)
           sc_distro_fmt=tar.gz
-          sc_distro_shasum=ee7edfbee842490061f8edb68c27d2ddf7e615e3;;
+          sc_distro_shasum=17ba85270ce74bc868e9fed442332e7aad23083b;;
       osx)
           sc_distro_fmt=zip
-          sc_distro_shasum=165a527649af595db0197935c393e9ea9a7aa4e5;;
+          sc_distro_shasum=5ed57093d975306d889ae83dc8f8c54db3dffc49;;
   esac
-  sc_distro=sc-4.3.14-${sc_platform}.${sc_distro_fmt}
+  sc_distro=sc-4.3.15-${sc_platform}.${sc_distro_fmt}
   sc_readyfile=sauce-connect-ready-$RANDOM
   sc_logfile=$HOME/sauce-connect.log
   if [ ! -z "${TRAVIS_JOB_NUMBER}" ]; then

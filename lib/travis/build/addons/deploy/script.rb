@@ -6,7 +6,28 @@ module Travis
     class Addons
       class Deploy < Base
         class Script
-          VERSIONED_RUNTIMES = [:jdk, :node, :perl, :php, :python, :ruby, :scala, :go]
+          VERSIONED_RUNTIMES = %w(
+            d
+            dart
+            elixir
+            ghc
+            go
+            haxe
+            jdk
+            julia
+            mono
+            node
+            otp_release
+            perl
+            php
+            python
+            r
+            ruby
+            rust
+            scala
+            smalltalk
+          ).map(&:to_sym)
+
           USE_RUBY           = '1.9.3'
 
           attr_accessor :script, :sh, :data, :config, :allow_failure
@@ -107,13 +128,17 @@ module Travis
             end
 
             def install(edge = config[:edge])
+              edge = config[:edge]
               if edge.respond_to? :fetch
-                build_gem_locally_from(edge.fetch(:source, 'travis-ci/dpl'), edge.fetch(:branch, 'master'))
+                src = edge.fetch(:source, 'travis-ci/dpl')
+                branch = edge.fetch(:branch, 'master')
+                build_gem_locally_from(src, branch)
               end
               command = "gem install dpl"
               command << "-*.gem --local" if edge == 'local' || edge.respond_to?(:fetch)
               command << " --pre" if edge
               cmd(command, echo: false, assert: !allow_failure, timing: true)
+              sh.cmd "rm -f dpl-*.gem", echo: false, assert: false, timing: false
             end
 
             def run_command(assert = !allow_failure)
@@ -126,8 +151,7 @@ module Travis
             end
 
             def default_branches
-              default_branches = config.values.grep(Hash).map(&:keys).flatten(1).uniq.compact
-              default_branches.any? ? default_branches : 'master'
+              config[:app].respond_to?(:keys) ? config[:app].keys : 'master'
             end
 
             def option(key, value)
@@ -160,11 +184,14 @@ module Travis
             def build_gem_locally_from(source, branch)
               sh.echo "Building dpl gem locally with source #{source} and branch #{branch}", ansi: :yellow
               sh.cmd("pushd /tmp",                             echo: false, assert: !allow_failure, timing: true)
-              sh.cmd("git clone https://github.com/#{source}", echo: false, assert: !allow_failure, timing: true)
-              sh.cmd("cd dpl",                                 echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("git clone https://github.com/#{source} #{source}", echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("pushd #{source}",                        echo: false, assert: !allow_failure, timing: true)
               sh.cmd("git checkout #{branch}",                 echo: false, assert: !allow_failure, timing: true)
               cmd("gem build dpl.gemspec",                     echo: false, assert: !allow_failure, timing: true)
               sh.cmd("mv dpl-*.gem $TRAVIS_BUILD_DIR",         echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("popd",                                   echo: false, assert: !allow_failure, timing: true)
+              # clean up, so that multiple edge providers can be run
+              sh.cmd("rm -rf #{File.dirname(source)}",         echo: false, assert: !allow_failure, timing: true)
               sh.cmd("popd",                                   echo: false, assert: !allow_failure, timing: true)
             ensure
               sh.cmd("test -e /tmp/dpl && rm -rf dpl", echo: false, assert: false, timing: true)

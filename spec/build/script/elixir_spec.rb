@@ -40,7 +40,7 @@ describe Travis::Build::Script::Elixir, :sexp do
 
   describe '#cache_slug' do
     subject { described_class.new(data).cache_slug }
-    it { is_expected.to eq('cache--otp-17.4--elixir-1.0.2') }
+    it { is_expected.to eq("cache-#{CACHE_SLUG_EXTRAS}--otp-17.4--elixir-1.0.2") }
   end
 
   def self.installs_required_otp_release(elixir_version, otp_release_wanted, otp_release_required)

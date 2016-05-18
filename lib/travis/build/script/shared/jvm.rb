@@ -8,6 +8,18 @@ module Travis
           jdk: 'default'
         }
 
+        CLEANUPS = [
+          { directory: '$HOME/.ivy2', glob: "ivydata-*.properties"},
+          { directory: '$HOME/.sbt',  glob: "*.lock"}
+        ]
+
+        def setup
+          super
+          CLEANUPS.each do |find_arg|
+            sh.raw "find #{find_arg[:directory]} -name #{find_arg[:glob]} -delete"
+          end
+        end
+
         def install
           sh.if '-f gradlew' do
             sh.cmd './gradlew assemble', retry: true, fold: 'install'
