@@ -110,8 +110,7 @@ module Travis
 
               sh.cmd 'sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0x5a16e7281be7a449'
               sh.cmd 'sudo apt-get update -qq'
-              vers_suffix = "=#{hhvm_version}~$(lsb_release -sc)" if hhvm_version
-              sh.cmd "sudo apt-get install -y hhvm#{vers_suffix}", timing: true
+              sh.cmd "sudo apt-get install -y hhvm", timing: true
             end
           end
         end
