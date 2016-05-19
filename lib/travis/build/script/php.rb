@@ -110,7 +110,7 @@ module Travis
 
               sh.cmd 'sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0x5a16e7281be7a449'
               sh.cmd 'sudo apt-get update -qq'
-              sh.cmd "sudo apt-get install -y hhvm", timing: true
+              sh.cmd "sudo apt-get install -y hhvm", timing: true, echo: true, assert: true
             end
           end
         end
