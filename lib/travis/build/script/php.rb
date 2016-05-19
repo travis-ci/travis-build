@@ -84,6 +84,14 @@ module Travis
         end
 
         def configure_hhvm
+          sh.raw <<-HHVM
+declare -A hhvm_lts_versions
+hhvm_lts_versions[0]="trusty-lts-3.3"
+hhvm_lts_versions[1]="trusty-lts-3.6"
+hhvm_lts_versions[2]="trusty-lts-3.9"
+hhvm_lts_versions[3]="trusty-lts-3.12"
+          HHVM
+
           if nightly?
             install_hhvm_nightly
           elsif hhvm?
@@ -99,6 +107,11 @@ module Travis
               sh.if "! $(grep -r hhvm\\.com /etc/apt/sources* 2>/dev/null)" do
                 sh.cmd 'sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0x5a16e7281be7a449'
                 sh.cmd 'echo "deb http://dl.hhvm.com/ubuntu $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list'
+                sh.raw <<-ADD_HHVM_LTS
+for version in ${hhvm_lts_versions[*]}; do
+  echo "deb http://dl.hhvm.com/ubuntu $version main" | sudo tee -a /etc/apt/sources.list
+done
+                ADD_HHVM_LTS
               end
               sh.cmd 'sudo apt-get update -qq'
               vers_suffix = "=#{hhvm_version}" if hhvm_version
