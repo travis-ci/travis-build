@@ -19,13 +19,15 @@ module Travis
 
         def setup
           super
-          unless hhvm?
+          if hhvm?
+            sh.cmd "phpenv global hhvm", assert: true
+          else
             sh.cmd "phpenv global #{version} 2>/dev/null", assert: false
             sh.if "$? -ne 0" do
               install_php_on_demand(version)
             end
+            sh.cmd "phpenv global #{version}", assert: true
           end
-          sh.cmd "phpenv global #{version}", assert: true
           sh.cmd "phpenv rehash", assert: false, echo: false, timing: false
           composer_self_update
         end
