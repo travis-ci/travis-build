@@ -106,23 +106,22 @@ hhvm_lts_versions[3]="trusty-lts-3.12"
               sh.echo "Updating HHVM", ansi: :yellow
               sh.raw 'sudo sed -e "/hhvm\\.com/d" -i.bak /etc/apt/sources.list'
 
-              sh.cmd 'sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0x5a16e7281be7a449'
               if hhvm_version
                 sh.raw <<-ADD_HHVM_LTS
 for version in ${hhvm_lts_versions[*]}; do
   echo "deb http://dl.hhvm.com/ubuntu $version main" | sudo tee -a /etc/apt/sources.list
 done
                 ADD_HHVM_LTS
+                sh.raw 'sudo apt-get purge hhvm >&/dev/null'
               else
                 # use latest
                 sh.cmd 'echo "deb http://dl.hhvm.com/ubuntu $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list'
               end
 
+              sh.cmd 'sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0x5a16e7281be7a449'
               sh.cmd 'sudo apt-get update -qq'
-              vers_suffix = "=#{hhvm_version}" if hhvm_version
+              vers_suffix = "=#{hhvm_version}~$(lsb_release -sc)" if hhvm_version
               sh.cmd "sudo apt-get install -y hhvm#{vers_suffix}", timing: true
-              if hhvm_version
-                sh.cmd ""
             end
           end
         end
