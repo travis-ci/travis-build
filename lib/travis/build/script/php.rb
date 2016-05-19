@@ -86,14 +86,6 @@ module Travis
         end
 
         def configure_hhvm
-          sh.raw <<-HHVM
-declare -A hhvm_lts_versions
-hhvm_lts_versions[0]="trusty-lts-3.3"
-hhvm_lts_versions[1]="trusty-lts-3.6"
-hhvm_lts_versions[2]="trusty-lts-3.9"
-hhvm_lts_versions[3]="trusty-lts-3.12"
-          HHVM
-
           if nightly?
             install_hhvm_nightly
           elsif hhvm?
@@ -109,11 +101,7 @@ hhvm_lts_versions[3]="trusty-lts-3.12"
               sh.raw 'sudo sed -e "/hhvm\\.com/d" -i.bak /etc/apt/sources.list'
 
               if hhvm_version
-                sh.raw <<-ADD_HHVM_LTS
-for version in ${hhvm_lts_versions[*]}; do
-  echo "deb http://dl.hhvm.com/ubuntu $version main" | sudo tee -a /etc/apt/sources.list
-done
-                ADD_HHVM_LTS
+                sh.raw "echo \"deb http://dl.hhvm.com/ubuntu $(lsb_release -sc)-lts-#{hhvm_version} main\" | sudo tee -a /etc/apt/sources.list"
                 sh.raw 'sudo apt-get purge hhvm >&/dev/null'
               else
                 # use latest
