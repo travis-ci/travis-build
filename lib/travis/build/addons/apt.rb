@@ -76,10 +76,24 @@ module Travis
             whitelisted = []
             disallowed = []
 
-            config_sources.each do |source_alias|
-              source = source_whitelist[source_alias]
-              whitelisted << source.clone if source && source['sourceline']
-              disallowed << source_alias if source.nil?
+            config_sources.each do |src|
+              source = source_whitelist[src]
+
+              if source.respond_to?(:[]) && source['sourceline']
+                whitelisted << source.clone
+              elsif ! data.disable_sudo?
+                if src.respond_to?(:[]) && src[:sourceline]
+                  whitelisted << {
+                    'sourceline' => src[:sourceline],
+                    'key_url' => src[:key_url]
+                  }
+                else
+                  sh.echo "`sourceline` key missing:", ansi: :yellow
+                  sh.echo Shellwords.escape(src.inspect)
+                end
+              elsif source.nil?
+                disallowed << src
+              end
             end
 
             unless disallowed.empty?
@@ -106,16 +120,7 @@ module Travis
           def add_apt_packages
             sh.echo "Installing APT Packages (BETA)", ansi: :yellow
 
-            whitelisted = []
-            disallowed = []
-
-            config_packages.each do |package|
-              if package_whitelist.include?(package)
-                whitelisted << package
-              else
-                disallowed << package
-              end
-            end
+            whitelisted, disallowed = config_packages.partition { |pkg| package_whitelisted?(package_whitelist, pkg) }
 
             unless disallowed.empty?
               sh.echo "Disallowing packages: #{disallowed.map { |package| Shellwords.escape(package) }.join(', ')}", ansi: :red
@@ -156,6 +161,10 @@ module Travis
 
           def config_packages
             @config_packages ||= Array(config[:packages]).flatten.compact
+          end
+
+          def package_whitelisted?(list, pkg)
+            list.include?(pkg) || !data.disable_sudo?
           end
 
           def package_whitelist
