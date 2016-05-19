@@ -76,4 +76,34 @@ describe Travis::Build::Script::DirectoryCache, :sexp do
       it { expect(sexp).to include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher add foo/foo/bar', timing: true] }
     end
   end
+
+  describe '#fetch_url' do
+    context 'Given "cache: bundler"' do
+      let(:config) { { cache: 'bundler' } }
+      let(:file_name) { URI(cache.fetch_url).path.split('/').last }
+
+      it { expect(file_name).to eq 'cache--rvm-default--gemfile-Gemfile.tgz' }
+
+      context 'when looking for cache with extra information' do
+        let(:file_name) { URI(cache.fetch_url('', true)).path.split('/').last }
+
+        it { expect(file_name).to eq "cache-#{CACHE_SLUG_EXTRAS}--rvm-default--gemfile-Gemfile.tgz" }
+      end
+    end
+  end
+
+  describe '#push_url' do
+    context 'Given "cache: bundler"' do
+      let(:config) { { cache: 'bundler' } }
+      let(:file_name) { URI(cache.push_url).path.split('/').last }
+
+      it { expect(file_name).to eq "cache-#{CACHE_SLUG_EXTRAS}--rvm-default--gemfile-Gemfile.tgz" }
+
+      context 'and "os: osx"' do
+        let(:config) { { cache: 'bundler', os: 'osx' } }
+
+        it { expect(file_name).to eq "cache-#{CACHE_SLUG_EXTRAS.gsub('linux','osx')}--rvm-default--gemfile-Gemfile.tgz" }
+      end
+    end
+  end
 end
