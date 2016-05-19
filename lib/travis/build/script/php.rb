@@ -98,10 +98,10 @@ module Travis
           sh.if '"$(lsb_release -sc 2>/dev/null)"' do
             sh.fold 'update.hhvm', ansi: :yellow do
               sh.echo "Updating HHVM", ansi: :yellow
-              sh.raw 'sudo sed -e "/hhvm\\.com/d" -i.bak /etc/apt/sources.list'
+              sh.raw 'sudo find /etc/apt -type f -exec sed -e "/hhvm\\.com/d" -i.bak {} \;'
 
               if hhvm_version
-                sh.raw "echo \"deb http://dl.hhvm.com/ubuntu $(lsb_release -sc)-lts-#{hhvm_version} main\" | sudo tee -a /etc/apt/sources.list"
+                sh.raw "echo \"deb http://dl.hhvm.com/ubuntu $(lsb_release -sc)-lts-#{hhvm_version} main\" | sudo tee -a /etc/apt/sources.list >&/dev/null"
                 sh.raw 'sudo apt-get purge hhvm >&/dev/null'
               else
                 # use latest
