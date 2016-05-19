@@ -70,7 +70,7 @@ module Travis
 
         def hhvm_version
           return unless hhvm?
-          if vers = version.scan(/-(\d+(?:\.\d+)?)$/).first
+          if vers = version.scan(/-(\d+(?:\.\d+)*)$/).first
             vers.first
           end
         end
