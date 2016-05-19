@@ -61,9 +61,10 @@ describe Travis::Build::Script::Php, :sexp do
   end
 
   describe 'installs specific hhvm version' do
-    before { data[:config][:php] = 'hhvm-4.12' }
+    before { data[:config][:php] = 'hhvm-3.12' }
     it { should include_sexp [:cmd, 'sudo apt-get update -qq'] }
-    it { should include_sexp [:cmd, 'sudo apt-get install -y hhvm=4.12', timing: true] }
+    it { should include_sexp [:cmd, 'sudo apt-get install -y hhvm', timing: true] }
+    it { should include_sexp [:raw, "echo \"deb http://dl.hhvm.com/ubuntu $(lsb_release -sc)-lts-3.12 main\" | sudo tee -a /etc/apt/sources.list >&/dev/null"] }
   end
 
   describe 'when desired PHP version is not found' do
