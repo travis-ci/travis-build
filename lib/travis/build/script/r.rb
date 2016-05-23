@@ -122,13 +122,26 @@ module Travis
                 # output.
                 sh.cmd 'brew update >/dev/null', retry: true
 
+                if r_version == r_latest
+                  r_url = "#{repos[:CRAN]}/bin/macosx/R-latest.pkg"
+
+                # 3.2.5 was never built for OS X so
+                # we need to use 3.2.4-revised, which is the same codebase
+                # https://stat.ethz.ch/pipermail/r-devel/2016-May/072642.html
+                elsif r_version == '3.2.5'
+                  r_url = "#{repos[:CRAN]}/bin/macosx/old/R-3.2.4-revised.pkg"
+
+                # all other binaries are in /bin/macosx/old
+                else
+                  r_url = "#{repos[:CRAN]}/bin/macosx/old/R-#{r_version}.pkg"
+                end
+
                 # Install from latest CRAN binary build for OS X
-                sh.cmd "wget #{repos[:CRAN]}/bin/macosx/R-latest.pkg "\
-                  '-O /tmp/R-latest.pkg'
+                sh.cmd "curl -Lo /tmp/R.pkg #{r_url}", retry: true
 
                 sh.echo 'Installing OS X binary package for R'
-                sh.cmd 'sudo installer -pkg "/tmp/R-latest.pkg" -target /'
-                sh.rm '/tmp/R-latest.pkg'
+                sh.cmd 'sudo installer -pkg "/tmp/R.pkg" -target /'
+                sh.rm '/tmp/R.pkg'
 
               else
                 sh.failure "Operating system not supported: #{config[:os]}"
@@ -488,6 +501,10 @@ module Travis
             normalized_r_version
           else v
           end
+        end
+
+        def r_latest
+          '3.3.0'
         end
 
         def repos

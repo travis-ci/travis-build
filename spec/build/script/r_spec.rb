@@ -40,8 +40,27 @@ describe Travis::Build::Script::R, :sexp do
     should include_sexp [:export, ['TRAVIS_R_VERSION', '3.3.0']]
   end
 
-  it 'downloads and installs R' do
+  it 'downloads and installs latest R' do
     should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-3.3.0.xz},
+                         assert: true, echo: true, retry: true, timing: true]
+  end
+
+  it 'downloads and installs latest R on OS X' do
+    data[:config][:os] = 'osx'
+    should include_sexp [:cmd, %r{^curl.*bin/macosx/R-latest.pkg},
+                         assert: true, echo: true, retry: true, timing: true]
+  end
+
+  it 'downloads and installs aliased R 3.2.5 on OS X' do
+    data[:config][:os] = 'osx'
+    data[:config][:r] = '3.2.5'
+    should include_sexp [:cmd, %r{^curl.*bin/macosx/old/R-3.2.4-revised.pkg},
+                         assert: true, echo: true, retry: true, timing: true]
+  end
+  it 'downloads and installs other R versions on OS X' do
+    data[:config][:os] = 'osx'
+    data[:config][:r] = '3.1.3'
+    should include_sexp [:cmd, %r{^curl.*bin/macosx/old/R-3.1.3.pkg},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
