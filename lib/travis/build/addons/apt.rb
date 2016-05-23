@@ -82,7 +82,7 @@ module Travis
               if source.respond_to?(:[]) && source['sourceline']
                 whitelisted << source.clone
               elsif ! data.disable_sudo?
-                if src.respond_to?(:[]) && src[:sourceline]
+                if src.respond_to?(:has_key?) && src.has_key?(:sourceline)
                   whitelisted << {
                     'sourceline' => src[:sourceline],
                     'key_url' => src[:key_url]
