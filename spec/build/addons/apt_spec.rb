@@ -153,6 +153,13 @@ describe Travis::Build::Addons::Apt, :sexp do
       }
     end
 
+    let(:evilbadthings) do
+      {
+        'alias' => 'evilbadthings',
+        'sourceline' => 'deb https://evilbadthings.com/chef/stable/ubuntu/ precise main'
+      }
+    end
+
     let(:source_whitelist) do
       {
         'deadsnakes-precise' => deadsnakes,
@@ -185,11 +192,13 @@ describe Travis::Build::Addons::Apt, :sexp do
     end
 
     context 'with multiple sources, some whitelisted' do
-      let(:config) { { sources: ['packagecloud-precise', 'deadsnakes-precise', 'evilbadthings', { sourceline: 'foobar', key_url: 'deadbeef' }] } }
+      let(:config) { { sources: ['packagecloud-precise', 'deadsnakes-precise', 'evilbadthings', 'ppa:evilbadppa', { sourceline: 'foobar', key_url: 'deadbeef' }] } }
 
       it { should include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
       it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
       it { should include_sexp [:cmd, apt_key_add_command(packagecloud['key_url']), echo: true, assert: true, timing: true] }
+      it { should_not include_sexp [:cmd, apt_sources_append_command(evilbadthings['sourceline']), echo: true, assert: true, timing: true] }
+      it { should_not include_sexp [:cmd, apt_add_repository_command('ppa:evilbadppa'), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_key_add_command(deadsnakes['key_url']), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_sources_append_command('foobar'), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_key_add_command('deadbeef'), echo: true, assert: true, timing: true] }
@@ -209,13 +218,15 @@ describe Travis::Build::Addons::Apt, :sexp do
 
     context 'when sudo is enabled' do
       let(:paranoid) { false }
-      let(:config) { { sources: ['packagecloud-precise', 'deadsnakes-precise', { sourceline: 'foobar', key_url: 'deadbeef' }] } }
+      let(:config) { { sources: ['packagecloud-precise', 'deadsnakes-precise', 'evilbadthings', 'ppa:archivematica/externals', { sourceline: 'foobar', key_url: 'deadbeef' }] } }
 
       it { should include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
       it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
       it { should include_sexp [:cmd, apt_key_add_command(packagecloud['key_url']), echo: true, assert: true, timing: true] }
       it { should include_sexp [:cmd, apt_sources_append_command('foobar'), echo: true, assert: true, timing: true] }
       it { should include_sexp [:cmd, apt_key_add_command('deadbeef'), echo: true, assert: true, timing: true] }
+      it { should_not include_sexp [:cmd, apt_sources_append_command(evilbadthings['sourceline']), echo: true, assert: true, timing: true] }
+      it { should_not include_sexp [:cmd, apt_add_repository_command('ppa:evilbadppa'), echo: true, assert: true, timing: true] }
 
       context 'when a malformed source is given' do
         let(:config) { { sources: [{ key_url: 'deadbeef' }] } }

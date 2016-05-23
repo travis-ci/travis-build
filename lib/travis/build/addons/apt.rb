@@ -75,6 +75,7 @@ module Travis
 
             whitelisted = []
             disallowed = []
+            disallowed_while_sudo = []
 
             config_sources.each do |src|
               source = source_whitelist[src]
@@ -82,14 +83,18 @@ module Travis
               if source.respond_to?(:[]) && source['sourceline']
                 whitelisted << source.clone
               elsif ! data.disable_sudo?
-                if src.respond_to?(:[]) && src[:sourceline]
-                  whitelisted << {
-                    'sourceline' => src[:sourceline],
-                    'key_url' => src[:key_url]
-                  }
+                if src.respond_to?(:has_key?)
+                  if src.has_key?(:sourceline)
+                    whitelisted << {
+                      'sourceline' => src[:sourceline],
+                      'key_url' => src[:key_url]
+                    }
+                  else
+                    sh.echo "`sourceline` key missing:", ansi: :yellow
+                    sh.echo Shellwords.escape(src.inspect)
+                  end
                 else
-                  sh.echo "`sourceline` key missing:", ansi: :yellow
-                  sh.echo Shellwords.escape(src.inspect)
+                  disallowed_while_sudo << src
                 end
               elsif source.nil?
                 disallowed << src
@@ -101,6 +106,12 @@ module Travis
               sh.echo 'If you require these sources, please review the source ' \
                 'approval process at: ' \
                 'https://github.com/travis-ci/apt-source-whitelist#source-approval-process'
+            end
+
+            unless disallowed_while_sudo.empty?
+              sh.echo "Disallowing sources: #{disallowed_while_sudo.map { |source| Shellwords.escape(source) }.join(', ')}", ansi: :red
+              sh.echo "To add unlisted APT sources, follow instructions in " \
+                "https://docs.travis-ci.com/user/installing-dependencies#Installing-Packages-with-the-APT-Addon"
             end
 
             unless whitelisted.empty?
