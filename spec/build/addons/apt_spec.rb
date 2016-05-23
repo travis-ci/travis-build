@@ -209,7 +209,7 @@ describe Travis::Build::Addons::Apt, :sexp do
 
     context 'when sudo is enabled' do
       let(:paranoid) { false }
-      let(:config) { { sources: ['packagecloud-precise', 'deadsnakes-precise', { sourceline: 'foobar', key_url: 'deadbeef' }] } }
+      let(:config) { { sources: ['packagecloud-precise', 'deadsnakes-precise', 'ppa:archivematica/externals', { sourceline: 'foobar', key_url: 'deadbeef' }] } }
 
       it { should include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
       it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
