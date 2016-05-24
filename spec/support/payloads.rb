@@ -61,12 +61,6 @@ PAYLOADS = {
     'paranoid' => true,
     'skip_resolv_updates' => false,
     'skip_etc_hosts_fix' => false,
-    'cache' => { # I have no idea where these settings are merged
-      'apt' => true,
-    },
-    'hosts' => {
-      apt_cache: 'http://apt_cache.travis-ci.org'
-    },
     'cache_options' => {
       'type' => 's3', # I have no idea where these settings are merged
       'fetch_timeout' => 20,

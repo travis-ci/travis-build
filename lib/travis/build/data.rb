@@ -10,7 +10,6 @@ module Travis
       DEFAULTS = { }
 
       DEFAULT_CACHES = {
-        apt:       false,
         bundler:   false,
         cocoapods: false,
         composer:  false,
