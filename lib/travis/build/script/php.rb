@@ -19,13 +19,15 @@ module Travis
 
         def setup
           super
-          unless hhvm?
+          if hhvm?
+            sh.cmd "phpenv global hhvm", assert: true
+          else
             sh.cmd "phpenv global #{version} 2>/dev/null", assert: false
             sh.if "$? -ne 0" do
               install_php_on_demand(version)
             end
+            sh.cmd "phpenv global #{version}", assert: true
           end
-          sh.cmd "phpenv global #{version}", assert: true
           sh.cmd "phpenv rehash", assert: false, echo: false, timing: false
           composer_self_update
         end
@@ -65,7 +67,14 @@ module Travis
         end
 
         def hhvm?
-          version.include?('hhvm')
+          version.start_with?('hhvm')
+        end
+
+        def hhvm_version
+          return unless hhvm?
+          if match_data = /-(\d+(?:\.\d+)*)$/.match(version)
+            match_data[1]
+          end
         end
 
         def nightly?
@@ -89,12 +98,19 @@ module Travis
           sh.if '"$(lsb_release -sc 2>/dev/null)"' do
             sh.fold 'update.hhvm', ansi: :yellow do
               sh.echo "Updating HHVM", ansi: :yellow
-              sh.if "! $(grep -r hhvm\\.com /etc/apt/sources* 2>/dev/null)" do
-                sh.cmd 'sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0x5a16e7281be7a449'
+              sh.raw 'sudo find /etc/apt -type f -exec sed -e "/hhvm\\.com/d" -i.bak {} \;'
+
+              if hhvm_version
+                sh.raw "echo \"deb http://dl.hhvm.com/ubuntu $(lsb_release -sc)-lts-#{hhvm_version} main\" | sudo tee -a /etc/apt/sources.list >&/dev/null"
+                sh.raw 'sudo apt-get purge hhvm >&/dev/null'
+              else
+                # use latest
                 sh.cmd 'echo "deb http://dl.hhvm.com/ubuntu $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list'
               end
+
+              sh.cmd 'sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0x5a16e7281be7a449'
               sh.cmd 'sudo apt-get update -qq'
-              sh.cmd 'sudo apt-get install -y hhvm', timing: true
+              sh.cmd "sudo apt-get install -y hhvm", timing: true, echo: true, assert: true
             end
           end
         end
