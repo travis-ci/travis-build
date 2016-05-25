@@ -7,6 +7,12 @@ module Travis
         MSG = "Setting environment variables from %s"
 
         def apply
+          if data.secure_env_vars_removed?
+            sh.echo ""
+            sh.echo "Encrypted environment variables have been removed for security reasons.", ansi: :red
+            sh.echo "See https://docs.travis-ci.com/user/pull-requests/#Pull-Requests-and-Security-Restrictions", ansi: :red
+          end
+
           env.groups.each { |group| export(group) }
           sh.newline if env.announce?
         end
