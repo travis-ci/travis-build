@@ -366,19 +366,23 @@ module Travis
         end
 
         def dump_logs
-          sh.fold "Check logs" do
-            export_rcheck_dir
-            sh.echo 'R CMD check logs', ansi: :yellow
-            ['out', 'log', 'fail'].each do |ext|
-              cmd =
-                'for name in '\
-                "$(find \"${RCHECK_DIR}\" -type f -name \"*#{ext}\");"\
-              'do '\
-                'echo ">>> Filename: ${name} <<<";'\
-                'cat ${name};'\
-                'done'
-              sh.cmd cmd
-            end
+          export_rcheck_dir
+          dump_log("fail")
+          dump_log("log")
+          dump_log("out")
+        end
+
+        def dump_log(type)
+          sh.fold "#{type} logs" do
+            sh.echo "R CMD check #{type} logs", ansi: :yellow
+            cmd =
+              'for name in '\
+              "$(find \"${RCHECK_DIR}\" -type f -name \"*#{type}\");"\
+            'do '\
+              'echo ">>> Filename: ${name} <<<";'\
+              'cat ${name};'\
+              'done'
+            sh.cmd cmd
           end
         end
 
