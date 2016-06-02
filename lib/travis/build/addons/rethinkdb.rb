@@ -11,8 +11,8 @@ module Travis
 
         def after_prepare
           sh.fold 'rethinkdb' do
-            sh.if "ENV['TRAVIS_OS_NAME'] != 'linux'" do
-              sh.echo "The RethinkDB addon only works on Linux. $TRAVIS_OS_NAME is #{ENV['TRAVIS_OS_NAME']}.", ansi: :red
+            sh.if "$(uname) != 'Linux'" do
+              sh.echo "The RethinkDB addon only works on Linux.", ansi: :red
             end
             sh.else do
               sh.echo "Installing RethinkDB version #{rethinkdb_version}", ansi: :yellow
