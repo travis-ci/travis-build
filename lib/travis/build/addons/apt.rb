@@ -9,6 +9,9 @@ module Travis
         SUPPORTED_OPERATING_SYSTEMS = %w(
           linux
         ).freeze
+        LLVM_APT_REPO_MSG = "The LLVM APT rpository is currently available. " \
+          "Your builds may fail if your build updates LLVM/clang to a newer version with 'apt'. " \
+          "Please see https://github.com/travis-ci/travis-ci/issues/6120#issuecomment-224072540 for a workaround."
 
         class << self
           def package_whitelist
@@ -116,7 +119,12 @@ module Travis
 
             unless whitelisted.empty?
               sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
+
               whitelisted.each do |source|
+                if source['alias'] =~ /\bllvm\b/ || source['sourceline'] =~ /\bllvm\b/
+                  sh.echo LLVM_APT_REPO_MSG, ansi: :yellow
+                end
+
                 sh.cmd "curl -sSL #{source['key_url'].untaint.inspect} | sudo -E apt-key add -", echo: true, assert: true, timing: true if source['key_url']
                 if source['sourceline'].start_with? 'ppa:'
                   sh.cmd "sudo -E apt-add-repository -y #{source['sourceline'].untaint.inspect}", echo: true, assert: true, timing: true
