@@ -5,6 +5,9 @@ module Travis
         DEFAULTS = {
           compiler: 'gcc'
         }
+        LLVM_APT_REPO_MSG = "The LLVM APT rpository is currently available. " \
+          "Your builds may fail if your build updates LLVM/clang to a newer version with 'apt'. " \
+          "Please see https://github.com/travis-ci/travis-ci/issues/6120#issuecomment-224072540 for a workaround."
 
         def export
           super
@@ -16,6 +19,9 @@ module Travis
 
         def announce
           super
+          if compiler.include? 'clang'
+            sh.echo LLVM_APT_REPO_MSG, ansi: :yellow
+          end
           sh.cmd "#{compiler} --version"
         end
 
