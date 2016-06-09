@@ -156,6 +156,10 @@ module Travis
       def debug_options
         job[:debug_options] || {}
       end
+
+      def appliances_switches
+        data[:appliances_switches] || {}
+      end
     end
   end
 end
