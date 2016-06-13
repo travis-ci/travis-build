@@ -5,7 +5,7 @@ module Travis
     class Addons
       class Sonarqube < Base
         SUPER_USER_SAFE = true
-        DEFAULT_SQ_HOST_URL = "https://nemo.sonarqube.org"
+        DEFAULT_SQ_HOST_URL = "https://sonarqube.com"
         SCANNER_CLI_VERSION = "2.6.1"
 
         def before_before_script
