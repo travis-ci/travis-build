@@ -12,16 +12,7 @@ form.
 
 ## Running test suites
 
-Since the specs run the generated build script, we recommend running it in a
-virtual machine to contain the changes. There's a Vagrantfile in this
-repository, so you can use [Vagrant](http://www.vagrantup.com) for this:
-
-    vagrant up
-    vagrant ssh
-    cd /vagrant
-    bundle exec rspec spec
-
-If you wish to just run the specs, you can just run `bundle exec rspec spec`.
+Run `bundle exec rspec spec`.
 
 ## Use as addon for CLI
 
