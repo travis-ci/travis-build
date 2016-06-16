@@ -56,7 +56,8 @@ describe Travis::Build::Git::Clone, :sexp do
   end
 
   let(:cd)            { [:cd,  'travis-ci/travis-ci', echo: true] }
-  let(:fetch_ref)     { [:cmd, %r(git fetch origin \+[\w/]+:), assert: true, echo: true, retry: true, timing: true] }
+  let(:fetch_args)    { "--depth=#{depth}" }
+  let(:fetch_ref)     { [:cmd, %r(git fetch #{fetch_args} origin \+[\w/]+:), assert: true, echo: true, retry: true, timing: true] }
   let(:checkout_push) { [:cmd, 'git checkout -qf 313f61b', assert: true, echo: true] }
   let(:checkout_pull) { [:cmd, 'git checkout -qf FETCH_HEAD', assert: true, echo: true] }
 
@@ -65,6 +66,16 @@ describe Travis::Build::Git::Clone, :sexp do
   describe 'with a ref given' do
     before { payload[:job][:ref] = 'refs/pull/118/merge' }
     it { should include_sexp fetch_ref }
+
+    describe 'with no depth specified' do
+      it { should include_sexp fetch_ref }
+    end
+
+    describe 'with a custom depth' do
+      let(:depth) { 1 }
+      before { payload[:config][:git]['depth'] = depth }
+      it { should include_sexp fetch_ref }
+    end
   end
 
   describe 'with no ref given' do
