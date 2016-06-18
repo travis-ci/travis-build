@@ -43,12 +43,15 @@ module Travis
         private
 
           def compiler
-            case config[:compiler].to_s
-            when /^gcc/i, /^clang/i
+            if config[:compiler].to_s.start_with?('gcc', 'clang')
               config[:compiler].to_s
             else
-              { 'linux' => 'gcc', 
-                'osx' => 'clang' }[config[:os]]
+              case config[:os]
+              when 'osx'
+                'clang'
+              when 'linux'
+                'gcc'
+              end
             end
           end
       end

@@ -51,8 +51,12 @@ module Travis
             when /^clang([^+]*)$/i, /^clang\+\+(.*)$/i
               'clang++' + $1
             else
-              { 'linux' => 'g++', 
-                'osx' => 'clang++' }[config[:os]]
+              case config[:os]
+              when 'osx'
+                'clang++'
+              when 'linux'
+                'g++'
+              end
             end
           end
 
@@ -63,8 +67,12 @@ module Travis
             when /^clang([^+]*)$/i, /^clang\+\+(.*)$/i
               'clang' + $1
             else
-              { 'linux' => 'gcc', 
-                'osx' => 'clang' }[config[:os]]
+              case config[:os]
+              when 'osx'
+                'clang'
+              when 'linux'
+                'gcc'
+              end
             end
           end
       end
