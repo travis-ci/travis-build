@@ -14,7 +14,7 @@ module Travis
         def configure
           super
 
-          if is_squeak? or is_pharo?
+          if is_squeak? or is_pharo? or is_moose?
             case config[:os]
             when 'linux'
               install_dependencies
@@ -98,6 +98,10 @@ module Travis
 
           def is_pharo?
             is_platform?('pharo')
+          end
+
+          def is_moose?
+            is_platform?('moose')
           end
 
           def is_gemstone?
