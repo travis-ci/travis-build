@@ -6,7 +6,6 @@ module Travis
       class UpdateGlibc < Base
         def apply
           sh.fold "fix.CVE-2015-7547" do
-            fix_gce_apt_src
             sh.export 'DEBIAN_FRONTEND', 'noninteractive'
             sh.cmd <<-EOF
 if [ ! $(uname|grep Darwin) ]; then
@@ -17,11 +16,6 @@ fi
           end
         end
 
-        def fix_gce_apt_src
-          sh.if "`hostname` == testing-gce-*" do
-            sh.cmd "sudo sed -i 's%us-central1.gce.archive.ubuntu.com/ubuntu%us.archive.ubuntu.com/ubuntu%' /etc/apt/sources.list"
-          end
-        end
       end
     end
   end
