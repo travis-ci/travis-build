@@ -44,7 +44,7 @@ export MIX_ARCHIVES=#{KIEX_MIX_HOME}elixir-#{elixir_version}' > #{KIEX_ELIXIR_HO
 
         def install
           if elixir_1_3_0_or_higher?
-            sh.cmd 'mix local.rebar --force' fold: "install.rebar"
+            sh.cmd 'mix local.rebar --force', fold: "install.rebar"
           end
           sh.cmd 'mix local.hex --force', fold: "install.hex"
           sh.cmd 'mix deps.get', fold: "install.deps"
