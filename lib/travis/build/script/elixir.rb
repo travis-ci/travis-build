@@ -43,6 +43,9 @@ export MIX_ARCHIVES=#{KIEX_MIX_HOME}elixir-#{elixir_version}' > #{KIEX_ELIXIR_HO
         end
 
         def install
+          if elixir_1_3_0_or_higher?
+            sh.cmd 'mix local.rebar --force', fold: "install.rebar"
+          end
           sh.cmd 'mix local.hex --force', fold: "install.hex"
           sh.cmd 'mix deps.get', fold: "install.deps"
         end
@@ -68,6 +71,10 @@ export MIX_ARCHIVES=#{KIEX_MIX_HOME}elixir-#{elixir_version}' > #{KIEX_ELIXIR_HO
 
         def elixir_1_2_0_or_higher?
           Gem::Version.new(elixir_version) > Gem::Version.new('1.1.999') # use this for pre-release 1.2.0
+        end
+
+        def elixir_1_3_0_or_higher?
+          Gem::Version.new(elixir_version) > Gem::Version.new('1.2.999') # use this for pre-release 1.3.0
         end
 
         def elixir_1_0_x?
