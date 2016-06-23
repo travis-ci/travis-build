@@ -151,7 +151,7 @@ module Travis
             end
 
             def default_branches
-              default_branches = config.values.grep(Hash).map(&:keys).flatten(1).uniq.compact
+              default_branches = config.except(:edge).values.grep(Hash).map(&:keys).flatten(1).uniq.compact
               default_branches.any? ? default_branches : 'master'
             end
 
