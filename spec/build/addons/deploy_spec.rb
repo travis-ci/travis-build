@@ -39,14 +39,22 @@ describe Travis::Build::Addons::Deploy, :sexp do
     let(:data)   { super().merge(branch: 'staging') }
     let(:config) { { provider: 'heroku', on: { branch: { staging: 'foo', production: 'bar' } } } }
 
-    it { should match_sexp [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = staging || $TRAVIS_BRANCH = production)'] }
+    it { should match_sexp [:if, '($TRAVIS_BRANCH = staging || $TRAVIS_BRANCH = production)'] }
   end
 
   describe 'option specific branch hashes (deprecated)' do
     let(:data)   { super().merge(branch: 'staging') }
     let(:config) { { provider: 'heroku', app: { staging: 'foo', production: 'bar' } } }
 
-    it { should match_sexp [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = staging || $TRAVIS_BRANCH = production)'] }
+    it { should match_sexp [:if, '($TRAVIS_BRANCH = staging || $TRAVIS_BRANCH = production)'] }
+  end
+
+  describe 'yields correct branch condition' do
+    let(:data)   { super().merge(branch: 'foo') }
+    let(:config) { { provider: 'engineyard', app: { foo: 'foo' } } }
+
+    it { should match_sexp [:if, '($TRAVIS_BRANCH = foo)'] }
+    it { should_not match_sexp [:if, '($TRAVIS_BRANCH = not_foo)'] }
   end
 
   describe 'option specific Ruby version' do
@@ -66,13 +74,13 @@ describe Travis::Build::Addons::Deploy, :sexp do
     let(:data)   { super().merge(branch: 'staging') }
     let(:config) { { provider: 'heroku', edge: { source: 'svenvfuchs/dpl', branch: 'foo' } } }
 
-    it { should match_sexp [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master)'] }
+    it { should match_sexp [:if, '($TRAVIS_BRANCH = master)'] }
   end
 
   describe 'on tags' do
     let(:config) { { provider: 'heroku', on: { tags: true } } }
 
-    it { should match_sexp [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master) && (-n $TRAVIS_TAG)'] }
+    it { should match_sexp [:if, '($TRAVIS_BRANCH = master) && (-n $TRAVIS_TAG)'] }
   end
 
   describe 'multiple providers' do
@@ -80,10 +88,10 @@ describe Travis::Build::Addons::Deploy, :sexp do
     let(:nodejitsu) { { provider: 'nodejitsu', user: 'foo', api_key: 'bar', on: { condition: '$BAR = bar' } } }
     let(:config)    { [heroku, nodejitsu] }
 
-    it { should match_sexp [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master) && ($FOO = foo)'] }
+    it { should match_sexp [:if, '($TRAVIS_BRANCH = master) && ($FOO = foo)'] }
     # it { should include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do ruby -S dpl --provider=heroku --password=foo --email=user@host --fold', assert: true, timing: true] }
     it { should include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do ruby -S dpl --provider="heroku" --password="foo" --email="user@host" --fold; if [ $? -ne 0 ]; then echo "failed to deploy"; travis_terminate 2; fi', timing: true] }
-    it { should match_sexp [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master) && ($BAR = bar)'] }
+    it { should match_sexp [:if, '($TRAVIS_BRANCH = master) && ($BAR = bar)'] }
     # it { should include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do ruby -S dpl --provider=nodejitsu --user=foo --api_key=bar --fold', assert: true, timing: true] }
     it { should include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do ruby -S dpl --provider="nodejitsu" --user="foo" --api_key="bar" --fold; if [ $? -ne 0 ]; then echo "failed to deploy"; travis_terminate 2; fi', timing: true] }
   end
@@ -97,7 +105,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
   describe 'multiple conditions match' do
     let(:config) { { provider: 'heroku', on: { condition: ['$FOO = foo', '$BAR = bar'] } } }
 
-    it { should match_sexp [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master) && (($FOO = foo) && ($BAR = bar))'] }
+    it { should match_sexp [:if, '($TRAVIS_BRANCH = master) && ($FOO = foo) && ($BAR = bar)'] }
   end
 
   describe 'deploy condition fails' do
