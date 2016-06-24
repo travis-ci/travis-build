@@ -80,7 +80,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
   describe 'on tags' do
     let(:config) { { provider: 'heroku', on: { tags: true } } }
 
-    it { should match_sexp [:if, '($TRAVIS_BRANCH = master) && (-n $TRAVIS_TAG)'] }
+    it { should match_sexp [:if, '("$TRAVIS_TAG" != "")'] }
   end
 
   describe 'multiple providers' do
