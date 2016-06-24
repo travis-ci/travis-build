@@ -102,7 +102,7 @@ module Travis
             def branch_condition
               return if on[:all_branches] || on[:tags]
               branches  = Array(on[:branch] || default_branches)
-              branches.map { |b| "$TRAVIS_BRANCH = #{b}" }.join(' || ')
+              branches.map { |b| "$TRAVIS_BRANCH = #{Array(b).first}" }.join(' || ')
             end
 
             def tags_condition
