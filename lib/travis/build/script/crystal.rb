@@ -26,7 +26,7 @@ module Travis
 
             sh.cmd %q(sudo sh -c "curl -sSL https://github.com/crystal-lang/shards/releases/latest | \
                       egrep -o '/crystal-lang/shards/releases/download/v[0-9\.]*/shards.*linux_.*64.gz' | \
-                      wget --base=http://github.com/ -i - -O - | \
+                      wget --base=https://github.com/ -i - -O - | \
                       gunzip > /usr/local/bin/shards && \
                       chmod +x /usr/local/bin/shards")
           end
@@ -63,14 +63,14 @@ module Travis
 
         def select_version
           key = {
-            url: "http://dist.crystal-lang.org/rpm/RPM-GPG-KEY",
+            url: "https://dist.crystal-lang.org/rpm/RPM-GPG-KEY",
             fingerprint: "5995C83CD754BE448164192909617FD37CC06B54"
           }
 
           case config[:crystal]
           when nil, "latest"
             {
-              url: "http://dist.crystal-lang.org/apt",
+              url: "https://dist.crystal-lang.org/apt",
               key: key,
               package: "crystal"
             }
