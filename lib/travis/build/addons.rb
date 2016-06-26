@@ -12,6 +12,7 @@ require 'travis/build/addons/mariadb'
 require 'travis/build/addons/postgresql'
 require 'travis/build/addons/sauce_connect'
 require 'travis/build/addons/ssh_known_hosts'
+require 'travis/build/addons/transifex'
 
 module Travis
   module Build
@@ -48,7 +49,8 @@ module Travis
         def addon(name, config)
           const = self.class.const_get(name.to_s.camelize)
           const.new(script, sh, data, config) if const && run_addon?(const)
-        rescue NameError
+        rescue NameError => e
+          warn e
         end
 
         def addon_config
