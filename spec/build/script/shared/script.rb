@@ -48,6 +48,7 @@ shared_examples_for 'a build script sexp' do
   it_behaves_like 'fix ps4'
   it_behaves_like 'fix etc/hosts'
   it_behaves_like 'fix resolve.conf'
+  it_behaves_like 'update glibc'
   it_behaves_like 'put localhost first in etc/hosts'
   it_behaves_like 'starts services'
   it_behaves_like 'build script stages'
