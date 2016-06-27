@@ -25,6 +25,7 @@ module Travis
           r_check_revdep: false,
           # Heavy dependencies
           pandoc: true,
+          latex: true,
           pandoc_version: '1.15.2',
           # Bioconductor
           bioc: 'https://bioconductor.org/biocLite.R',
@@ -152,7 +153,7 @@ module Travis
               options_repos = "options(repos = c(#{repos_str}))"
               sh.cmd %Q{echo '#{options_repos}' > ~/.Rprofile.site}
 
-              setup_latex
+              setup_latex if config[:latex]
 
               setup_bioc if needs_bioc?
               setup_pandoc if config[:pandoc]
