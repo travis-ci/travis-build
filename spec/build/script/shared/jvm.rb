@@ -10,7 +10,7 @@ shared_examples_for 'a jvm build sexp' do
       expect(branch).to include_sexp([:cmd, './gradlew assemble', options])
     end
 
-    it 'runs `gradlew assemble` if build.gradle exists' do
+    it 'runs `gradle assemble` if build.gradle exists' do
       branch = sexp_find(sexp, [:elif, '-f build.gradle'])
       expect(branch).to include_sexp([:cmd, 'gradle assemble', options])
     end
