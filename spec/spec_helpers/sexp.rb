@@ -26,7 +26,7 @@ module SpecHelpers
     end
 
     def sexp_find(sexp, *parts)
-      parts.map { |part| sexp = sexp_filter(sexp, part).first }.last || []
+      parts.inject(sexp) { |sexp, part| sexp_filter(sexp, part).first } || []
     end
 
     def sexp_filter(sexp, part, result = [])

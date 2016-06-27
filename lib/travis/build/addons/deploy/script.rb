@@ -101,7 +101,10 @@ module Travis
 
             def branch_condition
               return if on[:all_branches] || on[:tags]
-              branches  = Array(on[:branch] || default_branches)
+
+              branch_config = on[:branch].respond_to?(:keys) ? on[:branch].keys : on[:branch]
+
+              branches  = Array(branch_config || default_branches)
               branches.map { |b| "$TRAVIS_BRANCH = #{b}" }.join(' || ')
             end
 
