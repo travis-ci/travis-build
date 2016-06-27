@@ -9,10 +9,14 @@ module Travis
           sh.fold 'crystal_install' do
             sh.echo 'Installing Crystal', ansi: :yellow
 
-            sh.cmd %q(sudo sh -c 'apt-key adv --keyserver keys.gnupg.net --recv-keys 09617FD37CC06B54')
-
             version = select_version
             return unless version
+
+            sh.cmd %q(wget '#{version[:key][:url]}' -O "$HOME/crystal_repository_key.asc")
+            sh.if %q("$(gpg --with-fingerprint "$HOME/crystal_repository_key.asc" | grep "Key fingerprint" | cut -d "=" -f2 | tr -d " ")" != "#{version[:key][:fingerprint]}") do
+              sh.failure "The repository key needed to install Crystal did not have the expected fingerprint. Your build was aborted."
+            end
+            sh.cmd %q(sudo sh -c "apt-key add '$HOME/crystal_repository_key.asc'")
 
             sh.cmd %Q(sudo sh -c 'echo "deb #{version[:url]} crystal main" > /etc/apt/sources.list.d/crystal-nightly.list')
             sh.cmd %q(sudo sh -c 'apt-get update')
@@ -20,9 +24,9 @@ module Travis
 
             sh.echo 'Installing Shards', ansi: :yellow
 
-            sh.cmd %q(sudo sh -c "curl -sL https://github.com/crystal-lang/shards/releases/latest | \
+            sh.cmd %q(sudo sh -c "curl -sSL https://github.com/crystal-lang/shards/releases/latest | \
                       egrep -o '/crystal-lang/shards/releases/download/v[0-9\.]*/shards.*linux_.*64.gz' | \
-                      wget --base=http://github.com/ -i - -O - | \
+                      wget --base=https://github.com/ -i - -O - | \
                       gunzip > /usr/local/bin/shards && \
                       chmod +x /usr/local/bin/shards")
           end
@@ -58,15 +62,22 @@ module Travis
         private
 
         def select_version
+          key = {
+            url: "https://dist.crystal-lang.org/rpm/RPM-GPG-KEY",
+            fingerprint: "5995C83CD754BE448164192909617FD37CC06B54"
+          }
+
           case config[:crystal]
           when nil, "latest"
             {
-              url: "http://dist.crystal-lang.org/apt",
+              url: "https://dist.crystal-lang.org/apt",
+              key: key,
               package: "crystal"
             }
           when "nightly"
             {
               url: "https://nightly.crystal-lang.org/apt",
+              key: key,
               package: "crystal-nightly"
             }
           else
