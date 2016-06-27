@@ -8,6 +8,10 @@ module Travis
 
         attr_reader :script, :sh, :data, :config
 
+        def after_configure
+          sh.raw "echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-certificates.crt >/dev/null"
+        end
+
         def initialize(script, sh, data, config)
           @script = script
           @sh = sh
