@@ -35,6 +35,7 @@ module Travis
               sh.cmd "sudo cp -a firefox/Firefox.app /Applications"
               sh.cmd "sudo ln -sf /Applications/Firefox.app/Contents/MacOS/firefox /usr/local/bin/firefox", echo: false
               sh.cmd "hdiutil unmount firefox && rm /tmp/#{filename('dmg')}"
+              sh.export 'PATH', "/Applications/Firefox.app/Contents/MacOS:$PATH"
             end
             sh.cd :back, echo: false, stack: true
           end
