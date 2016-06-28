@@ -75,11 +75,30 @@ module Travis
 
             whitelisted = []
             disallowed = []
+            disallowed_while_sudo = []
 
-            config_sources.each do |source_alias|
-              source = source_whitelist[source_alias]
-              whitelisted << source.clone if source && source['sourceline']
-              disallowed << source_alias if source.nil?
+            config_sources.each do |src|
+              source = source_whitelist[src]
+
+              if source.respond_to?(:[]) && source['sourceline']
+                whitelisted << source.clone
+              elsif ! data.disable_sudo?
+                if src.respond_to?(:has_key?)
+                  if src.has_key?(:sourceline)
+                    whitelisted << {
+                      'sourceline' => src[:sourceline],
+                      'key_url' => src[:key_url]
+                    }
+                  else
+                    sh.echo "`sourceline` key missing:", ansi: :yellow
+                    sh.echo Shellwords.escape(src.inspect)
+                  end
+                else
+                  disallowed_while_sudo << src
+                end
+              elsif source.nil?
+                disallowed << src
+              end
             end
 
             unless disallowed.empty?
@@ -87,6 +106,12 @@ module Travis
               sh.echo 'If you require these sources, please review the source ' \
                 'approval process at: ' \
                 'https://github.com/travis-ci/apt-source-whitelist#source-approval-process'
+            end
+
+            unless disallowed_while_sudo.empty?
+              sh.echo "Disallowing sources: #{disallowed_while_sudo.map { |source| Shellwords.escape(source) }.join(', ')}", ansi: :red
+              sh.echo "To add unlisted APT sources, follow instructions in " \
+                "https://docs.travis-ci.com/user/installing-dependencies#Installing-Packages-with-the-APT-Addon"
             end
 
             unless whitelisted.empty?
@@ -106,16 +131,7 @@ module Travis
           def add_apt_packages
             sh.echo "Installing APT Packages (BETA)", ansi: :yellow
 
-            whitelisted = []
-            disallowed = []
-
-            config_packages.each do |package|
-              if package_whitelist.include?(package)
-                whitelisted << package
-              else
-                disallowed << package
-              end
-            end
+            whitelisted, disallowed = config_packages.partition { |pkg| package_whitelisted?(package_whitelist, pkg) }
 
             unless disallowed.empty?
               sh.echo "Disallowing packages: #{disallowed.map { |package| Shellwords.escape(package) }.join(', ')}", ansi: :red
@@ -156,6 +172,10 @@ module Travis
 
           def config_packages
             @config_packages ||= Array(config[:packages]).flatten.compact
+          end
+
+          def package_whitelisted?(list, pkg)
+            list.include?(pkg) || !data.disable_sudo?
           end
 
           def package_whitelist

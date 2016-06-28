@@ -9,7 +9,7 @@ describe Travis::Build::Script::R, :sexp do
 
   it 'normalizes bioc-devel correctly' do
     data[:config][:r] = 'bioc-devel'
-    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.3.0']]
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.3.1']]
     should include_sexp [:cmd, %r{source\(\"https://bioconductor.org/biocLite.R\"\)},
                          assert: true, echo: true, timing: true, retry: true]
     should include_sexp [:cmd, %r{useDevel\(TRUE\)},
@@ -20,7 +20,7 @@ describe Travis::Build::Script::R, :sexp do
     data[:config][:r] = 'bioc-release'
     should include_sexp [:cmd, %r{source\(\"https://bioconductor.org/biocLite.R\"\)},
                          assert: true, echo: true, timing: true, retry: true]
-    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.2.5']]
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.3.1']]
   end
 
   it 'r_packages works with a single package set' do
@@ -36,12 +36,31 @@ describe Travis::Build::Script::R, :sexp do
   end
 
   it 'exports TRAVIS_R_VERSION' do
-    data[:config][:R] = '3.2.5'
-    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.2.5']]
+    data[:config][:r] = '3.3.0'
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.3.0']]
   end
 
-  it 'downloads and installs R' do
-    should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-3.2.5.xz},
+  it 'downloads and installs latest R' do
+    should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-3.3.1.xz},
+                         assert: true, echo: true, retry: true, timing: true]
+  end
+
+  it 'downloads and installs latest R on OS X' do
+    data[:config][:os] = 'osx'
+    should include_sexp [:cmd, %r{^curl.*bin/macosx/R-latest.pkg},
+                         assert: true, echo: true, retry: true, timing: true]
+  end
+
+  it 'downloads and installs aliased R 3.2.5 on OS X' do
+    data[:config][:os] = 'osx'
+    data[:config][:r] = '3.2.5'
+    should include_sexp [:cmd, %r{^curl.*bin/macosx/old/R-3.2.4-revised.pkg},
+                         assert: true, echo: true, retry: true, timing: true]
+  end
+  it 'downloads and installs other R versions on OS X' do
+    data[:config][:os] = 'osx'
+    data[:config][:r] = '3.1.3'
+    should include_sexp [:cmd, %r{^curl.*bin/macosx/old/R-3.1.3.pkg},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
@@ -142,24 +161,28 @@ describe Travis::Build::Script::R, :sexp do
   describe '#cache_slug' do
     subject { described_class.new(data).cache_slug }
     it {
-      data[:config][:r] = '3.2.5'
-      should eq('cache--R-3.2.5')
+      data[:config][:r] = '3.3.0'
+      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.3.0")
     }
     it {
       data[:config][:r] = '3.2'
-      should eq('cache--R-3.2.5')
+      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.2.5")
     }
     it {
       data[:config][:r] = 'release'
-      should eq('cache--R-3.2.5')
+      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.3.1")
+    }
+    it {
+      data[:config][:r] = 'oldrel'
+      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.2.5")
     }
     it {
       data[:config][:r] = '3.1'
-      should eq('cache--R-3.1.3')
+      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.1.3")
     }
     it {
       data[:config][:r] = 'devel'
-      should eq('cache--R-devel')
+      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-devel")
     }
   end
 end

@@ -24,6 +24,22 @@ describe Travis::Build::Script::NodeJs, :sexp do
       it 'sets the version from config :node_js' do
         should include_sexp [:cmd, 'nvm install 0.9', echo: true, timing: true]
       end
+
+      context 'when nvm install fails' do
+        let(:sexp_if)      { sexp_filter(subject, [:if, '$? -ne 0'], [:then]) }
+
+        it 'tries to use locally available version' do
+          expect(sexp_if).to include_sexp [:cmd, 'nvm use 0.9', echo: true]
+        end
+
+        context 'when nvm use fails' do
+          let(:sexp) { sexp_filter(sexp_if, [:if, '$? -ne 0'], [:then]) }
+
+          it 'errors the build' do
+            expect(sexp).to include_sexp [:cmd, 'false', assert: true]
+          end
+        end
+      end
     end
 
     context 'when :node_js is not set in config' do

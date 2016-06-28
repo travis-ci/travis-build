@@ -27,12 +27,14 @@ module Travis
 
           sh.fold "elixir" do
             sh.if "! -f #{HOME_DIR}/.kiex/elixirs/elixir-#{elixir_version}.env" do
+              archive = "http://repo.hex.pm/builds/elixir/v#{elixir_version}.zip"
               sh.echo "Installing Elixir #{elixir_version}"
-              sh.cmd "wget http://s3.hex.pm/builds/elixir/v#{elixir_version}.zip", assert: true, timing: true
+              sh.cmd "wget #{archive}", assert: true, timing: true
               sh.cmd "unzip -d #{KIEX_ELIXIR_HOME}/elixir-#{elixir_version} v#{elixir_version}.zip 2>&1 > /dev/null", echo: false
               sh.cmd "echo 'export ELIXIR_VERSION=#{elixir_version}
 export PATH=#{KIEX_ELIXIR_HOME}elixir-#{elixir_version}/bin:$PATH
 export MIX_ARCHIVES=#{KIEX_MIX_HOME}elixir-#{elixir_version}' > #{KIEX_ELIXIR_HOME}elixir-#{elixir_version}.env"
+              sh.raw "rm -f #{archive}"
             end
 
             sh.cmd "kiex use #{elixir_version}"
@@ -41,6 +43,9 @@ export MIX_ARCHIVES=#{KIEX_MIX_HOME}elixir-#{elixir_version}' > #{KIEX_ELIXIR_HO
         end
 
         def install
+          if elixir_1_3_0_or_higher?
+            sh.cmd 'mix local.rebar --force', fold: "install.rebar"
+          end
           sh.cmd 'mix local.hex --force', fold: "install.hex"
           sh.cmd 'mix deps.get', fold: "install.deps"
         end
@@ -66,6 +71,10 @@ export MIX_ARCHIVES=#{KIEX_MIX_HOME}elixir-#{elixir_version}' > #{KIEX_ELIXIR_HO
 
         def elixir_1_2_0_or_higher?
           Gem::Version.new(elixir_version) > Gem::Version.new('1.1.999') # use this for pre-release 1.2.0
+        end
+
+        def elixir_1_3_0_or_higher?
+          Gem::Version.new(elixir_version) > Gem::Version.new('1.2.999') # use this for pre-release 1.3.0
         end
 
         def elixir_1_0_x?

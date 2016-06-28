@@ -125,28 +125,31 @@ module Travis
 
           def fetch_urls
             urls = [
+              fetch_url(group, true),
               fetch_url
             ]
             if data.pull_request
+              urls << fetch_url(data.branch, true)
               urls << fetch_url(data.branch)
             end
             if data.branch != 'master'
+              urls << fetch_url('master', true)
               urls << fetch_url('master')
             end
 
-            urls
+            urls.uniq
           end
 
           def push
             run('push', Shellwords.escape(push_url.to_s), assert: false, timing: true)
           end
 
-          def fetch_url(branch = group)
-            url('GET', prefixed(branch), expires: fetch_timeout)
+          def fetch_url(branch = group, extras = false)
+            url('GET', prefixed(branch, extras), expires: fetch_timeout)
           end
 
           def push_url(branch = group)
-            url('PUT', prefixed(branch), expires: push_timeout)
+            url('PUT', prefixed(branch, true), expires: push_timeout)
           end
 
           def fold(message = nil)
@@ -204,8 +207,12 @@ module Travis
               )
             end
 
-            def prefixed(branch)
-              args = [data.github_id, branch, slug].compact
+            def prefixed(branch, extras = false)
+              slug_local = slug.dup
+              if ! extras
+                slug_local = slug.gsub(/^cache(.+?)(?=--)/,'cache')
+              end
+              args = [data.github_id, branch, slug_local].compact
               args.map! { |arg| arg.to_s.gsub(/[^\w\.\_\-]+/, '') }
               '/' << args.join('/') << '.tgz'
             end
