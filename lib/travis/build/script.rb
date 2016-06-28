@@ -149,6 +149,7 @@ module Travis
           apply :fix_wwdr_certificate
           apply :put_localhost_first
           apply :home_paths
+          apply :disable_initramfs
           apply :disable_ssh_roaming
           apply :debug_tools
         end
