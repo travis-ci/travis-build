@@ -448,7 +448,7 @@ module Travis
             sh.echo 'Installing OS X binary package for MacTeX'
             sh.cmd "sudo installer -pkg \"/tmp/#{mactex}\" -target /"
             sh.rm "/tmp/#{mactex}"
-            sh.export 'PATH', '/usr/texbin:$PATH'
+            sh.export 'PATH', '/usr/texbin:/Library/TeX/texbin:$PATH'
 
             sh.cmd 'sudo tlmgr update --self'
 
