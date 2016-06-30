@@ -132,7 +132,11 @@ View valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/
           when 'weekly', 'nightly'
             return base_url + 'mdk-latest-weekly.pkg'
           else
-            return base_url + config[:mono] + "/macos-10-x86/MonoFramework-MDK-#{config[:mono]}.macos10.xamarin.x86.pkg"
+            if is_mono_after_4_4
+              return base_url + config[:mono] + "/macos-10-universal/MonoFramework-MDK-#{config[:mono]}.macos10.xamarin.universal.pkg"
+            else
+              return base_url + config[:mono] + "/macos-10-x86/MonoFramework-MDK-#{config[:mono]}.macos10.xamarin.x86.pkg"
+            end
           end
         end
 
@@ -170,6 +174,16 @@ View valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/
           return true if MONO_VERSION_REGEXP.match(config[:mono])[1] == '3' && MONO_VERSION_REGEXP.match(config[:mono])[2].to_i < 12
 
           false
+        end
+
+        def is_mono_after_4_4
+          return false unless is_mono_version_valid?
+          return true if is_mono_version_keyword?
+
+          return false if MONO_VERSION_REGEXP.match(config[:mono])[1].to_i < 4
+          return false if MONO_VERSION_REGEXP.match(config[:mono])[1] == '4' && MONO_VERSION_REGEXP.match(config[:mono])[2].to_i < 4
+
+          true
         end
       end
     end
