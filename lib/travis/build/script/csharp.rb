@@ -22,7 +22,7 @@ module Travis
 
 
           sh.fold('mono-install') do
-            if mono_version_valid?
+            if is_mono_version_valid?
               sh.echo 'Installing Mono', ansi: :yellow
               case config[:os]
               when 'linux'
@@ -52,7 +52,12 @@ module Travis
                 sh.failure "Operating system not supported: #{config[:os]}"
               end
 
-              sh.cmd 'mozroots --import --sync --quiet', timing: true
+              if is_mono_before_3_12 && config[:os] == 'linux'
+                # we need to fetch an ancient version of certdata (from 2009) because newer versions run into a Mono bug: https://github.com/mono/mono/pull/1514
+                # this is the same file that was used in the old mozroots before https://github.com/mono/mono/pull/3188 so nothing really changes (but still less than ideal)
+                sh.cmd 'curl -fL -o /tmp/certdata.txt https://hg.mozilla.org/releases/mozilla-release/raw-file/5d447d9abfdf/security/nss/lib/ckfw/builtins/certdata.txt'
+                sh.cmd 'mozroots --import --sync --quiet --file /tmp/certdata.txt', timing: true
+              end
             end
           end
         end
@@ -60,7 +65,7 @@ module Travis
         def setup
           super
 
-          unless mono_version_valid?
+          unless is_mono_version_valid?
             sh.failure "\"#{config[:mono]}\" is either a invalid version of mono or unsupported on #{config[:os]}.
 View valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/"
           end
@@ -127,18 +132,26 @@ View valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/
           when 'weekly', 'nightly'
             return base_url + 'mdk-latest-weekly.pkg'
           else
-            return base_url + config[:mono] + "/macos-10-x86/MonoFramework-MDK-#{config[:mono]}.macos10.xamarin.x86.pkg"
+            if is_mono_after_4_4
+              return base_url + config[:mono] + "/macos-10-universal/MonoFramework-MDK-#{config[:mono]}.macos10.xamarin.universal.pkg"
+            else
+              return base_url + config[:mono] + "/macos-10-x86/MonoFramework-MDK-#{config[:mono]}.macos10.xamarin.x86.pkg"
+            end
           end
         end
 
-        def mono_version_valid?
-          return true if ['latest', 'alpha', 'beta', 'weekly', 'nightly'].include? config[:mono]
+        def is_mono_version_valid?
+          return true if is_mono_version_keyword?
           return false unless MONO_VERSION_REGEXP === config[:mono]
 
           return false if MONO_VERSION_REGEXP.match(config[:mono])[1] == '2' && !is_mono_2_10_8 && config[:os] == 'linux'
           return false if MONO_VERSION_REGEXP.match(config[:mono])[1].to_i < 2 && config[:os] == 'linux'
 
           true
+        end
+
+        def is_mono_version_keyword?
+          ['latest', 'alpha', 'beta', 'weekly', 'nightly'].include? config[:mono]
         end
 
         def is_mono_2_10_8
@@ -151,6 +164,26 @@ View valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/
 
         def is_mono_3_8_0
           config[:mono] == '3.8.0'
+        end
+
+        def is_mono_before_3_12
+          return false unless is_mono_version_valid?
+          return false if is_mono_version_keyword?
+
+          return true if MONO_VERSION_REGEXP.match(config[:mono])[1] == '2'
+          return true if MONO_VERSION_REGEXP.match(config[:mono])[1] == '3' && MONO_VERSION_REGEXP.match(config[:mono])[2].to_i < 12
+
+          false
+        end
+
+        def is_mono_after_4_4
+          return false unless is_mono_version_valid?
+          return true if is_mono_version_keyword?
+
+          return false if MONO_VERSION_REGEXP.match(config[:mono])[1].to_i < 4
+          return false if MONO_VERSION_REGEXP.match(config[:mono])[1] == '4' && MONO_VERSION_REGEXP.match(config[:mono])[2].to_i < 4
+
+          true
         end
       end
     end

@@ -21,7 +21,6 @@ describe Travis::Build::Script::Csharp, :sexp do
 
     it 'installs mono' do
       should include_sexp [:cmd, 'sudo apt-get install -qq mono-complete mono-vbnc fsharp nuget referenceassemblies-pcl', timing: true, assert: true]
-      should include_sexp [:cmd, 'mozroots --import --sync --quiet', timing: true]
     end
   end
 
@@ -132,7 +131,6 @@ describe Travis::Build::Script::Csharp, :sexp do
       data[:config][:os] = 'osx'
       should include_sexp [:cmd, "curl -o \"/tmp/mdk.pkg\" -L http://download.mono-project.com/archive/mdk-latest.pkg", timing: true, assert: true]
       should include_sexp [:cmd, "sudo installer -package \"/tmp/mdk.pkg\" -target \"/\"", timing: true, assert: true]
-      should include_sexp [:cmd, 'mozroots --import --sync --quiet', timing: true]
     end
 
     it 'selects alpha' do
