@@ -53,9 +53,11 @@ module Travis
           nix_url = "https://nixos.org/releases/nix/nix-#{version}/nix-#{version}-#{system}.tar.bz2"
 
           # TODO: cache nix_url
-          sh.cmd "curl -sSL #{nix_url} | bzcat | tar x"
-          sh.cmd "./nix-#{version}-#{system}/install"
-          sh.cmd "source $HOME/.nix-profile/etc/profile.d/nix.sh"
+          sh.fold 'nix.install' do
+            sh.cmd "curl -sSL #{nix_url} | bzcat | tar x"
+            sh.cmd "./nix-#{version}-#{system}/install"
+            sh.cmd "source $HOME/.nix-profile/etc/profile.d/nix.sh"
+          end
         end
 
         def announce
