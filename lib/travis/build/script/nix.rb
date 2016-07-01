@@ -23,13 +23,14 @@ module Travis
 
           # Set nix config dir and make config Hydra compatible
           sh.cmd "sudo mkdir -p /etc/nix"
-          sh.cmd "echo 'build-max-jobs = 4' | sudo tee /etc/nix/nix.conf"
+          sh.cmd "echo 'build-max-jobs = 4' | sudo tee /etc/nix/nix.conf > /dev/null"
 
           # Nix needs to be able to exec on /tmp on Linux
+          # This will emit an error in the container but
+          # it's still needed for "trusty" Linux.
           if config[:os] == 'linux'
             sh.cmd "sudo mount -o remount,exec /run"
             sh.cmd "sudo mount -o remount,exec /run/user"
-            sh.cmd "sudo mount"
           end
 
           # setup /nix dir for rootless install in setup
@@ -51,6 +52,7 @@ module Travis
           #   but the .tar.bz2 file is the most tested, reliable
           nix_url = "https://nixos.org/releases/nix/nix-#{version}/nix-#{version}-#{system}.tar.bz2"
 
+          # TODO: cache nix_url
           sh.cmd "curl -sSL #{nix_url} | bzcat | tar x"
           sh.cmd "./nix-#{version}-#{system}/install"
           sh.cmd "source $HOME/.nix-profile/etc/profile.d/nix.sh"
