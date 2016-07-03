@@ -48,6 +48,7 @@ module Travis
               when 'osx'
                 sh.cmd "curl -o \"/tmp/mdk.pkg\" -L #{mono_osx_url}", timing: true, assert: true
                 sh.cmd 'sudo installer -package "/tmp/mdk.pkg" -target "/"', timing: true, assert: true
+                sh.cmd 'eval $(/usr/libexec/path_helper -s)', timing: false, assert: true
               else
                 sh.failure "Operating system not supported: #{config[:os]}"
               end
