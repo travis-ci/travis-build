@@ -139,6 +139,12 @@ describe Travis::Build::Script::R, :sexp do
                          echo: true, timing: true]
   end
 
+  it 'skips PDF manual when LaTeX is disabled' do
+    data[:config][:latex] = false
+    should include_sexp [:cmd, /.*R CMD check.* --no-manual.*/,
+                         echo: true, timing: true]
+  end
+
   describe 'bioc configuration is optional' do
     it 'does not install bioc if not required' do
       should_not include_sexp [:cmd, /.*biocLite.*/,

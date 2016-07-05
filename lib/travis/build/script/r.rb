@@ -153,7 +153,12 @@ module Travis
               options_repos = "options(repos = c(#{repos_str}))"
               sh.cmd %Q{echo '#{options_repos}' > ~/.Rprofile.site}
 
-              setup_latex if config[:latex]
+              # PDF manual requires latex
+              if config[:latex]
+                setup_latex
+              else
+                config[:r_check_args] << " --no-manual"
+              end
 
               setup_bioc if needs_bioc?
               setup_pandoc if config[:pandoc]
@@ -443,7 +448,7 @@ module Travis
             sh.echo 'Installing OS X binary package for MacTeX'
             sh.cmd "sudo installer -pkg \"/tmp/#{mactex}\" -target /"
             sh.rm "/tmp/#{mactex}"
-            sh.export 'PATH', '/usr/texbin:$PATH'
+            sh.export 'PATH', '/usr/texbin:/Library/TeX/texbin:$PATH'
 
             sh.cmd 'sudo tlmgr update --self'
 
