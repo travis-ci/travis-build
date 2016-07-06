@@ -147,6 +147,7 @@ module Travis
           apply :fix_resolv_conf
           apply :fix_etc_hosts
           apply :fix_etc_mavenrc
+          apply :etc_hosts_pinning
           apply :fix_wwdr_certificate
           apply :put_localhost_first
           apply :home_paths
