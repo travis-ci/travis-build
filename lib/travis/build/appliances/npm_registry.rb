@@ -7,7 +7,7 @@ module Travis
         def apply
           if data[:npm_registry]
             sh.fold "npm_registry" do
-              sh.cmd "echo registry=#{data[:npm_registry]} > ~/.npmrc"
+              sh.export 'NPM_CONFIG_REGISTRY', data[:npm_registry], echo: true
             end
           end
         end
