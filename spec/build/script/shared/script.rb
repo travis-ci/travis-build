@@ -42,6 +42,7 @@ shared_examples_for 'a build script sexp' do
   end
 
   it_behaves_like 'show system info'
+  it_behaves_like 'cleans up $PATH'
   it_behaves_like 'validates config'
   it_behaves_like 'paranoid mode on/off'
   it_behaves_like 'disables updating initramfs'
@@ -49,6 +50,7 @@ shared_examples_for 'a build script sexp' do
   it_behaves_like 'fix ps4'
   it_behaves_like 'fix etc/hosts'
   it_behaves_like 'fix resolve.conf'
+  it_behaves_like '/etc/hosts pinning'
   it_behaves_like 'put localhost first in etc/hosts'
   it_behaves_like 'starts services'
   it_behaves_like 'build script stages'
