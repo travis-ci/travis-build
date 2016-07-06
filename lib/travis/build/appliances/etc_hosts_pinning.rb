@@ -7,7 +7,7 @@ module Travis
       class EtcHostsPinning < Base
         def apply
           ENV['ETC_HOSTS_PINNING'].split(',').each do |etchostsline|
-            sh.raw %(echo #{Shellwords.escape(etchostsline.untaint)} | sudo tee -a /etc/hosts)
+            sh.raw %(echo #{Shellwords.escape(etchostsline.untaint)} | sudo tee -a /etc/hosts &>/dev/null)
           end
         end
 
