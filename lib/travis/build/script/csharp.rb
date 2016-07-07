@@ -20,7 +20,19 @@ module Travis
           sh.echo 'C# support for Travis-CI is community maintained.', ansi: :red
           sh.echo 'Please open any issues at https://github.com/travis-ci/travis-ci/issues/new and cc @joshua-anderson @akoeplinger @nterry', ansi: :red
 
+          install_mono
+        end
 
+        def setup
+          super
+
+          unless is_mono_version_valid?
+            sh.failure "\"#{config[:mono]}\" is either a invalid version of mono or unsupported on #{config[:os]}.
+View valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/"
+          end
+        end
+
+        def install_mono
           sh.fold('mono-install') do
             if is_mono_version_valid?
               sh.echo 'Installing Mono', ansi: :yellow
@@ -60,15 +72,6 @@ module Travis
                 sh.cmd 'mozroots --import --sync --quiet --file /tmp/certdata.txt', timing: true
               end
             end
-          end
-        end
-
-        def setup
-          super
-
-          unless is_mono_version_valid?
-            sh.failure "\"#{config[:mono]}\" is either a invalid version of mono or unsupported on #{config[:os]}.
-View valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/"
           end
         end
 
