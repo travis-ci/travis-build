@@ -112,8 +112,11 @@ module Travis
           def install_pypy(version)
             if pypy_archive_url
               archive = "pypy.tar.bz2"
+              install_dir = "/usr/local/pypy"
               sh.cmd "curl -s -L -o #{archive} #{pypy_archive_url}"
-              sh.cmd "tar xjf #{archive} -C /usr/local/pypy --strip-components=1", sudo: true
+              sh.cmd "mkdir #{install_dir}", sudo: true, echo: false
+              sh.cmd "tar xjf #{archive} -C #{install_dir} --strip-components=1", sudo: true
+              sh.export "PATH", "#{install_dir}/bin:$PATH", echo: true
               sh.cmd "rm #{archive}", echo: false
             end
           end
