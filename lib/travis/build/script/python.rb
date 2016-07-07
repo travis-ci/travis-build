@@ -119,7 +119,7 @@ module Travis
               sh.export "PATH", "#{install_dir}/bin:$PATH", echo: true
               sh.cmd "rm #{archive}", echo: false
               sh.cmd "rm -f $HOME/virtualenv/pypy{,3}"
-              sh.cmd "virtualenv --distribute --python=/usr/local/pypy/bin/python $HOME/virtualenv/#{virtualenv}"
+              sh.cmd "virtualenv --distribute --python=/usr/local/pypy/bin/pypy $HOME/virtualenv/#{virtualenv}"
             end
           end
 
