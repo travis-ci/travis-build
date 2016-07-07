@@ -34,43 +34,41 @@ View valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/
 
         def install_mono
           sh.fold('mono-install') do
-            if is_mono_version_valid?
-              sh.echo 'Installing Mono', ansi: :yellow
-              case config[:os]
-              when 'linux'
-                if is_mono_2_10_8
-                  sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
-                  sh.cmd 'sudo apt-get install -qq mono-complete mono-vbnc', timing: true, assert: true
-                elsif is_mono_3_2_8
-                  sh.cmd 'sudo apt-add-repository ppa:directhex/ppa -y', assert: true # Official ppa of the mono debian maintainer
-                  sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
-                  sh.cmd 'sudo apt-get install -qq mono-complete mono-vbnc fsharp', timing: true, assert: true
-                else
-                  sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF', echo: false, assert: true
-                  sh.if '$(lsb_release -cs) = precise' do
-                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy-libtiff-compat main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false, assert: true
-                  end
-                  mono_repos.each do |repo|
-                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian #{repo} main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false, assert: true
-                  end
-                  sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
-                  sh.cmd "sudo apt-get install -qq mono-complete mono-vbnc fsharp nuget #{'referenceassemblies-pcl' if !is_mono_3_8_0}", timing: true, assert: true
-                                                                                        # PCL Assemblies only supported on mono 3.10 and greater
-                end
-              when 'osx'
-                sh.cmd "curl -o \"/tmp/mdk.pkg\" -L #{mono_osx_url}", timing: true, assert: true
-                sh.cmd 'sudo installer -package "/tmp/mdk.pkg" -target "/"', timing: true, assert: true
-                sh.cmd 'eval $(/usr/libexec/path_helper -s)', timing: false, assert: true
+            sh.echo 'Installing Mono', ansi: :yellow
+            case config[:os]
+            when 'linux'
+              if is_mono_2_10_8
+                sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
+                sh.cmd 'sudo apt-get install -qq mono-complete mono-vbnc', timing: true, assert: true
+              elsif is_mono_3_2_8
+                sh.cmd 'sudo apt-add-repository ppa:directhex/ppa -y', assert: true # Official ppa of the mono debian maintainer
+                sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
+                sh.cmd 'sudo apt-get install -qq mono-complete mono-vbnc fsharp', timing: true, assert: true
               else
-                sh.failure "Operating system not supported: #{config[:os]}"
+                sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF', echo: false, assert: true
+                sh.if '$(lsb_release -cs) = precise' do
+                  sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy-libtiff-compat main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false, assert: true
+                end
+                mono_repos.each do |repo|
+                  sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian #{repo} main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false, assert: true
+                end
+                sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
+                sh.cmd "sudo apt-get install -qq mono-complete mono-vbnc fsharp nuget #{'referenceassemblies-pcl' if !is_mono_3_8_0}", timing: true, assert: true
+                                                                                      # PCL Assemblies only supported on mono 3.10 and greater
               end
+            when 'osx'
+              sh.cmd "curl -o \"/tmp/mdk.pkg\" -L #{mono_osx_url}", timing: true, assert: true
+              sh.cmd 'sudo installer -package "/tmp/mdk.pkg" -target "/"', timing: true, assert: true
+              sh.cmd 'eval $(/usr/libexec/path_helper -s)', timing: false, assert: true
+            else
+              sh.failure "Operating system not supported: #{config[:os]}"
+            end
 
-              if is_mono_before_3_12 && config[:os] == 'linux'
-                # we need to fetch an ancient version of certdata (from 2009) because newer versions run into a Mono bug: https://github.com/mono/mono/pull/1514
-                # this is the same file that was used in the old mozroots before https://github.com/mono/mono/pull/3188 so nothing really changes (but still less than ideal)
-                sh.cmd 'curl -fL -o /tmp/certdata.txt https://hg.mozilla.org/releases/mozilla-release/raw-file/5d447d9abfdf/security/nss/lib/ckfw/builtins/certdata.txt'
-                sh.cmd 'mozroots --import --sync --quiet --file /tmp/certdata.txt', timing: true
-              end
+            if is_mono_before_3_12 && config[:os] == 'linux'
+              # we need to fetch an ancient version of certdata (from 2009) because newer versions run into a Mono bug: https://github.com/mono/mono/pull/1514
+              # this is the same file that was used in the old mozroots before https://github.com/mono/mono/pull/3188 so nothing really changes (but still less than ideal)
+              sh.cmd 'curl -fL -o /tmp/certdata.txt https://hg.mozilla.org/releases/mozilla-release/raw-file/5d447d9abfdf/security/nss/lib/ckfw/builtins/certdata.txt'
+              sh.cmd 'mozroots --import --sync --quiet --file /tmp/certdata.txt', timing: true
             end
           end
         end
