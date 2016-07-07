@@ -120,7 +120,13 @@ module Travis
             sh.export "PATH", "#{install_dir}/bin:$PATH", echo: true
             sh.cmd "rm #{archive}", echo: false
             sh.cmd "rm -f $HOME/virtualenv/pypy{,3}"
-            sh.cmd "virtualenv --distribute --python=/usr/local/pypy/bin/pypy $HOME/virtualenv/#{virtualenv}"
+            sh.if "-f /usr/local/pypy/bin/pypy" do
+              sh.cmd "virtualenv --distribute --python=/usr/local/pypy/bin/pypy $HOME/virtualenv/#{virtualenv}"
+            end
+            sh.elif "-f /usr/local/pypy/bin/pypy3" do
+              sh.cmd "virtualenv --distribute --python=/usr/local/pypy/bin/pypy3 $HOME/virtualenv/#{virtualenv}"
+            end
+
           end
 
           def pypy_archive_url(vers=config[:python], arch='linux64')
