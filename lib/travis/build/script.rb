@@ -154,6 +154,7 @@ module Travis
           apply :disable_initramfs
           apply :disable_ssh_roaming
           apply :debug_tools
+          apply :npm_registry
         end
 
         def checkout

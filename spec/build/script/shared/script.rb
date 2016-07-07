@@ -54,6 +54,7 @@ shared_examples_for 'a build script sexp' do
   it_behaves_like 'put localhost first in etc/hosts'
   it_behaves_like 'starts services'
   it_behaves_like 'build script stages'
+  it_behaves_like 'npm registry override'
 
   it 'calls travis_result' do
     should include_sexp [:raw, 'travis_result $?']
