@@ -118,6 +118,8 @@ module Travis
               sh.cmd "tar xjf #{archive} -C #{install_dir} --strip-components=1", sudo: true
               sh.export "PATH", "#{install_dir}/bin:$PATH", echo: true
               sh.cmd "rm #{archive}", echo: false
+              sh.cmd "rm -f $HOME/virtualenv/pypy{,3}"
+              sh.cmd "virtualenv --distribute --python=/usr/local/pypy/bin/python $HOME/virtualenv/#{virtualenv}"
             end
           end
 
