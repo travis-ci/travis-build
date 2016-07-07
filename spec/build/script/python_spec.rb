@@ -78,10 +78,20 @@ describe Travis::Build::Script::Python, :sexp do
     end
 
     context "when pypy version is specified" do
-      it 'fetches PyPy archive' do
-        data[:config][:python] = 'pypy2-5.3.1'
-        should include_sexp [:cmd, "curl -s -L -o pypy.tar.bz2 https://bitbucket.org/pypy/pypy/downloads/pypy2-v5.3.1-linux64.tar.bz2"]
-        should include_sexp [:cmd, "tar xjf pypy.tar.bz2 -C /usr/local/pypy --strip-components=1", sudo: true ]
+      context "with pypy2-5.3.1" do
+        it 'fetches PyPy archive' do
+          data[:config][:python] = 'pypy2-5.3.1'
+          should include_sexp [:cmd, "curl -s -L -o pypy.tar.bz2 https://bitbucket.org/pypy/pypy/downloads/pypy2-v5.3.1-linux64.tar.bz2"]
+          should include_sexp [:cmd, "tar xjf pypy.tar.bz2 -C /usr/local/pypy --strip-components=1", sudo: true ]
+        end
+      end
+
+      context "with pypy3.3-5.2.0-alpha1" do
+        it 'fetches PyPy archive' do
+          data[:config][:python] = 'pypy3.3-5.2.0-alpha1'
+          should include_sexp [:cmd, "curl -s -L -o pypy.tar.bz2 https://bitbucket.org/pypy/pypy/downloads/pypy3.3-v5.2.0-alpha1-linux64.tar.bz2"]
+          should include_sexp [:cmd, "tar xjf pypy.tar.bz2 -C /usr/local/pypy --strip-components=1", sudo: true ]
+        end
       end
     end
   end

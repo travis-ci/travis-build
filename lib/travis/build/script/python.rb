@@ -13,7 +13,7 @@ module Travis
         PYENV_PATH_FILE      = '/etc/profile.d/pyenv.sh'
         TEMP_PYENV_PATH_FILE = '/tmp/pyenv.sh'
 
-        PYPY_VERSION_REGEX   = /\Apypy(?<python_compat_version>\d+)?(-(?<pypy_version>\d+(?:\.\d)*))?\z/
+        PYPY_VERSION_REGEX   = /\Apypy(?<python_compat_version>\d+(\.\d)*)?(-(?<pypy_version>\d+(?:\.\d)*(-[a-z0-9]*)?))?\z/
 
         def export
           super
@@ -124,7 +124,7 @@ module Travis
           end
 
           def pypy_archive_url(vers=config[:python], arch='linux64')
-            pypy? && md = PYPY_VERSION_REGEX.match(vers)
+            return unless pypy? && md = PYPY_VERSION_REGEX.match(vers)
             if md[:python_compat_version] && md[:pypy_version]
               "https://bitbucket.org/pypy/pypy/downloads/pypy%s-v%s-%s.tar.bz2" % [md[:python_compat_version], md[:pypy_version], arch]
             end
