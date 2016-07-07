@@ -110,21 +110,22 @@ module Travis
           end
 
           def install_pypy(version)
-            if pypy_archive_url
-              archive = "pypy.tar.bz2"
-              install_dir = "/usr/local/pypy"
-              sh.cmd "curl -s -L -o #{archive} #{pypy_archive_url}"
-              sh.cmd "mkdir #{install_dir}", sudo: true, echo: false
-              sh.cmd "tar xjf #{archive} -C #{install_dir} --strip-components=1", sudo: true
-              sh.export "PATH", "#{install_dir}/bin:$PATH", echo: true
-              sh.cmd "rm #{archive}", echo: false
-              sh.cmd "rm -f $HOME/virtualenv/pypy{,3}"
-              sh.cmd "virtualenv --distribute --python=/usr/local/pypy/bin/pypy $HOME/virtualenv/#{virtualenv}"
-            end
+            return unless pypy_archive_url
+
+            archive = "pypy.tar.bz2"
+            install_dir = "/usr/local/pypy"
+            sh.cmd "curl -s -L -o #{archive} #{pypy_archive_url}"
+            sh.cmd "mkdir #{install_dir}", sudo: true, echo: false
+            sh.cmd "tar xjf #{archive} -C #{install_dir} --strip-components=1", sudo: true
+            sh.export "PATH", "#{install_dir}/bin:$PATH", echo: true
+            sh.cmd "rm #{archive}", echo: false
+            sh.cmd "rm -f $HOME/virtualenv/pypy{,3}"
+            sh.cmd "virtualenv --distribute --python=/usr/local/pypy/bin/pypy $HOME/virtualenv/#{virtualenv}"
           end
 
           def pypy_archive_url(vers=config[:python], arch='linux64')
             return unless pypy? && md = PYPY_VERSION_REGEX.match(vers)
+
             if md[:python_compat_version] && md[:pypy_version]
               "https://bitbucket.org/pypy/pypy/downloads/pypy%s-v%s-%s.tar.bz2" % [md[:python_compat_version], md[:pypy_version], arch]
             end
