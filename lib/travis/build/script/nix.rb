@@ -18,6 +18,7 @@ module Travis
           sh.export 'NIX_CURL_FLAGS', '-sS'
           sh.cmd "echo silent | tee ~/.curlrc"
           sh.cmd "echo show-error | tee -a ~/.curlrc"
+          sh.cmd "echo retry=2 | tee -a ~/.curlrc"
         end
 
         def configure
