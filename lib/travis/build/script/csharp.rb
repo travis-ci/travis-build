@@ -81,10 +81,12 @@ View valid versions of dotnet at https://docs.travis-ci.com/user/languages/cshar
           # the nuget cache initialization on first run doesn't make sense on Travis since it'd be cleared after the build is done
           sh.export 'DOTNET_SKIP_FIRST_TIME_EXPERIENCE', '1'
 
-          sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 417A0893', assert: true
-          sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet/ trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
-          sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
-          sh.cmd "sudo apt-get install -qq #{config[:dotnet]}", timing: true, assert: true
+          sh.fold('dotnet-install') do
+            sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 417A0893', assert: true
+            sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet/ trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
+            sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
+            sh.cmd "sudo apt-get install -qq #{config[:dotnet]}", timing: true, assert: true
+          end
         end
 
         def announce
