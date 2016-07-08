@@ -9,9 +9,11 @@ module Travis
       class Csharp < Script
         DEFAULTS = {
           mono: 'latest',
+          dotnet: 'none'
         }
 
         MONO_VERSION_REGEXP = /^(\d{1})\.(\d{1,2})\.\d{1,2}$/
+        DOTNET_VERSION_REGEXP = /^dotnet-dev-\d{1}\.\d{1,2}\.\d{1,2}(-preview\d{1}-\d{6})?$/
 
         def configure
           super
@@ -20,19 +22,16 @@ module Travis
           sh.echo 'C# support for Travis-CI is community maintained.', ansi: :red
           sh.echo 'Please open any issues at https://github.com/travis-ci/travis-ci/issues/new and cc @joshua-anderson @akoeplinger @nterry', ansi: :red
 
-          install_mono
-        end
-
-        def setup
-          super
-
-          unless is_mono_version_valid?
-            sh.failure "\"#{config[:mono]}\" is either a invalid version of mono or unsupported on #{config[:os]}.
-View valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/"
-          end
+          install_mono if is_mono_enabled
+          install_dotnet if is_dotnet_enabled
         end
 
         def install_mono
+          if !is_mono_version_valid?
+            sh.failure "\"#{config[:mono]}\" is either a invalid version of mono or unsupported on #{config[:os]}.
+View valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/"
+          end
+
           sh.fold('mono-install') do
             sh.echo 'Installing Mono', ansi: :yellow
             case config[:os]
@@ -73,11 +72,29 @@ View valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/
           end
         end
 
+        def install_dotnet
+          if !is_dotnet_version_valid?
+            sh.failure "\"#{config[:dotnet]}\" is either a invalid version of dotnet or unsupported on #{config[:os]}.
+View valid versions of dotnet at https://docs.travis-ci.com/user/languages/csharp/"
+          end
+
+          # the nuget cache initialization on first run doesn't make sense on Travis since it'd be cleared after the build is done
+          sh.export 'DOTNET_SKIP_FIRST_TIME_EXPERIENCE', '1'
+
+          sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 417A0893', assert: true
+          sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet/ trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
+          sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
+          sh.cmd "sudo apt-get install -qq #{config[:dotnet]}", timing: true, assert: true
+        end
+
         def announce
           super
 
-          sh.cmd 'mono --version', timing: true
-          sh.cmd 'xbuild /version', timing: true
+          sh.cmd 'mono --version', timing: true if is_mono_enabled
+          sh.cmd 'xbuild /version', timing: true if is_mono_enabled
+          sh.echo ''
+
+          sh.cmd 'dotnet --info', timing: true if is_dotnet_enabled
           sh.echo ''
         end
 
@@ -88,11 +105,11 @@ View valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/
         end
 
         def install
-          sh.cmd "nuget restore #{config[:solution]}", retry: true if config[:solution] && !is_mono_2_10_8 && !is_mono_3_2_8
+          sh.cmd "nuget restore #{config[:solution]}", retry: true if is_mono_enabled && config[:solution] && !is_mono_2_10_8 && !is_mono_3_2_8
         end
 
         def script
-          if config[:solution]
+          if config[:solution] && is_mono_enabled
             sh.cmd "xbuild /p:Configuration=Release #{config[:solution]}", timing: true
           else
             sh.failure 'No solution or script defined, exiting'
@@ -152,8 +169,24 @@ View valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/
           true
         end
 
+        def is_dotnet_version_valid?
+          return false unless DOTNET_VERSION_REGEXP === config[:dotnet]
+          return false unless config[:os] == 'linux'
+          return false unless config[:dist] == 'trusty'
+
+          true
+        end
+
+        def is_mono_enabled
+          config[:mono] != 'none'
+        end
+
+        def is_dotnet_enabled
+          config[:dotnet] != 'none'
+        end
+
         def is_mono_version_keyword?
-          ['latest', 'alpha', 'beta', 'weekly', 'nightly'].include? config[:mono]
+          ['latest', 'alpha', 'beta', 'weekly', 'nightly', 'none'].include? config[:mono]
         end
 
         def is_mono_2_10_8
