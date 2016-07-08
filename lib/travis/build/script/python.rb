@@ -97,10 +97,19 @@ module Travis
           end
 
           def install_python_archive(version = 'nightly')
-            sh.raw archive_url_for('travis-python-archives', version)
-            sh.cmd "curl -s -o python-#{version}.tar.bz2 ${archive_url}", echo: false, assert: true
-            sh.cmd "sudo tar xjf python-#{version}.tar.bz2 --directory /", echo: false, assert: true
-            sh.cmd "rm python-#{version}.tar.bz2", echo: false
+            if version =~ /^pypy/
+              if md = /^(?<interpreter>pypy[^-]*)-(?<version>.*)/.match(version)
+                lang = md[:interpreter]
+                vers = md[:version]
+              end
+            else
+              lang = 'python'
+              vers = version
+            end
+            sh.raw archive_url_for('travis-python-archives', vers, lang)
+            sh.cmd "curl -s -o #{lang}-#{vers}.tar.bz2 ${archive_url}", assert: true
+            sh.cmd "sudo tar xjf #{lang}-#{vers}.tar.bz2 --directory /", echo: false, assert: true
+            sh.cmd "rm #{vers}.tar.bz2", echo: false
           end
 
           def setup_path(version = 'nightly')
