@@ -4,6 +4,10 @@ module Travis
   module Build
     module Appliances
       class UpdateGlibc < Base
+        def apply?
+          ENV['TRAVIS_UPDATE_GLIBC']
+        end
+
         def apply
           sh.fold "fix.CVE-2015-7547" do
             sh.export 'DEBIAN_FRONTEND', 'noninteractive'
