@@ -27,6 +27,9 @@ module Travis
           sh.elif '-f build.gradle' do
             sh.cmd 'gradle assemble', retry: true, fold: 'install'
           end
+          sh.elif '-f mvnw' do
+            sh.cmd './mvnw install -DskipTests=true -Dmaven.javadoc.skip=true -B -V', retry: true, fold: 'install'
+          end
           sh.elif '-f pom.xml' do
             sh.cmd 'mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V', retry: true, fold: 'install'
           end
@@ -39,6 +42,9 @@ module Travis
           sh.elif '-f build.gradle' do
             sh.cmd 'gradle check'
           end
+          sh.elif '-f mvnw' do
+            sh.cmd './mvnw test -B'
+          end
           sh.elif '-f pom.xml' do
             sh.cmd 'mvn test -B'
           end
@@ -50,4 +56,3 @@ module Travis
     end
   end
 end
-
