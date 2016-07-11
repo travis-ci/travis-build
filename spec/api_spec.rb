@@ -4,14 +4,22 @@ require 'travis/api/build/app'
 describe Travis::Api::Build::App, :include_sinatra_helpers do
   before do
     set_app described_class.new
-    ENV['API_TOKEN'] = 'the-token'
+    ENV['API_TOKEN'] = 'the-token,the-other-token'
     header('Content-Type', 'application/json')
   end
 
   context '/script' do
-    context 'with the right token' do
+    context 'with the first token in the list' do
       it 'returns a script' do
         header('Authorization', 'token the-token')
+        response = post '/script', {}, input: PAYLOADS[:push].to_json
+        expect(response.body).to start_with('#!/bin/bash')
+      end
+    end
+
+    context 'with the second token in the list' do
+      it 'returns a script' do
+        header('Authorization', 'token the-other-token')
         response = post '/script', {}, input: PAYLOADS[:push].to_json
         expect(response.body).to start_with('#!/bin/bash')
       end

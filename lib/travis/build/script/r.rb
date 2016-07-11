@@ -25,11 +25,13 @@ module Travis
           r_check_revdep: false,
           # Heavy dependencies
           pandoc: true,
+          latex: true,
           pandoc_version: '1.15.2',
           # Bioconductor
           bioc: 'https://bioconductor.org/biocLite.R',
           bioc_required: false,
           bioc_use_devel: false,
+          disable_homebrew: false,
           r: 'release'
         }
 
@@ -152,10 +154,18 @@ module Travis
               options_repos = "options(repos = c(#{repos_str}))"
               sh.cmd %Q{echo '#{options_repos}' > ~/.Rprofile.site}
 
-              setup_latex
+              # PDF manual requires latex
+              if config[:latex]
+                setup_latex
+              else
+                config[:r_check_args] << " --no-manual"
+              end
 
               setup_bioc if needs_bioc?
               setup_pandoc if config[:pandoc]
+
+              # Removes preinstalled homebrew
+              disable_homebrew if config[:disable_homebrew]
             end
           end
         end
@@ -442,7 +452,7 @@ module Travis
             sh.echo 'Installing OS X binary package for MacTeX'
             sh.cmd "sudo installer -pkg \"/tmp/#{mactex}\" -target /"
             sh.rm "/tmp/#{mactex}"
-            sh.export 'PATH', '/usr/texbin:$PATH'
+            sh.export 'PATH', '/usr/texbin:/Library/TeX/texbin:$PATH'
 
             sh.cmd 'sudo tlmgr update --self'
 
@@ -480,6 +490,15 @@ module Travis
             # Cleanup
             sh.rm "/tmp/#{pandoc_filename}"
           end
+        end
+
+        # Uninstalls the preinstalled homebrew
+        # See FAQ: https://github.com/Homebrew/brew/blob/master/share/doc/homebrew/FAQ.md
+        def disable_homebrew
+          return unless (config[:os] == 'osx')
+          sh.cmd "curl -sSOL https://raw.githubusercontent.com/Homebrew/install/master/uninstall"
+          sh.cmd "sudo ruby uninstall --force"
+          sh.cmd "rm uninstall"
         end
 
         def r_version

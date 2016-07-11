@@ -12,8 +12,8 @@ module Travis
             version = select_version
             return unless version
 
-            sh.cmd %q(wget '#{version[:key][:url]}' -O "$HOME/crystal_repository_key.asc")
-            sh.if %q("$(gpg --with-fingerprint "$HOME/crystal_repository_key.asc" | grep "Key fingerprint" | cut -d "=" -f2 | tr -d " ")" != "#{version[:key][:fingerprint]}") do
+            sh.cmd %Q(curl -sSL '#{version[:key][:url]}' > "$HOME/crystal_repository_key.asc")
+            sh.if %Q("$(gpg --with-fingerprint "$HOME/crystal_repository_key.asc" | grep "Key fingerprint" | cut -d "=" -f2 | tr -d " ")" != "#{version[:key][:fingerprint]}") do
               sh.failure "The repository key needed to install Crystal did not have the expected fingerprint. Your build was aborted."
             end
             sh.cmd %q(sudo sh -c "apt-key add '$HOME/crystal_repository_key.asc'")
@@ -26,7 +26,7 @@ module Travis
 
             sh.cmd %q(sudo sh -c "curl -sSL https://github.com/crystal-lang/shards/releases/latest | \
                       egrep -o '/crystal-lang/shards/releases/download/v[0-9\.]*/shards.*linux_.*64.gz' | \
-                      wget --base=https://github.com/ -i - -O - | \
+                      xargs -Ipath curl -sSL https://github.com/path | \
                       gunzip > /usr/local/bin/shards && \
                       chmod +x /usr/local/bin/shards")
           end
