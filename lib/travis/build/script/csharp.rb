@@ -74,7 +74,7 @@ View valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/
 
         def install_dotnet
           if !is_dotnet_version_valid?
-            sh.failure "\"#{config[:dotnet]}\" is either a invalid version of dotnet or unsupported on #{config[:os]} (dist: #{config[:dist]}).
+            sh.failure "\"#{config[:dotnet]}\" is either a invalid version of dotnet or unsupported on this operating system version.
 View valid versions of dotnet at https://docs.travis-ci.com/user/languages/csharp/"
           end
 
@@ -82,12 +82,27 @@ View valid versions of dotnet at https://docs.travis-ci.com/user/languages/cshar
           sh.export 'DOTNET_SKIP_FIRST_TIME_EXPERIENCE', '1'
 
           sh.fold('dotnet-install') do
-            sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 417A0893', assert: true
-            sh.if '$(lsb_release -cs) = trusty' do
-              sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet/ trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
+            sh.echo 'Installing .NET Core', ansi: :yellow
+            case config[:os]
+            when 'linux'
+              sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 417A0893', assert: true
+              sh.if '$(lsb_release -cs) = trusty' do
+                sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet/ trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
+              end
+              sh.elif '$(lsb_release -cs) = xenial' do
+                sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet/ xenial main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
+              end
+              sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
+              sh.cmd "sudo apt-get install -qq #{config[:dotnet]}", timing: true, assert: true
+            when 'osx'
+              sh.cmd 'brew install openssl', timing: true, assert: true
+              sh.cmd 'brew link --force openssl', timing: false, assert: true
+              sh.cmd "curl -o \"/tmp/dotnet.pkg\" -L #{dotnet_osx_url}", timing: true, assert: true
+              sh.cmd 'sudo installer -package "/tmp/dotnet.pkg" -target "/"', timing: true, assert: true
+              sh.cmd 'eval $(/usr/libexec/path_helper -s)', timing: false, assert: true
+            else
+              sh.failure "Operating system not supported: #{config[:os]}"
             end
-            sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
-            sh.cmd "sudo apt-get install -qq #{config[:dotnet]}", timing: true, assert: true
           end
         end
 
@@ -163,6 +178,11 @@ View valid versions of dotnet at https://docs.travis-ci.com/user/languages/cshar
           end
         end
 
+        def dotnet_osx_url
+          # TODO: there's no permalink-style URL for these OSX packages yet, hardcode one version for now
+          return 'https://download.microsoft.com/download/0/A/3/0A372822-205D-4A86-BFA7-084D2CBE9EDF/dotnet-dev-osx-x64.1.0.0-preview2-003121.pkg'
+        end
+
         def is_mono_version_valid?
           return true if is_mono_version_keyword?
           return false unless MONO_VERSION_REGEXP === config[:mono]
@@ -175,8 +195,23 @@ View valid versions of dotnet at https://docs.travis-ci.com/user/languages/cshar
 
         def is_dotnet_version_valid?
           return false unless DOTNET_VERSION_REGEXP === config[:dotnet]
-          return false unless config[:os] == 'linux'
-          return false unless config[:dist] == 'trusty'
+          return false unless config[:os] == 'linux' || config[:os] == 'osx'
+
+          if config[:os] == 'linux'
+              sh.if '$(lsb_release -cs) = trusty || $(lsb_release -cs) = xenial' do
+                return true
+              end
+              sh.else do
+                return false
+              end
+          else
+              sh.if '$(sw_vers -productVersion | cut -d . -f 1,2) = "10.11"' do
+                return true
+              end
+              sh.else do
+                return false
+              end
+          end
 
           true
         end
