@@ -28,8 +28,8 @@ module Travis
 
         def install_mono
           if !is_mono_version_valid?
-            sh.failure "\"#{config[:mono]}\" is either a invalid version of mono or unsupported on #{config[:os]}.
-View valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/"
+            sh.failure "\"#{config[:mono]}\" is either an invalid version of \"mono\" or unsupported on this operating system.
+View valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csharp/"
           end
 
           sh.fold('mono-install') do
@@ -74,8 +74,8 @@ View valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/
 
         def install_dotnet
           if !is_dotnet_version_valid?
-            sh.failure "\"#{config[:dotnet]}\" is either a invalid version of dotnet or unsupported on this operating system version.
-View valid versions of dotnet at https://docs.travis-ci.com/user/languages/csharp/"
+            sh.failure "\"#{config[:dotnet]}\" is either an invalid version of \"dotnet\" or unsupported on this operating system.
+View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/csharp/"
           end
 
           # the nuget cache initialization on first run doesn't make sense on Travis since it'd be cleared after the build is done
@@ -92,9 +92,15 @@ View valid versions of dotnet at https://docs.travis-ci.com/user/languages/cshar
               sh.elif '$(lsb_release -cs) = xenial' do
                 sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet/ xenial main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
               end
+              sh.else do
+                sh.failure "The version of this operating system is not supported by .NET Core. View valid versions at https://docs.travis-ci.com/user/languages/csharp/"
+              end
               sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
               sh.cmd "sudo apt-get install -qq #{config[:dotnet]}", timing: true, assert: true
             when 'osx'
+              sh.if '$(sw_vers -productVersion | cut -d . -f 2) -lt 11' do
+                sh.failure "The version of this operating system is not supported by .NET Core. View valid versions at https://docs.travis-ci.com/user/languages/csharp/"
+              end
               sh.cmd 'brew install openssl', timing: true, assert: true
               sh.cmd 'brew link --force openssl', timing: false, assert: true
               sh.cmd "curl -o \"/tmp/dotnet.pkg\" -L #{dotnet_osx_url}", timing: true, assert: true
@@ -184,6 +190,7 @@ View valid versions of dotnet at https://docs.travis-ci.com/user/languages/cshar
         end
 
         def is_mono_version_valid?
+          return false unless config[:os] == 'linux' || config[:os] == 'osx'
           return true if is_mono_version_keyword?
           return false unless MONO_VERSION_REGEXP === config[:mono]
 
@@ -194,26 +201,8 @@ View valid versions of dotnet at https://docs.travis-ci.com/user/languages/cshar
         end
 
         def is_dotnet_version_valid?
-          return false unless DOTNET_VERSION_REGEXP === config[:dotnet]
           return false unless config[:os] == 'linux' || config[:os] == 'osx'
-
-          if config[:os] == 'linux'
-              sh.if '$(lsb_release -cs) = trusty || $(lsb_release -cs) = xenial' do
-                return true
-              end
-              sh.else do
-                return false
-              end
-          else
-              sh.if '$(sw_vers -productVersion | cut -d . -f 1,2) = "10.11"' do
-                return true
-              end
-              sh.else do
-                return false
-              end
-          end
-
-          true
+          return false unless DOTNET_VERSION_REGEXP === config[:dotnet]
         end
 
         def is_mono_enabled
