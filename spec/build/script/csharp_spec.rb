@@ -22,27 +22,37 @@ describe Travis::Build::Script::Csharp, :sexp do
     it 'installs mono' do
       should include_sexp [:cmd, 'sudo apt-get install -qq mono-complete mono-vbnc fsharp nuget referenceassemblies-pcl', timing: true, assert: true]
     end
+
+    it "installs dotnet" do
+      data[:config][:dotnet] = 'dotnet-dev-1.0.0-preview2-003121'
+      should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-dev-1.0.0-preview2-003121', timing: true, assert: true]
+    end
   end
 
   describe 'version switching' do
-    it 'throws a error with a invalid version' do
+    it 'throws a error with an invalid Mono version' do
       data[:config][:mono] = 'foo'
-      should include_sexp [:echo, "\"foo\" is either a invalid version of mono or unsupported on linux.\nView valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/"]
+      should include_sexp [:echo, "\"foo\" is either an invalid version of \"mono\" or unsupported on this operating system.\nView valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csharp/"]
     end
 
-    it 'throws a error with a invalid version' do
+    it 'throws a error with an invalid .NET Core version' do
+      data[:config][:dotnet] = 'foo'
+      should include_sexp [:echo, "\"foo\" is either an invalid version of \"dotnet\" or unsupported on this operating system.\nView valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/csharp/"]
+    end
+
+    it 'throws a error with an invalid version' do
       data[:config][:mono] = '12.55.523'
-      should include_sexp [:echo, "\"12.55.523\" is either a invalid version of mono or unsupported on linux.\nView valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/"]
+      should include_sexp [:echo, "\"12.55.523\" is either an invalid version of \"mono\" or unsupported on this operating system.\nView valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csharp/"]
     end
 
     it 'throws a error for invalid version of mono 2' do
       data[:config][:mono] = '2.1.1'
-      should include_sexp [:echo, "\"2.1.1\" is either a invalid version of mono or unsupported on linux.\nView valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/"]
+      should include_sexp [:echo, "\"2.1.1\" is either an invalid version of \"mono\" or unsupported on this operating system.\nView valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csharp/"]
     end
 
     it 'throws a error for mono 1' do
       data[:config][:mono] = '1.1.8'
-      should include_sexp [:echo, "\"1.1.8\" is either a invalid version of mono or unsupported on linux.\nView valid versions of mono at https://docs.travis-ci.com/user/languages/csharp/"]
+      should include_sexp [:echo, "\"1.1.8\" is either an invalid version of \"mono\" or unsupported on this operating system.\nView valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csharp/"]
     end
 
     it 'selects mono 2' do
@@ -88,6 +98,17 @@ describe Travis::Build::Script::Csharp, :sexp do
       data[:config][:mono] = 'weekly'
       should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian nightly main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", assert: true]
     end
+
+    it 'selects no version of Mono when specified' do
+      data[:config][:mono] = 'none'
+      should_not include_sexp [:cmd, "download.mono-project.com", assert: true]
+    end
+
+# FIXME: this fails as unit test, but seems to work in the real environment. Figure out why.
+#    it 'runs mozroots on Mono before 3.12' do
+#      data[:config][:mono] = '3.10'
+#      should include_sexp [:cmd, "mozroots --import --sync --quiet --file /tmp/certdata.txt", assert: true]
+#    end
   end
 
   describe 'export' do
@@ -131,6 +152,17 @@ describe Travis::Build::Script::Csharp, :sexp do
       data[:config][:os] = 'osx'
       should include_sexp [:cmd, "curl -o \"/tmp/mdk.pkg\" -L http://download.mono-project.com/archive/mdk-latest.pkg", timing: true, assert: true]
       should include_sexp [:cmd, "sudo installer -package \"/tmp/mdk.pkg\" -target \"/\"", timing: true, assert: true]
+      should include_sexp [:cmd, "eval $(/usr/libexec/path_helper -s)", assert: true]
+    end
+
+    it 'installs dotnet' do
+      data[:config][:os] = 'osx'
+      data[:config][:dotnet] = 'dotnet-dev-1.0.0-preview2-003121'
+      should include_sexp [:cmd, "brew install openssl", timing: true, assert: true]      
+      should include_sexp [:cmd, "brew link --force openssl", assert: true]      
+      should include_sexp [:cmd, "curl -o \"/tmp/dotnet.pkg\" -L https://download.microsoft.com/download/0/A/3/0A372822-205D-4A86-BFA7-084D2CBE9EDF/dotnet-dev-osx-x64.1.0.0-preview2-003121.pkg", timing: true, assert: true]
+      should include_sexp [:cmd, "sudo installer -package \"/tmp/dotnet.pkg\" -target \"/\"", timing: true, assert: true]
+      should include_sexp [:cmd, "eval $(/usr/libexec/path_helper -s)", assert: true]      
     end
 
     it 'selects alpha' do

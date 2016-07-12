@@ -203,6 +203,8 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
         def is_dotnet_version_valid?
           return false unless config[:os] == 'linux' || config[:os] == 'osx'
           return false unless DOTNET_VERSION_REGEXP === config[:dotnet]
+
+          true
         end
 
         def is_mono_enabled
