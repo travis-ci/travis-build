@@ -16,9 +16,9 @@ module Travis
 
           # prevent curl from polluting logs but still show errors
           sh.export 'NIX_CURL_FLAGS', '-sS'
-          sh.cmd "echo silent | tee ~/.curlrc"
-          sh.cmd "echo show-error | tee -a ~/.curlrc"
-          sh.cmd "echo retry=2 | tee -a ~/.curlrc"
+          sh.cmd "echo silent | tee ~/.curlrc > /dev/null"
+          sh.cmd "echo show-error | tee -a ~/.curlrc > /dev/null"
+          sh.cmd "echo retry=2 | tee -a ~/.curlrc > /dev/null"
         end
 
         def configure
