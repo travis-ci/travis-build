@@ -24,7 +24,7 @@ describe Travis::Build::Script::Csharp, :sexp do
     end
 
     it "installs dotnet" do
-      data[:config][:dotnet] = 'dotnet-dev-1.0.0-preview2-003121'
+      data[:config][:dotnet] = '1.0.0-preview2-003121'
       should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-dev-1.0.0-preview2-003121', timing: true, assert: true]
     end
   end
@@ -157,10 +157,10 @@ describe Travis::Build::Script::Csharp, :sexp do
 
     it 'installs dotnet' do
       data[:config][:os] = 'osx'
-      data[:config][:dotnet] = 'dotnet-dev-1.0.0-preview2-003121'
+      data[:config][:dotnet] = '1.0.0-preview2-003121'
       should include_sexp [:cmd, "brew install openssl", timing: true, assert: true]      
       should include_sexp [:cmd, "brew link --force openssl", assert: true]      
-      should include_sexp [:cmd, "curl -o \"/tmp/dotnet.pkg\" -L https://download.microsoft.com/download/0/A/3/0A372822-205D-4A86-BFA7-084D2CBE9EDF/dotnet-dev-osx-x64.1.0.0-preview2-003121.pkg", timing: true, assert: true]
+      should include_sexp [:cmd, "curl -o \"/tmp/dotnet.pkg\" -L https://dotnetcli.azureedge.net/dotnet/preview/Installers/1.0.0-preview2-003121/dotnet-dev-osx-x64.1.0.0-preview2-003121.pkg", timing: true, assert: true]
       should include_sexp [:cmd, "sudo installer -package \"/tmp/dotnet.pkg\" -target \"/\"", timing: true, assert: true]
       should include_sexp [:cmd, "eval $(/usr/libexec/path_helper -s)", assert: true]      
     end

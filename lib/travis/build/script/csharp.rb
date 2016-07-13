@@ -13,7 +13,7 @@ module Travis
         }
 
         MONO_VERSION_REGEXP = /^(\d{1})\.(\d{1,2})\.\d{1,2}$/
-        DOTNET_VERSION_REGEXP = /^dotnet-dev-\d{1}\.\d{1,2}\.\d{1,2}(-preview\d{1}-\d{6})?$/
+        DOTNET_VERSION_REGEXP = /^\d{1}\.\d{1,2}\.\d{1,2}(-preview\d{1}-\d{6})?$/
 
         def configure
           super
@@ -96,7 +96,7 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
                 sh.failure "The version of this operating system is not supported by .NET Core. View valid versions at https://docs.travis-ci.com/user/languages/csharp/"
               end
               sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
-              sh.cmd "sudo apt-get install -qq #{config[:dotnet]}", timing: true, assert: true
+              sh.cmd "sudo apt-get install -qq dotnet-dev-#{config[:dotnet]}", timing: true, assert: true
             when 'osx'
               sh.if '$(sw_vers -productVersion | cut -d . -f 2) -lt 11' do
                 sh.failure "The version of this operating system is not supported by .NET Core. View valid versions at https://docs.travis-ci.com/user/languages/csharp/"
@@ -185,8 +185,7 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
         end
 
         def dotnet_osx_url
-          # TODO: there's no permalink-style URL for these OSX packages yet, hardcode one version for now
-          return 'https://download.microsoft.com/download/0/A/3/0A372822-205D-4A86-BFA7-084D2CBE9EDF/dotnet-dev-osx-x64.1.0.0-preview2-003121.pkg'
+          return "https://dotnetcli.azureedge.net/dotnet/preview/Installers/#{config[:dotnet]}/dotnet-dev-osx-x64.#{config[:dotnet]}.pkg"
         end
 
         def is_mono_version_valid?
