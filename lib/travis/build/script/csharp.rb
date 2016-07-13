@@ -56,7 +56,7 @@ View valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csh
                                                                                       # PCL Assemblies only supported on mono 3.10 and greater
               end
             when 'osx'
-              sh.cmd "curl -o \"/tmp/mdk.pkg\" -L #{mono_osx_url}", timing: true, assert: true
+              sh.cmd "curl -o \"/tmp/mdk.pkg\" -fL #{mono_osx_url}", timing: true, assert: true, echo: true
               sh.cmd 'sudo installer -package "/tmp/mdk.pkg" -target "/"', timing: true, assert: true
               sh.cmd 'eval $(/usr/libexec/path_helper -s)', timing: false, assert: true
             else
@@ -103,7 +103,7 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
               end
               sh.cmd 'brew install openssl', timing: true, assert: true
               sh.cmd 'brew link --force openssl', timing: false, assert: true
-              sh.cmd "curl -o \"/tmp/dotnet.pkg\" -L #{dotnet_osx_url}", timing: true, assert: true
+              sh.cmd "curl -o \"/tmp/dotnet.pkg\" -fL #{dotnet_osx_url}", timing: true, assert: true, echo: true
               sh.cmd 'sudo installer -package "/tmp/dotnet.pkg" -target "/"', timing: true, assert: true
               sh.cmd 'eval $(/usr/libexec/path_helper -s)', timing: false, assert: true
             else

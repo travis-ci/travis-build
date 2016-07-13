@@ -150,7 +150,7 @@ describe Travis::Build::Script::Csharp, :sexp do
   describe 'osx' do
     it 'installs' do
       data[:config][:os] = 'osx'
-      should include_sexp [:cmd, "curl -o \"/tmp/mdk.pkg\" -L http://download.mono-project.com/archive/mdk-latest.pkg", timing: true, assert: true]
+      should include_sexp [:cmd, "curl -o \"/tmp/mdk.pkg\" -fL http://download.mono-project.com/archive/mdk-latest.pkg", timing: true, assert: true, echo: true]
       should include_sexp [:cmd, "sudo installer -package \"/tmp/mdk.pkg\" -target \"/\"", timing: true, assert: true]
       should include_sexp [:cmd, "eval $(/usr/libexec/path_helper -s)", assert: true]
     end
@@ -158,35 +158,35 @@ describe Travis::Build::Script::Csharp, :sexp do
     it 'installs dotnet' do
       data[:config][:os] = 'osx'
       data[:config][:dotnet] = '1.0.0-preview2-003121'
-      should include_sexp [:cmd, "brew install openssl", timing: true, assert: true]      
-      should include_sexp [:cmd, "brew link --force openssl", assert: true]      
-      should include_sexp [:cmd, "curl -o \"/tmp/dotnet.pkg\" -L https://dotnetcli.azureedge.net/dotnet/preview/Installers/1.0.0-preview2-003121/dotnet-dev-osx-x64.1.0.0-preview2-003121.pkg", timing: true, assert: true]
+      should include_sexp [:cmd, "brew install openssl", timing: true, assert: true]
+      should include_sexp [:cmd, "brew link --force openssl", assert: true]
+      should include_sexp [:cmd, "curl -o \"/tmp/dotnet.pkg\" -fL https://dotnetcli.azureedge.net/dotnet/preview/Installers/1.0.0-preview2-003121/dotnet-dev-osx-x64.1.0.0-preview2-003121.pkg", timing: true, assert: true, echo: true]
       should include_sexp [:cmd, "sudo installer -package \"/tmp/dotnet.pkg\" -target \"/\"", timing: true, assert: true]
-      should include_sexp [:cmd, "eval $(/usr/libexec/path_helper -s)", assert: true]      
+      should include_sexp [:cmd, "eval $(/usr/libexec/path_helper -s)", assert: true]
     end
 
     it 'selects alpha' do
       data[:config][:os] = 'osx'
       data[:config][:mono] = 'alpha'
-      should include_sexp [:cmd, "curl -o \"/tmp/mdk.pkg\" -L http://download.mono-project.com/archive/mdk-latest-alpha.pkg", timing: true, assert: true]
+      should include_sexp [:cmd, "curl -o \"/tmp/mdk.pkg\" -fL http://download.mono-project.com/archive/mdk-latest-alpha.pkg", timing: true, assert: true, echo: true]
     end
 
     it 'selects beta' do
       data[:config][:os] = 'osx'
       data[:config][:mono] = 'beta'
-      should include_sexp [:cmd, "curl -o \"/tmp/mdk.pkg\" -L http://download.mono-project.com/archive/mdk-latest-beta.pkg", timing: true, assert: true]
+      should include_sexp [:cmd, "curl -o \"/tmp/mdk.pkg\" -fL http://download.mono-project.com/archive/mdk-latest-beta.pkg", timing: true, assert: true, echo: true]
     end
 
     it 'selects weekly' do
       data[:config][:os] = 'osx'
       data[:config][:mono] = 'weekly'
-      should include_sexp [:cmd, "curl -o \"/tmp/mdk.pkg\" -L http://download.mono-project.com/archive/mdk-latest-weekly.pkg", timing: true, assert: true]
+      should include_sexp [:cmd, "curl -o \"/tmp/mdk.pkg\" -fL http://download.mono-project.com/archive/mdk-latest-weekly.pkg", timing: true, assert: true, echo: true]
     end
 
     it 'selects 4.0.1' do
       data[:config][:os] = 'osx'
       data[:config][:mono] = '4.0.1'
-      should include_sexp [:cmd, "curl -o \"/tmp/mdk.pkg\" -L http://download.mono-project.com/archive/4.0.1/macos-10-x86/MonoFramework-MDK-4.0.1.macos10.xamarin.x86.pkg", timing: true, assert: true]
+      should include_sexp [:cmd, "curl -o \"/tmp/mdk.pkg\" -fL http://download.mono-project.com/archive/4.0.1/macos-10-x86/MonoFramework-MDK-4.0.1.macos10.xamarin.x86.pkg", timing: true, assert: true, echo: true]
     end
   end
 end
