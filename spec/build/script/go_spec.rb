@@ -27,12 +27,12 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   it 'sets the default go version if not :go config given' do
-    should include_sexp [:cmd, 'eval "$(gimme 1.4.1)"', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'GIMME_OUTPUT=$(gimme 1.4.1) && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
   end
 
   it 'sets the go version from config :go' do
     data[:config][:go] = 'go1.2'
-    should include_sexp [:cmd, 'eval "$(gimme 1.2)"', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'GIMME_OUTPUT=$(gimme 1.2) && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
   end
 
   shared_examples 'gopath fix' do
@@ -59,7 +59,7 @@ describe Travis::Build::Script::Go, :sexp do
 
   it 'installs the go version' do
     data[:config][:go] = 'go1.1'
-    should include_sexp [:cmd, 'eval "$(gimme 1.1)"', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'GIMME_OUTPUT=$(gimme 1.1) && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
   end
 
   {
@@ -72,13 +72,13 @@ describe Travis::Build::Script::Go, :sexp do
   }.each do |version_alias, version|
     it "sets version #{version.inspect} for alias #{version_alias.inspect}" do
       data[:config][:go] = version_alias
-      should include_sexp [:cmd, %Q'eval "$(gimme #{version})"', assert: true, echo: true, timing: true]
+      should include_sexp [:cmd, %Q'GIMME_OUTPUT=$(gimme #{version}) && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
     end
   end
 
   it 'passes through arbitrary tag versions' do
     data[:config][:go] = 'release9000'
-    should include_sexp [:cmd, 'eval "$(gimme release9000)"', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'GIMME_OUTPUT=$(gimme release9000) && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
   end
 
   it 'announces go version' do
