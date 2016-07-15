@@ -35,8 +35,8 @@ shared_examples_for 'show system info' do
   end
 
   describe 'if build and job ids are given' do
-    before { data[:config][:build][:id] = 1234 }
-    before { data[:config][:job][:id] = 5678 }
+    before { data[:config][:build] = { id: 1234 } }
+    before { data[:config][:job] = { id: 5678 } }
 
     it 'displays the build and job ids' do
       expect(sexp).to include_sexp echo_build_id
