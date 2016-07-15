@@ -208,7 +208,7 @@ module Travis
                 data_store_options.fetch(:bucket, ''),
                 path,
                 data_store_options.fetch(:hostname, host_proc.call(region)),
-                data_store_options.fetch(:bucket_name_in_path, false)
+                data_store_options.fetch(:bucket_name_in_path, true)
               )
             end
 
