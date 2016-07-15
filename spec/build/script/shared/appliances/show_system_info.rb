@@ -5,6 +5,8 @@ shared_examples_for 'show system info' do
   let(:echo_language) { [:echo, /Build language/] }
   let(:echo_group)    { [:echo, 'Build group: dev'] }
   let(:echo_dist)     { [:echo, 'Build dist: trusty'] }
+  let(:echo_build_id) { [:echo, 'Build id: \d+'] }
+  let(:echo_job_id)   { [:echo, 'Job id: \d+'] }
   let(:path)          { '/usr/share/travis/system_info' }
   let(:system_info)   { [:cmd, "cat #{path}"] }
 
@@ -29,6 +31,16 @@ shared_examples_for 'show system info' do
 
     it 'displays the build image dist' do
       expect(sexp).to include_sexp echo_dist
+    end
+  end
+
+  describe 'if build and job ids are given' do
+    before { data[:config][:build][:id] = 1234 }
+    before { data[:config][:job][:id] = 5678 }
+
+    it 'displays the build aand job ids' do
+      expect(sexp).to include_sexp echo_build_id
+      expect(sexp).to include_sexp echo_job_id
     end
   end
 

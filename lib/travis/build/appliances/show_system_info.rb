@@ -23,6 +23,8 @@ module Travis
               value = data.send(name)
               sh.echo "Build #{name}: #{Shellwords.escape(value)}" if value
             end
+            sh.echo "Build id: #{Shellwords.escape(data.build.id)}"
+            sh.echo "Job id: #{Shellwords.escape(data.job.id)}"
           end
 
           def info_file
