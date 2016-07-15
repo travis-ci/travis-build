@@ -212,7 +212,11 @@ module Travis
               if ! extras
                 slug_local = slug.gsub(/^cache(.+?)(?=--)/,'cache')
               end
-              args = [data.github_id, branch, slug_local].compact
+              path_name = nil
+              if data_store_options[:bucket_name_in_path]
+                path_name = data_store_options.fetch(:bucket, '')
+              end
+              args = [path_name, data.github_id, branch, slug_local].compact
               args.map! { |arg| arg.to_s.gsub(/[^\w\.\_\-]+/, '') }
               '/' << args.join('/') << '.tgz'
             end
