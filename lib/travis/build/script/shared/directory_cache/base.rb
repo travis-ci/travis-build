@@ -41,9 +41,14 @@ module Travis
 
           KeyPair = Struct.new(:id, :secret)
 
-          Location = Struct.new(:scheme, :region, :bucket, :path, :host) do
+          Location = Struct.new(:scheme, :region, :bucket, :path, :host, :signature_version) do
             def hostname
-              "#{bucket}.#{host}"
+              case signature_version
+              when '2'
+                "#{bucket}.#{host}"
+              else
+                host
+              end
             end
           end
 
@@ -203,7 +208,8 @@ module Travis
                 region,
                 data_store_options.fetch(:bucket, ''),
                 path,
-                data_store_options.fetch(:hostname, host_proc.call(region))
+                data_store_options.fetch(:hostname, host_proc.call(region)),
+                data_store_options.fetch(:aws_signature_version, DEFAULT_AWS_SIGNATURE_VERSION).to_s
               )
             end
 
@@ -212,7 +218,13 @@ module Travis
               if ! extras
                 slug_local = slug.gsub(/^cache(.+?)(?=--)/,'cache')
               end
-              args = [data.github_id, branch, slug_local].compact
+
+              case data_store_options.fetch(:aws_signature_version, DEFAULT_AWS_SIGNATURE_VERSION).to_s
+              when '2'
+                args = [data.github_id, branch, slug_local].compact
+              else
+                args = [data_store_options.fetch(:bucket, ''), data.github_id, branch, slug_local].compact
+              end
               args.map! { |arg| arg.to_s.gsub(/[^\w\.\_\-]+/, '') }
               '/' << args.join('/') << '.tgz'
             end

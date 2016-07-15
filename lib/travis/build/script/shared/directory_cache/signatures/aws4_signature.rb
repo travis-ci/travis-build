@@ -23,7 +23,7 @@ module Travis
 
               Addressable::URI.new(
                 scheme: @location.scheme,
-                host: @location.hostname,
+                host: @location.host,
                 path: @location.path,
                 query_values: query,
               )
