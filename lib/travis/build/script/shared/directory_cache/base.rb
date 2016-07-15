@@ -41,9 +41,13 @@ module Travis
 
           KeyPair = Struct.new(:id, :secret)
 
-          Location = Struct.new(:scheme, :region, :bucket, :path, :host) do
+          Location = Struct.new(:scheme, :region, :bucket, :path, :host, :bucket_name_in_path) do
             def hostname
-              "#{bucket}.#{host}"
+              if bucket_name_in_path
+                host
+              else
+                "#{bucket}.#{host}"
+              end
             end
           end
 
@@ -203,7 +207,8 @@ module Travis
                 region,
                 data_store_options.fetch(:bucket, ''),
                 path,
-                data_store_options.fetch(:hostname, host_proc.call(region))
+                data_store_options.fetch(:hostname, host_proc.call(region)),
+                data_store_options.fetch(:bucket_name_in_path, false)
               )
             end
 
