@@ -3,13 +3,15 @@ require 'spec_helper'
 describe Travis::Build::Script::DirectoryCache::S3, :sexp do
   S3_FETCH_URL  = "https://s3_bucket.s3.amazonaws.com/42/%s/example.%s?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=s3_access_key_id%%2F19700101%%2Fus-east-1%%2Fs3%%2Faws4_request&X-Amz-Date=19700101T000010Z"
   S3_SIGNED_URL = "%s&X-Amz-Expires=20&X-Amz-Signature=%s&X-Amz-SignedHeaders=host"
+  S3_FETCH_URL_ALT  = "https://s3.amazonaws.com/s3_bucket/42/%s/example.%s?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=s3_access_key_id%%2F19700101%%2Fus-east-1%%2Fs3%%2Faws4_request&X-Amz-Date=19700101T000010Z"
 
-  def url_for(branch, ext = 'tbz')
-    S3_FETCH_URL % [ branch, ext ]
+  def url_for(branch, ext = 'tbz', bucket_name_in_path = false)
+    url_format = bucket_name_in_path ? S3_FETCH_URL_ALT : S3_FETCH_URL
+    url_format % [ branch, ext]
   end
 
-  def signed_url_for(branch, signature, ext = 'tbz')
-    Shellwords.escape(S3_SIGNED_URL % [url_for(branch, ext), signature])
+  def signed_url_for(branch, signature, ext, bucket_name_in_path = false)
+    Shellwords.escape(S3_SIGNED_URL % [url_for(branch, ext, bucket_name_in_path), signature])
   end
 
   let(:master_fetch_signature) { "163b2a236fcfda37d58c1d50c27d86fbd04efb4a6d97219134f71854e3e0383b" }
@@ -21,9 +23,10 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
   let(:url)           { url_for(branch) }
   let(:url_tgz)       { url_for(branch, 'tgz') }
   let(:fetch_url_tgz) { Shellwords.escape "#{url_tgz}&X-Amz-Expires=20&X-Amz-Signature=#{fetch_signature_tgz}&X-Amz-SignedHeaders=host" }
-  let(:push_url)      { Shellwords.escape("#{url}&X-Amz-Expires=30&X-Amz-Signature=#{push_signature}&X-Amz-SignedHeaders=host").gsub(/\.tbz(\?)?/, '.tgz\1') }
+  let(:push_url)      { Shellwords.escape("#{url_tgz}&X-Amz-Expires=30&X-Amz-Signature=#{push_signature}&X-Amz-SignedHeaders=host").gsub(/\.tbz(\?)?/, '.tgz\1') }
 
-  let(:s3_options)    { { bucket: 's3_bucket', secret_access_key: 's3_secret_access_key', access_key_id: 's3_access_key_id', bucket_name_in_path: false } }
+  let(:bucket_name_in_path_opt) { false }
+  let(:s3_options)    { { bucket: 's3_bucket', secret_access_key: 's3_secret_access_key', access_key_id: 's3_access_key_id', bucket_name_in_path: bucket_name_in_path_opt } }
   let(:cache_options) { { fetch_timeout: 20, push_timeout: 30, type: 's3', s3: s3_options } }
   let(:data)          { PAYLOADS[:push].deep_merge(config: config, cache_options: cache_options, job: { branch: branch, pull_request: pull_request }) }
   let(:config)        { {} }
@@ -179,6 +182,26 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
     end
 
     describe 'push' do
+      before { cache.push }
+      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher push #{push_url}", timing: true] }
+    end
+  end
+
+  context 'when bucket_name_in_path is true' do
+    let(:bucket_name_in_path_opt) { true }
+
+    describe 'fetch' do
+      let(:fetch_signature) { 'b6282b850382aacaf1ce425ca3ed7add79e9ab82bca3099e13e312919fdfd8da' }
+      let(:url_tgz)         { signed_url_for(branch, fetch_signature, 'tgz', true) }
+
+      before { cache.fetch }
+      it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{url_tgz}", timing: true] }
+    end
+
+    describe 'push' do
+      let(:push_signature) { 'd388be7ca53fb612892cffe0844c957ee6062efe08c997ddcb5d2e8e1501e339' }
+      let(:url_tgz)         { url_for(branch, 'tgz', true) }
+
       before { cache.push }
       it { should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher push #{push_url}", timing: true] }
     end
