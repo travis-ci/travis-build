@@ -32,7 +32,7 @@ describe Travis::Build::Script::Go, :sexp do
 
   it 'sets the go version from config :go' do
     data[:config][:go] = 'go1.2'
-    should include_sexp [:cmd, 'GIMME_OUTPUT=$(gimme 1.2) && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'GIMME_OUTPUT=$(gimme 1.2.2) && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
   end
 
   shared_examples 'gopath fix' do
@@ -68,6 +68,7 @@ describe Travis::Build::Script::Go, :sexp do
     '1.x' => '1.6.2',
     '1.x.x' => '1.6.2',
     '1.0' => '1.0.3',
+    '1.0.x' => '1.0.3',
     '1.2' => '1.2.2',
     '1.2.x' => '1.2.2',
     '1.3.x' => '1.3.3',

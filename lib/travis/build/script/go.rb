@@ -15,6 +15,20 @@ module Travis
           },
           go: "#{ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.6.2')}".untaint
         }
+        GO_VERSION_ALIASES = {
+          '1' => '1.6.2',
+          '1.0' => '1.0.3',
+          '1.0.x' => '1.0.3',
+          '1.2' => '1.2.2',
+          '1.2.x' => '1.2.2',
+          '1.3.x' => '1.3.3',
+          '1.4.x' => '1.4.3',
+          '1.5.x' => '1.5.4',
+          '1.6.x' => '1.6.2',
+          '1.x' => '1.6.2',
+          '1.x.x' => '1.6.2',
+          'default' => DEFAULTS[:go]
+        }.freeze
 
         def export
           super
@@ -130,20 +144,8 @@ module Travis
 
           def normalized_go_version
             v = config[:go].to_s
-            case v
-            when 'default' then DEFAULTS[:go]
-            when '1', '1.x', '1.x.x' then '1.6.2'
-            when '1.0' then '1.0.3'
-            when '1.1.x' then '1.1.2'
-            when '1.2', '1.2.x' then '1.2.2'
-            when '1.3.x' then '1.3.3'
-            when '1.4.x' then '1.4.3'
-            when '1.5.x' then '1.5.4'
-            when '1.6.x' then '1.6.2'
-            when 'go1', 'tip', 'master' then v
-            when /^go/ then v.sub(/^go/, '')
-            else v
-            end
+            return v if v == 'go1'
+            GO_VERSION_ALIASES.fetch(v.sub(/^go/, ''), v).sub(/^go/, '')
           end
 
           def comparable_go_version
@@ -154,7 +156,7 @@ module Travis
           end
 
           def go_get_cmd
-            if go_version == 'go1' || (go_version != 'tip' && comparable_go_version < Gem::Version.new('1.2'))
+            if go_version == 'go1' || (go_version !~ /tip|master/ && comparable_go_version <= Gem::Version.new('1.2'))
               'go get'
             else
               'go get -t'
