@@ -9,11 +9,11 @@ module Travis
           gimme_config: {
             url: "#{ENV.fetch(
               'TRAVIS_BUILD_GIMME_URL',
-              'https://raw.githubusercontent.com/travis-ci/gimme/v0.2.4/gimme'
+              'https://raw.githubusercontent.com/travis-ci/gimme/v1.0.0/gimme'
             )}".untaint,
             force_reinstall: !!ENV['TRAVIS_BUILD_GIMME_FORCE_REINSTALL']
           },
-          go: "#{ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.4.1')}".untaint
+          go: "#{ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.6.2')}".untaint
         }
 
         def export
@@ -132,11 +132,15 @@ module Travis
             v = config[:go].to_s
             case v
             when 'default' then DEFAULTS[:go]
-            when '1' then '1.4.1'
+            when '1', '1.x', '1.x.x' then '1.6.2'
             when '1.0' then '1.0.3'
-            when '1.2' then '1.2.2'
-            when 'go1' then v
-            when 'tip' then v
+            when '1.1.x' then '1.1.2'
+            when '1.2', '1.2.x' then '1.2.2'
+            when '1.3.x' then '1.3.3'
+            when '1.4.x' then '1.4.3'
+            when '1.5.x' then '1.5.4'
+            when '1.6.x' then '1.6.2'
+            when 'go1', 'tip', 'master' then v
             when /^go/ then v.sub(/^go/, '')
             else v
             end
@@ -171,7 +175,7 @@ module Travis
             sh.cmd "chmod +x #{HOME_DIR}/bin/gimme", echo: false
             sh.export 'PATH', "#{HOME_DIR}/bin:$PATH", retry: false, echo: false
             # install bootstrap version so that tip/master/whatever can be used immediately
-            sh.cmd %Q'gimme 1.4.1 >/dev/null 2>&1'
+            sh.cmd %Q'gimme #{DEFAULTS[:go]} &>/dev/null'
           end
 
           def gimme_config
