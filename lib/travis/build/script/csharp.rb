@@ -78,19 +78,20 @@ View valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csh
 View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/csharp/"
           end
 
-          # the nuget cache initialization on first run doesn't make sense on Travis since it'd be cleared after the build is done
-          sh.export 'DOTNET_SKIP_FIRST_TIME_EXPERIENCE', '1'
-
           sh.fold('dotnet-install') do
             sh.echo 'Installing .NET Core', ansi: :yellow
+
+            # the nuget cache initialization on first run doesn't make sense on Travis since it'd be cleared after the build is done
+            sh.export 'DOTNET_SKIP_FIRST_TIME_EXPERIENCE', '1'
+
             case config[:os]
             when 'linux'
               sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 417A0893', assert: true
               sh.if '$(lsb_release -cs) = trusty' do
-                sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet/ trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
+                sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
               end
               sh.elif '$(lsb_release -cs) = xenial' do
-                sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet/ xenial main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
+                sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet-release/ xenial main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
               end
               sh.else do
                 sh.failure "The version of this operating system is not supported by .NET Core. View valid versions at https://docs.travis-ci.com/user/languages/csharp/"
