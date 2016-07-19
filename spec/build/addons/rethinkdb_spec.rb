@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Travis::Build::Addons::Rethinkdb, :sexp do
   let(:script) { stub('script') }
-  let(:config) { '2.2.5~0' }
+  let(:config) { '2.3.4' }
   let(:data)   { payload_for(:push, :ruby, config: { addons: { rethinkdb: config } }) }
   let(:sh)     { Travis::Shell::Builder.new }
   let(:addon)  { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
@@ -16,7 +16,7 @@ describe Travis::Build::Addons::Rethinkdb, :sexp do
   end
 
   it 'sets TRAVIS_RETHINKDB_VERSION' do
-    should include_sexp [:export,  ['TRAVIS_RETHINKDB_VERSION', '2.2.5\\~0']]
+    should include_sexp [:export,  ['TRAVIS_RETHINKDB_VERSION', '2.3.4']]
   end
 
   it 'sets TRAVIS_RETHINKDB_PACKAGE_VERSION' do
@@ -25,7 +25,7 @@ describe Travis::Build::Addons::Rethinkdb, :sexp do
 
   it { should include_sexp [:cmd, "service rethinkdb stop", sudo: true] }
   it { should include_sexp [:cmd, "apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 #{Travis::Build::Addons::Rethinkdb::RETHINKDB_GPG_KEY}", sudo: true] }
-  it { should include_sexp [:cmd, 'echo -e "\ndeb http://download.rethinkdb.com/apt $(lsb_release -cs) main" >> /etc/apt/sources.list', sudo: true] }
+  it { should include_sexp [:cmd, 'echo -e "\ndeb http://download.rethinkdb.com/apt $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list > /dev/null'] }
   it { should include_sexp [:cmd, "apt-get update -qq", sudo: true] }
   it { should include_sexp [:cmd, "apt-get install -y -o Dpkg::Options::='--force-confnew' rethinkdb=$package_version", sudo: true, echo: true, timing: true] }
   it { should include_sexp [:cmd, "cp /etc/rethinkdb/default.conf.sample /etc/rethinkdb/instances.d/default.conf", sudo: true] }
