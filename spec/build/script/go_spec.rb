@@ -63,18 +63,19 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   {
-    'default' => Travis::Build::Script::Go::DEFAULTS[:go],
     '1' => '1.6.2',
-    '1.x' => '1.6.2',
-    '1.x.x' => '1.6.2',
     '1.0' => '1.0.3',
     '1.0.x' => '1.0.3',
+    '1.1.x' => '1.1.2',
     '1.2' => '1.2.2',
     '1.2.x' => '1.2.2',
     '1.3.x' => '1.3.3',
     '1.4.x' => '1.4.3',
     '1.5.x' => '1.5.4',
     '1.6.x' => '1.6.2',
+    '1.x' => '1.6.2',
+    '1.x.x' => '1.6.2',
+    'default' => Travis::Build::Script::Go::DEFAULTS[:go],
     'go1' => 'go1',
     'go1.4.1' => '1.4.1'
   }.each do |version_alias, version|
