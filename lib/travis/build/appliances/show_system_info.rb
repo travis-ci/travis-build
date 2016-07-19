@@ -25,7 +25,7 @@ module Travis
             end
 
             if ENV['SOURCE_VERSION']
-              sh.echo "travis-build version: #{ENV['SOURCE_VERSION']}"
+              sh.echo "travis-build version: #{ENV['SOURCE_VERSION']}".untaint
             end
           end
 
