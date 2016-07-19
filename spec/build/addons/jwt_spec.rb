@@ -12,9 +12,9 @@ describe Travis::Build::Addons::Jwt, :sexp do
   describe 'jwt token, one secret' do
     let(:config) { 'MY_ACCESS_KEY=987654321' }
     it "should work" do
-      subject.should include_sexp [:echo, 'Initializing JWT', ansi: :yellow]
+      expect(subject).to include_sexp [:echo, 'Initializing JWT', ansi: :yellow]
       expected = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ0cmF2aXMtY2kub3JnIiwic2x1ZyI6InRyYXZpcy1jaS90cmF2aXMtY2kiLCJwdWxsLXJlcXVlc3QiOiIiLCJleHAiOjM0MjAwLCJpYXQiOjI4ODAwfQ.NQLflEZgXkZY80frfSPfUQVYk0chvStFseUrU1HDRJk"
-      subject.should include_sexp [:export, ['MY_ACCESS_KEY', expected]]
+      expect(subject).to include_sexp [:export, ['MY_ACCESS_KEY', expected]]
     end
   end
 
@@ -24,11 +24,11 @@ describe Travis::Build::Addons::Jwt, :sexp do
       secret2: 'MY_ACCESS_KEY_2=ABCDEF'
     } }
     it "should work" do
-      subject.should include_sexp [:echo, 'Initializing JWT', ansi: :yellow]
+      expect(subject).to include_sexp [:echo, 'Initializing JWT', ansi: :yellow]
       expected1 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ0cmF2aXMtY2kub3JnIiwic2x1ZyI6InRyYXZpcy1jaS90cmF2aXMtY2kiLCJwdWxsLXJlcXVlc3QiOiIiLCJleHAiOjM0MjAwLCJpYXQiOjI4ODAwfQ.ZuZEGlQZF_XVIxqatj17kxJ0byoKYJRbcO2yrLjaFTM"
-      subject.should include_sexp [:export, ['MY_ACCESS_KEY_1', expected1]]
+      expect(subject).to include_sexp [:export, ['MY_ACCESS_KEY_1', expected1]]
       expected2 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ0cmF2aXMtY2kub3JnIiwic2x1ZyI6InRyYXZpcy1jaS90cmF2aXMtY2kiLCJwdWxsLXJlcXVlc3QiOiIiLCJleHAiOjM0MjAwLCJpYXQiOjI4ODAwfQ.vwir6OH5mdnvzucyuc5wR4d_17tF1aNDw29_AXJVDr4"
-      subject.should include_sexp [:export, ['MY_ACCESS_KEY_2', expected2]]
+      expect(subject).to include_sexp [:export, ['MY_ACCESS_KEY_2', expected2]]
     end
   end
 end
