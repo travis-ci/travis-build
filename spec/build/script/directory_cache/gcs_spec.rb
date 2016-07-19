@@ -24,7 +24,7 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
   let(:fetch_url_tgz) { url_tgz }
   let(:push_url)      { signed_url_for(branch, push_signature, 'tgz', timeout) }
 
-  let(:gcs_options)   { { bucket: 's3_bucket', secret_access_key: 'google_secret_access_key', access_key_id: 'google_access_key_id', aws_signature_version: '2' } }
+  let(:gcs_options)   { { bucket: 's3_bucket', secret_access_key: 'google_secret_access_key', access_key_id: 'google_access_key_id', aws_signature_version: '2', bucket_name_in_path: false } }
   let(:cache_options) { { fetch_timeout: 20, push_timeout: 30, type: 'gcs', gcs: gcs_options } }
   let(:data)          { PAYLOADS[:push].deep_merge(config: config, cache_options: cache_options, job: { branch: branch, pull_request: pull_request }) }
   let(:config)        { {} }

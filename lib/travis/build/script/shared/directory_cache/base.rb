@@ -41,9 +41,13 @@ module Travis
 
           KeyPair = Struct.new(:id, :secret)
 
-          Location = Struct.new(:scheme, :region, :bucket, :path, :host) do
+          Location = Struct.new(:scheme, :region, :bucket, :path, :host, :bucket_name_in_path) do
             def hostname
-              "#{bucket}.#{host}"
+              if bucket_name_in_path
+                host
+              else
+                "#{bucket}.#{host}"
+              end
             end
           end
 
@@ -203,7 +207,8 @@ module Travis
                 region,
                 data_store_options.fetch(:bucket, ''),
                 path,
-                data_store_options.fetch(:hostname, host_proc.call(region))
+                data_store_options.fetch(:hostname, host_proc.call(region)),
+                data_store_options.fetch(:bucket_name_in_path, true)
               )
             end
 
@@ -212,7 +217,11 @@ module Travis
               if ! extras
                 slug_local = slug.gsub(/^cache(.+?)(?=--)/,'cache')
               end
-              args = [data.github_id, branch, slug_local].compact
+              path_name = nil
+              if data_store_options.fetch([:bucket_name_in_path], true)
+                path_name = data_store_options.fetch(:bucket, '')
+              end
+              args = [path_name, data.github_id, branch, slug_local].compact
               args.map! { |arg| arg.to_s.gsub(/[^\w\.\_\-]+/, '') }
               '/' << args.join('/') << '.tgz'
             end
