@@ -23,6 +23,10 @@ module Travis
               value = data.send(name)
               sh.echo "Build #{name}: #{Shellwords.escape(value)}" if value
             end
+
+            if ENV['SOURCE_VERSION']
+              sh.echo "travis-build version: #{ENV['SOURCE_VERSION']}"
+            end
           end
 
           def info_file
