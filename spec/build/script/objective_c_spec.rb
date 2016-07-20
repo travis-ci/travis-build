@@ -72,7 +72,7 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
     end
 
     it 'runs bundle exec pod install if a Podfile and Gemfile exists' do
-      sexp = sexp_find(sexp_filter(subject, [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}"])[2], [:then])
+      sexp = sexp_find(sexp_filter(subject, [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}"])[1], [:then])
       expect(sexp).to include_sexp [:cmd, 'bundle exec pod install', assert: true, echo: true, retry: true, timing: true]
     end
 
