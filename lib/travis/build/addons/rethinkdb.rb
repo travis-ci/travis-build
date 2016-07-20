@@ -5,7 +5,7 @@ module Travis
   module Build
     class Addons
       class Rethinkdb < Base
-        SUPER_USER_SAFE = false
+        SUPER_USER_SAFE = true
 
         RETHINKDB_GPG_KEY = '0x3A8F2399'
 
