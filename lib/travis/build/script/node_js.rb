@@ -127,7 +127,7 @@ module Travis
           end
 
           def npm_disable_prefix
-            sh.if "$(command -v sw_vers)" do
+            sh.if "$(command -v sw_vers) && -f $HOME/.npmrc" do
               sh.cmd "npm config delete prefix"
             end
           end
