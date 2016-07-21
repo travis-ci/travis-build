@@ -16,7 +16,7 @@ shared_examples_for 'a jvm build sexp' do
     end
 
     it 'runs `./mvnw install` if mvnw exists' do
-      branch = sexp_find(sexp, [:elif, '-f mvnw'])
+      branch = sexp_find(sexp, [:elif, '-x ./mvnw'])
       expect(branch).to include_sexp([:cmd, './mvnw install -DskipTests=true -Dmaven.javadoc.skip=true -B -V', options])
     end
 
@@ -41,7 +41,7 @@ shared_examples_for 'a jvm build sexp' do
     end
 
     it 'runs `./mvnw test` if mvnw exists' do
-      branch = sexp_find(sexp, [:elif, '-f mvnw'])
+      branch = sexp_find(sexp, [:elif, '-x ./mvnw'])
       expect(branch).to include_sexp([:cmd, './mvnw test -B', options])
     end
 
