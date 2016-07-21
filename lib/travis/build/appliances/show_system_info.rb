@@ -27,8 +27,8 @@ module Travis
           end
 
           def show_travis_build_version
-            if ENV['SOURCE_VERSION']
-              sh.echo "travis-build version: #{ENV['SOURCE_VERSION']}".untaint
+            if ENV['HEROKU_SLUG_COMMIT']
+              sh.echo "travis-build version: #{ENV['HEROKU_SLUG_COMMIT']}".untaint
             end
           end
 
