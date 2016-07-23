@@ -12,7 +12,9 @@ describe Travis::Build::Script::D, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'downloads and runs the installer script' do
-    should include_sexp [:cmd, %r{source.*"$\(.*https://dlang\.org/install\.sh.*|.*bash.*--activate\)"},
+    should include_sexp [:cmd, %r{curl.*https://dlang\.org/install\.sh},
+                         assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, %r{source.*bash.*install\.sh.*--activate},
                          assert: true, echo: true, timing: true]
   end
 
@@ -44,7 +46,7 @@ describe Travis::Build::Script::D, :sexp do
     end
 
     it 'passed the compiler to the install script' do
-      should include_sexp [:cmd, %r{install\.sh.*|.*bash.*ldc-0.17.1"},
+      should include_sexp [:cmd, %r{source.*bash.*install\.sh.*ldc-0.17.1.*--activate},
                            assert: true, echo: true, timing: true]
     end
   end
