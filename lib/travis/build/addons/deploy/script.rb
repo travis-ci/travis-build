@@ -195,7 +195,7 @@ module Travis
               sh.cmd("mv dpl-*.gem $TRAVIS_BUILD_DIR",         echo: false, assert: !allow_failure, timing: true)
               sh.cmd("popd",                                   echo: false, assert: !allow_failure, timing: true)
               # clean up, so that multiple edge providers can be run
-              sh.cmd("rm -rf #{File.dirname(source)}",         echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("rm -rf $(dirname #{source})}",           echo: false, assert: !allow_failure, timing: true)
               sh.cmd("popd",                                   echo: false, assert: !allow_failure, timing: true)
             ensure
               sh.cmd("test -e /tmp/dpl && rm -rf dpl", echo: false, assert: false, timing: true)
