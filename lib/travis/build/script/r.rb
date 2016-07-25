@@ -232,7 +232,7 @@ module Travis
           export_rcheck_dir
 
           # Output check summary
-          sh.cmd 'Rscript -e "cat(devtools::check_failures(path = \"${RCHECK_DIR}\"), \"\\\n\")"', echo: false
+          sh.cmd 'Rscript -e "message(devtools::check_failures(path = \"${RCHECK_DIR}\"))"', echo: false
 
           # Build fails if R CMD check fails
           sh.if '$CHECK_RET -ne 0' do
