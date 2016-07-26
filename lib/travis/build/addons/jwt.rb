@@ -11,6 +11,8 @@ module Travis
           secrets = nil
           if config.is_a?(String)
             secrets = [config]
+          elsif config.is_a?(Array)
+            secrets = config
           else
             secrets = config.values
           end

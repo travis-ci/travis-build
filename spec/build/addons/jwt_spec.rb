@@ -9,26 +9,41 @@ describe Travis::Build::Addons::Jwt, :sexp do
   before       { Time.stubs(:now).returns(Time.at(28800)) }
   before       { addon.before_before_script }
 
-  describe 'jwt token, one secret' do
-    let(:config) { 'MY_ACCESS_KEY=987654321' }
-    it "should work" do
-      expect(subject).to include_sexp [:echo, 'Initializing JWT', ansi: :yellow]
-      expected = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ0cmF2aXMtY2kub3JnIiwic2x1ZyI6InRyYXZpcy1jaS90cmF2aXMtY2kiLCJwdWxsLXJlcXVlc3QiOiIiLCJleHAiOjM0MjAwLCJpYXQiOjI4ODAwfQ.NQLflEZgXkZY80frfSPfUQVYk0chvStFseUrU1HDRJk"
-      expect(subject).to include_sexp [:export, ['MY_ACCESS_KEY', expected]]
+  describe 'jwt token' do
+    describe 'one secret' do
+      let(:config) { 'MY_ACCESS_KEY=987654321' }
+      it "should work" do
+        expect(subject).to include_sexp [:echo, 'Initializing JWT', ansi: :yellow]
+        expected = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ0cmF2aXMtY2kub3JnIiwic2x1ZyI6InRyYXZpcy1jaS90cmF2aXMtY2kiLCJwdWxsLXJlcXVlc3QiOiIiLCJleHAiOjM0MjAwLCJpYXQiOjI4ODAwfQ.NQLflEZgXkZY80frfSPfUQVYk0chvStFseUrU1HDRJk"
+        expect(subject).to include_sexp [:export, ['MY_ACCESS_KEY', expected]]
+      end
     end
-  end
 
-  describe 'jwt token, several secrets' do
-    let(:config) { {
-      secret1: 'MY_ACCESS_KEY_1=123456789',
-      secret2: 'MY_ACCESS_KEY_2=ABCDEF'
-    } }
-    it "should work" do
-      expect(subject).to include_sexp [:echo, 'Initializing JWT', ansi: :yellow]
-      expected1 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ0cmF2aXMtY2kub3JnIiwic2x1ZyI6InRyYXZpcy1jaS90cmF2aXMtY2kiLCJwdWxsLXJlcXVlc3QiOiIiLCJleHAiOjM0MjAwLCJpYXQiOjI4ODAwfQ.ZuZEGlQZF_XVIxqatj17kxJ0byoKYJRbcO2yrLjaFTM"
-      expect(subject).to include_sexp [:export, ['MY_ACCESS_KEY_1', expected1]]
-      expected2 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ0cmF2aXMtY2kub3JnIiwic2x1ZyI6InRyYXZpcy1jaS90cmF2aXMtY2kiLCJwdWxsLXJlcXVlc3QiOiIiLCJleHAiOjM0MjAwLCJpYXQiOjI4ODAwfQ.vwir6OH5mdnvzucyuc5wR4d_17tF1aNDw29_AXJVDr4"
-      expect(subject).to include_sexp [:export, ['MY_ACCESS_KEY_2', expected2]]
+    describe 'several named secrets' do
+      let(:config) { {
+        secret1: 'MY_ACCESS_KEY_1=123456789',
+        secret2: 'MY_ACCESS_KEY_2=ABCDEF'
+      } }
+      it "should work" do
+        expect(subject).to include_sexp [:echo, 'Initializing JWT', ansi: :yellow]
+        expected1 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ0cmF2aXMtY2kub3JnIiwic2x1ZyI6InRyYXZpcy1jaS90cmF2aXMtY2kiLCJwdWxsLXJlcXVlc3QiOiIiLCJleHAiOjM0MjAwLCJpYXQiOjI4ODAwfQ.ZuZEGlQZF_XVIxqatj17kxJ0byoKYJRbcO2yrLjaFTM"
+        expect(subject).to include_sexp [:export, ['MY_ACCESS_KEY_1', expected1]]
+        expected2 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ0cmF2aXMtY2kub3JnIiwic2x1ZyI6InRyYXZpcy1jaS90cmF2aXMtY2kiLCJwdWxsLXJlcXVlc3QiOiIiLCJleHAiOjM0MjAwLCJpYXQiOjI4ODAwfQ.vwir6OH5mdnvzucyuc5wR4d_17tF1aNDw29_AXJVDr4"
+        expect(subject).to include_sexp [:export, ['MY_ACCESS_KEY_2', expected2]]
+      end
+    end
+    describe 'several secrets' do
+      let(:config) { [
+        'MY_ACCESS_KEY_3=123456789',
+        'MY_ACCESS_KEY_4=ABCDEF'
+      ] }
+      it "should work" do
+        expect(subject).to include_sexp [:echo, 'Initializing JWT', ansi: :yellow]
+        expected1 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ0cmF2aXMtY2kub3JnIiwic2x1ZyI6InRyYXZpcy1jaS90cmF2aXMtY2kiLCJwdWxsLXJlcXVlc3QiOiIiLCJleHAiOjM0MjAwLCJpYXQiOjI4ODAwfQ.ZuZEGlQZF_XVIxqatj17kxJ0byoKYJRbcO2yrLjaFTM"
+        expect(subject).to include_sexp [:export, ['MY_ACCESS_KEY_3', expected1]]
+        expected2 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ0cmF2aXMtY2kub3JnIiwic2x1ZyI6InRyYXZpcy1jaS90cmF2aXMtY2kiLCJwdWxsLXJlcXVlc3QiOiIiLCJleHAiOjM0MjAwLCJpYXQiOjI4ODAwfQ.vwir6OH5mdnvzucyuc5wR4d_17tF1aNDw29_AXJVDr4"
+        expect(subject).to include_sexp [:export, ['MY_ACCESS_KEY_4', expected2]]
+      end
     end
   end
 end
