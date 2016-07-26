@@ -23,8 +23,7 @@ module Travis
             begin
               tokens[key] = JWT.encode(payload, secret)
             rescue Exception => e
-              sh.echo "JWT Encode Error: #{e.message}", ansi: :red
-              warn e
+              sh.failure "JWT Encode Error: #{e.message}"
               []
             end
           end

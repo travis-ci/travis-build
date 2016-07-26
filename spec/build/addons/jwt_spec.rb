@@ -41,7 +41,7 @@ describe Travis::Build::Addons::Jwt, :sexp do
 
       it "should work" do
         expect(subject).to include_sexp [:echo, 'Initializing JWT', ansi: :yellow]
-        expect(subject).to include_sexp [:echo, 'JWT Encode Error: Bad body', ansi: :red]
+        expect(subject).to include_sexp [:echo, 'JWT Encode Error: Bad body']
       end
     end
   end
