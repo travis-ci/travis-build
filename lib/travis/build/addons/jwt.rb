@@ -8,27 +8,25 @@ module Travis
         SUPER_USER_SAFE = true
 
         def before_before_script
-          secrets = nil
-          if config.is_a?(String)
-            secrets = [config]
-          elsif config.is_a?(Array)
-            secrets = config
-          else
-            secrets = config.values
-          end
-
           tokens = {}
-          secrets.each do |secret|
+          Array(config).each do |secret|
             key, secret = secret.split('=').map(&:strip)
             pull_request = self.data.pull_request ? self.data.pull_request : ""
             now = Time.now.to_i()
-            payload = {"iss" => "travis-ci.org",
-                      "slug" => self.data.slug,
-                      "pull-request" => pull_request,
-                      "exp" => now+5400,
-                      "iat" => now}
-            token = JWT.encode(payload, secret)
-            tokens[key] = token
+            payload = {
+              "iss" => "Travis CI, GmbH",
+              "slug" => self.data.slug,
+              "pull-request" => pull_request,
+              "exp" => now+5400,
+              "iat" => now
+            }
+            begin
+              tokens[key] = JWT.encode(payload, secret)
+            rescue Exception => e
+              sh.echo "JWT Encode Error: #{e.message}", ansi: :red
+              warn e
+              []
+            end
           end
           sh.fold 'addons_jwt' do
             sh.echo 'Initializing JWT', ansi: :yellow
