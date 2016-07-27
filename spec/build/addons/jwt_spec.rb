@@ -33,7 +33,7 @@ describe Travis::Build::Addons::Jwt, :sexp do
       end
     end
 
-    describe 'handle malformed secret/key' do
+    describe 'handle raising an exception on 100%' do
       let(:config) { ["JUSTKEY"]; }
 
       it "should output warning about bad data" do
@@ -41,16 +41,8 @@ describe Travis::Build::Addons::Jwt, :sexp do
       end
     end
 
-    describe 'handle raising an exception on 100%' do
-      let(:config) { [nil]; }
-
-      it "should output warning about bad data" do
-        expect(subject).to include_sexp [:echo, "There was an error while encoding JWT. If the secret is encrypted, ensure that it is encrypted correctly.", {:ansi=>:yellow}]
-      end
-    end
-
     describe 'handle raising an exception on 50%' do
-      let(:config) { [nil, 'BAD_ACCESS_KEY=abc123']; }
+      let(:config) { ["JUSTKEY", 'BAD_ACCESS_KEY=abc123']; }
 
       it "should output warning about bad data" do
         # first one throws an exception
