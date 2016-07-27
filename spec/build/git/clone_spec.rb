@@ -62,15 +62,6 @@ describe Travis::Build::Git::Clone, :sexp do
       let(:args) { "--depth=#{depth} --branch=#{branch.shellescape} --quiet" }
       it { should include_sexp clone }
     end
-
-    context 'when prefer_https is true' do
-      before :each do
-        payload[:prefer_https] = true
-      end
-
-      let(:url) { 'https://github.com/travis-ci/travis-ci.git' }
-      it { should include_sexp clone }
-    end
   end
 
   describe 'when the repository is already cloned' do
