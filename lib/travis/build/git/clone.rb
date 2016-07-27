@@ -68,7 +68,9 @@ module Travis
 
           def write_netrc
             if data.prefer_https?
-              sh.echo "Using $HOME/.netrc to clone repository.\n", ansi: :yellow
+              sh.newline
+              sh.echo "Using $HOME/.netrc to clone repository.", ansi: :yellow
+              sh.newline
               sh.raw "echo -e \"machine github.com\n  login #{data[:oauth_token]}\\n\" > $HOME/.netrc"
               sh.raw "chmod 0600 $HOME/.netrc"
             end
