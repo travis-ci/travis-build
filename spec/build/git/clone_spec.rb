@@ -10,9 +10,28 @@ describe Travis::Build::Git::Clone, :sexp do
   let(:depth)  { Travis::Build::Git::DEFAULTS[:git][:depth] }
   let(:branch) { payload[:job][:branch] || 'master' }
 
+  let(:oauth_token) { 'abcdef01234' }
+
   before :each do
     payload[:config][:git] = { strategy: 'clone' }
   end
+
+  context 'when prefer_https is true' do
+    it 'writes to $HOME/.netrc' do
+      payload[:prefer_https] = true
+      payload[:oauth_token]  = oauth_token
+      should include_sexp [:raw, /echo -e "machine github.com login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
+    end
+  end
+
+  context 'when prefer_https is false' do
+    it 'deos not write to $HOME/.netrc' do
+      payload[:prefer_https] = false
+      payload[:oauth_token]  = oauth_token
+      should_not include_sexp [:raw, /echo -e "machine github.com login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
+    end
+  end
+
 
   describe 'when the repository is cloned not yet' do
     let(:args) { "--depth=#{depth} --branch=#{branch.shellescape}" }
@@ -41,6 +60,15 @@ describe Travis::Build::Git::Clone, :sexp do
         payload[:config][:git].merge!({ quiet: true })
       end
       let(:args) { "--depth=#{depth} --branch=#{branch.shellescape} --quiet" }
+      it { should include_sexp clone }
+    end
+
+    context 'when prefer_https is true' do
+      before :each do
+        payload[:prefer_https] = true
+      end
+
+      let(:url) { 'https://github.com/travis-ci/travis-ci.git' }
       it { should include_sexp clone }
     end
   end

@@ -156,6 +156,10 @@ module Travis
       def debug_options
         job[:debug_options] || {}
       end
+
+      def prefer_https?
+        data[:prefer_https]
+      end
     end
   end
 end

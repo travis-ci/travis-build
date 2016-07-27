@@ -4,8 +4,18 @@ module Travis
   module Build
     class Git
       class Clone < Struct.new(:sh, :data)
+        GIT_URL_REGEXP = %r!
+          \A(
+            (?<git_username>[^@]+)@(?<git_host>[^:]+): # git@github.com:
+          |
+            (?<protocol>[^:]*://)(?<git_host>[^\/]+)/  # proto://example.com/
+          )
+          (?<git_path>.*)\z
+        !x
+
         def apply
           sh.fold 'git.checkout' do
+            write_netrc
             clone_or_fetch
             sh.cd dir
             fetch_ref if fetch_ref?
@@ -17,7 +27,7 @@ module Travis
 
           def clone_or_fetch
             sh.if "! -d #{dir}/.git" do
-              sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, retry: true
+              sh.cmd "git clone #{clone_args} #{clone_url} #{dir}", assert: true, retry: true
             end
             sh.else do
               sh.cmd "git -C #{dir} fetch origin", assert: true, retry: true
@@ -62,6 +72,20 @@ module Travis
 
           def config
             data.config
+          end
+
+          def write_netrc
+            if data.prefer_https?
+              sh.raw "echo -e \"machine github.com login #{data[:oauth_token]}\\n\" > $HOME/.netrc"
+            end
+          end
+
+          def clone_url
+            if data.prefer_https? && match_data = data.source_url.match(GIT_URL_REGEXP)
+              "https://%s/%s" % [ match_data[:git_host], match_data[:git_path] ]
+            else
+              data.source_url
+            end
           end
       end
     end
