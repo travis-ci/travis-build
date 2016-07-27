@@ -41,13 +41,13 @@ describe Travis::Build::Script::R, :sexp do
   end
 
   it 'downloads and installs latest R' do
-    should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-3.3.1.xz},
+    should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-3\.3\.1\.xz},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
   it 'downloads and installs latest R on OS X' do
     data[:config][:os] = 'osx'
-    should include_sexp [:cmd, %r{^curl.*bin/macosx/R-latest.pkg},
+    should include_sexp [:cmd, %r{^curl.*mavericks/R-devel/R-devel-mavericks-signed\.pkg},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
@@ -66,25 +66,25 @@ describe Travis::Build::Script::R, :sexp do
 
   it 'downloads and installs R 3.1' do
     data[:config][:r] = '3.1'
-    should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-3.1.3.xz},
+    should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-3\.1\.3\.xz},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
   it 'downloads and installs R 3.2' do
     data[:config][:r] = '3.2'
-    should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-3.2.5.xz},
+    should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-3\.2\.5\.xz},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
   it 'downloads and installs R devel' do
     data[:config][:r] = 'devel'
-    should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-devel.xz},
+    should include_sexp [:cmd, %r{^curl.*https://s3.amazonaws.com/rstudio-travis/R-devel\.xz},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
   it 'downloads pandoc and installs into /usr/bin/pandoc' do
     data[:config][:pandoc_version] = '1.15.2'
-    should include_sexp [:cmd, %r{curl -Lo /tmp/pandoc-1\.15\.2-1-amd64.deb https://github\.com/jgm/pandoc/releases/download/1.15.2/pandoc-1\.15\.2-1-amd64.deb},
+    should include_sexp [:cmd, %r{curl -Lo /tmp/pandoc-1\.15\.2-1-amd64\.deb https://github\.com/jgm/pandoc/releases/download/1.15.2/pandoc-1\.15\.2-1-amd64\.deb},
                          assert: true, echo: true, timing: true]
 
     should include_sexp [:cmd, %r{sudo dpkg -i /tmp/pandoc-},
