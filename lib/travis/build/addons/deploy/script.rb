@@ -187,6 +187,7 @@ module Travis
 
             def build_gem_locally_from(source, branch)
               sh.echo "Building dpl gem locally with source #{source} and branch #{branch}", ansi: :yellow
+              sh.cmd("gem uninstall -a -x dpl",                echo: false, assert: !allow_failure, timing: false)
               sh.cmd("pushd /tmp",                             echo: false, assert: !allow_failure, timing: true)
               sh.cmd("git clone https://github.com/#{source} #{source}", echo: false, assert: !allow_failure, timing: true)
               sh.cmd("pushd #{source}",                        echo: false, assert: !allow_failure, timing: true)
