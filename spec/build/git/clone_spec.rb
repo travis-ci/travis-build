@@ -20,7 +20,7 @@ describe Travis::Build::Git::Clone, :sexp do
     it 'writes to $HOME/.netrc' do
       payload[:prefer_https] = true
       payload[:oauth_token]  = oauth_token
-      should include_sexp [:raw, /echo -e "machine github.com login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
+      script.sexp.should include_sexp [:raw, /echo -e "machine github.com\n  login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
     end
   end
 
