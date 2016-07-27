@@ -10,18 +10,16 @@ module Travis
         TEMP_HOSTS_FILE = '/tmp/hosts'
         SYSCTL_FILE = '/etc/sysctl.conf'
         TEMP_SYSCTL_FILE = '/tmp/sysctl.conf'
+        DEFAULT_DEPS = 'libc6:i386 libuuid1:i386 libfreetype6:i386 libssl1.0.0:i386'
+        PHARO_DEPS = DEFAULT_DEPS + ' libcairo2:i386'
 
         def configure
           super
 
-          if is_squeak? or is_pharo? or is_moose?
-            case config[:os]
-            when 'linux'
-              install_dependencies
-            when 'osx'
-              # pass
-            end
-
+          if is_squeak?
+            install_dependencies(DEFAULT_DEPS)
+          elsif is_pharo? or is_moose?
+            install_dependencies(PHARO_DEPS)
           elsif is_gemstone?
 
             sh.fold 'gemstone_prepare_dependencies' do
@@ -112,7 +110,8 @@ module Travis
             config[:smalltalk].to_s.downcase.start_with?(name)
           end
 
-          def install_dependencies
+          def install_dependencies(deps)
+            return if config[:os] != 'linux'
             sh.fold 'install_packages' do
               sh.echo 'Installing dependencies', ansi: :yellow
 
@@ -121,12 +120,11 @@ module Travis
               end
 
               sh.cmd 'sudo apt-get update -qq', retry: true
-              sh.cmd 'sudo apt-get install -y --no-install-recommends ' +
-                     'libc6:i386 libuuid1:i386 libfreetype6:i386 libssl1.0.0:i386', retry: true
+              sh.cmd 'sudo apt-get install -y --no-install-recommends ' + deps, retry: true
             end
           end
 
-          def gemstone_configure_hosts()
+          def gemstone_configure_hosts
             sh.echo 'Configuring /etc/hosts file', ansi: :yellow
 
             sh.cmd "sed -e \"s/^\\(127\\.0\\.0\\.1.*\\)$/\\1 $(hostname)/\" #{HOSTS_FILE} | sed -e \"s/^\\(::1.*\\)$/\\1 $(hostname)/\" > #{TEMP_HOSTS_FILE}"

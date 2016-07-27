@@ -36,8 +36,18 @@ describe Travis::Build::Script::Smalltalk, :sexp do
       data[:config][:smalltalk] = 'Squeak-5.0'
       data[:config][:os] = 'linux'
     end
-    it 'installs the dependencies' do
+    it 'installs default dependencies' do
       should include_sexp [:cmd, "sudo apt-get install -y --no-install-recommends libc6:i386 libuuid1:i386 libfreetype6:i386 libssl1.0.0:i386", retry: true]
+    end
+  end
+
+  describe 'Pharo on Linux' do
+    before do
+      data[:config][:smalltalk] = 'Pharo-5.0'
+      data[:config][:os] = 'linux'
+    end
+    it 'installs Pharo dependencies' do
+      should include_sexp [:cmd, "sudo apt-get install -y --no-install-recommends libc6:i386 libuuid1:i386 libfreetype6:i386 libssl1.0.0:i386 libcairo2:i386", retry: true]
     end
   end
 
