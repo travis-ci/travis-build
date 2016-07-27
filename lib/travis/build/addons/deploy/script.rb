@@ -187,17 +187,17 @@ module Travis
 
             def build_gem_locally_from(source, branch)
               sh.echo "Building dpl gem locally with source #{source} and branch #{branch}", ansi: :yellow
-              sh.cmd("gem uninstall -a -x dpl",                echo: false, assert: !allow_failure, timing: false)
-              sh.cmd("pushd /tmp",                             echo: false, assert: !allow_failure, timing: true)
-              sh.cmd("git clone https://github.com/#{source} #{source}", echo: false, assert: !allow_failure, timing: true)
-              sh.cmd("pushd #{source}",                        echo: false, assert: !allow_failure, timing: true)
-              sh.cmd("git checkout #{branch}",                 echo: false, assert: !allow_failure, timing: true)
-              cmd("gem build dpl.gemspec",                     echo: false, assert: !allow_failure, timing: true)
-              sh.cmd("mv dpl-*.gem $TRAVIS_BUILD_DIR",         echo: false, assert: !allow_failure, timing: true)
-              sh.cmd("popd",                                   echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("gem uninstall -a -x dpl >& /dev/null",                echo: false, assert: !allow_failure, timing: false)
+              sh.cmd("pushd /tmp >& /dev/null",                             echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("git clone https://github.com/#{source} #{source}",    echo: true,  assert: !allow_failure, timing: true)
+              sh.cmd("pushd #{source} >& /dev/null",                        echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("git checkout #{branch}",                              echo: true,  assert: !allow_failure, timing: true)
+              cmd("gem build dpl.gemspec",                                  echo: true,  assert: !allow_failure, timing: true)
+              sh.cmd("mv dpl-*.gem $TRAVIS_BUILD_DIR >& /dev/null",         echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: true)
               # clean up, so that multiple edge providers can be run
-              sh.cmd("rm -rf $(dirname #{source})",           echo: false, assert: !allow_failure, timing: true)
-              sh.cmd("popd",                                   echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("rm -rf $(dirname #{source})",                         echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: true)
             ensure
               sh.cmd("test -e /tmp/dpl && rm -rf dpl", echo: false, assert: false, timing: true)
             end
