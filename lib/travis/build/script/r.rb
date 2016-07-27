@@ -125,7 +125,8 @@ module Travis
                 sh.cmd 'brew update >/dev/null', retry: true
 
                 if r_version == r_latest
-                  r_url = "#{repos[:CRAN]}/bin/macosx/R-latest.pkg"
+                  # Get R-devel from The AT&T research site
+                  r_url = "https://r.research.att.com/mavericks/R-devel/R-devel-mavericks-signed.pkg"
 
                 # 3.2.5 was never built for OS X so
                 # we need to use 3.2.4-revised, which is the same codebase
@@ -232,7 +233,7 @@ module Travis
           export_rcheck_dir
 
           # Output check summary
-          sh.cmd 'Rscript -e "cat(devtools::check_failures(path = \"${RCHECK_DIR}\"), \"\\\n\")"', echo: false
+          sh.cmd 'Rscript -e "message(devtools::check_failures(path = \"${RCHECK_DIR}\"))"', echo: false
 
           # Build fails if R CMD check fails
           sh.if '$CHECK_RET -ne 0' do
