@@ -7,10 +7,10 @@ describe Travis::Build::Addons::Jwt, :sexp do
   let(:addon)  { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
   subject      { sh.to_sexp }
   before       { Time.stubs(:now).returns(Time.at(28800)) }
+  before       { addon.before_before_script }
 
   describe 'jwt token' do
     describe 'one secret' do
-      before { addon.before_before_script }
       let(:config) { ['MY_ACCESS_KEY=987654321'] }
       it "should work" do
         expect(subject).to include_sexp [:echo, 'Initializing JWT', ansi: :yellow]
@@ -20,7 +20,6 @@ describe Travis::Build::Addons::Jwt, :sexp do
     end
 
     describe 'several secrets' do
-      before { addon.before_before_script }
       let(:config) { [
         'MY_ACCESS_KEY_3=123456789',
         'MY_ACCESS_KEY_4=ABCDEF'
@@ -34,14 +33,35 @@ describe Travis::Build::Addons::Jwt, :sexp do
       end
     end
 
-    describe 'handle raising an exception' do
-      before { JWT.stubs(:encode).raises(Exception, "Bad body") }
-      before { addon.before_before_script }
-      let(:config) { ['BAD_ACCESS_KEY']; }
+    describe 'handle malformed secret/key' do
+      let(:config) { ["JUSTKEY"]; }
 
-      it "should work" do
+      it "should output warning about bad data" do
+        expect(subject).to include_sexp [:echo, "There was an error while encoding JWT. If the secret is encrypted, ensure that it is encrypted correctly.", {:ansi=>:yellow}]
+      end
+    end
+
+    describe 'handle raising an exception on 100%' do
+      let(:config) { [nil]; }
+
+      it "should output warning about bad data" do
+        expect(subject).to include_sexp [:echo, "There was an error while encoding JWT. If the secret is encrypted, ensure that it is encrypted correctly.", {:ansi=>:yellow}]
+      end
+    end
+
+    describe 'handle raising an exception on 50%' do
+      let(:config) { [nil, 'BAD_ACCESS_KEY=abc123']; }
+
+      it "should output warning about bad data" do
+        # first one throws an exception
+        expect(subject).to include_sexp [:echo, "There was an error while encoding JWT. If the secret is encrypted, ensure that it is encrypted correctly.", {:ansi=>:yellow}]
+      end
+
+      it "should also handle second variable" do
         expect(subject).to include_sexp [:echo, 'Initializing JWT', ansi: :yellow]
-        expect(subject).to include_sexp [:echo, 'JWT Encode Error: Bad body']
+        # second one passes
+        expected = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2aXMgQ0ksIEdtYkgiLCJzbHVnIjoidHJhdmlzLWNpL3RyYXZpcy1jaSIsInB1bGwtcmVxdWVzdCI6IiIsImV4cCI6MzQyMDAsImlhdCI6Mjg4MDB9.Bvl3I1mHgABi6KAs5GFgtoyzj4qZR4xRkF-79bloadg"
+        expect(subject).to include_sexp [:export, ['BAD_ACCESS_KEY', expected]]
       end
     end
   end

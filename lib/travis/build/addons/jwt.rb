@@ -10,7 +10,6 @@ module Travis
         def before_before_script
           tokens = {}
           Array(config).each do |secret|
-            key, secret = secret.split('=').map(&:strip)
             pull_request = self.data.pull_request ? self.data.pull_request : ""
             now = Time.now.to_i()
             payload = {
@@ -21,12 +20,13 @@ module Travis
               "iat" => now
             }
             begin
+              key, secret = secret.split('=').map(&:strip)
               tokens[key] = JWT.encode(payload, secret)
-            rescue Exception => e
-              sh.failure "JWT Encode Error: #{e.message}"
-              []
+            rescue Exception
+              sh.echo "There was an error while encoding JWT. If the secret is encrypted, ensure that it is encrypted correctly.", ansi: :yellow
             end
           end
+          return if tokens.empty?
           sh.fold 'addons_jwt' do
             sh.echo 'Initializing JWT', ansi: :yellow
             tokens.each do |key, val|
