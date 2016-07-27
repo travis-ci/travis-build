@@ -11,13 +11,6 @@ module Travis
           jdk:  'default'
         }
 
-        LEIN_VERSION = '2.6.1'
-
-        def configure
-          super
-          update_lein LEIN_VERSION
-        end
-
         def announce
           super
           sh.cmd "#{lein} version"
@@ -39,14 +32,6 @@ module Travis
 
           def lein
             config[:lein].to_s
-          end
-
-          def update_lein(version)
-            sh.if "! -f $HOME/.lein/self-installs/leiningen-#{version}-standalone.jar" do
-              sh.cmd "env LEIN_ROOT=true curl -L -o /usr/local/bin/lein https://raw.githubusercontent.com/technomancy/leiningen/#{version}/bin/lein", echo: true, assert: true, sudo: true
-              sh.cmd "rm -rf $HOME/.lein", echo: false
-              sh.cmd "lein self-install", echo: true, assert: true
-            end
           end
       end
     end
