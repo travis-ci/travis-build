@@ -361,7 +361,7 @@ module Travis
         def install_deps
           setup_devtools
           install_script =
-            'deps <- devtools::dev_package_deps(dependencies = TRUE);'\
+            'deps <- devtools::dev_package_deps(dependencies = NA);'\
             'devtools::install_deps(dependencies = TRUE);'\
             'if (!all(deps$package %in% installed.packages())) {'\
             ' message("missing: ", paste(setdiff(deps$package, installed.packages()), collapse=", "));'\
