@@ -7,7 +7,7 @@ module Travis
       class Jwt < Base
         SUPER_USER_SAFE = true
 
-        def export
+        def before_before_install
           tokens = {}
           Array(config).each do |secret|
             pull_request = self.data.pull_request ? self.data.pull_request : ""
