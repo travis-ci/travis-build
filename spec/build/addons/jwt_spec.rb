@@ -7,7 +7,7 @@ describe Travis::Build::Addons::Jwt, :sexp do
   let(:addon)  { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
   subject      { sh.to_sexp }
   before       { Time.stubs(:now).returns(Time.at(28800)) }
-  before       { addon.before_before_install }
+  before       { addon.export }
 
   describe 'jwt token' do
     describe 'one secret' do
