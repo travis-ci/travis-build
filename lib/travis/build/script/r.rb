@@ -124,8 +124,12 @@ module Travis
                 # output.
                 sh.cmd 'brew update >/dev/null', retry: true
 
+                # Get latest version of R from mirror
                 if r_version == r_latest
-                  # Get R-devel from The AT&T research site
+                  r_url = "#{repos[:CRAN]}/bin/macosx/R-#{r_version}.pkg"
+
+                # Get R-devel from The AT&T research site
+                elsif r_version == r_devel
                   r_url = "https://r.research.att.com/mavericks/R-devel/R-devel-mavericks-signed.pkg"
 
                 # 3.2.5 was never built for OS X so
@@ -528,7 +532,18 @@ module Travis
         end
 
         def r_latest
-          '3.3.1'
+          v = open('https://cran.r-project.org/sources.html').readlines
+          v = v.grep(/base/)[0]
+          v = v.split('-')[2]
+          v = v.split('.tar')[0]
+          v
+        end
+
+        def r_devel
+          v = open('https://r.research.att.com/mavericks/R-devel/x86_64/build').readlines
+          v = v.grep(/current_version/)[0].split(' ')
+          v = v[v.index('-current_version')+1]
+          v
         end
 
         def repos
