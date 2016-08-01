@@ -124,9 +124,13 @@ module Travis
                 # output.
                 sh.cmd 'brew update >/dev/null', retry: true
 
-                if r_version == r_latest
-                  # Get R-devel from The AT&T research site
+                # R-devel builds available at research.att.com
+                if r_version == 'devel'
                   r_url = "https://r.research.att.com/mavericks/R-devel/R-devel-mavericks-signed.pkg"
+
+                # The latest release is the only one available in /bin/macosx
+                elsif r_version == r_latest
+                  r_url = "#{repos[:CRAN]}/bin/macosx/R-latest.pkg"
 
                 # 3.2.5 was never built for OS X so
                 # we need to use 3.2.4-revised, which is the same codebase
@@ -506,8 +510,7 @@ module Travis
           @r_version ||= normalized_r_version
         end
 
-        def normalized_r_version
-          v = config[:r].to_s
+        def normalized_r_version(v=config[:r].to_s)
           case v
           when 'release' then '3.3.1'
           when 'oldrel' then '3.2.5'
@@ -528,7 +531,7 @@ module Travis
         end
 
         def r_latest
-          '3.3.1'
+          normalized_r_version('release')
         end
 
         def repos
