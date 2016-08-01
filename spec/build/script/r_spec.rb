@@ -47,6 +47,13 @@ describe Travis::Build::Script::R, :sexp do
 
   it 'downloads and installs latest R on OS X' do
     data[:config][:os] = 'osx'
+    should include_sexp [:cmd, %r{^curl.*bin/macosx/R-3\.3\.1\.pkg},
+                         assert: true, echo: true, retry: true, timing: true]
+  end
+
+  it 'downloads and installs developmental R on OS X' do
+    data[:config][:os] = 'osx'
+    data[:config][:r] = '3.4.0'
     should include_sexp [:cmd, %r{^curl.*mavericks/R-devel/R-devel-mavericks-signed\.pkg},
                          assert: true, echo: true, retry: true, timing: true]
   end
