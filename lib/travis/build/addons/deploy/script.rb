@@ -57,6 +57,7 @@ module Travis
           private
             def check_conditions_and_run
               sh.if(conditions) do
+                sh.raw 'set +e'
                 run
               end
 
