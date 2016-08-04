@@ -179,10 +179,11 @@ module Travis
             end
 
             def run(command, args, options = {})
-              sh.raw 'set +e'
-              sh.if "-f #{BIN_PATH}" do
-                sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
-                sh.cmd "rvm #{USE_RUBY} --fuzzy do #{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
+              sh.with_errexit_off do
+                sh.if "-f #{BIN_PATH}" do
+                  sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
+                  sh.cmd "rvm #{USE_RUBY} --fuzzy do #{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
+                end
               end
             end
 

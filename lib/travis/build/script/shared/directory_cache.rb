@@ -37,7 +37,9 @@ module Travis
 
         def cache
           directory_cache.fold('store build cache') do
-            prepare_cache
+            sh.with_errexit_off do
+              prepare_cache
+            end
             directory_cache.push
           end
         end
