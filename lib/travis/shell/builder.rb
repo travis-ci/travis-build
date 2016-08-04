@@ -163,6 +163,25 @@ module Travis
         @options = options
       end
 
+      def with_errexit_off
+        save_and_switch_off_errexit
+        yield
+        restore_errexit
+      end
+
+      def save_and_switch_off_errexit
+        self.if "$- = *e*" do
+          raw 'ERREXIT_SET=true'
+        end
+        raw 'set +e'
+      end
+
+      def restore_errexit
+        self.if "-n $ERREXIT_SET" do
+          raw 'set -e'
+        end
+      end
+
       private
 
         def merge_options(args)

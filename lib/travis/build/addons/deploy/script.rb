@@ -124,12 +124,12 @@ module Travis
             end
 
             def run
-              script.save_and_switch_off_errexit
-              script.stages.run_stage(:custom, :before_deploy)
-              sh.fold('dpl.0') { install }
-              cmd(run_command, echo: false, assert: false, timing: true)
-              script.stages.run_stage(:custom, :after_deploy)
-              script.restore_errexit
+              sh.with_errexit_off do
+                script.stages.run_stage(:custom, :before_deploy)
+                sh.fold('dpl.0') { install }
+                cmd(run_command, echo: false, assert: false, timing: true)
+                script.stages.run_stage(:custom, :after_deploy)
+              end
             end
 
             def install(edge = config[:edge])
