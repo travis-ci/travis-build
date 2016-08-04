@@ -111,6 +111,19 @@ module Travis
         ! data.debug_options.empty?
       end
 
+      def save_and_switch_off_errexit
+        sh.if "$- = *e*" do
+          sh.raw 'ERREXIT_SET=true'
+        end
+        sh.raw 'set +e'
+      end
+
+      def restore_errexit
+        sh.if "-n $ERREXIT_SET" do
+          sh.raw 'set -e'
+        end
+      end
+
       private
 
         def config

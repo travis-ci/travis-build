@@ -57,7 +57,6 @@ module Travis
           private
             def check_conditions_and_run
               sh.if(conditions) do
-                sh.raw 'set +e'
                 run
               end
 
@@ -125,10 +124,12 @@ module Travis
             end
 
             def run
+              script.save_and_switch_off_errexit
               script.stages.run_stage(:custom, :before_deploy)
               sh.fold('dpl.0') { install }
               cmd(run_command, echo: false, assert: false, timing: true)
               script.stages.run_stage(:custom, :after_deploy)
+              script.restore_errexit
             end
 
             def install(edge = config[:edge])

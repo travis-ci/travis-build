@@ -179,11 +179,12 @@ module Travis
             end
 
             def run(command, args, options = {})
-              sh.raw 'set +e'
+              save_and_switch_off_errexit
               sh.if "-f #{BIN_PATH}" do
                 sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
                 sh.cmd "rvm #{USE_RUBY} --fuzzy do #{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
               end
+              restore_errexit
             end
 
             def group
@@ -264,6 +265,19 @@ module Travis
 
             def debug_flags
               "-v -w '#{CURL_FORMAT}'" if data.cache[:debug]
+            end
+
+            def save_and_switch_off_errexit
+              sh.if "$- = *e*" do
+                sh.raw 'ERREXIT_SET=true'
+              end
+              sh.raw 'set +e'
+            end
+
+            def restore_errexit
+              sh.if "-n $ERREXIT_SET" do
+                sh.raw 'set -e'
+              end
             end
         end
       end
