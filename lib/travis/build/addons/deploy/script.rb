@@ -54,7 +54,7 @@ module Travis
 
           private
             def use_ruby
-              data.disable_sudo? ? '1.9.3' : '2.2.5'
+              (data.disable_sudo? || config[:os] != 'linux') ? '1.9.3' : '2.2.5'
             end
 
             def check_conditions_and_run
