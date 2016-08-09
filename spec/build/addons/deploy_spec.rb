@@ -6,7 +6,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
   let(:script)  { Travis::Build::Script::Ruby.new(data) }
   let(:scripts) { { before_deploy: ['./before_deploy_1.sh', './before_deploy_2.sh'], after_deploy: ['./after_deploy_1.sh', './after_deploy_2.sh'] } }
   let(:config)  { {} }
-  let(:data)    { payload_for(:push, :ruby, config: { addons: { deploy: config } }.merge(scripts)) }
+  let(:data)    { payload_for(:push, :ruby, config: { os: 'linux', addons: { deploy: config } }.merge(scripts)) }
   # let(:sh)      { Travis::Shell::Builder.new }
   let(:sh)      { script.sh }
   # let(:addon)   { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
