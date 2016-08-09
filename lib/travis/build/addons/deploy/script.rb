@@ -28,8 +28,6 @@ module Travis
             smalltalk
           ).map(&:to_sym)
 
-          USE_RUBY           = '2.2.5'
-
           attr_accessor :script, :sh, :data, :config, :allow_failure
 
           def initialize(script, sh, data, config)
@@ -55,6 +53,10 @@ module Travis
           end
 
           private
+            def use_ruby
+              data.disable_sudo? ? '1.9.3' : '2.2.5'
+            end
+
             def check_conditions_and_run
               sh.if(conditions) do
                 run
@@ -172,7 +174,7 @@ module Travis
 
             def cmd(cmd, *args)
               sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
-              sh.cmd("rvm #{USE_RUBY} --fuzzy do ruby -S #{cmd}", *args)
+              sh.cmd("rvm #{use_ruby} --fuzzy do ruby -S #{cmd}", *args)
             end
 
             def options
