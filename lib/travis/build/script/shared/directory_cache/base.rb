@@ -53,7 +53,7 @@ module Travis
           end
 
           CASHER_URL = 'https://raw.githubusercontent.com/travis-ci/casher/%s/bin/casher'
-          USE_RUBY   = '1.9.3'
+          USE_RUBY   = '2.2.5'
           BIN_PATH   = '$CASHER_DIR/bin/casher'
 
           attr_reader :sh, :data, :slug, :start, :msgs

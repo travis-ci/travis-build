@@ -27,10 +27,10 @@ describe Travis::Build::Addons::Deploy, :sexp do
 
     it { expect(sexp).to include_sexp [:cmd, './before_deploy_1.sh', assert: true, echo: true, timing: true] }
     it { expect(sexp).to include_sexp [:cmd, './before_deploy_2.sh', assert: true, echo: true, timing: true] }
-    it { expect(sexp).to include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do ruby -S gem install dpl', assert: true, timing: true] }
-    # it { expect(sexp).to include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do ruby -S dpl --provider=heroku --password=foo --email=user@host --fold', assert: true, timing: true] }
+    it { expect(sexp).to include_sexp [:cmd, 'rvm 2.2.5 --fuzzy do ruby -S gem install dpl', assert: true, timing: true] }
+    # it { expect(sexp).to include_sexp [:cmd, 'rvm 2.2.5 --fuzzy do ruby -S dpl --provider=heroku --password=foo --email=user@host --fold', assert: true, timing: true] }
     # it { expect(sexp).to include_sexp terminate_on_failure }
-    it { expect(sexp).to include_sexp [:cmd, "rvm 1.9.3 --fuzzy do ruby -S dpl --provider=\"heroku\" --password=\"foo\" --email=\"user@host\" --fold; if [ $? -ne 0 ]; then echo \"failed to deploy\"; travis_terminate 2; fi", {:timing=>true}] }
+    it { expect(sexp).to include_sexp [:cmd, "rvm 2.2.5 --fuzzy do ruby -S dpl --provider=\"heroku\" --password=\"foo\" --email=\"user@host\" --fold; if [ $? -ne 0 ]; then echo \"failed to deploy\"; travis_terminate 2; fi", {:timing=>true}] }
     it { expect(sexp).to include_sexp [:cmd, './after_deploy_1.sh', echo: true, timing: true] }
     it { expect(sexp).to include_sexp [:cmd, './after_deploy_2.sh', echo: true, timing: true] }
   end
@@ -89,11 +89,11 @@ describe Travis::Build::Addons::Deploy, :sexp do
     let(:config)    { [heroku, nodejitsu] }
 
     it { should match_sexp [:if, '($TRAVIS_BRANCH = master) && ($FOO = foo)'] }
-    # it { should include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do ruby -S dpl --provider=heroku --password=foo --email=user@host --fold', assert: true, timing: true] }
-    it { should include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do ruby -S dpl --provider="heroku" --password="foo" --email="user@host" --fold; if [ $? -ne 0 ]; then echo "failed to deploy"; travis_terminate 2; fi', timing: true] }
+    # it { should include_sexp [:cmd, 'rvm 2.2.5 --fuzzy do ruby -S dpl --provider=heroku --password=foo --email=user@host --fold', assert: true, timing: true] }
+    it { should include_sexp [:cmd, 'rvm 2.2.5 --fuzzy do ruby -S dpl --provider="heroku" --password="foo" --email="user@host" --fold; if [ $? -ne 0 ]; then echo "failed to deploy"; travis_terminate 2; fi', timing: true] }
     it { should match_sexp [:if, '($TRAVIS_BRANCH = master) && ($BAR = bar)'] }
-    # it { should include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do ruby -S dpl --provider=nodejitsu --user=foo --api_key=bar --fold', assert: true, timing: true] }
-    it { should include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do ruby -S dpl --provider="nodejitsu" --user="foo" --api_key="bar" --fold; if [ $? -ne 0 ]; then echo "failed to deploy"; travis_terminate 2; fi', timing: true] }
+    # it { should include_sexp [:cmd, 'rvm 2.2.5 --fuzzy do ruby -S dpl --provider=nodejitsu --user=foo --api_key=bar --fold', assert: true, timing: true] }
+    it { should include_sexp [:cmd, 'rvm 2.2.5 --fuzzy do ruby -S dpl --provider="nodejitsu" --user="foo" --api_key="bar" --fold; if [ $? -ne 0 ]; then echo "failed to deploy"; travis_terminate 2; fi', timing: true] }
   end
 
   describe 'allow_failure' do

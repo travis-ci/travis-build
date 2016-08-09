@@ -28,7 +28,7 @@ module Travis
             smalltalk
           ).map(&:to_sym)
 
-          USE_RUBY           = '1.9.3'
+          USE_RUBY           = '2.2.5'
 
           attr_accessor :script, :sh, :data, :config, :allow_failure
 

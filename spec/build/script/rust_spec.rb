@@ -43,7 +43,7 @@ describe Travis::Build::Script::Rust, :sexp do
     let(:data)   { payload_for(:push, :rust, config: { cache: 'cargo' }, cache_options: options) }
 
     it 'caches desired directories' do
-      should include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher add $HOME/.cargo target', timing: true]
+      should include_sexp [:cmd, 'rvm 2.2.5 --fuzzy do $CASHER_DIR/bin/casher add $HOME/.cargo target', timing: true]
     end
   end
 end
