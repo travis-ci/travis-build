@@ -15,7 +15,7 @@ module Travis
             sh.cmd "cat #{HOSTS_FILE}"
           end
           sh.fold 'hosts' do
-            sh.cmd "sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 #{hosts}/' #{HOSTS_FILE} | sed -e 's/^\\(::1.*\\)$/\\1 #{hosts}/' > #{TEMP_HOSTS_FILE}"
+            sh.cmd "sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 #{hosts}/' #{HOSTS_FILE} > #{TEMP_HOSTS_FILE}"
             sh.cmd "cat #{TEMP_HOSTS_FILE} | sudo tee #{HOSTS_FILE} > /dev/null"
           end
           sh.fold 'hosts.after' do
