@@ -53,7 +53,6 @@ module Travis
           end
 
           CASHER_URL = 'https://raw.githubusercontent.com/travis-ci/casher/%s/bin/casher'
-          USE_RUBY   = '1.9.3'
           BIN_PATH   = '$CASHER_DIR/bin/casher'
 
           attr_reader :sh, :data, :slug, :start, :msgs
@@ -168,6 +167,9 @@ module Travis
           end
 
           private
+            def use_ruby
+              (data.disable_sudo? || data.config[:os] == 'osx') ? '1.9.3' : '2.2.5'
+            end
 
             def host_proc
               raise "#{__method__} must be overridden"
@@ -182,7 +184,7 @@ module Travis
               sh.with_errexit_off do
                 sh.if "-f #{BIN_PATH}" do
                   sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
-                  sh.cmd "rvm #{USE_RUBY} --fuzzy do #{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
+                  sh.cmd "rvm #{use_ruby} --fuzzy do #{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
                 end
               end
             end
