@@ -26,8 +26,9 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
 
   let(:gcs_options)   { { bucket: 's3_bucket', secret_access_key: 'google_secret_access_key', access_key_id: 'google_access_key_id', aws_signature_version: '2' } }
   let(:cache_options) { { fetch_timeout: 20, push_timeout: 30, type: 'gcs', gcs: gcs_options } }
-  let(:data)          { PAYLOADS[:push].deep_merge(config: config, cache_options: cache_options, job: { branch: branch, pull_request: pull_request }) }
+  let(:data)          { PAYLOADS[:push].deep_merge(paranoid: disable_sudo, config: config, cache_options: cache_options, job: { branch: branch, pull_request: pull_request }) }
   let(:config)        { {} }
+  let(:disable_sudo)  { false }
   let(:pull_request)  { nil }
   let(:branch)        { 'master' }
   let(:sh)            { Travis::Shell::Builder.new }
@@ -91,6 +92,22 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
     let(:timeout) { cache_options[:fetch_timeout] }
     before { cache.fetch }
     it { should include_sexp [:cmd, "rvm 2.2.5 --fuzzy do $CASHER_DIR/bin/casher fetch #{url_tgz}", timing: true] }
+
+    context 'on OS X builds' do
+      let(:config) { { os: 'osx' } }
+      before { cache.fetch }
+      it "uses Ruby 1.9.3 to fetch" do
+        should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{url_tgz}", timing: true]
+      end
+    end
+
+    context 'when sudo is unavailable' do
+      let(:disable_sudo) { true }
+      before { cache.fetch }
+      it "uses Ruby 1.9.3 to fetch" do
+        should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{url_tgz}", timing: true]
+      end
+    end
   end
 
   describe 'add' do
@@ -117,6 +134,22 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
     let(:timeout) { cache_options[:push_timeout] + test_time }
     before { cache.push }
     it { should include_sexp [:cmd, "rvm 2.2.5 --fuzzy do $CASHER_DIR/bin/casher push #{push_url}", timing: true] }
+
+    context 'on OS X builds' do
+      let(:config) { { os: 'osx' } }
+      before { cache.push }
+      it "uses Ruby 1.9.3 to push" do
+        should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher push #{push_url}", timing: true]
+      end
+    end
+
+    context 'when sudo is unavailable' do
+      let(:disable_sudo) { true }
+      before { cache.push }
+      it "uses Ruby 1.9.3 to push" do
+        should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher push #{push_url}", timing: true]
+      end
+    end
   end
 
   describe 'on a different branch' do
