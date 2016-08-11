@@ -4,4 +4,11 @@ shared_examples_for 'fix etc/hosts' do
   it 'removes localhost from IPv6 addresses in /etc/hosts' do
     should include_sexp [:raw, no_ipv6_localhost]
   end
+
+  context "when sudo is unavailable" do
+    before { data[:paranoid] = true }
+    it 'does not remove localhost from IPv6 addresses in /etc/hosts' do
+      should_not include_sexp [:raw, no_ipv6_localhost]
+    end
+  end
 end
