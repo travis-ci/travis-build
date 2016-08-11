@@ -168,7 +168,6 @@ module Travis
 
           private
             def use_ruby
-              puts "data! #{data}"
               (data.disable_sudo? || data.config[:os] == 'osx') ? '1.9.3' : '2.2.5'
             end
 
