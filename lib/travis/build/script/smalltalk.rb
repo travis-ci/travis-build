@@ -16,7 +16,7 @@ module Travis
         def configure
           super
 
-          if is_squeak?
+          if is_squeak? or is_etoys?
             install_dependencies(DEFAULT_DEPS)
           elsif is_pharo? or is_moose?
             install_dependencies(PHARO_DEPS)
@@ -92,6 +92,10 @@ module Travis
 
           def is_squeak?
             is_platform?('squeak')
+          end
+          
+          def is_etoys?
+            is_platform?('etoys')
           end
 
           def is_pharo?
