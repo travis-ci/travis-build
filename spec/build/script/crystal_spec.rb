@@ -4,6 +4,7 @@ describe Travis::Build::Script::Crystal, :sexp do
   let(:data)   { payload_for(:push, :crystal) }
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
+  it           { store_example }
 
   it_behaves_like 'a build script sexp'
 
