@@ -5,7 +5,7 @@ module Travis
     module Appliances
       class UpdateGlibc < Base
         def apply?
-          ENV['TRAVIS_UPDATE_GLIBC']
+          ENV['TRAVIS_UPDATE_GLIBC'] || data.disable_sudo?
         end
 
         def apply

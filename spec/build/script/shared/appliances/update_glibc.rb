@@ -8,8 +8,17 @@ fi
   ]}
 
   context "when TRAVIS_UPDATE_GLIBC is unset" do
-    it 'updates libc6' do
-      should_not include_sexp(command)
+    context "when sudo is available" do
+      it 'does not update libc6' do
+        should_not include_sexp(command)
+      end
+    end
+
+    context "when sudo is disabled" do
+      before { data[:paranoid] = true }
+      it 'updates libc6' do
+        should include_sexp(command)
+      end
     end
   end
 
