@@ -16,9 +16,13 @@ module Travis
 
           type, token = env['HTTP_AUTHORIZATION'].to_s.split(' ', 2)
 
-          unless type == 'token' && token == ENV['API_TOKEN']
-            halt 403, 'access denied'
+          ENV['API_TOKEN'].split(',').each do |valid_token|
+            if type == 'token' && token == valid_token
+              return
+            end
           end
+
+          halt 403, 'access denied'
         end
 
         configure(:production, :staging) do
@@ -61,6 +65,16 @@ module Travis
 
         get '/uptime' do
           status 204
+        end
+
+        get %r{/files/([\w\.]+)} do |file|
+          file_path = File.expand_path("../../files/#{file}", __FILE__)
+          if File.exist? file_path
+            content_type :txt
+            File.read(file_path)
+          else
+            status 404
+          end
         end
       end
     end

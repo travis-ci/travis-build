@@ -52,28 +52,58 @@ describe Travis::Build::Script::DirectoryCache, :sexp do
       let(:config) { { cache: 'bundler', bundler_args: '--path=foo/bar' } }
       it { expect(sexp).to include_sexp [:cmd, 'bundle clean', echo: true] }
       it { expect(sexp).to include_sexp [:cmd, 'bundle install --path=foo/bar', assert: true, echo: true, timing: true, retry: true] }
-      it { expect(sexp).to include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher add ./foo/bar', assert: true, timing: true] }
+      it { expect(sexp).to include_sexp [:cmd, 'rvm 2.2.5 --fuzzy do $CASHER_DIR/bin/casher add ./foo/bar', timing: true] }
     end
 
     describe 'with implicit path' do
       let(:config) { { cache: 'bundler' } }
       it { expect(sexp).to include_sexp [:cmd, 'bundle install --jobs=3 --retry=3 --deployment --path=${BUNDLE_PATH:-vendor/bundle}', assert: true, echo: true, timing: true, retry: true] }
       it { expect(sexp).to include_sexp [:cmd, 'bundle clean', echo: true] }
-      it { expect(sexp).to include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher add ${BUNDLE_PATH:-./vendor/bundle}', assert: true, timing: true] }
+      it { expect(sexp).to include_sexp [:cmd, 'rvm 2.2.5 --fuzzy do $CASHER_DIR/bin/casher add ${BUNDLE_PATH:-./vendor/bundle}', timing: true] }
     end
 
     describe 'with implicit path, but gemfile in a subdirectory' do
       let(:config) { { cache: 'bundler', gemfile: 'foo/Gemfile' } }
       it { expect(sexp).to include_sexp [:cmd, 'bundle install --jobs=3 --retry=3 --deployment --path=${BUNDLE_PATH:-vendor/bundle}', assert: true, echo: true, timing: true, retry: true] }
       it { expect(sexp).to include_sexp [:cmd, 'bundle clean', echo: true] }
-      it { expect(sexp).to include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher add ${BUNDLE_PATH:-foo/vendor/bundle}', assert: true, timing: true] }
+      it { expect(sexp).to include_sexp [:cmd, 'rvm 2.2.5 --fuzzy do $CASHER_DIR/bin/casher add ${BUNDLE_PATH:-foo/vendor/bundle}', timing: true] }
     end
 
     describe 'with explicit path, but gemfile in a subdirectory' do
       let(:config) { { cache: 'bundler', gemfile: 'foo/Gemfile', bundler_args: '--path=foo/bar' } }
       it { expect(sexp).to include_sexp [:cmd, 'bundle clean', echo: true] }
       it { expect(sexp).to include_sexp [:cmd, 'bundle install --path=foo/bar', assert: true, echo: true, timing: true, retry: true] }
-      it { expect(sexp).to include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher add foo/foo/bar', assert: true, timing: true] }
+      it { expect(sexp).to include_sexp [:cmd, 'rvm 2.2.5 --fuzzy do $CASHER_DIR/bin/casher add foo/foo/bar', timing: true] }
+    end
+  end
+
+  describe '#fetch_url' do
+    context 'Given "cache: bundler"' do
+      let(:config) { { cache: 'bundler' } }
+      let(:file_name) { URI(cache.fetch_url).path.split('/').last }
+
+      it { expect(file_name).to eq 'cache--rvm-default--gemfile-Gemfile.tgz' }
+
+      context 'when looking for cache with extra information' do
+        let(:file_name) { URI(cache.fetch_url('', true)).path.split('/').last }
+
+        it { expect(file_name).to eq "cache-#{CACHE_SLUG_EXTRAS}--rvm-default--gemfile-Gemfile.tgz" }
+      end
+    end
+  end
+
+  describe '#push_url' do
+    context 'Given "cache: bundler"' do
+      let(:config) { { cache: 'bundler' } }
+      let(:file_name) { URI(cache.push_url).path.split('/').last }
+
+      it { expect(file_name).to eq "cache-#{CACHE_SLUG_EXTRAS}--rvm-default--gemfile-Gemfile.tgz" }
+
+      context 'and "os: osx"' do
+        let(:config) { { cache: 'bundler', os: 'osx' } }
+
+        it { expect(file_name).to eq "cache-#{CACHE_SLUG_EXTRAS.gsub('linux','osx')}--rvm-default--gemfile-Gemfile.tgz" }
+      end
     end
   end
 end

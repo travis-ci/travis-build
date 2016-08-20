@@ -29,19 +29,25 @@ module Travis
                 begin
                   host_uri = URI("ssh://#{host}")
                 rescue => e
-                  sh.echo "Skipping malformed host #{host.inspect}", ansi: :red
+                  sh.echo "Skipping malformed host #{Shellwords.escape(host.inspect)}", ansi: :red
                   warn e
                   next
                 end
 
                 unless host_uri.host
-                  sh.echo "Skipping malformed host #{host.inspect}", ansi: :red
+                  sh.echo "Skipping malformed host #{Shellwords.escape(host.inspect)}", ansi: :red
                   next
                 end
 
-                ssh_keyscan_command = "ssh-keyscan -t rsa,dsa"
-                ssh_keyscan_command << " -p #{host_uri.port}" if host_uri.port
-                ssh_keyscan_command << " -H #{host_uri.host}"
+                sh.if "$(uname) = 'Darwin'" do
+                  sh.cmd "TRAVIS_SSH_KEY_TYPES='rsa,dsa'"
+                end
+                sh.else do
+                  sh.cmd "TRAVIS_SSH_KEY_TYPES='rsa,dsa,ecdsa'"
+                end
+                ssh_keyscan_command = "ssh-keyscan -t $TRAVIS_SSH_KEY_TYPES"
+                ssh_keyscan_command << " -p #{Shellwords.escape(host_uri.port)}" if host_uri.port
+                ssh_keyscan_command << " -H #{Shellwords.escape(host_uri.host)}"
                 sh.cmd "#{ssh_keyscan_command} 2>&1 | tee -a #{Travis::Build::HOME_DIR}/.ssh/known_hosts", echo: true, timing: true
               end
             end

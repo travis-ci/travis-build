@@ -10,6 +10,19 @@ module Travis
           jdk:   'default'
         }
 
+        SBT_PATH = '/usr/local/bin/sbt'
+        SBT_SHA  = 'b9c8cb273d38e0d8da9211902a18018fe82aa14e'
+        SBT_URL  = "https://raw.githubusercontent.com/paulp/sbt-extras/#{SBT_SHA}/sbt"
+
+        def configure
+          super
+          if use_sbt?
+            sh.echo "Updating sbt", ansi: :green
+            sh.cmd "sudo curl -sS -o sbt.tmp #{SBT_URL}"
+            sh.raw "sed -e '/addSbt \\(warn\\|info\\)/d' sbt.tmp | sudo tee #{SBT_PATH} > /dev/null && rm -f sbt.tmp"
+          end
+        end
+
         def export
           super
           sh.export 'TRAVIS_SCALA_VERSION', version, echo: false
@@ -17,7 +30,7 @@ module Travis
 
         def setup
           super
-          sh.if '-d project || -f build.sbt' do
+          sh.if use_sbt? do
             sh.export 'JVM_OPTS', '@/etc/sbt/jvmopts', echo: true
             sh.export 'SBT_OPTS', '@/etc/sbt/sbtopts', echo: true
           end
@@ -29,13 +42,13 @@ module Travis
         end
 
         def install
-          sh.if '! -d project && ! -f build.sbt' do
+          sh.if not_use_sbt? do
             super
           end
         end
 
         def script
-          sh.if '-d project || -f build.sbt' do
+          sh.if use_sbt? do
             sh.cmd "sbt#{sbt_args} ++#{version} test"
           end
           sh.else do
@@ -55,6 +68,14 @@ module Travis
 
           def sbt_args
             config[:sbt_args] && " #{config[:sbt_args]}"
+          end
+
+          def use_sbt?
+            '-d project || -f build.sbt'
+          end
+
+          def not_use_sbt?
+            '! -d project && ! -f build.sbt'
           end
       end
     end

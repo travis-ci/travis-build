@@ -27,7 +27,17 @@ describe Travis::Build::Script::C, :sexp do
 
   describe '#cache_slug' do
     subject { described_class.new(data).cache_slug }
-    it { should eq('cache--compiler-gcc') }
+    it { should eq("cache-#{CACHE_SLUG_EXTRAS}--compiler-gcc") }
+  end
+
+  context 'when cache requires ccache' do
+    let(:data) { payload_for(:push, :c, config: { cache: 'ccache' }) }
+
+    describe '#export' do
+      it 'prepends /usr/lib/ccache to PATH' do
+        should include_sexp [:export, ['PATH', '/usr/lib/ccache:$PATH'], echo: true]
+      end
+    end
   end
 end
 

@@ -21,6 +21,7 @@ module Travis
           sh.fold 'announce' do
             sh.cmd 'xcodebuild -version -sdk'
             sh.cmd 'xctool -version'
+            sh.cmd 'xcrun simctl list'
           end
 
           sh.if use_ruby_motion do
@@ -38,21 +39,39 @@ module Travis
           end
         end
 
-        def setup
+        def setup_cache
+          return unless use_directory_cache?
           super
-          sh.cmd "echo '#!/bin/bash\n# no-op' > /usr/local/bin/actool", echo: false
-          sh.cmd 'chmod +x /usr/local/bin/actool', echo: false
+
+          sh.if podfile? do
+            sh.echo ''
+            if data.cache?(:cocoapods)
+              sh.fold 'cache.cocoapods' do
+                sh.echo ''
+                directory_cache.add("#{pod_dir}/Pods")
+              end
+            end
+          end
         end
 
         def install
           super
           sh.if podfile? do
-            directory_cache.add("#{pod_dir}/Pods") if data.cache?(:cocoapods)
             sh.if "! ([[ -f #{pod_dir}/Podfile.lock && -f #{pod_dir}/Pods/Manifest.lock ]] && cmp --silent #{pod_dir}/Podfile.lock #{pod_dir}/Pods/Manifest.lock)", raw: true do
               sh.fold('install.cocoapods') do
-                sh.echo "Installing Pods with 'pod install'", ansi: :yellow
+
                 sh.cmd "pushd #{pod_dir}"
-                sh.cmd 'pod install', retry: true
+
+                sh.if gemfile? do
+                  sh.echo "Installing Pods with 'bundle exec pod install'", ansi: :yellow
+                  sh.cmd 'bundle exec pod install', retry: true
+                end
+
+                sh.else do
+                  sh.echo "Installing Pods with 'pod install'", ansi: :yellow
+                  sh.cmd 'pod install', retry: true
+                end
+
                 sh.cmd 'popd'
               end
             end

@@ -7,11 +7,11 @@ module Travis
   module Build
     class Script
       module DirectoryCache
-        class S3
+        class Signatures
           class AWS4Signature
-            def initialize(key_pair, verb, location, expires, timestamp=Time.now)
-              @key_pair = key_pair
-              @verb = verb
+            def initialize(key:, http_verb:, location:, expires:, timestamp: Time.now)
+              @key_pair = key
+              @verb = http_verb
               @location = location
               @expires = expires
               @timestamp = timestamp
@@ -23,7 +23,7 @@ module Travis
 
               Addressable::URI.new(
                 scheme: @location.scheme,
-                host: @location.hostname,
+                host: @location.host,
                 path: @location.path,
                 query_values: query,
               )

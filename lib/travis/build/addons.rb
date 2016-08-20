@@ -6,10 +6,16 @@ require 'travis/build/addons/code_climate'
 require 'travis/build/addons/coverity_scan'
 require 'travis/build/addons/deploy'
 require 'travis/build/addons/firefox'
+require 'travis/build/addons/hostname'
 require 'travis/build/addons/hosts'
+require 'travis/build/addons/mariadb'
+require 'travis/build/addons/rethinkdb'
 require 'travis/build/addons/postgresql'
 require 'travis/build/addons/sauce_connect'
+require 'travis/build/addons/jwt'
 require 'travis/build/addons/ssh_known_hosts'
+require 'travis/build/addons/sonarqube'
+require 'travis/build/addons/browserstack'
 
 module Travis
   module Build

@@ -28,6 +28,20 @@ describe Travis::Build::Script::Python, :sexp do
     should include_sexp [:cmd,  'source ~/virtualenv/pypy/bin/activate', assert: true, echo: true, timing: true]
   end
 
+  it 'sets up the python version (pypy-5.3.1)' do
+    data[:config][:python] = 'pypy-5.3.1'
+    should include_sexp [:cmd,  'source ~/virtualenv/pypy-5.3.1/bin/activate', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd,  "curl -s -o pypy-5.3.1.tar.bz2 ${archive_url}", assert: true]
+    should include_sexp [:cmd,  "rm pypy-5.3.1.tar.bz2"]
+  end
+
+  it 'sets up the python version (pypy3.3-5.2-alpha1)' do
+    data[:config][:python] = 'pypy3.3-5.2-alpha1'
+    should include_sexp [:cmd,  'source ~/virtualenv/pypy3.3-5.2-alpha1/bin/activate', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd,  "curl -s -o pypy3.3-5.2-alpha1.tar.bz2 ${archive_url}", assert: true]
+    should include_sexp [:cmd,  "rm pypy3.3-5.2-alpha1.tar.bz2"]
+  end
+
   it 'sets up the python version (pypy3)' do
     data[:config][:python] = 'pypy3'
     should include_sexp [:cmd,  'source ~/virtualenv/pypy3/bin/activate', assert: true, echo: true, timing: true]
@@ -39,7 +53,7 @@ describe Travis::Build::Script::Python, :sexp do
 
   it 'sets up the python version nightly' do
     data[:config][:python] = 'nightly'
-    should include_sexp [:cmd,  'sudo tar xjf python-nightly.tar.bz2 --directory /']
+    should include_sexp [:cmd,  'sudo tar xjf python-nightly.tar.bz2 --directory /', assert: true]
     should include_sexp [:cmd,  'source ~/virtualenv/pythonnightly/bin/activate', assert: true, echo: true, timing: true]
   end
 
@@ -72,7 +86,7 @@ describe Travis::Build::Script::Python, :sexp do
     end
 
     it 'adds $HOME/.cache/pip to directory cache' do
-      should include_sexp [:cmd, 'rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher add $HOME/.cache/pip', assert: true, timing: true]
+      should include_sexp [:cmd, 'rvm 2.2.5 --fuzzy do $CASHER_DIR/bin/casher add $HOME/.cache/pip', timing: true]
     end
   end
 

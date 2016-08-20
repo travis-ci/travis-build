@@ -48,21 +48,28 @@ module Travis
 
           sh.fold 'dart_install' do
             sh.echo 'Installing Dart', ansi: :yellow
-            sh.cmd "curl #{archive_url}/sdk/dartsdk-linux-x64-release.zip > dartsdk.zip"
-            sh.cmd "unzip dartsdk.zip > /dev/null"
-            sh.cmd "rm dartsdk.zip"
-            sh.cmd 'export DART_SDK="${PWD%/}/dart-sdk"'
+            os = case config[:os]
+            when 'linux' then 'linux-x64'
+            when 'osx' then 'macos-x64'
+            end
+            sh.cmd "curl #{archive_url}/sdk/dartsdk-#{os}-release.zip > $HOME/dartsdk.zip"
+            sh.cmd "unzip $HOME/dartsdk.zip -d $HOME > /dev/null"
+            sh.cmd "rm $HOME/dartsdk.zip"
+            sh.cmd 'export DART_SDK="$HOME/dart-sdk"'
             sh.cmd 'export PATH="$DART_SDK/bin:$PATH"'
-            sh.cmd 'export PATH="~/.pub-cache/bin:$PATH"'
+            sh.cmd 'export PATH="$HOME/.pub-cache/bin:$PATH"'
           end
 
           if with_content_shell
+            if config[:os] != 'linux'
+              sh.failure 'Content shell only supported on Linux'
+            end
             sh.fold 'content_shell_install' do
               sh.echo 'Installing Content Shell', ansi: :yellow
 
               # Download and install Content Shell
-              sh.cmd "mkdir content_shell"
-              sh.cmd "cd content_shell"
+              sh.cmd "mkdir $HOME/content_shell"
+              sh.cmd "cd $HOME/content_shell"
               sh.cmd "curl #{archive_url}/dartium/content_shell-linux-x64-release.zip > content_shell.zip"
               sh.cmd "unzip content_shell.zip > /dev/null"
               sh.cmd "rm content_shell.zip"
@@ -86,27 +93,49 @@ module Travis
         end
 
         def script
-
-          sh.fold 'test_runner_install' do
-            sh.echo 'Installing Test Runner', ansi: :yellow
-            sh.cmd "pub global activate test_runner"
+          # tests with test package
+          sh.if '[[ -d packages/test ]] || grep -q ^test: .packages 2> /dev/null', raw: true do
+            if with_content_shell
+              sh.export 'DISPLAY', ':99.0'
+              sh.cmd 'sh -e /etc/init.d/xvfb start'
+              sh.cmd 'pub run test -p vm -p content-shell -p firefox'
+            else
+              sh.cmd 'pub run test'
+            end
           end
+          # tests with test_runner for old tests written with unittest package
+          sh.elif '[[ -d packages/unittest ]] || grep -q ^unittest: .packages 2> /dev/null', raw: true do
+            sh.fold 'test_runner_install' do
+              sh.echo 'Installing Test Runner', ansi: :yellow
+              sh.cmd 'pub global activate test_runner'
+            end
 
-          if with_content_shell
-            sh.cmd "xvfb-run -s '-screen 0 1024x768x24' pub global run test_runner --disable-ansi"
-          else
-            sh.cmd "pub global run test_runner --disable-ansi --skip-browser-tests"
+            if with_content_shell
+              sh.cmd 'xvfb-run -s "-screen 0 1024x768x24" pub global run test_runner --disable-ansi'
+            else
+              sh.cmd 'pub global run test_runner --disable-ansi --skip-browser-tests'
+            end
           end
-
         end
 
         private
 
           def archive_url
-            if not ["stable", "dev"].include?(config[:dart])
-              sh.failure "Only 'stable' and 'dev' can be used as dart version for now"
+            urlEnd = ''
+            # support of "dev" or "stable"
+            if ["stable", "dev"].include?(config[:dart])
+              urlEnd = "#{config[:dart]}/release/latest"
+            # support of "stable/release/1.15.0" or "be/raw/110749"
+            elsif config[:dart].include?("/")
+              urlEnd = config[:dart]
+            # support of dev versions like "1.16.0-dev.2.0" or "1.16.0-dev.2.0"
+            elsif config[:dart].include?("-dev")
+              urlEnd = "dev/release/#{config[:dart]}"
+            # support of stable versions like "1.14.0" or "1.14.1"
+            else
+              urlEnd = "stable/release/#{config[:dart]}"
             end
-            "https://storage.googleapis.com/dart-archive/channels/#{config[:dart]}/release/latest"
+            "https://storage.googleapis.com/dart-archive/channels/#{urlEnd}"
           end
 
           def with_content_shell

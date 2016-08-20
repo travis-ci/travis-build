@@ -19,16 +19,20 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   it 'sets TRAVIS_GO_VERSION' do
-    should include_sexp [:export, ['TRAVIS_GO_VERSION', '1.4.1']]
+    should include_sexp [:export, ['TRAVIS_GO_VERSION', '1.6.3']]
+  end
+
+  it 'conditionally sets GOMAXPROCS to 2' do
+    expect(sexp_find(subject, [:if, '-z $GOMAXPROCS'])).to include_sexp [:export, ['GOMAXPROCS', '2']]
   end
 
   it 'sets the default go version if not :go config given' do
-    should include_sexp [:cmd, 'eval "$(gimme 1.4.1)"', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'GIMME_OUTPUT=$(gimme 1.6.3) && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
   end
 
   it 'sets the go version from config :go' do
     data[:config][:go] = 'go1.2'
-    should include_sexp [:cmd, 'eval "$(gimme 1.2)"', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'GIMME_OUTPUT=$(gimme 1.2.2) && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
   end
 
   shared_examples 'gopath fix' do
@@ -55,26 +59,35 @@ describe Travis::Build::Script::Go, :sexp do
 
   it 'installs the go version' do
     data[:config][:go] = 'go1.1'
-    should include_sexp [:cmd, 'eval "$(gimme 1.1)"', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'GIMME_OUTPUT=$(gimme 1.1) && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
   end
 
   {
-    'default' => Travis::Build::Script::Go::DEFAULTS[:go],
-    '1' => '1.4.1',
+    '1' => '1.6.3',
     '1.0' => '1.0.3',
+    '1.0.x' => '1.0.3',
+    '1.1.x' => '1.1.2',
     '1.2' => '1.2.2',
+    '1.2.x' => '1.2.2',
+    '1.3.x' => '1.3.3',
+    '1.4.x' => '1.4.3',
+    '1.5.x' => '1.5.4',
+    '1.6.x' => '1.6.3',
+    '1.x' => '1.6.3',
+    '1.x.x' => '1.6.3',
+    'default' => Travis::Build::Script::Go::DEFAULTS[:go],
     'go1' => 'go1',
     'go1.4.1' => '1.4.1'
   }.each do |version_alias, version|
     it "sets version #{version.inspect} for alias #{version_alias.inspect}" do
       data[:config][:go] = version_alias
-      should include_sexp [:cmd, %Q'eval "$(gimme #{version})"', assert: true, echo: true, timing: true]
+      should include_sexp [:cmd, %Q'GIMME_OUTPUT=$(gimme #{version}) && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
     end
   end
 
   it 'passes through arbitrary tag versions' do
     data[:config][:go] = 'release9000'
-    should include_sexp [:cmd, 'eval "$(gimme release9000)"', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'GIMME_OUTPUT=$(gimme release9000) && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
   end
 
   it 'announces go version' do
@@ -107,11 +120,41 @@ describe Travis::Build::Script::Go, :sexp do
     end
   end
 
-  %w(1 1.2 1.2.2 1.3).each do |recent_go_version|
+  %w(1 1.2 1.2.2 1.3 1.5 1.6 tip).each do |recent_go_version|
     describe "if no Makefile exists on #{recent_go_version}" do
       it 'installs with go get -t' do
         data[:config][:go] = recent_go_version
         should include_sexp [:cmd, 'go get -t -v ./...', echo: true, timing: true, retry: true, assert: true]
+      end
+    end
+  end
+
+  %w(1.4).each do |go_version|
+    describe "when using version (#{go_version}) without versioning support and Godeps/Godeps.json is found" do
+      let(:sexp) { sexp_find(sexp_filter(subject, [:if, '-f Godeps/Godeps.json'])[0], [:then]) }
+      it 'sets puts ${TRAVIS_BUILD_DIR}/Godeps/_workspace to the top of $GOPATH' do
+        data[:config][:go] = go_version
+        expect(sexp).to include_sexp [:export, ['GOPATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace:$GOPATH'], echo: true]
+      end
+    end
+  end
+
+  %w(1.5).each do |go_version|
+    describe "when using version (#{go_version}) with experimental versioning support" do
+      let(:sexp) { sexp_find(sexp_filter(subject, [:if, '$GO15VENDOREXPERIMENT == 1'])[0], [:then]) }
+      it 'tests with vendoring support with `$GO15VENDOREXPERIMENT == 1`' do
+        data[:config][:go] = go_version
+        expect(sexp).to include_sexp [:echo, 'Using Go 1.5 Vendoring, not checking for Godeps']
+      end
+    end
+  end
+
+  %w(1.6 tip).each do |go_version|
+    describe "when using version (#{go_version}) with proper versioning support" do
+      let(:sexp) { sexp_find(sexp_filter(subject, [:if, '$GO15VENDOREXPERIMENT != 0'])[0], [:then]) }
+      it 'tests with vendoring support with `$GO15VENDOREXPERIMENT != 0`' do
+        data[:config][:go] = go_version
+        expect(sexp).to include_sexp [:echo, 'Using Go 1.5 Vendoring, not checking for Godeps']
       end
     end
   end

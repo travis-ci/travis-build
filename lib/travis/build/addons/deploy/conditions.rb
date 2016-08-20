@@ -10,7 +10,7 @@ module Travis
             matches_repo:    'this is a forked repo',
             matches_branch:  'this branch is not permitted to deploy as per configuration',
             is_tag:          'this is not on a tagged build',
-            is_not_tag:      'this is not on a tagged build',
+            is_not_tag:      'this is on a tagged build',
             matches_runtime: 'this is not on the required runtime',
             custom:          'a custom condition was not met'
           }

@@ -5,6 +5,7 @@
 #   Tony Kelman       <tony kelman net, @tkelman>
 #   Pontus Stenetorp  <pontus stenetorp se, @ninjin>
 #   Elliot Saba       <staticfloat gmail com, @staticfloat>
+#   Simon Byrne       <simonbyrne gmail.com, @simonbyrne>
 #
 module Travis
   module Build
@@ -30,23 +31,26 @@ module Travis
             ansi: :green
           sh.echo '  https://github.com/travis-ci/travis-ci/issues' \
             '/new?labels=julia', ansi: :green
-          sh.echo 'and mention \`@tkelman\`, \`@ninjin\` and ' \
-            '\`@staticfloat\` in the issue', ansi: :green
+          sh.echo 'and mention \`@tkelman\`, \`@ninjin\`, \`@staticfloat\`' \
+            ' and \`@simonbyrne\` in the issue', ansi: :green
 
-          sh.echo 'Installing Julia', ansi: :yellow
-          case config[:os]
-          when 'linux'
-            sh.cmd 'mkdir -p ~/julia'
-            sh.cmd %Q{curl -s -L --retry 7 '#{julia_url}' } \
-              '| tar -C ~/julia -x -z --strip-components=1 -f -'
-          when 'osx'
-            sh.cmd %Q{curl -s -L -o julia.dmg '#{julia_url}'}
-            sh.cmd 'hdiutil mount -readonly julia.dmg'
-            sh.cmd 'cp -a /Volumes/Julia/*.app/Contents/Resources/julia ~/'
-          else
-            sh.failure "Operating system not supported: #{config[:os]}"
+          sh.fold 'Julia-install' do
+            sh.echo 'Installing Julia', ansi: :yellow
+            case config[:os]
+            when 'linux'
+              sh.cmd 'mkdir -p ~/julia'
+              sh.cmd %Q{curl -s -L --retry 7 '#{julia_url}' } \
+                       '| tar -C ~/julia -x -z --strip-components=1 -f -'
+            when 'osx'
+              sh.cmd %Q{curl -s -L -o julia.dmg '#{julia_url}'}
+              sh.cmd 'mkdir juliamnt'
+              sh.cmd 'hdiutil mount -readonly -mountpoint juliamnt julia.dmg'
+              sh.cmd 'cp -a juliamnt/*.app/Contents/Resources/julia ~/'
+            else
+              sh.failure "Operating system not supported: #{config[:os]}"
+            end
+            sh.cmd 'export PATH="${PATH}:${HOME}/julia/bin"'
           end
-          sh.cmd 'export PATH="${PATH}:${HOME}/julia/bin"'
         end
 
         def announce
@@ -83,21 +87,30 @@ module Travis
         private
 
           def julia_url
-            case config[:julia]
+            case config[:os]
+            when 'linux'
+              osarch = 'linux/x64'
+              ext = 'linux-x86_64.tar.gz'
+              nightlyext = 'linux64.tar.gz'
+            when 'osx'
+              osarch = 'osx/x64'
+              ext = 'osx10.7+.dmg'
+              nightlyext = 'osx.dmg'
+            end
+            case config[:julia].to_s
             when 'release'
-              version = 'stable'
+              # CHANGEME on new minor releases (once or twice a year)
+              url = "s3.amazonaws.com/julialang/bin/#{osarch}/0.4/julia-0.4-latest-#{ext}"
             when 'nightly'
-              version = 'download'
+              url = "s3.amazonaws.com/julianightlies/bin/#{osarch}/julia-latest-#{nightlyext}"
+            when /^(\d+\.\d+)\.\d+$/
+              url = "s3.amazonaws.com/julialang/bin/#{osarch}/#{$1}/julia-#{config[:julia]}-#{ext}"
+            when /^(\d+\.\d+)$/
+              url = "s3.amazonaws.com/julialang/bin/#{osarch}/#{$1}/julia-#{$1}-latest-#{ext}"
             else
               sh.failure "Unknown Julia version: #{config[:julia]}"
             end
-            case config[:os]
-            when 'linux'
-              os = 'linux-x86_64'
-            when 'osx'
-              os = 'osx10.7+'
-            end
-            "https://status.julialang.org/#{version}/#{os}"
+            "https://#{url}"
           end
 
           def set_jl_pkg

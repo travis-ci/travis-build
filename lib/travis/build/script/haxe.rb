@@ -17,8 +17,8 @@ module Travis
     class Script
       class Haxe < Script
         DEFAULTS = {
-          haxe: '3.2.0',
-          neko: '2.0.0'
+          haxe: '3.2.1',
+          neko: '2.1.0'
         }
 
         def configure
@@ -58,7 +58,14 @@ module Travis
             sh.cmd %Q{curl -s -L --retry 3 '#{neko_url}' } \
                    '| tar -C ~/neko -x -z --strip-components=1 -f -'
             sh.cmd 'export NEKOPATH="${HOME}/neko"' # required by `nekotools boot ...`
-            sh.cmd 'export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${NEKOPATH}"' # for loading libneko.so
+            case config[:os]
+            when 'linux'
+              # for loading libneko.so
+              sh.cmd 'export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${NEKOPATH}"'
+            when 'osx'
+              # for loading libneko.dylib
+              sh.cmd 'export DYLD_FALLBACK_LIBRARY_PATH="${DYLD_FALLBACK_LIBRARY_PATH}:${NEKOPATH}"'
+            end
             sh.cmd 'export PATH="${PATH}:${NEKOPATH}"'
           end
 
@@ -108,7 +115,7 @@ module Travis
             when 'linux'
               os = 'linux64'
             when 'osx'
-              os = 'osx'
+              os = 'osx64'
             end
             version = config[:neko]
             "http://nekovm.org/_media/neko-#{version}-#{os}.tar.gz"

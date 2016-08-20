@@ -44,11 +44,105 @@ describe Travis::Build::Script::Dart, :sexp do
         ansi: :yellow]
       should include_sexp [:echo, "Installing Content Shell", ansi: :yellow]
     end
+  end
 
-    it "runs tests with xvfb" do
-      should include_sexp [:cmd,
-        "xvfb-run -s '-screen 0 1024x768x24' pub global run test_runner --disable-ansi",
-        echo: true, timing: true]
+  describe 'archive_url for' do
+    describe 'stable' do
+      before { data[:config][:dart] = 'stable' }
+      it 'is https://storage.googleapis.com/dart-archive/channels/stable/release/latest' do
+        expect(subject.flatten.join).to include('https://storage.googleapis.com/dart-archive/channels/stable/release/latest')
+      end
+    end
+
+    describe 'dev' do
+      before { data[:config][:dart] = 'dev' }
+      it 'is https://storage.googleapis.com/dart-archive/channels/dev/release/latest' do
+        expect(subject.flatten.join).to include('https://storage.googleapis.com/dart-archive/channels/dev/release/latest')
+      end
+    end
+
+    describe 'be/raw/110749' do
+      before { data[:config][:dart] = 'be/raw/110749' }
+      it 'is https://storage.googleapis.com/dart-archive/channels/be/raw/110749' do
+        expect(subject.flatten.join).to include('https://storage.googleapis.com/dart-archive/channels/be/raw/110749')
+      end
+    end
+
+    describe '1.16.0-dev.2.0' do
+      before { data[:config][:dart] = '1.16.0-dev.2.0' }
+      it 'is https://storage.googleapis.com/dart-archive/channels/dev/release/1.16.0-dev.2.0' do
+        expect(subject.flatten.join).to include('https://storage.googleapis.com/dart-archive/channels/dev/release/1.16.0-dev.2.0')
+      end
+    end
+
+    describe '1.14.1' do
+      before { data[:config][:dart] = '1.14.1' }
+      it 'is https://storage.googleapis.com/dart-archive/channels/stable/release/1.14.1' do
+        expect(subject.flatten.join).to include('https://storage.googleapis.com/dart-archive/channels/stable/release/1.14.1')
+      end
+    end
+  end
+
+  describe 'script' do
+    describe 'if a directory packages/test exists or the file .packages defines a test [something ... target?]' do
+      let(:sexp) { sexp_find(subject, [:if, "[[ -d packages/test ]] || grep -q ^test: .packages 2> /dev/null"]) }
+
+      # TODO this should be tested as part of a general spec for shell/builder, which does not exist atm
+      it 'specifies the condition as raw bash' do
+        expect(sexp.last).to eq(raw: true)
+      end
+
+      describe 'with with_content_shell being true' do
+        let(:sexp) { sexp_filter(super(), [:then]) }
+        before     { data[:config][:with_content_shell] = 'true' }
+
+        it 'exports DISPLAY=:99:0' do
+          expect(sexp).to include_sexp [:export, ['DISPLAY', ':99.0'], echo: true]
+        end
+
+        it 'starts xvfb' do
+          expect(sexp).to include_sexp [:cmd, 'sh -e /etc/init.d/xvfb start', echo: true, timing: true]
+        end
+
+        it 'runs pub run test -p vm -p content-shell -p firefox' do
+          expect(sexp).to include_sexp [:cmd, 'pub run test -p vm -p content-shell -p firefox', echo: true, timing: true]
+        end
+      end
+
+      describe 'with with_content_shell being nil' do
+        let(:sexp) { sexp_filter(super(), [:then]) }
+
+        it 'runs pub run test' do
+          expect(sexp).to include_sexp [:cmd, 'pub run test', echo: true, timing: true]
+        end
+      end
+    end
+
+    describe 'if a directory packages/unittest exists or the file .packages defines a unittest [something ... target?]' do
+      let(:sexp) { sexp_find(subject, [:elif, "[[ -d packages/unittest ]] || grep -q ^unittest: .packages 2> /dev/null"]) }
+
+      # TODO this should be tested as part of a general spec for shell/builder, which does not exist atm
+      it 'specifies the condition as raw bash' do
+        expect(sexp.last).to eq(raw: true)
+      end
+
+      it 'installs the test runner' do
+        expect(sexp).to include_sexp [:cmd, 'pub global activate test_runner', echo: true, timing: true]
+      end
+
+      describe 'with with_content_shell being true' do
+        before { data[:config][:with_content_shell] = 'true' }
+
+        it 'runs pub global run test_runner via xvfb-run' do
+          expect(sexp).to include_sexp [:cmd, 'xvfb-run -s "-screen 0 1024x768x24" pub global run test_runner --disable-ansi', echo: true, timing: true]
+        end
+      end
+
+      describe 'with with_content_shell being nil' do
+        it 'runs pub run test' do
+          expect(sexp).to include_sexp [:cmd, 'pub global run test_runner --disable-ansi --skip-browser-tests', echo: true, timing: true]
+        end
+      end
     end
   end
 end
