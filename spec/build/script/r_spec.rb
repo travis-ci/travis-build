@@ -4,6 +4,7 @@ describe Travis::Build::Script::R, :sexp do
   let (:data)   { payload_for(:push, :r) }
   let (:script) { described_class.new(data) }
   subject       { script.sexp }
+  it            { store_example }
 
   it_behaves_like 'a build script sexp'
 

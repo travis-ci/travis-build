@@ -102,6 +102,8 @@ describe Travis::Build::Addons::Apt, :sexp do
     context 'with multiple whitelisted packages' do
       let(:config) { { packages: ['git', 'curl'] } }
 
+      it { store_example("whitelisted")}
+
       it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true] }
     end
 
