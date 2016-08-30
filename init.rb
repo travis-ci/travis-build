@@ -56,6 +56,9 @@ module Travis
               :source_url => source_url,
               :github_id => 1234567890
             },
+            :job => {
+              :branch => 'master'
+            },
             :cache_options => {
               :type => :s3,
               :s3 => {
@@ -103,6 +106,7 @@ module Travis
             addons_data = config.fetch('addons', {})
             config['addons'] = addons_data.merge({'deploy' => deploy_data})
           end
+          $stderr.puts data
           data
         end
     end
