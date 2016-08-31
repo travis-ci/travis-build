@@ -68,6 +68,10 @@ module Travis
           end
         end
 
+        def skip_whitelist?
+          ENV['TRAVIS_BUILD_APT_WHITELIST_SKIP']
+        end
+
         private
 
           def add_apt_sources
@@ -75,11 +79,63 @@ module Travis
 
             whitelisted = []
             disallowed = []
+<<<<<<< HEAD
 
             config_sources.each do |source_alias|
               source = source_whitelist[source_alias]
               whitelisted << source.clone if source && source['sourceline']
               disallowed << source_alias if source.nil?
+||||||| parent of eb5e562... Merge pull request #832 from travis-ci/ha-apt-bypass-whitelist
+            disallowed_while_sudo = []
+
+            config_sources.each do |src|
+              source = source_whitelist[src]
+
+              if source.respond_to?(:[]) && source['sourceline']
+                whitelisted << source.clone
+              elsif ! data.disable_sudo?
+                if src.respond_to?(:has_key?)
+                  if src.has_key?(:sourceline)
+                    whitelisted << {
+                      'sourceline' => src[:sourceline],
+                      'key_url' => src[:key_url]
+                    }
+                  else
+                    sh.echo "`sourceline` key missing:", ansi: :yellow
+                    sh.echo Shellwords.escape(src.inspect)
+                  end
+                else
+                  disallowed_while_sudo << src
+                end
+              elsif source.nil?
+                disallowed << src
+              end
+=======
+            disallowed_while_sudo = []
+
+            config_sources.each do |src|
+              source = source_whitelist[src]
+
+              if source.respond_to?(:[]) && source['sourceline']
+                whitelisted << source.clone
+              elsif !(data.disable_sudo?) || skip_whitelist?
+                if src.respond_to?(:has_key?)
+                  if src.has_key?(:sourceline)
+                    whitelisted << {
+                      'sourceline' => src[:sourceline],
+                      'key_url' => src[:key_url]
+                    }
+                  else
+                    sh.echo "`sourceline` key missing:", ansi: :yellow
+                    sh.echo Shellwords.escape(src.inspect)
+                  end
+                else
+                  disallowed_while_sudo << src
+                end
+              elsif source.nil?
+                disallowed << src
+              end
+>>>>>>> eb5e562... Merge pull request #832 from travis-ci/ha-apt-bypass-whitelist
             end
 
             unless disallowed.empty?
@@ -158,6 +214,18 @@ module Travis
             @config_packages ||= Array(config[:packages]).flatten.compact
           end
 
+<<<<<<< HEAD
+||||||| parent of eb5e562... Merge pull request #832 from travis-ci/ha-apt-bypass-whitelist
+          def package_whitelisted?(list, pkg)
+            list.include?(pkg) || !data.disable_sudo?
+          end
+
+=======
+          def package_whitelisted?(list, pkg)
+            list.include?(pkg) || !data.disable_sudo? || skip_whitelist?
+          end
+
+>>>>>>> eb5e562... Merge pull request #832 from travis-ci/ha-apt-bypass-whitelist
           def package_whitelist
             ::Travis::Build::Addons::Apt.package_whitelist
           end
