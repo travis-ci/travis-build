@@ -117,6 +117,19 @@ describe Travis::Build::Addons::Apt, :sexp do
 
         it { should include_sexp [:cmd, apt_get_install_command('git', 'curl', 'darkcoin'), echo: true, timing: true] }
       end
+
+      context 'when TRAVIS_BUILD_APT_WHITELIST_SKIP is set' do
+        let(:paranoid) { true }
+        before :all do
+          ENV['TRAVIS_BUILD_APT_WHITELIST_SKIP'] = '1'
+        end
+
+        after :all do
+          ENV.delete 'TRAVIS_BUILD_APT_WHITELIST_SKIP'
+        end
+
+        it { should include_sexp [:cmd, apt_get_install_command('git', 'curl', 'darkcoin'), echo: true, timing: true] }
+      end
     end
 
     context 'with singular whitelisted package' do
@@ -221,6 +234,32 @@ describe Travis::Build::Addons::Apt, :sexp do
     context 'when sudo is enabled' do
       let(:paranoid) { false }
       let(:config) { { sources: ['packagecloud-precise', 'deadsnakes-precise', 'evilbadthings', 'ppa:archivematica/externals', { sourceline: 'foobar', key_url: 'deadbeef' }] } }
+
+      it { should include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
+      it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
+      it { should include_sexp [:cmd, apt_key_add_command(packagecloud['key_url']), echo: true, assert: true, timing: true] }
+      it { should include_sexp [:cmd, apt_sources_append_command('foobar'), echo: true, assert: true, timing: true] }
+      it { should include_sexp [:cmd, apt_key_add_command('deadbeef'), echo: true, assert: true, timing: true] }
+      it { should_not include_sexp [:cmd, apt_sources_append_command(evilbadthings['sourceline']), echo: true, assert: true, timing: true] }
+      it { should_not include_sexp [:cmd, apt_add_repository_command('ppa:evilbadppa'), echo: true, assert: true, timing: true] }
+
+      context 'when a malformed source is given' do
+        let(:config) { { sources: [{ key_url: 'deadbeef' }] } }
+        it { should include_sexp [:echo, "`sourceline` key missing:", ansi: :yellow] }
+      end
+    end
+
+    context 'when TRAVIS_BUILD_APT_WHITELIST_SKIP env var is set' do
+      let(:paranoid) { true }
+      let(:config) { { sources: ['packagecloud-precise', 'deadsnakes-precise', 'evilbadthings', 'ppa:archivematica/externals', { sourceline: 'foobar', key_url: 'deadbeef' }] } }
+
+      before :all do
+        ENV['TRAVIS_BUILD_APT_WHITELIST_SKIP'] = '1'
+      end
+
+      after :all do
+        ENV.delete 'TRAVIS_BUILD_APT_WHITELIST_SKIP'
+      end
 
       it { should include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
       it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
