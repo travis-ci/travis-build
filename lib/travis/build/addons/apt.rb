@@ -68,6 +68,10 @@ module Travis
           end
         end
 
+        def skip_whitelist?
+          ENV['TRAVIS_BUILD_APT_WHITELIST_SKIP']
+        end
+
         private
 
           def add_apt_sources
@@ -82,7 +86,7 @@ module Travis
 
               if source.respond_to?(:[]) && source['sourceline']
                 whitelisted << source.clone
-              elsif ! data.disable_sudo?
+              elsif !(data.disable_sudo?) || skip_whitelist?
                 if src.respond_to?(:has_key?)
                   if src.has_key?(:sourceline)
                     whitelisted << {
@@ -175,7 +179,7 @@ module Travis
           end
 
           def package_whitelisted?(list, pkg)
-            list.include?(pkg) || !data.disable_sudo?
+            list.include?(pkg) || !data.disable_sudo? || skip_whitelist?
           end
 
           def package_whitelist
