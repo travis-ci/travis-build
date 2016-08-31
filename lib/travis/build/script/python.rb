@@ -23,7 +23,6 @@ module Travis
           sh.if "! -f #{virtualenv_activate}" do
             sh.echo "#{version} is not installed; attempting download", ansi: :yellow
             install_python_archive version
-            setup_path version
           end
         end
 
@@ -111,11 +110,6 @@ module Travis
             sh.cmd "curl -s -o #{archive_filename} ${archive_url}", assert: true
             sh.cmd "sudo tar xjf #{archive_filename} --directory /", echo: false, assert: true
             sh.cmd "rm #{archive_filename}", echo: false
-          end
-
-          def setup_path(version = 'nightly')
-            sh.cmd "sed -e 's|export PATH=\\(.*\\)$|export PATH=/opt/python/#{version}/bin:\\1|' #{PYENV_PATH_FILE} > #{TEMP_PYENV_PATH_FILE}"
-            sh.cmd "cat #{TEMP_PYENV_PATH_FILE} | sudo tee #{PYENV_PATH_FILE} > /dev/null"
           end
       end
     end
