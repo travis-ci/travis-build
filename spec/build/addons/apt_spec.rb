@@ -9,6 +9,12 @@ describe Travis::Build::Addons::Apt, :sexp do
   let(:config)            { {} }
   let(:source_whitelist)  { [{ alias: 'testing', sourceline: 'deb http://example.com/deb repo main' }] }
   let(:package_whitelist) { %w(git curl) }
+  let(:evilbadthings) do
+  {
+    'alias' => 'evilbadthings',
+    'sourceline' => 'deb https://evilbadthings.com/chef/stable/ubuntu/ precise main'
+  }
+end
   subject                 { sh.to_sexp }
 
   before :all do
