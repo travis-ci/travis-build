@@ -2,10 +2,11 @@ require 'ostruct'
 
 describe Travis::Build::Addons::AptPackages, :sexp do
   let(:script)    { stub('script') }
-  let(:data)      { payload_for(:push, :ruby, config: { addons: { apt_packages: config } }) }
+  let(:data)      { payload_for(:push, :ruby, config: { addons: { apt_packages: config } }, paranoid: paranoid) }
   let(:sh)        { Travis::Shell::Builder.new }
   let(:addon)     { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
   let(:package_whitelist) { ['curl', 'git'] }
+  let(:paranoid)  { true }
   subject         { sh.to_sexp }
 
   before do
@@ -27,6 +28,13 @@ describe Travis::Build::Addons::AptPackages, :sexp do
     let(:config) { ['git', 'curl', 'darkcoin'] }
 
     it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true] }
+  end
+
+  context 'with multiple packages, some whitelisted' do
+    let(:config) { ['git', 'curl', 'darkcoin'] }
+    let(:paranoid) { false }
+
+    it { should include_sexp [:cmd, apt_get_install_command('git', 'curl', 'darkcoin'), echo: true, timing: true] }
   end
 
   context 'with singular whitelisted package' do
