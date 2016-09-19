@@ -4,7 +4,7 @@ module Travis
       class NodeJs < Script
         DEFAULT_VERSION = '0.10'
 
-        NVM_VERSION     = '0.31.6' # to coincide with ../files/nvm.sh version
+        NVM_VERSION     = '0.32.0' # to coincide with ../files/nvm.sh version
 
         def export
           super
