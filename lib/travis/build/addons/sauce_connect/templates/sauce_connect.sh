@@ -27,7 +27,7 @@ function travis_start_sauce_connect() {
           sc_distro_fmt=zip
           sc_distro_shasum=4a25a0f6975b74719621fdd9e646edd08cbf2434;;
   esac
-  sc_distro=sc-4.3.16-${sc_platform}.${sc_distro_fmt}
+  sc_distro=sc-4.4.0-${sc_platform}.${sc_distro_fmt}
   sc_readyfile=sauce-connect-ready-$RANDOM
   sc_logfile=$HOME/sauce-connect.log
   if [ ! -z "${TRAVIS_JOB_NUMBER}" ]; then
