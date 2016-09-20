@@ -22,10 +22,10 @@ function travis_start_sauce_connect() {
   case "${sc_platform}" in
       linux)
           sc_distro_fmt=tar.gz
-          sc_distro_shasum=42edb8dc5356916fe7b08c0d85144a067d8f4475;;
+          sc_distro_shasum=d5ea79fb0c182606324de806f27349432db995ef;;
       osx)
           sc_distro_fmt=zip
-          sc_distro_shasum=4a25a0f6975b74719621fdd9e646edd08cbf2434;;
+          sc_distro_shasum=cc3e4e61384510e68a90479ee70eccdea0e5628e;;
   esac
   sc_distro=sc-4.4.0-${sc_platform}.${sc_distro_fmt}
   sc_readyfile=sauce-connect-ready-$RANDOM
