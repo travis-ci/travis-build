@@ -100,7 +100,7 @@ module Travis
             case config[:julia].to_s
             when 'release'
               # CHANGEME on new minor releases (once or twice a year)
-              url = "s3.amazonaws.com/julialang/bin/#{osarch}/0.4/julia-0.4-latest-#{ext}"
+              url = "s3.amazonaws.com/julialang/bin/#{osarch}/0.5/julia-0.5-latest-#{ext}"
             when 'nightly'
               url = "s3.amazonaws.com/julianightlies/bin/#{osarch}/julia-latest-#{nightlyext}"
             when /^(\d+\.\d+)\.\d+$/
