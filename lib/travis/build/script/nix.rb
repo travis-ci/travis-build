@@ -7,9 +7,7 @@ module Travis
   module Build
     class Script
       class Nix < Script
-        DEFAULTS = {
-          nix_version: '1.11.2'
-        }
+        DEFAULTS = {}
 
         def export
           super
@@ -44,22 +42,8 @@ module Travis
         def setup
           super
 
-          version = config[:nix_version]
-
-          system = 'x86_64-linux'
-          if config[:os] == 'osx'
-            system = 'x86_64-darwin'
-          end
-
-          # eventually, we should use the .deb provided
-          #   but the .tar.bz2 file is the most tested, reliable
-          nix_url = "https://nixos.org/releases/nix/nix-#{version}/nix-#{version}-#{system}.tar.bz2"
-
-          # TODO: cache nix_url
           sh.fold 'nix.install' do
-            sh.cmd "curl -sSL #{nix_url} | bzcat | tar x"
-            sh.cmd "./nix-#{version}-#{system}/install"
-            sh.cmd "source $HOME/.nix-profile/etc/profile.d/nix.sh"
+            sh.cmd "curl https://nixos.org/nix/install | sh"
           end
         end
 
