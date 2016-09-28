@@ -136,9 +136,9 @@ module Travis
               urls << fetch_url(data.branch, true)
               urls << fetch_url(data.branch)
             end
-            if data.branch != 'master'
-              urls << fetch_url('master', true)
-              urls << fetch_url('master')
+            if data.branch != data.repository[:default_branch]
+              urls << fetch_url(data.repository[:default_branch], true)
+              urls << fetch_url(data.repository[:default_branch])
             end
 
             urls.uniq

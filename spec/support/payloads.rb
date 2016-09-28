@@ -8,7 +8,8 @@ PAYLOADS = {
     'repository' => {
       'github_id' => 42,
       'slug' => 'travis-ci/travis-ci',
-      'source_url' => 'git://github.com/travis-ci/travis-ci.git'
+      'source_url' => 'git://github.com/travis-ci/travis-ci.git',
+      'default_branch' => 'master'
     },
     'build' => {
       'id' => '1',
@@ -34,7 +35,8 @@ PAYLOADS = {
     'repository' => {
       'github_id' => 42,
       'slug' => 'travis-ci/travis-ci',
-      'source_url' => 'git://github.com/travis-ci/travis-ci.git'
+      'source_url' => 'git://github.com/travis-ci/travis-ci.git',
+      'default_branch' => 'master'
     },
     'build' => {
       'id' => '1',
