@@ -36,13 +36,14 @@ module Travis
 
           sh.fold 'Julia-install' do
             sh.echo 'Installing Julia', ansi: :yellow
+            sh.cmd 'CURL_USER_AGENT="Travis-CI $(curl --version | head -n 1)"'
             case config[:os]
             when 'linux'
               sh.cmd 'mkdir -p ~/julia'
-              sh.cmd %Q{curl -s -L --retry 7 '#{julia_url}' } \
+              sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L --retry 7 '#{julia_url}' } \
                        '| tar -C ~/julia -x -z --strip-components=1 -f -'
             when 'osx'
-              sh.cmd %Q{curl -s -L -o julia.dmg '#{julia_url}'}
+              sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L -o julia.dmg '#{julia_url}'}
               sh.cmd 'mkdir juliamnt'
               sh.cmd 'hdiutil mount -readonly -mountpoint juliamnt julia.dmg'
               sh.cmd 'cp -a juliamnt/*.app/Contents/Resources/julia ~/'
