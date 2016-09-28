@@ -98,6 +98,8 @@ module Travis
             if with_content_shell
               sh.export 'DISPLAY', ':99.0'
               sh.cmd 'sh -e /etc/init.d/xvfb start'
+              # give xvfb some time to start
+              sh.cmd 't=0; until (xdpyinfo -display :99 &> /dev/null || test $t -gt 10); do sleep 1; let t=$t+1; done'
               sh.cmd 'pub run test -p vm -p content-shell -p firefox'
             else
               sh.cmd 'pub run test'
