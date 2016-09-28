@@ -514,6 +514,7 @@ module Travis
           case v
           when 'release' then '3.3.1'
           when 'oldrel' then '3.2.5'
+          when '3.0' then '3.0.3'
           when '3.1' then '3.1.3'
           when '3.2' then '3.2.5'
           when '3.3' then '3.3.1'
