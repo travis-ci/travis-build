@@ -20,6 +20,7 @@ module Travis
           nvm_install
           npm_disable_prefix
           npm_disable_spinner
+          npm_disable_progress
           npm_disable_strict_ssl unless npm_strict_ssl?
           setup_npm_cache if use_npm_cache?
         end
