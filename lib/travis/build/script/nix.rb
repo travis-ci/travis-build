@@ -44,6 +44,7 @@ module Travis
 
           sh.fold 'nix.install' do
             sh.cmd "curl https://nixos.org/nix/install | sh"
+            sh.cmd "source $HOME/.nix-profile/etc/profile.d/nix.sh"
           end
         end
 
