@@ -142,6 +142,10 @@ module Travis
             sh.cmd 'npm conf set strict-ssl false', echo: true
           end
 
+          def npm_disable_progress
+            sh.cmd "npm config set progress false", echo: false, timing: false
+          end
+
           def npm_strict_ssl?
             !node_0_6?
           end
