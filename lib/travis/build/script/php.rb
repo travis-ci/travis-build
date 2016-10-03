@@ -20,7 +20,7 @@ module Travis
         def setup
           super
           if hhvm?
-            sh.cmd "phpenv global hhvm", assert: true
+            sh.cmd "phpenv global #{version} 2>/dev/null", assert: true
           else
             sh.cmd "phpenv global #{version} 2>/dev/null", assert: false
             sh.if "$? -ne 0" do
@@ -123,6 +123,7 @@ module Travis
           sh.echo 'Installing HHVM nightly', ansi: :yellow
           sh.cmd 'sudo apt-get update -qq'
           sh.cmd 'sudo apt-get install hhvm-nightly -y 2>&1 >/dev/null'
+          sh.cmd 'test -d $HOME/.phpenv/versions/hhvm-nightly || cp -r $HOME/.phpenv/versions/hhvm{,-nightly}', echo: false
         end
 
         def fix_hhvm_php_ini
