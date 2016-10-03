@@ -2,15 +2,15 @@ require 'ostruct'
 
 describe Travis::Build::Addons::AptPackages, :sexp do
   let(:script)    { stub('script') }
-  let(:data)      { payload_for(:push, :ruby, config: { addons: { apt_packages: config } }, paranoid: paranoid) }
+  let(:data)      { payload_for(:push, :ruby, config: { dist: :precise, addons: { apt_packages: config } }, paranoid: paranoid) }
   let(:sh)        { Travis::Shell::Builder.new }
   let(:addon)     { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
-  let(:package_whitelist) { ['curl', 'git'] }
+  let(:package_whitelists) { { precise: ['curl', 'git'] } }
   let(:paranoid)  { true }
   subject         { sh.to_sexp }
 
   before do
-    addon.stubs(:package_whitelist).returns(package_whitelist)
+    addon.stubs(:package_whitelists).returns(package_whitelists)
     addon.before_prepare
   end
 

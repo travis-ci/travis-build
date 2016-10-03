@@ -9,56 +9,69 @@ module Travis
         SUPPORTED_OPERATING_SYSTEMS = %w(
           linux
         ).freeze
+        SUPPORTED_DISTS = %w(
+          precise
+          trusty
+        ).freeze
 
         class << self
-          def package_whitelist
-            @package_whitelist ||= load_package_whitelist
+          def package_whitelists
+            @package_whitelists ||= load_package_whitelists
           end
 
-          def source_whitelist
-            @source_whitelist ||= load_source_whitelist
+          def source_whitelists
+            @source_whitelists ||= load_source_whitelists
           end
 
           private
 
-          def load_package_whitelist
+          def load_package_whitelists(dists = SUPPORTED_DISTS)
             require 'faraday'
-            response = fetch_package_whitelist
-            response.split.map(&:strip).sort.uniq
+            loaded = { unset: [] }.merge(Hash[dists.map { |dist| [dist.to_sym, []] }])
+            dists.each do |dist|
+              response = fetch_package_whitelist(dist)
+              loaded[dist.to_sym] = response.split.map(&:strip).sort.uniq
+            end
+            loaded
           rescue => e
             warn e
-            []
+            loaded
           end
 
-          def load_source_whitelist
+          def load_source_whitelists(dists = SUPPORTED_DISTS)
             require 'faraday'
-            response = fetch_source_whitelist
-            entries = JSON.parse(response)
-            Hash[entries.reject { |e| !e.key?('alias') }.map { |e| [e.fetch('alias'), e] }]
+            loaded = { unset: {} }.merge(Hash[dists.map { |dist| [dist.to_sym, {}] }])
+            dists.each do |dist|
+              response = fetch_source_whitelist(dist)
+              entries = JSON.parse(response)
+              loaded[dist.to_sym] = Hash[entries.reject { |e| !e.key?('alias') }.map { |e| [e.fetch('alias'), e] }]
+            end
+            loaded
           rescue => e
             warn e
-            {}
+            loaded
           end
 
-          def fetch_package_whitelist
-            Faraday.get(package_whitelist_url).body.to_s
+          def fetch_package_whitelist(dist)
+            Faraday.get(package_whitelist_url(dist)).body.to_s
           end
 
-          def fetch_source_whitelist
-            Faraday.get(source_whitelist_url).body.to_s
+          def fetch_source_whitelist(dist)
+            Faraday.get(source_whitelist_url(dist)).body.to_s
           end
 
-          def package_whitelist_url
-            ENV['TRAVIS_BUILD_APT_PACKAGE_WHITELIST'] || ENV['TRAVIS_BUILD_APT_WHITELIST']
+          def package_whitelist_url(dist)
+            ENV["TRAVIS_BUILD_APT_PACKAGE_WHITELIST_#{dist.upcase}"]
           end
 
-          def source_whitelist_url
-            ENV['TRAVIS_BUILD_APT_SOURCE_WHITELIST']
+          def source_whitelist_url(dist)
+            ENV["TRAVIS_BUILD_APT_SOURCE_WHITELIST_#{dist.upcase}"]
           end
         end
 
         def before_prepare?
-          SUPPORTED_OPERATING_SYSTEMS.include?(data[:config][:os].to_s)
+          SUPPORTED_OPERATING_SYSTEMS.include?(data[:config][:os].to_s) &&
+            SUPPORTED_DISTS.include?(data[:config][:dist].to_s)
         end
 
         def before_prepare
@@ -82,7 +95,7 @@ module Travis
             disallowed_while_sudo = []
 
             config_sources.each do |src|
-              source = source_whitelist[src]
+              source = source_whitelists[config_dist][src]
 
               if source.respond_to?(:[]) && source['sourceline']
                 whitelisted << source.clone
@@ -135,7 +148,7 @@ module Travis
           def add_apt_packages
             sh.echo "Installing APT Packages (BETA)", ansi: :yellow
 
-            whitelisted, disallowed = config_packages.partition { |pkg| package_whitelisted?(package_whitelist, pkg) }
+            whitelisted, disallowed = config_packages.partition { |pkg| package_whitelisted?(package_whitelists[config_dist] || [], pkg) }
 
             unless disallowed.empty?
               sh.echo "Disallowing packages: #{disallowed.map { |package| Shellwords.escape(package) }.join(', ')}", ansi: :red
@@ -178,16 +191,20 @@ module Travis
             @config_packages ||= Array(config[:packages]).flatten.compact
           end
 
+          def config_dist
+            (data.config[:dist] || :unset).to_sym
+          end
+
           def package_whitelisted?(list, pkg)
             list.include?(pkg) || !data.disable_sudo? || skip_whitelist?
           end
 
-          def package_whitelist
-            ::Travis::Build::Addons::Apt.package_whitelist
+          def package_whitelists
+            ::Travis::Build::Addons::Apt.package_whitelists
           end
 
-          def source_whitelist
-            ::Travis::Build::Addons::Apt.source_whitelist
+          def source_whitelists
+            ::Travis::Build::Addons::Apt.source_whitelists
           end
 
           def stop_postgresql
