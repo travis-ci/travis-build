@@ -9,18 +9,31 @@ describe Travis::Build::Addons::Srcclr, :sexp do
   subject      { sh.to_sexp }
   before       { addon.before_finish }
 
-  # we currently do no use any config passed by the user, hence an empty string should also work
   context 'given empty config' do
+    let(:config) { }
+    it {
+      should include_sexp [:echo, 'Unknown option \'\\{\\}\' specified. Not including srcclr addon.']
+    }
+  end
+
+  context 'given empty quotes config' do
     let(:config) { '' }
+    it {
+      should include_sexp [:echo, 'Unknown option \'\'\'\' specified. Not including srcclr addon.']
+    }
+  end
+
+  context 'given true config' do
+    let(:config) { 'TrUe' }
     it {
       should include_sexp [:cmd, 'curl -sSL https://download.sourceclear.com/ci.sh | bash', {:echo=>true, :timing=>true}]
     }
   end
 
-  context 'given true config' do
-    let(:config) { 'true' }
+  context 'given false config' do
+    let(:config) { 'FaLsE' }
     it {
-      should include_sexp [:cmd, 'curl -sSL https://download.sourceclear.com/ci.sh | bash', {:echo=>true, :timing=>true}]
+      should include_sexp [:echo, 'srcclr: false specified. Not including srcclr addon.']
     }
   end
 
