@@ -20,7 +20,11 @@ module Travis
         def setup
           super
           if hhvm?
-            sh.cmd "phpenv global #{version} 2>/dev/null", assert: true
+            if nightly?
+              sh.cmd "phpenv global hhvm-nightly 3>/dev/null", assert: true
+            else
+              sh.cmd "phpenv global hhvm 2>/dev/null", assert: true
+            end
           else
             sh.cmd "phpenv global #{version} 2>/dev/null", assert: false
             sh.if "$? -ne 0" do
