@@ -157,6 +157,7 @@ module Travis
           apply :disable_ssh_roaming
           apply :debug_tools
           apply :npm_registry
+          apply :rvm_use
         end
 
         def checkout
