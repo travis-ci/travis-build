@@ -33,6 +33,11 @@ describe Travis::Build::Addons::Firefox, :sexp do
     it { should include_sexp [:cd, :back, stack: true] }
   end
 
+  context 'given a valid version "50.0b6"' do
+    let(:config) { '50.0b6' }
+    it { should include_sexp [:cmd, 'sudo ln -sf $HOME/firefox-50.0b6/firefox/firefox /usr/local/bin/firefox'] }
+  end
+
   context 'given a valid version "latest"' do
     let(:config) { 'latest' }
     it { should include_sexp [:cmd, 'sudo ln -sf $HOME/firefox-latest/firefox/firefox /usr/local/bin/firefox'] }
