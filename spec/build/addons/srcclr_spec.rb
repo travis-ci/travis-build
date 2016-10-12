@@ -9,17 +9,17 @@ describe Travis::Build::Addons::Srcclr, :sexp do
   subject      { sh.to_sexp }
   before       { addon.before_finish }
 
-  context 'given empty config' do
-    let(:config) { }
+  context 'given spaces config' do
+    let(:config) { '  ' }
     it {
-      should include_sexp [:echo, 'Unknown option \'\\{\\}\' specified. Not including srcclr addon.']
+      should include_sexp [:echo, 'Option \'\'\'\' specified. Not including srcclr addon.']
     }
   end
 
-  context 'given empty quotes config' do
-    let(:config) { '' }
+  context 'given false config' do
+    let(:config) { 'FaLsE' }
     it {
-      should include_sexp [:echo, 'Unknown option \'\'\'\' specified. Not including srcclr addon.']
+      should include_sexp [:echo, 'Option \'FaLsE\' specified. Not including srcclr addon.']
     }
   end
 
@@ -27,13 +27,6 @@ describe Travis::Build::Addons::Srcclr, :sexp do
     let(:config) { 'TrUe' }
     it {
       should include_sexp [:cmd, 'curl -sSL https://download.sourceclear.com/ci.sh | bash', {:echo=>true, :timing=>true}]
-    }
-  end
-
-  context 'given false config' do
-    let(:config) { 'FaLsE' }
-    it {
-      should include_sexp [:echo, 'srcclr: false specified. Not including srcclr addon.']
     }
   end
 
