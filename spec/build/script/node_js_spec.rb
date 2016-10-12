@@ -84,11 +84,17 @@ describe Travis::Build::Script::NodeJs, :sexp do
   end
 
   describe 'if package.json exists' do
-    let(:sexp) { sexp_find(subject, [:if, '-f package.json'], [:then]) }
+    let(:sexp)             { sexp_find(subject, [:if, '-f package.json'], [:then]) }
+    let(:npm_install)      { [:cmd, 'npm install ', assert: true, echo: true, retry: true, timing: true] }
+    let(:npm_install_args) { [:cmd, 'npm install --npm-args', assert: true, echo: true, retry: true, timing: true] }
+
+    it 'installs with npm install' do
+      expect(sexp).to include_sexp npm_install
+    end
 
     it 'installs with npm install --npm-args' do
       data[:config][:npm_args] = '--npm-args'
-      expect(sexp).to include_sexp [:cmd, 'npm install --npm-args', assert: true, echo: true, retry: true, timing: true]
+      expect(sexp).to include_sexp npm_install_args
     end
   end
 
