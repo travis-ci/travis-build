@@ -9,17 +9,19 @@ module Travis
         SUPER_USER_SAFE = true
 
         def before_finish
-          srcclr_config = config.strip.shellescape
-
           sh.if('$TRAVIS_TEST_RESULT = 0') do
+            sh.newline
             sh.fold 'after_success' do
-              if srcclr_config.casecmp('true') == 0
-                sh.cmd "curl -sSL https://download.sourceclear.com/ci.sh | bash", echo: true, timing: true
-              else
-                sh.echo 'Option \'' + srcclr_config + '\' specified. Not including srcclr addon.'
-              end
+              sh.echo "Running SourceClear agent", ansi: :yellow
+              debug_env = debug? ? "env DEBUG=1" : ""
+
+              sh.cmd "curl -sSL https://download.sourceclear.com/ci.sh | #{debug_env} bash", echo: true, timing: true
             end
           end
+        end
+
+        def debug?
+          config[:debug]
         end
       end
     end
