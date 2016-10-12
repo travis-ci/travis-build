@@ -16,6 +16,7 @@ require 'travis/build/addons/jwt'
 require 'travis/build/addons/ssh_known_hosts'
 require 'travis/build/addons/sonarqube'
 require 'travis/build/addons/browserstack'
+require 'travis/build/addons/srcclr'
 
 module Travis
   module Build
