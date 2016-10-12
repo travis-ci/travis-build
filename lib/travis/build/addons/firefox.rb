@@ -15,7 +15,6 @@ module Travis
 
             unless version
               sh.echo "Invalid version '#{raw_version}' given.", ansi: :red
-              return
             end
 
             export_source_url
