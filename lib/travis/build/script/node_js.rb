@@ -40,9 +40,11 @@ module Travis
         end
 
         def install
-          sh.if '-f package.json' do
-            sh.cmd "npm install #{config[:npm_args]}", retry: true, fold: 'install'
-          end
+            unless npm_skip_install?
+              sh.if '-f package.json' do
+                sh.cmd "npm install #{config[:npm_args]}", retry: true, fold: 'install'
+              end
+            end
         end
 
         def script
@@ -145,6 +147,10 @@ module Travis
 
           def npm_disable_progress
             sh.cmd "npm config set progress false", echo: false, timing: false
+          end
+
+          def npm_skip_install?
+            !!config[:npm_skip_install]
           end
 
           def npm_strict_ssl?

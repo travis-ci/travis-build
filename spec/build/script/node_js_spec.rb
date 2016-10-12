@@ -96,6 +96,11 @@ describe Travis::Build::Script::NodeJs, :sexp do
       data[:config][:npm_args] = '--npm-args'
       expect(sexp).to include_sexp npm_install_args
     end
+
+    it "doesn't run npm install if npm_skip_install is true" do
+      data[:config][:npm_skip_install] = true
+      should_not include_sexp npm_install
+    end
   end
 
   describe 'script' do
