@@ -15,7 +15,6 @@ module Travis
 
             unless version
               sh.echo "Invalid version '#{raw_version}' given.", ansi: :red
-              return
             end
 
             export_source_url
@@ -47,7 +46,7 @@ module Travis
           end
 
           def sanitize(input)
-            if m = /\A(?<version>[\d\.]+(?:esr)?|(?<latest>latest(?:-(?:beta|esr))?)?)\z/.match(input.chomp)
+            if m = /\A(?<version>[\d\.]+(?:esr|b\d+)?|(?<latest>latest(?:-(?:beta|esr))?)?)\z/.match(input.chomp)
               @version = m[:version]
               @latest  = m[:latest]
             end
