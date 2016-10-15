@@ -103,10 +103,8 @@ describe Travis::Build::Data do
   describe 'default_ruby' do
     subject(:data) { Travis::Build::Data.new(config: config) }
     let(:config) { { os: 'linux' } }
-    let(:paranoid) { false }
 
     before do
-      data.data[:paranoid] = paranoid
       data.default_rubies.merge!(
         default: 'default',
         osx: 'osx',
@@ -120,19 +118,16 @@ describe Travis::Build::Data do
 
     context 'on osx' do
       let(:config) { { os: 'osx' } }
-
       it { expect(data.default_ruby).to eq('osx') }
     end
 
     context 'on trusty' do
       let(:config) { { dist: 'trusty' } }
-
       it { expect(data.default_ruby).to eq('default') }
     end
 
     context 'on precise' do
       let(:config) { { dist: 'precise' } }
-
       it { expect(data.default_ruby).to eq('precise') }
     end
   end
