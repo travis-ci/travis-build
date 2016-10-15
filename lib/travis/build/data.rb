@@ -113,12 +113,9 @@ module Travis
       end
 
       def default_ruby
-        [config[:os], config[:dist]].each do |ruby_key|
-          ruby_key = ruby_key.to_s.to_sym
-          return default_rubies[ruby_key] if default_rubies.key?(ruby_key)
-        end
-
-        default_rubies.fetch(:default)
+        default_rubies[config[:os].to_s.to_sym] ||
+          default_rubies[config[:dist].to_s.to_sym] ||
+          default_rubies.fetch(:default)
       end
 
       def source_host
