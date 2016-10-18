@@ -169,6 +169,11 @@ describe Travis::Build::Script::R, :sexp do
       should include_sexp [:cmd, /.*biocLite.*/,
                            assert: true, echo: true, retry: true, timing: true]
     end
+
+    it 'Prints installed package versions' do
+      should include_sexp [:cmd, /.*#{Regexp.escape('devtools::session_info(installed.packages()[, "Package"])')}.*/,
+                           assert: true, echo: true, timing: true]
+    end
   end
 
   describe '#cache_slug' do
