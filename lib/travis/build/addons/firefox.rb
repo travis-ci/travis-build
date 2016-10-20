@@ -1,4 +1,3 @@
-require 'rbconfig'
 require 'shellwords'
 require 'travis/build/addons/base'
 
@@ -72,27 +71,22 @@ module Travis
             when 'latest-dev'
               'firefox-aurora-latest'
             when 'latest-nightly'
-              if RbConfig::CONFIG['host_os'] == /linux/
-                nightly = '/.+?(?=linux-x86_64)/'
-              else
-                nightly = '/.+?(?=mac.dmg)/'
-              end
-              nightly
+              'nightly'
             else
               "firefox-#{version}"
             end
 
-            if product == /linux|mac/
+            if product == 'nightly'
               host = 'archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central/'
             else
               host = 'download.mozilla.org'
             end
 
-            sh.if "[$(uname) = 'Linux'] && [#{product} = '/linux/']" do
-              sh.export 'FIREFOX_SOURCE_URL', "'https://#{host}/#{product}.linux-x6_64.tar.bz2'"
+            sh.if "[$(uname) = 'Linux'] && [#{product} = 'nightly']" do
+              sh.export 'FIREFOX_SOURCE_URL', "'https://#{host}//.+?(?=linux-x86_64)/.linux-x86_64.tar.bz2'"
             end
-            sh.elif "[$(uname) = 'Darwin'] && [#{product} = '/mac/']" do
-              sh.export 'FIREFOX_SOURCE_URL', "'https://#{host}/#{product}.mac.dmg'"
+            sh.elif "[$(uname) = 'Darwin'] && [#{product} = 'nightly']" do
+              sh.export 'FIREFOX_SOURCE_URL', "'https://#{host}//.+?(?=mac.dmg)/.mac.dmg'"
             end
             sh.elif "$(uname) = 'Linux'" do
               sh.export 'FIREFOX_SOURCE_URL', "'https://#{host}/?product=#{product}&lang=en-US&os=linux64'"
