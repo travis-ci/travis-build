@@ -21,18 +21,6 @@ module Travis
           neko: '2.1.0'
         }
 
-        def configure
-          super
-
-          case config[:os]
-          when 'linux'
-            sh.cmd 'sudo apt-get update -qq', retry: true
-            sh.cmd 'sudo apt-get install libgc1c2 -qq', retry: true # required by neko
-          when 'osx'
-            # pass
-          end
-        end
-
         def export
           super
 
@@ -40,7 +28,7 @@ module Travis
           sh.export 'TRAVIS_NEKO_VERSION', config[:neko].to_s, echo: false
         end
 
-        def setup
+        def configure
           super
 
           sh.echo 'Haxe for Travis-CI is not officially supported, ' \
@@ -53,31 +41,57 @@ module Travis
                   ' in the issue', ansi: :green
 
           sh.fold('neko-install') do
+            neko_path = Dir.home + '/neko'
+
             sh.echo 'Installing Neko', ansi: :yellow
-            sh.cmd 'mkdir -p ~/neko'
-            sh.cmd %Q{curl -s -L --retry 3 '#{neko_url}' } \
-                   '| tar -C ~/neko -x -z --strip-components=1 -f -'
-            sh.cmd 'export NEKOPATH="${HOME}/neko"' # required by `nekotools boot ...`
+
+            # Install dependencies
             case config[:os]
             when 'linux'
-              # for loading libneko.so
-              sh.cmd 'export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${NEKOPATH}"'
+              sh.cmd 'sudo apt-get update -qq', retry: true
+              sh.cmd 'sudo apt-get install libgc1c2 -qq', retry: true # required by neko
             when 'osx'
-              # for loading libneko.dylib
-              sh.cmd 'export DYLD_FALLBACK_LIBRARY_PATH="${DYLD_FALLBACK_LIBRARY_PATH}:${NEKOPATH}"'
+              # pass
             end
-            sh.cmd 'export PATH="${PATH}:${NEKOPATH}"'
+
+            sh.cmd %Q{mkdir -p #{neko_path}}
+            sh.cmd %Q{curl -s -L --retry 3 '#{neko_url}' | tar -C #{neko_path} -x -z --strip-components=1 -f -}, assert: true, echo: true, timing: true
+            # NEKOPATH is required by `nekotools boot ...`
+            sh.cmd %Q{export NEKOPATH="#{neko_path}"}
+
+            ['neko', 'nekoc', 'nekoml', 'nekotools'].each do |bin|
+              sh.cmd %Q{sudo ln -s "#{neko_path}/#{bin}" /usr/local/bin/}
+            end
+            sh.cmd %Q{for lib in #{neko_path}/libneko.*; do sudo ln -s "$lib" /usr/local/lib/; done}
+            sh.cmd %Q{for header in #{neko_path}/include/*; do sudo ln -s "$header" /usr/local/include/; done}
+            sh.cmd %Q{sudo mkdir -p /usr/local/lib/neko/}
+            sh.cmd %Q{for ndll in #{neko_path}/*.ndll; do sudo ln -s "$ndll" /usr/local/lib/neko/; done}
+            sh.cmd %Q{sudo ln -s "#{neko_path}/nekoml.std" /usr/local/lib/neko/}
+
+            case config[:os]
+            when 'linux'
+              sh.cmd 'sudo ldconfig'
+            when 'osx'
+              # pass
+            end
           end
 
           sh.fold('haxe-install') do
+            haxe_path = Dir.home + '/haxe'
+
             sh.echo 'Installing Haxe', ansi: :yellow
-            sh.cmd 'mkdir -p ~/haxe'
-            sh.cmd %Q{curl -s -L --retry 3 '#{haxe_url}' } \
-                   '| tar -C ~/haxe -x -z --strip-components=1 -f -'
-            sh.cmd 'export PATH="${PATH}:${HOME}/haxe"'
-            sh.cmd 'export HAXE_STD_PATH="${HOME}/haxe/std"'
-            sh.cmd 'mkdir -p ~/haxe/lib'
-            sh.cmd 'haxelib setup ~/haxe/lib'
+            sh.cmd %Q{mkdir -p #{haxe_path}}
+            sh.cmd %Q{curl -s -L --retry 3 '#{haxe_url}' | tar -C #{haxe_path} -x -z --strip-components=1 -f -}, assert: true, echo: true, timing: true
+
+            ['haxe', 'haxelib'].each do |bin|
+              sh.cmd %Q{sudo ln -s "#{haxe_path}/#{bin}" /usr/local/bin/}
+            end
+            sh.cmd %Q{sudo mkdir -p /usr/local/lib/haxe/}
+            sh.cmd %Q{sudo ln -s "#{haxe_path}/std" /usr/local/lib/haxe/std}
+
+            sh.cmd %Q{export HAXE_STD_PATH="#{haxe_path}/std"}
+            sh.cmd %Q{mkdir -p #{haxe_path}/lib}
+            sh.cmd %Q{haxelib setup #{haxe_path}/lib}
           end
         end
 
