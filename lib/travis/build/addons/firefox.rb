@@ -1,3 +1,4 @@
+require 'rbconfig'
 require 'shellwords'
 require 'travis/build/addons/base'
 
@@ -75,6 +76,7 @@ module Travis
                 nightly = '/.+?(?=linux-x86_64)/'
               else
                 nightly = '/.+?(?=mac.dmg)/'
+              end
               nightly
             else
               "firefox-#{version}"
@@ -84,6 +86,7 @@ module Travis
               host = 'archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central/'
             else
               host = 'download.mozilla.org'
+            end
 
             sh.if "[$(uname) = 'Linux'] && [#{product} = '/linux/']" do
               sh.export 'FIREFOX_SOURCE_URL', "'https://#{host}/#{product}.linux-x6_64.tar.bz2'"
