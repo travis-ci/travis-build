@@ -50,9 +50,11 @@ module Travis
         end
 
         post '/script' do
-          payload = JSON.parse(request.body.read)
+          raw_body = request.body.read
+          payload = JSON.parse(raw_body)
 
-          if ENV['SENTRY_DSN']
+          # HACK: meatballhat wuz here
+          if false && ENV['SENTRY_DSN']
             Raven.extra_context(
               repository: payload['repository']['slug'],
               job: payload['job']['id'],
