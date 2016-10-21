@@ -70,6 +70,11 @@ describe Travis::Build::Script::R, :sexp do
     should include_sexp [:cmd, %r{^curl.*r\.research\.att\.com/mavericks/R-devel/R-devel-mavericks-signed\.pkg},
                          assert: true, echo: true, retry: true, timing: true]
   end
+  it 'downloads and installs gfortran libraries on OS X' do
+    data[:config][:os] = 'osx'
+    should include_sexp [:cmd, %r{^curl.*#{Regexp.escape('/tmp/gfortran.tar.bz2 http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2')}},
+                         assert: true, echo: true, retry: true, timing: true]
+  end
 
   it 'downloads and installs R 3.1' do
     data[:config][:r] = '3.1'

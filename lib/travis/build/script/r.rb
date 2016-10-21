@@ -150,6 +150,11 @@ module Travis
                 sh.cmd 'sudo installer -pkg "/tmp/R.pkg" -target /'
                 sh.rm '/tmp/R.pkg'
 
+                # Install gfortran libraries the precompiled binaries are linked to
+                sh.cmd 'curl -Lo /tmp/gfortran.tar.bz2 http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2', retry: true
+                sh.cmd 'sudo tar fvxz /tmp/gfortran.tar.bz2 -C /'
+                sh.rm '/tmp/gfortran.tar.bz2'
+
               else
                 sh.failure "Operating system not supported: #{config[:os]}"
               end
