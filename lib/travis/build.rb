@@ -15,6 +15,7 @@ module Travis
       end
 
       def script(data)
+        $stdout.puts "DEBUG: data=#{JSON.pretty_generate(data)}" if ENV['DEBUG']
         data  = data.deep_symbolize_keys
         lang  = (Array(data[:config][:language]).first || 'ruby').to_s.downcase.strip
         const = by_lang(lang)
