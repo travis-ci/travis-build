@@ -3,7 +3,7 @@ module Travis
     class Compile < RepoCommand
       description "compiles a build script from .travis.yml"
 
-      attr_accessor :slug
+      attr_accessor :slug, :source_url
 
       def setup
         error "run command is not available on #{RUBY_VERSION}" if RUBY_VERSION < '1.9.3'
@@ -11,8 +11,15 @@ module Travis
         require 'travis/build'
       end
 
+      def find_source_url
+          git_head    = `git name-rev --name-only HEAD 2>#{IO::NULL}`.chomp
+          git_remote  = `git config --get branch.#{git_head}.remote 2>#{IO::NULL}`.chomp
+          return `git ls-remote --get-url #{git_remote} 2>#{IO::NULL}`.chomp
+      end
+
       def run(*arg)
         @slug = find_slug
+        @source_url = find_source_url
         if match_data = /\A(?<build>\d+)(\.(?<job>\d+))?\z/.match(arg.first)
           set_up_config(match_data)
         elsif arg.length > 0
@@ -29,7 +36,7 @@ module Travis
             config.delete_if { |k,v| k == 'matrix' }
           end
 
-          unless config['os'].respond_to? :scan
+          if config['os'] && ! config['os'].respond_to?(:scan)
             warn "'os' key is unsupported in local build script compilation. Setting to default, 'linux'."
             config['os'] = 'linux'
           end
@@ -37,7 +44,7 @@ module Travis
           set_up_env(config, global_env)
         end
 
-        puts Travis::Build.script(data).compile(true)
+        puts Travis::Build.script(push_down_deploy(@config)).compile(true)
       end
 
       private
@@ -45,7 +52,19 @@ module Travis
           {
             :config => @config,
             :repository => {
-              :slug => slug
+              :slug => slug,
+              :source_url => source_url,
+              :github_id => 1234567890
+            },
+            :cache_options => {
+              :type => :s3,
+              :s3 => {
+                :bucket => 'cache_bucket',
+                :access_key_id => 'abcdef0123456789',
+                :secret_access_key => 'super_duper_secret'
+              },
+              :fetch_timeout => 60,
+              :push_timeout => 60
             }
           }
         end
@@ -59,11 +78,16 @@ module Travis
         def sanitize_global_env(config)
           global_env = []
           if config.has_key? 'env'
-            if config['env']['matrix']
-              warn 'env.matrix key is ignored'
+            case config['env']
+            when Hash
+              if config['env']['matrix']
+                warn 'env.matrix key is ignored'
+              end
+              global_env = config['env'].fetch('global', [])
+              global_env.delete_if { |v| v.is_a? Hash }
+            when Array
+              global_env = config['env']
             end
-            global_env = config['env'].fetch('global', [])
-            global_env.delete_if { |v| v.is_a? Hash }
           end
 
           global_env
@@ -72,6 +96,14 @@ module Travis
         def set_up_env(config, global_env)
           @config = config.delete_if {|k,v| k == 'env' }
           @config['env'] = global_env
+        end
+
+        def push_down_deploy(config)
+          if deploy_data = config.delete('deploy')
+            addons_data = config.fetch('addons', {})
+            config['addons'] = addons_data.merge({'deploy' => deploy_data})
+          end
+          data
         end
     end
   end

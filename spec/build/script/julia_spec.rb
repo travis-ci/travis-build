@@ -6,6 +6,7 @@ describe Travis::Build::Script::Julia, :sexp do
   let(:data)   { payload_for(:push, :julia) }
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
+  it           { store_example }
 
   it_behaves_like 'a build script sexp'
 
@@ -14,7 +15,7 @@ describe Travis::Build::Script::Julia, :sexp do
   end
 
   it 'downloads and installs Julia' do
-    should include_sexp [:cmd, %r(curl .*/stable/linux-x86_64), assert: true,
+    should include_sexp [:cmd, %r(curl .*latest-linux-x86_64), assert: true,
       echo: true, timing: true]
   end
 

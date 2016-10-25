@@ -25,21 +25,18 @@ describe Travis::Build::Script::C, :sexp do
     should include_sexp [:cmd, './configure && make && make test', echo: true, timing: true]
   end
 
-  it 'sets CCACHE_DISABLE to true' do
-    should include_sexp [:export, ['CCACHE_DISABLE', 'true']]
-  end
-
   describe '#cache_slug' do
     subject { described_class.new(data).cache_slug }
-    it { should eq('cache--compiler-gcc') }
+    it { should eq("cache-#{CACHE_SLUG_EXTRAS}--compiler-gcc") }
   end
 
-  describe 'ccache caching' do
-    let(:options) { { fetch_timeout: 20, push_timeout: 30, type: 's3', s3: { bucket: 's3_bucket', secret_access_key: 's3_secret_access_key', access_key_id: 's3_access_key_id' } } }
-    let(:data)    { payload_for(:push, :c, config: { cache: 'ccache' }, cache_options: options) }
+  context 'when cache requires ccache' do
+    let(:data) { payload_for(:push, :c, config: { cache: 'ccache' }) }
 
-    it 'sets CCACHE_DISABLE to false' do
-      should include_sexp [:export, ['CCACHE_DISABLE', 'false']]
+    describe '#export' do
+      it 'prepends /usr/lib/ccache to PATH' do
+        should include_sexp [:export, ['PATH', '/usr/lib/ccache:$PATH'], echo: true]
+      end
     end
   end
 end

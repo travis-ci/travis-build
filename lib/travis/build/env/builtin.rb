@@ -23,6 +23,7 @@ module Travis
               CI:                     true,
               CONTINUOUS_INTEGRATION: true,
               HAS_JOSH_K_SEAL_OF_APPROVAL: true,
+              TRAVIS_EVENT_TYPE:      build[:event_type],
               TRAVIS_PULL_REQUEST:    pull_request || false,
               TRAVIS_SECURE_ENV_VARS: env.secure_env_vars? || false,
               TRAVIS_BUILD_ID:        build[:id],
@@ -38,6 +39,8 @@ module Travis
               TRAVIS_LANGUAGE:        config[:language],
               TRAVIS_TAG:             job[:tag],
               TRAVIS_SUDO:            config[:sudo],
+              TRAVIS_PULL_REQUEST_BRANCH: job[:pull_request_head_branch],
+              TRAVIS_PULL_REQUEST_SHA: job[:pull_request_head_sha],
             }
           end
       end

@@ -8,6 +8,10 @@ module Travis
 
         attr_reader :script, :sh, :data, :config
 
+        def after_configure
+          sh.raw "echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-certificates.crt >/dev/null"
+        end
+
         def initialize(script, sh, data, config)
           @script = script
           @sh = sh
@@ -51,7 +55,7 @@ else
   else
     WHEN=`echo $AUTH_RES | ruby -e "require 'rubygems'; require 'json'; puts JSON[STDIN.read]['next_upload_permitted_at']"`
     echo -e "\033[33;1mCoverity Scan analysis NOT authorized until $WHEN.\033[0m"
-    exit 1
+    exit 0
   fi
 fi
 SH
@@ -70,11 +74,11 @@ SH
           sh.if "${TRAVIS_TEST_RESULT} = 0", echo: true do
             sh.fold('build_coverity') do
               env = []
-              env << "COVERITY_SCAN_PROJECT_NAME=\"$TRAVIS_REPO_SLUG\""
-              env << "COVERITY_SCAN_NOTIFICATION_EMAIL=\"#{@config[:notification_email]}\""
-              env << "COVERITY_SCAN_BUILD_COMMAND=\"#{@config[:build_command]}\""
-              env << "COVERITY_SCAN_BUILD_COMMAND_PREPEND=\"#{@config[:build_command_prepend]}\""
-              env << "COVERITY_SCAN_BRANCH_PATTERN=#{@config[:branch_pattern]}"
+              env << "COVERITY_SCAN_PROJECT_NAME=\"$PROJECT_NAME\""
+              env << "COVERITY_SCAN_NOTIFICATION_EMAIL=\"${COVERITY_SCAN_NOTIFICATION_EMAIL:-#{@config[:notification_email]}}\""
+              env << "COVERITY_SCAN_BUILD_COMMAND=\"${COVERITY_SCAN_BUILD_COMMAND:-#{@config[:build_command]}}\""
+              env << "COVERITY_SCAN_BUILD_COMMAND_PREPEND=\"${COVERITY_SCAN_BUILD_COMMAND_PREPEND:-#{@config[:build_command_prepend]}}\""
+              env << "COVERITY_SCAN_BRANCH_PATTERN=${COVERITY_SCAN_BRANCH_PATTERN:-#{@config[:branch_pattern]}}"
               sh.cmd "curl -s #{@config[:build_script_url]} | #{env.join(' ')} bash", echo: true
             end
           end

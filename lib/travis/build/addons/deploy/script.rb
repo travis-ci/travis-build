@@ -6,8 +6,27 @@ module Travis
     class Addons
       class Deploy < Base
         class Script
-          VERSIONED_RUNTIMES = [:jdk, :node, :perl, :php, :python, :ruby, :scala, :go]
-          USE_RUBY           = '1.9.3'
+          VERSIONED_RUNTIMES = %w(
+            d
+            dart
+            elixir
+            ghc
+            go
+            haxe
+            jdk
+            julia
+            mono
+            node
+            otp_release
+            perl
+            php
+            python
+            r
+            ruby
+            rust
+            scala
+            smalltalk
+          ).map(&:to_sym)
 
           attr_accessor :script, :sh, :data, :config, :allow_failure
 
@@ -22,7 +41,7 @@ module Travis
 
           def deploy
             if data.pull_request
-              failure_message "the current build is a pull request."
+              warning_message "the current build is a pull request."
               return
             end
 
@@ -34,24 +53,28 @@ module Travis
           end
 
           private
+            def use_ruby
+              (data.disable_sudo? || data.config[:os] == 'osx') ? '1.9.3' : '2.2.5'
+            end
+
             def check_conditions_and_run
               sh.if(conditions) do
                 run
               end
 
               sh.else do
-                failure_message_unless(repo_condition, "this repo's name does not match one specified in .travis.yml's deploy.on.repo: #{on[:repo]}")
-                failure_message_unless(branch_condition, "this branch is not permitted to deploy")
-                failure_message_unless(runtime_conditions, "this is not on the required runtime")
-                failure_message_unless(custom_conditions, "a custom condition was not met")
-                failure_message_unless(tags_condition, "this is not a tagged commit")
+                warning_message_unless(repo_condition, "this repo's name does not match one specified in .travis.yml's deploy.on.repo: #{on[:repo]}")
+                warning_message_unless(branch_condition, "this branch is not permitted")
+                warning_message_unless(runtime_conditions, "this is not on the required runtime")
+                warning_message_unless(custom_conditions, "a custom condition was not met")
+                warning_message_unless(tags_condition, "this is not a tagged commit")
               end
             end
 
-            def failure_message_unless(condition, message)
+            def warning_message_unless(condition, message)
               return if negate_condition(condition) == ""
 
-              sh.if(negate_condition(condition)) { failure_message(message) }
+              sh.if(negate_condition(condition)) { warning_message(message) }
             end
 
             def on
@@ -79,8 +102,11 @@ module Travis
             end
 
             def branch_condition
-              return if on[:all_branches]
-              branches  = Array(on[:branch] || default_branches)
+              return if on[:all_branches] || on[:tags]
+
+              branch_config = on[:branch].respond_to?(:keys) ? on[:branch].keys : on[:branch]
+
+              branches  = Array(branch_config || default_branches)
               branches.map { |b| "$TRAVIS_BRANCH = #{b}" }.join(' || ')
             end
 
@@ -100,17 +126,26 @@ module Travis
             end
 
             def run
-              script.stages.run_stage(:custom, :before_deploy)
-              sh.fold('dpl.0') { install }
-              cmd(run_command, echo: false, assert: false, timing: true)
-              script.stages.run_stage(:custom, :after_deploy)
+              sh.with_errexit_off do
+                script.stages.run_stage(:custom, :before_deploy)
+                sh.fold('dpl.0') { install }
+                cmd(run_command, echo: false, assert: false, timing: true)
+                script.stages.run_stage(:custom, :after_deploy)
+              end
             end
 
             def install(edge = config[:edge])
+              edge = config[:edge]
+              if edge.respond_to? :fetch
+                src = edge.fetch(:source, 'travis-ci/dpl')
+                branch = edge.fetch(:branch, 'master')
+                build_gem_locally_from(src, branch)
+              end
               command = "gem install dpl"
+              command << "-*.gem --local" if edge == 'local' || edge.respond_to?(:fetch)
               command << " --pre" if edge
-              command << " --local" if edge == 'local'
               cmd(command, echo: false, assert: !allow_failure, timing: true)
+              sh.cmd "rm -f dpl-*.gem", echo: false, assert: false, timing: false
             end
 
             def run_command(assert = !allow_failure)
@@ -123,7 +158,7 @@ module Travis
             end
 
             def default_branches
-              default_branches = config.values.grep(Hash).map(&:keys).flatten(1).uniq.compact
+              default_branches = config.except(:edge).values.grep(Hash).map(&:keys).flatten(1).uniq.compact
               default_branches.any? ? default_branches : 'master'
             end
 
@@ -138,19 +173,37 @@ module Travis
             end
 
             def cmd(cmd, *args)
-              sh.cmd("rvm #{USE_RUBY} --fuzzy do ruby -S #{cmd}", *args)
+              sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
+              sh.cmd("rvm #{use_ruby} --fuzzy do ruby -S #{cmd}", *args)
             end
 
             def options
               config.flat_map { |k,v| option(k,v) }.compact.join(" ")
             end
 
-            def failure_message(message)
-              sh.echo "Skipping deployment with the #{config[:provider]} provider because #{message}", ansi: :red
+            def warning_message(message)
+              sh.echo "Skipping a deployment with the #{config[:provider]} provider because #{message}", ansi: :yellow
             end
 
             def negate_condition(conditions)
               Array(conditions).flatten.compact.map { |condition| " ! #{condition}" }.join(" && ")
+            end
+
+            def build_gem_locally_from(source, branch)
+              sh.echo "Building dpl gem locally with source #{source} and branch #{branch}", ansi: :yellow
+              sh.cmd("gem uninstall -a -x dpl >& /dev/null",                echo: false, assert: !allow_failure, timing: false)
+              sh.cmd("pushd /tmp >& /dev/null",                             echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("git clone https://github.com/#{source} #{source}",    echo: true,  assert: !allow_failure, timing: true)
+              sh.cmd("pushd #{source} >& /dev/null",                        echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("git checkout #{branch}",                              echo: true,  assert: !allow_failure, timing: true)
+              cmd("gem build dpl.gemspec",                                  echo: true,  assert: !allow_failure, timing: true)
+              sh.cmd("mv dpl-*.gem $TRAVIS_BUILD_DIR >& /dev/null",         echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: true)
+              # clean up, so that multiple edge providers can be run
+              sh.cmd("rm -rf $(dirname #{source})",                         echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: true)
+            ensure
+              sh.cmd("test -e /tmp/dpl && rm -rf dpl", echo: false, assert: false, timing: true)
             end
         end
       end

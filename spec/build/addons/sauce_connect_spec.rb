@@ -14,10 +14,12 @@ describe Travis::Build::Addons::SauceConnect, :sexp do
   end
 
   shared_examples_for 'starts sauce connect' do
-    it { should include_sexp [:echo, 'Starting Sauce Connect', ansi: :yellow] }
-    # it { should include_sexp [:cmd, 'curl -L https://gist.githubusercontent.com/henrikhodne/9322897/raw/sauce-connect.sh | bash'] }
-    it { should include_sexp [:cmd, 'curl -L https://gist.githubusercontent.com/henrikhodne/9322897/raw/sauce-connect.sh | bash', echo: true, timing: true] }
+    it { should include_sexp [:cmd, 'travis_start_sauce_connect', echo: true, timing: true] }
     it { should include_sexp [:export, ['TRAVIS_SAUCE_CONNECT', 'true']] }
+  end
+
+  shared_examples_for 'stops sauce connect' do
+    it { should include_sexp [:cmd, 'travis_stop_sauce_connect', echo: true, timing: true] }
   end
 
   describe 'without credentials' do
@@ -31,6 +33,17 @@ describe Travis::Build::Addons::SauceConnect, :sexp do
 
     it { should include_sexp [:export, ['SAUCE_USERNAME', 'username']] }
     it { should include_sexp [:export, ['SAUCE_ACCESS_KEY', 'access_key']] }
+
+    it_behaves_like 'starts sauce connect'
+    it { store_example }
+  end
+
+  describe 'with domain arguments' do
+    let(:config) { { :direct_domains => 'travis-ci.org', :no_ssl_bump_domains=> 'travis-ci.org', :tunnel_domains => 'localhost' } }
+
+    it { should include_sexp [:export, ['SAUCE_DIRECT_DOMAINS', "'-D travis-ci.org'"]] }
+    it { should include_sexp [:export, ['SAUCE_NO_SSL_BUMP_DOMAINS', "'-B travis-ci.org'"]] }
+    it { should include_sexp [:export, ['SAUCE_TUNNEL_DOMAINS', "'-t localhost'"]] }
 
     it_behaves_like 'starts sauce connect'
     it { store_example }

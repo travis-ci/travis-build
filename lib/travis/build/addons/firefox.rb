@@ -7,47 +7,79 @@ module Travis
       class Firefox < Base
         SUPER_USER_SAFE = true
 
+        attr_reader :version, :latest
+
         def after_prepare
           sh.fold 'install_firefox' do
-            if version
-              sh.echo "Installing Firefox v#{version}", ansi: :yellow
-              sh.mkdir install_dir, echo: false, recursive: true
-              sh.chown 'travis', install_dir, recursive: true
-              sh.cd install_dir, echo: false, stack: true
-              sh.cmd "wget -O /tmp/#{filename} #{source_url}", echo: true, timing: true, retry: true
-              sh.cmd "tar xf /tmp/#{filename}"
-              sh.cmd "sudo ln -sf #{install_dir}/firefox/firefox /usr/local/bin/firefox", echo: false
-              sh.cd :back, echo: false, stack: true
-            else
+            sanitize(raw_version)
+
+            unless version
               sh.echo "Invalid version '#{raw_version}' given.", ansi: :red
             end
+
+            export_source_url
+            sh.echo "Installing Firefox #{version}", ansi: :yellow
+            sh.mkdir install_dir, echo: false, recursive: true
+            sh.chown 'travis', install_dir, recursive: true
+            sh.cd install_dir, echo: false, stack: true
+            sh.if '$(uname) = "Linux"' do
+              sh.cmd "wget -O /tmp/#{filename} $FIREFOX_SOURCE_URL", echo: true, timing: true, retry: true
+              sh.cmd "tar xf /tmp/#{filename}"
+              sh.cmd "sudo ln -sf #{install_dir}/firefox/firefox /usr/local/bin/firefox", echo: false
+            end
+            sh.elif '$(uname) = "Darwin"' do
+              sh.cmd "wget -O /tmp/#{filename('dmg')} $FIREFOX_SOURCE_URL", echo: true, timing: true, retry: true
+              sh.cmd "hdiutil mount -readonly -mountpoint firefox /tmp/#{filename('dmg')}"
+              sh.cmd "sudo rm -rf /Applications/Firefox.app"
+              sh.cmd "sudo cp -a firefox/Firefox.app /Applications"
+              sh.cmd "sudo ln -sf /Applications/Firefox.app/Contents/MacOS/firefox /usr/local/bin/firefox", echo: false
+              sh.cmd "hdiutil unmount firefox && rm /tmp/#{filename('dmg')}"
+              sh.export 'PATH', "/Applications/Firefox.app/Contents/MacOS:$PATH"
+            end
+            sh.cd :back, echo: false, stack: true
           end
         end
 
         private
-
-          def version
-            sanitize raw_version
-          end
-
           def raw_version
             config.to_s.strip.shellescape
           end
 
           def sanitize(input)
-            (m = /\A(?<version>[\d\.]+(?:esr)?)\z/.match(input.chomp)) && m[:version]
+            if m = /\A(?<version>[\d\.]+(?:esr|b\d+)?|(?<latest>latest(?:-(?:beta|esr))?)?)\z/.match(input.chomp)
+              @version = m[:version]
+              @latest  = m[:latest]
+            end
           end
 
           def install_dir
             "#{HOME_DIR}/firefox-#{version}"
           end
 
-          def filename
-            "firefox-#{version}.tar.bz2"
+          def filename(ext = 'bz2')
+            "firefox-#{version}.tar.#{ext}"
           end
 
-          def source_url
-            "http://releases.mozilla.org/pub/firefox/releases/#{version}/linux-x86_64/en-US/#{filename}"
+          def export_source_url
+            product = case latest
+            when 'latest'
+              'firefox-latest'
+            when 'latest-beta'
+              'firefox-beta-latest'
+            when 'latest-esr'
+              'firefox-esr-latest'
+            else
+              "firefox-#{version}"
+            end
+
+            host = 'download.mozilla.org'
+
+            sh.if "$(uname) = 'Linux'" do
+              sh.export 'FIREFOX_SOURCE_URL', "'https://#{host}/?product=#{product}&lang=en-US&os=linux64'"
+            end
+            sh.else do
+              sh.export 'FIREFOX_SOURCE_URL', "'https://#{host}/?product=#{product}&lang=en-US&os=osx'"
+            end
           end
 
           def tmp_file

@@ -10,7 +10,6 @@ module Travis
       DEFAULTS = { }
 
       DEFAULT_CACHES = {
-        apt:       false,
         bundler:   false,
         cocoapods: false,
         composer:  false,
@@ -28,6 +27,10 @@ module Travis
 
       def [](key)
         data[key]
+      end
+
+      def key?(key)
+        data.key?(key)
       end
 
       def language
@@ -55,7 +58,7 @@ module Travis
       end
 
       def cache_options
-        data[:cache_options] || {}
+        data[:cache_settings] || data[:cache_options] || {}
       end
 
       def cache(input = config[:cache])
@@ -148,6 +151,10 @@ module Travis
 
       def token
         data[:oauth_token]
+      end
+
+      def debug_options
+        job[:debug_options] || {}
       end
     end
   end

@@ -1,6 +1,10 @@
 #!/bin/bash
 source /etc/profile
 
+if [[ -s ~/.bash_profile ]] ; then
+  source ~/.bash_profile
+fi
+
 ANSI_RED="\033[31;1m"
 ANSI_GREEN="\033[32;1m"
 ANSI_RESET="\033[0m"
@@ -63,7 +67,7 @@ travis_time_finish() {
   local result=$?
   travis_end_time=$(travis_nanoseconds)
   local duration=$(($travis_end_time-$travis_start_time))
-  echo -en "travis_time:end:$travis_timer_id:start=$travis_start_time,finish=$travis_end_time,duration=$duration\r${ANSI_CLEAR}"
+  echo -en "\ntravis_time:end:$travis_timer_id:start=$travis_start_time,finish=$travis_end_time,duration=$duration\r${ANSI_CLEAR}"
   return $result
 }
 
@@ -130,12 +134,12 @@ travis_wait() {
     wait $cmd_pid 2>/dev/null
     result=$?
     ps -p$jigger_pid &>/dev/null && kill $jigger_pid
-  } || return 1
+  }
 
   if [ $result -eq 0 ]; then
-    echo -e "\n${ANSI_GREEN}The command \"$TRAVIS_CMD\" exited with $result.${ANSI_RESET}"
+    echo -e "\n${ANSI_GREEN}The command $cmd exited with $result.${ANSI_RESET}"
   else
-    echo -e "\n${ANSI_RED}The command \"$TRAVIS_CMD\" exited with $result.${ANSI_RESET}"
+    echo -e "\n${ANSI_RED}The command $cmd exited with $result.${ANSI_RESET}"
   fi
 
   echo -e "\n${ANSI_GREEN}Log:${ANSI_RESET}\n"
@@ -195,6 +199,12 @@ travis_fold() {
 decrypt() {
   echo $1 | base64 -d | openssl rsautl -decrypt -inkey ~/.ssh/id_rsa.repo
 }
+
+# XXX Forcefully removing rabbitmq source until next build env update
+# See http://www.traviscistatus.com/incidents/6xtkpm1zglg3
+if [[ -f /etc/apt/sources.list.d/rabbitmq-source.list ]] ; then
+  sudo rm -f /etc/apt/sources.list.d/rabbitmq-source.list
+fi
 
 mkdir -p <%= build_dir %>
 cd       <%= build_dir %>

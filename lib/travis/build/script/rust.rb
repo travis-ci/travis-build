@@ -2,18 +2,10 @@ module Travis
   module Build
     class Script
       class Rust < Script
-        RUST_URLS = {
-          osx:   'https://static.rust-lang.org/dist/rust-%s-x86_64-apple-darwin.tar.gz',
-          linux: 'https://static.rust-lang.org/dist/rust-%s-x86_64-unknown-linux-gnu.tar.gz'
-        }
-
-        CARGO_URLS = {
-          osx:   'https://static.rust-lang.org/cargo-dist/cargo-nightly-x86_64-apple-darwin.tar.gz',
-          linux: 'https://static.rust-lang.org/cargo-dist/cargo-nightly-x86_64-unknown-linux-gnu.tar.gz'
-        }
+        RUST_RUSTUP = 'https://static.rust-lang.org/rustup.sh'
 
         DEFAULTS = {
-          rust: 'nightly',
+          rust: 'stable',
         }
 
         def export
@@ -25,13 +17,14 @@ module Travis
         def setup
           super
 
-          sh.cmd 'mkdir -p ~/rust', echo: false
+          sh.cmd 'mkdir -p ~/rust-installer', echo: false
           sh.echo ''
 
           sh.fold('rust-download') do
-            sh.echo 'Installing Rust and Cargo', ansi: :yellow
-            sh.cmd "curl -sL #{rust_url} | tar --strip-components=1 -C ~/rust -xzf -"
-            sh.cmd "curl -sL #{cargo_url} | tar --strip-components=1 -C ~/rust -xzf -"
+            sh.echo 'Installing Rust', ansi: :yellow
+            sh.cmd "curl -sL #{RUST_RUSTUP} -o ~/rust-installer/rustup.sh"
+            # We silence the stderr of rustup.sh for now, as it has a very verbose progress bar
+            sh.cmd "sh ~/rust-installer/rustup.sh #{rustup_args} 2> /dev/null"
           end
 
           sh.cmd 'export PATH="$PATH:$HOME/rust/bin"', assert: false, echo: false
@@ -52,22 +45,30 @@ module Travis
           sh.cmd 'cargo test --verbose'
         end
 
+        def setup_cache
+          if data.cache?(:cargo)
+            sh.fold 'cache.cargo' do
+              directory_cache.add "$HOME/.cargo", "target"
+            end
+          end
+        end
+
+        def cache_slug
+          super << "--cargo-" << version
+        end
+
+        def use_directory_cache?
+          super || data.cache?(:cargo)
+        end
+
         private
 
           def version
             config[:rust].to_s
           end
 
-          def os
-            config[:os] == 'osx' ? :osx : :linux
-          end
-
-          def rust_url
-            RUST_URLS[os] % version.shellescape
-          end
-
-          def cargo_url
-            CARGO_URLS[os] % version.shellescape
+          def rustup_args
+            "--prefix=~/rust --spec=%s -y --disable-sudo" % version.shellescape
           end
       end
     end

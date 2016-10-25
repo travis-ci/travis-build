@@ -10,9 +10,14 @@ shared_examples_for 'a jvm build sexp' do
       expect(branch).to include_sexp([:cmd, './gradlew assemble', options])
     end
 
-    it 'runs `gradlew assemble` if build.gradle exists' do
+    it 'runs `gradle assemble` if build.gradle exists' do
       branch = sexp_find(sexp, [:elif, '-f build.gradle'])
       expect(branch).to include_sexp([:cmd, 'gradle assemble', options])
+    end
+
+    it 'runs `./mvnw install` if mvnw exists' do
+      branch = sexp_find(sexp, [:elif, '-f mvnw'])
+      expect(branch).to include_sexp([:cmd, './mvnw install -DskipTests=true -Dmaven.javadoc.skip=true -B -V', options])
     end
 
     it 'runs `mvn install` if pom.xml exists' do
@@ -33,6 +38,11 @@ shared_examples_for 'a jvm build sexp' do
     it 'runs `gradle check` if build.gradle exists' do
       branch = sexp_find(sexp, [:elif, '-f build.gradle'])
       expect(branch).to include_sexp([:cmd, 'gradle check', options])
+    end
+
+    it 'runs `./mvnw test` if mvnw exists' do
+      branch = sexp_find(sexp, [:elif, '-f mvnw'])
+      expect(branch).to include_sexp([:cmd, './mvnw test -B', options])
     end
 
     it 'runs `mvn test` if pom.xml exists' do

@@ -40,7 +40,7 @@ describe Travis::Build::Script::Ruby, :sexp do
 
     it 'sets up rvm from .ruby-version' do
       sexp = sexp_find(subject, [:if, '-f .ruby-version'], [:then])
-      expect(sexp).to include_sexp [:cmd, 'rvm use . --install --binary --fuzzy', assert: true, echo: true, timing: true]
+      expect(sexp).to include_sexp [:cmd, 'rvm use $(< .ruby-version) --install --binary --fuzzy', assert: true, echo: true, timing: true]
     end
 
     it 'sets the default ruby otherwise' do
@@ -65,7 +65,7 @@ describe Travis::Build::Script::Ruby, :sexp do
   end
 
   it 'sets BUNDLE_GEMFILE if a gemfile exists' do
-    sexp = sexp_find(subject, [:if, '-f Gemfile'], [:then])
+    sexp = sexp_find(subject, [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}"], [:then])
     expect(sexp).to include_sexp [:export, ['BUNDLE_GEMFILE', '$PWD/Gemfile'], echo: true]
   end
 
@@ -88,24 +88,24 @@ describe Travis::Build::Script::Ruby, :sexp do
 
   describe 'install' do
     it 'runs bundle install --deployment if there is a Gemfile and a Gemfile.lock' do
-      sexp = sexp_find(sexp_filter(subject, [:if, '-f Gemfile'])[1], [:if, '-f Gemfile.lock'], [:then])
+      sexp = sexp_find(sexp_filter(subject, [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}"])[1], [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}.lock"], [:then])
       expect(sexp).to include_sexp [:cmd, 'bundle install --jobs=3 --retry=3 --deployment', assert: true, echo: true, timing: true, retry: true]
     end
 
     it "runs bundle install if a Gemfile exists" do
-      sexp = sexp_find(sexp_filter(subject, [:if, '-f Gemfile'])[1], [:if, '-f Gemfile.lock'], [:else])
+      sexp = sexp_find(sexp_filter(subject, [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}"])[2], [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}.lock"], [:else])
       should include_sexp [:cmd, 'bundle install --jobs=3 --retry=3', assert: true, echo: true, timing: true, retry: true]
     end
   end
 
   describe 'script' do
     it 'runs bundle exec rake if a gemfile exists' do
-      sexp = sexp_find(subject, [:if, '-f Gemfile'], [:then])
+      sexp = sexp_find(subject, [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}"], [:then])
       should include_sexp [:cmd, 'bundle exec rake', echo: true, timing: true]
     end
 
     it 'runs rake if a gemfile does not exist' do
-      sexp = sexp_find(subject, [:if, '-f Gemfile'], [:else])
+      sexp = sexp_find(subject, [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}"], [:else])
       should include_sexp [:cmd, 'rake', echo: true, timing: true]
     end
   end
@@ -115,25 +115,25 @@ describe Travis::Build::Script::Ruby, :sexp do
 
     describe 'default' do
       subject { script.cache_slug }
-      it { is_expected.to eq('cache--rvm-default--gemfile-Gemfile') }
+      it { is_expected.to eq("cache-#{CACHE_SLUG_EXTRAS}--rvm-default--gemfile-Gemfile") }
     end
 
     describe 'with custom gemfile' do
       before { data[:config][:gemfile] = 'Gemfile.ci' }
       subject { script.cache_slug }
-      it { is_expected.to eq('cache--rvm-default--gemfile-Gemfile.ci') }
+      it { is_expected.to eq("cache-#{CACHE_SLUG_EXTRAS}--rvm-default--gemfile-Gemfile.ci") }
     end
 
     describe 'with custom ruby version' do
       before { data[:config][:rvm] = 'jruby' }
       subject { script.cache_slug }
-      it { is_expected.to eq('cache--rvm-jruby--gemfile-Gemfile') }
+      it { is_expected.to eq("cache-#{CACHE_SLUG_EXTRAS}--rvm-jruby--gemfile-Gemfile") }
     end
 
     describe 'with custom jdk version' do
       before { data.deep_merge!(config: { rvm: 'jruby', jdk: 'openjdk7' }) }
       subject { script.cache_slug }
-      it { is_expected.to eq('cache--jdk-openjdk7--rvm-jruby--gemfile-Gemfile') }
+      it { is_expected.to eq("cache-#{CACHE_SLUG_EXTRAS}--jdk-openjdk7--rvm-jruby--gemfile-Gemfile") }
     end
   end
 

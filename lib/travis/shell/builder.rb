@@ -84,6 +84,7 @@ module Travis
       def failure(message)
         export 'TRAVIS_CMD', 'no_script', echo: false
         echo message
+        raw 'set -e'
         raw 'false'
       end
 
@@ -160,6 +161,25 @@ module Travis
         options, @options = @options, options
         yield
         @options = options
+      end
+
+      def with_errexit_off
+        save_and_switch_off_errexit
+        yield
+        restore_errexit
+      end
+
+      def save_and_switch_off_errexit
+        self.if "$- = *e*" do
+          raw 'ERREXIT_SET=true'
+        end
+        raw 'set +e'
+      end
+
+      def restore_errexit
+        self.if "-n $ERREXIT_SET" do
+          raw 'set -e'
+        end
       end
 
       private

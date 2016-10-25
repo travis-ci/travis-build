@@ -5,8 +5,7 @@ module Travis
         include Chruby
 
         MSGS = {
-          setup_ruby_head:   'Setting up latest %s',
-          ruby_version_file: 'BETA: Using Ruby version from .ruby-version. This is a beta feature and may be removed in the future.'
+          setup_ruby_head:   'Setting up latest %s'
         }
 
         CONFIG = %w(
@@ -50,6 +49,8 @@ module Travis
           end
 
           def setup_rvm
+            write_default_gems
+            sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false, timing: false)
             sh.file '$rvm_path/user/db', CONFIG.join("\n")
             send rvm_strategy
           end
@@ -83,9 +84,8 @@ module Travis
           end
 
           def use_ruby_version_file
-            sh.echo MSGS[:ruby_version_file], ansi: :yellow
             sh.fold('rvm') do
-              sh.cmd 'rvm use . --install --binary --fuzzy'
+              sh.cmd 'rvm use $(< .ruby-version) --install --binary --fuzzy'
             end
           end
 
@@ -108,6 +108,11 @@ module Travis
 
           def skip_deps_install
             sh.cmd "rvm autolibs disable", echo: false, timing: false
+          end
+
+          def write_default_gems
+            sh.mkdir '$rvm_path/gemsets', recursive: true, echo: false
+            sh.cmd 'echo -e "gem-wrappers\nrubygems-bundler\nbundler\nrake\nrvm\n" > $rvm_path/gemsets/global.gems', echo: false, timing: false
           end
       end
     end

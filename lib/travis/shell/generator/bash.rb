@@ -130,8 +130,9 @@ module Travis
           handle(cmds)
         end
 
-        def handle_elif(condition, cmds)
-          lines = ["elif [[ #{condition} ]]; then"]
+        def handle_elif(condition, cmds, options = {})
+          condition = "[[ #{condition} ]]" unless options.delete(:raw)
+          lines = ["elif #{condition}; then"]
           lines += handle(cmds)
           lines
         end

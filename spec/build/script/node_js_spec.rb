@@ -1,7 +1,8 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::NodeJs, :sexp do
-  let(:data)   { payload_for(:push, :node_js) }
+  let(:config) { { node_js: '0.10' } }
+  let(:data)   { payload_for(:push, :node_js, config: config) }
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
   it           { store_example }
@@ -17,8 +18,57 @@ describe Travis::Build::Script::NodeJs, :sexp do
     should include_sexp [:export, ['TRAVIS_NODE_VERSION', '0.10']]
   end
 
-  it 'sets up the node version' do
-    should include_sexp [:cmd, 'nvm install 0.10', echo: true, assert: true, timing: true]
+  describe 'nvm install' do
+    context 'when :node_js is set in config' do
+      let(:config) { { node_js: '0.9' } }
+      it 'sets the version from config :node_js' do
+        should include_sexp [:cmd, 'nvm install 0.9', echo: true, timing: true]
+      end
+
+      context 'when nvm install fails' do
+        let(:sexp_if)      { sexp_filter(subject, [:if, '$? -ne 0'], [:then]) }
+
+        it 'tries to use locally available version' do
+          expect(sexp_if).to include_sexp [:cmd, 'nvm use 0.9', echo: true]
+        end
+
+        context 'when nvm use fails' do
+          let(:sexp) { sexp_filter(sexp_if, [:if, '$? -ne 0'], [:then]) }
+
+          it 'errors the build' do
+            expect(sexp).to include_sexp [:cmd, 'false', assert: true]
+          end
+        end
+      end
+    end
+
+    context 'when :node_js is not set in config' do
+      let(:config) { {} }
+
+      context 'when .nvmrc exists' do
+        let(:sexp)   { sexp_filter(subject, [:if, '-f .nvmrc'], [:then]) }
+
+        it 'sets the version from .nvmrc' do
+          expect(sexp).to include_sexp [:cmd, 'nvm install $(< .nvmrc)', echo: true, timing: true]
+        end
+
+        it 'sets TRAVIS_NODE_VERSION form .nvmrc' do
+          expect(sexp).to include_sexp [:export, ['TRAVIS_NODE_VERSION', '$(< .nvmrc)']]
+        end
+      end
+
+      context 'when .nvmrc does not exist' do
+        let(:sexp) { sexp_filter(subject, [:if, '-f .nvmrc'], [:else]) }
+
+        it 'sets the version to 0.10' do
+          expect(sexp).to include_sexp [:cmd, 'nvm install 0.10', echo: true, timing: true]
+        end
+
+        it 'sets TRAVIS_NODE_VERSION to 0.10' do
+          expect(sexp).to include_sexp [:export, ['TRAVIS_NODE_VERSION', '0.10']]
+        end
+      end
+    end
   end
 
   it 'announces node --version' do
