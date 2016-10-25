@@ -521,7 +521,7 @@ module Travis
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true
-            '3.3.1'
+            'devel'
           when 'bioc-release'
             config[:bioc_required] = true
             config[:bioc_use_devel] = false
