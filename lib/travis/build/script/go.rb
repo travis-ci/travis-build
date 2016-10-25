@@ -13,10 +13,10 @@ module Travis
             )}".untaint,
             force_reinstall: !!ENV['TRAVIS_BUILD_GIMME_FORCE_REINSTALL']
           },
-          go: "#{ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.7.1')}".untaint
+          go: "#{ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.7.3')}".untaint
         }
         GO_VERSION_ALIASES = {
-          '1' => '1.7.1',
+          '1' => '1.7.3',
           '1.0' => '1.0.3',
           '1.0.x' => '1.0.3',
           '1.1.x' => '1.1.2',
@@ -26,9 +26,9 @@ module Travis
           '1.4.x' => '1.4.3',
           '1.5.x' => '1.5.4',
           '1.6.x' => '1.6.3',
-          '1.7.x' => '1.7.1',
-          '1.x' => '1.7.1',
-          '1.x.x' => '1.7.1',
+          '1.7.x' => '1.7.3',
+          '1.x' => '1.7.3',
+          '1.x.x' => '1.7.3',
           'default' => DEFAULTS[:go]
         }.freeze
 
