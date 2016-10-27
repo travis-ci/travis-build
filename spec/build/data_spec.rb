@@ -99,4 +99,36 @@ describe Travis::Build::Data do
       it { expect(data.cache).to eq(bundler: false, cocoapods: false, composer: false, ccache: false, pip: false) }
     end
   end
+
+  describe 'default_ruby' do
+    subject(:data) { Travis::Build::Data.new(config: config) }
+    let(:config) { { os: 'linux' } }
+
+    before do
+      data.default_rubies.merge!(
+        default: 'default',
+        osx: 'osx',
+        precise: 'precise'
+      )
+    end
+
+    context 'on unknown os or dist' do
+      it { expect(data.default_ruby).to eq('default') }
+    end
+
+    context 'on osx' do
+      let(:config) { { os: 'osx' } }
+      it { expect(data.default_ruby).to eq('osx') }
+    end
+
+    context 'on trusty' do
+      let(:config) { { dist: 'trusty' } }
+      it { expect(data.default_ruby).to eq('default') }
+    end
+
+    context 'on precise' do
+      let(:config) { { dist: 'precise' } }
+      it { expect(data.default_ruby).to eq('precise') }
+    end
+  end
 end

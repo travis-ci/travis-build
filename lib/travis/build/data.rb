@@ -17,12 +17,19 @@ module Travis
         pip:       false
       }
 
-      attr_reader :data
+      DEFAULT_RUBIES = {
+        default: ENV.fetch('TRAVIS_BUILD_DEFAULT_RUBY', '2.2.5'),
+        osx: ENV.fetch('TRAVIS_BUILD_OSX_DEFAULT_RUBY', '1.9.3'),
+        precise: ENV.fetch('TRAVIS_BUILD_PRECISE_DEFAULT_RUBY', '1.9.3')
+      }
+
+      attr_reader :data, :default_rubies
 
       def initialize(data, defaults = {})
         data = data.deep_symbolize_keys
         defaults = defaults.deep_symbolize_keys
         @data = DEFAULTS.deep_merge(defaults.deep_merge(data))
+        @default_rubies = DEFAULT_RUBIES.dup
       end
 
       def [](key)
@@ -103,6 +110,12 @@ module Travis
 
       def disable_sudo?
         !!data[:paranoid]
+      end
+
+      def default_ruby
+        default_rubies[config[:os].to_s.to_sym] ||
+          default_rubies[config[:dist].to_s.to_sym] ||
+          default_rubies.fetch(:default)
       end
 
       def source_host

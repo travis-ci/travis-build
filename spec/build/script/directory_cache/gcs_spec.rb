@@ -101,8 +101,8 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
       end
     end
 
-    context 'when sudo is unavailable' do
-      let(:disable_sudo) { true }
+    context 'on precise builds' do
+      let(:config) { { os: 'linux', dist: 'precise' } }
       before { cache.fetch }
       it "uses Ruby 1.9.3 to fetch" do
         should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{url_tgz}", timing: true]
@@ -143,8 +143,8 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
       end
     end
 
-    context 'when sudo is unavailable' do
-      let(:disable_sudo) { true }
+    context 'on precise builds' do
+      let(:config) { { os: 'linux', dist: 'precise' } }
       before { cache.push }
       it "uses Ruby 1.9.3 to push" do
         should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher push #{push_url}", timing: true]
