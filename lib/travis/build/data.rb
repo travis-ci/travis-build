@@ -17,20 +17,12 @@ module Travis
         pip:       false
       }
 
-      DEFAULT_RUBIES = {
-        default: ENV.fetch('TRAVIS_BUILD_DEFAULT_RUBY', '2.2.5').untaint,
-        osx: ENV.fetch('TRAVIS_BUILD_OSX_DEFAULT_RUBY', '1.9.3').untaint,
-        precise: ENV.fetch('TRAVIS_BUILD_PRECISE_DEFAULT_RUBY', '2.2.5').untaint,
-        precise_nosudo: ENV.fetch('TRAVIS_BUILD_PRECISE_SUDO_DEFAULT_RUBY', '1.9.3').untaint
-      }
-
-      attr_reader :data, :default_rubies
+      attr_reader :data
 
       def initialize(data, defaults = {})
         data = data.deep_symbolize_keys
         defaults = defaults.deep_symbolize_keys
         @data = DEFAULTS.deep_merge(defaults.deep_merge(data))
-        @default_rubies = DEFAULT_RUBIES.dup
       end
 
       def [](key)
@@ -111,15 +103,6 @@ module Travis
 
       def disable_sudo?
         !!data[:paranoid]
-      end
-
-      def default_ruby
-        $stdout.puts "DEBUG: selecting default ruby from config=#{JSON.dump(config)}"
-        dist_sudo_key = config[:dist].to_s
-        dist_sudo_key = "#{config[:dist]}_nosudo" if config[:sudo] == false
-        default_rubies[config[:os].to_s.to_sym] ||
-          default_rubies[dist_sudo_key.to_sym] ||
-          default_rubies.fetch(:default)
       end
 
       def source_host

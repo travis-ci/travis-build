@@ -170,7 +170,7 @@ module Travis
 
             def cmd(cmd, *args)
               sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
-              sh.cmd("rvm #{data.default_ruby} --fuzzy do ruby -S #{cmd}", *args)
+              sh.cmd("rvm $(travis_internal_ruby) --fuzzy do ruby -S #{cmd}", *args)
             end
 
             def options

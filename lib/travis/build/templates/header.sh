@@ -13,7 +13,7 @@ ANSI_CLEAR="\033[0K"
 TRAVIS_TEST_RESULT=
 TRAVIS_CMD=
 
-function travis_cmd() {
+travis_cmd() {
   local assert output display retry timing cmd result
 
   cmd=$1
@@ -71,7 +71,7 @@ travis_time_finish() {
   return $result
 }
 
-function travis_nanoseconds() {
+travis_nanoseconds() {
   local cmd="date"
   local format="+%s%N"
   local os=$(uname)
@@ -83,6 +83,18 @@ function travis_nanoseconds() {
   fi
 
   $cmd -u $format
+}
+
+travis_internal_ruby() {
+  if ! type rvm &>/dev/null; then
+    source ~/.rvm/scripts/rvm &>/dev/null
+  fi
+
+  rvm list \
+    | awk -F- '/ruby-(2\.[0-2]\.[0-9]|1\.9\.3)/ { print $2 }' \
+    | awk '{ print $1 }' \
+    | sort -n -r \
+    | head -1
 }
 
 travis_assert() {

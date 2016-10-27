@@ -86,7 +86,7 @@ describe Travis::Build::Script::Python, :sexp do
     end
 
     it 'adds $HOME/.cache/pip to directory cache' do
-      should include_sexp [:cmd, 'rvm 2.2.5 --fuzzy do $CASHER_DIR/bin/casher add $HOME/.cache/pip', timing: true]
+      should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add $HOME/.cache/pip', timing: true]
     end
   end
 
