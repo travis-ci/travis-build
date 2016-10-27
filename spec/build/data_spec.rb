@@ -108,7 +108,8 @@ describe Travis::Build::Data do
       data.default_rubies.merge!(
         default: 'default',
         osx: 'osx',
-        precise: 'precise'
+        precise: 'precise',
+        precise_nosudo: 'precise_nosudo'
       )
     end
 
@@ -129,6 +130,11 @@ describe Travis::Build::Data do
     context 'on precise' do
       let(:config) { { dist: 'precise' } }
       it { expect(data.default_ruby).to eq('precise') }
+    end
+
+    context 'on precise with sudo: false' do
+      let(:config) { { dist: 'precise', sudo: false } }
+      it { expect(data.default_ruby).to eq('precise_nosudo') }
     end
   end
 end
