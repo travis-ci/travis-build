@@ -7,8 +7,9 @@ describe Travis::Build::Addons::Deploy, :sexp do
   let(:scripts) { { before_deploy: ['./before_deploy_1.sh', './before_deploy_2.sh'], after_deploy: ['./after_deploy_1.sh', './after_deploy_2.sh'] } }
   let(:config)  { {} }
   let(:dist) { 'trusty' }
+  let(:sudo) { 'required' }
   let(:os)      { 'linux' }
-  let(:data)    { payload_for(:push, :ruby, paranoid: false, config: { os: os, dist: dist, addons: { deploy: config } }.merge(scripts)) }
+  let(:data)    { payload_for(:push, :ruby, paranoid: false, config: { os: os, dist: dist, sudo: sudo, addons: { deploy: config } }.merge(scripts)) }
   # let(:sh)      { Travis::Shell::Builder.new }
   let(:sh)      { script.sh }
   # let(:addon)   { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
@@ -45,8 +46,15 @@ describe Travis::Build::Addons::Deploy, :sexp do
 
     context 'on precise builds' do
       let(:dist) { 'precise' }
-      it "uses Ruby 1.9.3 to deploy" do
-        expect(sexp).to include_sexp [:cmd, "rvm 1.9.3 --fuzzy do ruby -S dpl --provider=\"heroku\" --password=\"foo\" --email=\"user@host\" --fold; if [ $? -ne 0 ]; then echo \"failed to deploy\"; travis_terminate 2; fi", timing: true]
+      it "uses Ruby 2.2.5 to deploy" do
+        expect(sexp).to include_sexp [:cmd, "rvm 2.2.5 --fuzzy do ruby -S dpl --provider=\"heroku\" --password=\"foo\" --email=\"user@host\" --fold; if [ $? -ne 0 ]; then echo \"failed to deploy\"; travis_terminate 2; fi", timing: true]
+      end
+
+      context 'without sudo' do
+        let(:sudo) { false }
+        it "uses Ruby 1.9.3 to deploy" do
+          expect(sexp).to include_sexp [:cmd, "rvm 1.9.3 --fuzzy do ruby -S dpl --provider=\"heroku\" --password=\"foo\" --email=\"user@host\" --fold; if [ $? -ne 0 ]; then echo \"failed to deploy\"; travis_terminate 2; fi", timing: true]
+        end
       end
     end
   end
