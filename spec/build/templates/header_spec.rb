@@ -8,8 +8,10 @@ describe 'header.sh', integration: true do
   end
 
   let :header_erb_context do
-    Struct.new(:header_sh, :build_dir) do
+    Struct.new(:header_sh, :build_dir, :root, :home) do
       def render
+        @root = root
+        @home = home
         ERB.new(header_sh).result(binding)
       end
     end
@@ -28,7 +30,7 @@ describe 'header.sh', integration: true do
       [
         'bash', '-c',
         header_erb_context.new(
-          header_sh, build_dir
+          header_sh, build_dir, build_dir, build_dir
         ).render + bash_body,
         err: [:child, :out]
       ]
@@ -40,7 +42,11 @@ describe 'header.sh', integration: true do
   end
 
   it 'can render' do
-    expect(header_erb_context.new(header_sh, build_dir).render).to_not be_empty
+    expect(
+      header_erb_context.new(
+        header_sh, build_dir, build_dir, build_dir
+      ).render
+    ).to_not be_empty
   end
 
   %w(

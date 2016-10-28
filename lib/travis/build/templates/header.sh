@@ -1,9 +1,9 @@
 #!/bin/bash
-if [[ -s /etc/profile ]]; then
-  source /etc/profile
+if [[ -s <%= @root %>/etc/profile ]]; then
+  source <%= @root %>/etc/profile
 fi
 
-if [[ -s ~/.bash_profile ]] ; then
+if [[ -s <%= @home || '~' %>/.bash_profile ]] ; then
   source ~/.bash_profile
 fi
 
