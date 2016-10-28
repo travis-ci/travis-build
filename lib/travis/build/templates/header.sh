@@ -90,11 +90,15 @@ travis_internal_ruby() {
     source ~/.rvm/scripts/rvm &>/dev/null
   fi
 
-  rvm list \
-    | awk -F- '/ruby-(2\.[0-2]\.[0-9]|1\.9\.3)/ { print $2 }' \
-    | awk '{ print $1 }' \
-    | sort -n -r \
-    | head -1
+  local internal_ruby
+  internal_ruby="$(
+    rvm list \
+      | awk -F- '/ruby-(2\.[0-2]\.[0-9]|1\.9\.3)/ { print $2 }' \
+      | awk '{ print $1 }' \
+      | sort -n -r \
+      | head -1
+  )"
+  echo "${internal_ruby:-default}"
 }
 
 travis_assert() {
