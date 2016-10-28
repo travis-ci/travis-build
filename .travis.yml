@@ -10,6 +10,9 @@ env:
   global:
   - RUBYOPT='-W0'
   - COVERAGE=1
+  matrix:
+  - INTEGRATION_SPECS=0
+  - INTEGRATION_SPECS=1
 
 script:
   - bundle exec rspec spec

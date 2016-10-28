@@ -1,5 +1,7 @@
 #!/bin/bash
-source /etc/profile
+if [[ -s /etc/profile ]]; then
+  source /etc/profile
+fi
 
 if [[ -s ~/.bash_profile ]] ; then
   source ~/.bash_profile
