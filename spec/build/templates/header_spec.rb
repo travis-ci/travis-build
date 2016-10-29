@@ -93,13 +93,15 @@ describe 'header.sh', integration: true do
       end
     end
 
-    context 'when the most recent version of ruby is 1.9.3' do
+    context 'when the most recent valid version of ruby is 1.9.3' do
       let :rubies do
         %w(
           ree-1.8.7-2012.02
           ruby-1.8.7-p374
           ruby-1.9.2-p330
           ruby-1.9.3-p551
+          ruby-2.3.0
+          ruby-2.3.1
         )
       end
 
@@ -108,7 +110,7 @@ describe 'header.sh', integration: true do
       end
     end
 
-    context 'when the most recent version of ruby has a 2-digit patch level' do
+    context 'when the most recent valid version of ruby has a 2-digit patch level' do
       let :rubies do
         %w(
           ruby-2.1.2
@@ -116,11 +118,13 @@ describe 'header.sh', integration: true do
           ruby-2.1.4
           ruby-2.1.5
           ruby-2.1.10
+          ruby-2.3.0
+          ruby-2.3.1
         )
       end
 
-      it 'selects the highest version with a 1-digit patch level' do
-        expect(bash_output.strip).to eq('2.1.5')
+      it 'selects the highest version with a 2-digit patch level' do
+        expect(bash_output.strip).to eq('2.1.10')
       end
     end
   end

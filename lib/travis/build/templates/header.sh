@@ -79,9 +79,11 @@ travis_nanoseconds() {
   local os=$(uname)
 
   if hash gdate > /dev/null 2>&1; then
-    cmd="gdate" # use gdate if available
+    <%# use gdate if available %>
+    cmd="gdate"
   elif [[ "$os" = Darwin ]]; then
-    format="+%s000000000" # fallback to second precision on darwin (does not support %N)
+    <%# fallback to second precision on darwin (does not support %N) %>
+    format="+%s000000000"
   fi
 
   $cmd -u $format
@@ -91,15 +93,25 @@ travis_internal_ruby() {
   if ! type rvm &>/dev/null; then
     source <%= home %>/.rvm/scripts/rvm &>/dev/null
   fi
-
-  local internal_ruby
-  internal_ruby="$(
+  local i selected_ruby rubies_array rubies_array_sorted rubies_array_len
+  rubies_array=( "$(
     rvm list strings \
-      | awk -F- '/<%= internal_ruby_regex %>/ { print $2 }' \
-      | sort -n -r \
-      | head -1
-  )"
-  echo "${internal_ruby:-default}"
+      | while read -r v; do
+          if [[ ! "${v}" =~ <%= internal_ruby_regex %> ]]; then
+            continue
+          fi
+          v="${v//ruby-/}"
+          v="${v%%-*}"
+          echo "${v//./}_${v}"
+        done
+  )" )
+  bash_array_qsort "${rubies_array[@]}"
+  rubies_array_sorted=( ${bash_array_qsort_ret} )
+  rubies_array_len="${#rubies_array_sorted[@]}"
+  i=$(( rubies_array_len - 1 ))
+  selected_ruby="${rubies_array_sorted[${i}]}"
+  selected_ruby="${selected_ruby##*_}"
+  echo "${selected_ruby:-default}"
 }
 
 travis_assert() {
@@ -130,10 +142,10 @@ travis_wait() {
   local timeout=$1
 
   if [[ $timeout =~ ^[0-9]+$ ]]; then
-    # looks like an integer, so we assume it's a timeout
+    <%# looks like an integer, so we assume it's a timeout %>
     shift
   else
-    # default value
+    <%# default value %>
     timeout=20
   fi
 
@@ -166,14 +178,14 @@ travis_wait() {
 }
 
 travis_jigger() {
-  # helper method for travis_wait()
+  <%# helper method for travis_wait() %>
   local cmd_pid=$1
   shift
-  local timeout=$1 # in minutes
+  local timeout=$1 <%# in minutes %>
   shift
   local count=0
 
-  # clear the line
+  <%# clear the line %>
   echo -e "\n"
 
   while [ $count -lt $timeout ]; do
@@ -217,8 +229,29 @@ decrypt() {
   echo $1 | base64 -d | openssl rsautl -decrypt -inkey <%= home %>/.ssh/id_rsa.repo
 }
 
-# XXX Forcefully removing rabbitmq source until next build env update
-# See http://www.traviscistatus.com/incidents/6xtkpm1zglg3
+<%# http://stackoverflow.com/a/30576368 by gniourf_gniourf :heart_eyes_cat: %>
+bash_array_qsort() {
+   local pivot i smaller=() larger=()
+   bash_array_qsort_ret=()
+   (($#==0)) && return 0
+   pivot=$1
+   shift
+   for i; do
+      if [[ $i < $pivot ]]; then
+         smaller+=( "$i" )
+      else
+         larger+=( "$i" )
+      fi
+   done
+   bash_array_qsort "${smaller[@]}"
+   smaller=( "${bash_array_qsort_ret[@]}" )
+   bash_array_qsort "${larger[@]}"
+   larger=( "${bash_array_qsort_ret[@]}" )
+   bash_array_qsort_ret=( "${smaller[@]}" "$pivot" "${larger[@]}" )
+}
+
+<%# XXX Forcefully removing rabbitmq source until next build env update %>
+<%# See http://www.traviscistatus.com/incidents/6xtkpm1zglg3 %>
 if [[ -f /etc/apt/sources.list.d/rabbitmq-source.list ]] ; then
   sudo rm -f /etc/apt/sources.list.d/rabbitmq-source.list
 fi
