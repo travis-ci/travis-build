@@ -1,10 +1,10 @@
 #!/bin/bash
-if [[ -s <%= @root %>/etc/profile ]]; then
-  source <%= @root %>/etc/profile
+if [[ -s <%= root %>/etc/profile ]]; then
+  source <%= root %>/etc/profile
 fi
 
-if [[ -s <%= @home || '~' %>/.bash_profile ]] ; then
-  source ~/.bash_profile
+if [[ -s <%= home %>/.bash_profile ]] ; then
+  source <%= home %>/.bash_profile
 fi
 
 ANSI_RED="\033[31;1m"
@@ -89,14 +89,13 @@ travis_nanoseconds() {
 
 travis_internal_ruby() {
   if ! type rvm &>/dev/null; then
-    source ~/.rvm/scripts/rvm &>/dev/null
+    source <%= home %>/.rvm/scripts/rvm &>/dev/null
   fi
 
   local internal_ruby
   internal_ruby="$(
-    rvm list \
-      | awk -F- '/ruby-(2\.[0-2]\.[0-9]|1\.9\.3)/ { print $2 }' \
-      | awk '{ print $1 }' \
+    rvm list strings \
+      | awk -F- '/<%= internal_ruby_regex %>/ { print $2 }' \
       | sort -n -r \
       | head -1
   )"
@@ -215,7 +214,7 @@ travis_fold() {
 }
 
 decrypt() {
-  echo $1 | base64 -d | openssl rsautl -decrypt -inkey ~/.ssh/id_rsa.repo
+  echo $1 | base64 -d | openssl rsautl -decrypt -inkey <%= home %>/.ssh/id_rsa.repo
 }
 
 # XXX Forcefully removing rabbitmq source until next build env update

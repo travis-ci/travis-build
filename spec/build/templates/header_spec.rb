@@ -1,25 +1,24 @@
 describe 'header.sh', integration: true do
   let(:top) { Pathname.new(ENV.fetch('TOP')) }
-  let(:header_sh) { top.join('./lib/travis/build/templates/header.sh').read }
-  let(:build_dir) { Dir.mktmpdir(%w(travis-build header-spec)) }
+  let(:header_sh) { top.join('./lib/travis/build/templates/header.sh') }
+  let(:build_dir) { Dir.mktmpdir(%w(travis-build- -header-spec)) }
 
   after :each do
     FileUtils.rm_rf(build_dir)
   end
 
-  let :header_erb_context do
-    Struct.new(:header_sh, :build_dir, :root, :home) do
-      def render
-        @root = root
-        @home = home
-        ERB.new(header_sh).result(binding)
-      end
-    end
+  let :header_rendered do
+    Travis::Build::Template::Template.new(
+      build_dir: build_dir,
+      root: build_dir,
+      home: build_dir,
+      internal_ruby_regex: Travis::Build::Script::INTERNAL_RUBY_REGEX
+    ).render(header_sh)
   end
 
   let :bash_body do
     script = %w(export)
-    header_sh.split("\n").grep(/^[a-z][a-z_]+\(\) \{/).each do |func|
+    header_sh.read.split("\n").grep(/^[a-z][a-z_]+\(\) \{/).each do |func|
       script << "type #{func.match(/^(.+)\(\) \{/)[1]}"
     end
     script.join("\n")
@@ -27,26 +26,12 @@ describe 'header.sh', integration: true do
 
   let :bash_output do
     IO.popen(
-      [
-        'bash', '-c',
-        header_erb_context.new(
-          header_sh, build_dir, build_dir, build_dir
-        ).render + bash_body,
-        err: [:child, :out]
-      ]
+      ['bash', '-c', header_rendered + bash_body, err: [:child, :out]]
     ).read
   end
 
-  it 'requires build_dir to render' do
-    expect { ERB.new(header_sh).result }.to raise_error(NameError)
-  end
-
   it 'can render' do
-    expect(
-      header_erb_context.new(
-        header_sh, build_dir, build_dir, build_dir
-      ).render
-    ).to_not be_empty
+    expect(header_rendered).to_not be_empty
   end
 
   %w(
@@ -74,6 +59,9 @@ describe 'header.sh', integration: true do
     let :bash_body do
       <<-EOF.gsub(/^\s+> ?/, '')
         > rvm() {
+        >   if [[ $1 != list && $2 != strings ]]; then
+        >     return
+        >   fi
         >   cat <<EORVM
         > #{rubies.join("\n")}
         > EORVM
@@ -85,21 +73,19 @@ describe 'header.sh', integration: true do
 
     context 'with a typical selection of preinstalled rubies' do
       let :rubies do
-        [
-          'ruby-1.7.19-p000',
-          'ruby-1.8.7-p000',
-          'ruby-1.8.7-p000',
-          'ruby-1.9.2-p000',
-          'ruby-1.9.3-p000',
-          'ruby-2.0.0 [ x86_64 ]',
-          'ruby-2.1.2 [ x86_64 ]',
-          'ruby-2.1.3 [ x86_64 ]',
-          'ruby-2.1.4 [ x86_64 ]',
-          'ruby-2.1.5 [ x86_64 ]',
-          'ruby-2.2.0 [ x86_64 ]',
-          'ruby-2.2.5 [ x86_64 ]',
-          'ruby-2.3.1 [ x86_64 ]'
-        ]
+        %w(
+          ree-1.8.7-2012.02
+          ruby-1.8.7-p374
+          ruby-1.9.2-p330
+          ruby-1.9.3-p551
+          ruby-2.0.0-p648-clang
+          ruby-2.1.2
+          ruby-2.1.3
+          ruby-2.1.4
+          ruby-2.1.5
+          ruby-2.2.5
+          ruby-2.3.1
+        )
       end
 
       it 'selects the latest valid version' do
@@ -109,13 +95,12 @@ describe 'header.sh', integration: true do
 
     context 'when the most recent version of ruby is 1.9.3' do
       let :rubies do
-        [
-          'ruby-1.7.19-p000',
-          'ruby-1.8.7-p000',
-          'ruby-1.8.7-p000',
-          'ruby-1.9.2-p000',
-          'ruby-1.9.3-p000'
-        ]
+        %w(
+          ree-1.8.7-2012.02
+          ruby-1.8.7-p374
+          ruby-1.9.2-p330
+          ruby-1.9.3-p551
+        )
       end
 
       it 'selects 1.9.3' do
@@ -123,20 +108,18 @@ describe 'header.sh', integration: true do
       end
     end
 
-    context 'when the most recent version of ruby is 2.1.10' do
+    context 'when the most recent version of ruby has a 2-digit patch level' do
       let :rubies do
-        [
-          'ruby-1.9.3-p000',
-          'ruby-2.0.0 [ x86_64 ]',
-          'ruby-2.1.2 [ x86_64 ]',
-          'ruby-2.1.3 [ x86_64 ]',
-          'ruby-2.1.4 [ x86_64 ]',
-          'ruby-2.1.5 [ x86_64 ]',
-          'ruby-2.1.10 [ x86_64 ]'
-        ]
+        %w(
+          ruby-2.1.2
+          ruby-2.1.3
+          ruby-2.1.4
+          ruby-2.1.5
+          ruby-2.1.10
+        )
       end
 
-      it 'selects 2.1.5' do
+      it 'selects the highest version with a 1-digit patch level' do
         expect(bash_output.strip).to eq('2.1.5')
       end
     end
