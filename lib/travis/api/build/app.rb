@@ -46,12 +46,15 @@ module Travis
           return if auth_disabled?
 
           unless env.key?('HTTP_AUTHORIZATION')
-            halt 401, 'missing Authorization header'
+            halt(
+              401,
+              { 'WWW-Authenticate' => 'token' },
+              'missing Authorization header'
+            )
           end
 
           type, token = env['HTTP_AUTHORIZATION'].to_s.split(' ', 2)
-
-          ENV['API_TOKEN'].split(',').each do |valid_token|
+          api_tokens.each do |valid_token|
             return if secure_eq(type, 'token') && secure_eq(token, valid_token)
           end
 
@@ -104,6 +107,11 @@ module Travis
             Digest::SHA256.hexdigest(a.to_s),
             Digest::SHA256.hexdigest(b.to_s)
           )
+        end
+
+        def api_tokens
+          @api_tokens ||=
+            ENV['API_TOKEN'].to_s.split(',').map(&:strip).reject(&:empty?)
         end
       end
     end
