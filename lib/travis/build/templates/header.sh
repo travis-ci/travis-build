@@ -94,7 +94,7 @@ travis_internal_ruby() {
     source <%= home %>/.rvm/scripts/rvm &>/dev/null
   fi
   local i selected_ruby rubies_array rubies_array_sorted rubies_array_len
-  rubies_array=( "$(
+  rubies_array=( $(
     rvm list strings \
       | while read -r v; do
           if [[ ! "${v}" =~ <%= internal_ruby_regex %> ]]; then
@@ -104,9 +104,9 @@ travis_internal_ruby() {
           v="${v%%-*}"
           echo "${v//./}_${v}"
         done
-  )" )
-  bash_array_qsort "${rubies_array[@]}"
-  rubies_array_sorted=( ${bash_array_qsort_ret} )
+  ) )
+  bash_qsort_numeric "${rubies_array[@]}"
+  rubies_array_sorted=( ${bash_qsort_numeric_ret[@]} )
   rubies_array_len="${#rubies_array_sorted[@]}"
   i=$(( rubies_array_len - 1 ))
   selected_ruby="${rubies_array_sorted[${i}]}"
@@ -229,25 +229,25 @@ decrypt() {
   echo $1 | base64 -d | openssl rsautl -decrypt -inkey <%= home %>/.ssh/id_rsa.repo
 }
 
-<%# http://stackoverflow.com/a/30576368 by gniourf_gniourf :heart_eyes_cat: %>
-bash_array_qsort() {
+<%# based on http://stackoverflow.com/a/30576368 by gniourf_gniourf :heart_eyes_cat: %>
+bash_qsort_numeric() {
    local pivot i smaller=() larger=()
-   bash_array_qsort_ret=()
+   bash_qsort_numeric_ret=()
    (($#==0)) && return 0
-   pivot=$1
+   pivot=${1}
    shift
    for i; do
-      if [[ $i < $pivot ]]; then
+      if [[ ${i%%_*} -lt ${pivot%%_*} ]]; then
          smaller+=( "$i" )
       else
          larger+=( "$i" )
       fi
    done
-   bash_array_qsort "${smaller[@]}"
-   smaller=( "${bash_array_qsort_ret[@]}" )
-   bash_array_qsort "${larger[@]}"
-   larger=( "${bash_array_qsort_ret[@]}" )
-   bash_array_qsort_ret=( "${smaller[@]}" "$pivot" "${larger[@]}" )
+   bash_qsort_numeric "${smaller[@]}"
+   smaller=( "${bash_qsort_numeric_ret[@]}" )
+   bash_qsort_numeric "${larger[@]}"
+   larger=( "${bash_qsort_numeric_ret[@]}" )
+   bash_qsort_numeric_ret=( "${smaller[@]}" "$pivot" "${larger[@]}" )
 }
 
 <%# XXX Forcefully removing rabbitmq source until next build env update %>
