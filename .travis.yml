@@ -33,3 +33,5 @@ deploy:
   region: us-east-1
   on:
     branch: master
+    conditions:
+    - $INTEGRATION_SPECS == 1
