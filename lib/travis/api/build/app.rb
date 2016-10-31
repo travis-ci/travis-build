@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'digest/sha2'
 require 'json'
 require 'rack/ssl'
@@ -15,7 +16,7 @@ module Travis
         enable :static
         set :root, File.expand_path('../../../../../', __FILE__)
         set :start, Time.now.utc
-        set :auth_salt, ENV.fetch('SALT', 'zzz').to_s.untaint
+        set :auth_salt, "#{ENV.fetch('SALT', 'zzz')}".untaint
 
         configure(:production, :staging) do
           use Rack::SSL
