@@ -204,6 +204,10 @@ module Travis
             # Install dependencies for the package we're testing.
             install_deps
           end
+          sh.fold 'R-installed-versions' do
+            sh.echo 'Installed package versions', ansi: :yellow
+            sh.cmd 'Rscript -e \'devtools::session_info(installed.packages()[, "Package"])'
+          end
         end
 
         def script
