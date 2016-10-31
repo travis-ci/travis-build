@@ -1,3 +1,4 @@
+require 'digest/sha2'
 require 'json'
 require 'rack/ssl'
 require 'sinatra/base'
@@ -51,8 +52,7 @@ module Travis
           type, token = env['HTTP_AUTHORIZATION'].to_s.split(' ', 2)
 
           ENV['API_TOKEN'].split(',').each do |valid_token|
-            return if Rack::Utils.secure_compare(type, 'token') &&
-                      Rack::Utils.secure_compare(token, valid_token)
+            return if secure_eq(type, 'token') && secure_eq(token, valid_token)
           end
 
           halt 403, 'access denied'
@@ -97,6 +97,13 @@ module Travis
             'Travis-Build-Version' => Travis::Build.version
           )
           status 204
+        end
+
+        def secure_eq(a, b)
+          Rack::Utils.secure_compare(
+            Digest::SHA256.hexdigest(a.to_s),
+            Digest::SHA256.hexdigest(b.to_s)
+          )
         end
       end
     end
