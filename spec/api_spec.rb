@@ -30,7 +30,7 @@ describe Travis::Api::Build::App, :include_sinatra_helpers do
       it 'returns a script' do
         header('Authorization', 'token the-token')
         response = post '/script', {}, input: PAYLOADS[:push].to_json
-        expect(response.status).to eq(201)
+        expect(response.status).to eq(200)
         expect(response.body).to start_with('#!/bin/bash')
         expect(response.headers['Content-Type']).to eq('application/x-sh')
       end
@@ -40,7 +40,7 @@ describe Travis::Api::Build::App, :include_sinatra_helpers do
       it 'returns a script' do
         header('Authorization', 'token the-other-token')
         response = post '/script', {}, input: PAYLOADS[:push].to_json
-        expect(response.status).to eq(201)
+        expect(response.status).to eq(200)
         expect(response.body).to start_with('#!/bin/bash')
       end
     end
@@ -50,7 +50,7 @@ describe Travis::Api::Build::App, :include_sinatra_helpers do
         header('Authorization', 'token the-token')
         header('Accept-Encoding', 'gzip, deflate')
         response = post '/script', {}, input: PAYLOADS[:push].to_json
-        expect(response.status).to eq(201)
+        expect(response.status).to eq(200)
         expect(response.headers).to include('Content-Encoding')
       end
     end

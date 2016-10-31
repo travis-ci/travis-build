@@ -51,9 +51,8 @@ module Travis
           type, token = env['HTTP_AUTHORIZATION'].to_s.split(' ', 2)
 
           ENV['API_TOKEN'].split(',').each do |valid_token|
-            if type == 'token' && token == valid_token
-              return
-            end
+            return if Rack::Utils.secure_compare(type, 'token') &&
+                      Rack::Utils.secure_compare(token, valid_token)
           end
 
           halt 403, 'access denied'
@@ -82,7 +81,7 @@ module Travis
           compiled = Travis::Build.script(payload).compile
 
           content_type 'application/x-sh'
-          status 201
+          status 200
           compiled
         end
 
