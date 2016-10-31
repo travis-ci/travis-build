@@ -211,7 +211,7 @@ module Travis
           end
           sh.fold 'R-installed-versions' do
             sh.echo 'Installed package versions', ansi: :yellow
-            sh.cmd 'Rscript -e \'devtools::session_info(installed.packages()[, "Package"])'
+            sh.cmd 'Rscript -e \'devtools::session_info(installed.packages()[, "Package"])\''
           end
         end
 
