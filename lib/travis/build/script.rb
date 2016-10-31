@@ -47,7 +47,7 @@ module Travis
       TEMPLATES_PATH = File.expand_path('../templates', __FILE__)
       INTERNAL_RUBY_REGEX = ENV.fetch(
         'TRAVIS_INTERNAL_RUBY_REGEX',
-        'ruby-(2\.[0-2]\.[0-9]|1\.9\.3)'
+        '^ruby-(2\.[0-2]\.[0-9]|1\.9\.3)'
       ).untaint
       DEFAULTS = {}
 
