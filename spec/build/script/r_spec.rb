@@ -10,7 +10,7 @@ describe Travis::Build::Script::R, :sexp do
 
   it 'normalizes bioc-devel correctly' do
     data[:config][:r] = 'bioc-devel'
-    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.3.1']]
+    should include_sexp [:export, ['TRAVIS_R_VERSION', 'devel']]
     should include_sexp [:cmd, %r{source\(\"https://bioconductor.org/biocLite.R\"\)},
                          assert: true, echo: true, timing: true, retry: true]
     should include_sexp [:cmd, %r{useDevel\(TRUE\)},
@@ -68,6 +68,11 @@ describe Travis::Build::Script::R, :sexp do
     data[:config][:os] = 'osx'
     data[:config][:r] = 'devel'
     should include_sexp [:cmd, %r{^curl.*r\.research\.att\.com/mavericks/R-devel/R-devel-mavericks-signed\.pkg},
+                         assert: true, echo: true, retry: true, timing: true]
+  end
+  it 'downloads and installs gfortran libraries on OS X' do
+    data[:config][:os] = 'osx'
+    should include_sexp [:cmd, %r{^curl.*#{Regexp.escape('/tmp/gfortran.tar.bz2 http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2')}},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
@@ -168,6 +173,11 @@ describe Travis::Build::Script::R, :sexp do
       data[:config][:bioc_packages] = ['GenomicFeatures']
       should include_sexp [:cmd, /.*biocLite.*/,
                            assert: true, echo: true, retry: true, timing: true]
+    end
+
+    it 'Prints installed package versions' do
+      should include_sexp [:cmd, /.*#{Regexp.escape('devtools::session_info(installed.packages()[, "Package"])')}.*/,
+                           assert: true, echo: true, timing: true]
     end
   end
 
