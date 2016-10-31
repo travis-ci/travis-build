@@ -102,7 +102,7 @@ travis_internal_ruby() {
           fi
           v="${v//ruby-/}"
           v="${v%%-*}"
-          echo "${v//./}_${v}"
+          echo "$(vers2int "${v}")_${v}"
         done
   ) )
   bash_qsort_numeric "${rubies_array[@]}"
@@ -227,6 +227,10 @@ travis_fold() {
 
 decrypt() {
   echo $1 | base64 -d | openssl rsautl -decrypt -inkey <%= home %>/.ssh/id_rsa.repo
+}
+
+vers2int() {
+  printf '1%03d%03d%03d%03d' $(echo "$1" | tr '.' ' ')
 }
 
 <%# based on http://stackoverflow.com/a/30576368 by gniourf_gniourf :heart_eyes_cat: %>
