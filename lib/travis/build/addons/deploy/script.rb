@@ -53,6 +53,10 @@ module Travis
           end
 
           private
+            def use_ruby
+              (data.disable_sudo? || data.config[:os] == 'osx') ? '1.9.3' : '2.2.5'
+            end
+
             def check_conditions_and_run
               sh.if(conditions) do
                 run
@@ -170,7 +174,7 @@ module Travis
 
             def cmd(cmd, *args)
               sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
-              sh.cmd("rvm #{data.default_ruby} --fuzzy do ruby -S #{cmd}", *args)
+              sh.cmd("rvm #{use_ruby} --fuzzy do ruby -S #{cmd}", *args)
             end
 
             def options

@@ -101,18 +101,11 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
       end
     end
 
-    context 'on precise builds' do
-      let(:config) { { os: 'linux', dist: 'precise' } }
+    context 'when sudo is unavailable' do
+      let(:disable_sudo) { true }
       before { cache.fetch }
-      it 'uses Ruby 2.2.5 to fetch' do
-        should include_sexp [:cmd, "rvm 2.2.5 --fuzzy do $CASHER_DIR/bin/casher fetch #{url_tgz}", timing: true]
-      end
-
-      context 'without sudo' do
-        let(:config) { { os: 'linux', dist: 'precise', sudo: false } }
-        it 'uses Ruby 1.9.3 to fetch' do
-          should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{url_tgz}", timing: true]
-        end
+      it "uses Ruby 1.9.3 to fetch" do
+        should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher fetch #{url_tgz}", timing: true]
       end
     end
   end
@@ -150,18 +143,11 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
       end
     end
 
-    context 'on precise builds' do
-      let(:config) { { os: 'linux', dist: 'precise' } }
+    context 'when sudo is unavailable' do
+      let(:disable_sudo) { true }
       before { cache.push }
-      it 'uses Ruby 2.2.5 to push' do
-        should include_sexp [:cmd, "rvm 2.2.5 --fuzzy do $CASHER_DIR/bin/casher push #{push_url}", timing: true]
-      end
-
-      context 'without sudo' do
-        let(:config) { { os: 'linux', dist: 'precise', sudo: false } }
-        it 'uses Ruby 1.9.3 to push' do
-          should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher push #{push_url}", timing: true]
-        end
+      it "uses Ruby 1.9.3 to push" do
+        should include_sexp [:cmd, "rvm 1.9.3 --fuzzy do $CASHER_DIR/bin/casher push #{push_url}", timing: true]
       end
     end
   end
