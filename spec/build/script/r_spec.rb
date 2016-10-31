@@ -10,7 +10,7 @@ describe Travis::Build::Script::R, :sexp do
 
   it 'normalizes bioc-devel correctly' do
     data[:config][:r] = 'bioc-devel'
-    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.3.1']]
+    should include_sexp [:export, ['TRAVIS_R_VERSION', 'devel']]
     should include_sexp [:cmd, %r{source\(\"https://bioconductor.org/biocLite.R\"\)},
                          assert: true, echo: true, timing: true, retry: true]
     should include_sexp [:cmd, %r{useDevel\(TRUE\)},
