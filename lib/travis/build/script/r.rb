@@ -150,6 +150,11 @@ module Travis
                 sh.cmd 'sudo installer -pkg "/tmp/R.pkg" -target /'
                 sh.rm '/tmp/R.pkg'
 
+                # Install gfortran libraries the precompiled binaries are linked to
+                sh.cmd 'curl -Lo /tmp/gfortran.tar.bz2 http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2', retry: true
+                sh.cmd 'sudo tar fvxz /tmp/gfortran.tar.bz2 -C /'
+                sh.rm '/tmp/gfortran.tar.bz2'
+
               else
                 sh.failure "Operating system not supported: #{config[:os]}"
               end
@@ -203,6 +208,10 @@ module Travis
 
             # Install dependencies for the package we're testing.
             install_deps
+          end
+          sh.fold 'R-installed-versions' do
+            sh.echo 'Installed package versions', ansi: :yellow
+            sh.cmd 'Rscript -e \'devtools::session_info(installed.packages()[, "Package"])\''
           end
         end
 
@@ -521,7 +530,7 @@ module Travis
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true
-            '3.3.1'
+            'devel'
           when 'bioc-release'
             config[:bioc_required] = true
             config[:bioc_use_devel] = false
