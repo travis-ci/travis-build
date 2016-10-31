@@ -1,3 +1,4 @@
---require spec_helper
---require pry
 --color
+--order rand
+--require pry
+--require spec_helper
