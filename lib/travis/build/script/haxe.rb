@@ -41,7 +41,7 @@ module Travis
                   ' in the issue', ansi: :green
 
           sh.fold('neko-install') do
-            neko_path = Dir.home + '/neko'
+            neko_path = '${HOME}/neko'
 
             sh.echo 'Installing Neko', ansi: :yellow
 
@@ -77,7 +77,7 @@ module Travis
           end
 
           sh.fold('haxe-install') do
-            haxe_path = Dir.home + '/haxe'
+            haxe_path = '${HOME}/haxe'
 
             sh.echo 'Installing Haxe', ansi: :yellow
             sh.cmd %Q{mkdir -p #{haxe_path}}
