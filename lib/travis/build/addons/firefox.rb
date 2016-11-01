@@ -71,24 +71,14 @@ module Travis
             when 'latest-dev'
               'firefox-aurora-latest'
             when 'latest-nightly'
-              'nightly'
+              'firefox-nightly-latest'
             else
               "firefox-#{version}"
             end
 
-            if product == 'nightly'
-              host = 'archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central/'
-            else
-              host = 'download.mozilla.org'
-            end
+            host = 'download.mozilla.org'
 
-            sh.if "[$(uname) = 'Linux'] && [#{product} = 'nightly']" do
-              sh.export 'FIREFOX_SOURCE_URL', "'https://#{host}//.+?(?=linux-x86_64)/.linux-x86_64.tar.bz2'"
-            end
-            sh.elif "[$(uname) = 'Darwin'] && [#{product} = 'nightly']" do
-              sh.export 'FIREFOX_SOURCE_URL', "'https://#{host}//.+?(?=mac.dmg)/.mac.dmg'"
-            end
-            sh.elif "$(uname) = 'Linux'" do
+            sh.if "$(uname) = 'Linux'" do
               sh.export 'FIREFOX_SOURCE_URL', "'https://#{host}/?product=#{product}&lang=en-US&os=linux64'"
             end
             sh.else do
