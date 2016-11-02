@@ -12,7 +12,7 @@ module Travis
     class << self
       def version
         @version ||= `git rev-parse HEAD 2>/dev/null || \\
-                        echo "${SOURCE_VERSION:-unknown}"`.strip
+                        echo "${HEROKU_SLUG_COMMIT:-unknown}"`.strip
       end
 
       def self.register(key)
