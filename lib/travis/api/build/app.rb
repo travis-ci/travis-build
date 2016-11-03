@@ -11,19 +11,9 @@ module Travis
   module Api
     module Build
       class App < Sinatra::Base
-        before '/script' do
-          return if ENV['API_TOKEN'].nil? || ENV['API_TOKEN'].empty?
-
-          type, token = env['HTTP_AUTHORIZATION'].to_s.split(' ', 2)
-
-          ENV['API_TOKEN'].split(',').each do |valid_token|
-            if type == 'token' && token == valid_token
-              return
-            end
-          end
-
-          halt 403, 'access denied'
-        end
+        enable :static
+        set :root, File.expand_path('../../../../../', __FILE__)
+        set :start, Time.now.utc
 
         configure(:production, :staging) do
           use Rack::SSL
@@ -37,6 +27,35 @@ module Travis
           if ENV.key?('LIBRATO_EMAIL') && ENV.key?('LIBRATO_TOKEN') && ENV.key?('LIBRATO_SOURCE')
             use Metriks
           end
+
+          use Rack::Deflater
+        end
+
+        helpers do
+          def auth_disabled?
+            (
+              ENV['API_TOKEN'].nil? || ENV['API_TOKEN'].strip.empty?
+            ) && (
+              settings.development? || settings.testing?
+            )
+          end
+        end
+
+        before '/script' do
+          return if auth_disabled?
+
+          unless env.key?('HTTP_AUTHORIZATION')
+            halt 401, 'missing Authorization header'
+          end
+
+          type, token = env['HTTP_AUTHORIZATION'].to_s.split(' ', 2)
+
+          ENV['API_TOKEN'].split(',').each do |valid_token|
+            return if Rack::Utils.secure_compare(type, 'token') &&
+                      Rack::Utils.secure_compare(token, valid_token)
+          end
+
+          halt 403, 'access denied'
         end
 
         error JSON::ParserError do
@@ -54,27 +73,30 @@ module Travis
 
           if ENV['SENTRY_DSN']
             Raven.extra_context(
-              repository: payload['repository']['slug'],
-              job: payload['job']['id'],
+              repository: payload.fetch('repository', {}).fetch('slug', '???'),
+              job: payload.fetch('job', {}).fetch('id', '???'),
             )
           end
 
-          content_type :txt
-          Travis::Build.script(payload).compile
+          compiled = Travis::Build.script(payload).compile
+
+          content_type 'application/x-sh'
+          status 200
+          compiled
         end
 
-        get '/uptime' do
+        get('/') { uptime }
+        get('/uptime') { uptime }
+        get('/boom') { raise StandardError, ':bomb:' }
+
+        private
+
+        def uptime
+          headers(
+            'Travis-Build-Uptime' => "#{Time.now.utc - settings.start}s",
+            'Travis-Build-Version' => Travis::Build.version
+          )
           status 204
-        end
-
-        get %r{/files/([\w\.]+)} do |file|
-          file_path = File.expand_path("../../files/#{file}", __FILE__)
-          if File.exist? file_path
-            content_type :txt
-            File.read(file_path)
-          else
-            status 404
-          end
         end
       end
     end
