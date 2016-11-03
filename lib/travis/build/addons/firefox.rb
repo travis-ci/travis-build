@@ -68,6 +68,10 @@ module Travis
               'firefox-beta-latest'
             when 'latest-esr'
               'firefox-esr-latest'
+            when 'latest-dev'
+              'firefox-aurora-latest'
+            when 'latest-nightly'
+              'firefox-nightly-latest'
             else
               "firefox-#{version}"
             end
