@@ -14,6 +14,7 @@ shared_examples_for 'a script with travis env vars sexp' do
     should include_sexp [:export, ['TRAVIS_REPO_SLUG',       'travis-ci/travis-ci']]
     should include_sexp [:export, ['TRAVIS_OS_NAME',         'linux']]
     should include_sexp [:export, ['TRAVIS_LANGUAGE',        data[:config][:language].to_s]]
+    should include_sexp [:export, ['TRAVIS_SUDO',            'true']]
 
     unless described_class == Travis::Build::Script::Go
       should include_sexp [:export, ['TRAVIS_BUILD_DIR', "#{Travis::Build::BUILD_DIR}/travis-ci/travis-ci"]]

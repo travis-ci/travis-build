@@ -10,6 +10,11 @@ module Travis
     BUILD_DIR = File.join(HOME_DIR, 'build')
 
     class << self
+      def version
+        @version ||= `git rev-parse HEAD 2>/dev/null || \\
+                        echo "${HEROKU_SLUG_COMMIT:-unknown}"`.strip
+      end
+
       def self.register(key)
         Travis.services.add(key, self)
       end
