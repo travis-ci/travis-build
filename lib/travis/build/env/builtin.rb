@@ -38,7 +38,7 @@ module Travis
               TRAVIS_OS_NAME:         config[:os],
               TRAVIS_LANGUAGE:        config[:language],
               TRAVIS_TAG:             job[:tag],
-              TRAVIS_SUDO:            config[:sudo],
+              TRAVIS_SUDO:            (!!!data[:paranoid]).to_s,
               TRAVIS_PULL_REQUEST_BRANCH: job[:pull_request_head_branch],
               TRAVIS_PULL_REQUEST_SHA: job[:pull_request_head_sha],
             }
