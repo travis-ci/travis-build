@@ -10,6 +10,9 @@ env:
   global:
   - RUBYOPT='-W0'
   - COVERAGE=1
+  matrix:
+  - INTEGRATION_SPECS=0
+  - INTEGRATION_SPECS=1
 
 script:
   - bundle exec rspec spec
@@ -30,3 +33,5 @@ deploy:
   region: us-east-1
   on:
     branch: master
+    conditions:
+    - $INTEGRATION_SPECS == 1

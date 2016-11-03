@@ -45,6 +45,10 @@ module Travis
   module Build
     class Script
       TEMPLATES_PATH = File.expand_path('../templates', __FILE__)
+      INTERNAL_RUBY_REGEX = ENV.fetch(
+        'TRAVIS_INTERNAL_RUBY_REGEX',
+        '^ruby-(2\.[0-2]\.[0-9]|1\.9\.3)'
+      ).untaint
       DEFAULTS = {}
 
       class << self
@@ -138,7 +142,15 @@ module Travis
         end
 
         def header
-          sh.raw template('header.sh', build_dir: BUILD_DIR), pos: 0
+          sh.raw(
+            template(
+              'header.sh',
+              build_dir: BUILD_DIR,
+              internal_ruby_regex: INTERNAL_RUBY_REGEX,
+              root: '/',
+              home: HOME_DIR
+            ), pos: 0
+          )
         end
 
         def configure
