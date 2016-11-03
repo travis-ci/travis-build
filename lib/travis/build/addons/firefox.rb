@@ -46,7 +46,7 @@ module Travis
           end
 
           def sanitize(input)
-            if m = /\A(?<version>[\d\.]+(?:esr|b\d+)?|(?<latest>latest(?:-(?:beta|esr))?)?)\z/.match(input.chomp)
+            if m = /\A(?<version>[\d\.]+(?:esr|b\d+)?|(?<latest>latest(?:-(?:beta|dev|esr|nightly))?)?)\z/.match(input.chomp)
               @version = m[:version]
               @latest  = m[:latest]
             end
