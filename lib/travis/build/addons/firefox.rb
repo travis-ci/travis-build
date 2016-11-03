@@ -46,7 +46,7 @@ module Travis
           end
 
           def sanitize(input)
-            if m = /\A(?<version>[\d\.]+(?:esr|b\d+)?|(?<latest>latest(?:-(?:beta|esr))?)?)\z/.match(input.chomp)
+            if m = /\A(?<version>[\d\.]+(?:esr|b\d+)?|(?<latest>latest(?:-(?:beta|dev|esr|nightly))?)?)\z/.match(input.chomp)
               @version = m[:version]
               @latest  = m[:latest]
             end
@@ -68,6 +68,13 @@ module Travis
               'firefox-beta-latest'
             when 'latest-esr'
               'firefox-esr-latest'
+            when 'latest-dev'
+              # The name 'aurora' is nickname for "developer edition",
+              # documented in https://wiki.mozilla.org/Firefox/Channels#Developer_Edition_.28aka_Aurora.29
+              # This may change in the future and break builds.
+              'firefox-aurora-latest'
+            when 'latest-nightly'
+              'firefox-nightly-latest'
             else
               "firefox-#{version}"
             end
