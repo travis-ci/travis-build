@@ -267,12 +267,12 @@ module Travis
           if config[:r_check_revdep]
             sh.echo "Checking reverse dependencies"
             revdep_script =
-              'library("devtools");'/
-              'res <- revdep_check();'/
-              'if (length(res) > 0) {'/
-              ' revdep_check_summary(res);'/
-              ' revdep_check_save_logs(res);'/
-              ' q(status = 1, save = "no");'/
+              'library("devtools");' \
+              'res <- revdep_check();' \
+              'if (length(res) > 0) {' \
+              ' revdep_check_summary(res);' \
+              ' revdep_check_save_logs(res);' \
+              ' q(status = 1, save = "no");' \
               '}'
             sh.cmd "Rscript -e '#{revdep_script}'", assert: true
           end
