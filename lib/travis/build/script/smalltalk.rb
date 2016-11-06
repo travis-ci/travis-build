@@ -62,6 +62,11 @@ module Travis
             sh.cmd "unzip -q -o smalltalkCI.zip"
             sh.cmd "pushd smalltalkCI-* > /dev/null", echo: false
             sh.cmd "source env_vars"
+            if config[:os] == 'linux'
+              sh.cmd "gcc -o set_rtprio_limit utils/set_rtprio_limit.c"
+              sh.cmd "chmod +x ./set_rtprio_limit"
+              sh.cmd "sudo ./set_rtprio_limit $$"
+            end
             sh.cmd "popd > /dev/null; popd > /dev/null", echo: false
           end
         end
