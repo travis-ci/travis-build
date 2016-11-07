@@ -37,7 +37,7 @@ describe Travis::Build::Script::Smalltalk, :sexp do
       data[:config][:os] = 'linux'
     end
     it 'sets up rtprio for OpenSmalltalkVM' do
-      should include_sexp [:cmd, "gcc -o set_rtprio_limit utils/set_rtprio_limit.c", assert: true, echo: true, timing: true]
+      should include_sexp [:cmd, "gcc -o set_rtprio_limit set_rtprio_limit.c", assert: true, echo: true, timing: true]
       should include_sexp [:cmd, "chmod +x ./set_rtprio_limit", assert: true, echo: true, timing: true]
       should include_sexp [:cmd, "sudo ./set_rtprio_limit $$", assert: true, echo: true, timing: true]
     end
@@ -62,7 +62,7 @@ describe Travis::Build::Script::Smalltalk, :sexp do
       data[:config][:os] = 'osx'
     end
     it 'should not set up rtprio for OpenSmalltalkVM' do
-      should_not include_sexp [:cmd, "gcc -o set_rtprio_limit utils/set_rtprio_limit.c", assert: true, echo: true, timing: true]
+      should_not include_sexp [:cmd, "gcc -o set_rtprio_limit set_rtprio_limit.c", assert: true, echo: true, timing: true]
       should_not include_sexp [:cmd, "chmod +x ./set_rtprio_limit", assert: true, echo: true, timing: true]
       should_not include_sexp [:cmd, "sudo ./set_rtprio_limit $$", assert: true, echo: true, timing: true]
     end
