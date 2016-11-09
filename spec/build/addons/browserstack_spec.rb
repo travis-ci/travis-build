@@ -18,8 +18,8 @@ describe Travis::Build::Addons::Browserstack, :sexp do
     it { should include_sexp [:chmod, ["+x", "#{described_class::BROWSERSTACK_HOME}/BrowserStackLocal"]] }
 
     it 'sets BROWSERSTACK_ACCESS_KEY and BROWSERSTACK_LOCAL' do
-      should include_sexp [:export, ["#{described_class::ENV_KEY}", config[:access_key]]]
-      should include_sexp [:export, ["#{described_class::ENV_LOCAL}", 'true'], {:echo => true}]
+      should include_sexp [:export, ["#{described_class::ENV_KEY}", "${BROWSERSTACK_ACCESS_KEY:-#{config[:access_key]}}"]]
+      should include_sexp [:export, ["#{described_class::ENV_LOCAL}", "${BROWSERSTACK_LOCAL:-true}"], {:echo => true}]
     end
   end
 
@@ -40,7 +40,7 @@ describe Travis::Build::Addons::Browserstack, :sexp do
     let(:config) { { os: 'linux', username: 'user1', access_key: 'accesskey' } }
 
     it_behaves_like 'installs browserstack local'
-    it { should include_sexp [:export, ["#{described_class::ENV_USER}", config[:username]], {:echo => true}] }
+    it { should include_sexp [:export, ["#{described_class::ENV_USER}", "${BROWSERSTACK_USER:-#{config[:username]}}"], {:echo => true}] }
     it { should include_sexp [:cmd, "#{described_class::BROWSERSTACK_HOME}/BrowserStackLocal -d start #{config[:access_key]} -localIdentifier $BROWSERSTACK_LOCAL_IDENTIFIER"] }
   end
 
@@ -62,8 +62,8 @@ describe Travis::Build::Addons::Browserstack, :sexp do
     let(:config) { { os: 'linux', access_key: 'accesskey', local_identifier: '123' } }
 
     it_behaves_like 'installs browserstack local'
-    it { should include_sexp [:export, ["#{described_class::ENV_LOCAL_IDENTIFIER}", config[:local_identifier]], {:echo=>true}] }
-    it { should include_sexp [:cmd, "#{described_class::BROWSERSTACK_HOME}/BrowserStackLocal -d start #{config[:access_key]} -localIdentifier #{config[:local_identifier]}"] }
+    it { should include_sexp [:export, ["#{described_class::ENV_LOCAL_IDENTIFIER}", "${BROWSERSTACK_LOCAL_IDENTIFIER:-#{config[:local_identifier]}}"], {:echo=>true}] }
+    it { should include_sexp [:cmd, "#{described_class::BROWSERSTACK_HOME}/BrowserStackLocal -d start #{config[:access_key]} -localIdentifier $BROWSERSTACK_LOCAL_IDENTIFIER"] }
   end
 
   describe 'with access_key and proxy settings' do

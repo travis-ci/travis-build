@@ -44,9 +44,9 @@ module Travis
             sh.echo 'Starting BrowserStack Local', ansi: :yellow
             sh.cmd "#{build_start_command(browserstack_key)}"
             browserstack_user = username.to_s
-            sh.export ENV_USER, browserstack_user, echo: true unless browserstack_user.empty?
-            sh.export ENV_KEY, browserstack_key, echo: false
-            sh.export ENV_LOCAL, 'true', echo: true
+            sh.export ENV_USER, "${#{ENV_USER}:-#{browserstack_user}}", echo: true unless browserstack_user.empty?
+            sh.export ENV_KEY, "${#{ENV_KEY}:-#{browserstack_key}}", echo: false
+            sh.export ENV_LOCAL, "${#{ENV_LOCAL}:-true}", echo: true
           end
         end
 
@@ -121,13 +121,9 @@ module Travis
 
           def local_identifier
             local_id = (config[:local_identifier] || config[:localIdentifier]).to_s
-            unless local_id.empty?
-              sh.export ENV_LOCAL_IDENTIFIER, local_id, echo: true
-              local_id
-            else
-              sh.export ENV_LOCAL_IDENTIFIER, "travis-${TRAVIS_BUILD_NUMBER}-${TRAVIS_JOB_NUMBER}", echo: true
-              "$#{ENV_LOCAL_IDENTIFIER}"
-            end
+            local_id_string = local_id.empty? ? "travis-${TRAVIS_BUILD_NUMBER}-${TRAVIS_JOB_NUMBER}" : local_id
+            sh.export ENV_LOCAL_IDENTIFIER, "${#{ENV_LOCAL_IDENTIFIER}:-#{local_id_string}}", echo: true
+            "$#{ENV_LOCAL_IDENTIFIER}"
           end
 
           def folder
