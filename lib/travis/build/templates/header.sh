@@ -12,6 +12,16 @@ ANSI_GREEN="\033[32;1m"
 ANSI_RESET="\033[0m"
 ANSI_CLEAR="\033[0K"
 
+if [ $TERM = dumb ]; then
+  unset TERM
+fi
+: "${SHELL:=/bin/bash}"
+: "${TERM:=xterm}"
+: "${USER:=travis}"
+export SHELL
+export TERM
+export USER
+
 TRAVIS_TEST_RESULT=
 TRAVIS_CMD=
 
