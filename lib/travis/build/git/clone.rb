@@ -17,7 +17,17 @@ module Travis
 
           def clone_or_fetch
             sh.if "! -d #{dir}/.git" do
-              sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, retry: true
+              if sparseCheckout?
+                sh.cmd "git init #{dir}", assert: true, retry: true
+                sh.cmd "git -C #{dir} config core.sparseCheckout true", assert: true, retry: true
+                sh.cmd "echo #{sparseCheckout} >> #{dir}/.git/info/sparseCheckout", assert: true, retry: true
+                sh.cmd "git -C #{dir} remote add origin #{data.source_url}", assert: true, retry: true
+                sh.cmd "git -C #{dir} pull origin #{branch} #{pull_args}", assert: true, retry: true
+                sh.cmd "cat #{sparseCheckout} >> #{dir}/.git/info/sparseCheckout", assert: true, retry: true
+                sh.cmd "git -C #{dir} reset --hard", assert: true, timing: false
+              else
+                sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, retry: true
+              end
             end
             sh.else do
               sh.cmd "git -C #{dir} fetch origin", assert: true, retry: true
@@ -44,6 +54,12 @@ module Travis
             args
           end
 
+          def pull_args
+            args = "--depth=#{depth}"
+            args << " --quiet" if quiet?
+            args
+          end
+
           def depth
             config[:git][:depth].to_s.shellescape
           end
@@ -54,6 +70,14 @@ module Travis
 
           def quiet?
             config[:git][:quiet]
+          end
+
+          def sparseCheckout
+            config[:git][:sparseCheckout]
+          end
+
+          def sparseCheckout?
+            !!config[:git][:sparseCheckout]
           end
 
           def dir
