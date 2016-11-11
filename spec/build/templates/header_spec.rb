@@ -26,7 +26,10 @@ describe 'header.sh', integration: true do
 
   let :bash_output do
     IO.popen(
-      ['bash', '-c', header_rendered + bash_body, err: [:child, :out]]
+      [
+        'env', '-i', "HOME=#{build_dir}",
+        'bash', '-c', header_rendered + bash_body, err: %i(child out)
+      ]
     ).read
   end
 
@@ -50,6 +53,16 @@ describe 'header.sh', integration: true do
   ).each do |api_function|
     it "defines #{api_function}" do
       expect(bash_output).to match(/^#{api_function} is a function/)
+    end
+  end
+
+  {
+    SHELL: '/bin/bash',
+    TERM: 'xterm',
+    USER: 'travis'
+  }.each do |env_var, val|
+    it "exports #{env_var}" do
+      expect(bash_output).to match(/^declare -x #{env_var}="#{val}"$/)
     end
   end
 
