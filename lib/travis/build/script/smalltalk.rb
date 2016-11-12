@@ -15,13 +15,11 @@ module Travis
 
         def configure
           super
-
           if is_squeak? or is_etoys?
             install_dependencies(DEFAULT_DEPS)
           elsif is_pharo? or is_moose?
             install_dependencies(PHARO_DEPS)
           elsif is_gemstone?
-
             sh.fold 'gemstone_prepare_dependencies' do
               sh.echo 'Preparing build for GemStone', ansi: :yellow
               gemstone_configure_hosts
@@ -33,12 +31,11 @@ module Travis
               when 'osx'
                 gemstone_prepare_osx_shared_memory
               end
-
               gemstone_prepare_netldi
               gemstone_prepare_directories
             end
-
           end
+          set_rtprio_limit if config[:os] == 'linux'
         end
 
         def export
@@ -62,7 +59,6 @@ module Travis
             sh.cmd "unzip -q -o smalltalkCI.zip"
             sh.cmd "pushd smalltalkCI-* > /dev/null", echo: false
             sh.cmd "source env_vars"
-            set_rtprio_limit if config[:os] == 'linux'
             sh.cmd "popd > /dev/null; popd > /dev/null", echo: false
           end
         end
@@ -238,6 +234,7 @@ module Travis
           end
 
           def set_rtprio_limit
+            sh.cmd "pushd $(mktemp -d) > /dev/null", echo: false
             File.open('set_rtprio_limit.c', 'w') { |f| f.write <<-RTPRIO_CODE
               // Set rtprio to 2:2 for a given pid (required to run OpenSmalltalk VMs).
 
@@ -291,6 +288,7 @@ module Travis
             sh.cmd "gcc -o set_rtprio_limit set_rtprio_limit.c"
             sh.cmd "chmod +x ./set_rtprio_limit"
             sh.cmd "sudo ./set_rtprio_limit $$"
+            sh.cmd "popd > /dev/null", echo: false
           end
 
       end
