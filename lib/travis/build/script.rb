@@ -170,6 +170,7 @@ module Travis
           apply :debug_tools
           apply :npm_registry
           apply :rvm_use
+          apply :rm_oraclejdk8_symlink
         end
 
         def checkout
