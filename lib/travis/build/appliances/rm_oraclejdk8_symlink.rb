@@ -10,6 +10,8 @@ module Travis
           sh.if "-L #{symlink}" do
             sh.echo "Removing symlink #{symlink}"
             sh.cmd "sudo rm -f #{symlink}", echo: true
+            sh.echo "Reload jdk_switcher"
+            sh.cmd "source $HOME/.jdk_switcher_rc", echo: true
           end
         end
 
