@@ -18,12 +18,6 @@ describe Travis::Build::Script::Ruby, :sexp do
     it_behaves_like 'a jdk build sexp'
   end
 
-  describe 'not using a jdk' do
-    it 'does not announce java' do
-      expect(subject.flatten.join).not_to include('java')
-    end
-  end
-
   it 'sets TRAVIS_RUBY_VERSION' do
     should include_sexp [:export, ['TRAVIS_RUBY_VERSION', 'default']]
   end
