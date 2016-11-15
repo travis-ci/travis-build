@@ -18,8 +18,7 @@ script:
   - bundle exec rspec spec
   - for f in examples/*.sh.txt; do echo "checking bash syntax $f"; bash -n $f; done
 
-after_success:
-- codeclimate-test-reporter
+after_success: bundle exec codeclimate-test-reporter
 
 before_deploy: ruby script/build_s3_index_html.rb
 
