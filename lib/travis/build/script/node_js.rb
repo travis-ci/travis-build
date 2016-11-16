@@ -41,7 +41,17 @@ module Travis
 
         def install
           sh.if '-f package.json' do
-            sh.cmd "npm install #{config[:npm_args]}", retry: true, fold: 'install'
+            sh.if "-f yarn.lock" do
+              if version.to_i < 4
+                sh.echo "Node.js version #{version} does not meet requirement for yarn. Please use Node.js 4 or later."
+              else
+                install_yarn
+                sh.cmd "yarn", retry: true, fold: 'install'
+              end
+            end
+            sh.else do
+              sh.cmd "npm install #{config[:npm_args]}", retry: true, fold: 'install'
+            end
           end
         end
 
@@ -56,6 +66,19 @@ module Travis
 
         def cache_slug
           super << '--node-' << version
+        end
+
+        def setup_cache
+          if data.cache?(:yarn)
+            sh.fold 'cache.yarn' do
+              sh.echo ''
+              directory_cache.add '$HOME/.yarn-cache'
+            end
+          end
+        end
+
+        def use_directory_cache?
+          super || data.cache?(:yarn)
         end
 
         private
@@ -168,6 +191,13 @@ module Travis
 
           def iojs_3_plus?
             (config[:node_js] || '').to_s.split('.')[0].to_i >= 3
+          end
+
+          def install_yarn
+            sh.echo   "Installing yarn", ansi: :green
+            sh.cmd    "curl -o- -L https://yarnpkg.com/install.sh | bash", echo: true
+            sh.echo   "Setting up $PATH", ansi: :green
+            sh.export "PATH", "$HOME/.yarn/bin:$PATH"
           end
       end
     end
