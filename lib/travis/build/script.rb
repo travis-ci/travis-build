@@ -171,6 +171,7 @@ module Travis
           apply :npm_registry
           apply :rvm_use
           apply :rm_oraclejdk8_symlink
+          apply :rm_dockerproject_apt_source
         end
 
         def checkout

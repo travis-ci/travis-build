@@ -22,6 +22,7 @@ require 'travis/build/appliances/services'
 require 'travis/build/appliances/show_system_info'
 require 'travis/build/appliances/validate'
 require 'travis/build/appliances/npm_registry'
+require 'travis/build/appliances/rm_dockerproject_apt_source'
 
 module Travis
   module Build
