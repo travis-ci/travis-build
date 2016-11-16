@@ -43,7 +43,7 @@ module Travis
           sh.if '-f package.json' do
             sh.if "-f yarn.lock" do
               if version.to_i < 4
-                sh.echo "Node.js version #{version} does not meet requirement for yarn. Please use Node.js 4 or later."
+                sh.echo "Node.js version #{version} does not meet requirement for yarn. Please use Node.js 4 or later.", ansi: :red
               else
                 sh.if "!(command -v yarn)" do
                   install_yarn
@@ -196,9 +196,8 @@ module Travis
           end
 
           def install_yarn
-            sh.echo   "Installing yarn", ansi: :green
             sh.cmd    "curl -o- -L https://yarnpkg.com/install.sh | bash", echo: true
-            sh.echo   "Setting up $PATH", ansi: :green
+            sh.echo   "Setting up \\$PATH", ansi: :green
             sh.export "PATH", "$HOME/.yarn/bin:$PATH"
           end
       end
