@@ -45,7 +45,9 @@ module Travis
               if version.to_i < 4
                 sh.echo "Node.js version #{version} does not meet requirement for yarn. Please use Node.js 4 or later."
               else
-                install_yarn
+                sh.if "!(command -v yarn)" do
+                  install_yarn
+                end
                 sh.cmd "yarn", retry: true, fold: 'install'
               end
             end
