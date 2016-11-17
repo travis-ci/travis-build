@@ -105,7 +105,7 @@ describe Travis::Shell::Generator::Bash, :include_node_helpers do
 
     it 'adds ansi codes' do
       @sexp = [:echo, 'Hello.', ansi: [:green]]
-      expect(code).to eql("echo -e \"\\033[33;1mHello.\\033[0m\"")
+      expect(code).to eql("echo -e \"\\033[32;1mHello.\\033[0m\"")
     end
 
     it 'generates multiple commands when given an array' do
