@@ -7,9 +7,9 @@ module Travis
       class Bash
         module Helpers
           ANSI = {
-            green: '\033[33;1m',
+            green: '\033[32;1m',
             red:   '\033[31;1m',
-            yellow:'\033[33;1m',
+            yellow: '\033[33;1m',
             reset: '\033[0m'
           }
 
