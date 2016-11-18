@@ -44,15 +44,16 @@ module Travis
             sh.if "-f yarn.lock" do
               if version.to_i < 4
                 sh.echo "Node.js version #{version} does not meet requirement for yarn. Please use Node.js 4 or later.", ansi: :red
+                npm_install config[:npm_args]
               else
-                sh.if "!(command -v yarn)" do
+                sh.if "-z \"$(command -v yarn)\"" do
                   install_yarn
                 end
                 sh.cmd "yarn", retry: true, fold: 'install'
               end
             end
             sh.else do
-              sh.cmd "npm install #{config[:npm_args]}", retry: true, fold: 'install'
+              npm_install config[:npm_args]
             end
           end
         end
@@ -193,6 +194,10 @@ module Travis
 
           def iojs_3_plus?
             (config[:node_js] || '').to_s.split('.')[0].to_i >= 3
+          end
+
+          def npm_install(args)
+            sh.cmd "npm install #{args}", retry: true, fold: 'install'
           end
 
           def install_yarn
