@@ -5,9 +5,6 @@ module Travis
   module Build
     class Script
       class Smalltalk < Script
-        include Template
-        TEMPLATES_PATH = File.expand_path(__FILE__.sub('.rb', ''))
-
         DEFAULTS = {}
         HOSTS_FILE = '/etc/hosts'
         TEMP_HOSTS_FILE = '/tmp/hosts'
@@ -240,9 +237,9 @@ module Travis
             sh.fold "set_rtprio_limit" do
               sh.echo "Setting up real time priority for OpenSmalltalk VMs", ansi: :yellow
               sh.cmd "pushd $(mktemp -d) > /dev/null", echo: false
-              sh.file "set_rtprio_limit.c", template('set_rtprio_limit.c')
+              sh.file "set_rtprio_limit.c", template('smalltalk/set_rtprio_limit.c')
               sh.cmd "gcc -o set_rtprio_limit set_rtprio_limit.c"
-              sh.chmod '+x', "set_rtprio_limit"
+              sh.cmd "chmod +x ./set_rtprio_limit"
               sh.cmd "sudo ./set_rtprio_limit $$"
               sh.cmd "popd > /dev/null", echo: false
             end
