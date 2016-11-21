@@ -204,6 +204,7 @@ module Travis
           end
 
           def install_yarn
+            sh.echo   "Installing yarn", ansi: :green
             sh.cmd    "curl -o- -L https://yarnpkg.com/install.sh | bash", echo: true
             sh.echo   "Setting up \\$PATH", ansi: :green
             sh.export "PATH", "$HOME/.yarn/bin:$PATH"
