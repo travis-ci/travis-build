@@ -285,9 +285,12 @@ module Travis
               RTPRIO_CODE
             }
 
-            sh.cmd "gcc -o set_rtprio_limit set_rtprio_limit.c"
-            sh.cmd "chmod +x ./set_rtprio_limit"
-            sh.cmd "sudo ./set_rtprio_limit $$"
+            sh.fold "set_rtprio_limit" do
+              sh.echo "Setting up real time priority for OpenSmalltalk VMs", ansi: :yellow
+              sh.cmd "gcc -o set_rtprio_limit set_rtprio_limit.c"
+              sh.cmd "chmod +x ./set_rtprio_limit"
+              sh.cmd "sudo ./set_rtprio_limit $$"
+            end
             sh.cmd "popd > /dev/null", echo: false
           end
 
