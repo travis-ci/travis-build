@@ -1,7 +1,6 @@
 # Maintained by:
 # Jim Hester     @jimhester       james.hester@rstudio.com
 # Craig Citro    @craigcitro      craigcitro@google.com
-# Hadley Wickham @hadley          hadley@rstudio.com
 #
 module Travis
   module Build
@@ -60,7 +59,7 @@ module Travis
           sh.echo 'R for Travis-CI is not officially supported, '\
                   'but is community maintained.', ansi: :green
           sh.echo 'Please file any issues at https://github.com/travis-ci/travis-ci/issues'
-          sh.echo 'and mention @craigcitro, @hadley and @jimhester in the issue'
+          sh.echo 'and mention @craigcitro and @jimhester in the issue'
 
           sh.fold 'R-install' do
             sh.with_options({ assert: true,  echo: true,  timing: true  }) do
