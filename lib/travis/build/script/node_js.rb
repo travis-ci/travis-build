@@ -204,6 +204,9 @@ module Travis
           end
 
           def install_yarn
+            sh.if "-z \"$(command -v gpg)\"" do
+              sh.export "YARN_GPG", "no"
+            end
             sh.echo   "Installing yarn", ansi: :green
             sh.cmd    "curl -o- -L https://yarnpkg.com/install.sh | bash", echo: true
             sh.echo   "Setting up \\$PATH", ansi: :green
