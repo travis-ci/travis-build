@@ -18,15 +18,14 @@ describe Travis::Build::Git::Clone, :sexp do
 
   context 'when prefer_https is true' do
     it 'writes to $HOME/.netrc' do
-      payload[:prefer_https] = true
+      payload[:repository][:source_url] = "https://github.com/travis-ci/travis-ci.git"
       payload[:oauth_token]  = oauth_token
-      script.sexp.should include_sexp [:raw, /echo -e "machine github.com\n  login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
+      expect(script.sexp).to include_sexp [:raw, /echo -e "machine github.com\n  login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
     end
   end
 
   context 'when prefer_https is false' do
     it 'deos not write to $HOME/.netrc' do
-      payload[:prefer_https] = false
       payload[:oauth_token]  = oauth_token
       should_not include_sexp [:raw, /echo -e "machine github.com login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
     end

@@ -158,7 +158,7 @@ module Travis
       end
 
       def prefer_https?
-        data[:prefer_https]
+        source_url.downcase.start_with? "https"
       end
     end
   end
