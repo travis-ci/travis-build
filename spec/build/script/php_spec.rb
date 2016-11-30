@@ -20,6 +20,7 @@ describe Travis::Build::Script::Php, :sexp do
   it 'sets up the php version' do
     should include_sexp [:cmd, 'phpenv global 5.5 2>/dev/null', echo: true, timing: true]
     should include_sexp [:cmd, 'phpenv rehash']
+    should include_sexp [:cmd, 'travis_configure_php_mysql56']
   end
 
   it 'announces php --version' do
@@ -49,7 +50,7 @@ describe Travis::Build::Script::Php, :sexp do
     let(:path)     { '/etc/hhvm/php.ini' }
     let(:addition) { %(date.timezone = "UTC"\nhhvm.libxml.ext_entity_whitelist=file,http,https\n) }
     before { data[:config][:php] = 'hhvm' }
-    it { should include_sexp [:raw, "sudo mkdir -p $(dirname #{path}); echo '#{addition}' | sudo tee -a #{path} > /dev/null"] }
+    it { should include_sexp [:raw, "sudo mkdir -p $(dirname #{path}); echo '#{addition}' | sudo tee -a #{path} >/dev/null"] }
     it { should include_sexp [:raw, "sudo chown $(whoami) #{path}"] }
     it { should include_sexp [:raw, "grep session.save_path #{path} | cut -d= -f2 | sudo xargs mkdir -m 01733 -p"] }
   end

@@ -33,6 +33,8 @@ module Travis
             sh.cmd "phpenv global #{version}", assert: true
           end
           sh.cmd "phpenv rehash", assert: false, echo: false, timing: false
+          sh.raw template('php.sh', root: '/', home: HOME_DIR)
+          sh.cmd 'travis_configure_php_mysql56', assert: false, echo: false, timing: false
           composer_self_update
         end
 
@@ -133,11 +135,11 @@ module Travis
         def fix_hhvm_php_ini
           sh.echo 'Modifying HHVM init file', ansi: :yellow
           ini_file_path = '/etc/hhvm/php.ini'
-          ini_file_addition = <<-EOF
-date.timezone = "UTC"
-hhvm.libxml.ext_entity_whitelist=file,http,https
+          ini_file_addition = <<-EOF.gsub(/^\s+> /, '')
+            > date.timezone = "UTC"
+            > hhvm.libxml.ext_entity_whitelist=file,http,https
           EOF
-          sh.raw "sudo mkdir -p $(dirname #{ini_file_path}); echo '#{ini_file_addition}' | sudo tee -a #{ini_file_path} > /dev/null"
+          sh.raw "sudo mkdir -p $(dirname #{ini_file_path}); echo '#{ini_file_addition}' | sudo tee -a #{ini_file_path} >/dev/null"
           sh.raw "sudo chown $(whoami) #{ini_file_path}"
           # Ensure that the configured session storage directory exists if
           # specified in the ini file.
