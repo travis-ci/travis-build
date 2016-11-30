@@ -9,7 +9,10 @@ module Travis
 
         def configure
           super
+          sh.raw template('php.sh', root: '/', home: HOME_DIR)
           configure_hhvm if hhvm?
+          sh.raw 'sudo chown $(whoami) /etc/hhvm/php.ini'
+          sh.cmd 'travis_configure_php_mysql56', assert: false, echo: false, timing: false
         end
 
         def export
@@ -33,8 +36,6 @@ module Travis
             sh.cmd "phpenv global #{version}", assert: true
           end
           sh.cmd "phpenv rehash", assert: false, echo: false, timing: false
-          sh.raw template('php.sh', root: '/', home: HOME_DIR)
-          sh.cmd 'travis_configure_php_mysql56', assert: false, echo: false, timing: false
           composer_self_update
         end
 
