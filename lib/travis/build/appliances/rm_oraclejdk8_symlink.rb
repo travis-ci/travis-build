@@ -5,20 +5,22 @@ module Travis
     module Appliances
       class RmOraclejdk8Symlink < Base
         def apply
-          symlink = "/usr/lib/jvm/java-8-oracle-amd64"
-
+          symlink = '/usr/lib/jvm/java-8-oracle-amd64'
           sh.if "-L #{symlink}" do
             sh.echo "Removing symlink #{symlink}"
             sh.cmd "sudo rm -f #{symlink}", echo: true
-            sh.if "-f $HOME/.jdk_switcher_rc" do
-              sh.echo "Reload jdk_switcher"
-              sh.cmd "source $HOME/.jdk_switcher_rc", echo: true
+            %W(
+              #{HOME_DIR}/.jdk_switcher_rc
+              /opt/jdk_switcher/jdk_switcher.sh
+            ).each do |jdk_switcher|
+              sh.if "-f #{jdk_switcher}" do
+                sh.echo 'Reload jdk_switcher'
+                sh.cmd "source #{jdk_switcher}", echo: true
+              end
             end
           end
         end
-
       end
     end
   end
 end
-
