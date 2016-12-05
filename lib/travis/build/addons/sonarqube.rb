@@ -9,8 +9,11 @@ module Travis
         DEFAULT_SQ_HOST_URL = "https://sonarqube.com"
         SCANNER_CLI_VERSION = "2.8"
         SCANNER_HOME = "$HOME/.sonarscanner"
+        CACHE_DIR = "$HOME/.sonar/cache"
         SCANNER_CLI_REPO = "http://repo1.maven.org/maven2"
-        
+        BUILD_WRAPPER_LINUX = "static/cpp/build-wrapper-linux-x86.zip"
+        BUILD_WRAPPER_MACOSX = "static/cpp/build-wrapper-macosx-x86.zip"
+
         SKIP_MSGS = {
           branch_disabled: 'this branch is not master or it does not match declared branches',
           no_pr_token: 'no PR analysis can be done by SonarQube Scanner because the SONAR_GITHUB_TOKEN is not defined',
@@ -20,6 +23,7 @@ module Travis
         def before_before_script
           @sonarqube_scanner_params = {}
           install_sonar_scanner
+          install_build_wrapper
           
           if !data.secure_env?
               skip :no_secure_env
@@ -73,6 +77,32 @@ SH
             sh.raw(scr, echo: false)
             sh.export 'SONAR_SCANNER_HOME', "#{SCANNER_HOME}/sonar-scanner-#{SCANNER_CLI_VERSION}", echo: true
             sh.export 'PATH', "\"$PATH:#{SCANNER_HOME}/sonar-scanner-#{SCANNER_CLI_VERSION}/bin\"", echo: false
+          end
+        end
+        
+        def install_build_wrapper
+          if data.language == "java" || data.language == "node_js"
+            sh.echo "Not installing SonarSource build-wrapper because it's a Java or Javascript project", echo: false, ansi: :yellow
+            return
+          end
+          
+          sh.fold 'sonarsource.build-wrapper.install' do
+            sh.echo "Preparing build wrapper for SonarSource C/C++ plugin", echo: false, ansi: :yellow
+            sh.cmd "CPPHASH=`curl -s #{DEFAULT_SQ_HOST_URL}/deploy/plugins/index.txt | grep \"^cpp\" | sed \"s/.*|\\(.*\\)/\\1/\"`"
+            
+            sh.mkdir "#{CACHE_DIR}", echo: false, recursive: true
+            case data.config[:os]
+            when 'linux'
+              sh.cmd "curl -sSLo #{CACHE_DIR}/build-wrapper.zip #{DEFAULT_SQ_HOST_URL}/#{BUILD_WRAPPER_LINUX}", echo: false, retry: true
+              sh.cmd "unzip -o #{CACHE_DIR}/build-wrapper.zip -d #{CACHE_DIR}", echo: false
+              sh.export 'PATH', "\"$PATH:#{CACHE_DIR}/build-wrapper-linux-x86\"", echo: false
+            when 'osx'
+              sh.cmd "curl -sSLo #{CACHE_DIR}/build-wrapper.zip #{DEFAULT_SQ_HOST_URL}/#{BUILD_WRAPPER_MACOSX}", echo: false, retry: true
+              sh.cmd "unzip -o #{CACHE_DIR}/build-wrapper.zip -d #{CACHE_DIR}", echo: false
+              sh.export 'PATH', "\"$PATH:#{CACHE_DIR}/build-wrapper-macosx-x86\"", echo: false
+            else
+              sh.echo "Can't install SonarSource build wrapper for platform: $TRAVIS_OS_NAME.", ansi: :yellow
+            end
           end
         end
         
