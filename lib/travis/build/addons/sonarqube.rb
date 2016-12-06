@@ -11,8 +11,8 @@ module Travis
         SCANNER_HOME = "$HOME/.sonarscanner"
         CACHE_DIR = "$HOME/.sonar/cache"
         SCANNER_CLI_REPO = "http://repo1.maven.org/maven2"
-        BUILD_WRAPPER_LINUX = "static/cpp/build-wrapper-linux-x86.zip"
-        BUILD_WRAPPER_MACOSX = "static/cpp/build-wrapper-macosx-x86.zip"
+        BUILD_WRAPPER_LINUX = "build-wrapper-linux-x86"
+        BUILD_WRAPPER_MACOSX = "build-wrapper-macosx-x86"
 
         SKIP_MSGS = {
           branch_disabled: 'this branch is not master or it does not match declared branches',
@@ -88,21 +88,30 @@ SH
           
           sh.fold 'sonarsource.build-wrapper.install' do
             sh.echo "Preparing build wrapper for SonarSource C/C++ plugin", echo: false, ansi: :yellow
-            sh.cmd "CPPHASH=`curl -s #{DEFAULT_SQ_HOST_URL}/deploy/plugins/index.txt | grep \"^cpp\" | sed \"s/.*|\\(.*\\)/\\1/\"`"
             
-            sh.mkdir "#{CACHE_DIR}", echo: false, recursive: true
             case data.config[:os]
             when 'linux'
-              sh.cmd "curl -sSLo #{CACHE_DIR}/build-wrapper.zip #{DEFAULT_SQ_HOST_URL}/#{BUILD_WRAPPER_LINUX}", echo: false, retry: true
-              sh.cmd "unzip -o #{CACHE_DIR}/build-wrapper.zip -d #{CACHE_DIR}", echo: false
-              sh.export 'PATH', "\"$PATH:#{CACHE_DIR}/build-wrapper-linux-x86\"", echo: false
+              build_wrapper=BUILD_WRAPPER_LINUX
             when 'osx'
-              sh.cmd "curl -sSLo #{CACHE_DIR}/build-wrapper.zip #{DEFAULT_SQ_HOST_URL}/#{BUILD_WRAPPER_MACOSX}", echo: false, retry: true
-              sh.cmd "unzip -o #{CACHE_DIR}/build-wrapper.zip -d #{CACHE_DIR}", echo: false
-              sh.export 'PATH', "\"$PATH:#{CACHE_DIR}/build-wrapper-macosx-x86\"", echo: false
+              build_wrapper=BUILD_WRAPPER_MACOSX
             else
               sh.echo "Can't install SonarSource build wrapper for platform: $TRAVIS_OS_NAME.", ansi: :yellow
+              return
             end
+            
+            sh.cmd "CPPHASH=`curl -s #{DEFAULT_SQ_HOST_URL}/deploy/plugins/index.txt | grep \"^cpp\" | sed \"s/.*|\\(.*\\)/\\1/\"`"
+            sh.cmd "HASH_DIR=#{CACHE_DIR}/$CPPHASH"
+            
+            sh.if "-d $HASH_DIR/#{build_wrapper}" do
+              sh.echo "Using cached build wrapper"
+            end
+            sh.else do
+              sh.mkdir "$HASH_DIR", echo: false, recursive: true
+              sh.cmd "curl -sSLo $HASH_DIR/#{build_wrapper}.zip #{DEFAULT_SQ_HOST_URL}/static/cpp/#{build_wrapper}.zip", echo: false, retry: true
+              sh.cmd "unzip -o $HASH_DIR/#{build_wrapper}.zip -d $HASH_DIR", echo: false
+            end
+            
+            sh.export 'PATH', "\"$PATH:$HASH_DIR/#{build_wrapper}\"", echo: false
           end
         end
         

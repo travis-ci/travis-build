@@ -19,8 +19,8 @@ describe Travis::Build::Addons::Sonarqube, :sexp do
     
     it { should include_sexp [:export, ['SONAR_SCANNER_HOME', '$HOME/.sonarscanner/sonar-scanner-2.8'], {:echo=>true}] }
     it { should include_sexp [:export, ['PATH', "\"$PATH:$HOME/.sonarscanner/sonar-scanner-2.8/bin\""]] }
-    it { should include_sexp [:mkdir, '$HOME/.sonar/cache', {:recursive=>true}] }
-    it { should include_sexp [:export, ['PATH', "\"$PATH:$HOME/.sonar/cache/build-wrapper-linux-x86\""]] }
+    it { should include_sexp [:mkdir, "$HASH_DIR", {:recursive=>true}] }
+    it { should include_sexp [:export, ['PATH', "\"$PATH:$HASH_DIR/build-wrapper-linux-x86\""]] }
   end
   
   describe 'skip build wrapper installation with java' do
@@ -28,8 +28,8 @@ describe Travis::Build::Addons::Sonarqube, :sexp do
     
     it { should include_sexp [:export, ['SONAR_SCANNER_HOME', '$HOME/.sonarscanner/sonar-scanner-2.8'], {:echo=>true}] }
     it { should include_sexp [:export, ['PATH', "\"$PATH:$HOME/.sonarscanner/sonar-scanner-2.8/bin\""]] }
-    it { should_not include_sexp [:mkdir, '$HOME/.sonar/cache', {:recursive=>true}] }
-    it { should_not include_sexp [:export, ['PATH', "\"$PATH:$HOME/.sonar/cache/build-wrapper-linux-x86\""]] }
+    it { should_not include_sexp [:mkdir, "$HASH_DIR", {:recursive=>true}] }
+    it { should_not include_sexp [:export, ['PATH', "\"$PATH:$HASH_DIR/build-wrapper-linux-x86\""]] }
   end
   
   describe 'skip pull request analysis' do
