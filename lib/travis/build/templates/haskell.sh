@@ -4,7 +4,7 @@
 function travis_ghc_find() {
   local search="${1}"
   local v
-  if [[ ! "${search}"  ]]; then
+  if [[ ! "${search}" ]]; then
     echo "${TRAVIS_GHC_DEFAULT}"
   else
     for v in "${TRAVIS_GHC_ROOT}"/*/; do
