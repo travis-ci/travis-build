@@ -215,7 +215,7 @@ module Travis
           end
 
           def remove_node_modules_bin_from_path
-            sh.echo "Removing `./node_modules/bin` from \\$PATH, because this can cause subtle bugs. " \
+            sh.echo "Removing \\`./node_modules/.bin\\` from \\$PATH, because this can cause subtle bugs. " \
               "See https://github.com/travis-ci/travis-ci/issue/5092 for details."
             sh.export "PATH", "$(echo $PATH | tr : \"\\n\" | sed -e \"#{Regexp.new('\./node_modules/\.bin').inspect}d\" | tr \"\\n\" :)"
           end
