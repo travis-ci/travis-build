@@ -18,6 +18,7 @@ module Travis
         def setup
           super
           convert_legacy_nodejs_config
+          remove_node_modules_bin_from_path
           update_nvm
           nvm_install
           npm_disable_prefix
@@ -211,6 +212,12 @@ module Travis
             sh.cmd    "curl -o- -L https://yarnpkg.com/install.sh | bash", echo: true
             sh.echo   "Setting up \\$PATH", ansi: :green
             sh.export "PATH", "$HOME/.yarn/bin:$PATH"
+          end
+
+          def remove_node_modules_bin_from_path
+            sh.echo "Removing `./node_modules/bin` from \\$PATH, because this can cause subtle bugs. " \
+              "See https://github.com/travis-ci/travis-ci/issue/5092 for details."
+            sh.export "PATH", "echo $PATH | tr : \"\\n\" | sed -e \"#{Regexp.new('./node_modules/bin').inspect}d\" | tr \"\\n\" :"
           end
       end
     end
