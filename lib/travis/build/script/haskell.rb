@@ -2,10 +2,19 @@ module Travis
   module Build
     class Script
       class Haskell < Script
-        DEFAULTS = {}
+        DEFAULTS = {
+          ghc: (ENV['TRAVIS_DEFAULT_GHC'] || '7.6.3').untaint
+        }
 
         def setup
           super
+          sh.raw(
+            template(
+              'haskell.sh',
+              default_ghc: DEFAULTS[:ghc],
+              root: '/'
+            )
+          )
           sh.export 'PATH', "#{path}:$PATH", assert: true
           sh.cmd 'cabal update', fold: 'cabal', retry: true
         end
@@ -25,7 +34,7 @@ module Travis
         end
 
         def path
-          "/usr/local/ghc/$(ghc_find #{version})/bin/"
+          "/usr/local/ghc/$(travis_ghc_find #{version})/bin/"
         end
 
         def version
