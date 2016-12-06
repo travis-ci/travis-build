@@ -34,7 +34,7 @@ module Travis
         end
 
         def path
-          "/usr/local/ghc/$(travis_ghc_find #{version})/bin/"
+          "${TRAVIS_GHC_ROOT}/$(travis_ghc_find #{version})/bin"
         end
 
         def version

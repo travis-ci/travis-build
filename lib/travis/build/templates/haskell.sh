@@ -4,6 +4,9 @@ if [[ ! -d "${TRAVIS_GHC_ROOT}" && -d '<%= root %>/opt/ghc' ]]; then
   TRAVIS_GHC_ROOT='<%= root %>/opt/ghc'
 fi
 
+export TRAVIS_GHC_DEFAULT
+export TRAVIS_GHC_ROOT
+
 function travis_ghc_find() {
   local search="${1}"
   local v
