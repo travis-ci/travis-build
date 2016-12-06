@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+require 'digest/sha2'
 require 'json'
 require 'rack/ssl'
 require 'sinatra/base'
@@ -14,6 +16,7 @@ module Travis
         enable :static
         set :root, File.expand_path('../../../../../', __FILE__)
         set :start, Time.now.utc
+        set :auth_salt, "#{ENV.fetch('SALT', 'zzz')}".untaint
 
         configure(:production, :staging) do
           use Rack::SSL
@@ -45,14 +48,17 @@ module Travis
           return if auth_disabled?
 
           unless env.key?('HTTP_AUTHORIZATION')
-            halt 401, 'missing Authorization header'
+            halt(
+              401,
+              { 'WWW-Authenticate' => 'token' },
+              'missing Authorization header'
+            )
           end
 
           type, token = env['HTTP_AUTHORIZATION'].to_s.split(' ', 2)
-
-          ENV['API_TOKEN'].split(',').each do |valid_token|
-            return if Rack::Utils.secure_compare(type, 'token') &&
-                      Rack::Utils.secure_compare(token, valid_token)
+          api_tokens.each do |hashed_valid_token|
+            return if secure_hashed_eq(hashed_type_token, type) &&
+                      secure_hashed_eq(hashed_valid_token, token)
           end
 
           halt 403, 'access denied'
@@ -97,6 +103,26 @@ module Travis
             'Travis-Build-Version' => Travis::Build.version
           )
           status 204
+        end
+
+        def secure_hashed_eq(hashed, b, salt: settings.auth_salt)
+          Rack::Utils.secure_compare(
+            hashed,
+            Digest::SHA256.hexdigest(salt + b.to_s)
+          )
+        end
+
+        def api_tokens(salt: settings.auth_salt)
+          @api_tokens ||= ENV['API_TOKEN'].to_s.split(',')
+                                          .map(&:strip)
+                                          .reject(&:empty?)
+                                          .map do |s|
+            Digest::SHA256.hexdigest(salt + s)
+          end
+        end
+
+        def hashed_type_token(salt: settings.auth_salt)
+          @hashed_type_token ||= Digest::SHA256.hexdigest(salt + 'token')
         end
       end
     end
