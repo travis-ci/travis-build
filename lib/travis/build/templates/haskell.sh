@@ -1,5 +1,8 @@
 : "${TRAVIS_GHC_DEFAULT:=<%= default_ghc %>}"
 : "${TRAVIS_GHC_ROOT:=<%= root %>/usr/local/ghc}"
+if [[ ! -d "${TRAVIS_GHC_ROOT}" && -d '<%= root %>/opt/ghc' ]]; then
+  TRAVIS_GHC_ROOT='<%= root %>/opt/ghc'
+fi
 
 function travis_ghc_find() {
   local search="${1}"
