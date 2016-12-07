@@ -5,9 +5,9 @@ module Travis
     HOME_DIR  = '$HOME'
     BUILD_DIR = File.join(HOME_DIR, 'build')
 
-		def config
-			@config ||= ::Travis::Build::Config.load
-		end
+    def config
+      @config ||= ::Travis::Build::Config.load
+    end
 
     module_function :config
 
