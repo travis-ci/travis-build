@@ -7,30 +7,14 @@ module Travis
         DEFAULTS = {
           gobuild_args: '-v',
           gimme_config: {
-            url: "#{ENV.fetch(
-              'TRAVIS_BUILD_GIMME_URL',
-              'https://raw.githubusercontent.com/travis-ci/gimme/v1.0.0/gimme'
-            )}".untaint,
-            force_reinstall: !!ENV['TRAVIS_BUILD_GIMME_FORCE_REINSTALL']
+            url: Travis::Build.config.gimme.url.untaint,
+            force_reinstall: Travis::Build.config.gimme.force_reinstall?
           },
-          go: "#{ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.7.4')}".untaint
+          go: Travis::Build.config.go_version.untaint
         }
-        GO_VERSION_ALIASES = {
-          '1' => '1.7.4',
-          '1.0' => '1.0.3',
-          '1.0.x' => '1.0.3',
-          '1.1.x' => '1.1.2',
-          '1.2' => '1.2.2',
-          '1.2.x' => '1.2.2',
-          '1.3.x' => '1.3.3',
-          '1.4.x' => '1.4.3',
-          '1.5.x' => '1.5.4',
-          '1.6.x' => '1.6.3',
-          '1.7.x' => '1.7.4',
-          '1.x' => '1.7.4',
-          '1.x.x' => '1.7.4',
+        GO_VERSION_ALIASES = Travis::Build.config.go_version_aliases_hash.merge(
           'default' => DEFAULTS[:go]
-        }.freeze
+        ).freeze
 
         def export
           super

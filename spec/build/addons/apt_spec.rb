@@ -11,15 +11,17 @@ describe Travis::Build::Addons::Apt, :sexp do
   let(:source_whitelists)  { { precise: [{ alias: 'testing', sourceline: 'deb http://example.com/deb repo main' }] } }
   let(:package_whitelists) { { precise: %w(git curl) } }
   let(:paranoid)           { true }
+  let(:whitelist_skip)     { false }
   subject                  { sh.to_sexp }
 
   before :all do
     Faraday.default_adapter = :test
   end
 
-  before do
+  before :each do
     described_class.instance_variable_set(:@package_whitelists, nil)
     described_class.instance_variable_set(:@source_whitelists, nil)
+    addon.stubs(:skip_whitelist?).returns(whitelist_skip)
   end
 
   context 'when on osx' do
@@ -48,7 +50,8 @@ describe Travis::Build::Addons::Apt, :sexp do
 
   context 'when the package whitelist is provided' do
     before do
-      described_class.stubs(:fetch_package_whitelist).returns(package_whitelists[dist].join("\n"))
+      described_class.stubs(:fetch_package_whitelist)
+        .returns(package_whitelists[dist].join("\n"))
       addon.before_prepare
     end
 
@@ -57,13 +60,15 @@ describe Travis::Build::Addons::Apt, :sexp do
     end
 
     it 'instances delegate package whitelist to class' do
-      expect(described_class.package_whitelists.object_id).to eql(addon.send(:package_whitelists).object_id)
+      expect(described_class.package_whitelists)
+        .to eql(addon.send(:package_whitelists))
     end
   end
 
   context 'when the source whitelist is provided' do
     before do
-      described_class.stubs(:fetch_source_whitelist).returns(JSON.dump(source_whitelists[dist]))
+      described_class.stubs(:fetch_source_whitelist)
+        .returns(JSON.dump(source_whitelists[dist]))
       addon.before_prepare
     end
 
@@ -72,7 +77,8 @@ describe Travis::Build::Addons::Apt, :sexp do
     end
 
     it 'instances delegate source whitelist to class' do
-      expect(described_class.source_whitelists.object_id).to eql(addon.send(:source_whitelists).object_id)
+      expect(described_class.source_whitelists)
+        .to eql(addon.send(:source_whitelists))
     end
   end
 
@@ -94,7 +100,8 @@ describe Travis::Build::Addons::Apt, :sexp do
     end
 
     it 'defaults source whitelist to empty hash' do
-      expect(described_class.source_whitelists).to eql({ precise: {}, trusty: {}, unset: {} })
+      expect(described_class.source_whitelists)
+        .to eql({ precise: {}, trusty: {}, unset: {} })
     end
   end
 
@@ -127,15 +134,9 @@ describe Travis::Build::Addons::Apt, :sexp do
         it { should include_sexp [:cmd, apt_get_install_command('git', 'curl', 'darkcoin'), echo: true, timing: true] }
       end
 
-      context 'when TRAVIS_BUILD_APT_WHITELIST_SKIP is set' do
+      context 'when whitelist skippping is enabled' do
         let(:paranoid) { true }
-        before :all do
-          ENV['TRAVIS_BUILD_APT_WHITELIST_SKIP'] = '1'
-        end
-
-        after :all do
-          ENV.delete 'TRAVIS_BUILD_APT_WHITELIST_SKIP'
-        end
+        let(:whitelist_skip) { true }
 
         it { should include_sexp [:cmd, apt_get_install_command('git', 'curl', 'darkcoin'), echo: true, timing: true] }
       end
@@ -260,17 +261,10 @@ describe Travis::Build::Addons::Apt, :sexp do
       end
     end
 
-    context 'when TRAVIS_BUILD_APT_WHITELIST_SKIP env var is set' do
+    context 'when whitelist skipping is enabled' do
       let(:paranoid) { true }
       let(:apt_config) { { sources: ['packagecloud-precise', 'deadsnakes-precise', 'evilbadthings', 'ppa:archivematica/externals', { sourceline: 'foobar', key_url: 'deadbeef' }] } }
-
-      before :all do
-        ENV['TRAVIS_BUILD_APT_WHITELIST_SKIP'] = '1'
-      end
-
-      after :all do
-        ENV.delete 'TRAVIS_BUILD_APT_WHITELIST_SKIP'
-      end
+      let(:whitelist_skip) { true }
 
       it { should include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
       it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
