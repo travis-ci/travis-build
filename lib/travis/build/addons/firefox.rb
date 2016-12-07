@@ -25,7 +25,7 @@ module Travis
             sh.if '$(uname) = "Linux"' do
               sh.cmd "wget -O /tmp/#{filename} $FIREFOX_SOURCE_URL", echo: true, timing: true, retry: true
               sh.cmd "tar xf /tmp/#{filename}"
-              sh.cmd "sudo ln -sf #{install_dir}/firefox/firefox /usr/local/bin/firefox", echo: false
+              sh.export 'PATH', "#{install_dir}/firefox:$PATH"
             end
             sh.elif '$(uname) = "Darwin"' do
               sh.cmd "wget -O /tmp/#{filename('dmg')} $FIREFOX_SOURCE_URL", echo: true, timing: true, retry: true
