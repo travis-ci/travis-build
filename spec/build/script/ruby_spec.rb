@@ -131,6 +131,16 @@ describe Travis::Build::Script::Ruby, :sexp do
     end
   end
 
+  context 'when testing with 1.8.7' do
+    before :each do
+      data[:config][:rvm] = '1.8.7'
+    end
+
+    it 'coerces version to 1.8.7-p371' do
+      should include_sexp [:cmd, 'rvm use 1.8.7-p371 --install --binary --fuzzy', assert: true, echo: true, timing: true]
+    end
+  end
+
   context 'when testing with rbx' do
     before :each do
       data[:config][:rvm] = 'rbx'

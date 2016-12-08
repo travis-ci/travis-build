@@ -45,7 +45,8 @@ module Travis
           end
 
           def ruby_version
-            config[:rvm].to_s.gsub(/-(1[89]|2[01])mode$/, '-d\1')
+            vers = config[:rvm].to_s.gsub(/-(1[89]|2[01])mode$/, '-d\1')
+            force_187_p371 vers
           end
 
           def setup_rvm
@@ -113,6 +114,10 @@ module Travis
           def write_default_gems
             sh.mkdir '$rvm_path/gemsets', recursive: true, echo: false
             sh.cmd 'echo -e "gem-wrappers\nrubygems-bundler\nbundler\nrake\nrvm\n" > $rvm_path/gemsets/global.gems', echo: false, timing: false
+          end
+
+          def force_187_p371(version)
+            version.gsub(/^1\.8\.7.*$/, '1.8.7-p371')
           end
       end
     end
