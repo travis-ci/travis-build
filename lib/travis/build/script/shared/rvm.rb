@@ -117,7 +117,7 @@ module Travis
           end
 
           def force_187_p371(version)
-            version.gsub(/^1\.8\.7.*$/,'1.8.7-p371')
+            version.gsub(/^1\.8\.7.*$/, '1.8.7-p371')
           end
       end
     end
