@@ -71,7 +71,7 @@ module Travis
               sh.newline
               sh.echo "Using $HOME/.netrc to clone repository.", ansi: :yellow
               sh.newline
-              sh.raw "echo -e \"machine github.com\n  login #{data[:oauth_token]}\\n\" > $HOME/.netrc"
+              sh.raw "echo -e \"machine github.com\n  login #{data.token}\\n\" > $HOME/.netrc"
               sh.raw "chmod 0600 $HOME/.netrc"
             end
           end
