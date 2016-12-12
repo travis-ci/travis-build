@@ -92,7 +92,8 @@ module Travis
                   sh.cmd 'sudo apt-get install -y --no-install-recommends '\
                     'build-essential gcc g++ gfortran libblas-dev liblapack-dev '\
                     'libncurses5-dev libreadline-dev libjpeg-dev '\
-                    'libpng-dev zlib1g-dev libbz2-dev liblzma-dev cdbs qpdf texinfo', retry: true
+                    'libpng-dev zlib1g-dev libbz2-dev liblzma-dev cdbs qpdf texinfo '\
+                    'libmagick++-dev libssh2-1-dev', retry: true
 
                   r_filename = "R-#{r_version}.xz"
                   r_url = "https://s3.amazonaws.com/rstudio-travis/R-#{r_version}.xz"
@@ -109,7 +110,7 @@ module Travis
                   # --as-cran checks:
                   #   https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
                   sh.cmd 'sudo apt-get install -y --no-install-recommends r-base-dev ' +
-                    'r-recommended qpdf texinfo', retry: true
+                    'r-recommended qpdf texinfo libmagick++-dev libssh2-1-dev', retry: true
 
                   # Change permissions for /usr/local/lib/R/site-library
                   # This should really be via 'sudo adduser travis staff'
