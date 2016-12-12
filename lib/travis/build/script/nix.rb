@@ -52,7 +52,7 @@ module Travis
           super
 
           sh.echo 'Nix support for Travis CI is community maintained.', ansi: :red
-          sh.echo 'Please open any issues at https://github.com/travis-ci/travis-ci/issues/new and cc @domen @garbas @matthewbauer', ansi: :red
+          sh.echo 'Please open any issues at https://github.com/travis-ci/travis-ci/issues/new and cc @domenkozar @garbas @matthewbauer', ansi: :red
 
           sh.cmd "nix-env --version"
         end
