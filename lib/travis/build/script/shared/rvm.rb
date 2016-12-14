@@ -99,7 +99,18 @@ module Travis
           def use_ruby_version
             skip_deps_install if rbx?
             sh.fold('rvm') do
-              sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy"
+              if ruby_version.start_with? 'ree'
+                sh.if "! $(rvm list | grep ree)" do
+                  sh.echo "Installing REE from source. This may take a few minutes.", ansi: :yellow
+                  sh.cmd "sed -i 's|^\\(ree_1.8.7_url\\)=.*$|\\1=https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/rubyenterpriseedition|' $HOME/.rvm/config/db"
+                  sh.cmd "rvm use #{ruby_version} --install --fuzzy"
+                end
+                sh.else do
+                  sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy"
+                end
+              else
+                sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy"
+              end
             end
           end
 
