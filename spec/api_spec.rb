@@ -9,8 +9,9 @@ describe Travis::Api::Build::App, :include_sinatra_helpers do
       set :show_exceptions, :after_handler
     end
 
+    Travis::Api::Build::App.any_instance
+      .stubs(:api_tokens).returns(%w(the-token the-other-token))
     set_app(app)
-    ENV['API_TOKEN'] = 'the-token,the-other-token'
   end
 
   context 'when there is an unexpected error' do

@@ -45,10 +45,6 @@ module Travis
   module Build
     class Script
       TEMPLATES_PATH = File.expand_path('../templates', __FILE__)
-      INTERNAL_RUBY_REGEX = ENV.fetch(
-        'TRAVIS_INTERNAL_RUBY_REGEX',
-        '^ruby-(2\.[0-2]\.[0-9]|1\.9\.3)'
-      ).untaint
       DEFAULTS = {}
 
       class << self
@@ -146,7 +142,7 @@ module Travis
             template(
               'header.sh',
               build_dir: BUILD_DIR,
-              internal_ruby_regex: INTERNAL_RUBY_REGEX,
+              internal_ruby_regex: Travis::Build.config.internal_ruby_regex.untaint,
               root: '/',
               home: HOME_DIR
             ), pos: 0
@@ -236,7 +232,7 @@ module Travis
         end
 
         def debug_enabled?
-          ENV['TRAVIS_ENABLE_DEBUG_TOOLS'] == '1'
+          Travis::Build.config.enable_debug_tools == '1'
         end
     end
   end

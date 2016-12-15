@@ -147,12 +147,12 @@ module Travis
           end
 
           def update_nvm
-            return unless ENV['TRAVIS_BUILD_APP_HOST']
+            return unless Travis::Build.config.app_host
             nvm_sh_location = "$HOME/.nvm/nvm.sh"
             sh.if "$(vers2int `nvm --version`) -lt $(vers2int #{NVM_VERSION})" do
               sh.echo "Updating nvm to v#{NVM_VERSION}", ansi: :yellow, timing: false
               sh.raw "mkdir -p $HOME/.nvm"
-              sh.raw "curl -s -o #{nvm_sh_location} https://#{ENV['TRAVIS_BUILD_APP_HOST']}/files/nvm.sh".untaint, assert: false
+              sh.raw "curl -s -o #{nvm_sh_location} https://#{Travis::Build.config.app_host.untaint}/files/nvm.sh".untaint, assert: false
               sh.raw "source #{nvm_sh_location}", assert: false
             end
           end

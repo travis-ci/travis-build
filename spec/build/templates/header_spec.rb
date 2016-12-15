@@ -12,7 +12,7 @@ describe 'header.sh', integration: true do
       build_dir: build_dir,
       root: build_dir,
       home: build_dir,
-      internal_ruby_regex: Travis::Build::Script::INTERNAL_RUBY_REGEX
+      internal_ruby_regex: Travis::Build.config.internal_ruby_regex.untaint
     ).render(header_sh)
   end
 
