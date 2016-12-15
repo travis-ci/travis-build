@@ -8,7 +8,7 @@ module Travis
           gobuild_args: '-v',
           gimme_config: {
             url: Travis::Build.config.gimme.url.untaint,
-            force_reinstall: Travis::Build.config.gimme.force_reinstall?
+            force_reinstall: Travis::Build.config.gimme.force_reinstall == '1'
           },
           go: Travis::Build.config.go_version.untaint
         }
