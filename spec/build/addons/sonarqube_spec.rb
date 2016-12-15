@@ -14,9 +14,29 @@ describe Travis::Build::Addons::Sonarqube, :sexp do
     let(:code) { ['curl -sSLo $HOME/.sonarscanner/sonar-scanner.zip http://repo1.maven.org/maven2/org/sonarsource/scanner/cli/sonar-scanner-cli/2.8/sonar-scanner-cli-2.8.zip'] }
   end
 
-  describe 'scanner installation' do
+  describe 'scanner and build wrapper installation' do
     it { should include_sexp [:export, ['SONAR_SCANNER_HOME', '$HOME/.sonarscanner/sonar-scanner-2.8'], {:echo=>true}] }
     it { should include_sexp [:export, ['PATH', "\"$PATH:$HOME/.sonarscanner/sonar-scanner-2.8/bin\""]] }
+    it { should include_sexp [:mkdir, "$sq_build_wrapper_dir", {:recursive=>true}] }
+    it { should include_sexp [:export, ['PATH', "\"$PATH:$sq_build_wrapper_dir/build-wrapper-linux-x86\""]] }
+  end
+  
+  describe 'skip build wrapper installation with java' do
+    let(:data) { super().merge(config: { :language => 'java' })}
+    
+    it { should include_sexp [:export, ['SONAR_SCANNER_HOME', '$HOME/.sonarscanner/sonar-scanner-2.8'], {:echo=>true}] }
+    it { should include_sexp [:export, ['PATH', "\"$PATH:$HOME/.sonarscanner/sonar-scanner-2.8/bin\""]] }
+    it { should_not include_sexp [:mkdir, "$sq_build_wrapper_dir", {:recursive=>true}] }
+    it { should_not include_sexp [:export, ['PATH', "\"$PATH:$sq_build_wrapper_dir/build-wrapper-linux-x86\""]] }
+  end
+  
+  describe 'skip build wrapper with invalid os' do
+    let(:data) { super().merge(config: { :language => 'unkown' })}
+    
+    it { should include_sexp [:export, ['SONAR_SCANNER_HOME', '$HOME/.sonarscanner/sonar-scanner-2.8'], {:echo=>true}] }
+    it { should include_sexp [:export, ['PATH', "\"$PATH:$HOME/.sonarscanner/sonar-scanner-2.8/bin\""]] }
+    it { should include_sexp [:echo, "Can't install SonarSource build wrapper for platform: $TRAVIS_OS_NAME.", {:ansi=>:yellow}] }
+    it { should_not include_sexp [:export, ['PATH', "\"$PATH:$sq_build_wrapper_dir/build-wrapper-linux-x86\""]] }
   end
   
   describe 'skip pull request analysis' do

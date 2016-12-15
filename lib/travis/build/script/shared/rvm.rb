@@ -45,7 +45,8 @@ module Travis
           end
 
           def ruby_version
-            config[:rvm].to_s.gsub(/-(1[89]|2[01])mode$/, '-d\1')
+            vers = config[:rvm].to_s.gsub(/-(1[89]|2[01])mode$/, '-d\1')
+            force_187_p371 vers
           end
 
           def setup_rvm
@@ -98,7 +99,18 @@ module Travis
           def use_ruby_version
             skip_deps_install if rbx?
             sh.fold('rvm') do
-              sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy"
+              if ruby_version.start_with? 'ree'
+                sh.if "! $(rvm list | grep ree)" do
+                  sh.echo "Installing REE from source. This may take a few minutes.", ansi: :yellow
+                  sh.cmd "sed -i 's|^\\(ree_1.8.7_url\\)=.*$|\\1=https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/rubyenterpriseedition|' $HOME/.rvm/config/db"
+                  sh.cmd "rvm use #{ruby_version} --install --fuzzy"
+                end
+                sh.else do
+                  sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy"
+                end
+              else
+                sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy"
+              end
             end
           end
 
@@ -113,6 +125,10 @@ module Travis
           def write_default_gems
             sh.mkdir '$rvm_path/gemsets', recursive: true, echo: false
             sh.cmd 'echo -e "gem-wrappers\nrubygems-bundler\nbundler\nrake\nrvm\n" > $rvm_path/gemsets/global.gems', echo: false, timing: false
+          end
+
+          def force_187_p371(version)
+            version.gsub(/^1\.8\.7.*$/, '1.8.7-p371')
           end
       end
     end
