@@ -20,24 +20,24 @@ module Travis
         end
 
         configure do
-          if ENV['SENTRY_DSN']
-            use Sentry
-          end
-
-          if ENV.key?('LIBRATO_EMAIL') && ENV.key?('LIBRATO_TOKEN') && ENV.key?('LIBRATO_SOURCE')
-            use Metriks
-          end
+          use Sentry unless Travis::Build.config.sentry_dsn.empty?
+          use Metriks unless Travis::Build.config.librato.email.empty? ||
+                             Travis::Build.config.librato.token.empty? ||
+                             Travis::Build.config.librato.source.empty?
 
           use Rack::Deflater
         end
 
         helpers do
           def auth_disabled?
-            (
-              ENV['API_TOKEN'].nil? || ENV['API_TOKEN'].strip.empty?
-            ) && (
-              settings.development? || settings.testing?
+            api_tokens.empty? && (
+              settings.development? || settings.test?
             )
+          end
+
+          def api_tokens
+            @api_tokens ||=
+              Travis::Build.config.api_token.to_s.split(',').map(&:strip)
           end
         end
 
@@ -50,7 +50,7 @@ module Travis
 
           type, token = env['HTTP_AUTHORIZATION'].to_s.split(' ', 2)
 
-          ENV['API_TOKEN'].split(',').each do |valid_token|
+          api_tokens.each do |valid_token|
             return if Rack::Utils.secure_compare(type, 'token') &&
                       Rack::Utils.secure_compare(token, valid_token)
           end
@@ -71,7 +71,7 @@ module Travis
         post '/script' do
           payload = JSON.parse(request.body.read)
 
-          if ENV['SENTRY_DSN']
+          unless Travis::Build.config.sentry_dsn.empty?
             Raven.extra_context(
               repository: payload.fetch('repository', {}).fetch('slug', '???'),
               job: payload.fetch('job', {}).fetch('id', '???'),

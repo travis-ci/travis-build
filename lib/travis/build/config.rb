@@ -60,7 +60,21 @@ module Travis
               '1.x.x' => '1.7.4'
             }.map { |k, v| "#{k}:#{v}" }.join(',')
           )
-        )
+        ),
+        librato: {
+          email: ENV.fetch(
+            'TRAVIS_BUILD_LIBRATO_EMAIL', ENV.fetch('LIBRATO_EMAIL', '')
+          ),
+          source: ENV.fetch(
+            'TRAVIS_BUILD_LIBRATO_SOURCE', ENV.fetch('LIBRATO_SOURCE', '')
+          ),
+          token: ENV.fetch(
+            'TRAVIS_BUILD_LIBRATO_TOKEN', ENV.fetch('LIBRATO_TOKEN', '')
+          ),
+        },
+        sentry_dsn: ENV.fetch(
+          'TRAVIS_BUILD_SENTRY_DSN', ENV.fetch('SENTRY_DSN', '')
+        ),
       )
 
       default(
