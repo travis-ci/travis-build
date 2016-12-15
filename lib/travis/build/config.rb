@@ -33,6 +33,13 @@ module Travis
           trusty: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_WHITELIST_TRUSTY', '')
         },
         apt_whitelist_skip: ENV.fetch('TRAVIS_BUILD_APT_WHITELIST_SKIP', ''),
+        enable_debug_tools: ENV.fetch(
+          'TRAVIS_BUILD_ENABLE_DEBUG_TOOLS',
+          ENV.fetch('TRAVIS_ENABLE_DEBUG_TOOLS', '')
+        ),
+        etc_hosts_pinning: ENV.fetch(
+          'TRAVIS_BUILD_ETC_HOSTS_PINNING', ENV.fetch('ETC_HOSTS_PINNING', '')
+        ),
         ghc_default: ENV.fetch('TRAVIS_BUILD_GHC_DEFAULT', '7.8.4'),
         gimme: {
           force_reinstall: ENV.fetch('TRAVIS_BUILD_GIMME_FORCE_REINSTALL', ''),
@@ -61,6 +68,10 @@ module Travis
             }.map { |k, v| "#{k}:#{v}" }.join(',')
           )
         ),
+        internal_ruby_regex: ENV.fetch(
+          'TRAVIS_BUILD_INTERNAL_RUBY_REGEX',
+          '^ruby-(2\.[0-2]\.[0-9]|1\.9\.3)'
+        ),
         librato: {
           email: ENV.fetch(
             'TRAVIS_BUILD_LIBRATO_EMAIL', ENV.fetch('LIBRATO_EMAIL', '')
@@ -75,6 +86,10 @@ module Travis
         sentry_dsn: ENV.fetch(
           'TRAVIS_BUILD_SENTRY_DSN', ENV.fetch('SENTRY_DSN', '')
         ),
+        update_glibc: ENV.fetch(
+          'TRAVIS_BUILD_UPDATE_GLIBC',
+          ENV.fetch('TRAVIS_UPDATE_GLIBC', ENV.fetch('UPDATE_GLIBC', ''))
+        )
       )
 
       default(

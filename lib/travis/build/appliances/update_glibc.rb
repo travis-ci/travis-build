@@ -5,7 +5,7 @@ module Travis
     module Appliances
       class UpdateGlibc < Base
         def apply?
-          ENV['TRAVIS_UPDATE_GLIBC']
+          !Travis::Build.config.update_glibc.empty?
         end
 
         def apply
