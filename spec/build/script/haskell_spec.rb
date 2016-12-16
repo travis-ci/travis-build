@@ -14,9 +14,13 @@ describe Travis::Build::Script::Haskell, :sexp do
   it_behaves_like 'a build script sexp'
 
   it "exports PATH variable" do
+    should include_sexp [:export, ['PATH', "${TRAVIS_GHC_ROOT}/${TRAVIS_HASKELL_VERSION}/bin:${PATH}"], echo: true, assert: true]
+  end
+
+  it 'exports TRAVIS_HASKELL_VERSION variable' do
     version = "version"
     data[:config][:ghc] = version
-    should include_sexp [:export, ['PATH', "${TRAVIS_GHC_ROOT}/$(travis_ghc_find #{version})/bin:$PATH"], echo: true, assert: true]
+    should include_sexp [:export, ['TRAVIS_HASKELL_VERSION', "$(travis_ghc_find #{version})"], echo: true]
   end
 
   it 'runs cabal update' do

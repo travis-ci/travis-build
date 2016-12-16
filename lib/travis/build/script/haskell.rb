@@ -6,7 +6,7 @@ module Travis
           ghc: Travis::Build.config.ghc_default.untaint
         }
 
-        def setup
+        def configure
           super
           sh.raw(
             template(
@@ -15,7 +15,16 @@ module Travis
               root: '/'
             )
           )
-          sh.export 'PATH', "#{path}:$PATH", assert: true
+          sh.raw "if ! travis_ghc_find #{version} &>/dev/null; then"
+          sh.echo "#{version} is not installed; attempting installation", ansi: :yellow
+          sh.raw "travis_ghc_install #{version}"
+          sh.raw 'fi'
+        end
+
+        def setup
+          super
+          sh.export 'TRAVIS_HASKELL_VERSION', "$(travis_ghc_find #{version})"
+          sh.export 'PATH', "${TRAVIS_GHC_ROOT}/${TRAVIS_HASKELL_VERSION}/bin:${PATH}", assert: true
           sh.cmd 'cabal update', fold: 'cabal', retry: true
         end
 
@@ -31,10 +40,6 @@ module Travis
 
         def script
           sh.cmd 'cabal configure --enable-tests && cabal build && cabal test'
-        end
-
-        def path
-          "${TRAVIS_GHC_ROOT}/$(travis_ghc_find #{version})/bin"
         end
 
         def version
