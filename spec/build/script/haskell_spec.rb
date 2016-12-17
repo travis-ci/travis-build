@@ -18,7 +18,6 @@ describe Travis::Build::Script::Haskell, :sexp do
   end
 
   it 'exports TRAVIS_HASKELL_VERSION variable' do
-    require 'pry';binding.pry
     data[:config][:ghc] = 'default'
     should include_sexp [:export, ['TRAVIS_HASKELL_VERSION', "$(travis_ghc_find '#{described_class::DEFAULTS[:ghc]}')"], echo: true]
   end
