@@ -41,6 +41,7 @@ module Travis
           'TRAVIS_BUILD_ETC_HOSTS_PINNING', ENV.fetch('ETC_HOSTS_PINNING', '')
         ),
         ghc_default: ENV.fetch('TRAVIS_BUILD_GHC_DEFAULT', '7.8.4'),
+        cabal_default: ENV.fetch('TRAVIS_BUILD_CABAL_DEFAULT', '1.18'),
         gimme: {
           force_reinstall: ENV.fetch('TRAVIS_BUILD_GIMME_FORCE_REINSTALL', ''),
           url: ENV.fetch(

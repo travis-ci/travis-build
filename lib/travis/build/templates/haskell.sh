@@ -33,19 +33,29 @@ function travis_ghc_find() {
 }
 
 function travis_ghc_install() {
-  local search="${1}"
+  local ghc_version="${1}"
+  local cabal_version="${2}"
+  if [[ ! "${ghc_version}" ]]; then
+    return 1
+  fi
+  if [[ ! "${cabal_version}" ]]; then
+    return 1
+  fi
   if ! sudo date &>/dev/null; then
     <%# no sudo? no installation %>
     return 1
   fi
   if [[ ! -f '<%= root %>/etc/apt/sources.list.d/hvr-ghc.list' ]]; then
+    echo -e "\n${ANSI_GREEN}Adding ppa:hvr/ghc.${ANSI_RESET}"
     sudo apt-add-repository -yq ppa:hvr/ghc
   fi
-  sudo apt-get update -yq
-  if sudo apt-get install -yq "ghc-${1}*"; then
-    echo -e "\n${ANSI_GREEN}Successfully installed GHC version =~ ${1}.${ANSI_RESET}"
-    return 0
+  sudo apt-get update -yqq
+  if sudo apt-get install -yq "ghc-${ghc_version}"; then
+    echo -e "\n${ANSI_GREEN}Successfully installed ghc-${ghc_version}.${ANSI_RESET}"
+    if sudo apt-get install -yq "cabal-install-${cabal_version}"; then
+      echo -e "\n${ANSI_GREEN}Successfully installed cabal-install-${cabal_version}.${ANSI_RESET}"
+      return 0
+    fi
   fi
-  echo -e "\n${ANSI_RED}Failed to install GHC version =~ ${1}.${ANSI_RESET}"
   return 1
 }
