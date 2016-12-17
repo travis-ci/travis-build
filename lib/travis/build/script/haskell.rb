@@ -6,6 +6,9 @@ module Travis
           cabal: Travis::Build.config.cabal_default.to_s.untaint,
           ghc: Travis::Build.config.ghc_default.to_s.untaint
         }
+        GHC_VERSION_ALIASES = Travis::Build.config.ghc_version_aliases_hash.merge(
+          'default' => DEFAULTS[:ghc]
+        ).freeze
 
         def configure
           super
@@ -48,7 +51,8 @@ module Travis
         end
 
         def version
-          config[:ghc].to_s
+          v = config[:ghc].to_s
+          GHC_VERSION_ALIASES.fetch(v, v)
         end
 
         def cabal_version

@@ -18,9 +18,9 @@ describe Travis::Build::Script::Haskell, :sexp do
   end
 
   it 'exports TRAVIS_HASKELL_VERSION variable' do
-    version = "version"
-    data[:config][:ghc] = version
-    should include_sexp [:export, ['TRAVIS_HASKELL_VERSION', "$(travis_ghc_find '#{version}')"], echo: true]
+    require 'pry';binding.pry
+    data[:config][:ghc] = 'default'
+    should include_sexp [:export, ['TRAVIS_HASKELL_VERSION', "$(travis_ghc_find '#{described_class::DEFAULTS[:ghc]}')"], echo: true]
   end
 
   it 'runs cabal update' do

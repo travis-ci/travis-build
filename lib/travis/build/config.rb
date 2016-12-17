@@ -8,13 +8,33 @@ module Travis
       self.env_namespace = 'travis_build'
 
       def go_version_aliases_hash
-        @go_version_aliases_hash ||= begin
-          {}.tap do |aliases|
-            go_version_aliases.untaint.split(',').each do |v|
-              key, value = v.strip.split(':', 2)
-              next if key.nil? || value.nil?
-              aliases[key] = value
-            end
+        @go_version_aliases_hash ||= aliases_hash(:go_version_aliases)
+      end
+
+      def ghc_version_aliases_hash
+        @ghc_version_aliases_hash ||= aliases_hash(:ghc_version_aliases)
+      end
+
+      private def aliases_hash(key)
+        {}.tap do |aliases|
+          self[key].untaint.split(',').each do |v|
+            key, value = v.strip.split(':', 2)
+            next if key.nil? || value.nil?
+            aliases[key] = value
+          end
+        end
+      end
+
+      def self.latest_semver_aliases(major_full)
+        {}.tap do |aliases|
+          major_full.map do |major, full|
+            fullparts = full.split('.')
+            aliases.merge!(
+              major => full,
+              "#{major}.x" => full,
+              "#{major}.x.x" => full,
+              "#{fullparts[0]}.#{fullparts[1]}.x" => full
+            )
           end
         end
       end
@@ -33,6 +53,7 @@ module Travis
           trusty: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_WHITELIST_TRUSTY', '')
         },
         apt_whitelist_skip: ENV.fetch('TRAVIS_BUILD_APT_WHITELIST_SKIP', ''),
+        cabal_default: ENV.fetch('TRAVIS_BUILD_CABAL_DEFAULT', '1.22'),
         enable_debug_tools: ENV.fetch(
           'TRAVIS_BUILD_ENABLE_DEBUG_TOOLS',
           ENV.fetch('TRAVIS_ENABLE_DEBUG_TOOLS', '')
@@ -40,8 +61,22 @@ module Travis
         etc_hosts_pinning: ENV.fetch(
           'TRAVIS_BUILD_ETC_HOSTS_PINNING', ENV.fetch('ETC_HOSTS_PINNING', '')
         ),
-        ghc_default: ENV.fetch('TRAVIS_BUILD_GHC_DEFAULT', '7.8.4'),
-        cabal_default: ENV.fetch('TRAVIS_BUILD_CABAL_DEFAULT', '1.18'),
+        ghc_default: ENV.fetch('TRAVIS_BUILD_GHC_DEFAULT', '7.10.3'),
+        ghc_version_aliases: ENV.fetch(
+          'TRAVIS_BUILD_GHC_VERSION_ALIASES', (
+            latest_semver_aliases(
+              '6' => '6.12.3',
+              '7' => '7.10.3',
+              '8' => '8.0.2'
+            ).merge(
+              '7.8.x' => '7.8.4',
+              '7.6.x' => '7.6.3',
+              '7.4.x' => '7.4.2',
+              '7.2.x' => '7.2.2',
+              '7.0.x' => '7.0.4',
+            ).map { |k, v| "#{k}:#{v}" }.join(',')
+          )
+        ),
         gimme: {
           force_reinstall: ENV.fetch('TRAVIS_BUILD_GIMME_FORCE_REINSTALL', ''),
           url: ENV.fetch(
@@ -52,8 +87,7 @@ module Travis
         go_version: ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.7.4'),
         go_version_aliases: ENV.fetch(
           'TRAVIS_BUILD_GO_VERSION_ALIASES', (
-            {
-              '1' => '1.7.4',
+            latest_semver_aliases('1' => '1.7.4').merge(
               '1.0' => '1.0.3',
               '1.0.x' => '1.0.3',
               '1.1.x' => '1.1.2',
@@ -63,10 +97,7 @@ module Travis
               '1.4.x' => '1.4.3',
               '1.5.x' => '1.5.4',
               '1.6.x' => '1.6.3',
-              '1.7.x' => '1.7.4',
-              '1.x' => '1.7.4',
-              '1.x.x' => '1.7.4'
-            }.map { |k, v| "#{k}:#{v}" }.join(',')
+            ).map { |k, v| "#{k}:#{v}" }.join(',')
           )
         ),
         internal_ruby_regex: ENV.fetch(
