@@ -87,7 +87,9 @@ module Travis
         go_version: ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.7.4'),
         go_version_aliases: ENV.fetch(
           'TRAVIS_BUILD_GO_VERSION_ALIASES', (
-            latest_semver_aliases('1' => '1.7.4').merge(
+            latest_semver_aliases(
+              '1' => '1.7.4'
+            ).merge(
               '1.0' => '1.0.3',
               '1.0.x' => '1.0.3',
               '1.1.x' => '1.1.2',

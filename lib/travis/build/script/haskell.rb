@@ -5,7 +5,7 @@ module Travis
         DEFAULTS = {
           cabal: Travis::Build.config.cabal_default.to_s.untaint,
           ghc: Travis::Build.config.ghc_default.to_s.untaint
-        }
+        }.freeze
         GHC_VERSION_ALIASES = Travis::Build.config.ghc_version_aliases_hash.merge(
           'default' => DEFAULTS[:ghc]
         ).freeze

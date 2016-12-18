@@ -41,4 +41,35 @@ describe Travis::Build::Script::Haskell, :sexp do
   it 'runs cabal configure --enable-tests && cabal build && cabal test' do
     should include_sexp [:cmd, 'cabal configure --enable-tests && cabal build && cabal test', echo: true, timing: true]
   end
+
+  context 'when full ghc and cabal versions are given' do
+    before do
+      data[:config][:ghc] = '7.7.7'
+      data[:config][:cabal] = '1.11'
+    end
+
+    it 'checks for existing installation' do
+      should include_sexp [:raw, %(if ! travis_ghc_find '7.7.7' &>/dev/null; then)]
+    end
+
+    it 'installs ghc version when not present' do
+      should include_sexp [:echo, %(ghc-7.7.7 is not installed; attempting installation), ansi: :yellow]
+      should include_sexp [:raw, %(travis_ghc_install '7.7.7' '1.11')]
+      should include_sexp [:export, ['TRAVIS_HASKELL_VERSION', %($(travis_ghc_find '7.7.7'))], echo: true]
+    end
+  end
+
+  context 'when valid alias ghc version is given' do
+    before do
+      described_class.const_set(
+        :GHC_VERSION_ALIASES,
+        described_class::GHC_VERSION_ALIASES.dup.merge('rad' => '8.0.9')
+      )
+      data[:config][:ghc] = 'rad'
+    end
+
+    it 'uses the resolved version' do
+      should include_sexp [:export, ['TRAVIS_HASKELL_VERSION', %($(travis_ghc_find '8.0.9'))], echo: true]
+    end
+  end
 end
