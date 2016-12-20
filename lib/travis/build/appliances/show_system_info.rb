@@ -35,11 +35,18 @@ module Travis
           def show_system_info_file
             sh.if "-f #{info_file}" do
               sh.cmd "cat #{info_file}"
+              sh.elif "-f #{info_file_homedir}" do
+                sh.cmd "cat #{info_file_homedir}"
+              end
             end
           end
 
           def info_file
             '/usr/share/travis/system_info'
+          end
+
+          def info_file_homedir
+            '$HOME/.system_info'
           end
       end
     end
