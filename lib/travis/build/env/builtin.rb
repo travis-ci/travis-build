@@ -22,6 +22,7 @@ module Travis
               TRAVIS:                 true,
               CI:                     true,
               CONTINUOUS_INTEGRATION: true,
+              PAGER:                  'cat',
               HAS_JOSH_K_SEAL_OF_APPROVAL: true,
               TRAVIS_EVENT_TYPE:      build[:event_type],
               TRAVIS_PULL_REQUEST:    pull_request || false,
