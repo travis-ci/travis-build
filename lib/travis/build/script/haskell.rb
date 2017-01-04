@@ -23,8 +23,10 @@ module Travis
           # Automatic installation of exact versions *only*.
           if version =~ /^\d+\.\d+\.\d+$/ && cabal_version =~ /^\d+\.\d+$/
             sh.raw "if ! travis_ghc_find '#{version}' &>/dev/null; then"
+            sh.raw 'travis_fold start ghc.install'
             sh.echo "ghc-#{version} is not installed; attempting installation", ansi: :yellow
             sh.raw "travis_ghc_install '#{version}' '#{cabal_version}'"
+            sh.raw 'travis_fold end ghc.install'
             sh.raw 'fi'
           end
         end
