@@ -80,7 +80,7 @@ module Travis
           if data.cache?(:yarn)
             sh.fold 'cache.yarn' do
               sh.echo ''
-              directory_cache.add '$HOME/.yarn-cache'
+              directory_cache.add '$HOME/.cache/yarn'
             end
           end
         end
