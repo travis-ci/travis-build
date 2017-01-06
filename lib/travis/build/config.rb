@@ -64,17 +64,16 @@ module Travis
         ghc_default: ENV.fetch('TRAVIS_BUILD_GHC_DEFAULT', '7.10.3'),
         ghc_version_aliases: ENV.fetch(
           'TRAVIS_BUILD_GHC_VERSION_ALIASES', (
-            latest_semver_aliases(
-              '6' => '6.12.3',
-              '7' => '7.10.3',
-              '8' => '8.0.2'
-            ).merge(
-              '7.8.x' => '7.8.4',
-              '7.6.x' => '7.6.3',
-              '7.4.x' => '7.4.2',
-              '7.2.x' => '7.2.2',
+            {
+              '6.12.x' => '6.12.3',
               '7.0.x' => '7.0.4',
-            ).map { |k, v| "#{k}:#{v}" }.join(',')
+              '7.10.x' => '7.10.3',
+              '7.2.x' => '7.2.2',
+              '7.4.x' => '7.4.2',
+              '7.6.x' => '7.6.3',
+              '7.8.x' => '7.8.4',
+              '8.0.x' => '8.0.2'
+            }.map { |k, v| "#{k}:#{v}" }.join(',')
           )
         ),
         gimme: {

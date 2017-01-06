@@ -42,20 +42,26 @@ describe Travis::Build::Script::Haskell, :sexp do
     should include_sexp [:cmd, 'cabal configure --enable-tests && cabal build && cabal test', echo: true, timing: true]
   end
 
-  context 'when full ghc and cabal versions are given' do
-    before do
-      data[:config][:ghc] = '7.7.7'
-      data[:config][:cabal] = '1.11'
-    end
+  [
+    { ghc: '7.7.7', cabal: '1.11' },
+    { ghc: '8.8.8', cabal: 'head' },
+    { ghc: 'head', cabal: '1.23' },
+    { ghc: 'head', cabal: 'head' },
+  ].each do |ghc_config|
+    context "when full ghc=#{ghc_config[:ghc]} and cabal=#{ghc_config[:cabal]} versions are given" do
+      before do
+        data[:config].merge!(ghc_config)
+      end
 
-    it 'checks for existing installation' do
-      should include_sexp [:raw, %(if ! travis_ghc_find '7.7.7' &>/dev/null; then)]
-    end
+      it 'checks for existing installation' do
+        should include_sexp [:raw, %(if ! travis_ghc_find '#{ghc_config[:ghc]}' &>/dev/null; then)]
+      end
 
-    it 'installs ghc version when not present' do
-      should include_sexp [:echo, %(ghc-7.7.7 is not installed; attempting installation), ansi: :yellow]
-      should include_sexp [:raw, %(travis_ghc_install '7.7.7' '1.11')]
-      should include_sexp [:export, ['TRAVIS_HASKELL_VERSION', %($(travis_ghc_find '7.7.7'))], echo: true]
+      it 'installs ghc version when not present' do
+        should include_sexp [:echo, %(ghc-#{ghc_config[:ghc]} is not installed; attempting installation), ansi: :yellow]
+        should include_sexp [:raw, %(travis_ghc_install '#{ghc_config[:ghc]}' '#{ghc_config[:cabal]}')]
+        should include_sexp [:export, ['TRAVIS_HASKELL_VERSION', %($(travis_ghc_find '#{ghc_config[:ghc]}'))], echo: true]
+      end
     end
   end
 
