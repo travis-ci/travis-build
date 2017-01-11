@@ -27,7 +27,7 @@ module Travis
 
       def self.latest_semver_aliases(major_full)
         {}.tap do |aliases|
-          major_full.map do |major, full|
+          major_full.each do |major, full|
             fullparts = full.split('.')
             aliases.merge!(
               major => full,
