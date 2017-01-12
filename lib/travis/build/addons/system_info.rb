@@ -2,7 +2,9 @@ module Travis
   module Build
     class Addons
       class SystemInfo < Base
-        def after_prepare
+        SUPER_USER_SAFE = true
+
+        def after_header
           sh.if "-f #{info_file}" do
             sh.fold 'system_info.details' do
               sh.echo 'Build system information details', ansi: :yellow
