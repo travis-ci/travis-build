@@ -6,12 +6,10 @@ module Travis
 
         def after_configure
           sh.if "-f #{info_file}" do
-            sh.echo ''
             sh.fold 'system_info.ext' do
               sh.echo 'Extended build system information', ansi: :yellow
               sh.cmd "cat #{info_file}", echo: false
             end
-            sh.echo ''
           end
         end
 
