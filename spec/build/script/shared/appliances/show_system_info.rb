@@ -8,7 +8,7 @@ shared_examples_for 'show system info' do
   let(:echo_build_id) { [:echo, /Build id: \d+/] }
   let(:echo_job_id)   { [:echo, /Job id: \d+/] }
   let(:path)          { '/usr/share/travis/system_info' }
-  let(:system_info)   { [:cmd, "cat #{path}"] }
+  let(:system_info)   { [:echo, "Info file: #{path}"] }
 
   it 'displays a header message' do
     expect(sexp).to include_sexp echo_notice
