@@ -4,10 +4,10 @@ module Travis
       class SystemInfo < Base
         SUPER_USER_SAFE = true
 
-        def after_header
+        def after_configure
           sh.if "-f #{info_file}" do
-            sh.fold 'system_info.details' do
-              sh.echo 'Build system information details', ansi: :yellow
+            sh.fold 'system_info.ext' do
+              sh.echo 'Extended build system information', ansi: :yellow
               sh.cmd "cat #{info_file}", echo: false
             end
           end
