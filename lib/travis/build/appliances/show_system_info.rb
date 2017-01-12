@@ -34,12 +34,19 @@ module Travis
 
           def show_system_info_file
             sh.if "-f #{info_file}" do
-              sh.cmd "cat #{info_file}"
+              sh.echo "Info file: #{info_file}"
+            end
+            sh.if "-f #{info_json_file}" do
+              sh.echo "Info JSON file: #{info_json_file}"
             end
           end
 
           def info_file
             '/usr/share/travis/system_info'
+          end
+
+          def info_json_file
+            '/usr/share/travis/system_info.json'
           end
       end
     end
