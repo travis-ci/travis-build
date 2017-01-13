@@ -10,6 +10,7 @@ module Travis
             header
             show_travis_build_version
             show_system_info_file
+            advertise_system_info_addon
           end
           sh.newline
         end
@@ -39,6 +40,12 @@ module Travis
             sh.if "-f #{info_json_file}" do
               sh.echo "Info JSON file: #{info_json_file}"
             end
+          end
+
+          def advertise_system_info_addon
+            sh.echo "Extended system info available via:", ansi: :yellow
+            sh.echo "  addons:"
+            sh.echo "    system_info: true"
           end
 
           def info_file
