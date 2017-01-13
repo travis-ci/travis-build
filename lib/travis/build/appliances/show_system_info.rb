@@ -43,9 +43,10 @@ module Travis
           end
 
           def advertise_system_info_addon
-            sh.echo "Extended system info available via:", ansi: :yellow
-            sh.echo "  addons:"
-            sh.echo "    system_info: true"
+            sh.echo(
+              %(Extended system info available via the "system_info" addon),
+              ansi: :yellow
+            )
           end
 
           def info_file
