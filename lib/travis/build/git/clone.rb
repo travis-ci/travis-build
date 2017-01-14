@@ -1,4 +1,5 @@
 require 'shellwords'
+require 'uri'
 
 module Travis
   module Build
@@ -18,6 +19,13 @@ module Travis
           def clone_or_fetch
             sh.if "! -d #{dir}/.git" do
               sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, retry: true
+              if github?
+                sh.if "$? -ne 0" do
+                  sh.echo "Failed to clone from GitHub.", ansi: :red
+                  sh.echo "Checking GitHub status (https://status.github.com/api/last-message.json):"
+                  sh.raw "curl -L https://last-message.github.com/api/status.json | jq .[]"
+                end
+              end
             end
             sh.else do
               sh.cmd "git -C #{dir} fetch origin", assert: true, retry: true
@@ -62,6 +70,11 @@ module Travis
 
           def config
             data.config
+          end
+
+          def github?
+            host = URI.parse(data.source_url).host.downcase
+            host == 'github.com' || host.end_with?('.github.com')
           end
       end
     end
