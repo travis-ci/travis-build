@@ -74,6 +74,7 @@ describe Travis::Build::Script::Go, :sexp do
     '1.5.x' => '1.5.4',
     '1.6.x' => '1.6.4',
     '1.7.x' => '1.7.4',
+    '1.8.x' => '1.8rc1',
     '1.x' => '1.7.4',
     '1.x.x' => '1.7.4',
     'default' => Travis::Build::Script::Go::DEFAULTS[:go],
