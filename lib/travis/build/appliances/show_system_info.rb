@@ -1,3 +1,4 @@
+require 'core_ext/string/to_bool'
 require 'travis/build/appliances/base'
 require 'shellwords'
 
@@ -9,8 +10,7 @@ module Travis
           sh.fold 'system_info' do
             header
             show_travis_build_version
-            show_system_info_file
-            advertise_system_info_addon
+            show_system_info if show_enabled?
           end
           sh.newline
         end
@@ -19,7 +19,7 @@ module Travis
 
           def header
             sh.echo 'Build system information', ansi: :yellow
-            [:language, :group, :dist].each do |name|
+            %i(language group dist).each do |name|
               value = data.send(name)
               sh.echo "Build #{name}: #{Shellwords.escape(value)}" if value
             end
@@ -33,20 +33,14 @@ module Travis
             end
           end
 
-          def show_system_info_file
-            sh.if "-f #{info_file}" do
-              sh.echo "Info file: #{info_file}"
-            end
+          def show_system_info
             sh.if "-f #{info_json_file}" do
               sh.echo "Info JSON file: #{info_json_file}"
             end
-          end
-
-          def advertise_system_info_addon
-            sh.echo(
-              %(Extended system info available via the system_info addon),
-              ansi: :yellow
-            )
+            sh.if "-f #{info_file}" do
+              sh.echo "Info file: #{info_file}"
+              sh.cmd "cat #{info_file}", echo: false
+            end
           end
 
           def info_file
@@ -55,6 +49,10 @@ module Travis
 
           def info_json_file
             '/usr/share/travis/system_info.json'
+          end
+
+          def show_enabled?
+            data.config.fetch(:system_info, true).to_s.to_bool
           end
       end
     end
