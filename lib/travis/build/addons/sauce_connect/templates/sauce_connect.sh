@@ -60,11 +60,18 @@ function travis_start_sauce_connect() {
   _SC_PID="$!"
 
   echo "Waiting for Sauce Connect readyfile"
-  while [ ! -f ${sc_readyfile} ]; do
+  while test ! -f ${sc_readyfile} && ps -f $_SC_PID >&/dev/null; do
     sleep .5
   done
 
+  if test ! -f ${sc_readyfile}; then
+    echo "readyfile not created"
+  fi
+
   popd
+
+  test -f ${sc_readyfile}
+  return $?
 }
 
 function travis_stop_sauce_connect() {
