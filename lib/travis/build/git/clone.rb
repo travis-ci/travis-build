@@ -73,7 +73,12 @@ module Travis
           end
 
           def github?
-            host = URI.parse(data.source_url).host.downcase
+            if md = /[^@]+@(.*):/.match(data.source_url)
+              # we will assume that the URL looks like one for git+ssh; e.g., git@github.com:travis-ci/travis-build.git
+              host = md[1]
+            else
+              host = URI.parse(data.source_url).host.downcase
+            end
             host == 'github.com' || host.end_with?('.github.com')
           end
       end
