@@ -68,10 +68,12 @@ function travis_start_sauce_connect() {
     echo "readyfile not created"
   fi
 
+  test -f ${sc_readyfile}
+  _result = $?
+
   popd
 
-  test -f ${sc_readyfile}
-  return $?
+  return $_result
 }
 
 function travis_stop_sauce_connect() {
