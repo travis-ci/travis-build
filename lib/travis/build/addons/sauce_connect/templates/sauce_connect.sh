@@ -69,7 +69,7 @@ function travis_start_sauce_connect() {
   fi
 
   test -f ${sc_readyfile}
-  _result = $?
+  _result=$?
 
   popd
 
