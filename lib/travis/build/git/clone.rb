@@ -23,7 +23,7 @@ module Travis
                 sh.if "$? -ne 0" do
                   sh.echo "Failed to clone from GitHub.", ansi: :red
                   sh.echo "Checking GitHub status (https://status.github.com/api/last-message.json):"
-                  sh.raw "curl -L https://last-message.github.com/api/status.json | jq .[]"
+                  sh.raw "curl -sL https://status.github.com/api/last-message.json | jq .[]"
                 end
               end
             end
