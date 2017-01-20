@@ -80,7 +80,7 @@ module Travis
             else
               host = URI.parse(data.source_url).host
             end
-            host.downcase == 'github.com' || host.end_with?('.github.com')
+            host.downcase == 'github.com' || host.downcase.end_with?('.github.com')
           end
       end
     end
