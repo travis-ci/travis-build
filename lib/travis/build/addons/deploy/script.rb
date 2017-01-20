@@ -9,6 +9,7 @@ module Travis
           VERSIONED_RUNTIMES = %w(
             d
             dart
+            elm
             elixir
             ghc
             go
