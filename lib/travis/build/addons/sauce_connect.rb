@@ -29,7 +29,7 @@ module Travis
 
           sh.fold 'sauce_connect.start' do
             sh.echo 'Starting Sauce Connect', echo: false, ansi: :yellow
-            sh.cmd 'travis_start_sauce_connect', assert: false, echo: true, timing: true, retry: true
+            sh.cmd 'travis_start_sauce_connect', assert: true, echo: true, timing: true, retry: true
             sh.export 'TRAVIS_SAUCE_CONNECT', 'true', echo: false
           end
         end
