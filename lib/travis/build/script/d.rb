@@ -25,7 +25,16 @@ module Travis
             sh.echo 'Installing compiler and dub', ansi: :yellow
 
             sh.cmd 'CURL_USER_AGENT="Travis-CI $(curl --version | head -n 1)"'
-            sh.cmd 'for i in {0..4}; do curl -fsS -A "$CURL_USER_AGENT" --max-time 5 https://dlang.org/install.sh -O && break || [ $i -ge 4 ] || sleep $((1 << $i)); done'
+            sh.cmd <<-'EOT'.gsub(/^              /, '')
+              for i in {0..4}; do
+                  if curl -fsS -A "$CURL_USER_AGENT" --max-time 5 https://dlang.org/install.sh -O ||
+                          curl -fsS -A "$CURL_USER_AGENT" --max-time 5 https://nightlies.dlang.org/install.sh -O; then
+                      break
+                  elif [ $i -lt 4 ]; then
+                      sleep $((1 << $i))
+                  fi
+              done
+            EOT
             sh.cmd "source \"$(CURL_USER_AGENT=\"$CURL_USER_AGENT\" bash install.sh #{config[:d]} --activate)\""
           end
         end
