@@ -107,9 +107,10 @@ module Travis
               vers = version
             end
             sh.raw archive_url_for('travis-python-archives', vers, lang)
+            sh.echo "Downloading archive: ${archive_url}", ansi: :yellow
             archive_filename = "#{lang}-#{vers}.tar.bz2"
             sh.cmd "curl -s -o #{archive_filename} ${archive_url}", assert: true
-            sh.cmd "sudo tar xjf #{archive_filename} --directory /", echo: false, assert: true
+            sh.cmd "sudo tar xjf #{archive_filename} --directory /", echo: true, assert: true
             sh.cmd "rm #{archive_filename}", echo: false
           end
 
