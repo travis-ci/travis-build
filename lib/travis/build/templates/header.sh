@@ -39,6 +39,7 @@ travis_cmd() {
       --display) display=$2;  shift 2;;
       --retry)   retry=true;  shift ;;
       --timing)  timing=true; shift ;;
+      --secure)  secure=" 2>/dev/null"; shift ;;
       *) break ;;
     esac
   done
@@ -52,9 +53,12 @@ travis_cmd() {
   fi
 
   if [[ -n "$retry" ]]; then
-    travis_retry eval "$cmd"
+    travis_retry eval "$cmd $secure"
   else
-    eval "$cmd"
+    eval "$cmd $secure"
+    if [[ -n $secure && $? -ne 0 ]]; then
+      echo "The previous command failed"
+    fi
   fi
   result=$?
 
