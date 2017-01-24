@@ -57,7 +57,9 @@ travis_cmd() {
   else
     eval "$cmd $secure"
     if [[ -n $secure && $? -ne 0 ]]; then
-      echo "The previous command failed"
+      echo -e "${ANSI_RED}The previous command failed, possibly due to a malformed secure environment variable.${ANSI_CLEAR}
+${ANSI_RED}Please be sure to escape special characters such as ' ' and '$'.${ANSI_CLEAR}
+${ANSI_RED}For more information, see http://www.tldp.org/LDP/abs/html/special-chars.html.${ANSI_CLEAR}"
     fi
   fi
   result=$?
