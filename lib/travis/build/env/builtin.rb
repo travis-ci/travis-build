@@ -29,6 +29,7 @@ module Travis
               CONTINUOUS_INTEGRATION: true,
               PAGER:                  'cat',
               HAS_JOSH_K_SEAL_OF_APPROVAL: true,
+              TRAVIS_ALLOW_FAILURE:   job[:allow_failure],
               TRAVIS_EVENT_TYPE:      build[:event_type],
               TRAVIS_PULL_REQUEST:    pull_request || false,
               TRAVIS_SECURE_ENV_VARS: env.secure_env_vars? || false,
