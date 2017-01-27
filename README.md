@@ -59,7 +59,12 @@ environment to aid you in debugging the build failures.
 
 In addition to the travis CLI plugin you can also run the standalone CLI script:
 
-    bundle exec script/compile < payload.json > build.sh
+    $ bundle exec script/compile < payload.json > build.sh
+
+## Docker container
+
+    $ docker build -t travis-build .
+    $ docker run -it -p 5000:5000 -e PORT=5000 travis-build
 
 ## License & copyright information
 
