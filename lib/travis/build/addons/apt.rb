@@ -61,11 +61,11 @@ module Travis
           end
 
           def package_whitelist_url(dist)
-            ENV["TRAVIS_BUILD_APT_PACKAGE_WHITELIST_#{dist.upcase}"].to_s
+            Travis::Build.config.apt_package_whitelist[dist.downcase].to_s
           end
 
           def source_whitelist_url(dist)
-            ENV["TRAVIS_BUILD_APT_SOURCE_WHITELIST_#{dist.upcase}"].to_s
+            Travis::Build.config.apt_source_whitelist[dist.downcase].to_s
           end
         end
 
@@ -75,7 +75,6 @@ module Travis
         end
 
         def before_prepare
-          write_legacy_env_vars
           sh.fold('apt') do
             add_apt_sources unless config_sources.empty?
             add_apt_packages unless config_packages.empty?
@@ -83,18 +82,10 @@ module Travis
         end
 
         def skip_whitelist?
-          ENV['TRAVIS_BUILD_APT_WHITELIST_SKIP']
+          Travis::Build.config.apt_whitelist_skip?
         end
 
         private
-
-          def write_legacy_env_vars
-            return if @legacy_env_vars_written
-            ENV['TRAVIS_BUILD_APT_PACKAGE_WHITELIST'] ||= ENV['TRAVIS_BUILD_APT_PACKAGE_WHITELIST_PRECISE']
-            ENV['TRAVIS_BUILD_APT_SOURCE_WHITELIST'] ||= ENV['TRAVIS_BUILD_APT_SOURCE_WHITELIST_PRECISE']
-            ENV['TRAVIS_BUILD_APT_WHITELIST'] ||= ENV['TRAVIS_BUILD_APT_PACKAGE_WHITELIST_PRECISE']
-            @legacy_env_vars_written = true
-          end
 
           def add_apt_sources
             sh.echo "Adding APT Sources (BETA)", ansi: :yellow

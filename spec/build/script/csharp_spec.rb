@@ -167,7 +167,9 @@ describe Travis::Build::Script::Csharp, :sexp do
       data[:config][:os] = 'osx'
       data[:config][:dotnet] = '1.0.0-preview2-003121'
       should include_sexp [:cmd, "brew install openssl", timing: true, assert: true]
-      should include_sexp [:cmd, "brew link --force openssl", assert: true]
+      should include_sexp [:cmd, "mkdir -p /usr/local/lib", assert: true]
+      should include_sexp [:cmd, "ln -s /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib /usr/local/lib/", assert: true]
+      should include_sexp [:cmd, "ln -s /usr/local/opt/openssl/lib/libssl.1.0.0.dylib /usr/local/lib/", assert: true]
       should include_sexp [:cmd, "curl -o \"/tmp/dotnet.pkg\" -fL https://dotnetcli.azureedge.net/dotnet/preview/Installers/1.0.0-preview2-003121/dotnet-dev-osx-x64.1.0.0-preview2-003121.pkg", timing: true, assert: true, echo: true]
       should include_sexp [:cmd, "sudo installer -package \"/tmp/dotnet.pkg\" -target \"/\"", timing: true, assert: true]
       should include_sexp [:cmd, "eval $(/usr/libexec/path_helper -s)", assert: true]

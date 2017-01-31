@@ -1,4 +1,5 @@
 require 'shellwords'
+require 'uri'
 
 module Travis
   module Build
@@ -20,6 +21,13 @@ module Travis
           def clone_or_fetch
             sh.if "! -d #{dir}/.git" do
               sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, retry: true
+              if github?
+                sh.if "$? -ne 0" do
+                  sh.echo "Failed to clone from GitHub.", ansi: :red
+                  sh.echo "Checking GitHub status (https://status.github.com/api/last-message.json):"
+                  sh.raw "curl -sL https://status.github.com/api/last-message.json | jq -r .[]"
+                end
+              end
             end
             sh.else do
               sh.cmd "git -C #{dir} fetch origin", assert: true, retry: true
@@ -74,6 +82,17 @@ module Travis
               sh.raw "echo -e \"machine github.com\n  login #{data.token}\\n\" > $HOME/.netrc"
               sh.raw "chmod 0600 $HOME/.netrc"
             end
+          end
+
+          def github?
+            md = /[^@]+@(.*):/.match(data.source_url)
+            if md
+              # we will assume that the URL looks like one for git+ssh; e.g., git@github.com:travis-ci/travis-build.git
+              host = md[1]
+            else
+              host = URI.parse(data.source_url).host
+            end
+            host.downcase == 'github.com' || host.downcase.end_with?('.github.com')
           end
       end
     end

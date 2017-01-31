@@ -13,7 +13,7 @@ module Travis
         }
 
         MONO_VERSION_REGEXP = /^(\d{1})\.(\d{1,2})\.\d{1,2}$/
-        DOTNET_VERSION_REGEXP = /^\d{1}\.\d{1,2}\.\d{1,2}(-preview\d{1}-\d{6})?$/
+        DOTNET_VERSION_REGEXP = /^\d{1}\.\d{1,2}\.\d{1,2}(?:-preview\d+(\.\d+)?(?:-\d)?-\d{6})?$/
 
         def configure
           super
@@ -103,7 +103,9 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
                 sh.failure "The version of this operating system is not supported by .NET Core. View valid versions at https://docs.travis-ci.com/user/languages/csharp/"
               end
               sh.cmd 'brew install openssl', timing: true, assert: true
-              sh.cmd 'brew link --force openssl', timing: false, assert: true
+              sh.cmd 'mkdir -p /usr/local/lib', timing: false, assert: true
+              sh.cmd 'ln -s /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib /usr/local/lib/', timing: false, assert: true
+              sh.cmd 'ln -s /usr/local/opt/openssl/lib/libssl.1.0.0.dylib /usr/local/lib/', timing: false, assert: true
               sh.cmd "curl -o \"/tmp/dotnet.pkg\" -fL #{dotnet_osx_url}", timing: true, assert: true, echo: true
               sh.cmd 'sudo installer -package "/tmp/dotnet.pkg" -target "/"', timing: true, assert: true
               sh.cmd 'eval $(/usr/libexec/path_helper -s)', timing: false, assert: true

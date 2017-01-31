@@ -13,6 +13,7 @@ gem 'puma'
 gem 'rack-ssl', '~> 1.4'
 gem 'sentry-raven'
 gem 'sinatra', '~> 1.4'
+gem 'travis-config'
 gem 'travis-support', git: 'https://github.com/travis-ci/travis-support'
 
 group :development do

@@ -1,13 +1,15 @@
-require 'core_ext/hash/deep_symbolize_keys'
-require 'travis/shell'
-require 'travis/build/data'
-require 'travis/build/env'
-require 'travis/build/script'
-
 module Travis
   module Build
+    autoload :Config, 'travis/build/config'
+
     HOME_DIR  = '$HOME'
     BUILD_DIR = File.join(HOME_DIR, 'build')
+
+    def config
+      @config ||= ::Travis::Build::Config.load
+    end
+
+    module_function :config
 
     class << self
       def version
@@ -44,3 +46,9 @@ module Travis
     end
   end
 end
+
+require 'core_ext/hash/deep_symbolize_keys'
+require 'travis/shell'
+require 'travis/build/data'
+require 'travis/build/env'
+require 'travis/build/script'

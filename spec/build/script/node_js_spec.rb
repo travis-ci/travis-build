@@ -26,7 +26,7 @@ describe Travis::Build::Script::NodeJs, :sexp do
       end
 
       context 'when nvm install fails' do
-        let(:sexp_if)      { sexp_filter(subject, [:if, '$? -ne 0'], [:then]) }
+        let(:sexp_if)      { sexp_filter(subject, [:if, '$? -ne 0'])[1] }
 
         it 'tries to use locally available version' do
           expect(sexp_if).to include_sexp [:cmd, 'nvm use 0.9', echo: true]

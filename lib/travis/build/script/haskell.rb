@@ -3,7 +3,7 @@ module Travis
     class Script
       class Haskell < Script
         DEFAULTS = {
-          ghc: (ENV['TRAVIS_BUILD_GHC_DEFAULT'] || '7.8.4').untaint
+          ghc: Travis::Build.config.ghc_default.untaint
         }
 
         def setup

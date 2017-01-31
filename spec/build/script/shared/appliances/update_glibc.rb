@@ -7,15 +7,15 @@ fi
   EOF
   ]}
 
-  context "when TRAVIS_UPDATE_GLIBC is unset" do
+  context "when update_glibc is unset" do
     it 'updates libc6' do
       should_not include_sexp(command)
     end
   end
 
-  context "when TRAVIS_UPDATE_GLIBC is unset" do
+  context "when update_glibc is unset" do
     before :each do
-      ENV['TRAVIS_UPDATE_GLIBC'] = '1'
+      Travis::Build.config.update_glibc = '1'
     end
 
     it 'updates libc6' do
@@ -23,7 +23,7 @@ fi
     end
 
     after :each do
-      ENV.delete 'TRAVIS_UPDATE_GLIBC'
+      Travis::Build.config.update_glibc = ''
     end
   end
 end
