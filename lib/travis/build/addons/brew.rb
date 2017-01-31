@@ -22,7 +22,7 @@ module Travis
 
         private
         def install_brew_packages
-          sh.cmd "sudo brew install #{brew_packages.join(' ')}"
+          sh.cmd "brew install #{brew_packages.join(' ')}", echo: true
         end
 
         def brew_packages
