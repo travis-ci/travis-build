@@ -10,6 +10,7 @@ module Travis
 
           sh.fold 'git.checkout' do
             clone_or_fetch
+            delete_netrc
             sh.cd dir
             fetch_ref if fetch_ref?
             checkout
@@ -82,6 +83,10 @@ module Travis
               sh.raw "echo -e \"machine github.com\n  login #{data.token}\\n\" > $HOME/.netrc"
               sh.raw "chmod 0600 $HOME/.netrc"
             end
+          end
+
+          def delete_netrc
+            sh.raw "rm -f $HOME/.netrc"
           end
 
           def github?
