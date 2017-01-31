@@ -35,7 +35,7 @@ describe Travis::Build::Addons::Brew, :sexp do
 
       let(:brew_config) { { packages: %w( ack automake ) } }
 
-      it { should include_sexp [:cmd, "brew install ack automake", echo: true]}
+      it { should include_sexp [:cmd, "brew install ack automake", echo: true, timing: true]}
     end
   end
 end
