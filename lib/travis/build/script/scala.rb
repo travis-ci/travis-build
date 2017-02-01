@@ -18,7 +18,7 @@ module Travis
           super
           if use_sbt?
             sh.echo "Updating sbt", ansi: :green
-            sh.cmd "sudo curl -sS -o sbt.tmp #{SBT_URL}"
+            sh.cmd "sudo curl -sfS -o sbt.tmp #{SBT_URL}", assert: true
             sh.raw "sed -e '/addSbt \\(warn\\|info\\)/d' sbt.tmp | sudo tee #{SBT_PATH} > /dev/null && rm -f sbt.tmp"
           end
         end
