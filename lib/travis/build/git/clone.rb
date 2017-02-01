@@ -6,7 +6,7 @@ module Travis
     class Git
       class Clone < Struct.new(:sh, :data)
         def apply
-          write_netrc
+          write_netrc if data.prefer_https? && data.token
 
           sh.fold 'git.checkout' do
             clone_or_fetch
@@ -76,13 +76,11 @@ module Travis
           end
 
           def write_netrc
-            if data.prefer_https?
-              sh.newline
-              sh.echo "Using $HOME/.netrc to clone repository.", ansi: :yellow
-              sh.newline
-              sh.raw "echo -e \"machine github.com\n  login #{data.token}\\n\" > $HOME/.netrc"
-              sh.raw "chmod 0600 $HOME/.netrc"
-            end
+            sh.newline
+            sh.echo "Using $HOME/.netrc to clone repository.", ansi: :yellow
+            sh.newline
+            sh.raw "echo -e \"machine github.com\n  login #{data.token}\\n\" > $HOME/.netrc"
+            sh.raw "chmod 0600 $HOME/.netrc"
           end
 
           def delete_netrc

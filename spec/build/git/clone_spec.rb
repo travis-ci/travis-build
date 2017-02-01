@@ -16,17 +16,46 @@ describe Travis::Build::Git::Clone, :sexp do
     payload[:config][:git] = { strategy: 'clone' }
   end
 
-  context 'when prefer_https is true' do
-    it 'writes to $HOME/.netrc' do
-      payload[:repository][:source_url] = "https://github.com/travis-ci/travis-ci.git"
-      payload[:oauth_token]  = oauth_token
-      expect(script.sexp).to include_sexp [:raw, /echo -e "machine github.com\n  login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
+  context 'when source_url starts with "https"' do
+    before { payload[:repository][:source_url] = "https://github.com/travis-ci/travis-ci.git" }
+
+    context "when payload includes oauth_token" do
+      # case where (in Enterprise) scheduler sets the source URL with https
+      before { payload[:oauth_token] = oauth_token }
+
+      it 'writes to $HOME/.netrc' do
+        expect(script.sexp).to include_sexp [:raw, /echo -e "machine github.com\n  login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
+      end
+    end
+
+    context "when payload does not include oauth_token" do
+      # hosted .org
+      it 'does not write to $HOME/.netrc' do
+        should_not include_sexp [:raw, /echo -e "machine github.com\n  login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
+      end
     end
   end
 
-  context 'when prefer_https is false' do
+  context 'when source_url starts with "git"' do
+    context "when payload includes oauth_token" do
+      # hosted .com, or Enterprise with default config
+      before { payload[:oauth_token] = oauth_token }
+
+      it 'does not write to $HOME/.netrc' do
+        should_not include_sexp [:raw, /echo -e "machine github.com\n  login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
+      end
+    end
+
+    context "when payload does not include oauth_token" do
+      # this should not happen
+      it 'does not write to $HOME/.netrc' do
+        should_not include_sexp [:raw, /echo -e "machine github.com\n  login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
+      end
+    end
+  end
+
+  context 'when source_url starts with "git"' do
     it 'deos not write to $HOME/.netrc' do
-      payload[:oauth_token]  = oauth_token
       should_not include_sexp [:raw, /echo -e "machine github.com login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
     end
   end
