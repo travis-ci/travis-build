@@ -30,6 +30,7 @@ module Travis
 
         helpers do
           def auth_disabled?
+            Travis::Build.config.auth_disabled? ||
             api_tokens.empty? && (
               settings.development? || settings.test?
             )
