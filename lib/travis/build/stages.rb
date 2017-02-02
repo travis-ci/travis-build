@@ -59,15 +59,17 @@ module Travis
 
       def run
         build_stages = []
-        stages.each_slice(2) do |type, names|
+        STAGES.each_slice(2) do |type, names|
           names.each do |name|
             run_stage(type, name)
             build_stages << name
           end
         end
 
-        build_stages.each do |stg|
-          sh.raw "run_stage_#{stg}"
+        stages.each_slice(2).each do |type, names|
+          names.each do |stg|
+            sh.raw "run_stage_#{stg}"
+          end
         end
       end
 
