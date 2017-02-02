@@ -58,8 +58,16 @@ module Travis
       end
 
       def run
+        build_stages = []
         stages.each_slice(2) do |type, names|
-          names.each { |name| run_stage(type, name) }
+          names.each do |name|
+            run_stage(type, name)
+            build_stages << name
+          end
+        end
+
+        build_stages.each do |stg|
+          sh.raw "run_stage_#{stg}"
         end
       end
 
@@ -68,9 +76,12 @@ module Travis
       end
 
       def run_stage(type, name)
+        sh.raw "function run_stage_#{name}() {"
         type = :builtin if fallback?(type, name)
         stage = self.class.const_get(type.to_s.camelize).new(script, name)
-        stage.run
+        commands = stage.run
+        close = (commands.nil? || commands.empty?) ? ":\n}" : "}"
+        sh.raw close
       end
 
       def fallback?(type, name)
