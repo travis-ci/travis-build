@@ -58,13 +58,11 @@ module Travis
       end
 
       def run
-        build_stages = []
         STAGES.each_slice(2) do |type, names|
-          names.each do |name|
-            run_stage(type, name)
-            build_stages << name
-          end
+          names.each { |name| run_stage(type, name) }
         end
+
+        sh.raw "source $HOME/.profile"
 
         stages.each_slice(2).each do |type, names|
           names.each do |stg|
@@ -78,12 +76,14 @@ module Travis
       end
 
       def run_stage(type, name)
+        sh.raw "cat <<-EOFUNC >>$HOME/.profile"
         sh.raw "function run_stage_#{name}() {"
         type = :builtin if fallback?(type, name)
         stage = self.class.const_get(type.to_s.camelize).new(script, name)
         commands = stage.run
         close = (commands.nil? || commands.empty?) ? ":\n}" : "}"
         sh.raw close
+        sh.raw "EOFUNC"
       end
 
       def fallback?(type, name)
