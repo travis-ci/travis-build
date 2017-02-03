@@ -11,6 +11,8 @@ describe Travis::Api::Build::App, :include_sinatra_helpers do
 
     Travis::Api::Build::App.any_instance
       .stubs(:api_tokens).returns(%w(the-token the-other-token))
+    Travis::Api::Build::App.any_instance
+      .stubs(:auth_disabled?).returns(false)
     set_app(app)
   end
 
