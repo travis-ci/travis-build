@@ -81,42 +81,27 @@ module Travis
                 # times to work around flaky connection to Launchpad PPAs.
                 sh.cmd 'sudo apt-get update -qq', retry: true
 
-                # Install precompiled R if on precise
-                sh.if '$(lsb_release -cs) == "precise"' do
-                  # Install only the dependencies for an R development environment except for
-                  # libpcre3-dev or r-base-core because they will be included in
-                  # the R binary tarball.
-                  # Dependencies queried with `apt-cache depends -i r-base-dev`.
-                  # qpdf and texinfo are also needed for --as-cran # checks:
-                  # https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
-                  sh.cmd 'sudo apt-get install -y --no-install-recommends '\
-                    'build-essential gcc g++ gfortran libblas-dev liblapack-dev '\
-                    'libncurses5-dev libreadline-dev libjpeg-dev '\
-                    'libpng-dev zlib1g-dev libbz2-dev liblzma-dev cdbs qpdf texinfo '\
-                    'libmagick++-dev libssh2-1-dev', retry: true
+                # Install precompiled R
+                # Install only the dependencies for an R development environment except for
+                # libpcre3-dev or r-base-core because they will be included in
+                # the R binary tarball.
+                # Dependencies queried with `apt-cache depends -i r-base-dev`.
+                # qpdf and texinfo are also needed for --as-cran # checks:
+                # https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
+                sh.cmd 'sudo apt-get install -y --no-install-recommends '\
+                  'build-essential gcc g++ gfortran libblas-dev liblapack-dev '\
+                  'libncurses5-dev libreadline-dev libjpeg-dev '\
+                  'libpng-dev zlib1g-dev libbz2-dev liblzma-dev cdbs qpdf texinfo '\
+                  'libmagick++-dev libssh2-1-dev', retry: true
 
-                  r_filename = "R-#{r_version}.xz"
-                  r_url = "https://s3.amazonaws.com/rstudio-travis/R-#{r_version}.xz"
-                  sh.cmd "curl -Lo /tmp/#{r_filename} #{r_url}", retry: true
-                  sh.cmd "tar xJf /tmp/#{r_filename} -C ~"
-                  sh.export 'PATH', "$HOME/R-bin/bin:$PATH", echo: false
-                  sh.export 'LD_LIBRARY_PATH', "$HOME/R-bin/lib:$LD_LIBRARY_PATH", echo: false
-                  sh.rm "/tmp/#{r_filename}"
-                end
+                r_filename = "R-#{r_version}-$(lsb_release -cs).xz"
+                r_url = "https://s3.amazonaws.com/rstudio-travis/#{r_filename}"
+                sh.cmd "curl -Lo /tmp/#{r_filename} #{r_url}", retry: true
+                sh.cmd "tar xJf /tmp/#{r_filename} -C ~"
+                sh.export 'PATH', "$HOME/R-bin/bin:$PATH", echo: false
+                sh.export 'LD_LIBRARY_PATH', "$HOME/R-bin/lib:$LD_LIBRARY_PATH", echo: false
+                sh.rm "/tmp/#{r_filename}"
 
-                # If on trusty just use the ubuntu package
-                sh.if '$(lsb_release -cs) == "trusty"' do
-                  # Install an R development environment. qpdf is also needed for
-                  # --as-cran checks:
-                  #   https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
-                  sh.cmd 'sudo apt-get install -y --no-install-recommends r-base-dev ' +
-                    'r-recommended qpdf texinfo libmagick++-dev libssh2-1-dev', retry: true
-
-                  # Change permissions for /usr/local/lib/R/site-library
-                  # This should really be via 'sudo adduser travis staff'
-                  # but that may affect only the next shell
-                  sh.cmd 'sudo chmod 2777 /usr/local/lib/R /usr/local/lib/R/site-library'
-                end
                 sh.cmd "sudo mkdir -p /usr/local/lib/R/site-library $R_LIBS_USER"
                 sh.cmd 'sudo chmod 2777 /usr/local/lib/R /usr/local/lib/R/site-library $R_LIBS_USER'
               when 'osx'

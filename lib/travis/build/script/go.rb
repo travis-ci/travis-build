@@ -60,6 +60,10 @@ module Travis
           # cache.directories can be properly resolved relative to the directory
           # in which the user-controlled portion of the build starts
           # See https://github.com/travis-ci/travis-ci/issues/3055
+
+          sh.raw '_old_remote="$(git config --get remote.origin.url)"'
+          sh.cmd "git config remote.origin.url \"${_old_remote%.git}\"", echo: false
+          sh.raw 'unset _old_remote'
           super
         end
 
