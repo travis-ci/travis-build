@@ -2,7 +2,7 @@ module Travis
   module Build
     class Script
       class Rust < Script
-        RUST_RUSTUP = 'https://static.rust-lang.org/rustup.sh'
+        RUST_RUSTUP = 'https://sh.rustup.rs'
 
         DEFAULTS = {
           rust: 'stable',
@@ -17,19 +17,16 @@ module Travis
         def setup
           super
 
-          sh.cmd 'mkdir -p ~/rust-installer', echo: false
-          sh.echo ''
-
-          sh.fold('rust-download') do
+          sh.fold('rustup-install') do
             sh.echo 'Installing Rust', ansi: :yellow
-            sh.cmd "curl -sL #{RUST_RUSTUP} -o ~/rust-installer/rustup.sh"
-            # We silence the stderr of rustup.sh for now, as it has a very verbose progress bar
-            sh.cmd "sh ~/rust-installer/rustup.sh #{rustup_args} 2> /dev/null"
+            sh.cmd "curl -sSf #{RUST_RUSTUP} | sh -s -- -y", echo: true, assert: true
+            sh.export 'PATH', "$HOME/.cargo/bin:$PATH"
           end
 
-          sh.cmd 'export PATH="$PATH:$HOME/rust/bin"', assert: false, echo: false
-          sh.cmd 'export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/rust/lib"', assert: false, echo: false
-          sh.cmd 'export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:$HOME/rust/lib"', assert: false, echo: false
+          sh.fold('rust-download') do
+            sh.cmd "rustup install #{version.shellescape}"
+          end
+
         end
 
         def announce
@@ -65,10 +62,6 @@ module Travis
 
           def version
             config[:rust].to_s
-          end
-
-          def rustup_args
-            "--prefix=~/rust --spec=%s -y --disable-sudo" % version.shellescape
           end
       end
     end
