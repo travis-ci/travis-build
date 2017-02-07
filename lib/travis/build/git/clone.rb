@@ -47,7 +47,7 @@ module Travis
 
           def clone_args
             args = "--depth=#{depth}"
-            args << " --branch=#{branch}" unless data.ref
+            args << " --branch=#{branch}" unless branch.empty? || data.ref
             args << " --quiet" if quiet?
             args
           end

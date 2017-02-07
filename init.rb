@@ -3,7 +3,9 @@ module Travis
     class Compile < RepoCommand
       description "compiles a build script from .travis.yml"
 
-      attr_accessor :slug, :source_url
+      on('--branch NAME', 'the branch to check out when cloning the repo') {|c, name| c.branch = name}
+
+      attr_accessor :slug, :source_url, :branch
 
       def setup
         error "run command is not available on #{RUBY_VERSION}" if RUBY_VERSION < '1.9.3'
@@ -65,8 +67,17 @@ module Travis
               },
               :fetch_timeout => 60,
               :push_timeout => 60
+            },
+            :job => {
+              :branch => choose_branch
             }
           }
+        end
+
+        def choose_branch
+          return branch if branch
+          name = `git name-rev --name-only HEAD 2>#{IO::NULL}`.chomp
+          name =~ /~\d+$/ ? nil : name
         end
 
         def set_up_config(match_data)
