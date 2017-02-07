@@ -3,7 +3,17 @@ module Travis
     class Compile < RepoCommand
       description "compiles a build script from .travis.yml"
 
-      attr_accessor :slug, :source_url
+      on('--protocol NAME', 'the protocol to use to check out the repo (git, ssh, or https)') do |c, name|
+        name = name.to_sym
+
+        if ![:ssh, :git, :https].include?(name)
+          error "Invalid protocol name #{name}."
+        end
+
+        c.protocol = name
+      end
+
+      attr_accessor :slug, :source_url, :protocol
 
       def setup
         error "run command is not available on #{RUBY_VERSION}" if RUBY_VERSION < '1.9.3'
@@ -11,15 +21,9 @@ module Travis
         require 'travis/build'
       end
 
-      def find_source_url
-          git_head    = `git name-rev --name-only HEAD 2>#{IO::NULL}`.chomp
-          git_remote  = `git config --get branch.#{git_head}.remote 2>#{IO::NULL}`.chomp
-          return `git ls-remote --get-url #{git_remote} 2>#{IO::NULL}`.chomp
-      end
-
       def run(*arg)
         @slug = find_slug
-        @source_url = find_source_url
+        @source_url = make_source_url
         if match_data = /\A(?<build>\d+)(\.(?<job>\d+))?\z/.match(arg.first)
           set_up_config(match_data)
         elsif arg.length > 0
@@ -48,6 +52,14 @@ module Travis
       end
 
       private
+        def make_source_url
+          case protocol || :git
+          when :ssh;   return "git@github.com:#{slug}.git"
+          when :git;   return "git://github.com/#{slug}.git"
+          when :https; return "https://github.com/#{slug}.git"
+          end
+        end
+
         def data
           {
             :config => @compile_config,
