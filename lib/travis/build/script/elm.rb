@@ -38,6 +38,7 @@ module Travis
         end
 
         def script
+          sh.cmd 'elm-format --validate .'
           sh.cmd 'elm-test'
         end
 
