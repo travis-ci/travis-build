@@ -20,10 +20,10 @@ module Travis
         end
 
         configure do
-          use Sentry unless Travis::Build.config.sentry_dsn.empty?
-          use Metriks unless Travis::Build.config.librato.email.empty? ||
-                             Travis::Build.config.librato.token.empty? ||
-                             Travis::Build.config.librato.source.empty?
+          use Sentry unless Travis::Build.config.sentry_dsn.blank?
+          use Metriks unless Travis::Build.config.librato.email.blank? ||
+                             Travis::Build.config.librato.token.blank? ||
+                             Travis::Build.config.librato.source.blank?
 
           use Rack::Deflater
         end
