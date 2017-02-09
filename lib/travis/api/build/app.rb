@@ -20,11 +20,8 @@ module Travis
         end
 
         configure do
-          use Sentry unless Travis::Build.config.sentry_dsn.blank?
-          use Metriks unless Travis::Build.config.librato.email.blank? ||
-                             Travis::Build.config.librato.token.blank? ||
-                             Travis::Build.config.librato.source.blank?
-
+          use Sentry unless Travis::Build.config.sentry_dsn.empty?
+          use Metriks if librato_disabled? 
           use Rack::Deflater
         end
 
@@ -39,6 +36,12 @@ module Travis
           def api_tokens
             @api_tokens ||=
               Travis::Build.config.api_token.to_s.split(',').map(&:strip)
+          end
+
+          def librato_disabled? 
+            (Travis::Build.config.librato.email.nil? || Travis::Build.config.librato.email.empty?) ||
+            (Travis::Build.config.librato.token.nil? || Travis::Build.config.librato.token.empty?) ||
+            (Travis::Build.config.librato.source.nil? || Travis::Build.config.librato.source.empty?)
           end
         end
 
