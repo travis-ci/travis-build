@@ -40,10 +40,6 @@ module Travis
             @api_tokens ||=
               Travis::Build.config.api_token.to_s.split(',').map(&:strip)
           end
-
-          def librato_disabled? 
-
-          end
         end
 
         before '/script' do
