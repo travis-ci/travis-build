@@ -11,6 +11,8 @@ describe Travis::Api::Build::App, :include_sinatra_helpers do
 
     Travis::Api::Build::App.any_instance
       .stubs(:api_tokens).returns(%w(the-token the-other-token))
+    Travis::Api::Build::App.any_instance
+      .stubs(:auth_disabled?).returns(false)
     set_app(app)
   end
 
@@ -60,6 +62,17 @@ describe Travis::Api::Build::App, :include_sinatra_helpers do
       it 'returns 401' do
         response = post '/script', {}, input: PAYLOADS[:push].to_json
         expect(response.status).to be == 401
+      end
+    end
+
+    context 'without an Authorization header and authorization is disabled' do
+      before do 
+        Travis::Api::Build::App.any_instance
+          .stubs(:auth_disabled?).returns(true)
+      end 
+      it 'returns 200' do
+        response = post '/script', {}, input: PAYLOADS[:push].to_json
+        expect(response.status).to be == 200
       end
     end
 
