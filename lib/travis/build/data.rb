@@ -156,6 +156,10 @@ module Travis
       def debug_options
         job[:debug_options] || {}
       end
+
+      def prefer_https?
+        source_url.downcase.start_with? "https"
+      end
     end
   end
 end

@@ -6,8 +6,11 @@ module Travis
     class Git
       class Clone < Struct.new(:sh, :data)
         def apply
+          write_netrc if data.prefer_https? && data.token
+
           sh.fold 'git.checkout' do
             clone_or_fetch
+            delete_netrc
             sh.cd dir
             fetch_ref if fetch_ref?
             checkout
@@ -70,6 +73,18 @@ module Travis
 
           def config
             data.config
+          end
+
+          def write_netrc
+            sh.newline
+            sh.echo "Using $HOME/.netrc to clone repository.", ansi: :yellow
+            sh.newline
+            sh.raw "echo -e \"machine github.com\n  login #{data.token}\\n\" > $HOME/.netrc"
+            sh.raw "chmod 0600 $HOME/.netrc"
+          end
+
+          def delete_netrc
+            sh.raw "rm -f $HOME/.netrc"
           end
 
           def github?
