@@ -28,10 +28,11 @@ module Travis
         end
 
         def fix_rwky_redis_ppa
-          list_file = '/etc/apt/sources.list.d/rwky-redis.list'
-          sh.cmd "sudo ls -al /etc/apt/sources.list.d/", echo: true
+          list_file = '/etc/apt/sources.list.d/rwky-redis-source.list'
+          temp_list_file = '/tmp/rwky-redis-source-fixed.list'
           sh.if "-f #{list_file}" do
-            sh.cmd "sudo sed -i 's,rwky/redis,rwky/ppa,g' #{list_file}", echo: true
+            sh.cmd "sudo sed -e 's,rwky/redis,rwky/ppa,g' #{list_file} > #{temp_list_file}", echo: false
+            sh.cmd "cat #{temp_list_file} | sudo tee #{list_file} > /dev/null", echo: false
           end
         end
 
