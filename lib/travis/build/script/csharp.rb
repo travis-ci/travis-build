@@ -22,8 +22,15 @@ module Travis
           sh.echo 'C# support for Travis-CI is community maintained.', ansi: :red
           sh.echo 'Please open any issues at https://github.com/travis-ci/travis-ci/issues/new and cc @joshua-anderson @akoeplinger @nterry', ansi: :red
 
+          fix_rwky_redis_ppa # See https://github.com/travis-ci/travis-ci/issues/7332.
           install_mono if is_mono_enabled
           install_dotnet if is_dotnet_enabled
+        end
+
+        def fix_rwky_redis_ppa
+          list_file = '/etc/apt/sources.list.d/rwky-redis.list'
+          sh.if "-f #{list_file}" do
+            sh.cmd "sudo sed -i 's,rwky/redis,rwky/ppa,g' #{list_file}", echo: false
         end
 
         def install_mono
