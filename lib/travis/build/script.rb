@@ -130,6 +130,17 @@ module Travis
           apply :home_paths
           apply :disable_ssh_roaming
           apply :debug_tools
+<<<<<<< HEAD
+||||||| parent of 340347d... Merge pull request #958 from travis-ci/meat-rwky-ppa
+          apply :npm_registry
+          apply :rvm_use
+          apply :rm_oraclejdk8_symlink
+=======
+          apply :npm_registry
+          apply :rvm_use
+          apply :rm_oraclejdk8_symlink
+          apply :fix_rwky_redis
+>>>>>>> 340347d... Merge pull request #958 from travis-ci/meat-rwky-ppa
         end
 
         def checkout
