@@ -51,6 +51,19 @@ module Travis
           sh.export 'R_PROFILE', "~/.Rprofile.site", echo: false
         end
 
+        def fix_ppa_list_file(list_file)
+          temp_list_file = '/tmp/source.list'
+          sh.if "-f #{list_file}" do
+            sh.cmd "sudo sed -e 's,rwky/redis,rwky/ppa,g' #{list_file} > #{temp_list_file}", echo: false
+            sh.cmd "cat #{temp_list_file} | sudo tee #{list_file} > /dev/null", echo: false
+          end
+        end
+
+        def fix_rwky_redis_ppa
+          fix_ppa_list_file '/etc/apt/sources.list.d/rwky-redis.list'
+          fix_ppa_list_file '/etc/apt/sources.list.d/rwky-redis-source.list'
+        end
+
         def configure
           super
 
@@ -74,6 +87,9 @@ module Travis
                 # Add marutter's c2d4u repository.
                 sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter"'
                 sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u"'
+
+                # Fix redis PPA (see https://github.com/travis-ci/travis-ci/issues/7332)
+                fix_rwky_redis_ppa
 
                 # Update after adding all repositories. Retry several
                 # times to work around flaky connection to Launchpad PPAs.
