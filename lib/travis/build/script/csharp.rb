@@ -36,8 +36,8 @@ module Travis
         end
 
         def fix_rwky_redis_ppa
-          fix_ppa_file '/etc/apt/sources.list.d/rwky-redis.list'
-          fix_ppa_file '/etc/apt/sources.list.d/rwky-redis-source.list'
+          fix_ppa_list_file '/etc/apt/sources.list.d/rwky-redis.list'
+          fix_ppa_list_file '/etc/apt/sources.list.d/rwky-redis-source.list'
         end
 
         def install_mono
