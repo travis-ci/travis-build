@@ -79,8 +79,10 @@ module Travis
 
                 # Fix redis PPA (see https://github.com/travis-ci/travis-ci/issues/7332)
                 list_file = '/etc/apt/sources.list.d/rwky-redis.list'
+                temp_list_file = '/tmp/rwky-redis-fixed.list'
                 sh.if "-f #{list_file}" do
-                  sh.cmd "sudo sed -i 's,rwky/redis,rwky/ppa,g' #{list_file}", echo: false
+                  sh.cmd "sudo sed -i 's,rwky/redis,rwky/ppa,g' #{list_file} > #{temp_list_file}", echo: false
+                  sh.cmd "cat #{temp_list_file} | sudo tee #{list_file} > /dev/null", echo: false
                 end
 
                 # Update after adding all repositories. Retry several
