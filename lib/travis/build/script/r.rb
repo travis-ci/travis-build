@@ -2,6 +2,8 @@
 # Jim Hester     @jimhester       james.hester@rstudio.com
 # Craig Citro    @craigcitro      craigcitro@google.com
 #
+require 'travis/build/appliances'
+
 module Travis
   module Build
     class Script
@@ -76,6 +78,9 @@ module Travis
                 # Add marutter's c2d4u repository.
                 sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter"'
                 sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u"'
+
+                # Fix redis PPA (see https://github.com/travis-ci/travis-ci/issues/7332)
+                apply :fix_rwky_redis
 
                 # Update after adding all repositories. Retry several
                 # times to work around flaky connection to Launchpad PPAs.
