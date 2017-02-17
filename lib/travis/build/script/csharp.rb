@@ -31,6 +31,7 @@ module Travis
           list_file = '/etc/apt/sources.list.d/rwky-redis.list'
           sh.if "-f #{list_file}" do
             sh.cmd "sudo sed -i 's,rwky/redis,rwky/ppa,g' #{list_file}", echo: false
+          end
         end
 
         def install_mono
