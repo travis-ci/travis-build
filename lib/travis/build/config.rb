@@ -49,11 +49,11 @@ module Travis
             'https://raw.githubusercontent.com/travis-ci/gimme/v1.0.0/gimme'
           )
         },
-        go_version: ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.7.4'),
+        go_version: ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.8'),
         go_version_aliases: ENV.fetch(
           'TRAVIS_BUILD_GO_VERSION_ALIASES', (
             {
-              '1' => '1.7.4',
+              '1' => '1.8',
               '1.0' => '1.0.3',
               '1.0.x' => '1.0.3',
               '1.1.x' => '1.1.2',
@@ -63,10 +63,10 @@ module Travis
               '1.4.x' => '1.4.3',
               '1.5.x' => '1.5.4',
               '1.6.x' => '1.6.4',
-              '1.7.x' => '1.7.4',
-              '1.8.x' => '1.8rc1',
-              '1.x' => '1.7.4',
-              '1.x.x' => '1.7.4'
+              '1.7.x' => '1.7.5',
+              '1.8.x' => '1.8',
+              '1.x' => '1.8',
+              '1.x.x' => '1.8'
             }.map { |k, v| "#{k}:#{v}" }.join(',')
           )
         ),
