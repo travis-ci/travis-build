@@ -2,8 +2,6 @@
 # Jim Hester     @jimhester       james.hester@rstudio.com
 # Craig Citro    @craigcitro      craigcitro@google.com
 #
-require 'travis/build/appliances'
-
 module Travis
   module Build
     class Script
@@ -80,7 +78,10 @@ module Travis
                 sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u"'
 
                 # Fix redis PPA (see https://github.com/travis-ci/travis-ci/issues/7332)
-                apply :fix_rwky_redis
+                list_file = '/etc/apt/sources.list.d/rwky-redis.list'
+                sh.if "-f #{list_file}" do
+                  sh.cmd "sudo sed -i 's,rwky/redis,rwky/ppa,g' #{list_file}", echo: false
+                end
 
                 # Update after adding all repositories. Retry several
                 # times to work around flaky connection to Launchpad PPAs.
