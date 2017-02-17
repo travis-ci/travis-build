@@ -167,6 +167,7 @@ module Travis
           apply :npm_registry
           apply :rvm_use
           apply :rm_oraclejdk8_symlink
+          apply :fix_rwky_redis
         end
 
         def checkout
