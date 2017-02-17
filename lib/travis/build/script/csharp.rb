@@ -32,7 +32,7 @@ module Travis
           temp_list_file = '/tmp/rwky-redis-fixed.list'
           sh.if "-f #{list_file}" do
             sh.cmd "sudo sed -i 's,rwky/redis,rwky/ppa,g' #{list_file} > #{temp_list_file}", echo: false
-            sh.cmd "cat #{temp_list_file} | sudo tee #{list_file} > /dev/null"
+            sh.cmd "cat #{temp_list_file} | sudo tee #{list_file} > /dev/null", echo: false
           end
         end
 
