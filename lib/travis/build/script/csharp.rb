@@ -51,7 +51,7 @@ View valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csh
             case config[:os]
             when 'linux'
               if is_mono_2_10_8
-                sh.cmd '', timing: true, assert: true
+                sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
                 sh.cmd 'sudo apt-get install -qq mono-complete mono-vbnc', timing: true, assert: true
               elsif is_mono_3_2_8
                 sh.cmd 'sudo apt-add-repository ppa:directhex/ppa -y', assert: true # Official ppa of the mono debian maintainer
