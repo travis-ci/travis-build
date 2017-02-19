@@ -44,17 +44,22 @@ describe Travis::Build::Addons::Sonarqube, :sexp do
     
     it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS', "\"{ \\\"sonar.scanner.skip\\\" : \\\"true\\\" }\""]] }
     it { should include_sexp [:export, ['SONARQUBE_SKIPPED', "true"], {:echo=>true}] }
-    
   end
   
-    describe 'pull request analysis' do
+  describe 'pull request analysis' do
     let(:config) { { :github_token => 'mytoken' } }
     let(:job) { super().merge(:pull_request => '123')}
     
     it { should include_sexp [:export, ['SONAR_GITHUB_TOKEN', 'mytoken' ]] }
     it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS', 
-      "\"{ \\\"sonar.analysis.mode\\\" : \\\"preview\\\", \\\"sonar.github.repository\\\" : \\\"travis-ci/travis-ci\\\", \\\"sonar.github.pullRequest\\\" : \\\"123\\\", \\\"sonar.github.oauth\\\" : \\\"$SONAR_GITHUB_TOKEN\\\", \\\"sonar.host.url\\\" : \\\"https://sonarqube.com\\\" }\""]] }
+      "\"{ \\\"sonar.analysis.mode\\\" : \\\"preview\\\", \\\"sonar.github.repository\\\" : \\\"travis-ci/travis-ci\\\", \\\"sonar.github.pullRequest\\\" : \\\"123\\\", \\\"sonar.github.oauth\\\" : \\\"$SONAR_GITHUB_TOKEN\\\", \\\"sonar.host.url\\\" : \\\"https://sonarqube.com\\\" }\""]] }  
+  end
+  
+  describe 'add organization' do
+    let(:config) { { :organization => 'myorg' } }
     
+    it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS', 
+      "\"{ \\\"sonar.organization\\\" : \\\"myorg\\\", \\\"sonar.host.url\\\" : \\\"https://sonarqube.com\\\" }\""]] }  
   end
   
   describe 'branch analysis' do
