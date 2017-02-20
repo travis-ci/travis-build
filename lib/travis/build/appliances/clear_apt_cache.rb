@@ -5,7 +5,8 @@ module Travis
     module Appliances
       class ClearAptCache < Base
         def apply
-          sh.cmd "sudo rm -rf /var/lib/apt/lists/packagecloud.io*", echo: false
+          sh.cmd "sudo rm -rf /var/lib/apt/lists/*", echo: false
+          sh.cmd "sudo apt-get update -qq", echo: false
         end
       end
     end
