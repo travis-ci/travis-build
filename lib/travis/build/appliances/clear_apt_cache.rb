@@ -6,10 +6,8 @@ module Travis
       class ClearAptCache < Base
         def apply
           sh.cmd <<-EOF
-            ls /var/lib/apt/lists/packagecloud.io* >/dev/null && (
-              sudo rm -rf /var/lib/apt/lists/packagecloud.io*
-              sudo apt-get update -qq
-            )
+            sudo rm -rf /var/lib/apt/lists/*
+            sudo apt-get update -qq
           EOF
         end
       end
