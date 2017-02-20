@@ -168,6 +168,7 @@ module Travis
           apply :rvm_use
           apply :rm_oraclejdk8_symlink
           apply :fix_rwky_redis
+          apply :clear_apt_cache
         end
 
         def checkout
