@@ -20,7 +20,6 @@ module Travis
           sh.echo 'C# support for Travis-CI is community maintained.', ansi: :red
           sh.echo 'Please open any issues at https://github.com/travis-ci/travis-ci/issues/new and cc @joshua-anderson @akoeplinger @nterry', ansi: :red
 
-
           sh.fold('mono-install') do
             if mono_version_valid?
               sh.echo 'Installing Mono', ansi: :yellow
