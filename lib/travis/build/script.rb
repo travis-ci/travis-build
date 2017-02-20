@@ -151,6 +151,8 @@ module Travis
 
         def configure
           apply :show_system_info
+          apply :clear_apt_cache
+          apply :fix_rwky_redis
           apply :update_glibc
           apply :clean_up_path
           apply :fix_resolv_conf
@@ -167,8 +169,6 @@ module Travis
           apply :npm_registry
           apply :rvm_use
           apply :rm_oraclejdk8_symlink
-          apply :fix_rwky_redis
-          apply :clear_apt_cache
         end
 
         def checkout
