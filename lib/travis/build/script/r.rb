@@ -53,14 +53,6 @@ module Travis
           sh.export 'R_PROFILE', "~/.Rprofile.site", echo: false
         end
 
-        def fix_ppa_list_file(list_file)
-          temp_list_file = '/tmp/source.list'
-          sh.if "-f #{list_file}" do
-            sh.cmd "sudo sed -e 's,rwky/redis,rwky/ppa,g' #{list_file} > #{temp_list_file}", echo: false
-            sh.cmd "cat #{temp_list_file} | sudo tee #{list_file} > /dev/null", echo: false
-          end
-        end
-
         def configure
           super
 

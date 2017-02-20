@@ -26,14 +26,6 @@ module Travis
           install_dotnet if is_dotnet_enabled
         end
 
-        def fix_ppa_list_file(list_file)
-          temp_list_file = '/tmp/source.list'
-          sh.if "-f #{list_file}" do
-            sh.cmd "sudo sed -e 's,rwky/redis,rwky/ppa,g' #{list_file} > #{temp_list_file}", echo: false
-            sh.cmd "cat #{temp_list_file} | sudo tee #{list_file} > /dev/null", echo: false
-          end
-        end
-
         def install_mono
           if !is_mono_version_valid?
             sh.failure "\"#{config[:mono]}\" is either an invalid version of \"mono\" or unsupported on this operating system.
