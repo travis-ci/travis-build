@@ -1,6 +1,5 @@
 require 'travis/build/appliances/checkout'
 require 'travis/build/appliances/clean_up_path'
-require 'travis/build/appliances/clear_apt_cache'
 require 'travis/build/appliances/debug_tools'
 require 'travis/build/appliances/deprecations'
 require 'travis/build/appliances/disable_sudo'

@@ -151,7 +151,6 @@ module Travis
 
         def configure
           apply :show_system_info
-          apply :clear_apt_cache
           apply :fix_rwky_redis
           apply :update_glibc
           apply :clean_up_path
