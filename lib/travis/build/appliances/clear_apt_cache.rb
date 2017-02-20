@@ -5,10 +5,12 @@ module Travis
     module Appliances
       class ClearAptCache < Base
         def apply
-          sh.if "test -e /var/lib/apt/lists/packagecloud.io*" do
-            sh.cmd "sudo rm -rf /var/lib/apt/lists/packagecloud.io*", echo: false
-            sh.cmd "sudo apt-get update -qq", echo: false
-          end
+          sh.cmd <<-EOF
+            ls /var/lib/apt/lists/packagecloud.io* >/dev/null && (
+              sudo rm -rf /var/lib/apt/lists/packagecloud.io*
+              sudo apt-get update -qq
+            )
+          EOF
         end
       end
     end
