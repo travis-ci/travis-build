@@ -5,10 +5,13 @@ module Travis
     module Appliances
       class FixRwkyRedis < Base
         def apply
-          list_file = '/etc/apt/sources.list.d/rwky-redis.list'
-          sh.if "-f #{list_file}" do
-            sh.cmd "sudo sed -i 's,rwky/redis,rwky/ppa,g' #{list_file}", echo: false
-          end
+          command = <<-EOF
+            for f in $(grep -l rwky/redis /etc/apt/sources.list.d/*); do
+              sed 's,rwky/redis,rwky/ppa,g' $f > /tmp/${f##**/}
+              sudo mv /tmp/${f##**/} /etc/apt/sources.list.d
+            done
+          EOF
+          sh.cmd command, echo: false
         end
       end
     end
