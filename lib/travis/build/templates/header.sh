@@ -56,7 +56,11 @@ travis_cmd() {
     travis_retry eval "$cmd $secure"
     result=$?
   else
-    eval "$cmd $secure"
+    if [[ -n "$secure" ]]; then
+      eval "$cmd $secure" 2>/dev/null
+    else
+      eval "$cmd $secure"
+    fi
     result=$?
     if [[ -n $secure && $result -ne 0 ]]; then
       echo -e "${ANSI_RED}The previous command failed, possibly due to a malformed secure environment variable.${ANSI_CLEAR}
