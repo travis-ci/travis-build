@@ -5,7 +5,8 @@ module Travis
 
       on('--branch NAME', 'the branch to check out when cloning the repo') {|c, name| c.branch = name}
 
-      attr_accessor :slug, :source_url, :branch
+      attr_accessor :slug, :source_url
+      attr_writer :branch
 
       def setup
         error "run command is not available on #{RUBY_VERSION}" if RUBY_VERSION < '1.9.3'
@@ -69,13 +70,13 @@ module Travis
               :push_timeout => 60
             },
             :job => {
-              :branch => choose_branch
+              :branch => branch
             }
           }
         end
 
-        def choose_branch
-          return branch if branch
+        def branch
+          return @branch if @branch
           name = `git name-rev --name-only HEAD 2>#{IO::NULL}`.chomp
           name =~ /~\d+$/ ? nil : name
         end
