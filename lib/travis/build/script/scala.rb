@@ -18,8 +18,8 @@ module Travis
           super
           if use_sbt?
             sh.echo "Updating sbt", ansi: :green
-            sh.cmd "sudo curl -sfS -o sbt.tmp #{SBT_URL}", assert: true
-            sh.raw "sed -e '/addSbt \\(warn\\|info\\)/d' sbt.tmp | sudo tee #{SBT_PATH} > /dev/null && rm -f sbt.tmp"
+
+            update_sbt
           end
         end
 
@@ -76,6 +76,20 @@ module Travis
 
           def not_use_sbt?
             '! -d project && ! -f build.sbt'
+          end
+
+          def app_host
+            @app_host ||= Travis::Build.config.app_host.to_s.strip.untaint
+          end
+
+          def update_sbt
+            return if app_host.empty?
+
+            sh.cmd "curl -sf -o sbt.tmp https://#{app_host}/files/sbt", echo: false
+            sh.if "$? -ne 0" do
+              sh.cmd "curl -sf -o sbt.tmp #{SBT_URL}", assert: true
+            end
+            sh.raw "sed -e '/addSbt \\(warn\\|info\\)/d' sbt.tmp | sudo tee #{SBT_PATH} > /dev/null && rm -f sbt.tmp"
           end
       end
     end
