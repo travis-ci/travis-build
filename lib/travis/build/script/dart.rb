@@ -147,10 +147,8 @@ MESSAGE
         end
 
         def install
-          sh.fold 'pub_get' do
-            sh.echo 'pub get'
-
-            sh.if '-f pubspec.yaml' do
+          sh.if '-f pubspec.yaml' do
+            sh.fold 'pub_get' do
               sh.cmd "pub get"
             end
           end
@@ -174,7 +172,7 @@ MESSAGE
             sh.fold "deprecated.unittest" do
               sh.deprecate <<MESSAGE
 DEPRECATED: The unittest package is deprecated. Please upgrade to the test
-package. See https://github.com/dart-lang/test.
+package. See https://github.com/dart-lang/test#readme.
 MESSAGE
             end
 
@@ -242,10 +240,10 @@ MESSAGE
             urlEnd = ''
             # support of "dev" or "stable"
             if ["stable", "dev"].include?(task[:dart])
-              urlEnd = "#{config[:dart]}/release/latest"
+              urlEnd = "#{task[:dart]}/release/latest"
             # support of "stable/release/1.15.0" or "be/raw/110749"
             elsif task[:dart].include?("/")
-              urlEnd = config[:dart]
+              urlEnd = task[:dart]
             # support of dev versions like "1.16.0-dev.2.0" or "1.16.0-dev.2.0"
             elsif task[:dart].include?("-dev")
               urlEnd = "dev/release/#{task[:dart]}"
