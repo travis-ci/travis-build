@@ -8,9 +8,8 @@ module Travis
         def apply
           sh.fold 'system_info' do
             header
-            sh.if "-f #{info_file}" do
-              sh.cmd "cat #{info_file}"
-            end
+            show_travis_build_version
+            show_system_info_file
           end
           sh.newline
         end
@@ -22,6 +21,20 @@ module Travis
             [:language, :group, :dist].each do |name|
               value = data.send(name)
               sh.echo "Build #{name}: #{Shellwords.escape(value)}" if value
+            end
+            sh.echo "Build id: #{Shellwords.escape(data.build[:id])}"
+            sh.echo "Job id: #{Shellwords.escape(data.job[:id])}"
+          end
+
+          def show_travis_build_version
+            if ENV['HEROKU_SLUG_COMMIT']
+              sh.echo "travis-build version: #{ENV['HEROKU_SLUG_COMMIT']}".untaint
+            end
+          end
+
+          def show_system_info_file
+            sh.if "-f #{info_file}" do
+              sh.cmd "cat #{info_file}"
             end
           end
 

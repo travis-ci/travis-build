@@ -3,6 +3,8 @@ module Travis
     class Git
       class SshKey < Struct.new(:sh, :data)
         def apply
+          return unless apply?
+
           sh.newline
           sh.echo messages
           sh.newline
@@ -18,6 +20,9 @@ module Travis
         end
 
         private
+          def apply?
+            !data.prefer_https?
+          end
 
           def key
             data.ssh_key

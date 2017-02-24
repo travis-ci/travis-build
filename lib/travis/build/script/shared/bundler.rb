@@ -21,15 +21,41 @@ module Travis
           sh.cmd 'bundle --version'
         end
 
-        def install
+        def setup_cache
+          return unless use_directory_cache?
+
           sh.if gemfile? do
             sh.if gemfile_lock? do
-              directory_cache.add(bundler_path(false)) if data.cache?(:bundler)
-              sh.cmd bundler_install("--deployment"), fold: "install.bundler", retry: true
+              sh.echo ''
+              if data.cache?(:bundler)
+                sh.fold 'cache.bundler' do
+                  directory_cache.add(bundler_path(false))
+                end
+              end
             end
             sh.else do
               # Cache bundler if it has been explicitly enabled
-              directory_cache.add(bundler_path(false)) if data.cache?(:bundler, false)
+              sh.echo ''
+              if data.cache?(:bundler, false)
+                sh.fold 'cache.bundler' do
+                  directory_cache.add(bundler_path(false))
+                end
+              end
+            end
+          end
+        end
+
+        def install
+          sh.if gemfile? do
+            sh.if gemfile_lock? do
+              sh.if '-e vendor/cache' do
+                sh.if '$(du -s vendor/cache | cut -f 1) -eq 0' do
+                  sh.cmd 'rm -rf vendor/cache', echo: false, timing: false, assert: false
+                end
+              end
+              sh.cmd bundler_install("--deployment"), fold: "install.bundler", retry: true
+            end
+            sh.else do
               sh.cmd bundler_install, fold: "install.bundler", retry: true
             end
           end

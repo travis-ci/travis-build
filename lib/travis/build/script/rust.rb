@@ -45,6 +45,22 @@ module Travis
           sh.cmd 'cargo test --verbose'
         end
 
+        def setup_cache
+          if data.cache?(:cargo)
+            sh.fold 'cache.cargo' do
+              directory_cache.add "$HOME/.cargo", "target"
+            end
+          end
+        end
+
+        def cache_slug
+          super << "--cargo-" << version
+        end
+
+        def use_directory_cache?
+          super || data.cache?(:cargo)
+        end
+
         private
 
           def version

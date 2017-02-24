@@ -10,9 +10,56 @@ describe Travis::Build::Git::Clone, :sexp do
   let(:depth)  { Travis::Build::Git::DEFAULTS[:git][:depth] }
   let(:branch) { payload[:job][:branch] || 'master' }
 
+  let(:oauth_token) { 'abcdef01234' }
+
   before :each do
     payload[:config][:git] = { strategy: 'clone' }
   end
+
+  context 'when source_url starts with "https"' do
+    before { payload[:repository][:source_url] = "https://github.com/travis-ci/travis-ci.git" }
+
+    context "when payload includes oauth_token" do
+      # case where (in Enterprise) scheduler sets the source URL with https
+      before { payload[:oauth_token] = oauth_token }
+
+      it 'writes to $HOME/.netrc' do
+        expect(script.sexp).to include_sexp [:raw, /echo -e "machine github.com\n  login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
+      end
+    end
+
+    context "when payload does not include oauth_token" do
+      # hosted .org
+      it 'does not write to $HOME/.netrc' do
+        should_not include_sexp [:raw, /echo -e "machine github.com\n  login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
+      end
+    end
+  end
+
+  context 'when source_url starts with "git"' do
+    context "when payload includes oauth_token" do
+      # hosted .com, or Enterprise with default config
+      before { payload[:oauth_token] = oauth_token }
+
+      it 'does not write to $HOME/.netrc' do
+        should_not include_sexp [:raw, /echo -e "machine github.com\n  login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
+      end
+    end
+
+    context "when payload does not include oauth_token" do
+      # this should not happen
+      it 'does not write to $HOME/.netrc' do
+        should_not include_sexp [:raw, /echo -e "machine github.com\n  login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
+      end
+    end
+  end
+
+  context 'when source_url starts with "git"' do
+    it 'deos not write to $HOME/.netrc' do
+      should_not include_sexp [:raw, /echo -e "machine github.com login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
+    end
+  end
+
 
   describe 'when the repository is cloned not yet' do
     let(:args) { "--depth=#{depth} --branch=#{branch.shellescape}" }

@@ -100,7 +100,9 @@ module Travis
 
       class Elif < Conditional
         def to_sexp
-          [:elif, condition, super]
+          sexp = [:elif, condition, super]
+          sexp << { raw: true } if options[:raw]
+          sexp
         end
       end
 

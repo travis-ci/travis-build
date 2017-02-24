@@ -1,6 +1,6 @@
 RSpec::Matchers.define :match_sexp do |expected|
   match do |sexp|
-    sexp_find(sexp, expected)
+    sexp_find(sexp, expected).any?
   end
 
   failure_message do |sexp|

@@ -35,12 +35,19 @@ module Travis
         def announce
           sh.cmd 'python --version'
           sh.cmd 'pip --version'
+          sh.export 'PIP_DISABLE_PIP_VERSION_CHECK', '1', echo: false
+        end
+
+        def setup_cache
+          if data.cache?(:pip)
+            sh.fold 'cache.pip' do
+              sh.echo ''
+              directory_cache.add '$HOME/.cache/pip'
+            end
+          end
         end
 
         def install
-          if data.cache?(:pip)
-            directory_cache.add '$HOME/.cache/pip'
-          end
           sh.if '-f Requirements.txt' do
             sh.cmd 'pip install -r Requirements.txt', fold: 'install', retry: true
           end
@@ -90,9 +97,21 @@ module Travis
           end
 
           def install_python_archive(version = 'nightly')
-            sh.cmd "curl -s -o python-#{version}.tar.bz2 https://s3.amazonaws.com/travis-python-archives/$(lsb_release -rs)/python-#{version}.tar.bz2", echo: false
-            sh.cmd "sudo tar xjf python-#{version}.tar.bz2 --directory /", echo: false
-            sh.cmd "rm python-#{version}.tar.bz2", echo: false
+            if version =~ /^pypy/
+              if md = /^(?<interpreter>pypy[^-]*)-(?<version>.*)/.match(version)
+                lang = md[:interpreter]
+                vers = md[:version]
+              end
+            else
+              lang = 'python'
+              vers = version
+            end
+            sh.raw archive_url_for('travis-python-archives', vers, lang)
+            sh.echo "Downloading archive: ${archive_url}", ansi: :yellow
+            archive_filename = "#{lang}-#{vers}.tar.bz2"
+            sh.cmd "curl -s -o #{archive_filename} ${archive_url}", assert: true
+            sh.cmd "sudo tar xjf #{archive_filename} --directory /", echo: true, assert: true
+            sh.cmd "rm #{archive_filename}", echo: false
           end
 
           def setup_path(version = 'nightly')

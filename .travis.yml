@@ -10,8 +10,26 @@ env:
   global:
   - RUBYOPT='-W0'
   - COVERAGE=1
+  matrix:
+  - INTEGRATION_SPECS=0
+  - INTEGRATION_SPECS=1
 
-script: bundle exec rspec spec
+matrix:
+  include:
+    - sudo: required
+      dist: trusty
+      env:
+      script:
+        - docker build -t travis-build .
+        - docker run -d -it -p 5000:5000 -e PORT=5000 travis-build
+        - sleep 10
+        - for f in example_payloads/*.json; do echo ${f##*/}; curl -sf -X POST -d @$f localhost:5000/script >/dev/null; done
+
+script:
+  - bundle exec rspec spec
+  - for f in examples/*.sh.txt; do echo "checking bash syntax $f"; bash -n $f; done
+
+after_success: bundle exec codeclimate-test-reporter
 
 before_deploy: ruby script/build_s3_index_html.rb
 
@@ -28,3 +46,4 @@ deploy:
   region: us-east-1
   on:
     branch: master
+    condition: $INTEGRATION_SPECS == 1

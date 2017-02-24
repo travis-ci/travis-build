@@ -11,28 +11,52 @@ module Travis
   module Api
     module Build
       class App < Sinatra::Base
-        before '/script' do
-          return if ENV['API_TOKEN'].nil? || ENV['API_TOKEN'].empty?
-
-          type, token = env['HTTP_AUTHORIZATION'].to_s.split(' ', 2)
-
-          unless type == 'token' && token == ENV['API_TOKEN']
-            halt 403, 'access denied'
-          end
-        end
+        enable :static
+        set :root, File.expand_path('../../../../../', __FILE__)
+        set :start, Time.now.utc
 
         configure(:production, :staging) do
           use Rack::SSL
         end
 
         configure do
-          if ENV['SENTRY_DSN']
-            use Sentry
+          use Sentry unless Travis::Build.config.sentry_dsn.to_s.empty?
+          use Metriks unless Travis::Build.config.librato.email.to_s.empty? ||
+                             Travis::Build.config.librato.token.to_s.empty? ||
+                             Travis::Build.config.librato.source.to_s.empty?
+
+          use Rack::Deflater
+        end
+
+        helpers do
+          def auth_disabled?
+            Travis::Build.config.auth_disabled? ||
+            api_tokens.empty? && (
+              settings.development? || settings.test?
+            )
           end
 
-          if ENV.key?('LIBRATO_EMAIL') && ENV.key?('LIBRATO_TOKEN') && ENV.key?('LIBRATO_SOURCE')
-            use Metriks
+          def api_tokens
+            @api_tokens ||=
+              Travis::Build.config.api_token.to_s.split(',').map(&:strip)
           end
+        end
+
+        before '/script' do
+          return if auth_disabled?
+
+          unless env.key?('HTTP_AUTHORIZATION')
+            halt 401, 'missing Authorization header'
+          end
+
+          type, token = env['HTTP_AUTHORIZATION'].to_s.split(' ', 2)
+
+          api_tokens.each do |valid_token|
+            return if Rack::Utils.secure_compare(type, 'token') &&
+                      Rack::Utils.secure_compare(token, valid_token)
+          end
+
+          halt 403, 'access denied'
         end
 
         error JSON::ParserError do
@@ -48,18 +72,31 @@ module Travis
         post '/script' do
           payload = JSON.parse(request.body.read)
 
-          if ENV['SENTRY_DSN']
+          unless Travis::Build.config.sentry_dsn.empty?
             Raven.extra_context(
-              repository: payload['repository']['slug'],
-              job: payload['job']['id'],
+              repository: payload.fetch('repository', {}).fetch('slug', '???'),
+              job: payload.fetch('job', {}).fetch('id', '???'),
             )
           end
 
-          content_type :txt
-          Travis::Build.script(payload).compile
+          compiled = Travis::Build.script(payload).compile
+
+          content_type 'application/x-sh'
+          status 200
+          compiled
         end
 
-        get '/uptime' do
+        get('/') { uptime }
+        get('/uptime') { uptime }
+        get('/boom') { raise StandardError, ':bomb:' }
+
+        private
+
+        def uptime
+          headers(
+            'Travis-Build-Uptime' => "#{Time.now.utc - settings.start}s",
+            'Travis-Build-Version' => Travis::Build.version
+          )
           status 204
         end
       end

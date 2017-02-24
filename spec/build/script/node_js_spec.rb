@@ -22,7 +22,23 @@ describe Travis::Build::Script::NodeJs, :sexp do
     context 'when :node_js is set in config' do
       let(:config) { { node_js: '0.9' } }
       it 'sets the version from config :node_js' do
-        should include_sexp [:cmd, 'nvm install 0.9', assert: true, echo: true, timing: true]
+        should include_sexp [:cmd, 'nvm install 0.9', echo: true, timing: true]
+      end
+
+      context 'when nvm install fails' do
+        let(:sexp_if)      { sexp_filter(subject, [:if, '$? -ne 0'])[1] }
+
+        it 'tries to use locally available version' do
+          expect(sexp_if).to include_sexp [:cmd, 'nvm use 0.9', echo: true]
+        end
+
+        context 'when nvm use fails' do
+          let(:sexp) { sexp_filter(sexp_if, [:if, '$? -ne 0'], [:then]) }
+
+          it 'errors the build' do
+            expect(sexp).to include_sexp [:cmd, 'false', assert: true]
+          end
+        end
       end
     end
 
@@ -33,7 +49,7 @@ describe Travis::Build::Script::NodeJs, :sexp do
         let(:sexp)   { sexp_filter(subject, [:if, '-f .nvmrc'], [:then]) }
 
         it 'sets the version from .nvmrc' do
-          expect(sexp).to include_sexp [:cmd, 'nvm install', assert: true, echo: true, timing: true]
+          expect(sexp).to include_sexp [:cmd, 'nvm install $(< .nvmrc)', echo: true, timing: true]
         end
 
         it 'sets TRAVIS_NODE_VERSION form .nvmrc' do
@@ -45,7 +61,7 @@ describe Travis::Build::Script::NodeJs, :sexp do
         let(:sexp) { sexp_filter(subject, [:if, '-f .nvmrc'], [:else]) }
 
         it 'sets the version to 0.10' do
-          expect(sexp).to include_sexp [:cmd, 'nvm install 0.10', assert: true, echo: true, timing: true]
+          expect(sexp).to include_sexp [:cmd, 'nvm install 0.10', echo: true, timing: true]
         end
 
         it 'sets TRAVIS_NODE_VERSION to 0.10' do

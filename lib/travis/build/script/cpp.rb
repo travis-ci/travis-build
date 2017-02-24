@@ -10,6 +10,9 @@ module Travis
           super
           sh.export 'CXX', cxx
           sh.export 'CC', cc # some projects also need to compile some C, e.g. Rubinius. MK.
+          if data.cache?(:ccache)
+            sh.export 'PATH', "/usr/lib/ccache:$PATH"
+          end
         end
 
         def announce
@@ -25,10 +28,12 @@ module Travis
           super << '--compiler-' << compiler.tr('+', 'p')
         end
 
-        def install
-          super
+        def setup_cache
           if data.cache?(:ccache)
-            directory_cache.add('~/.ccache')
+            sh.fold 'cache.ccache' do
+              sh.echo ''
+              directory_cache.add('~/.ccache')
+            end
           end
         end
 

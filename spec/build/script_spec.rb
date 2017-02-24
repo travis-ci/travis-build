@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Travis::Build::Script, :sexp do
   let(:config)  { PAYLOADS[:worker_config] }
-  let(:payload) { payload_for(:push, :ruby, config: { cache: ['apt', 'bundler'] }).merge(config) }
+  let(:payload) { payload_for(:push, :ruby, config: { cache: 'bundler'}).merge(config) }
   let(:script)  { Travis::Build.script(payload) }
   let(:code)    { script.compile }
   subject       { script.sexp }
@@ -15,10 +15,6 @@ describe Travis::Build::Script, :sexp do
 
   it 'uses $HOME/build as a working directory' do
     expect(code).to match %r(cd +\$HOME/build)
-  end
-
-  it 'sets up apt cache' do
-    should include_sexp [:cmd, %r(tee /etc/apt/apt.conf.d/01proxy)]
   end
 
   it 'applies resolv.conf fix' do
@@ -55,5 +51,10 @@ describe Travis::Build::Script, :sexp do
       payload['cache_options']['s3']['access_key_id'].taint
       expect { code }.to_not raise_error
     end
+  end
+
+  context 'when running a debug build' do
+    let(:payload) { payload_for(:push_debug, :ruby, config: { cache: ['apt', 'bundler'] }).merge(config) }
+    it_behaves_like 'a debug script'
   end
 end

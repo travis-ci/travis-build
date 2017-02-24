@@ -1,4 +1,5 @@
 require 'raven'
+require 'raven/integrations/rack'
 require 'sinatra/base'
 
 module Travis
@@ -6,12 +7,10 @@ module Travis
     module Build
       class Sentry < Sinatra::Base
         configure do
-          if ENV['ENV'] == 'production'
-            Raven.configure do |config|
-              config.tags = { environment: environment }
-            end
-            use Raven::Rack
+          Raven.configure do |config|
+            config.tags = { environment: environment }
           end
+          use Raven::Rack
         end
       end
     end

@@ -22,12 +22,12 @@ function travis_start_sauce_connect() {
   case "${sc_platform}" in
       linux)
           sc_distro_fmt=tar.gz
-          sc_distro_shasum=b4f3464738dbcba57d9c6d316d711cfc98dd70f3;;
+          sc_distro_shasum=57a07a14c5d95d72b6606ba34fceaf5bf76c2865;;
       osx)
           sc_distro_fmt=zip
-          sc_distro_shasum=5d0aa851d21f3d4a21f298b6a921761c6aa15217;;
+          sc_distro_shasum=a7e04143c3150975e72ae8fef38067d2752dec8f;;
   esac
-  sc_distro=sc-4.3.11-${sc_platform}.${sc_distro_fmt}
+  sc_distro=sc-4.4.2-${sc_platform}.${sc_distro_fmt}
   sc_readyfile=sauce-connect-ready-$RANDOM
   sc_logfile=$HOME/sauce-connect.log
   if [ ! -z "${TRAVIS_JOB_NUMBER}" ]; then
@@ -60,11 +60,20 @@ function travis_start_sauce_connect() {
   _SC_PID="$!"
 
   echo "Waiting for Sauce Connect readyfile"
-  while [ ! -f ${sc_readyfile} ]; do
+  while test ! -f ${sc_readyfile} && ps -f $_SC_PID >&/dev/null; do
     sleep .5
   done
 
+  if test ! -f ${sc_readyfile}; then
+    echo "readyfile not created"
+  fi
+
+  test -f ${sc_readyfile}
+  _result=$?
+
   popd
+
+  return $_result
 }
 
 function travis_stop_sauce_connect() {

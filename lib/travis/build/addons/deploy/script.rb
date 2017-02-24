@@ -6,8 +6,27 @@ module Travis
     class Addons
       class Deploy < Base
         class Script
-          VERSIONED_RUNTIMES = [:jdk, :node, :perl, :php, :python, :ruby, :scala, :go]
-          USE_RUBY           = '1.9.3'
+          VERSIONED_RUNTIMES = %w(
+            d
+            dart
+            elixir
+            ghc
+            go
+            haxe
+            jdk
+            julia
+            mono
+            node
+            otp_release
+            perl
+            php
+            python
+            r
+            ruby
+            rust
+            scala
+            smalltalk
+          ).map(&:to_sym)
 
           attr_accessor :script, :sh, :data, :config, :allow_failure
 
@@ -80,7 +99,10 @@ module Travis
 
             def branch_condition
               return if on[:all_branches] || on[:tags]
-              branches  = Array(on[:branch] || default_branches)
+
+              branch_config = on[:branch].respond_to?(:keys) ? on[:branch].keys : on[:branch]
+
+              branches  = Array(branch_config || default_branches)
               branches.map { |b| "$TRAVIS_BRANCH = #{b}" }.join(' || ')
             end
 
@@ -100,20 +122,26 @@ module Travis
             end
 
             def run
-              script.stages.run_stage(:custom, :before_deploy)
-              sh.fold('dpl.0') { install }
-              cmd(run_command, echo: false, assert: false, timing: true)
-              script.stages.run_stage(:custom, :after_deploy)
+              sh.with_errexit_off do
+                script.stages.run_stage(:custom, :before_deploy)
+                sh.fold('dpl.0') { install }
+                cmd(run_command, echo: false, assert: false, timing: true)
+                script.stages.run_stage(:custom, :after_deploy)
+              end
             end
 
             def install(edge = config[:edge])
+              edge = config[:edge]
               if edge.respond_to? :fetch
-                build_gem_locally_from(edge.fetch(:source, 'travis-ci/dpl'), edge.fetch(:branch, 'master'))
+                src = edge.fetch(:source, 'travis-ci/dpl')
+                branch = edge.fetch(:branch, 'master')
+                build_gem_locally_from(src, branch)
               end
               command = "gem install dpl"
               command << "-*.gem --local" if edge == 'local' || edge.respond_to?(:fetch)
               command << " --pre" if edge
               cmd(command, echo: false, assert: !allow_failure, timing: true)
+              sh.cmd "rm -f dpl-*.gem", echo: false, assert: false, timing: false
             end
 
             def run_command(assert = !allow_failure)
@@ -126,7 +154,7 @@ module Travis
             end
 
             def default_branches
-              default_branches = config.values.grep(Hash).map(&:keys).flatten(1).uniq.compact
+              default_branches = config.except(:edge).values.grep(Hash).map(&:keys).flatten(1).uniq.compact
               default_branches.any? ? default_branches : 'master'
             end
 
@@ -141,7 +169,8 @@ module Travis
             end
 
             def cmd(cmd, *args)
-              sh.cmd("rvm #{USE_RUBY} --fuzzy do ruby -S #{cmd}", *args)
+              sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
+              sh.cmd("rvm $(travis_internal_ruby) --fuzzy do ruby -S #{cmd}", *args)
             end
 
             def options
@@ -158,13 +187,17 @@ module Travis
 
             def build_gem_locally_from(source, branch)
               sh.echo "Building dpl gem locally with source #{source} and branch #{branch}", ansi: :yellow
-              sh.cmd("pushd /tmp",                             echo: false, assert: !allow_failure, timing: true)
-              sh.cmd("git clone https://github.com/#{source}", echo: false, assert: !allow_failure, timing: true)
-              sh.cmd("cd dpl",                                 echo: false, assert: !allow_failure, timing: true)
-              sh.cmd("git checkout #{branch}",                 echo: false, assert: !allow_failure, timing: true)
-              cmd("gem build dpl.gemspec",                     echo: false, assert: !allow_failure, timing: true)
-              sh.cmd("mv dpl-*.gem $TRAVIS_BUILD_DIR",         echo: false, assert: !allow_failure, timing: true)
-              sh.cmd("popd",                                   echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("gem uninstall -a -x dpl >& /dev/null",                echo: false, assert: !allow_failure, timing: false)
+              sh.cmd("pushd /tmp >& /dev/null",                             echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("git clone https://github.com/#{source} #{source}",    echo: true,  assert: !allow_failure, timing: true)
+              sh.cmd("pushd #{source} >& /dev/null",                        echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("git checkout #{branch}",                              echo: true,  assert: !allow_failure, timing: true)
+              cmd("gem build dpl.gemspec",                                  echo: true,  assert: !allow_failure, timing: true)
+              sh.cmd("mv dpl-*.gem $TRAVIS_BUILD_DIR >& /dev/null",         echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: true)
+              # clean up, so that multiple edge providers can be run
+              sh.cmd("rm -rf $(dirname #{source})",                         echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: true)
             ensure
               sh.cmd("test -e /tmp/dpl && rm -rf dpl", echo: false, assert: false, timing: true)
             end

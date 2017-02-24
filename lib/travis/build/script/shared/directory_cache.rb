@@ -1,13 +1,16 @@
+require 'travis/build/script/shared/directory_cache/base'
 require 'travis/build/script/shared/directory_cache/noop'
+require 'travis/build/script/shared/directory_cache/gcs'
 require 'travis/build/script/shared/directory_cache/s3'
 
 module Travis
   module Build
     class Script
       module DirectoryCache
+
         def directory_cache
           @directory_cache ||= begin
-            cache = cache_class.new(sh, data, cache_slug)
+            cache = cache_class.new(sh, data, cache_slug, Time.now)
             cache = Noop.new(sh, data, cache_slug) unless cache.valid? && use_directory_cache?
             cache
           end
@@ -27,14 +30,16 @@ module Travis
           data.cache?(:directories)
         end
 
-        def setup
-          directory_cache.setup
+        def setup_casher
+          directory_cache.setup_casher
           super
         end
 
         def cache
           directory_cache.fold('store build cache') do
-            prepare_cache
+            sh.with_errexit_off do
+              prepare_cache
+            end
             directory_cache.push
           end
         end

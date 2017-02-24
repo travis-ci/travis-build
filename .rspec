@@ -1,4 +1,4 @@
---require spec_helper
---require pry
---format documentation
 --color
+--order rand
+--require pry
+--require spec_helper

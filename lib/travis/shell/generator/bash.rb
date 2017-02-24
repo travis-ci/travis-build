@@ -130,8 +130,9 @@ module Travis
           handle(cmds)
         end
 
-        def handle_elif(condition, cmds)
-          lines = ["elif [[ #{condition} ]]; then"]
+        def handle_elif(condition, cmds, options = {})
+          condition = "[[ #{condition} ]]" unless options.delete(:raw)
+          lines = ["elif #{condition}; then"]
           lines += handle(cmds)
           lines
         end
@@ -143,7 +144,7 @@ module Travis
         private
 
           def handle_secure_vars(key, value, options)
-            if options[:echo] && options.delete(:secure)
+            if options[:echo] && options[:secure]
               options[:echo] = "export #{key}=[secure]"
               value.untaint
             end

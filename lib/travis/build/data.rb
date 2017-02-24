@@ -10,7 +10,6 @@ module Travis
       DEFAULTS = { }
 
       DEFAULT_CACHES = {
-        apt:       false,
         bundler:   false,
         cocoapods: false,
         composer:  false,
@@ -59,7 +58,7 @@ module Travis
       end
 
       def cache_options
-        data[:cache_options] || {}
+        data[:cache_settings] || data[:cache_options] || {}
       end
 
       def cache(input = config[:cache])
@@ -152,6 +151,14 @@ module Travis
 
       def token
         data[:oauth_token]
+      end
+
+      def debug_options
+        job[:debug_options] || {}
+      end
+
+      def prefer_https?
+        source_url.downcase.start_with? "https"
       end
     end
   end
