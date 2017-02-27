@@ -86,6 +86,8 @@ MESSAGE
           sh.echo 'and mention `@nex3` and \`@a14n\`' \
             ' in the issue', ansi: :green
 
+          sh.export 'PUB_ENVIRONMENT', 'travis'
+
           sh.fold 'dart_install' do
             sh.echo 'Installing Dart', ansi: :yellow
             sh.cmd "curl #{archive_url}/sdk/dartsdk-#{os}-x64-release.zip > $HOME/dartsdk.zip"
