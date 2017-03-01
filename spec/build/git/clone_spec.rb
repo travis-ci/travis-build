@@ -36,6 +36,27 @@ describe Travis::Build::Git::Clone, :sexp do
     end
   end
 
+  context 'when source_url starts with "https" on a GitHub Enterprise host' do
+    let(:ghe_host) { 'ghe.example.com'}
+    before { payload[:repository][:source_url] = "https://#{ghe_host}/travis-ci/travis-ci.git" }
+
+    context "when payload includes oauth_token" do
+      # case where (in Enterprise) scheduler sets the source URL with https
+      before { payload[:oauth_token] = oauth_token }
+
+      it 'writes to $HOME/.netrc' do
+        expect(script.sexp).to include_sexp [:raw, /echo -e "machine #{ghe_host}\n  login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
+      end
+    end
+
+    context "when payload does not include oauth_token" do
+      # hosted .org
+      it 'does not write to $HOME/.netrc' do
+        should_not include_sexp [:raw, /echo -e "machine #{ghe_host}\n  login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
+      end
+    end
+  end
+
   context 'when source_url starts with "git"' do
     context "when payload includes oauth_token" do
       # hosted .com, or Enterprise with default config
