@@ -3,7 +3,7 @@ require 'node_js'
 module Travis
   module Build
     class Script
-      class Elm < Travis::Build::Script::NodeJs
+      class Elm < NodeJs
         DEFAULTS = {
           elm_version: 'latest',
           elm_test_version: 'latest'
