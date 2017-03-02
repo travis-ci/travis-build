@@ -1,7 +1,7 @@
 module Travis
   module Build
     class Script
-      class Elm < NodeJs
+      class Elm < Travis::Build::Script::NodeJs
         DEFAULTS = {
           elm_version: 'latest',
           elm_test_version: 'latest'
