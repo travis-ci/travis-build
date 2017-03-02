@@ -72,7 +72,7 @@ module Travis
           end
 
           def install_elm
-            sh.cmd 'npm install -g elm-use@1.1.0', retry: true
+            sh.cmd 'npm install -g elm-use@">=1.1.0 <2.0.0"', retry: true
             sh.cmd 'elm-use #{elm_version}', retry: true
 
             convert_binary_to_sysconfcpus 'elm'
