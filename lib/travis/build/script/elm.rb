@@ -25,11 +25,8 @@ module Travis
 
         def announce
           super
-          sh.echo 'elm version:'
-          sh.cmd 'elm --version'
-
-          sh.echo 'elm-test version:'
-          sh.cmd 'elm-test --version'
+          sh.cmd 'elm --version', echo: true
+          sh.cmd 'elm-test --version', echo: true
         end
 
         def setup
