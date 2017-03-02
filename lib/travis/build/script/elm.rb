@@ -1,7 +1,7 @@
 module Travis
   module Build
     class Script
-      class Elm < Script
+      class Elm < NodeJs
         DEFAULTS = {
           elm_version: 'latest',
           elm_test_version: 'latest'
@@ -72,7 +72,7 @@ module Travis
           end
 
           def install_elm
-            sh.cmd 'npm install -g elm-use@">=1.1.0 <2.0.0"', retry: true
+            npm_install '-g elm-use@">=1.1.0 <2.0.0"'
             sh.cmd 'elm-use #{elm_version}', retry: true
 
             convert_binary_to_sysconfcpus 'elm'
@@ -82,7 +82,7 @@ module Travis
           end
 
           def install_elm_test
-            sh.cmd 'npm install -g elm-test@#{elm_test_version}', retry: true
+            npm_install '-g elm-test@#{elm_test_version}'
 
             convert_binary_to_sysconfcpus 'elm-test'
           end
