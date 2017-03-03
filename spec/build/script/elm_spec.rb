@@ -34,6 +34,6 @@ describe Travis::Build::Script::Elm, :sexp do
 
   describe '#cache_slug' do
     subject { described_class.new(data).cache_slug }
-    it { is_expected.to eq("cache-#{CACHE_SLUG_EXTRAS}--elm-latest") }
+    it { is_expected.to eq("cache-#{CACHE_SLUG_EXTRAS}--node--elm-latest") }
   end
 end

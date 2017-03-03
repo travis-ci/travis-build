@@ -55,7 +55,7 @@ module Travis
         end
 
         def cache_slug
-          super << '--elm-' << elm_version
+          super << '-elm-' << elm_version
         end
 
         private
