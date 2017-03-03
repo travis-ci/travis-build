@@ -2,10 +2,15 @@ module Travis
   module Build
     class Script
       class Elm < NodeJs
+        # Default NodeJS version to install
+        DEFAULT_VERSION = '6.10.0'
+
         DEFAULTS = {
           elm_version: 'latest',
           elm_test_version: 'latest'
         }
+
+        ELM_TEST_REQUIRED_NODE_VERSION = '4.0.0'
 
         def export
           super
@@ -79,9 +84,17 @@ module Travis
           end
 
           def install_elm_test
-            npm_install '-g elm-test@#{elm_test_version}'
+              sh.if "$(vers2int $(echo `node --version` | tr -d 'v')) -lt $(vers2int #{ELM_TEST_REQUIRED_NODE_VERSION})" do
+                sh.echo "Node.js version $(node --version) does not meet requirement for elm-test." \
+                  " Please use Node.js #{ELM_TEST_REQUIRED_NODE_VERSION} or later.", ansi: :red
+              end
+              sh.else do
+                sh.if "-z \"$(command -v elm-test)\"" do
+                  npm_install '-g elm-test@#{elm_test_version}'
 
-            convert_binary_to_sysconfcpus 'elm-test'
+                  convert_binary_to_sysconfcpus 'elm-test'
+                end
+              end
           end
 
           def convert_binary_to_sysconfcpus(binary_name)
