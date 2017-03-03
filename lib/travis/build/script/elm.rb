@@ -75,7 +75,7 @@ module Travis
 
           def install_elm
             npm_install '-g elm-use@">=1.1.0 <2.0.0"'
-            sh.cmd 'elm-use #{elm_version}', retry: true
+            sh.cmd "elm-use #{elm_version}", retry: true
 
             convert_binary_to_sysconfcpus 'elm'
             convert_binary_to_sysconfcpus 'elm-make'
@@ -90,7 +90,7 @@ module Travis
               end
               sh.else do
                 sh.if "-z \"$(command -v elm-test)\"" do
-                  npm_install '-g elm-test@#{elm_test_version}'
+                  npm_install "-g elm-test@#{elm_test_version}"
 
                   convert_binary_to_sysconfcpus 'elm-test'
                 end
