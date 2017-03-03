@@ -1,5 +1,3 @@
-require 'node_js'
-
 module Travis
   module Build
     class Script
