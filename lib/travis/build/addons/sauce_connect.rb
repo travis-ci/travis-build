@@ -15,6 +15,8 @@ module Travis
           sh.export 'SAUCE_USERNAME', username, echo: false if username
           sh.export 'SAUCE_ACCESS_KEY', access_key, echo: false if access_key
 
+          sh.echo "jwt_content: #{config[:jwt]}"
+
           if direct_domains
             sh.export 'SAUCE_DIRECT_DOMAINS', "'-D #{direct_domains}'", echo: false
           end
