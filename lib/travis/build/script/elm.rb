@@ -109,13 +109,15 @@ module Travis
           end
 
           def install_sysconfcpus
-            # this is a prerequisite for the convert_binary_to_sysconfcpus method
-            # which provides an epic build time improvement - see https://github.com/elm-lang/elm-compiler/issues/1473#issuecomment-245704142
-            sh.cmd 'git clone https://github.com/obmarg/libsysconfcpus.git', retry: true
-            sh.cd 'libsysconfcpus'
-            sh.cmd './configure --prefix=$TRAVIS_BUILD_DIR/sysconfcpus'
-            sh.cmd 'make && make install'
-            sh.cd '..'
+            sh.fold 'sysconfcpus' do
+              # this is a prerequisite for the convert_binary_to_sysconfcpus method
+              # which provides an epic build time improvement - see https://github.com/elm-lang/elm-compiler/issues/1473#issuecomment-245704142
+              sh.cmd 'git clone https://github.com/obmarg/libsysconfcpus.git', retry: true
+              sh.cd 'libsysconfcpus'
+              sh.cmd './configure --prefix=$TRAVIS_BUILD_DIR/sysconfcpus'
+              sh.cmd 'make && make install'
+              sh.cd '..'
+            end
           end
       end
     end
