@@ -78,10 +78,6 @@ module Travis
             '! -d project && ! -f build.sbt'
           end
 
-          def app_host
-            @app_host ||= Travis::Build.config.app_host.to_s.strip.untaint
-          end
-
           def update_sbt
             return if app_host.empty?
 
