@@ -14,7 +14,7 @@ module Travis
         def initialize(*args)
           super
 
-          @task = config[:dart_tasks] || {}
+          @task = config[:dart_task] || {}
           @task = {task.to_sym => true} if task.is_a?(String)
           @task[:install_dartium] = config[:install_dartium] unless task.include?(:install_dartium)
           @task[:xvfb] = config[:xvfb] unless task.include?(:xvfb)
@@ -28,8 +28,8 @@ module Travis
           super
 
           if config[:with_content_shell]
-            if config.include?(:dart_tasks)
-              sh.failure "with_content_shell can't be used with dart_tasks."
+            if config.include?(:dart_task)
+              sh.failure "with_content_shell can't be used with dart_task."
               return
             elsif config[:install_dartium]
               sh.failure "with_content_shell can't be used with install_dartium."
@@ -43,7 +43,7 @@ module Travis
               sh.deprecate <<MESSAGE
 DEPRECATED: with_content_shell is deprecated. Instead use:
 
-    dart_tasks:
+    dart_task:
     - test: --platform vm
     - test: --platform firefox
     - test: --platform dartium
@@ -83,7 +83,7 @@ MESSAGE
             ansi: :green
           sh.echo '  https://github.com/travis-ci/travis-ci/issues' \
             '/new?labels=community:dart', ansi: :green
-          sh.echo 'and mention `@nex3` and \`@a14n\`' \
+          sh.echo 'and mention \`@nex3\` and \`@a14n\`' \
             ' in the issue', ansi: :green
 
           sh.export 'PUB_ENVIRONMENT', 'travis'
@@ -197,9 +197,13 @@ MESSAGE
         private
 
           def pub_run_test
-            return unless (args = task[:test])
-            args = args.is_a?(String) ? " #{args}" : ""
+            args = task[:test]
+            unless args
+              sh.raw ':'
+              return
+            end
 
+            args = args.is_a?(String) ? " #{args}" : ""
             # Mac OS doesn't need or support xvfb-run.
             xvfb_run = 'xvfb-run -s "-screen 0 1024x768x24" '
             xvfb_run = '' if task[:xvfb] == false || os == "macos"
@@ -207,13 +211,23 @@ MESSAGE
           end
 
           def dartanalyzer
-            return unless (args = task[:dartanalyzer])
+            args = task[:dartanalyzer]
+            unless args
+              sh.raw ':'
+              return
+            end
+
             args = '.' unless args.is_a?(String)
             sh.cmd "dartanalyzer #{args}"
           end
 
           def dartfmt
-            return unless (args = task[:dartfmt])
+            args = task[:dartfmt]
+            unless args
+              sh.raw ':'
+              return
+            end
+
             if args.is_a?(String)
               sh.echo "dartfmt arguments aren't supported.", ansi: :red
             end
@@ -239,21 +253,21 @@ MESSAGE
           end
 
           def archive_url
-            urlEnd = ''
+            url_end = ''
             # support of "dev" or "stable"
             if ["stable", "dev"].include?(task[:dart])
-              urlEnd = "#{task[:dart]}/release/latest"
+              url_end = "#{task[:dart]}/release/latest"
             # support of "stable/release/1.15.0" or "be/raw/110749"
             elsif task[:dart].include?("/")
-              urlEnd = task[:dart]
+              url_end = task[:dart]
             # support of dev versions like "1.16.0-dev.2.0" or "1.16.0-dev.2.0"
             elsif task[:dart].include?("-dev")
-              urlEnd = "dev/release/#{task[:dart]}"
+              url_end = "dev/release/#{task[:dart]}"
             # support of stable versions like "1.14.0" or "1.14.1"
             else
-              urlEnd = "stable/release/#{task[:dart]}"
+              url_end = "stable/release/#{task[:dart]}"
             end
-            "https://storage.googleapis.com/dart-archive/channels/#{urlEnd}"
+            "https://storage.googleapis.com/dart-archive/channels/#{url_end}"
           end
       end
     end
