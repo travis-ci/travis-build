@@ -79,7 +79,7 @@ module Travis
             sh.newline
             sh.echo "Using $HOME/.netrc to clone repository.", ansi: :yellow
             sh.newline
-            sh.raw "echo -e \"machine github.com\n  login #{data.token}\\n\" > $HOME/.netrc"
+            sh.raw "echo -e \"machine #{source_host_name}\n  login #{data.token}\\n\" > $HOME/.netrc"
             sh.raw "chmod 0600 $HOME/.netrc"
           end
 
@@ -88,6 +88,10 @@ module Travis
           end
 
           def github?
+            source_host_name.downcase == 'github.com' || source_host_name.downcase.end_with?('.github.com')
+          end
+
+          def source_host_name
             md = /[^@]+@(.*):/.match(data.source_url)
             if md
               # we will assume that the URL looks like one for git+ssh; e.g., git@github.com:travis-ci/travis-build.git
@@ -95,7 +99,8 @@ module Travis
             else
               host = URI.parse(data.source_url).host
             end
-            host.downcase == 'github.com' || host.downcase.end_with?('.github.com')
+
+            host
           end
       end
     end
