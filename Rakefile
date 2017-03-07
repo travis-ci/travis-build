@@ -2,6 +2,7 @@ require 'json'
 require 'faraday'
 require 'fileutils'
 require 'logger'
+require 'rubygems'
 
 def logger
   @logger ||= Logger.new STDOUT
@@ -12,6 +13,10 @@ def files
 end
 
 task :default => [:update_static_files]
+
+def version_for(version_str)
+  Gem::Version.new version_str.match(/\d+(\.\d+)*/)[0]
+end
 
 def fetch_githubusercontent_file(from, to = nil)
   conn = Faraday.new('https://raw.githubusercontent.com')
@@ -35,16 +40,20 @@ def fetch_githubusercontent_file(from, to = nil)
   end
 end
 
-def latest_tag_for(repo)
+
+def latest_release_for(repo)
   conn = Faraday.new('https://api.github.com')
 
   response = conn.get do |req|
-    req.url "repos/#{repo}/releases"
+    releases_url = "repos/#{repo}/releases"
+    logger.info "Fetching releases from #{conn.url_prefix.to_s}#{releases_url}"
+    req.url releases_url
   end
 
   if response.success?
     json_data = JSON.parse(response.body)
-    json_data[0]["name"]
+    fail "No releases found for #{repo}" if json_data.empty?
+    json_data.sort { |a,b| version_for(a["name"]) <=> version_for(b["name"]) }.last["name"]
   end
 end
 
@@ -53,17 +62,24 @@ task :casher do
   fetch_githubusercontent_file 'travis-ci/casher/production/bin/casher'
 end
 
+desc 'update gimme'
+task :gimme do
+  latest_release = latest_release_for 'travis-ci/gimme'
+  logger.info "Latest gimme release is #{latest_release}"
+  fetch_githubusercontent_file "travis-ci/gimme/#{latest_release}/gimme"
+end
+
 desc 'update nvm.sh'
 task :nvm do
-  latest_tag = latest_tag_for 'creationix/nvm'
+  latest_release = latest_release_for 'creationix/nvm'
   node_js_rb_path = File.expand_path('../lib/travis/build/script/node_js.rb', __FILE__)
 
-  logger.info "Latest nvm release is #{latest_tag}"
-  sed_cmd = %Q(sed -i "s,^\\(.*\\)NVM_VERSION\s*=.*$,\\1NVM_VERSION = #{latest_tag.gsub(/^v/,'')}," #{node_js_rb_path})
+  logger.info "Latest nvm release is #{latest_release}"
+  sed_cmd = %Q(sed -i "s,^\\(.*\\)NVM_VERSION\s*=.*$,\\1NVM_VERSION = #{latest_release.gsub(/^v/,'')}," #{node_js_rb_path})
 
   logger.info "Updating #{node_js_rb_path}"
   `#{sed_cmd}`
-  fetch_githubusercontent_file "creationix/nvm/#{latest_tag}/nvm.sh"
+  fetch_githubusercontent_file "creationix/nvm/#{latest_release}/nvm.sh"
 end
 
 desc 'update sbt'
@@ -72,7 +88,7 @@ task :sbt do
 end
 
 desc 'update static files'
-task :update_static_files => [:casher, :nvm, :sbt] do
+task :update_static_files => [:casher, :gimme, :nvm, :sbt] do
 end
 
 desc 'add and commit updated static files'
