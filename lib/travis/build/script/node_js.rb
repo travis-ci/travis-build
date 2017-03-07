@@ -153,10 +153,9 @@ module Travis
               sh.echo "Updating nvm to v#{NVM_VERSION}", ansi: :yellow, timing: false
               sh.raw "mkdir -p $HOME/.nvm"
               ['nvm.sh', 'nvm-exec'].each do |f|
-                nvm_file_path = "$HOME/.nvm/#{f}"
-                sh.raw "curl -s -o #{nvm_file_path} https://#{app_host}/files/#{f}".untaint, assert: false
-                sh.raw "source #{nvm_file_path}", assert: false
+                sh.raw "curl -s -o $HOME/.nvm/#{f} https://#{app_host}/files/#{f}".untaint, assert: false
               end
+              sh.raw "source $HOME/.nvm/nvm.sh", assert: false
             end
           end
 
