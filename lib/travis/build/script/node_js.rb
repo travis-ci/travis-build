@@ -149,10 +149,10 @@ module Travis
           def update_nvm
             return if app_host.empty?
             sh.if "$(vers2int `nvm --version`) -lt $(vers2int #{NVM_VERSION})" do
+              sh.echo "Updating nvm to v#{NVM_VERSION}", ansi: :yellow, timing: false
+              sh.raw "mkdir -p $HOME/.nvm"
               ['nvm.sh', 'nvm-exec'].each do |f|
                 nvm_file_path = "$HOME/.nvm/#{f}"
-                sh.echo "Updating nvm to v#{NVM_VERSION}", ansi: :yellow, timing: false
-                sh.raw "mkdir -p $HOME/.nvm"
                 sh.raw "curl -s -o #{nvm_file_path} https://#{app_host}/files/#{f}".untaint, assert: false
                 sh.raw "source #{nvm_file_path}", assert: false
               end
