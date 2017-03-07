@@ -53,12 +53,15 @@ def latest_release_for(repo)
     releases_url = "repos/#{repo}/releases"
     logger.info "Fetching releases from #{conn.url_prefix.to_s}#{releases_url}"
     req.url releases_url
+    oauth_token = ENV['GITHUB_OAUTH_TOKEN']
+    if oauth_token
+      req.headers['Authorization'] = "token #{oauth_token}"
+    end
   end
 
   if response.success?
     json_data = JSON.parse(response.body)
     fail "No releases found for #{repo}" if json_data.empty?
-    logger.info "JSON data: #{json_data}"
     json_data.sort { |a,b| version_for(a["name"]) <=> version_for(b["name"]) }.last["name"]
   end
 end
