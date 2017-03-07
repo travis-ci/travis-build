@@ -25,6 +25,9 @@ matrix:
         - sleep 10
         - for f in example_payloads/*.json; do echo ${f##*/}; curl -sf -X POST -d @$f localhost:5000/script >/dev/null; done
 
+before_script:
+  - bundle exec rake assets:precompile
+
 script:
   - bundle exec rspec spec
   - for f in examples/*.sh.txt; do echo "checking bash syntax $f"; bash -n $f; done
