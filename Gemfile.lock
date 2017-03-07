@@ -68,6 +68,7 @@ GEM
       rack
     rack-test (0.6.3)
       rack (>= 1.0)
+    rake (11.3.0)
     rb-fsevent (0.9.8)
     rb-inotify (0.9.7)
       ffi (>= 0.5.0)
@@ -129,6 +130,7 @@ DEPENDENCIES
   pry
   puma
   rack-ssl (~> 1.4)
+  rake
   rerun
   rspec (~> 3.0)
   sentry-raven
