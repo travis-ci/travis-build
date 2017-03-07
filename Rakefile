@@ -33,7 +33,6 @@ def fetch_githubusercontent_file(from, to = nil)
     req.url from
   end
 
-
   dest = File.expand_path(to, __FILE__)
 
   if response.success?
@@ -46,7 +45,6 @@ def fetch_githubusercontent_file(from, to = nil)
     fail "Could not fetch #{from}"
   end
 end
-
 
 def latest_release_for(repo)
   conn = Faraday.new('https://api.github.com')
@@ -85,13 +83,7 @@ end
 desc 'update nvm.sh'
 task :nvm do
   latest_release = latest_release_for 'creationix/nvm'
-  node_js_rb_path = File.expand_path('../lib/travis/build/script/node_js.rb', __FILE__)
-
   logger.info "Latest nvm release is #{latest_release}"
-  sed_cmd = %Q(sed -i "s,^\\(.*\\)NVM_VERSION\s*=.*$,\\1NVM_VERSION = '#{latest_release.gsub(/^v/,'')}'," #{node_js_rb_path})
-
-  logger.info "Updating #{node_js_rb_path}"
-  `#{sed_cmd}`
   fetch_githubusercontent_file "creationix/nvm/#{latest_release}/nvm.sh"
   fetch_githubusercontent_file "creationix/nvm/#{latest_release}/nvm-exec"
 end
