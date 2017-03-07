@@ -12,6 +12,7 @@ module Travis
           super
           if node_js_given_in_config?
             sh.export 'TRAVIS_NODE_VERSION', version, echo: false
+            sh.export 'NODE_VERSION', version, echo: false
           end
         end
 
