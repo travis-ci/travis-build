@@ -80,6 +80,7 @@ task :nvm do
   logger.info "Updating #{node_js_rb_path}"
   `#{sed_cmd}`
   fetch_githubusercontent_file "creationix/nvm/#{latest_release}/nvm.sh"
+  fetch_githubusercontent_file "creationix/nvm/#{latest_release}/nvm-exec"
 end
 
 desc 'update sbt'
