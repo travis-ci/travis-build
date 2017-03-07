@@ -80,7 +80,7 @@ task :nvm do
   node_js_rb_path = File.expand_path('../lib/travis/build/script/node_js.rb', __FILE__)
 
   logger.info "Latest nvm release is #{latest_release}"
-  sed_cmd = %Q(sed -i "s,^\\(.*\\)NVM_VERSION\s*=.*$,\\1NVM_VERSION = #{latest_release.gsub(/^v/,'')}," #{node_js_rb_path})
+  sed_cmd = %Q(sed -i "s,^\\(.*\\)NVM_VERSION\s*=.*$,\\1NVM_VERSION = '#{latest_release.gsub(/^v/,'')}'," #{node_js_rb_path})
 
   logger.info "Updating #{node_js_rb_path}"
   `#{sed_cmd}`
