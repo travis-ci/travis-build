@@ -14,6 +14,8 @@ end
 
 task :default => [:update_static_files]
 
+task 'assets:precompile' => :update_static_files
+
 def version_for(version_str)
   Gem::Version.new version_str.match(/\d+(\.\d+)*/)[0]
 end
