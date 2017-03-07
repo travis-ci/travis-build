@@ -12,7 +12,12 @@ form.
 
 ## Running test suites
 
-Run `bundle exec rspec spec`.
+Run
+
+```
+bundle exec rake update_static_files
+bundle exec rspec spec
+```
 
 ## Use as addon for CLI
 
