@@ -42,6 +42,8 @@ def fetch_githubusercontent_file(from, to = nil)
     logger.info "Setting mode 'a+rx' on #{dest}"
     FileUtils.chmod "a+rx", dest
     files << dest
+  else
+    fail "Could not fetch #{from}"
   end
 end
 
@@ -63,6 +65,8 @@ def latest_release_for(repo)
     json_data = JSON.parse(response.body)
     fail "No releases found for #{repo}" if json_data.empty?
     json_data.sort { |a,b| version_for(a["name"]) <=> version_for(b["name"]) }.last["name"]
+  else
+    fail "Could not find releases for #{repo}"
   end
 end
 
