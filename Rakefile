@@ -22,8 +22,11 @@ end
 
 def fetch_githubusercontent_file(from, to = nil)
   conn = Faraday.new('https://raw.githubusercontent.com')
+  public_files_dir = "public/files"
   to = File.basename(from) unless to
-  to = "../public/files/" + to
+  to = File.join("..", public_files_dir, to)
+
+  FileUtils.mkdir_p public_files_dir
 
   response = conn.get do |req|
     logger.info "Fetching #{conn.url_prefix.to_s}#{from}"
