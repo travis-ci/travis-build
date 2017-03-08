@@ -179,7 +179,7 @@ travis_wait() {
 
   _write_visual_bells $timeout &
 
-  travis_cmd "$@"
+  travis_cmd "$*"
 }
 
 travis_retry() {
