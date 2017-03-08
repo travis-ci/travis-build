@@ -96,11 +96,3 @@ end
 desc 'update static files'
 task :update_static_files => [:casher, :gimme, :nvm, :sbt] do
 end
-
-desc 'add and commit updated static files'
-task :commit_static_files => [:update_static_files] do
-  logger.info "Adding #{files.join(" ")} to git staging area"
-  `git add #{files.join(" ")}`
-  logger.info "Creating a commit"
-  `git commit -m "Update static files"`
-end
