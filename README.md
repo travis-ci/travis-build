@@ -12,7 +12,11 @@ form.
 
 ## Running test suites
 
-Run `bundle exec rspec spec`.
+Run
+
+```
+bundle exec rake
+```
 
 ## Use as addon for CLI
 

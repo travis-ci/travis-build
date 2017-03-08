@@ -4,8 +4,6 @@ module Travis
       class NodeJs < Script
         DEFAULT_VERSION = '0.10'
 
-        NVM_VERSION     = '0.32.0' # to coincide with ../files/nvm.sh version
-
         YARN_REQUIRED_NODE_VERSION = '4'
 
         def export
@@ -148,13 +146,12 @@ module Travis
 
           def update_nvm
             return if app_host.empty?
-            nvm_sh_location = "$HOME/.nvm/nvm.sh"
-            sh.if "$(vers2int `nvm --version`) -lt $(vers2int #{NVM_VERSION})" do
-              sh.echo "Updating nvm to v#{NVM_VERSION}", ansi: :yellow, timing: false
-              sh.raw "mkdir -p $HOME/.nvm"
-              sh.raw "curl -s -o #{nvm_sh_location} https://#{app_host}/files/nvm.sh".untaint, assert: false
-              sh.raw "source #{nvm_sh_location}", assert: false
-            end
+            sh.echo "Updating nvm", ansi: :yellow, timing: false
+            nvm_dir = "$HOME/.nvm"
+            sh.raw "mkdir -p #{nvm_dir}"
+            sh.raw "curl -s -o #{nvm_dir}/nvm.sh   https://#{app_host}/files/nvm.sh".untaint,   assert: false
+            sh.raw "curl -s -o #{nvm_dir}/nvm-exec https://#{app_host}/files/nvm-exec".untaint, assert: false
+            sh.raw "source #{nvm_dir}/nvm.sh", assert: false
           end
 
           def app_host
