@@ -186,6 +186,8 @@ module Travis
               return install_gimme
             end
 
+            sh.echo "Updating gimme", ansi: :yellow
+
             sh.mkdir "#{HOME_DIR}/bin", echo: false, recursive: true
             sh.cmd "curl -sf -o $HOME/bin/gimme https://#{app_host}/files/gimme", echo: false
             sh.if "$? -ne 0" do
