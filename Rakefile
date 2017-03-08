@@ -11,10 +11,6 @@ def logger
   @logger ||= Logger.new STDOUT
 end
 
-def files
-  @files ||= []
-end
-
 task :default => [:update_static_files, :spec]
 
 task 'assets:precompile' => :update_static_files
@@ -43,7 +39,6 @@ def fetch_githubusercontent_file(from, to = nil)
     File.write(dest, response.body)
     logger.info "Setting mode 'a+rx' on #{dest}"
     FileUtils.chmod "a+rx", dest
-    files << dest
   else
     fail "Could not fetch #{from}"
   end
