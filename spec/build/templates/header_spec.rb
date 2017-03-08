@@ -42,7 +42,6 @@ describe 'header.sh', integration: true do
     travis_cmd
     travis_fold
     travis_internal_ruby
-    travis_jigger
     travis_nanoseconds
     travis_result
     travis_retry
