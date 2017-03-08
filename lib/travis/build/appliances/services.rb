@@ -15,16 +15,12 @@ module Travis
 
         def apply
           sh.fold 'services' do
-            if services.delete('mongodb')
-              sh.if "$(lsb_release -cs) != 'precise'" do
-                sh.cmd "sudo service mongod start", assert: false, echo: true, timing: true
-              end
-              sh.else do
-                sh.cmd "sudo service mongodb start", assert: false, echo: true, timing: true
-              end
-            end
-
             services.each do |name|
+              service_apply_method = "apply_#{name}"
+              if respond_to?(service_apply_method)
+                send(service_apply_method)
+                next
+              end
               sh.cmd "sudo service #{name.shellescape} start", assert: false, echo: true, timing: true
             end
             sh.raw 'sleep 3'
@@ -33,6 +29,25 @@ module Travis
 
         def apply?
           services.any?
+        end
+
+        def apply_mongodb
+          sh.if "$(lsb_release -cs) != 'precise'" do
+            sh.cmd 'sudo service mongod start', assert: false, echo: true, timing: true
+          end
+          sh.else do
+            sh.cmd 'sudo service mongodb start', assert: false, echo: true, timing: true
+          end
+        end
+
+        def apply_mysql
+          sh.raw <<~BASH
+            travis_mysql_ping() {
+              mysql &>/dev/null <<<'SHOW VARIABLES like "%version%"'
+            }
+          BASH
+          sh.cmd 'sudo service mysql start', assert: false, echo: true, timing: true
+          sh.cmd 'travis_wait travis_mysql_ping', assert: false, echo: false, timing: false
         end
 
         private
