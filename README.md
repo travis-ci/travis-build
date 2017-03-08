@@ -15,8 +15,7 @@ form.
 Run
 
 ```
-bundle exec rake update_static_files
-bundle exec rspec spec
+bundle exec rake
 ```
 
 ## Use as addon for CLI

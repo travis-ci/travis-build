@@ -3,6 +3,9 @@ require 'faraday'
 require 'fileutils'
 require 'logger'
 require 'rubygems'
+require 'rspec/core/rake_task'
+
+RSpec::Core::RakeTask.new(:spec)
 
 def logger
   @logger ||= Logger.new STDOUT
@@ -12,7 +15,7 @@ def files
   @files ||= []
 end
 
-task :default => [:update_static_files]
+task :default => [:update_static_files, :spec]
 
 task 'assets:precompile' => :update_static_files
 
