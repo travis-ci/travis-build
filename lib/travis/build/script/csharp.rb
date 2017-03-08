@@ -188,7 +188,11 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
         end
 
         def dotnet_osx_url
-          return "https://dotnetcli.azureedge.net/dotnet/preview/Installers/#{config[:dotnet]}/dotnet-dev-osx-x64.#{config[:dotnet]}.pkg"
+          if config[:dotnet].include? "-preview"
+            return "https://dotnetcli.azureedge.net/dotnet/preview/Installers/#{config[:dotnet]}/dotnet-dev-osx-x64.#{config[:dotnet]}.pkg"
+          else
+            return "https://dotnetcli.azureedge.net/dotnet/Sdk/#{config[:dotnet]}/dotnet-dev-osx-x64.#{config[:dotnet]}.pkg"
+          end
         end
 
         def is_mono_version_valid?
