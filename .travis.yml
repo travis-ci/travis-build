@@ -25,11 +25,8 @@ matrix:
         - sleep 10
         - e=0; for f in example_payloads/*.json; do echo ${f##*/}; curl -sf -X POST -d @$f localhost:5000/script >/dev/null || let e=$e+1; done; test $e -eq 0
 
-before_script:
-  - bundle exec rake assets:precompile
-
 script:
-  - bundle exec rspec spec
+  - bundle exec rake
   - e=0; for f in examples/*.sh.txt; do echo "checking bash syntax $f"; bash -n $f || let e=$e+1; done; test $e -eq 0
 
 after_success: bundle exec codeclimate-test-reporter
