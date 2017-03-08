@@ -120,7 +120,7 @@ module Travis
 
             unless disallowed.empty?
               sh.echo "Disallowing sources: #{disallowed.map { |source| Shellwords.escape(source) }.join(', ')}", ansi: :red
-              sh.echo 'If you require these sources, please use `sudo: required` in your `.travis.yml` to manage APT pacakges.'
+              sh.echo 'If you require these sources, please use `sudo: required` in your `.travis.yml` to manage APT sources.'
             end
 
             unless disallowed_while_sudo.empty?
