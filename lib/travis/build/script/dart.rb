@@ -166,7 +166,7 @@ MESSAGE
               sh.cmd 't=0; until (xdpyinfo -display :99 &> /dev/null || test $t -gt 10); do sleep 1; let t=$t+1; done'
               sh.cmd 'pub run test -p vm -p content-shell -p firefox'
             else
-              pub_run_test
+              pub_run_test if run_pub_run_test?
             end
           end
           # tests with test_runner for old tests written with unittest package
@@ -190,18 +190,25 @@ MESSAGE
             end
           end
 
-          dartanalyzer
-          dartfmt
+          dartanalyzer if run_dartanalyzer?
+          dartfmt      if run_dartfmt?
         end
 
         private
+          def run_pub_run_test?
+            !!task[:test]
+          end
+
+          def run_dartanalyzer?
+            !!task[:dartanalyzer]
+          end
+
+          def run_dartfmt?
+            !!task[:dartfmt]
+          end
 
           def pub_run_test
             args = task[:test]
-            unless args
-              sh.raw ':'
-              return
-            end
 
             args = args.is_a?(String) ? " #{args}" : ""
             # Mac OS doesn't need or support xvfb-run.
@@ -212,10 +219,6 @@ MESSAGE
 
           def dartanalyzer
             args = task[:dartanalyzer]
-            unless args
-              sh.raw ':'
-              return
-            end
 
             args = '.' unless args.is_a?(String)
             sh.cmd "dartanalyzer #{args}"
@@ -223,10 +226,6 @@ MESSAGE
 
           def dartfmt
             args = task[:dartfmt]
-            unless args
-              sh.raw ':'
-              return
-            end
 
             if args.is_a?(String)
               sh.echo "dartfmt arguments aren't supported.", ansi: :red
