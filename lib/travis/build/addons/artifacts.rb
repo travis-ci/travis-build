@@ -43,7 +43,7 @@ module Travis
           def export
             env.each do |key, value|
               if env.force?(key)
-                sh.export(key, value.inspect)
+                sh.export(key, value.inspect, echo: false)
                 next
               end
 
