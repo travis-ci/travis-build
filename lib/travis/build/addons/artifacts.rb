@@ -36,17 +36,20 @@ module Travis
               install
               export
             end
-            # Disabled until we have better experience around download links
-            # See https://github.com/travis-ci/travis-build/commit/bf2164
-            # sh.fold 'artifacts.upload' do
-              upload
-            # end
+            upload
             sh.echo 'Done uploading artifacts', ansi: :yellow
           end
 
           def export
             env.each do |key, value|
-              sh.export key, value.inspect, echo: key == 'ARTIFACTS_PATHS'
+              if env.force?(key)
+                sh.export(key, value.inspect, echo: false)
+                next
+              end
+
+              sh.if(%(-z "${#{key}}")) do
+                sh.export key, value.inspect, echo: key == 'ARTIFACTS_PATHS'
+              end
             end
           end
 
