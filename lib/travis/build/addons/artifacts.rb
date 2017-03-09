@@ -36,34 +36,25 @@ module Travis
               install
               export
             end
-            default_env.each do |key, default_value|
-              ensure_env_set(key, default_value)
-            end
             upload
             sh.echo 'Done uploading artifacts', ansi: :yellow
           end
 
           def export
             env.each do |key, value|
-              sh.export key, value.inspect, echo: key == 'ARTIFACTS_PATHS'
+              if env.force?(key) || !key.start_with?('ARTIFACTS_')
+                sh.export(key, value.inspect)
+                next
+              end
+
+              sh.if(%(-z "${#{key}}")) do
+                sh.export key, value.inspect, echo: key == 'ARTIFACTS_PATHS'
+              end
             end
           end
 
           def install
             sh.cmd 'travis_artifacts_install'
-          end
-
-          def default_env
-            Travis::Build::Addons::Artifacts::Env::DEFAULT
-          end
-
-          def ensure_env_set(key, default_value)
-            env_key = "ARTIFACTS_#{key.to_s.upcase}"
-            sh.if(%(-z "${#{env_key}}")) do
-              sh.export(
-                env_key, default_value, echo: env_key == 'ARTIFACTS_PATHS'
-              )
-            end
           end
 
           def upload
