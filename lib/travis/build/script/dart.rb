@@ -166,7 +166,7 @@ MESSAGE
               sh.cmd 't=0; until (xdpyinfo -display :99 &> /dev/null || test $t -gt 10); do sleep 1; let t=$t+1; done'
               sh.cmd 'pub run test -p vm -p content-shell -p firefox'
             else
-              pub_run_test if run_pub_run_test?
+              pub_run_test
             end
           end
           # tests with test_runner for old tests written with unittest package
@@ -195,10 +195,6 @@ MESSAGE
         end
 
         private
-          def run_pub_run_test?
-            !!task[:test]
-          end
-
           def run_dartanalyzer?
             !!task[:dartanalyzer]
           end
@@ -209,6 +205,10 @@ MESSAGE
 
           def pub_run_test
             args = task[:test]
+
+            unless args
+              return sh.raw ':'
+            end
 
             args = args.is_a?(String) ? " #{args}" : ""
             # Mac OS doesn't need or support xvfb-run.
