@@ -36,11 +36,8 @@ module Travis
               install
               export
             end
-            # Disabled until we have better experience around download links
-            # See https://github.com/travis-ci/travis-build/commit/bf2164
-            # sh.fold 'artifacts.upload' do
-              upload
-            # end
+            default_env_keys.each { |key| ensure_env_set(key) }
+            upload
             sh.echo 'Done uploading artifacts', ansi: :yellow
           end
 
@@ -52,6 +49,21 @@ module Travis
 
           def install
             sh.cmd 'travis_artifacts_install'
+          end
+
+          def default_env_keys
+            Travis::Build::Addons::Artifacts::Env::DEFAULT.keys
+          end
+
+          def ensure_env_set(key)
+            env_key = "ARTIFACTS_#{key.to_s.upcase}"
+            sh.if(%(-z "${#{env_key}}")) do
+              sh.export(
+                env_key,
+                Travis::Build::Addons::Artifacts::Env::DEFAULT[key],
+                echo: env_key == 'ARTIFACTS_PATHS'
+              )
+            end
           end
 
           def upload

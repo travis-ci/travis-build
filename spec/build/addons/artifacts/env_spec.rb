@@ -36,14 +36,6 @@ describe Travis::Build::Addons::Artifacts::Env do
     expect(subject.env['ARTIFACTS_BUCKET']).to eql('bucket')
   end
 
-  it 'defaults :paths to $(git ls-files -o | tr "\n" ":")' do
-    expect(subject.env['ARTIFACTS_PATHS']).to eql('$(git ls-files -o | tr "\n" ":")')
-  end
-
-  it 'defaults :log_format to "multiline"' do
-    expect(subject.env['ARTIFACTS_LOG_FORMAT']).to eql('multiline')
-  end
-
   it 'defaults :target_paths to' do
     expect(subject.env['ARTIFACTS_TARGET_PATHS']).to eql('travis-ci/travis-ci/1/1.1')
   end
