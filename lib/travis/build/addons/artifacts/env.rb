@@ -28,7 +28,7 @@ module Travis
           end
 
           def force?(key)
-            force_keys.include?(key)
+            force_keys.include?(key) || !key.start_with?('ARTIFACTS_')
           end
 
           private

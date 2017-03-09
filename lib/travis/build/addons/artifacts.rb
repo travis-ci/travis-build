@@ -42,7 +42,7 @@ module Travis
 
           def export
             env.each do |key, value|
-              if env.force?(key) || !key.start_with?('ARTIFACTS_')
+              if env.force?(key)
                 sh.export(key, value.inspect)
                 next
               end
