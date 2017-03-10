@@ -68,7 +68,7 @@ end
 
 task 'assets:precompile' => :update_static_files
 
-desc 'clean it up'
+desc 'clean up static files in public/'
 task :clean do
   rm_rf('public/files')
 end
