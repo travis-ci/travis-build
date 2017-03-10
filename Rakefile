@@ -66,7 +66,7 @@ def latest_release_for(repo)
   end
 end
 
-task 'assets:precompile' => :update_static_files
+task 'assets:precompile' => %i(clean update_static_files)
 
 desc 'clean up static files in public/'
 task :clean do
