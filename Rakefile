@@ -1,23 +1,19 @@
 require 'json'
 require 'faraday'
-require 'fileutils'
 require 'logger'
 require 'rubygems'
 
 begin
   require 'rspec/core/rake_task'
   RSpec::Core::RakeTask.new(:spec)
-  task :default => [:update_static_files, :spec]
+  task default: %i(update_static_files spec)
 rescue LoadError
-  task :default => [:update_static_files]
+  task default: :update_static_files
 end
 
 def logger
   @logger ||= Logger.new STDOUT
 end
-
-
-task 'assets:precompile' => :update_static_files
 
 def version_for(version_str)
   Gem::Version.new version_str.match(/\d+(\.\d+)*/)[0]
@@ -29,7 +25,7 @@ def fetch_githubusercontent_file(from, to = nil)
   to = File.basename(from) unless to
   to = File.join("..", public_files_dir, to)
 
-  FileUtils.mkdir_p public_files_dir
+  mkdir_p public_files_dir
 
   response = conn.get do |req|
     logger.info "Fetching #{conn.url_prefix.to_s}#{from}"
@@ -42,7 +38,7 @@ def fetch_githubusercontent_file(from, to = nil)
     logger.info "Writing to #{dest}"
     File.write(dest, response.body)
     logger.info "Setting mode 'a+rx' on #{dest}"
-    FileUtils.chmod "a+rx", dest
+    chmod "a+rx", dest
   else
     fail "Could not fetch #{from}"
   end
@@ -70,20 +66,27 @@ def latest_release_for(repo)
   end
 end
 
+task 'assets:precompile' => :update_static_files
+
+desc 'clean up static files in public/'
+task :clean do
+  rm_rf('public/files')
+end
+
 desc 'update casher'
-task :casher do
+file 'public/files/casher' do
   fetch_githubusercontent_file 'travis-ci/casher/production/bin/casher'
 end
 
 desc 'update gimme'
-task :gimme do
+file 'public/files/gimme' do
   latest_release = latest_release_for 'travis-ci/gimme'
   logger.info "Latest gimme release is #{latest_release}"
   fetch_githubusercontent_file "travis-ci/gimme/#{latest_release}/gimme"
 end
 
 desc 'update nvm.sh'
-task :nvm do
+file 'public/files/nvm.sh' do
   latest_release = latest_release_for 'creationix/nvm'
   logger.info "Latest nvm release is #{latest_release}"
   fetch_githubusercontent_file "creationix/nvm/#{latest_release}/nvm.sh"
@@ -91,9 +94,14 @@ task :nvm do
 end
 
 desc 'update sbt'
-task :sbt do
+file 'public/files/sbt' do
   fetch_githubusercontent_file 'paulp/sbt-extras/master/sbt'
 end
 
 desc 'update static files'
-task :update_static_files => [:casher, :gimme, :nvm, :sbt]
+multitask update_static_files: Rake::FileList[
+  'public/files/casher',
+  'public/files/gimme',
+  'public/files/nvm.sh',
+  'public/files/sbt'
+]
