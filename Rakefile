@@ -25,8 +25,6 @@ def fetch_githubusercontent_file(from, to = nil)
   to = File.basename(from) unless to
   to = File.join("..", public_files_dir, to)
 
-  mkdir_p public_files_dir
-
   response = conn.get do |req|
     logger.info "Fetching #{conn.url_prefix.to_s}#{from}"
     req.url from
@@ -68,25 +66,27 @@ end
 
 task 'assets:precompile' => %i(clean update_static_files)
 
+directory 'public/files'
+
 desc 'clean up static files in public/'
 task :clean do
   rm_rf('public/files')
 end
 
 desc 'update casher'
-file 'public/files/casher' do
+file 'public/files/casher' => 'public/files' do
   fetch_githubusercontent_file 'travis-ci/casher/production/bin/casher'
 end
 
 desc 'update gimme'
-file 'public/files/gimme' do
+file 'public/files/gimme' => 'public/files' do
   latest_release = latest_release_for 'travis-ci/gimme'
   logger.info "Latest gimme release is #{latest_release}"
   fetch_githubusercontent_file "travis-ci/gimme/#{latest_release}/gimme"
 end
 
 desc 'update nvm.sh'
-file 'public/files/nvm.sh' do
+file 'public/files/nvm.sh' => 'public/files' do
   latest_release = latest_release_for 'creationix/nvm'
   logger.info "Latest nvm release is #{latest_release}"
   fetch_githubusercontent_file "creationix/nvm/#{latest_release}/nvm.sh"
@@ -94,7 +94,7 @@ file 'public/files/nvm.sh' do
 end
 
 desc 'update sbt'
-file 'public/files/sbt' do
+file 'public/files/sbt' => 'public/files' do
   fetch_githubusercontent_file 'paulp/sbt-extras/master/sbt'
 end
 
