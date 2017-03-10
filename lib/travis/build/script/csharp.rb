@@ -57,7 +57,7 @@ View valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csh
               end
             when 'osx'
               sh.cmd "curl -o \"/tmp/mdk.pkg\" -fL #{mono_osx_url}", timing: true, assert: true, echo: true
-              sh.cmd 'sudo installer -package "/tmp/mdk.pkg" -target "/"', timing: true, assert: true
+              sh.cmd 'sudo installer -package "/tmp/mdk.pkg" -target "/" -verboseR', timing: true, assert: true
               sh.cmd 'eval $(/usr/libexec/path_helper -s)', timing: false, assert: true
             else
               sh.failure "Operating system not supported: #{config[:os]}"
@@ -107,7 +107,7 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
               sh.cmd 'ln -s /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib /usr/local/lib/', timing: false, assert: true
               sh.cmd 'ln -s /usr/local/opt/openssl/lib/libssl.1.0.0.dylib /usr/local/lib/', timing: false, assert: true
               sh.cmd "curl -o \"/tmp/dotnet.pkg\" -fL #{dotnet_osx_url}", timing: true, assert: true, echo: true
-              sh.cmd 'sudo installer -package "/tmp/dotnet.pkg" -target "/"', timing: true, assert: true
+              sh.cmd 'sudo installer -package "/tmp/dotnet.pkg" -target "/" -verboseR', timing: true, assert: true
               sh.cmd 'eval $(/usr/libexec/path_helper -s)', timing: false, assert: true
             else
               sh.failure "Operating system not supported: #{config[:os]}"
