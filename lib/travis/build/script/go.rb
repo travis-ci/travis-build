@@ -27,10 +27,12 @@ module Travis
         def prepare
           super
           ensure_gvm_wiped
-          sh.if "! -x '#{HOME_DIR}/bin/gimme' && ! -x '/usr/local/bin/gimme'" do
-            install_gimme
+          gimme_not_found = "! -x '#{HOME_DIR}/bin/gimme' && ! -x '/usr/local/bin/gimme'"
+          force_reinstall = "#{!!gimme_config[:force_reinstall]} = true"
+
+          sh.if "(#{gimme_not_found}) || #{force_reinstall}" do
+            update_gimme
           end
-          install_gimme if gimme_config[:force_reinstall]
         end
 
         def announce
@@ -164,10 +166,6 @@ module Travis
             sh.echo "Installing gimme from #{gimme_url.inspect}", ansi: :yellow
             sh.mkdir "#{HOME_DIR}/bin", echo: false, recursive: true
             sh.cmd "curl -sL -o #{HOME_DIR}/bin/gimme '#{gimme_url}'", echo: false
-            sh.cmd "chmod +x #{HOME_DIR}/bin/gimme", echo: false
-            sh.export 'PATH', "#{HOME_DIR}/bin:$PATH", retry: false, echo: false
-            # install bootstrap version so that tip/master/whatever can be used immediately
-            sh.cmd %Q'gimme #{DEFAULTS[:go]} &>/dev/null'
           end
 
           def gimme_config
@@ -181,6 +179,23 @@ module Travis
           rescue URI::InvalidURIError => e
             warn e
             DEFAULTS[:gimme_config][:url]
+          end
+
+          def update_gimme
+            if app_host.empty?
+              return install_gimme
+            end
+
+            sh.mkdir "#{HOME_DIR}/bin", echo: false, recursive: true
+            sh.cmd "curl -sf -o $HOME/bin/gimme https://#{app_host}/files/gimme", echo: false
+            sh.if "$? -ne 0" do
+              install_gimme
+            end
+
+            sh.cmd "chmod +x #{HOME_DIR}/bin/gimme", echo: false
+            sh.export 'PATH', "#{HOME_DIR}/bin:$PATH", retry: false, echo: false
+            # install bootstrap version so that tip/master/whatever can be used immediately
+            sh.cmd %Q'gimme #{DEFAULTS[:go]} &>/dev/null'
           end
       end
     end
