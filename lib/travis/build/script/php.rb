@@ -57,7 +57,20 @@ module Travis
         end
 
         def script
-          sh.cmd 'phpunit'
+          sh.raw "_phpunit_bin=$(jq -r .config[\"bin-dir\"] $TRAVIS_BUILD_DIR/composer.json 2>/dev/null)"
+          sh.if "-n $COMPOSER_BIN_DIR && -x $COMPOSER_BIN_DIR/phpunit" do
+            sh.cmd '$COMPOSER_BIN_DIR/phpunit'
+          end
+          sh.elif "-n $_phpunit_bin && -x $_phpunit_bin" do
+            sh.raw "echo \"$ $_phpunit_bin\""
+            sh.cmd "${_phpunit_bin}", echo: false
+          end
+          sh.elif "-x $TRAVIS_BUILD_DIR/vendor/bin/phpunit" do
+            sh.cmd "$TRAVIS_BUILD_DIR/vendor/bin/phpunit"
+          end
+          sh.else do
+            sh.cmd 'phpunit'
+          end
         end
 
         def cache_slug
