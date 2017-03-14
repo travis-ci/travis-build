@@ -7,6 +7,7 @@ if [[ -s <%= home %>/.bash_profile ]] ; then
   source <%= home %>/.bash_profile
 fi
 
+cat <<'EOFUNC' >>$HOME/.build_stages
 ANSI_RED="\033[31;1m"
 ANSI_GREEN="\033[32;1m"
 ANSI_RESET="\033[0m"
@@ -25,7 +26,6 @@ export USER
 TRAVIS_TEST_RESULT=
 TRAVIS_CMD=
 
-cat <<'EOFUNC' >>$HOME/.build_stages
 
 travis_cmd() {
   local assert output display retry timing cmd result secure
