@@ -13,7 +13,11 @@ module Travis
 
         def before_before_script
           sh.export 'SAUCE_USERNAME', username, echo: false if username
-          sh.export 'SAUCE_ACCESS_KEY', access_key, echo: false if access_key
+          if access_key
+            sh.export 'SAUCE_ACCESS_KEY', access_key, echo: false
+          else
+            decode_jwt
+          end
 
           if direct_domains
             sh.export 'SAUCE_DIRECT_DOMAINS', "'-D #{direct_domains}'", echo: false
@@ -61,6 +65,34 @@ module Travis
 
           def tunnel_domains
             config[:tunnel_domains]
+          end
+
+          def decode_jwt
+            tokens = {}
+            Array(config[:jwt]).each do |secret|
+              pull_request = self.data.pull_request ? self.data.pull_request : ""
+              now = Time.now.to_i()
+              payload = {
+                "iss" => "Travis CI, GmbH",
+                "slug" => self.data.slug,
+                "pull-request" => pull_request,
+                "exp" => now+5400,
+                "iat" => now
+              }
+              begin
+                key, secret = secret.split('=').map(&:strip)
+                tokens[key] = JWT.encode(payload, secret)
+              rescue Exception
+                sh.echo "There was an error while encoding JWT. If the secret is encrypted, ensure that it is encrypted correctly.", ansi: :yellow
+              end
+            end
+            return if tokens.empty?
+            sh.fold 'addons_jwt' do
+              sh.echo 'Initializing JWT', ansi: :yellow
+              tokens.each do |key, val|
+                sh.export key, val, echo: false
+              end
+            end
           end
       end
     end
