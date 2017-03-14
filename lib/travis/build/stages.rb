@@ -65,6 +65,7 @@ module Travis
         sh.raw "source $HOME/.build_stages"
 
         stages.each_slice(2).each do |type, names|
+          names.delete(:header)
           names.each do |stg|
             sh.raw "run_stage_#{stg}"
           end
@@ -76,18 +77,28 @@ module Travis
       end
 
       def run_stage(type, name)
-        sh.raw "cat <<'EOFUNC' >>$HOME/.build_stages"
-        sh.raw "function run_stage_#{name}() {"
-        type = :builtin if fallback?(type, name)
-        stage = self.class.const_get(type.to_s.camelize).new(script, name)
-        commands = stage.run
-        close = (commands.nil? || commands.empty?) ? ":\n}" : "}"
-        sh.raw close
-        sh.raw "EOFUNC"
+        wrap_in_func(name) do
+          type = :builtin if fallback?(type, name)
+          stage = self.class.const_get(type.to_s.camelize).new(script, name)
+          commands = stage.run
+        end
       end
 
       def fallback?(type, name)
         type == :custom && !config[name]
+      end
+
+      def wrap_in_func(stage)
+        if stage == :header
+          yield
+        else
+          sh.raw "cat <<'EOFUNC' >>$HOME/.build_stages"
+          sh.raw "function run_stage_#{stage}() {"
+          commands = yield
+          close = (commands.nil? || commands.empty?) ? ":\n}" : "}"
+          sh.raw close
+          sh.raw "EOFUNC"
+        end
       end
     end
   end

@@ -25,6 +25,8 @@ export USER
 TRAVIS_TEST_RESULT=
 TRAVIS_CMD=
 
+cat <<'EOFUNC' >>$HOME/.build_stages
+
 travis_cmd() {
   local assert output display retry timing cmd result secure
 
@@ -274,6 +276,8 @@ bash_qsort_numeric() {
    larger=( "${bash_qsort_numeric_ret[@]}" )
    bash_qsort_numeric_ret=( "${smaller[@]}" "$pivot" "${larger[@]}" )
 }
+
+EOFUNC
 
 <%# XXX Forcefully removing rabbitmq source until next build env update %>
 <%# See http://www.traviscistatus.com/incidents/6xtkpm1zglg3 %>
