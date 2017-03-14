@@ -7,6 +7,8 @@ if [[ -s <%= home %>/.bash_profile ]] ; then
   source <%= home %>/.bash_profile
 fi
 
+echo "source $HOME/.build_stages" >> <%= home %>/.bashrc
+
 cat <<'EOFUNC' >>$HOME/.build_stages
 ANSI_RED="\033[31;1m"
 ANSI_GREEN="\033[32;1m"
