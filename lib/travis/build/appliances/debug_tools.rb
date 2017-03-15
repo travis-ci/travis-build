@@ -64,13 +64,8 @@ module Travis
           end
 
           # XXX the following does not apply to OSX
-
-          def version
-            "2.2.0"
-          end
-
           def static_build_linux_url
-            "https://github.com/tmate-io/tmate/releases/download/#{version}/tmate-#{version}-static-linux-amd64.tar.gz"
+            "https://#{app_host}/files/tmate-static-linux-amd64.tar.gz"
           end
       end
     end
