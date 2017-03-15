@@ -8,20 +8,14 @@ module Travis
   module Build
     class Stages
       STAGES = [
-        :builtin,     [:configure, :checkout, :prepare, :disable_sudo, :export, :setup, :setup_casher, :setup_cache, :announce, :debug],
-        :custom,      [:before_install, :install, :before_script, :script, :before_cache],
-        :builtin,     [:cache, :reset_state],
-        :conditional, [:after_success],
-        # :addon,       [:deploy_all],
-        :conditional, [:after_failure],
-        :custom,      [:after_script],
-        :builtin,     [:finish]
-      ]
-
-      STAGES_DEBUG = [
-        :builtin,     [:configure, :checkout, :prepare, :disable_sudo, :export, :setup, :setup_casher, :setup_cache, :announce, :debug],
-        :builtin,     [:reset_state],
-        :builtin,     [:finish]
+        :builtin,     [:configure, :checkout, :prepare, :disable_sudo, :export, :setup, :setup_casher, :setup_cache, :announce, :debug], :always,
+        :custom,      [:before_install, :install, :before_script, :script, :before_cache], false,
+        :builtin,     [:cache], false,
+        :builtin,     [:reset_state], true,
+        :conditional, [:after_success], false,
+        :conditional, [:after_failure], false,
+        :custom,      [:after_script], false,
+        :builtin,     [:finish], :always,
       ]
 
       STAGE_DEFAULT_OPTIONS = {
@@ -60,22 +54,24 @@ module Travis
       def run
         run_stage(:builtin, :header)
 
-        stages.each_slice(2) do |type, names|
+        STAGES.each_slice(3) do |type, names, run_in_debug|
           names.each { |name| run_stage(type, name) }
         end
 
         sh.raw "source $HOME/.build_stages"
 
-        stages.each_slice(2).each do |type, names|
-          names.delete(:header)
+        STAGES.each_slice(3).each do |type, names, run_in_debug|
           names.each do |stg|
-            sh.raw "run_stage_#{stg}"
+            case run_in_debug
+            when :always
+              sh.raw "run_stage_#{stg}"
+            when true
+              sh.raw "run_stage_#{stg}" if debug_build?
+            when false
+              sh.raw "run_stage_#{stg}" unless debug_build?
+            end
           end
         end
-      end
-
-      def stages
-        script.debug_build_via_api? ? STAGES_DEBUG : STAGES
       end
 
       def run_stage(type, name)
@@ -101,6 +97,10 @@ module Travis
           sh.raw close
           sh.raw "EOFUNC"
         end
+      end
+
+      def debug_build?
+        script.debug_build_via_api?
       end
     end
   end
