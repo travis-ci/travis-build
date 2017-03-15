@@ -57,7 +57,7 @@ describe 'header.sh', integration: true do
   end
 
   {
-    SHELL: '/bin/bash',
+    SHELL: /.+/, # nonempty
     TERM: 'xterm',
     USER: 'travis'
   }.each do |env_var, val|
