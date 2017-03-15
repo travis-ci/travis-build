@@ -80,7 +80,7 @@ module Travis
 
               if go_version != 'go1' && comparable_go_version >= Gem::Version.new('1.1')
                 sh.if '! -d Godeps/_workspace/src' do
-                  sh.cmd "#{go_get_cmd} github.com/tools/godep", echo: true, retry: true, timing: true, assert: true
+                  fetch_godep
                   sh.cmd 'godep restore', retry: true, timing: true, assert: true, echo: true
                 end
               end
@@ -198,6 +198,25 @@ module Travis
             sh.export 'PATH', "#{HOME_DIR}/bin:$PATH", retry: false, echo: false
             # install bootstrap version so that tip/master/whatever can be used immediately
             sh.cmd %Q'gimme #{DEFAULTS[:go]} &>/dev/null'
+          end
+
+          def fetch_godep
+            godep = "$GOPATH/bin/godep"
+
+            sh.mkdir "$GOPATH/bin", echo: false, recursive: true
+
+            sh.if "$TRAVIS_OS_NAME = macx" do
+              sh.cmd "curl -sL -o #{godep} https://#{app_host}/files/godep_darwin_amd64", echo: false
+            end
+            sh.elif "$TRAVIS_OS_NAME = linux" do
+              sh.cmd "curl -sL -o #{godep} https://#{app_host}/files/godep_linux_amd64", echo: false
+            end
+
+            sh.if "$? -ne 0" do
+              sh.cmd "#{go_get_cmd} github.com/tools/godep", echo: true, retry: true, timing: true, assert: true
+            end
+
+            sh.cmd "chmod +x #{godep}"
           end
       end
     end
