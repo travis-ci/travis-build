@@ -17,6 +17,9 @@ gem 'sinatra', '~> 1.4'
 gem 'travis-config'
 gem 'travis-support', git: 'https://github.com/travis-ci/travis-support'
 
+gem 'faraday'
+gem 'faraday_middleware'
+
 group :development do
   gem 'rerun'
 end

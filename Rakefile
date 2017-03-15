@@ -1,5 +1,6 @@
 require 'json'
 require 'faraday'
+require 'faraday_middleware'
 require 'logger'
 require 'rubygems'
 
@@ -16,11 +17,20 @@ def logger
 end
 
 def version_for(version_str)
-  Gem::Version.new version_str.match(/\d+(\.\d+)*/)[0]
+  md = version_str.match(/\d+(\.\d+)*/)
+  if md
+    Gem::Version.new md[0]
+  else
+    Gem::Version.new nil
+  end
 end
 
-def fetch_githubusercontent_file(from, to = nil)
-  conn = Faraday.new('https://raw.githubusercontent.com')
+def fetch_githubusercontent_file(from, host = 'raw.githubusercontent.com', to = nil)
+  conn = Faraday.new("https://#{host}") do |f|
+    f.use FaradayMiddleware::FollowRedirects
+    f.adapter Faraday.default_adapter
+  end
+
   public_files_dir = "public/files"
   to = File.basename(from) unless to
   to = File.join("..", public_files_dir, to)
@@ -32,14 +42,12 @@ def fetch_githubusercontent_file(from, to = nil)
 
   dest = File.expand_path(to, __FILE__)
 
-  if response.success?
-    logger.info "Writing to #{dest}"
-    File.write(dest, response.body)
-    logger.info "Setting mode 'a+rx' on #{dest}"
-    chmod "a+rx", dest
-  else
-    fail "Could not fetch #{from}"
-  end
+  logger.info "Writing to #{dest}"
+  File.write(dest, response.body)
+  logger.info "Setting mode 'a+rx' on #{dest}"
+  chmod "a+rx", dest
+rescue Exception => e
+  logger.info "Error: #{e.message}"
 end
 
 def latest_release_for(repo)
@@ -58,13 +66,14 @@ def latest_release_for(repo)
   if response.success?
     json_data = JSON.parse(response.body)
     fail "No releases found for #{repo}" if json_data.empty?
-    json_data.sort { |a,b| version_for(a["name"]) <=> version_for(b["name"]) }.last["name"]
+    latest = json_data.sort { |a,b| version_for(a["name"] || a["tag_name"]) <=> version_for(b["name"] || b["tag_name"]) }.last
+    latest["name"] || latest["tag_name"]
   else
     fail "Could not find releases for #{repo}"
   end
 end
 
-task 'assets:precompile' => %i(clean update_static_files)
+task 'assets:precompile' => %i(clean update_godep update_static_files ls_public_files)
 
 directory 'public/files'
 
@@ -85,6 +94,20 @@ file 'public/files/gimme' => 'public/files' do
   fetch_githubusercontent_file "travis-ci/gimme/#{latest_release}/gimme"
 end
 
+desc "update godep for Darwin"
+file 'public/files/godep_darwin_amd64' => 'public/files' do
+  latest_release = latest_release_for 'tools/godep'
+  logger.info "Latest godep release is #{latest_release}"
+  fetch_githubusercontent_file "tools/godep/releases/download/#{latest_release}/godep_darwin_amd64", "github.com"
+end
+
+desc "update godep for Linux"
+file 'public/files/godep_linux_amd64' => 'public/files' do
+  latest_release = latest_release_for 'tools/godep'
+  logger.info "Latest godep release is #{latest_release}"
+  fetch_githubusercontent_file "tools/godep/releases/download/#{latest_release}/godep_linux_amd64", "github.com"
+end
+
 desc 'update nvm.sh'
 file 'public/files/nvm.sh' => 'public/files' do
   latest_release = latest_release_for 'creationix/nvm'
@@ -98,6 +121,12 @@ file 'public/files/sbt' => 'public/files' do
   fetch_githubusercontent_file 'paulp/sbt-extras/master/sbt'
 end
 
+desc 'update godep'
+multitask update_godep: Rake::FileList[
+  'public/files/godep_darwin_amd64',
+  'public/files/godep_linux_amd64',
+]
+
 desc 'update static files'
 multitask update_static_files: Rake::FileList[
   'public/files/casher',
@@ -105,3 +134,8 @@ multitask update_static_files: Rake::FileList[
   'public/files/nvm.sh',
   'public/files/sbt'
 ]
+
+desc "show contents in public/files"
+task 'ls_public_files' do
+  logger.info `ls -l public/files`
+end
