@@ -58,7 +58,7 @@ module Travis
       end
 
       def run
-        STAGES.each_slice(2) do |type, names|
+        stages.each_slice(2) do |type, names|
           names.each { |name| run_stage(type, name) }
         end
 
