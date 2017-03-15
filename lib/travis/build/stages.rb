@@ -6,16 +6,31 @@ require 'travis/build/stages/conditional'
 
 module Travis
   module Build
+    Stage = Struct.new(:type, :name, :run_in_debug)
+
     class Stages
       STAGES = [
-        :builtin,     [:configure, :checkout, :prepare, :disable_sudo, :export, :setup, :setup_casher, :setup_cache, :announce, :debug], :always,
-        :custom,      [:before_install, :install, :before_script, :script, :before_cache], false,
-        :builtin,     [:cache], false,
-        :builtin,     [:reset_state], true,
-        :conditional, [:after_success], false,
-        :conditional, [:after_failure], false,
-        :custom,      [:after_script], false,
-        :builtin,     [:finish], :always,
+        Stage.new(:builtin,     :configure,      :always),
+        Stage.new(:builtin,     :checkout,       :always),
+        Stage.new(:builtin,     :prepare,        :always),
+        Stage.new(:builtin,     :disable_sudo,   :always),
+        Stage.new(:builtin,     :export,         :always),
+        Stage.new(:builtin,     :setup,          :always),
+        Stage.new(:builtin,     :setup_casher,   :always),
+        Stage.new(:builtin,     :setup_cache,    :always),
+        Stage.new(:builtin,     :announce,       :always),
+        Stage.new(:builtin,     :debug,          :always),
+        Stage.new(:custom,      :before_install, false),
+        Stage.new(:custom,      :install,        false),
+        Stage.new(:custom,      :before_script,  false),
+        Stage.new(:custom,      :script,         false),
+        Stage.new(:custom,      :before_cache,   false),
+        Stage.new(:builtin,     :cache,          false),
+        Stage.new(:builtin,     :reset_state,    true),
+        Stage.new(:conditional, :after_success,  false),
+        Stage.new(:conditional, :after_failure,  false),
+        Stage.new(:custom,      :after_script,   false),
+        Stage.new(:builtin,     :finish,         :always),
       ]
 
       STAGE_DEFAULT_OPTIONS = {
@@ -54,22 +69,20 @@ module Travis
       def run
         run_stage(:builtin, :header)
 
-        STAGES.each_slice(3) do |type, names, run_in_debug|
-          names.each { |name| run_stage(type, name) }
+        STAGES.each do |stage|
+          run_stage(stage.type, stage.name)
         end
 
         sh.raw "source $HOME/.build_stages"
 
-        STAGES.each_slice(3).each do |type, names, run_in_debug|
-          names.each do |stg|
-            case run_in_debug
-            when :always
-              sh.raw "run_stage_#{stg}"
-            when true
-              sh.raw "run_stage_#{stg}" if debug_build?
-            when false
-              sh.raw "run_stage_#{stg}" unless debug_build?
-            end
+        STAGES.each do |stage|
+          case stage.run_in_debug
+          when :always
+            sh.raw "run_stage_#{stage.name}"
+          when true
+            sh.raw "run_stage_#{stage.name}" if debug_build?
+          when false
+            sh.raw "run_stage_#{stage.name}" unless debug_build?
           end
         end
       end

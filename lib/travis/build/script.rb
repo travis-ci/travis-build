@@ -53,7 +53,7 @@ module Travis
         end
       end
 
-      include Module.new { Stages::STAGES.each_slice(3).map { |ary| ary[1] }.flatten.each { |stage| define_method(stage) {} } }
+      include Module.new { Stages::STAGES.map(&:name).flatten.each { |stage| define_method(stage) {} } }
       include Appliances, DirectoryCache, Deprecation, Template
 
       attr_reader :sh, :data, :options, :validator, :addons, :stages

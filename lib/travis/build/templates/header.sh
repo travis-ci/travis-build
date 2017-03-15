@@ -28,7 +28,6 @@ export USER
 TRAVIS_TEST_RESULT=
 TRAVIS_CMD=
 
-
 travis_cmd() {
   local assert output display retry timing cmd result secure
 
