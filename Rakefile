@@ -72,7 +72,7 @@ def latest_release_for(repo)
   end
 end
 
-task 'assets:precompile' => %i(clean update_static_files)
+task 'assets:precompile' => %i(clean update_godep update_static_files)
 
 directory 'public/files'
 
