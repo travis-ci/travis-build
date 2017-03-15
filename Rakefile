@@ -28,6 +28,7 @@ end
 def fetch_githubusercontent_file(from, host = 'raw.githubusercontent.com', to = nil)
   conn = Faraday.new("https://#{host}") do |f|
     f.use FaradayMiddleware::FollowRedirects
+    f.adapter Faraday.default_adapter
   end
 
   public_files_dir = "public/files"
