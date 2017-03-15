@@ -201,9 +201,9 @@ module Travis
           end
 
           def fetch_godep
-            godep = "$GOPATH/bin/godep"
+            godep = "$HOME/gopath/bin/godep"
 
-            sh.mkdir "$GOPATH/bin", echo: false, recursive: true
+            sh.mkdir "$HOME/gopath/bin", echo: false, recursive: true
 
             sh.if "$TRAVIS_OS_NAME = macx" do
               sh.cmd "curl -sL -o #{godep} https://#{app_host}/files/godep_darwin_amd64", echo: false
