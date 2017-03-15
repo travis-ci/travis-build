@@ -81,6 +81,7 @@ shared_examples_for 'a debug script' do
   end
 
   it 'resets build status' do
-    should include_sexp [:echo, "This is a debug build. The build result is reset to its previous value, \\\"failed\\\".", ansi: :yellow]
+    store_example('debug')
+    should include_sexp [:echo, "This is a debug build. The build result is reset to its previous value, \\\"failed\\\".", {}]
   end
 end

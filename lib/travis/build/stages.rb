@@ -8,7 +8,7 @@ module Travis
   module Build
     class Stages
       STAGES = [
-        :builtin,     [:header, :configure, :checkout, :prepare, :disable_sudo, :export, :setup, :setup_casher, :setup_cache, :announce, :debug],
+        :builtin,     [:configure, :checkout, :prepare, :disable_sudo, :export, :setup, :setup_casher, :setup_cache, :announce, :debug],
         :custom,      [:before_install, :install, :before_script, :script, :before_cache],
         :builtin,     [:cache, :reset_state],
         :conditional, [:after_success],
@@ -19,7 +19,7 @@ module Travis
       ]
 
       STAGES_DEBUG = [
-        :builtin,     [:header, :configure, :checkout, :prepare, :disable_sudo, :export, :setup, :setup_casher, :setup_cache, :announce, :debug],
+        :builtin,     [:configure, :checkout, :prepare, :disable_sudo, :export, :setup, :setup_casher, :setup_cache, :announce, :debug],
         :builtin,     [:reset_state],
         :builtin,     [:finish]
       ]
@@ -58,6 +58,8 @@ module Travis
       end
 
       def run
+        run_stage(:builtin, :header)
+
         stages.each_slice(2) do |type, names|
           names.each { |name| run_stage(type, name) }
         end
