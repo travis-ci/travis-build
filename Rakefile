@@ -66,8 +66,7 @@ def latest_release_for(repo)
   if response.success?
     json_data = JSON.parse(response.body)
     fail "No releases found for #{repo}" if json_data.empty?
-    latest = json_data.sort { |a,b| version_for(a["name"] || a["tag_name"]) <=> version_for(b["name"] || b["tag_name"]) }.last
-    latest["name"] || latest["tag_name"]
+    latest = json_data.sort { |a,b| version_for(a["tag_name"]) <=> version_for(b["tag_name"]) }.last["tag_name"]
   else
     fail "Could not find releases for #{repo}"
   end
