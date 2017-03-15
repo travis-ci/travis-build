@@ -73,7 +73,7 @@ def latest_release_for(repo)
   end
 end
 
-task 'assets:precompile' => %i(clean update_godep update_static_files)
+task 'assets:precompile' => %i(clean update_godep update_static_files ls_public_files)
 
 directory 'public/files'
 
@@ -134,3 +134,8 @@ multitask update_static_files: Rake::FileList[
   'public/files/nvm.sh',
   'public/files/sbt'
 ]
+
+desc "show contents in public/files"
+task 'ls_public_files' do
+  logger.info `ls -l public/files`
+end
