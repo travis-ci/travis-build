@@ -66,8 +66,7 @@ def latest_release_for(repo)
   if response.success?
     json_data = JSON.parse(response.body)
     fail "No releases found for #{repo}" if json_data.empty?
-    latest = json_data.sort { |a,b| version_for(a["name"] || a["tag_name"]) <=> version_for(b["name"] || b["tag_name"]) }.last
-    latest["name"] || latest["tag_name"]
+    latest = json_data.sort { |a,b| version_for(a["tag_name"]) <=> version_for(b["tag_name"]) }.last["tag_name"]
   else
     fail "Could not find releases for #{repo}"
   end
@@ -121,6 +120,13 @@ file 'public/files/sbt' => 'public/files' do
   fetch_githubusercontent_file 'paulp/sbt-extras/master/sbt'
 end
 
+desc 'update tmate'
+file 'public/files/tmate-static-linux-amd64.tar.gz' => 'public/files' do
+  latest_release = latest_release_for 'tmate-io/tmate'
+  logger.info "Latest tmate release is #{latest_release}"
+  fetch_githubusercontent_file "tmate-io/tmate/releases/download/#{latest_release}/tmate-#{latest_release}-static-linux-amd64.tar.gz", "github.com", 'tmate-static-linux-amd64.tar.gz'
+end
+
 desc 'update godep'
 multitask update_godep: Rake::FileList[
   'public/files/godep_darwin_amd64',
@@ -132,7 +138,8 @@ multitask update_static_files: Rake::FileList[
   'public/files/casher',
   'public/files/gimme',
   'public/files/nvm.sh',
-  'public/files/sbt'
+  'public/files/sbt',
+  'public/files/tmate-static-linux-amd64.tar.gz'
 ]
 
 desc "show contents in public/files"
