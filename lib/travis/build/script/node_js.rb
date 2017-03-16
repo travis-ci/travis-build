@@ -24,6 +24,7 @@ module Travis
           npm_disable_progress
           npm_disable_strict_ssl unless npm_strict_ssl?
           setup_npm_cache if use_npm_cache?
+          install_yarn
         end
 
         def announce
@@ -43,17 +44,7 @@ module Travis
         def install
           sh.if '-f package.json' do
             sh.if "-f yarn.lock" do
-              sh.if "$(vers2int $(echo `node --version` | tr -d 'v')) -lt $(vers2int #{YARN_REQUIRED_NODE_VERSION})" do
-                sh.echo "Node.js version $(node --version) does not meet requirement for yarn." \
-                  " Please use Node.js #{YARN_REQUIRED_NODE_VERSION} or later.", ansi: :red
-                npm_install config[:npm_args]
-              end
-              sh.else do
-                sh.if "-z \"$(command -v yarn)\"" do
-                  install_yarn
-                end
-                sh.cmd "yarn", retry: true, fold: 'install'
-              end
+              sh.cmd "yarn", retry: true, fold: 'install'
             end
             sh.else do
               npm_install config[:npm_args]
@@ -202,13 +193,24 @@ module Travis
           end
 
           def install_yarn
-            sh.if "-z \"$(command -v gpg)\"" do
-              sh.export "YARN_GPG", "no"
+            sh.if "-f yarn.lock" do
+              sh.if "$(vers2int $(echo `node --version` | tr -d 'v')) -lt $(vers2int #{YARN_REQUIRED_NODE_VERSION})" do
+                sh.echo "Node.js version $(node --version) does not meet requirement for yarn." \
+                  " Please use Node.js #{YARN_REQUIRED_NODE_VERSION} or later.", ansi: :red
+                npm_install config[:npm_args]
+              end
+              sh.else do
+                sh.if "-z \"$(command -v yarn)\"" do
+                  sh.if "-z \"$(command -v gpg)\"" do
+                    sh.export "YARN_GPG", "no"
+                  end
+                  sh.echo   "Installing yarn", ansi: :green
+                  sh.cmd    "curl -o- -L https://yarnpkg.com/install.sh | bash", echo: true
+                  sh.echo   "Setting up \\$PATH", ansi: :green
+                  sh.export "PATH", "$HOME/.yarn/bin:$PATH"
+                end
+              end
             end
-            sh.echo   "Installing yarn", ansi: :green
-            sh.cmd    "curl -o- -L https://yarnpkg.com/install.sh | bash", echo: true
-            sh.echo   "Setting up \\$PATH", ansi: :green
-            sh.export "PATH", "$HOME/.yarn/bin:$PATH"
           end
 
           def prepend_path(path)
