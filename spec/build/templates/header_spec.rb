@@ -17,7 +17,7 @@ describe 'header.sh', integration: true do
   end
 
   let :bash_body do
-    script = ["source $HOME/.build_stages", "export"]
+    script = ["source $HOME/.job_stages", "export"]
     header_sh.read.split("\n").grep(/^[a-z][a-z_]+\(\) \{/).each do |func|
       script << "type #{func.match(/^(.+)\(\) \{/)[1]}"
     end
@@ -71,7 +71,7 @@ describe 'header.sh', integration: true do
 
     let :bash_body do
       <<-EOF.gsub(/^\s+> ?/, '')
-        > source $HOME/.build_stages
+        > source $HOME/.job_stages
         > rvm() {
         >   if [[ $1 != list && $2 != strings ]]; then
         >     return

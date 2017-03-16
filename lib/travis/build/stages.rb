@@ -73,7 +73,7 @@ module Travis
           define_stage(stage.type, stage.name)
         end
 
-        sh.raw "source $HOME/.build_stages"
+        sh.raw "source $HOME/.job_stages"
 
         STAGES.each do |stage|
           case stage.run_in_debug
@@ -97,7 +97,7 @@ module Travis
       end
 
       def define_stage(type, name)
-        sh.raw "cat <<'EOFUNC' >>$HOME/.build_stages"
+        sh.raw "cat <<'EOFUNC' >>$HOME/.job_stages"
         sh.raw "function run_stage_#{name}() {"
         type = :builtin if fallback?(type, name)
         stage = self.class.const_get(type.to_s.camelize).new(script, name)
