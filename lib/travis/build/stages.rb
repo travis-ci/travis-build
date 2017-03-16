@@ -67,10 +67,10 @@ module Travis
       end
 
       def run
-        run_stage(:builtin, :header)
+        define_header_stage
 
         STAGES.each do |stage|
-          run_stage(stage.type, stage.name)
+          define_stage(stage.type, stage.name)
         end
 
         sh.raw "source $HOME/.build_stages"
@@ -87,29 +87,24 @@ module Travis
         end
       end
 
-      def run_stage(type, name)
-        wrap_in_func(name) do
-          type = :builtin if fallback?(type, name)
-          stage = self.class.const_get(type.to_s.camelize).new(script, name)
-          commands = stage.run
-        end
+      def define_header_stage
+        stage = Travis::Build::Stages::Builtin.new(script, :header)
+        commands = stage.run
       end
 
       def fallback?(type, name)
         type == :custom && !config[name]
       end
 
-      def wrap_in_func(stage)
-        if stage == :header
-          yield
-        else
-          sh.raw "cat <<'EOFUNC' >>$HOME/.build_stages"
-          sh.raw "function run_stage_#{stage}() {"
-          commands = yield
-          close = (commands.nil? || commands.empty?) ? ":\n}" : "}"
-          sh.raw close
-          sh.raw "EOFUNC"
-        end
+      def define_stage(type, name)
+        sh.raw "cat <<'EOFUNC' >>$HOME/.build_stages"
+        sh.raw "function run_stage_#{name}() {"
+        type = :builtin if fallback?(type, name)
+        stage = self.class.const_get(type.to_s.camelize).new(script, name)
+        commands = stage.run
+        close = (commands.nil? || commands.empty?) ? ":\n}" : "}"
+        sh.raw close
+        sh.raw "EOFUNC"
       end
 
       def debug_build?
