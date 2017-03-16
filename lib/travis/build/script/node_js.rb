@@ -154,10 +154,6 @@ module Travis
             sh.raw "source #{nvm_dir}/nvm.sh", assert: false
           end
 
-          def app_host
-            @app_host ||= Travis::Build.config.app_host.to_s.strip.untaint
-          end
-
           def npm_disable_prefix
             sh.if "$(command -v sw_vers) && -f $HOME/.npmrc" do
               sh.cmd "npm config delete prefix"
