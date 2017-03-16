@@ -57,7 +57,7 @@ module Travis
         end
 
         def script
-          sh.raw "_phpunit_bin=$(jq -r .config[\"bin-dir\"] $TRAVIS_BUILD_DIR/composer.json 2>/dev/null)"
+          sh.raw '_phpunit_bin=$(jq -r .config[\"bin-dir\"] $TRAVIS_BUILD_DIR/composer.json 2>/dev/null)'
           sh.if "-n $COMPOSER_BIN_DIR && -x $COMPOSER_BIN_DIR/phpunit" do
             sh.cmd '$COMPOSER_BIN_DIR/phpunit'
           end
