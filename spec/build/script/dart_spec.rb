@@ -92,10 +92,10 @@ describe Travis::Build::Script::Dart, :sexp do
         should include_deprecation_sexp(/with_content_shell is deprecated/)
       end
 
-      describe 'with dart_tasks being set' do
-        before { data[:config][:dart_tasks] = {test: true} }
+      describe 'with dart_task being set' do
+        before { data[:config][:dart_task] = {test: true} }
         it 'should fail' do
-          should include_sexp [:echo, "with_content_shell can't be used with dart_tasks."]
+          should include_sexp [:echo, "with_content_shell can't be used with dart_task."]
         end
       end
 
@@ -175,7 +175,7 @@ describe Travis::Build::Script::Dart, :sexp do
         end
 
         describe 'with test args' do
-          before { data[:config][:dart_tasks] = {test: '--platform chrome'} }
+          before { data[:config][:dart_task] = {test: '--platform chrome'} }
           it "runs pub run test with those arguments" do
             expect(sexp).to match_sexp [:cmd, /pub run test --platform chrome/]
           end
@@ -189,7 +189,7 @@ describe Travis::Build::Script::Dart, :sexp do
         end
 
         describe 'with a different task specified' do
-          before { data[:config][:dart_tasks] = 'dartanalyzer' }
+          before { data[:config][:dart_task] = 'dartanalyzer' }
           it "doesn't run pub run test" do
             expect(sexp).not_to match_sexp [:cmd, /pub run test/]
           end
@@ -225,14 +225,14 @@ describe Travis::Build::Script::Dart, :sexp do
     end
 
     describe 'with dartanalyzer' do
-      before { data[:config][:dart_tasks] = 'dartanalyzer' }
+      before { data[:config][:dart_task] = 'dartanalyzer' }
 
       it "runs dartanalyzer on the whole package" do
         should include_sexp [:cmd, 'dartanalyzer .', echo: true, timing: true]
       end
 
       describe 'with arguments' do
-        before { data[:config][:dart_tasks] = {dartanalyzer: '--fatal-warnings lib'} }
+        before { data[:config][:dart_task] = {dartanalyzer: '--fatal-warnings lib'} }
 
         it "runs dartanalyzer with those arguments" do
           should include_sexp [:cmd, 'dartanalyzer --fatal-warnings lib', echo: true, timing: true]
@@ -241,7 +241,7 @@ describe Travis::Build::Script::Dart, :sexp do
     end
 
     describe 'with dartfmt' do
-      before { data[:config][:dart_tasks] = 'dartfmt' }
+      before { data[:config][:dart_task] = 'dartfmt' }
 
       describe 'when dart_style is installed' do
         let(:sexp) { sexp_find(subject, [:elif, "[[ -d packages/dart_style ]] || grep -q ^dart_style: .packages 2> /dev/null"]) }
