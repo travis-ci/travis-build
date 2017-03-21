@@ -9,8 +9,8 @@ module Travis
         def apply
           if data.secure_env_removed?
             sh.echo ""
-            sh.echo "Encrypted environment variables have been removed for security reasons.", ansi: :red
-            sh.echo "See https://docs.travis-ci.com/user/pull-requests/#Pull-Requests-and-Security-Restrictions", ansi: :red
+            sh.echo "Encrypted environment variables have been removed for security reasons.", ansi: :yellow
+            sh.echo "See https://docs.travis-ci.com/user/pull-requests/#Pull-Requests-and-Security-Restrictions", ansi: :yellow
           end
 
           env.groups.each { |group| export(group) }
