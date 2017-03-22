@@ -32,7 +32,7 @@ module Travis
           end
 
           sh.fold('rust-download') do
-            sh.cmd "rustup install #{version.shellescape}"
+            sh.cmd "rustup default #{version.shellescape}"
           end
 
         end
