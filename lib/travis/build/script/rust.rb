@@ -30,11 +30,6 @@ module Travis
             end
             sh.export 'PATH', "$HOME/.cargo/bin:$PATH"
           end
-
-          sh.fold('rust-download') do
-            sh.cmd "rustup default #{version.shellescape}"
-          end
-
         end
 
         def announce
