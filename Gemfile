@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 
 ruby File.read(File.expand_path('../.ruby-version', __FILE__)).strip if ENV.key?('DYNO')
 
+gem 'rake'
 gem 'activesupport', '~> 4.0'
 gem 'addressable', '~> 2.3'
 gem 'jwt'
@@ -15,6 +16,9 @@ gem 'sentry-raven'
 gem 'sinatra', '~> 1.4'
 gem 'travis-config'
 gem 'travis-support', git: 'https://github.com/travis-ci/travis-support'
+
+gem 'faraday'
+gem 'faraday_middleware'
 
 group :development do
   gem 'rerun'

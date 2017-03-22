@@ -159,7 +159,7 @@ describe Travis::Build::Script::Csharp, :sexp do
     it 'installs' do
       data[:config][:os] = 'osx'
       should include_sexp [:cmd, "curl -o \"/tmp/mdk.pkg\" -fL http://download.mono-project.com/archive/mdk-latest.pkg", timing: true, assert: true, echo: true]
-      should include_sexp [:cmd, "sudo installer -package \"/tmp/mdk.pkg\" -target \"/\"", timing: true, assert: true]
+      should include_sexp [:cmd, "sudo installer -package \"/tmp/mdk.pkg\" -target \"/\" -verboseR", timing: true, assert: true]
       should include_sexp [:cmd, "eval $(/usr/libexec/path_helper -s)", assert: true]
     end
 
@@ -171,7 +171,7 @@ describe Travis::Build::Script::Csharp, :sexp do
       should include_sexp [:cmd, "ln -s /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib /usr/local/lib/", assert: true]
       should include_sexp [:cmd, "ln -s /usr/local/opt/openssl/lib/libssl.1.0.0.dylib /usr/local/lib/", assert: true]
       should include_sexp [:cmd, "curl -o \"/tmp/dotnet.pkg\" -fL https://dotnetcli.azureedge.net/dotnet/preview/Installers/1.0.0-preview2-003121/dotnet-dev-osx-x64.1.0.0-preview2-003121.pkg", timing: true, assert: true, echo: true]
-      should include_sexp [:cmd, "sudo installer -package \"/tmp/dotnet.pkg\" -target \"/\"", timing: true, assert: true]
+      should include_sexp [:cmd, "sudo installer -package \"/tmp/dotnet.pkg\" -target \"/\" -verboseR", timing: true, assert: true]
       should include_sexp [:cmd, "eval $(/usr/libexec/path_helper -s)", assert: true]
     end
 

@@ -126,6 +126,10 @@ SH
             add_scanner_param("sonar.github.pullRequest", data.pull_request)
             add_scanner_param("sonar.github.oauth", "$SONAR_GITHUB_TOKEN")
           end
+          
+          if organization
+            add_scanner_param("sonar.organization", organization)
+          end
             
           if data.branch != 'master'
             add_scanner_param("sonar.branch", data.branch)
@@ -181,6 +185,10 @@ SH
           
           def os
             data.config[:os]
+          end
+          
+          def organization
+            config[:organization]
           end
         
           def token

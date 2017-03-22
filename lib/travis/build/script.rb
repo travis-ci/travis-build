@@ -151,6 +151,7 @@ module Travis
 
         def configure
           apply :show_system_info
+          apply :fix_rwky_redis
           apply :update_glibc
           apply :clean_up_path
           apply :fix_resolv_conf
@@ -233,6 +234,10 @@ module Travis
 
         def debug_enabled?
           Travis::Build.config.enable_debug_tools == '1'
+        end
+
+        def app_host
+          @app_host ||= Travis::Build.config.app_host.to_s.strip.untaint
         end
     end
   end

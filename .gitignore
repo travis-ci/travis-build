@@ -10,3 +10,4 @@ rspec.log
 .vagrant
 coverage/
 .*env
+/public/files/

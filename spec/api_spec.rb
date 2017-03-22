@@ -66,10 +66,10 @@ describe Travis::Api::Build::App, :include_sinatra_helpers do
     end
 
     context 'without an Authorization header and authorization is disabled' do
-      before do 
+      before do
         Travis::Api::Build::App.any_instance
           .stubs(:auth_disabled?).returns(true)
-      end 
+      end
       it 'returns 200' do
         response = post '/script', {}, input: PAYLOADS[:push].to_json
         expect(response.status).to be == 200
