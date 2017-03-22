@@ -127,6 +127,11 @@ file 'public/files/tmate-static-linux-amd64.tar.gz' => 'public/files' do
   fetch_githubusercontent_file "tmate-io/tmate/releases/download/#{latest_release}/tmate-#{latest_release}-static-linux-amd64.tar.gz", "github.com", 'tmate-static-linux-amd64.tar.gz'
 end
 
+desc 'update rustup'
+file 'public/files/rustup-init.sh' => 'public/files' do
+  fetch_githubusercontent_file "", "sh.rustup.rs", "rustup-init.sh"
+end
+
 desc 'update godep'
 multitask update_godep: Rake::FileList[
   'public/files/godep_darwin_amd64',
@@ -139,7 +144,8 @@ multitask update_static_files: Rake::FileList[
   'public/files/gimme',
   'public/files/nvm.sh',
   'public/files/sbt',
-  'public/files/tmate-static-linux-amd64.tar.gz'
+  'public/files/tmate-static-linux-amd64.tar.gz',
+  'public/files/rustup-init.sh'
 ]
 
 desc "show contents in public/files"
