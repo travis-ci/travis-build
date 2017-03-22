@@ -21,7 +21,7 @@ module Travis
           sh.fold('rustup-install') do
             sh.echo 'Installing Rust', ansi: :yellow
             unless app_host.empty?
-              sh.cmd "curl -sSf https://#{app_host}/files/rustup-init.sh | sh -s -- -y", echo: true, assert: false
+              sh.cmd "curl -sSf https://#{app_host}/files/rustup-init.sh | sh -s -- --default-toolchain=$TRAVIS_RUST_VERSION -y", echo: true, assert: false
               sh.if "$? -ne 0" do
                 sh.cmd RUSTUP_CMD, echo: true, assert: true
               end
@@ -30,11 +30,6 @@ module Travis
             end
             sh.export 'PATH', "$HOME/.cargo/bin:$PATH"
           end
-
-          sh.fold('rust-download') do
-            sh.cmd "rustup install #{version.shellescape}"
-          end
-
         end
 
         def announce
