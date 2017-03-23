@@ -44,7 +44,7 @@ module Travis
         def install
           sh.if '-f package.json' do
             sh.if "-f yarn.lock" do
-              sh.cmd "yarn", retry: true, fold: 'install'
+              sh.cmd "yarn --frozen-lockfile", retry: true, fold: 'install'
             end
             sh.else do
               npm_install config[:npm_args]
