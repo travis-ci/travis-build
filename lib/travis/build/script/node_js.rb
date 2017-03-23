@@ -200,14 +200,16 @@ module Travis
                 npm_install config[:npm_args]
               end
               sh.else do
-                sh.if "-z \"$(command -v yarn)\"" do
-                  sh.if "-z \"$(command -v gpg)\"" do
-                    sh.export "YARN_GPG", "no"
+                sh.fold "install.yarn" do
+                  sh.if "-z \"$(command -v yarn)\"" do
+                    sh.if "-z \"$(command -v gpg)\"" do
+                      sh.export "YARN_GPG", "no"
+                    end
+                    sh.echo   "Installing yarn", ansi: :green
+                    sh.cmd    "curl -o- -L https://yarnpkg.com/install.sh | bash", echo: true
+                    sh.echo   "Setting up \\$PATH", ansi: :green
+                    sh.export "PATH", "$HOME/.yarn/bin:$PATH"
                   end
-                  sh.echo   "Installing yarn", ansi: :green
-                  sh.cmd    "curl -o- -L https://yarnpkg.com/install.sh | bash", echo: true
-                  sh.echo   "Setting up \\$PATH", ansi: :green
-                  sh.export "PATH", "$HOME/.yarn/bin:$PATH"
                 end
               end
             end
