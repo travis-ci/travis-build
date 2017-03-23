@@ -122,17 +122,19 @@ module Travis
           end
 
           def install_version(ver)
-            sh.cmd "nvm install #{ver}", assert: false
-            sh.if '$? -ne 0' do
-              sh.echo "Failed to install #{ver}. Remote repository may not be reachable.", ansi: :red
-              sh.echo "Using locally available version #{ver}, if applicable."
-              sh.cmd "nvm use #{ver}", assert: false, timing: false
+            sh.fold "nvm.install" do
+              sh.cmd "nvm install #{ver}", assert: false, timing: true
               sh.if '$? -ne 0' do
-                sh.echo "Unable to use #{ver}", ansi: :red
-                sh.cmd "false", assert: true, echo: false, timing: false
+                sh.echo "Failed to install #{ver}. Remote repository may not be reachable.", ansi: :red
+                sh.echo "Using locally available version #{ver}, if applicable."
+                sh.cmd "nvm use #{ver}", assert: false, timing: false
+                sh.if '$? -ne 0' do
+                  sh.echo "Unable to use #{ver}", ansi: :red
+                  sh.cmd "false", assert: true, echo: false, timing: false
+                end
               end
+              sh.export 'TRAVIS_NODE_VERSION', ver, echo: false
             end
-            sh.export 'TRAVIS_NODE_VERSION', ver, echo: false
           end
 
           def update_nvm
@@ -200,14 +202,16 @@ module Travis
                 npm_install config[:npm_args]
               end
               sh.else do
-                sh.if "-z \"$(command -v yarn)\"" do
-                  sh.if "-z \"$(command -v gpg)\"" do
-                    sh.export "YARN_GPG", "no"
+                sh.fold "install.yarn" do
+                  sh.if "-z \"$(command -v yarn)\"" do
+                    sh.if "-z \"$(command -v gpg)\"" do
+                      sh.export "YARN_GPG", "no"
+                    end
+                    sh.echo   "Installing yarn", ansi: :green
+                    sh.cmd    "curl -o- -L https://yarnpkg.com/install.sh | bash", echo: true, timing: true
+                    sh.echo   "Setting up \\$PATH", ansi: :green
+                    sh.export "PATH", "$HOME/.yarn/bin:$PATH"
                   end
-                  sh.echo   "Installing yarn", ansi: :green
-                  sh.cmd    "curl -o- -L https://yarnpkg.com/install.sh | bash", echo: true
-                  sh.echo   "Setting up \\$PATH", ansi: :green
-                  sh.export "PATH", "$HOME/.yarn/bin:$PATH"
                 end
               end
             end
