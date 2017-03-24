@@ -3,7 +3,7 @@ module Travis
     class Script
       class Elm < NodeJs
         # Default NodeJS version to install
-        DEFAULT_VERSION = '6.10.0'
+        DEFAULT_NODE_VERSION = '6.10.0'
 
         DEFAULTS = {
           elm_version: 'latest',
@@ -20,6 +20,8 @@ module Travis
 
         def configure
           super
+
+          config[:node_js] ||= DEFAULT_NODE_VERSION
 
           sh.if '! -d sysconfcpus/bin' do
             install_sysconfcpus
