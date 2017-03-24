@@ -10,7 +10,7 @@ if [[ -f \$HOME/.sudo-run ]]; then
   exit 0
 fi
 
-echo -e "\\\\033[33;1mThis job is running on container-based infrastructure, which does not allow use of 'sudo', setuid and setguid executables.\\\\033[0m
+echo -e "\\\\033[33;1mThis job is running on container-based infrastructure, which does not allow use of 'sudo', setuid, and setgid executables.\\\\033[0m
 \\\\033[33;1mIf you require sudo, add 'sudo: required' to your .travis.yml\\\\033[0m
 "
 
