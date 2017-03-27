@@ -7,7 +7,7 @@ module Travis
         WRITE_SUDO = <<-EOC
 cat <<-'EOF' > _sudo
 if [[ -f \$HOME/.sudo-run ]]; then
-  exit 0
+  exit 1
 fi
 
 echo -e "\\\\033[33;1mThis job is running on container-based infrastructure, which does not allow use of 'sudo', setuid, and setgid executables.\\\\033[0m
@@ -16,6 +16,7 @@ echo -e "\\\\033[33;1mThis job is running on container-based infrastructure, whi
 
 touch \$HOME/.sudo-run
 
+exit 1
 EOF
         EOC
         CLEANUP = 'sudo -n sh -c "chmod 4755 _sudo; chown root:root _sudo; mv _sudo `which sudo`; find / \\( -perm -4000 -o -perm -2000 \\) -a ! -name sudo -exec chmod a-s {} \; 2>/dev/null && sed -e \'s/^%.*//\' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis"'
