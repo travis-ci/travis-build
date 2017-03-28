@@ -44,7 +44,12 @@ module Travis
         def install
           sh.if '-f package.json' do
             sh.if "-f yarn.lock" do
-              sh.cmd "yarn", retry: true, fold: 'install'
+              sh.if yarn_req_not_met do
+                npm_install config[:npm_args]
+              end
+              sh.else do
+                sh.cmd "yarn", retry: true, fold: 'install'
+              end
             end
             sh.else do
               npm_install config[:npm_args]
@@ -196,7 +201,7 @@ module Travis
 
           def install_yarn
             sh.if "-f yarn.lock" do
-              sh.if "$(vers2int $(echo `node --version` | tr -d 'v')) -lt $(vers2int #{YARN_REQUIRED_NODE_VERSION})" do
+              sh.if yarn_req_not_met do
                 sh.echo "Node.js version $(node --version) does not meet requirement for yarn." \
                   " Please use Node.js #{YARN_REQUIRED_NODE_VERSION} or later.", ansi: :red
                 npm_install config[:npm_args]
@@ -221,6 +226,10 @@ module Travis
             sh.if "$(echo :$PATH: | grep -v :#{path}:)" do
               sh.export "PATH", "#{path}:$PATH", echo: true
             end
+          end
+
+          def yarn_req_not_met
+            "$(vers2int $(echo `node --version` | tr -d 'v')) -lt $(vers2int #{YARN_REQUIRED_NODE_VERSION})"
           end
       end
     end
