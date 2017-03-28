@@ -68,31 +68,30 @@ module Travis
           end
 
           def decode_jwt
-            tokens = {}
-            Array(config[:jwt]).each do |secret|
-              pull_request = self.data.pull_request ? self.data.pull_request : ""
-              now = Time.now.to_i()
-              payload = {
-                "iss" => "Travis CI, GmbH",
-                "slug" => self.data.slug,
-                "pull-request" => pull_request,
-                "exp" => now+5400,
-                "iat" => now
-              }
-              begin
-                key, secret = secret.split('=').map(&:strip)
-                tokens[key] = JWT.encode(payload, secret)
-              rescue Exception
-                sh.echo "There was an error while encoding JWT. If the secret is encrypted, ensure that it is encrypted correctly.", ansi: :yellow
-              end
-            end
-            return if tokens.empty?
+            return unless jwt_data
+
+            pull_request = self.data.pull_request ? self.data.pull_request : ""
+            now = Time.now.to_i()
+            payload = {
+              "iss" => "Travis CI, GmbH",
+              "slug" => self.data.slug,
+              "pull-request" => pull_request,
+              "exp" => now+5400,
+              "iat" => now
+            }
+
+            # this match always succeeds; just drop the initial "SAUCE_ACCESS_KEY="
+            val = jwt_data.match(/^(?:SAUCE_ACCESS_KEY=)?(.*)$/)[1]
+
             sh.fold 'addons_jwt' do
               sh.echo 'Initializing JWT', ansi: :yellow
-              tokens.each do |key, val|
-                sh.export key, val, echo: false
-              end
+
+              sh.export 'SAUCE_ACCESS_KEY', JWT.encode(payload, val), echo: false
             end
+          end
+
+          def jwt_data
+            config[:jwt]
           end
       end
     end
