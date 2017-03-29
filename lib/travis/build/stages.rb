@@ -78,11 +78,11 @@ module Travis
         STAGES.each do |stage|
           case stage.run_in_debug
           when :always
-            sh.raw "run_stage_#{stage.name}"
+            sh.raw "travis_run_#{stage.name}"
           when true
-            sh.raw "run_stage_#{stage.name}" if debug_build?
+            sh.raw "travis_run_#{stage.name}" if debug_build?
           when false
-            sh.raw "run_stage_#{stage.name}" unless debug_build?
+            sh.raw "travis_run_#{stage.name}" unless debug_build?
           end
         end
       end
@@ -98,7 +98,7 @@ module Travis
 
       def define_stage(type, name)
         sh.raw "cat <<'EOFUNC' >>$HOME/.job_stages"
-        sh.raw "function run_stage_#{name}() {"
+        sh.raw "function travis_run_#{name}() {"
         type = :builtin if fallback?(type, name)
         stage = self.class.const_get(type.to_s.camelize).new(script, name)
         commands = stage.run
