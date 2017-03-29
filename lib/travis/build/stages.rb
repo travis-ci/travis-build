@@ -6,22 +6,31 @@ require 'travis/build/stages/conditional'
 
 module Travis
   module Build
+    Stage = Struct.new(:type, :name, :run_in_debug)
+
     class Stages
       STAGES = [
-        :builtin,     [:header, :configure, :checkout, :prepare, :disable_sudo, :export, :setup, :setup_casher, :setup_cache, :announce, :debug],
-        :custom,      [:before_install, :install, :before_script, :script, :before_cache],
-        :builtin,     [:cache, :reset_state],
-        :conditional, [:after_success],
-        # :addon,       [:deploy_all],
-        :conditional, [:after_failure],
-        :custom,      [:after_script],
-        :builtin,     [:finish]
-      ]
-
-      STAGES_DEBUG = [
-        :builtin,     [:header, :configure, :checkout, :prepare, :disable_sudo, :export, :setup, :setup_casher, :setup_cache, :announce, :debug],
-        :builtin,     [:reset_state],
-        :builtin,     [:finish]
+        Stage.new(:builtin,     :configure,      :always),
+        Stage.new(:builtin,     :checkout,       :always),
+        Stage.new(:builtin,     :prepare,        :always),
+        Stage.new(:builtin,     :disable_sudo,   :always),
+        Stage.new(:builtin,     :export,         :always),
+        Stage.new(:builtin,     :setup,          :always),
+        Stage.new(:builtin,     :setup_casher,   :always),
+        Stage.new(:builtin,     :setup_cache,    :always),
+        Stage.new(:builtin,     :announce,       :always),
+        Stage.new(:builtin,     :debug,          :always),
+        Stage.new(:custom,      :before_install, false),
+        Stage.new(:custom,      :install,        false),
+        Stage.new(:custom,      :before_script,  false),
+        Stage.new(:custom,      :script,         false),
+        Stage.new(:custom,      :before_cache,   false),
+        Stage.new(:builtin,     :cache,          false),
+        Stage.new(:builtin,     :reset_state,    true),
+        Stage.new(:conditional, :after_success,  false),
+        Stage.new(:conditional, :after_failure,  false),
+        Stage.new(:custom,      :after_script,   false),
+        Stage.new(:builtin,     :finish,         :always),
       ]
 
       STAGE_DEFAULT_OPTIONS = {
@@ -58,23 +67,48 @@ module Travis
       end
 
       def run
-        stages.each_slice(2) do |type, names|
-          names.each { |name| run_stage(type, name) }
+        define_header_stage
+
+        STAGES.each do |stage|
+          define_stage(stage.type, stage.name)
+        end
+
+        sh.raw "source $HOME/.job_stages"
+
+        STAGES.each do |stage|
+          case stage.run_in_debug
+          when :always
+            sh.raw "travis_run_#{stage.name}"
+          when true
+            sh.raw "travis_run_#{stage.name}" if debug_build?
+          when false
+            sh.raw "travis_run_#{stage.name}" unless debug_build?
+          end
         end
       end
 
-      def stages
-        script.debug_build_via_api? ? STAGES_DEBUG : STAGES
-      end
-
-      def run_stage(type, name)
-        type = :builtin if fallback?(type, name)
-        stage = self.class.const_get(type.to_s.camelize).new(script, name)
-        stage.run
+      def define_header_stage
+        stage = Travis::Build::Stages::Builtin.new(script, :header)
+        commands = stage.run
       end
 
       def fallback?(type, name)
         type == :custom && !config[name]
+      end
+
+      def define_stage(type, name)
+        sh.raw "cat <<'EOFUNC' >>$HOME/.job_stages"
+        sh.raw "function travis_run_#{name}() {"
+        type = :builtin if fallback?(type, name)
+        stage = self.class.const_get(type.to_s.camelize).new(script, name)
+        commands = stage.run
+        close = (commands.nil? || commands.empty?) ? ":\n}" : "}"
+        sh.raw close
+        sh.raw "EOFUNC"
+      end
+
+      def debug_build?
+        script.debug_build_via_api?
       end
     end
   end
