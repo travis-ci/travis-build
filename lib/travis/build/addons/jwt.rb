@@ -8,7 +8,7 @@ module Travis
         SUPER_USER_SAFE = true
 
         def before_before_install
-          sh.echo "The use of \\`jwt\\` as a standalone addon is deprecated, and will be removed on no sooner than 2017-07-01. Please update your configuration", ansi: :yellow
+          sh.deprecate "The use of \\`jwt\\` as a standalone addon is deprecated, and will be removed on no sooner than 2017-07-01. Please update your configuration"
           tokens = {}
           Array(config).each do |secret|
             pull_request = self.data.pull_request ? self.data.pull_request : ""
