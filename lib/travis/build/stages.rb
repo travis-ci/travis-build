@@ -97,14 +97,18 @@ module Travis
       end
 
       def define_stage(type, name)
-        sh.raw "cat <<'EOFUNC' >>$HOME/.travis/job_stages"
+        sh.raw "cat <<'EOFUNC_#{name.upcase}' >>$HOME/.travis/job_stages"
         sh.raw "function travis_run_#{name}() {"
-        type = :builtin if fallback?(type, name)
-        stage = self.class.const_get(type.to_s.camelize).new(script, name)
-        commands = stage.run
+        commands = run_stage(type, name)
         close = (commands.nil? || commands.empty?) ? ":\n}" : "}"
         sh.raw close
-        sh.raw "EOFUNC"
+        sh.raw "\nEOFUNC_#{name.upcase}"
+      end
+
+      def run_stage(type, name)
+        type = :builtin if fallback?(type, name)
+        stage = self.class.const_get(type.to_s.camelize).new(script, name)
+        stage.run
       end
 
       def debug_build?
