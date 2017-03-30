@@ -22,6 +22,12 @@ describe Travis::Build::Addons::Deploy, :sexp do
     let(:cmds) { ['ruby -S gem install dpl', 'ruby -S dpl'] }
   end
 
+  context "when after_success is also present" do
+    let(:scripts) { { after_success: ["echo hello"], before_deploy: ['./before_deploy_1.sh', './before_deploy_2.sh'], after_deploy: ['./after_deploy_1.sh', './after_deploy_2.sh'] } }
+
+    it { store_example "after_success_and_deploy" }
+  end
+
   describe 'deploys if conditions apply' do
     let(:config) { { provider: 'heroku', password: 'foo', email: 'user@host' } }
     let(:sexp)   { sexp_find(subject, [:if, '($TRAVIS_BRANCH = master)']) }
