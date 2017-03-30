@@ -25,7 +25,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
   context "when after_success is also present" do
     let(:scripts) { { after_success: ["echo hello"], before_deploy: ['./before_deploy_1.sh', './before_deploy_2.sh'], after_deploy: ['./after_deploy_1.sh', './after_deploy_2.sh'] } }
 
-    it { store_example "after_success_and_deploy" }
+    it { store_example "integration-after_success_and_deploy" }
   end
 
   describe 'deploys if conditions apply' do
