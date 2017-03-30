@@ -74,15 +74,15 @@ module Travis
       def run
         define_header_stage
 
-        STAGES.delete_if { |st| skip?(st) }
-
         STAGES.each do |stage|
-          define_stage(stage.type, stage.name)
+          define_stage(stage.type, stage.name) unless skip?(stage)
         end
 
         sh.raw "source $HOME/.travis/job_stages"
 
         STAGES.each do |stage|
+          next if skip?(stage)
+
           case stage.run_in_debug
           when :always
             sh.raw "travis_run_#{stage.name}"
