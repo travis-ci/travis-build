@@ -31,6 +31,7 @@ module Travis
           sh.fold 'addons_jwt' do
             sh.echo 'Initializing JWT', ansi: :yellow
             tokens.each do |key, val|
+              puts "jwt={key=>#{key},val=>#{val}}"
               sh.export key, val, echo: false
             end
           end
