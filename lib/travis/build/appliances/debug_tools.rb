@@ -42,6 +42,8 @@ module Travis
 
             sh.export 'PATH', "${PATH}:#{install_dir}", echo: false
 
+            write_debug_instructions
+
             sh.cd :back, echo: false, stack: true
           sh.raw '}'
 
@@ -68,6 +70,14 @@ module Travis
           # XXX the following does not apply to OSX
           def static_build_linux_url
             "https://#{app_host}/files/tmate-static-linux-amd64.tar.gz"
+          end
+
+          def write_debug_instructions
+            sh.raw <<-EOF.gsub(/^ {14}/,'')
+              echo <<END >> $HOME/.bashrc
+              echo "You are in a debug VM!"
+              END
+            EOF
           end
       end
     end
