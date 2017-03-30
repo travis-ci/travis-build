@@ -58,6 +58,11 @@ module Travis
         finish:         { assert: true,  echo: true,  timing: true  },
       }
 
+      SKIP_KEYWORDS = %w(
+        skip
+        ignore
+      )
+
       attr_reader :script, :sh, :config
 
       def initialize(script, sh, config)
@@ -70,12 +75,14 @@ module Travis
         define_header_stage
 
         STAGES.each do |stage|
-          define_stage(stage.type, stage.name)
+          define_stage(stage.type, stage.name) unless skip?(stage)
         end
 
         sh.raw "source $HOME/.travis/job_stages"
 
         STAGES.each do |stage|
+          next if skip?(stage)
+
           case stage.run_in_debug
           when :always
             sh.raw "travis_run_#{stage.name}"
@@ -113,6 +120,10 @@ module Travis
 
       def debug_build?
         script.debug_build_via_api?
+      end
+
+      def skip?(stage)
+        stage.type == :custom && SKIP_KEYWORDS.any? { |kw| config[stage.name] == kw }
       end
     end
   end
