@@ -62,7 +62,7 @@ describe Travis::Build::Script, :sexp do
   end
 
   context 'when before_install phase is `["skip"]`' do
-    it 'does executes `travis_run_before_install` function' do
+    it 'executes `travis_run_before_install` function' do
       payload[:config][:before_install] = ['skip']
 
       should include_sexp [:raw, 'travis_run_install']
