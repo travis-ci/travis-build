@@ -7,7 +7,7 @@ describe Travis::Build::Addons::SauceConnect, :sexp do
   let(:sh)     { Travis::Shell::Builder.new }
   let(:addon)  { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
   subject      { sh.to_sexp }
-  before       { addon.before_before_script }
+  before       { Time.stubs(:now).returns(Time.at(0)); addon.before_before_script }
 
   it_behaves_like 'compiled script' do
     let(:code) { ['sauce_connect', 'TRAVIS_SAUCE_CONNECT=true'] }
@@ -33,6 +33,16 @@ describe Travis::Build::Addons::SauceConnect, :sexp do
 
     it { should include_sexp [:export, ['SAUCE_USERNAME', 'username']] }
     it { should include_sexp [:export, ['SAUCE_ACCESS_KEY', 'access_key']] }
+
+    it_behaves_like 'starts sauce connect'
+    it { store_example }
+  end
+
+  describe 'with username and jwt' do
+    let(:config) { { :username => 'username', :jwt => 'access_key' } }
+
+    it { should include_sexp [:export, ['SAUCE_USERNAME', 'username']] }
+    it { should include_sexp [:export, ['SAUCE_ACCESS_KEY', "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2aXMgQ0ksIEdtYkgiLCJzbHVnIjoidHJhdmlzLWNpL3RyYXZpcy1jaSIsInB1bGwtcmVxdWVzdCI6IiIsImV4cCI6NTQwMCwiaWF0IjowfQ.Nqdv_uaXUGz8I80UC9q5iun3JNw6zSin9V4_IvXeVQc"]] }
 
     it_behaves_like 'starts sauce connect'
     it { store_example }

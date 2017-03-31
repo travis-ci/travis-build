@@ -1,9 +1,12 @@
 require 'travis/build/addons/base'
+require 'travis/build/addons/json_web_token'
 
 module Travis
   module Build
     class Addons
       class SauceConnect < Base
+        include JsonWebToken
+
         SUPER_USER_SAFE = true
         TEMPLATES_PATH = File.expand_path('templates', __FILE__.sub('.rb', ''))
 
@@ -16,7 +19,7 @@ module Travis
           if access_key
             sh.export 'SAUCE_ACCESS_KEY', access_key, echo: false
           else
-            decode_jwt
+            decode_jwt_to 'SAUCE_ACCESS_KEY'
           end
 
           if direct_domains
@@ -65,33 +68,6 @@ module Travis
 
           def tunnel_domains
             config[:tunnel_domains]
-          end
-
-          def decode_jwt
-            return unless jwt_data
-
-            pull_request = self.data.pull_request ? self.data.pull_request : ""
-            now = Time.now.to_i()
-            payload = {
-              "iss" => "Travis CI, GmbH",
-              "slug" => self.data.slug,
-              "pull-request" => pull_request,
-              "exp" => now+5400,
-              "iat" => now
-            }
-
-            # this match always succeeds; just drop the initial "SAUCE_ACCESS_KEY="
-            val = jwt_data.match(/^(?:SAUCE_ACCESS_KEY=)?(.*)$/)[1]
-
-            sh.fold 'addons_jwt' do
-              sh.echo 'Initializing JWT', ansi: :yellow
-
-              sh.export 'SAUCE_ACCESS_KEY', JWT.encode(payload, val), echo: false
-            end
-          end
-
-          def jwt_data
-            config[:jwt]
           end
       end
     end
