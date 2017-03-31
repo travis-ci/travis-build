@@ -42,12 +42,12 @@ module Travis
 
             sh.export 'PATH', "${PATH}:#{install_dir}", echo: false
 
-            write_debug_instructions
 
             sh.cd :back, echo: false, stack: true
           sh.raw '}'
 
           sh.raw 'function travis_debug() {'
+            write_debug_instructions
             sh.raw 'travis_debug_install'
             sh.echo "Preparing debug sessions."
             sh.raw 'TRAVIS_CMD=travis_debug'
