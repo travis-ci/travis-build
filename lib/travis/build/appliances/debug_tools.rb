@@ -75,7 +75,7 @@ module Travis
           def write_debug_instructions
             sh.raw <<-EOF.gsub(/^ {14}/,'')
               cat <<END >>$HOME/.profile
-              echo "You are in a debug VM!"
+              echo -e "\n\n\nYou are in a debug VM!"
               END
             EOF
           end
