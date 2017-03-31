@@ -20,8 +20,8 @@ while [[ $# > 0 ]]; do
 done
 
 $TMATE new-session -d -s debug
-$TMATE respawn-pane -t debug:0 -k 'cat $HOME/.travis/debug_help; /bin/bash -l'
 $TMATE wait tmate-ready
+$TMATE respawn-pane -t debug:0 -k 'cat $HOME/.travis/debug_help; /bin/bash -l'
 
 echo -e "${ANSI_YELLOW}Use the following SSH command to access the interactive debugging environment:${ANSI_RESET}"
 $TMATE display -p `echo -e "${ANSI_GREEN}#{tmate_ssh}${ANSI_RESET}"`
