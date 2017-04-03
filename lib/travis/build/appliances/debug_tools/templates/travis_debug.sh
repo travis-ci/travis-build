@@ -19,7 +19,8 @@ while [[ $# > 0 ]]; do
   esac
 done
 
-$TMATE new-session -d -s debug 'cat $HOME/.travis/debug_help; bash -l'
+$TMATE new-session -d -s debug
+$TMATE respawn-pane -t debug:0 -k 'cat $HOME/.travis/debug_help; /bin/bash -l'
 $TMATE wait tmate-ready
 
 echo -e "${ANSI_YELLOW}Use the following SSH command to access the interactive debugging environment:${ANSI_RESET}"
