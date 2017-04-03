@@ -21,11 +21,12 @@ done
 
 $TMATE new-session -d -s debug
 $TMATE respawn-window -t debug:0 -k '/bin/bash -l'
-$TMATE send-keys -t debug:0 C-z 'cat $HOME/.travis/debug_help' Enter
 $TMATE wait tmate-ready
 
 echo -e "${ANSI_YELLOW}Use the following SSH command to access the interactive debugging environment:${ANSI_RESET}"
 $TMATE display -p `echo -e "${ANSI_GREEN}#{tmate_ssh}${ANSI_RESET}"`
+
+$TMATE send-keys -t debug:0 C-z 'cat $HOME/.travis/debug_help; bash -l' C-m
 
 if [[ "$QUIET" == "1" ]]; then
   echo -e "This build is running in quiet mode. No session output will be displayed.${ANSI_RESET}"
