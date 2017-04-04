@@ -212,6 +212,11 @@ multitask update_godep: Rake::FileList[
 
 desc 'update static files'
 multitask update_static_files: Rake::FileList[
+  'lib/travis/build/addons/sauce_connect/sauce_connect.sh',
+  'public/files/sc-linux.tar.gz',
+  'public/files/sc-osx.zip',
+  'public/files/godep_darwin_amd64',
+  'public/files/godep_linux_amd64',
   'public/files/casher',
   'public/files/gimme',
   'public/files/nvm.sh',
