@@ -8,7 +8,7 @@ module Travis
         TEMPLATES_PATH = File.expand_path('templates', __FILE__.sub('.rb', ''))
 
         def after_header
-          sh.raw template('sauce_connect.sh', app_host: app_host, archive: archive)
+          sh.raw template('sauce_connect.sh', app_host: script.app_host, archive: archive).tap {|x| puts x}
         end
 
         def before_before_script
