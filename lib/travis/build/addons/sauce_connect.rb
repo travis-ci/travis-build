@@ -8,7 +8,7 @@ module Travis
         TEMPLATES_PATH = File.expand_path('templates', __FILE__.sub('.rb', ''))
 
         def after_header
-          sh.raw template('sauce_connect.sh')
+          sh.raw template('sauce_connect.sh', app_host: app_host, archive: archive)
         end
 
         def before_before_script
@@ -61,6 +61,15 @@ module Travis
 
           def tunnel_domains
             config[:tunnel_domains]
+          end
+
+          def archive
+            case data[:config][:os]
+            when 'linux'
+              'sc-linux.tar.gz'
+            when 'osx'
+              'sc-osx.zip'
+            end
           end
       end
     end

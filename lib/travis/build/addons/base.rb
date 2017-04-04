@@ -6,7 +6,7 @@ module Travis
       class Base
         include Template
 
-        attr_reader :script, :sh, :data, :config
+        attr_reader :script, :sh, :data, :config, :app_host
 
         def initialize(script, sh, data, config)
           @script = script

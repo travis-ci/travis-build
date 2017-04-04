@@ -11,43 +11,36 @@ function travis_start_sauce_connect() {
       return 1
   fi
 
-  local sc_tmp sc_platform sc_distro sc_distro_fmt sc_distro_shasum \
+  local sc_tmp sc_distro_fmt \
     sc_readyfile sc_logfile sc_dir sc_tunnel_id_arg sc_actual_shasum
 
   sc_tmp="$(mktemp -d -t sc.XXXX)"
   echo "Using temp dir $sc_tmp"
   pushd $sc_tmp
 
-  sc_platform=$(uname | sed -e 's/Darwin/osx/' -e 's/Linux/linux/')
-  case "${sc_platform}" in
-      linux)
-          sc_distro_fmt=tar.gz
-          sc_distro_shasum=ee0f6d4a52975d55c4c005d9730f0bef533d1878;;
-      osx)
-          sc_distro_fmt=zip
-          sc_distro_shasum=49829d719e46a398504deda77dc3a13ac8b31dd9;;
-  esac
-  sc_distro=sc-4.4.5-${sc_platform}.${sc_distro_fmt}
+  sc_distro_fmt=<%= archive.gsub(/sc-[^.]+\./,'') %>
+
   sc_readyfile=sauce-connect-ready-$RANDOM
   sc_logfile=$HOME/sauce-connect.log
   if [ ! -z "${TRAVIS_JOB_NUMBER}" ]; then
     sc_tunnel_id_arg="-i ${TRAVIS_JOB_NUMBER}"
   fi
   echo "Downloading Sauce Connect"
-  wget http://saucelabs.com/downloads/${sc_distro}
-  sc_actual_shasum="$(openssl sha1 ${sc_distro} | cut -d' ' -f2)"
-  if [[ "$sc_actual_shasum" != "$sc_distro_shasum" ]]; then
-      echo "SHA1 sum of Sauce Connect file didn't match!"
-      return 1
-  fi
-  sc_dir=$(tar -ztf ${sc_distro} | head -n1)
+  wget http://<%= app_host %>/files/<%= archive %>
+
+  case ${sc_distro_fmt} in
+    tar.gz)
+      sc_dir=$(tar -ztf <%= archive %> | head -n1);;
+    zip)
+      sc_dir=$(unzip -l <%= archive %> | sed '0,/^---/d' | sed '/^---/,$d' | head -n 1 | awk '{print $NF}' | sed 's:/$::');;
+  esac
 
   echo "Extracting Sauce Connect"
   case "${sc_distro_fmt}" in
       tar.gz)
-          tar zxf $sc_distro;;
+          tar zxf <%= archive %>;;
       zip)
-          unzip $sc_distro;;
+          unzip <%= archive %>;;
   esac
 
   ${sc_dir}/bin/sc \
