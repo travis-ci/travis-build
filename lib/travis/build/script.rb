@@ -111,10 +111,6 @@ module Travis
         ! data.debug_options.empty?
       end
 
-      def app_host
-        @app_host ||= Travis::Build.config.app_host.to_s.strip.untaint
-      end
-
       private
 
         def config
@@ -238,6 +234,10 @@ module Travis
 
         def debug_enabled?
           Travis::Build.config.enable_debug_tools == '1'
+        end
+
+        def app_host
+          @app_host ||= Travis::Build.config.app_host.to_s.strip.untaint
         end
     end
   end
