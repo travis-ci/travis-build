@@ -88,10 +88,10 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
             when 'linux'
               sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 417A0893', assert: true
               sh.if '$(lsb_release -cs) = trusty' do
-                sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
+                sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] http://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
               end
               sh.elif '$(lsb_release -cs) = xenial' do
-                sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet-release/ xenial main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
+                sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] http://apt-mo.trafficmanager.net/repos/dotnet-release/ xenial main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
               end
               sh.else do
                 sh.failure "The version of this operating system is not supported by .NET Core. View valid versions at https://docs.travis-ci.com/user/languages/csharp/"

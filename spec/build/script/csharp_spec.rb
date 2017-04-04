@@ -23,7 +23,7 @@ describe Travis::Build::Script::Csharp, :sexp do
     it 'sets up package repository for dotnet' do
       data[:config][:dotnet] = '1.0.0-preview2-003121'
       should include_sexp [:cmd, 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 417A0893', assert: true]
-      should include_sexp [:cmd, "sudo sh -c \"echo 'deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true]
+      should include_sexp [:cmd, "sudo sh -c \"echo 'deb [arch=amd64] http://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true]
       should include_sexp [:cmd, 'sudo apt-get update -qq', timing: true, assert: true]
     end
 
