@@ -26,7 +26,7 @@ function travis_start_sauce_connect() {
     sc_tunnel_id_arg="-i ${TRAVIS_JOB_NUMBER}"
   fi
   echo "Downloading Sauce Connect"
-  wget http://<%= app_host %>/files/<%= archive %>
+  curl -o <%= archive %> -sf https://<%= app_host %>/files/<%= archive %>
 
   case ${sc_distro_fmt} in
     tar.gz)
