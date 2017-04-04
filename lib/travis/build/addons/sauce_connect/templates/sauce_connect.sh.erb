@@ -11,14 +11,25 @@ function travis_start_sauce_connect() {
       return 1
   fi
 
-  local sc_tmp sc_distro_fmt \
+  local sc_tmp sc_platform sc_distro sc_archive sc_distro_fmt sc_distro_shasum \
     sc_readyfile sc_logfile sc_dir sc_tunnel_id_arg sc_actual_shasum
 
   sc_tmp="$(mktemp -d -t sc.XXXX)"
   echo "Using temp dir $sc_tmp"
   pushd $sc_tmp
 
-  sc_distro_fmt=<%= archive.gsub(/sc-[^.]+\./,'') %>
+  sc_platform=$(uname | sed -e 's/Darwin/osx/' -e 's/Linux/linux/')
+  case "${sc_platform}" in
+      linux)
+          sc_distro_fmt=tar.gz
+          sc_archive=sc-linux.tar.gz
+          sc_distro_shasum=<%= sc_data["Sauce Connect"]["linux"]["sha1"] %>;;
+      osx)
+          sc_distro_fmt=zip
+          sc_archive=sc-osx.zip
+          sc_distro_shasum=<%= sc_data["Sauce Connect"]["osx"]["sha1"] %>;;
+  esac
+  sc_distro=sc-<%= sc_data["Sauce Connect"]["version"] %>-${sc_platform}.${sc_distro_fmt}
 
   sc_readyfile=sauce-connect-ready-$RANDOM
   sc_logfile=$HOME/sauce-connect.log
@@ -26,21 +37,32 @@ function travis_start_sauce_connect() {
     sc_tunnel_id_arg="-i ${TRAVIS_JOB_NUMBER}"
   fi
   echo "Downloading Sauce Connect"
-  curl -o <%= archive %> -sf https://<%= app_host %>/files/<%= archive %>
+  curl -O -sf https://<%= app_host %>/files/${sc_archive}
+  if [[ $? -ne 0 ]]; then
+    # fall back to fetching from Sauce Labs
+    case "${sc_platform}" in
+      linux)
+        sc_download_url=<%= sc_data["Sauce Connect"]["linux"]["download_url"] %>;;
+      osx)
+        sc_download_url=<%= sc_data["Sauce Connect"]["osx"]["download_url"] %>;;
+    esac
+
+    curl -o ${sc_archive} -sf ${sc_download_url}
+  fi
 
   case ${sc_distro_fmt} in
     tar.gz)
-      sc_dir=$(tar -ztf <%= archive %> | head -n1);;
+      sc_dir=$(tar -ztf ${sc_archive} | head -n1);;
     zip)
-      sc_dir=$(unzip -l <%= archive %> | sed '0,/^---/d' | sed '/^---/,$d' | head -n 1 | awk '{print $NF}' | sed 's:/$::');;
+      sc_dir=$(unzip -l ${sc_archive} | sed '0,/^---/d' | sed '/^---/,$d' | head -n 1 | awk '{print $NF}' | sed 's:/$::');;
   esac
 
   echo "Extracting Sauce Connect"
   case "${sc_distro_fmt}" in
       tar.gz)
-          tar zxf <%= archive %>;;
+          tar zxf sc-linux.tar.gz;;
       zip)
-          unzip <%= archive %>;;
+          unzip sc-osx.zip;;
   esac
 
   ${sc_dir}/bin/sc \

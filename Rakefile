@@ -72,9 +72,7 @@ def latest_release_for(repo)
   end
 end
 
-def fetch_sc(platform)
-  require 'digest/sha1'
-
+def sc_data
   conn = Faraday.new("https://saucelabs.com")
   response = conn.get('versions.json')
 
@@ -82,7 +80,22 @@ def fetch_sc(platform)
     fail "Could not fetch sc metadata"
   end
 
-  sc_data = JSON.parse(response.body)
+  JSON.parse(response.body)
+end
+
+def write_sauce_connect_template
+  require 'erb'
+
+  app_host = ENV.fetch('TRAVIS_BUILD_APP_HOST', '')
+
+  template = File.read(File.expand_path(File.join("..", 'lib', 'travis', 'build', 'addons', 'sauce_connect', 'templates', 'sauce_connect.sh.erb'), __FILE__))
+
+  File.write(File.expand_path(File.join("..", 'lib', 'travis', 'build', 'addons', 'sauce_connect', 'templates', 'sauce_connect.sh'), __FILE__),
+    ERB.new(template).result(binding))
+end
+
+def fetch_sc(platform)
+  require 'digest/sha1'
 
   ext = platform == 'linux' ? 'tar.gz' : 'zip'
 
@@ -106,6 +119,7 @@ def fetch_sc(platform)
 
   logger.info "writing to #{dest}"
   File.write(dest, response.body)
+  chmod 'a+rx', dest
 end
 
 task 'assets:precompile' => %i(clean update_sc update_godep update_static_files ls_public_files)
@@ -168,6 +182,11 @@ file 'public/files/rustup-init.sh' => 'public/files' do
   fetch_githubusercontent_file "", "sh.rustup.rs", "rustup-init.sh"
 end
 
+desc 'update sauce_connect.sh'
+file 'lib/travis/build/addons/sauce_connect/sauce_connect.sh' do
+  write_sauce_connect_template
+end
+
 desc 'update sc-linux'
 file 'public/files/sc-linux.tar.gz' => 'public/files' do
   fetch_sc('linux')
@@ -180,6 +199,7 @@ end
 
 desc 'update sc'
 multitask update_sc: Rake::FileList[
+  'lib/travis/build/addons/sauce_connect/sauce_connect.sh',
   'public/files/sc-linux.tar.gz',
   'public/files/sc-osx.zip'
 ]
