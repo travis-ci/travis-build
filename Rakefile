@@ -72,7 +72,43 @@ def latest_release_for(repo)
   end
 end
 
-task 'assets:precompile' => %i(clean update_godep update_static_files ls_public_files)
+def fetch_sc(platform)
+  require 'digest/sha1'
+
+  conn = Faraday.new("https://saucelabs.com")
+  response = conn.get('versions.json')
+
+  unless response.success?
+    fail "Could not fetch sc metadata"
+  end
+
+  sc_data = JSON.parse(response.body)
+
+  ext = platform == 'linux' ? 'tar.gz' : 'zip'
+
+  download_url = URI.parse(sc_data["Sauce Connect"][platform]["download_url"])
+
+  conn = Faraday.new("#{download_url.scheme}://#{download_url.host}")
+
+  logger.info "getting #{download_url.path}"
+  response = conn.get(download_url.path)
+
+  dest = File.expand_path(File.join("..", 'public/files', "sc-#{platform}.#{ext}"), __FILE__)
+
+  archive_content = response.body
+
+  expected_checksum = sc_data["Sauce Connect"][platform]["sha1"]
+  received_checksum = Digest::SHA1.hexdigest(archive_content)
+
+  unless received_checksum == expected_checksum
+    fail "Checksums did not match: expected #{expected_checksum} received #{received_checksum}"
+  end
+
+  logger.info "writing to #{dest}"
+  File.write(dest, response.body)
+end
+
+task 'assets:precompile' => %i(clean update_sc update_godep update_static_files ls_public_files)
 
 directory 'public/files'
 
@@ -131,6 +167,22 @@ desc 'update rustup'
 file 'public/files/rustup-init.sh' => 'public/files' do
   fetch_githubusercontent_file "", "sh.rustup.rs", "rustup-init.sh"
 end
+
+desc 'update sc-linux'
+file 'public/files/sc-linux.tar.gz' => 'public/files' do
+  fetch_sc('linux')
+end
+
+desc 'update sc-mac'
+file 'public/files/sc-osx.zip' => 'public/files' do
+  fetch_sc('osx')
+end
+
+desc 'update sc'
+multitask update_sc: Rake::FileList[
+  'public/files/sc-linux.tar.gz',
+  'public/files/sc-osx.zip'
+]
 
 desc 'update godep'
 multitask update_godep: Rake::FileList[
