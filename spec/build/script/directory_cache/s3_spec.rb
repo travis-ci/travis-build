@@ -5,7 +5,7 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
   S3_SIGNED_URL = "%s&X-Amz-Expires=20&X-Amz-Signature=%s&X-Amz-SignedHeaders=host"
 
   def url_for(branch, ext = 'tbz')
-    S3_FETCH_URL % [ branch, ext ]
+    S3_FETCH_URL % [ URI.encode(branch), ext ]
   end
 
   def signed_url_for(branch, signature, ext = 'tbz')
@@ -31,7 +31,7 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
   let(:pull_request)  { nil }
   let(:branch)        { 'master' }
   let(:sh)            { Travis::Shell::Builder.new }
-  let(:cache)         { described_class.new(sh, Travis::Build::Data.new(data), 'ex a/mple', Time.at(10)) }
+  let(:cache)         { described_class.new(sh, Travis::Build::Data.new(data), 'example', Time.at(10)) }
   let(:subject)       { sh.to_sexp }
 
   describe 'validate' do
@@ -115,6 +115,28 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
     let(:fetch_signature) { 'cbce59b97e29ba90e1810a9cbedc1d5cd76df8235064c0016a53dea232124d60' }
     let(:fetch_signature_tgz) { 'a8b6b4380bd25cd9f402ff3fa896d6cbad6a1f9cdf21a6bcb0b956d04b49f2a5' }
     let(:push_signature)  { 'ced8bb92b9cf7a2005aacbe9158d239c8500976277faf17ce46597b2d17a8f0c' }
+    let(:fallback_url_tgz)    { signed_url_for('master', master_fetch_signature_tgz, 'tgz') }
+
+    describe 'fetch' do
+      before { cache.fetch }
+      it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fallback_url_tgz}", timing: true] }
+    end
+
+    describe 'add' do
+      before { cache.add('/foo/bar') }
+      it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add /foo/bar'] }
+    end
+
+    describe 'push' do
+      before { cache.push }
+      it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher push #{push_url}", timing: true] }
+    end
+  end
+
+  describe 'on a branch with emoji' do
+    let(:branch)          { '🐡' }
+    let(:fetch_signature_tgz) { '5b45e7c91892daf27e4b87da42f4f6fce034f81c3f8231649121d4d130a755b9' }
+    let(:push_signature)  { 'a09d1d7f25999ec24b6c5e7ec7472a81a57bbb35f84c0a2caa507e3b20b9f4ba' }
     let(:fallback_url_tgz)    { signed_url_for('master', master_fetch_signature_tgz, 'tgz') }
 
     describe 'fetch' do

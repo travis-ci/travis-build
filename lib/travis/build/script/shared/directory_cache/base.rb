@@ -227,7 +227,7 @@ module Travis
               else
                 args = [data_store_options.fetch(:bucket, ''), data.github_id, branch, slug_local].compact
               end
-              args.map! { |arg| arg.to_s.gsub(/[^\w\.\_\-]+/, '') }
+              args.map! { |arg| URI.encode(arg.to_s.gsub(%r(/), '')) }
               '/' << args.join('/') << '.tgz'
             end
 
