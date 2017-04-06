@@ -14,9 +14,29 @@ env:
   - INTEGRATION_SPECS=0
   - INTEGRATION_SPECS=1
 
+matrix:
+  include:
+    - sudo: required
+      dist: trusty
+      env:
+      script:
+        - docker build -t travis-build .
+        - docker run -d -it -p 5000:5000 -e PORT=5000 travis-build
+        - sleep 10
+        - e=0; for f in example_payloads/*.json; do echo ${f##*/}; curl -sf -X POST -d @$f localhost:5000/script >/dev/null || let e=$e+1; done; test $e -eq 0
+
 script:
-  - bundle exec rspec spec
-  - for f in examples/*.sh.txt; do echo "checking bash syntax $f"; bash -n $f; done
+  - bundle exec rake
+  - e=0; for f in examples/*.sh.txt; do echo "checking bash syntax $f"; bash -n $f || let e=$e+1; done; test $e -eq 0
+  - |
+    e=0
+    mkdir -p $HOME/.travis
+    for f in examples/*-integration-*.sh.txt; do
+      cat > $HOME/.travis/job_stages < /dev/null
+      sed -i '/^source $HOME\/\.travis\/job_stages/,$d' $f
+      bash --norc -c "source $f && source $HOME/.travis/job_stages || exit 1" || let e=$e+1
+    done
+    test $e -eq 0
 
 after_success: bundle exec codeclimate-test-reporter
 
@@ -35,5 +55,4 @@ deploy:
   region: us-east-1
   on:
     branch: master
-    conditions:
-    - $INTEGRATION_SPECS == 1
+    condition: $INTEGRATION_SPECS == 1

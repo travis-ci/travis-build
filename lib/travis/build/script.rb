@@ -53,7 +53,7 @@ module Travis
         end
       end
 
-      include Module.new { Stages::STAGES.each_slice(2).map(&:last).flatten.each { |stage| define_method(stage) {} } }
+      include Module.new { Stages::STAGES.map(&:name).flatten.each { |stage| define_method(stage) {} } }
       include Appliances, DirectoryCache, Deprecation, Template
 
       attr_reader :sh, :data, :options, :validator, :addons, :stages
@@ -151,6 +151,7 @@ module Travis
 
         def configure
           apply :show_system_info
+          apply :fix_rwky_redis
           apply :update_glibc
           apply :clean_up_path
           apply :fix_resolv_conf
@@ -233,6 +234,10 @@ module Travis
 
         def debug_enabled?
           Travis::Build.config.enable_debug_tools == '1'
+        end
+
+        def app_host
+          @app_host ||= Travis::Build.config.app_host.to_s.strip.untaint
         end
     end
   end

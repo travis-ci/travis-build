@@ -54,6 +54,7 @@ module Travis
         },
         apt_whitelist_skip: ENV.fetch('TRAVIS_BUILD_APT_WHITELIST_SKIP', ''),
         cabal_default: ENV.fetch('TRAVIS_BUILD_CABAL_DEFAULT', '1.22'),
+        auth_disabled: ENV.fetch('TRAVIS_BUILD_AUTH_DISABLED', ''),
         enable_debug_tools: ENV.fetch(
           'TRAVIS_BUILD_ENABLE_DEBUG_TOOLS',
           ENV.fetch('TRAVIS_ENABLE_DEBUG_TOOLS', '')
@@ -87,7 +88,7 @@ module Travis
         go_version_aliases: ENV.fetch(
           'TRAVIS_BUILD_GO_VERSION_ALIASES', (
             latest_semver_aliases(
-              '1' => '1.7.4'
+              '1' => '1.8'
             ).merge(
               '1.0' => '1.0.3',
               '1.0.x' => '1.0.3',
@@ -98,7 +99,10 @@ module Travis
               '1.4.x' => '1.4.3',
               '1.5.x' => '1.5.4',
               '1.6.x' => '1.6.4',
-              '1.8.x' => '1.8rc1'
+              '1.7.x' => '1.7.5',
+              '1.8.x' => '1.8',
+              '1.x' => '1.8',
+              '1.x.x' => '1.8'
             ).map { |k, v| "#{k}:#{v}" }.join(',')
           )
         ),

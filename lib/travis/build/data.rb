@@ -101,6 +101,10 @@ module Travis
         !!job[:secure_env_enabled]
       end
 
+      def secure_env_removed?
+        !!job[:secure_env_removed]
+      end
+
       def disable_sudo?
         !!data[:paranoid]
       end
@@ -155,6 +159,10 @@ module Travis
 
       def debug_options
         job[:debug_options] || {}
+      end
+
+      def prefer_https?
+        source_url.downcase.start_with? "https"
       end
     end
   end

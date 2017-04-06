@@ -7,6 +7,11 @@ if [[ -s <%= home %>/.bash_profile ]] ; then
   source <%= home %>/.bash_profile
 fi
 
+echo "source $HOME/.travis/job_stages" >> <%= home %>/.bashrc
+
+mkdir -p $HOME/.travis
+
+cat <<'EOFUNC' >>$HOME/.travis/job_stages
 ANSI_RED="\033[31;1m"
 ANSI_GREEN="\033[32;1m"
 ANSI_YELLOW="\033[33;1m"
@@ -57,7 +62,11 @@ travis_cmd() {
     travis_retry eval "$cmd $secure"
     result=$?
   else
-    eval "$cmd $secure"
+    if [[ -n "$secure" ]]; then
+      eval "$cmd $secure" 2>/dev/null
+    else
+      eval "$cmd $secure"
+    fi
     result=$?
     if [[ -n $secure && $result -ne 0 ]]; then
       echo -e "${ANSI_RED}The previous command failed, possibly due to a malformed secure environment variable.${ANSI_CLEAR}
@@ -271,6 +280,8 @@ bash_qsort_numeric() {
    larger=( "${bash_qsort_numeric_ret[@]}" )
    bash_qsort_numeric_ret=( "${smaller[@]}" "$pivot" "${larger[@]}" )
 }
+
+EOFUNC
 
 <%# XXX Forcefully removing rabbitmq source until next build env update %>
 <%# See http://www.traviscistatus.com/incidents/6xtkpm1zglg3 %>

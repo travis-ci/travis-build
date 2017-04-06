@@ -6,8 +6,11 @@ module Travis
     class Git
       class Clone < Struct.new(:sh, :data)
         def apply
+          write_netrc if data.prefer_https? && data.token
+
           sh.fold 'git.checkout' do
             clone_or_fetch
+            delete_netrc
             sh.cd dir
             fetch_ref if fetch_ref?
             checkout
@@ -72,7 +75,23 @@ module Travis
             data.config
           end
 
+          def write_netrc
+            sh.newline
+            sh.echo "Using $HOME/.netrc to clone repository.", ansi: :yellow
+            sh.newline
+            sh.raw "echo -e \"machine #{source_host_name}\n  login #{data.token}\\n\" > $HOME/.netrc"
+            sh.raw "chmod 0600 $HOME/.netrc"
+          end
+
+          def delete_netrc
+            sh.raw "rm -f $HOME/.netrc"
+          end
+
           def github?
+            source_host_name.downcase == 'github.com' || source_host_name.downcase.end_with?('.github.com')
+          end
+
+          def source_host_name
             md = /[^@]+@(.*):/.match(data.source_url)
             if md
               # we will assume that the URL looks like one for git+ssh; e.g., git@github.com:travis-ci/travis-build.git
@@ -80,7 +99,8 @@ module Travis
             else
               host = URI.parse(data.source_url).host
             end
-            host.downcase == 'github.com' || host.downcase.end_with?('.github.com')
+
+            host
           end
       end
     end
