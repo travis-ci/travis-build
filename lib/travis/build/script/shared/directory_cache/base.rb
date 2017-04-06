@@ -131,19 +131,24 @@ module Travis
 
           def fetch_urls
             urls = [
-              fetch_url(group, true),
-              fetch_url
+              fetch_url(URI.encode(group)),
+              fetch_url(normalize_name(group), true),
+              fetch_url(normalize_name(group))
             ]
             if data.pull_request
-              urls << fetch_url(data.branch, true)
-              urls << fetch_url(data.branch)
+              urls << fetch_url(URI.encode(data.branch), true)
+              urls << fetch_url(URI.encode(data.branch))
+              urls << fetch_url(normalize_name(data.branch), true)
+              urls << fetch_url(normalize_name(data.branch))
             end
             if data.branch != data.repository[:default_branch]
-              urls << fetch_url(data.repository[:default_branch], true)
-              urls << fetch_url(data.repository[:default_branch])
+              urls << fetch_url(URI.encode(data.repository[:default_branch]), true)
+              urls << fetch_url(URI.encode(data.repository[:default_branch]))
+              urls << fetch_url(normalize_name(data.repository[:default_branch]), true)
+              urls << fetch_url(normalize_name(data.repository[:default_branch]))
             end
 
-            urls.uniq
+            urls.uniq.compact
           end
 
           def push
@@ -151,11 +156,17 @@ module Travis
           end
 
           def fetch_url(branch = group, extras = false)
-            url('GET', prefixed(branch, extras), expires: fetch_timeout)
+            prefix = prefixed(branch, extras)
+            if prefix
+              url('GET', prefixed(branch, extras), expires: fetch_timeout)
+            end
           end
 
           def push_url(branch = group)
-            url('PUT', prefixed(branch, true), expires: push_timeout)
+            prefix = prefixed(URI.encode(branch), true)
+            if prefix
+              url('PUT', prefixed(URI.encode(branch), true), expires: push_timeout)
+            end
           end
 
           def fold(message = nil)
@@ -227,7 +238,10 @@ module Travis
               else
                 args = [data_store_options.fetch(:bucket, ''), data.github_id, branch, slug_local].compact
               end
-              args.map! { |arg| URI.encode(arg.to_s.gsub(%r(/), '')) }
+
+              args.map!(&:to_s)
+              return if args.any? {|part| part.empty?}
+
               '/' << args.join('/') << '.tgz'
             end
 
@@ -290,6 +304,10 @@ module Travis
 
             def curl_cmd(flags, location, remote_location)
               "curl #{flags} -o #{location} #{remote_location}"
+            end
+
+            def normalize_name(branch)
+              branch.to_s.gsub(/[^\w\.\_\-]+/, '')
             end
 
         end

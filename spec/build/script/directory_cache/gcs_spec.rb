@@ -32,7 +32,7 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
   let(:pull_request)  { nil }
   let(:branch)        { 'master' }
   let(:sh)            { Travis::Shell::Builder.new }
-  let(:cache)         { described_class.new(sh, Travis::Build::Data.new(data), 'example', test_time) }
+  let(:cache)         { described_class.new(sh, Travis::Build::Data.new(data), 'exa/mple', test_time) }
   let(:subject)       { sh.to_sexp }
 
   let(:key_pair) { described_class::KeyPair.new(gcs_options[:access_key_id], [:secret_access_key]) }
