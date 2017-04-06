@@ -131,19 +131,20 @@ module Travis
 
           def fetch_urls
             urls = [
-              fetch_url(URI.encode(group)),
+              fetch_url(uri_normalize_name(group), true),
+              fetch_url(uri_normalize_name(group)),
               fetch_url(normalize_name(group), true),
               fetch_url(normalize_name(group))
             ]
             if data.pull_request
-              urls << fetch_url(URI.encode(data.branch), true)
-              urls << fetch_url(URI.encode(data.branch))
+              urls << fetch_url(uri_normalize_name(data.branch), true)
+              urls << fetch_url(uri_normalize_name(data.branch))
               urls << fetch_url(normalize_name(data.branch), true)
               urls << fetch_url(normalize_name(data.branch))
             end
             if data.branch != data.repository[:default_branch]
-              urls << fetch_url(URI.encode(data.repository[:default_branch]), true)
-              urls << fetch_url(URI.encode(data.repository[:default_branch]))
+              urls << fetch_url(uri_normalize_name(data.repository[:default_branch]), true)
+              urls << fetch_url(uri_normalize_name(data.repository[:default_branch]))
               urls << fetch_url(normalize_name(data.repository[:default_branch]), true)
               urls << fetch_url(normalize_name(data.repository[:default_branch]))
             end
@@ -163,9 +164,9 @@ module Travis
           end
 
           def push_url(branch = group)
-            prefix = prefixed(URI.encode(branch), true)
+            prefix = prefixed(uri_normalize_name(branch), true)
             if prefix
-              url('PUT', prefixed(URI.encode(branch), true), expires: push_timeout)
+              url('PUT', prefixed(uri_normalize_name(branch), true), expires: push_timeout)
             end
           end
 
@@ -308,6 +309,10 @@ module Travis
 
             def normalize_name(branch)
               branch.to_s.gsub(/[^\w\.\_\-]+/, '')
+            end
+
+            def uri_normalize_name(branch)
+              URI.encode(branch).gsub('/','%2F')
             end
 
         end
