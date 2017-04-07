@@ -137,6 +137,10 @@ module Travis
         job[:branch] || ''
       end
 
+      def tag
+        job[:tag]
+      end
+
       def ref
         job[:ref]
       end
