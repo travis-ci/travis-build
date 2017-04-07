@@ -159,14 +159,14 @@ module Travis
           def fetch_url(branch = group, extras = false)
             prefix = prefixed(branch, extras)
             if prefix
-              url('GET', prefixed(branch, extras), expires: fetch_timeout)
+              url('GET', prefix, expires: fetch_timeout)
             end
           end
 
           def push_url(branch = group)
             prefix = prefixed(uri_normalize_name(branch), true)
             if prefix
-              url('PUT', prefixed(uri_normalize_name(branch), true), expires: push_timeout)
+              url('PUT', prefix, expires: push_timeout)
             end
           end
 
