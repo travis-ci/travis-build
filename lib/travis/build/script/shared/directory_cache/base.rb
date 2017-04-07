@@ -312,7 +312,7 @@ module Travis
             end
 
             def uri_normalize_name(branch)
-              URI.encode(branch).gsub('/','%2F')
+              URI.encode(branch)
             end
 
         end
