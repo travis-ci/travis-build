@@ -24,6 +24,7 @@ require 'travis/build/appliances/services'
 require 'travis/build/appliances/show_system_info'
 require 'travis/build/appliances/validate'
 require 'travis/build/appliances/npm_registry'
+require 'travis/build/appliances/precise_apt'
 
 module Travis
   module Build
