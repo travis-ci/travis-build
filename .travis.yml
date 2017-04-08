@@ -19,7 +19,7 @@ matrix:
       dist: trusty
       env:
       script:
-        - docker-compose -d
+        - docker-compose up -d
         - sleep 10
         - e=0; for f in example_payloads/*.json; do echo ${f##*/}; curl -sf -X POST -d @$f localhost:4000/script >/dev/null || let e=$e+1; done; test $e -eq 0
 
