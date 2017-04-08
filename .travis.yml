@@ -5,6 +5,8 @@ cache:
 
 sudo: false
 
+rvm: 2.4
+
 env:
   global:
   - RUBYOPT='-W0'
