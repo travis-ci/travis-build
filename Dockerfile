@@ -1,4 +1,4 @@
-FROM ruby:2.4-onbuild
+FROM ruby:2.3.4-onbuild
 
 LABEL maintainer Travis CI GmbH <support+travis-build-docker-image@travis-ci.com>
 
