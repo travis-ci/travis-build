@@ -34,12 +34,7 @@ jobs:
       sudo: required
       dist: trusty
       env:
-      script:
-        - "docker login -u=$QUAY_ROBOT_HANDLE -p=$QUAY_ROBOT_TOKEN quay.io"
-        - "docker-compose build web"
-        - "docker images"
-        - "docker tag travisbuild_web quay.io/travisci/travis-build:$TRAVIS_BRANCH"
-        - "docker push quay.io/travisci/travis-build:$TRAVIS_BRANCH"
+      script: ./script/ci-docker-build-and-push
 
 script:
   - bundle exec rake

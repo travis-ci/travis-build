@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -ev
+
+docker-compose build web;
+
+docker login -u=$QUAY_ROBOT_HANDLE -p=$QUAY_ROBOT_TOKEN quay.io;
+
+docker images;
+
+docker tag travisbuild_web quay.io/travisci/travis-build:$TRAVIS_BRANCH;
+docker push quay.io/travisci/travis-build:$TRAVIS_BRANCH;
+
+if [ ${TRAVIS_BRANCH} = "master" ]; then
+  docker tag travisbuild_web quay.io/travisci/travis-build:latest";
+  docker push travisbuild_web quay.io/travisci/travis-build:$TRAVIS_BRANCH";
+fi
+
+exit 0;
