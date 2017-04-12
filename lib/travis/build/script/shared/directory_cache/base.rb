@@ -277,7 +277,7 @@ module Travis
 
             def update_static_file(name, location, remote_location, assert = false)
               flags = "-sf #{debug_flags}"
-              cmd_opts = {retry: true, echo: 'Installing caching utilities'}
+              cmd_opts = {retry: true, assert: false, echo: 'Installing caching utilities'}
               if casher_branch == 'production'
                 sh.cmd curl_cmd(flags, location, "https://#{app_host}/files/#{name}".untaint), cmd_opts
                 sh.if "$? -ne 0" do
