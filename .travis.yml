@@ -5,19 +5,23 @@ cache:
 
 sudo: false
 
-rvm: 2.4
+rvm: 2.4.0
 
 env:
   global:
-  - RUBYOPT='-W0'
   - COVERAGE=1
   matrix:
   - INTEGRATION_SPECS=0
   - INTEGRATION_SPECS=1
 
-matrix:
+stages:
+  - "Test"
+  - ":ship: it to Quay.io"
+
+jobs:
   include:
-    - sudo: required
+    - stage: "Test"
+      sudo: required
       dist: trusty
       env:
       script:
@@ -26,6 +30,13 @@ matrix:
         - docker ps -a
         - docker logs travisbuild_web_1
         - e=0; for f in example_payloads/*.json; do echo ${f##*/}; curl -sf -X POST -d @$f localhost:4000/script >/dev/null || let e=$e+1; done; test $e -eq 0
+    - stage: ":ship: it to Quay.io"
+      sudo: required
+      dist: trusty
+      env:
+      script:
+        - docker login -u=$QUAY_ROBOT_HANDLE -p=$QUAY_ROBOT_TOKEN quay.io
+        - docker-compose build web
 
 script:
   - bundle exec rake
