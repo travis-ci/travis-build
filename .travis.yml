@@ -24,21 +24,14 @@ jobs:
       sudo: required
       dist: trusty
       env:
-      script:
-        - docker-compose up -d
-        - sleep 10
-        - docker ps -a
-        - docker logs travisbuild_web_1
-        - e=0; for f in example_payloads/*.json; do echo ${f##*/}; curl -sf -X POST -d @$f localhost:4000/script >/dev/null || let e=$e+1; done; test $e -eq 0
+      script: ./script/validate-example-payloads-with-docker
     - stage: ":ship: it to Quay.io"
       sudo: required
       dist: trusty
       env:
       script: ./script/docker-build-and-push
 
-script:
-  - bundle exec rake
-  - ./script/validate-bash-syntax
+script: bundle exec rake && ./script/validate-bash-syntax
 
 after_success: bundle exec codeclimate-test-reporter
 
