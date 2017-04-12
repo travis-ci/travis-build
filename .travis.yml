@@ -20,7 +20,7 @@ stages:
 
 jobs:
   include:
-    - stage: "Test"
+    - stage: "test"
       sudo: required
       dist: trusty
       env:
