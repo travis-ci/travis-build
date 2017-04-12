@@ -34,7 +34,7 @@ jobs:
       sudo: required
       dist: trusty
       env:
-      script: ./script/ci-docker-build-and-push
+      script: ./script/docker-build-and-push
 
 script:
   - bundle exec rake
