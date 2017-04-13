@@ -6,8 +6,8 @@ module Travis
       class Scala < Jvm
 
         DEFAULTS = {
-          scala: '2.10.4',
-          jdk:   'default'
+          scala: '2.12.1',
+          jdk:   'oraclejdk8'
         }
 
         SBT_PATH = '/usr/local/bin/sbt'
