@@ -82,21 +82,24 @@ describe Travis::Build::Git::Clone, :sexp do
   end
 
 
-  describe 'when the repository is not yet cloned' do
-    let(:args) { "--depth=#{depth} --branch=#{branch.shellescape}" }
-    let(:cmd)  { "git clone #{args} #{url} #{dir}" }
+  describe 'when the repository is not yet cloned and is a branch' do
+    let(:args) { "--depth=#{depth}" }
+    let(:cmd)  { "git fetch #{args} origin +#{branch.shellescape}:" }
     subject    { sexp_find(sexp, [:if, "! -d #{dir}/.git"]) }
 
-    let(:clone) { [:cmd, cmd, assert: true, echo: true, retry: true, timing: true] }
+    let(:init) { [:cmd, "git init", assert: true, echo: true] }
+    let(:fetch) { [:cmd, cmd, echo: true, retry: true, timing: true] }
 
     describe 'with no depth specified' do
-      it { should include_sexp clone }
+      it { should include_sexp init }
+      it { should include_sexp fetch }
     end
 
     describe 'with a custom depth' do
       let(:depth) { 1 }
       before { payload[:config][:git]['depth'] = depth }
-      it { should include_sexp clone }
+      it { should include_sexp init }
+      it { should include_sexp fetch }
     end
 
     describe 'with lfs_skip_smudge true' do
@@ -106,15 +109,15 @@ describe Travis::Build::Git::Clone, :sexp do
 
     describe 'escapes the branch name' do
       before { payload[:job][:branch] = 'foo->bar' }
-      it { should include_sexp clone }
+      it { should include_sexp fetch }
     end
 
     context 'when git.quiet is true' do
       before :each do
         payload[:config][:git].merge!({ quiet: true })
       end
-      let(:args) { "--depth=#{depth} --branch=#{branch.shellescape} --quiet" }
-      it { should include_sexp clone }
+      let(:args) { "--depth=#{depth} --quiet" }
+      it { should include_sexp fetch }
     end
   end
 
@@ -129,7 +132,8 @@ describe Travis::Build::Git::Clone, :sexp do
   end
 
   let(:cd)            { [:cd,  'travis-ci/travis-ci', echo: true] }
-  let(:fetch_ref)     { [:cmd, %r(git fetch origin \+[\w/]+:), assert: true, echo: true, retry: true, timing: true] }
+  let(:fetch_args)    { "--depth=#{depth}" }
+  let(:fetch_ref)     { [:cmd, %r(git fetch #{fetch_args} origin \+[\w/]+:), echo: true, retry: true, timing: true] }
   let(:checkout_push) { [:cmd, 'git checkout -qf 313f61b', assert: true, echo: true] }
   let(:checkout_pull) { [:cmd, 'git checkout -qf FETCH_HEAD', assert: true, echo: true] }
 
@@ -138,10 +142,6 @@ describe Travis::Build::Git::Clone, :sexp do
   describe 'with a ref given' do
     before { payload[:job][:ref] = 'refs/pull/118/merge' }
     it { should include_sexp fetch_ref }
-  end
-
-  describe 'with no ref given' do
-    it { should_not include_sexp fetch_ref }
   end
 
   describe 'checks out the given commit for a push request' do

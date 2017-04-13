@@ -13,7 +13,6 @@ module Travis
             clone_or_fetch
             delete_netrc
             sh.cd dir
-            fetch_ref if fetch_ref?
             checkout
           end
         end
@@ -22,7 +21,12 @@ module Travis
 
           def clone_or_fetch
             sh.if "! -d #{dir}/.git" do
-              sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, retry: true
+              sh.cmd "mkdir #{dir}", assert: true
+              sh.cd dir
+              # Need to manually perform the fetch steps - https://github.com/travis-ci/travis-ci/issues/7589
+              sh.cmd "git init", assert: true, timing: false
+              sh.cmd "git remote add origin #{data.source_url}", assert: true, timing: false
+              sh.cmd "git fetch #{fetch_args} origin +#{data.ref || branch}:", assert: false, retry: true
               if github?
                 sh.if "$? -ne 0" do
                   sh.echo "Failed to clone from GitHub.", ansi: :red
@@ -30,6 +34,7 @@ module Travis
                   sh.raw "curl -sL https://status.github.com/api/last-message.json | jq -r .[]"
                 end
               end
+              sh.cd ".."
             end
             sh.else do
               sh.cmd "git -C #{dir} fetch origin", assert: true, retry: true
@@ -37,21 +42,12 @@ module Travis
             end
           end
 
-          def fetch_ref
-            sh.cmd "git fetch origin +#{data.ref}:", assert: true, retry: true
-          end
-
-          def fetch_ref?
-            !!data.ref
-          end
-
           def checkout
             sh.cmd "git checkout -qf #{data.pull_request ? 'FETCH_HEAD' : data.commit}", timing: false
           end
 
-          def clone_args
+          def fetch_args
             args = "--depth=#{depth}"
-            args << " --branch=#{branch}" unless data.ref
             args << " --quiet" if quiet?
             args
           end
