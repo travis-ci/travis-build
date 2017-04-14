@@ -89,7 +89,7 @@ describe Travis::Build::Script::Csharp, :sexp do
 
     it 'selects alpha version when specified' do
       data[:config][:mono] = 'alpha'
-      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian alpha main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", assert: true]
+      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu alpha-trusty main' > /etc/apt/sources.list.d/mono-official-alpha.list\"", assert: true]
     end
 
     it 'selects beta version when specified' do

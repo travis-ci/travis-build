@@ -45,12 +45,31 @@ View valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csh
                 sh.cmd 'sudo apt-get install -qq mono-complete mono-vbnc fsharp', timing: true, assert: true
               else
                 sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF', echo: false, assert: true
-                sh.if '$(lsb_release -cs) = precise' do
-                  sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy-libtiff-compat main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false, assert: true
+
+                if config[:mono] == 'alpha'
+                  # new Mono repo layout
+                  sh.if '$(lsb_release -cs) = precise' do
+                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu alpha-precise main' > /etc/apt/sources.list.d/mono-official-alpha.list\"", echo: false, assert: true
+                  end
+                  sh.elif '$(lsb_release -cs) = trusty' do
+                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu alpha-trusty main' > /etc/apt/sources.list.d/mono-official-alpha.list\"", echo: false, assert: true
+                  end
+                  sh.elif '$(lsb_release -cs) = xenial' do
+                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu alpha-xenial main' > /etc/apt/sources.list.d/mono-official-alpha.list\"", echo: false, assert: true
+                  end
+                  sh.else do
+                    sh.failure "The version of this operating system is not supported by Mono. View valid versions at https://docs.travis-ci.com/user/languages/csharp/"
+                  end
+                else
+                  # old Mono repo layout
+                  sh.if '$(lsb_release -cs) = precise' do
+                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy-libtiff-compat main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false, assert: true
+                  end
+                  mono_repos.each do |repo|
+                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian #{repo} main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false, assert: true
+                  end
                 end
-                mono_repos.each do |repo|
-                  sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian #{repo} main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false, assert: true
-                end
+
                 sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
                 sh.cmd "sudo apt-get install -qq mono-complete mono-vbnc fsharp nuget #{'referenceassemblies-pcl' if !is_mono_3_8_0}", timing: true, assert: true
                                                                                       # PCL Assemblies only supported on mono 3.10 and greater
@@ -150,9 +169,6 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
           case config[:mono]
           when 'latest'
             repos << 'wheezy'
-          when 'alpha'
-            repos << 'wheezy'
-            repos << 'alpha'
           when 'beta'
             repos << 'wheezy'
             repos << 'beta'
