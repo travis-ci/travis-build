@@ -56,7 +56,7 @@ View valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csh
                                                                                       # PCL Assemblies only supported on mono 3.10 and greater
               end
             when 'osx'
-              sh.cmd "curl -o \"/tmp/mdk.pkg\" -fL #{mono_osx_url}", timing: true, assert: true, echo: true
+              sh.cmd "wget --retry-connrefused --waitretry=1 -O /tmp/mdk.pkg #{mono_osx_url}", timing: true, assert: true, echo: true
               sh.cmd 'sudo installer -package "/tmp/mdk.pkg" -target "/" -verboseR', timing: true, assert: true
               sh.cmd 'eval $(/usr/libexec/path_helper -s)', timing: false, assert: true
             else
@@ -66,7 +66,7 @@ View valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csh
             if is_mono_before_3_12 && config[:os] == 'linux'
               # we need to fetch an ancient version of certdata (from 2009) because newer versions run into a Mono bug: https://github.com/mono/mono/pull/1514
               # this is the same file that was used in the old mozroots before https://github.com/mono/mono/pull/3188 so nothing really changes (but still less than ideal)
-              sh.cmd 'curl -fL -o /tmp/certdata.txt https://hg.mozilla.org/releases/mozilla-release/raw-file/5d447d9abfdf/security/nss/lib/ckfw/builtins/certdata.txt'
+              sh.cmd 'wget --retry-connrefused --waitretry=1 -O /tmp/certdata.txt https://hg.mozilla.org/releases/mozilla-release/raw-file/5d447d9abfdf/security/nss/lib/ckfw/builtins/certdata.txt'
               sh.cmd 'mozroots --import --sync --quiet --file /tmp/certdata.txt', timing: true
             end
           end
@@ -106,7 +106,7 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
               sh.cmd 'mkdir -p /usr/local/lib', timing: false, assert: true
               sh.cmd 'ln -s /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib /usr/local/lib/', timing: false, assert: true
               sh.cmd 'ln -s /usr/local/opt/openssl/lib/libssl.1.0.0.dylib /usr/local/lib/', timing: false, assert: true
-              sh.cmd "curl -o \"/tmp/dotnet.pkg\" -fL #{dotnet_osx_url}", timing: true, assert: true, echo: true
+              sh.cmd "wget --retry-connrefused --waitretry=1 -O /tmp/dotnet.pkg #{dotnet_osx_url}", timing: true, assert: true, echo: true
               sh.cmd 'sudo installer -package "/tmp/dotnet.pkg" -target "/" -verboseR', timing: true, assert: true
               sh.cmd 'eval $(/usr/libexec/path_helper -s)', timing: false, assert: true
             else
