@@ -83,7 +83,7 @@ describe Travis::Build::Git::Clone, :sexp do
 
 
   describe 'when the repository is cloned not yet' do
-    let(:args) { "--depth=#{depth} --branch=#{branch.shellescape}" }
+    let(:args) { "--quiet --depth=#{depth} --branch=#{branch.shellescape}" }
     let(:cmd)  { "git clone #{args} #{url} #{dir}" }
     subject    { sexp_find(sexp, [:if, "! -d #{dir}/.git"]) }
 
