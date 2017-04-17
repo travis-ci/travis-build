@@ -24,4 +24,10 @@ describe Travis::Build::Addons::Postgresql, :sexp do
   it { should include_sexp [:cmd, "sudo -u postgres createuser -s -p #{described_class::DEFAULT_FALLBACK_PORT} travis &>/dev/null", echo: true, timing: true] }
   it { should include_sexp [:cmd, "sudo -u postgres createdb -O travis -p #{described_class::DEFAULT_PORT} travis &>/dev/null", echo: true, timing: true] }
   it { should include_sexp [:cmd, "sudo -u postgres createdb -O travis -p #{described_class::DEFAULT_FALLBACK_PORT} travis &>/dev/null", echo: true, timing: true] }
+
+  it "installs postgres conditionally" do
+    installed_sexp = sexp_filter(subject, [:if, "! -x /usr/lib/postgresql/#{config}/bin/postgres"])[0]
+    fold = sexp_filter(installed_sexp, [:fold, "install.postgresql_#{config}"])
+    expect(fold).to include_sexp [:cmd, "sudo apt-get install -y postgresql-contrib-#{config}", echo: true]
+  end
 end
