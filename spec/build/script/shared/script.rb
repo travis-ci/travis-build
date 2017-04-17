@@ -49,6 +49,7 @@ shared_examples_for 'a build script sexp' do
   it_behaves_like 'disables OpenSSH roaming'
   it_behaves_like 'fix ps4'
   it_behaves_like 'fix etc/hosts'
+  it_behaves_like 'fix hostname'
   it_behaves_like 'fix resolve.conf'
   it_behaves_like '/etc/hosts pinning'
   it_behaves_like 'put localhost first in etc/hosts'
