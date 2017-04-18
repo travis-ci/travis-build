@@ -45,7 +45,7 @@ module Travis
           end
 
           def checkout
-            sh.cmd "git checkout -qf #{data.pull_request ? 'FETCH_HEAD' : data.commit}", timing: false
+            sh.cmd "git checkout -qf #{data.commit}", timing: false
           end
 
           def clone_args
