@@ -13,6 +13,8 @@ module Travis
         PYENV_PATH_FILE      = '/etc/profile.d/pyenv.sh'
         TEMP_PYENV_PATH_FILE = '/tmp/pyenv.sh'
 
+        VIRTUALENV_VERSION   = '15.0.1'
+
         def export
           super
           sh.export 'TRAVIS_PYTHON_VERSION', version, echo: false
@@ -20,6 +22,10 @@ module Travis
 
         def configure
           super
+          sh.raw "command -v virtualenv >/dev/null"
+          sh.if "$? -ne 0" do
+            install_virtualenv
+          end
           sh.if "! -f #{virtualenv_activate}" do
             sh.echo "#{version} is not installed; attempting download", ansi: :yellow
             install_python_archive version
@@ -117,6 +123,18 @@ module Travis
           def setup_path(version = 'nightly')
             sh.cmd "sed -e 's|export PATH=\\(.*\\)$|export PATH=/opt/python/#{version}/bin:\\1|' #{PYENV_PATH_FILE} > #{TEMP_PYENV_PATH_FILE}"
             sh.cmd "cat #{TEMP_PYENV_PATH_FILE} | sudo tee #{PYENV_PATH_FILE} > /dev/null"
+          end
+
+          def install_virtualenv(version = VIRTUALENV_VERSION)
+            local_archive = "virtualenv.tar.gz"
+            sh.echo "Installing virtualenv #{version}", ansi: :yellow
+            sh.raw "pushd $HOME"
+            sh.raw "curl -o #{local_archive} https://pypi.python.org/packages/source/v/virtualenv/virtualenv-#{version}.tar.gz"
+            sh.raw "tar xvfz #{local_archive}"
+            sh.raw "pushd virtualenv-#{version}"
+            sh.raw "python ./setup.py install"
+            sh.raw "rm -rf #{local_archive} virtualenv-#{version}"
+            sh.raw "popd >/dev/null; popd >/dev/null"
           end
       end
     end
