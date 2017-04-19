@@ -26,6 +26,7 @@ describe Travis::Build::Script::Python, :sexp do
   it 'sets up the python version (pypy)' do
     data[:config][:python] = 'pypy'
     should include_sexp [:cmd,  'source ~/virtualenv/pypy/bin/activate', assert: true, echo: true, timing: true]
+    should_not include_sexp [:cmd, "tar xjf pypy.tar.bz2 -C /usr/local/pypy --strip-components=1", sudo: true]
   end
 
   it 'sets up the python version (pypy-5.3.1)' do
@@ -45,6 +46,7 @@ describe Travis::Build::Script::Python, :sexp do
   it 'sets up the python version (pypy3)' do
     data[:config][:python] = 'pypy3'
     should include_sexp [:cmd,  'source ~/virtualenv/pypy3/bin/activate', assert: true, echo: true, timing: true]
+    should_not include_sexp [:cmd, "tar xjf pypy.tar.bz2 -C /usr/local/pypy --strip-components=1", sudo: true]
   end
 
   it 'sets up the python version (2.7)' do
@@ -87,6 +89,24 @@ describe Travis::Build::Script::Python, :sexp do
 
     it 'adds $HOME/.cache/pip to directory cache' do
       should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add $HOME/.cache/pip', timing: true]
+    end
+
+    context "when pypy version is specified" do
+      context "with pypy2-5.3.1" do
+        it 'fetches PyPy archive' do
+          data[:config][:python] = 'pypy2-5.3.1'
+          should include_sexp [:cmd, "curl -s -L -o pypy.tar.bz2 https://bitbucket.org/pypy/pypy/downloads/pypy2-v5.3.1-linux64.tar.bz2"]
+          should include_sexp [:cmd, "tar xjf pypy.tar.bz2 -C /usr/local/pypy --strip-components=1", sudo: true ]
+        end
+      end
+
+      context "with pypy3.3-5.2.0-alpha1" do
+        it 'fetches PyPy archive' do
+          data[:config][:python] = 'pypy3.3-5.2.0-alpha1'
+          should include_sexp [:cmd, "curl -s -L -o pypy.tar.bz2 https://bitbucket.org/pypy/pypy/downloads/pypy3.3-v5.2.0-alpha1-linux64.tar.bz2"]
+          should include_sexp [:cmd, "tar xjf pypy.tar.bz2 -C /usr/local/pypy --strip-components=1", sudo: true ]
+        end
+      end
     end
   end
 

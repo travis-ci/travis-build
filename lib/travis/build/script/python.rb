@@ -13,6 +13,8 @@ module Travis
         PYENV_PATH_FILE      = '/etc/profile.d/pyenv.sh'
         TEMP_PYENV_PATH_FILE = '/tmp/pyenv.sh'
 
+        PYPY_VERSION_REGEX   = /\Apypy(?<python_compat_version>\d+(\.\d)*)?(-(?<pypy_version>\d+(?:\.\d)*(-[a-z0-9]*)?))?\z/
+
         def export
           super
           sh.export 'TRAVIS_PYTHON_VERSION', version, echo: false
@@ -22,8 +24,12 @@ module Travis
           super
           sh.if "! -f #{virtualenv_activate}" do
             sh.echo "#{version} is not installed; attempting download", ansi: :yellow
-            install_python_archive version
-            setup_path version
+            if pypy?
+              install_pypy version
+            else
+              install_python_archive version
+              setup_path version
+            end
           end
         end
 
@@ -112,6 +118,34 @@ module Travis
             sh.cmd "curl -s -o #{archive_filename} ${archive_url}", assert: true
             sh.cmd "sudo tar xjf #{archive_filename} --directory /", echo: true, assert: true
             sh.cmd "rm #{archive_filename}", echo: false
+          end
+
+          def install_pypy(version)
+            return unless pypy_archive_url
+
+            archive = "pypy.tar.bz2"
+            install_dir = "/usr/local/pypy"
+            sh.cmd "curl -s -L -o #{archive} #{pypy_archive_url}"
+            sh.cmd "mkdir #{install_dir}", sudo: true, echo: false
+            sh.cmd "tar xjf #{archive} -C #{install_dir} --strip-components=1", sudo: true
+            sh.export "PATH", "#{install_dir}/bin:$PATH", echo: true
+            sh.cmd "rm #{archive}", echo: false
+            sh.cmd "rm -f $HOME/virtualenv/pypy{,3}"
+            sh.if "-f /usr/local/pypy/bin/pypy" do
+              sh.cmd "virtualenv --distribute --python=/usr/local/pypy/bin/pypy $HOME/virtualenv/#{virtualenv}"
+            end
+            sh.elif "-f /usr/local/pypy/bin/pypy3" do
+              sh.cmd "virtualenv --distribute --python=/usr/local/pypy/bin/pypy3 $HOME/virtualenv/#{virtualenv}"
+            end
+
+          end
+
+          def pypy_archive_url(vers=config[:python], arch='linux64')
+            return unless pypy? && md = PYPY_VERSION_REGEX.match(vers)
+
+            if md[:python_compat_version] && md[:pypy_version]
+              "https://bitbucket.org/pypy/pypy/downloads/pypy%s-v%s-%s.tar.bz2" % [md[:python_compat_version], md[:pypy_version], arch]
+            end
           end
 
           def setup_path(version = 'nightly')
