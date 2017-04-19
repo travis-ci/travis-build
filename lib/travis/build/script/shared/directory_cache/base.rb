@@ -282,7 +282,7 @@ module Travis
                 static_file_location = "https://#{app_host}/files/#{name}".untaint
                 sh.cmd curl_cmd(flags, location, static_file_location), cmd_opts
                 sh.if "$? -ne 0" do
-                  cmd_opts[:echo] = "Installing caching utilities from the Travis CI server (#{static_file_location}) failed, failing over to using GitHub (#{remote_location})"}
+                  cmd_opts[:echo] = "Installing caching utilities from the Travis CI server (#{static_file_location}) failed, failing over to using GitHub (#{remote_location})"
                   sh.cmd curl_cmd(flags, location, remote_location), cmd_opts
                 end
               else
