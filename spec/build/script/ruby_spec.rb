@@ -59,8 +59,7 @@ describe Travis::Build::Script::Ruby, :sexp do
   end
 
   it 'sets BUNDLE_GEMFILE if a gemfile exists' do
-    sexp = sexp_find(subject, [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}"], [:then])
-    expect(sexp).to include_sexp [:export, ['BUNDLE_GEMFILE', '$PWD/Gemfile'], echo: true]
+    should include_sexp [:export, ['BUNDLE_GEMFILE', '$PWD/Gemfile'], echo: true]
   end
 
   it 'sets BUNDLE_GEMFILE from config' do
@@ -82,12 +81,12 @@ describe Travis::Build::Script::Ruby, :sexp do
 
   describe 'install' do
     it 'runs bundle install --deployment if there is a Gemfile and a Gemfile.lock' do
-      sexp = sexp_find(sexp_filter(subject, [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}"])[1], [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}.lock"], [:then])
+      sexp = sexp_find(sexp_filter(subject, [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}"])[0], [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}.lock"], [:then])
       expect(sexp).to include_sexp [:cmd, 'bundle install --jobs=3 --retry=3 --deployment', assert: true, echo: true, timing: true, retry: true]
     end
 
     it "runs bundle install if a Gemfile exists" do
-      sexp = sexp_find(sexp_filter(subject, [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}"])[2], [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}.lock"], [:else])
+      sexp = sexp_find(sexp_filter(subject, [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}"])[1], [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}.lock"], [:else])
       should include_sexp [:cmd, 'bundle install --jobs=3 --retry=3', assert: true, echo: true, timing: true, retry: true]
     end
   end
