@@ -6,6 +6,7 @@ require 'rbconfig'
 
 require 'travis/build/addons'
 require 'travis/build/appliances'
+require 'travis/build/errors'
 require 'travis/build/git'
 require 'travis/build/helpers'
 require 'travis/build/stages'
@@ -71,6 +72,13 @@ module Travis
 
       def compile(ignore_taint = false)
         Shell.generate(sexp, ignore_taint)
+      rescue Travis::Shell::Generator::TaintedOutput => to
+        raise to
+      rescue Travis::Build::CompilationError => e
+        sh = Shell::Builder.new
+        error_message_ary(e).each { |line| sh.echo line, ansi: :red }
+        sh.cmd "exit 2"
+        Shell.generate(sh.to_sexp, ignore_taint)
       end
 
       def sexp
@@ -239,6 +247,14 @@ module Travis
 
         def app_host
           @app_host ||= Travis::Build.config.app_host.to_s.strip.untaint
+        end
+
+        def error_message_ary(exception)
+          [
+            "There was an error in .travis.yml from which we could not recover.",
+            exception.message,
+            "Please review https://docs.travis-ci.com#{exception.doc_path}."
+          ]
         end
     end
   end
