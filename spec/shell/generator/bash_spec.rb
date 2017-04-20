@@ -176,7 +176,7 @@ describe Travis::Shell::Generator::Bash, :include_node_helpers do
       expect(code).to eql('rm -r ./foo') # TODO
     end
 
-    it 'forces removal if :recursive was given' do
+    it 'forces removal if :force was given' do
       @sexp = [:rm, ['./foo'], force: true]
       expect(code).to eql('rm -f ./foo') # TODO
     end
