@@ -74,18 +74,8 @@ module Travis
         Shell.generate(sexp, ignore_taint)
       rescue Travis::Shell::Generator::TaintedOutput => to
         raise to
-      rescue Travis::Build::CompilationError => e
-        show_compile_error_msg(e.message, e.doc_path)
       rescue Exception => e
-        show_compile_error_msg(
-          [
-            "Unfortunately, we do not know much about this error.",
-            [ e.class.to_s, e.message ].join(": "),
-            "\n",
-            "Exception backtrace is shown for troubleshooting purposes:",
-            *e.backtrace.map(&:shellescape)
-          ]
-        )
+        show_compile_error_msg(e)
       end
 
       def sexp
@@ -256,18 +246,27 @@ module Travis
           @app_host ||= Travis::Build.config.app_host.to_s.strip.untaint
         end
 
-        def error_message_ary(msg, doc_path = '/')
+        def error_message_ary(exception)
+          msg = exception.message
+          doc_path = exception.is_a?(Travis::Build::CompilationError) ? exception.doc_path : ''
+
           [
-            "There was an error in .travis.yml from which we could not recover.\n",
+            "There was an error in the .travis.yml file from which we could not recover.\n",
             msg,
+            "",
             "Please review https://docs.travis-ci.com#{doc_path}."
           ].flatten # this allows msg to be an array
         end
 
-        def show_compile_error_msg(msg, doc_path = '/')
+        def show_compile_error_msg(exception)
           @sh = Shell::Builder.new
-          header
-          error_message_ary(msg, doc_path).each { |line| sh.raw "echo -e \"\033[31;1m#{line}\033[0m\"" }
+          sh.raw 'echo "Unfortunately, we do not know much about this error."' unless exception.is_a?(Travis::Build::CompilationError)
+          error_message_ary(exception).each { |line| sh.raw "echo -e \"\033[31;1m#{line}\033[0m\"" }
+          sh.raw "echo -e \"\nException backtrace is shown for troubleshooting purposes:\n\""
+          sh.raw "echo #{exception.class}: #{exception.message}" unless exception.is_a?(Travis::Build::CompilationError)
+          exception.backtrace.map do |line|
+            sh.raw "echo #{line.shellescape}"
+          end
           sh.raw "exit 2"
           Shell.generate(sh.to_sexp)
         end

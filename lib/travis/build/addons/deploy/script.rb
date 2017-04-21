@@ -42,8 +42,9 @@ module Travis
 
           rescue TypeError => e
             if e.message =~ /no implicit conversion of Symbol into String/
-              ex = Travis::Build::CompilationError.new("\\`deploy\\` configuration should be a map, or a sequence of maps")
+              ex = Travis::Build::CompilationError.new("The \\`deploy\\` configuration should be a map, or a sequence of maps.")
               ex.doc_path = '/user/deployment/'
+              ex.set_backtrace e.backtrace.dup
               raise ex
             else
               raise e
