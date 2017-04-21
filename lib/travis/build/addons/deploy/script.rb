@@ -36,14 +36,17 @@ module Travis
             @data = data
             @config = config
             @silent = false
+
             @allow_failure = config.delete(:allow_failure)
-          rescue TypeError => te
-            if te.message =~ /no implicit conversion of Symbol into String/
-              # this probably came from config.delete, because allow_failure was a sequence rather than a map
-              ex = CompilationError.new("`deploy` is a YAML sequence, but a YAML map was expected")
-              ex.doc_path = '/user/customizing-the-build'
+
+
+          rescue TypeError => e
+            if e.message =~ /no implicit conversion of Symbol into String/
+              ex = Travis::Build::CompilationError.new("\\`deploy\\` configuration should be a map, or a sequence of maps")
+              ex.doc_path = '/user/deployment/'
+              raise ex
             else
-              raise te
+              raise e
             end
           end
 
