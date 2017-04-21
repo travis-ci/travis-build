@@ -75,10 +75,17 @@ module Travis
       rescue Travis::Shell::Generator::TaintedOutput => to
         raise to
       rescue Travis::Build::CompilationError => e
-        sh = Shell::Builder.new
-        error_message_ary(e).each { |line| sh.echo line, ansi: :red }
-        sh.cmd "exit 2"
-        Shell.generate(sh.to_sexp, ignore_taint)
+        show_compile_error_msg(e.message, e.doc_path)
+      rescue Exception => e
+        show_compile_error_msg(
+          [
+            "Unfortunately, we do not know much about this error.",
+            [ e.class.to_s, e.message ].join(": "),
+            "\n",
+            "Exception backtrace is shown for troubleshooting purposes:",
+            *e.backtrace.map(&:shellescape)
+          ]
+        )
       end
 
       def sexp
@@ -249,12 +256,20 @@ module Travis
           @app_host ||= Travis::Build.config.app_host.to_s.strip.untaint
         end
 
-        def error_message_ary(exception)
+        def error_message_ary(msg, doc_path = '/')
           [
-            "There was an error in .travis.yml from which we could not recover.",
-            exception.message,
-            "Please review https://docs.travis-ci.com#{exception.doc_path}."
-          ]
+            "There was an error in .travis.yml from which we could not recover.\n",
+            msg,
+            "Please review https://docs.travis-ci.com#{doc_path}."
+          ].flatten # this allows msg to be an array
+        end
+
+        def show_compile_error_msg(msg, doc_path = '/')
+          @sh = Shell::Builder.new
+          header
+          error_message_ary(msg, doc_path).each { |line| sh.raw "echo -e \"\033[31;1m#{line}\033[0m\"" }
+          sh.raw "exit 2"
+          Shell.generate(sh.to_sexp)
         end
     end
   end
