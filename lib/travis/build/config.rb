@@ -49,7 +49,7 @@ module Travis
             'https://raw.githubusercontent.com/travis-ci/gimme/v1.0.0/gimme'
           )
         },
-        go_version: ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.7.4'),
+        go_version: ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.8'),
         go_version_aliases: ENV.fetch(
           'TRAVIS_BUILD_GO_VERSION_ALIASES', (
             {

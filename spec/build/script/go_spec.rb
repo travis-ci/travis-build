@@ -19,7 +19,7 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   it 'sets TRAVIS_GO_VERSION' do
-    should include_sexp [:export, ['TRAVIS_GO_VERSION', '1.7.4']]
+    should include_sexp [:export, ['TRAVIS_GO_VERSION', '1.8']]
   end
 
   it 'conditionally sets GOMAXPROCS to 2' do
@@ -27,7 +27,7 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   it 'sets the default go version if not :go config given' do
-    should include_sexp [:cmd, 'GIMME_OUTPUT=$(gimme 1.7.4) && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'GIMME_OUTPUT=$(gimme 1.8) && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
   end
 
   it 'sets the go version from config :go' do
