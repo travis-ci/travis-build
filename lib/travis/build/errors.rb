@@ -21,5 +21,15 @@ module Travis
         '/user/environment-variables'
       end
     end
+
+    class DeployConfigError < CompilationError
+      def initialize(msg = "The \\`deploy\\` configuration should be a map, or a sequence of maps.")
+        super
+      end
+
+      def doc_path
+        '/user/deployment'
+      end
+    end
   end
 end
