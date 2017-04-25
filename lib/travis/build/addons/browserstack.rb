@@ -44,7 +44,7 @@ module Travis
             sh.echo 'Starting BrowserStack Local', ansi: :yellow
             sh.cmd "#{build_start_command(browserstack_key)}"
             browserstack_user = username.to_s
-            sh.export ENV_USER, browserstack_user, echo: true unless browserstack_user.empty?
+            sh.export ENV_USER, browserstack_user + "-travis", echo: true unless browserstack_user.empty?
             sh.export ENV_KEY, browserstack_key, echo: false
             sh.export ENV_LOCAL, 'true', echo: true
           end
