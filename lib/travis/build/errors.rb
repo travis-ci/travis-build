@@ -23,7 +23,7 @@ module Travis
     end
 
     class DeployConfigError < CompilationError
-      def initialize(msg = "The \\`deploy\\` configuration should be a map, or a sequence of maps.")
+      def initialize(msg = "The \\`deploy\\` configuration should be a hash (dictionary), or an array of hashes.")
         super
       end
 
