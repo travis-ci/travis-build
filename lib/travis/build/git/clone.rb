@@ -37,7 +37,7 @@ module Travis
           end
 
           def fetch_ref
-            sh.cmd "git fetch origin +#{data.ref}:", assert: true, retry: true
+            sh.cmd "git fetch #{fetch_args} origin +#{data.ref}:", assert: true, retry: true
           end
 
           def fetch_ref?
@@ -53,6 +53,10 @@ module Travis
             args << " --branch=#{branch}" unless data.ref
             args << " --quiet" if quiet?
             args
+          end
+
+          def fetch_args
+            "--depth=#{depth}"
           end
 
           def depth
