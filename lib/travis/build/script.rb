@@ -252,6 +252,7 @@ module Travis
           doc_path = exception.is_a?(Travis::Build::CompilationError) ? exception.doc_path : ''
 
           [
+            "",
             "There was an error in the .travis.yml file from which we could not recover.\n",
             msg,
             "",
