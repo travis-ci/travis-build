@@ -248,23 +248,32 @@ module Travis
         end
 
         def error_message_ary(exception)
-          msg = exception.message
-          doc_path = exception.is_a?(Travis::Build::CompilationError) ? exception.doc_path : ''
+          if exception.is_a? Travis::Build::CompilationError
+            msg = [
+              exception.message
+            ]
+            doc_path = exception.doc_path
+          else
+            msg = [
+              "Unfortunately, we do not know much about this error.",
+              "",
+              "#{exception.class}: #{exception.message}"
+            ]
+            doc_path = ''
+          end
 
           [
             "",
             "There was an error in the .travis.yml file from which we could not recover.\n",
-            msg,
+            *msg,
             "",
-            "Please review https://docs.travis-ci.com#{doc_path}."
-          ].flatten # this allows msg to be an array
+            "Please review https://docs.travis-ci.com#{doc_path}, or contact us at support@travis-ci.com."
+          ]
         end
 
         def show_compile_error_msg(exception)
           @sh = Shell::Builder.new
-          sh.raw 'echo "Unfortunately, we do not know much about this error."' unless exception.is_a?(Travis::Build::CompilationError)
           error_message_ary(exception).each { |line| sh.raw "echo -e \"\033[31;1m#{line}\033[0m\"" }
-          sh.raw "echo #{exception.class}: #{exception.message}" unless exception.is_a?(Travis::Build::CompilationError)
           sh.raw "exit 2"
           Shell.generate(sh.to_sexp)
         end
