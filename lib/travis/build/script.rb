@@ -75,6 +75,7 @@ module Travis
       rescue Travis::Shell::Generator::TaintedOutput => to
         raise to
       rescue Exception => e
+        Raven.capture_exception(e)
         show_compile_error_msg(e)
       end
 
@@ -262,13 +263,7 @@ module Travis
           @sh = Shell::Builder.new
           sh.raw 'echo "Unfortunately, we do not know much about this error."' unless exception.is_a?(Travis::Build::CompilationError)
           error_message_ary(exception).each { |line| sh.raw "echo -e \"\033[31;1m#{line}\033[0m\"" }
-          sh.raw "echo -en \"travis_fold:start:backtrace\r\033[0m\""
-          sh.raw "echo -e \"\nException backtrace is shown for troubleshooting purposes:\n\""
           sh.raw "echo #{exception.class}: #{exception.message}" unless exception.is_a?(Travis::Build::CompilationError)
-          exception.backtrace.map do |line|
-            sh.raw "echo #{line.shellescape}"
-          end
-          sh.raw "echo -en \"travis_fold:end:backtrace\r\033[0m\""
           sh.raw "exit 2"
           Shell.generate(sh.to_sexp)
         end
