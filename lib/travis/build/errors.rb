@@ -31,5 +31,25 @@ module Travis
         '/user/deployment'
       end
     end
+
+    class AptSourcesConfigError < CompilationError
+      def initialize(msg = "\\`apt\\` should be a hash with key \\`sources\\` and an array as a value.")
+        super
+      end
+
+      def doc_path
+        '/user/installing-dependencies'
+      end
+    end
+
+    class AptPackagesConfigError < CompilationError
+      def initialize(msg = "\\`apt\\` should be a hash with key \\`packages\\` and an array as a value.")
+        super
+      end
+
+      def doc_path
+        '/user/installing-dependencies'
+      end
+    end
   end
 end
