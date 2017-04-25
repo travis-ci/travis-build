@@ -236,6 +236,10 @@ MESSAGE
             end
 
             sh.cmd 'unformatted=`dartfmt -n .`'
+            # If `dartfmt` fails for some reason
+            sh.if '$? -ne 0' do
+              sh.failure ""
+            end
             sh.if '! -z "$unformatted"' do
               sh.echo "Files are unformatted:", ansi: :red
               sh.echo "$unformatted"
