@@ -7,6 +7,11 @@ if [[ -s <%= home %>/.bash_profile ]] ; then
   source <%= home %>/.bash_profile
 fi
 
+echo "source $HOME/.travis/job_stages" >> <%= home %>/.bashrc
+
+mkdir -p $HOME/.travis
+
+cat <<'EOFUNC' >>$HOME/.travis/job_stages
 ANSI_RED="\033[31;1m"
 ANSI_GREEN="\033[32;1m"
 ANSI_RESET="\033[0m"
@@ -274,6 +279,8 @@ bash_qsort_numeric() {
    larger=( "${bash_qsort_numeric_ret[@]}" )
    bash_qsort_numeric_ret=( "${smaller[@]}" "$pivot" "${larger[@]}" )
 }
+
+EOFUNC
 
 <%# XXX Forcefully removing rabbitmq source until next build env update %>
 <%# See http://www.traviscistatus.com/incidents/6xtkpm1zglg3 %>

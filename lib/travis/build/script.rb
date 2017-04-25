@@ -53,7 +53,7 @@ module Travis
         end
       end
 
-      include Module.new { Stages::STAGES.each_slice(2).map(&:last).flatten.each { |stage| define_method(stage) {} } }
+      include Module.new { Stages::STAGES.map(&:name).flatten.each { |stage| define_method(stage) {} } }
       include Appliances, DirectoryCache, Deprecation, Template
 
       attr_reader :sh, :data, :options, :validator, :addons, :stages
@@ -168,6 +168,7 @@ module Travis
           apply :npm_registry
           apply :rvm_use
           apply :rm_oraclejdk8_symlink
+          apply :enable_i386
         end
 
         def checkout

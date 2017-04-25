@@ -72,7 +72,57 @@ def latest_release_for(repo)
   end
 end
 
-task 'assets:precompile' => %i(clean update_godep update_static_files ls_public_files)
+def sc_data
+  conn = Faraday.new("https://saucelabs.com")
+  response = conn.get('versions.json')
+
+  unless response.success?
+    fail "Could not fetch sc metadata"
+  end
+
+  JSON.parse(response.body)
+end
+
+def write_sauce_connect_template
+  require 'erb'
+
+  app_host = ENV.fetch('TRAVIS_BUILD_APP_HOST', '')
+
+  template = File.read(File.expand_path(File.join("..", 'lib', 'travis', 'build', 'addons', 'sauce_connect', 'templates', 'sauce_connect.sh.erb'), __FILE__))
+
+  File.write(File.expand_path(File.join("..", 'lib', 'travis', 'build', 'addons', 'sauce_connect', 'templates', 'sauce_connect.sh'), __FILE__),
+    ERB.new(template).result(binding))
+end
+
+def fetch_sc(platform)
+  require 'digest/sha1'
+
+  ext = platform == 'linux' ? 'tar.gz' : 'zip'
+
+  download_url = URI.parse(sc_data["Sauce Connect"][platform]["download_url"])
+
+  conn = Faraday.new("#{download_url.scheme}://#{download_url.host}")
+
+  logger.info "getting #{download_url.path}"
+  response = conn.get(download_url.path)
+
+  dest = File.expand_path(File.join("..", 'public/files', "sc-#{platform}.#{ext}"), __FILE__)
+
+  archive_content = response.body
+
+  expected_checksum = sc_data["Sauce Connect"][platform]["sha1"]
+  received_checksum = Digest::SHA1.hexdigest(archive_content)
+
+  unless received_checksum == expected_checksum
+    fail "Checksums did not match: expected #{expected_checksum} received #{received_checksum}"
+  end
+
+  logger.info "writing to #{dest}"
+  File.write(dest, response.body)
+  chmod 'a+rx', dest
+end
+
+task 'assets:precompile' => %i(clean update_sc update_godep update_static_files ls_public_files)
 
 directory 'public/files'
 
@@ -127,6 +177,33 @@ file 'public/files/tmate-static-linux-amd64.tar.gz' => 'public/files' do
   fetch_githubusercontent_file "tmate-io/tmate/releases/download/#{latest_release}/tmate-#{latest_release}-static-linux-amd64.tar.gz", "github.com", 'tmate-static-linux-amd64.tar.gz'
 end
 
+desc 'update rustup'
+file 'public/files/rustup-init.sh' => 'public/files' do
+  fetch_githubusercontent_file "", "sh.rustup.rs", "rustup-init.sh"
+end
+
+desc 'update sauce_connect.sh'
+file 'lib/travis/build/addons/sauce_connect/sauce_connect.sh' do
+  write_sauce_connect_template
+end
+
+desc 'update sc-linux'
+file 'public/files/sc-linux.tar.gz' => 'public/files' do
+  fetch_sc('linux')
+end
+
+desc 'update sc-mac'
+file 'public/files/sc-osx.zip' => 'public/files' do
+  fetch_sc('osx')
+end
+
+desc 'update sc'
+multitask update_sc: Rake::FileList[
+  'lib/travis/build/addons/sauce_connect/sauce_connect.sh',
+  'public/files/sc-linux.tar.gz',
+  'public/files/sc-osx.zip'
+]
+
 desc 'update godep'
 multitask update_godep: Rake::FileList[
   'public/files/godep_darwin_amd64',
@@ -135,11 +212,17 @@ multitask update_godep: Rake::FileList[
 
 desc 'update static files'
 multitask update_static_files: Rake::FileList[
+  'lib/travis/build/addons/sauce_connect/sauce_connect.sh',
+  'public/files/sc-linux.tar.gz',
+  'public/files/sc-osx.zip',
+  'public/files/godep_darwin_amd64',
+  'public/files/godep_linux_amd64',
   'public/files/casher',
   'public/files/gimme',
   'public/files/nvm.sh',
   'public/files/sbt',
-  'public/files/tmate-static-linux-amd64.tar.gz'
+  'public/files/tmate-static-linux-amd64.tar.gz',
+  'public/files/rustup-init.sh'
 ]
 
 desc "show contents in public/files"

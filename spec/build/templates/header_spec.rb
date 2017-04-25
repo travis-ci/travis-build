@@ -17,7 +17,7 @@ describe 'header.sh', integration: true do
   end
 
   let :bash_body do
-    script = %w(export)
+    script = ["source $HOME/.travis/job_stages", "export"]
     header_sh.read.split("\n").grep(/^[a-z][a-z_]+\(\) \{/).each do |func|
       script << "type #{func.match(/^(.+)\(\) \{/)[1]}"
     end
@@ -57,7 +57,7 @@ describe 'header.sh', integration: true do
   end
 
   {
-    SHELL: '/bin/bash',
+    SHELL: /.+/, # nonempty
     TERM: 'xterm',
     USER: 'travis'
   }.each do |env_var, val|
@@ -71,6 +71,7 @@ describe 'header.sh', integration: true do
 
     let :bash_body do
       <<-EOF.gsub(/^\s+> ?/, '')
+        > source $HOME/.travis/job_stages
         > rvm() {
         >   if [[ $1 != list && $2 != strings ]]; then
         >     return
