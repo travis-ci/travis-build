@@ -182,7 +182,7 @@ module Travis
             end
 
             def negate_condition(conditions)
-              Array(conditions).flatten.compact.map { |condition| " ! #{condition}" }.join(" && ")
+              Array(conditions).flatten.compact.map { |condition| " ! (#{condition})" }.join(" && ")
             end
 
             def build_gem_locally_from(source, branch)
