@@ -6,6 +6,7 @@ require 'rbconfig'
 
 require 'travis/build/addons'
 require 'travis/build/appliances'
+require 'travis/build/errors'
 require 'travis/build/git'
 require 'travis/build/helpers'
 require 'travis/build/stages'
@@ -71,6 +72,11 @@ module Travis
 
       def compile(ignore_taint = false)
         Shell.generate(sexp, ignore_taint)
+      rescue Travis::Shell::Generator::TaintedOutput => to
+        raise to
+      rescue Exception => e
+        event = Raven.capture_exception(e)
+        show_compile_error_msg(e, event)
       end
 
       def sexp
@@ -239,6 +245,37 @@ module Travis
 
         def app_host
           @app_host ||= Travis::Build.config.app_host.to_s.strip.untaint
+        end
+
+        def error_message_ary(exception, event)
+          contact_msg_extra = event && event.id ? " with error ID: #{event.id}" : ''
+
+          if exception.is_a? Travis::Build::CompilationError
+            msg = [
+              exception.message
+            ]
+            doc_path = exception.doc_path
+          else
+            msg = [
+              "Unfortunately, we do not know much about this error."
+            ]
+            doc_path = ''
+          end
+
+          [
+            "",
+            "There was an error in the .travis.yml file from which we could not recover.\n",
+            *msg,
+            "",
+            "Please review https://docs.travis-ci.com#{doc_path}, or contact us at support@travis-ci.com#{contact_msg_extra}"
+          ]
+        end
+
+        def show_compile_error_msg(exception, event)
+          @sh = Shell::Builder.new
+          error_message_ary(exception, event).each { |line| sh.raw "echo -e \"\033[31;1m#{line}\033[0m\"" }
+          sh.raw "exit 2"
+          Shell.generate(sh.to_sexp)
         end
     end
   end
