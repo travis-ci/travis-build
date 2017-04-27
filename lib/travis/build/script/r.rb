@@ -31,7 +31,7 @@ module Travis
           bioc_required: false,
           bioc_use_devel: false,
           disable_homebrew: false,
-          r: 'release'
+          r: config[:osx_image] == 'xcode6.4' ? 'oldrel' : 'release' #R 3.4 requies el-capitan or newer
         }
 
         def initialize(data)
@@ -111,7 +111,7 @@ module Travis
 
                 # R-devel builds available at research.att.com
                 if r_version == 'devel'
-                  r_url = "https://r.research.att.com/mavericks/R-devel/R-devel-mavericks-signed.pkg"
+                  r_url = "https://r.research.att.com/el-capitan/R-devel/R-devel-el-capitan.pkg"
 
                 # The latest release is the only one available in /bin/macosx
                 elsif r_version == r_latest
