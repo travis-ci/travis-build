@@ -75,7 +75,8 @@ module Travis
       rescue Travis::Shell::Generator::TaintedOutput => to
         raise to
       rescue Exception => e
-        event = Raven.capture_exception(e)
+        event = Travis::Build.config.sentry_dsn.empty? ? nil : Raven.capture_exception(e)
+
         show_compile_error_msg(e, event)
       end
 
@@ -248,7 +249,14 @@ module Travis
         end
 
         def error_message_ary(exception, event)
-          contact_msg_extra = event && event.id ? " with error ID: #{event.id}" : ''
+          if event
+            contact_msg = ", or contact us at support@travis-ci.com"
+            if event.id
+              contact_msg << " with the error ID: #{event.id}"
+            end
+          else
+            contact_msg = ""
+          end
 
           if exception.is_a? Travis::Build::CompilationError
             msg = [
@@ -267,7 +275,7 @@ module Travis
             "There was an error in the .travis.yml file from which we could not recover.\n",
             *msg,
             "",
-            "Please review https://docs.travis-ci.com#{doc_path}, or contact us at support@travis-ci.com#{contact_msg_extra}"
+            "Please review https://docs.travis-ci.com#{doc_path}#{contact_msg}"
           ]
         end
 
