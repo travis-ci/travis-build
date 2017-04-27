@@ -272,7 +272,7 @@ vers2int() {
 
 set_up_filter() {
   for s in ${secrets[*]}; do
-    secret_filter="${secret_filter} | sed 's/${s}//'"
+    secret_filter="${secret_filter} | sed \"/$(echo $s | sed 's:/:\\\\/:')//\""
   done
 }
 
