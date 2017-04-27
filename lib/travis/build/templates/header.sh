@@ -11,6 +11,17 @@ echo "source $HOME/.travis/job_stages" >> <%= home %>/.bashrc
 
 mkdir -p $HOME/.travis
 
+declare -a secrets=()
+
+_push_secret() {
+  local str
+  str=$1
+
+  secrets[${#secrets[@]}]=$str
+}
+
+secret_filter=
+
 cat <<'EOFUNC' >>$HOME/.travis/job_stages
 ANSI_RED="\033[31;1m"
 ANSI_GREEN="\033[32;1m"
@@ -58,15 +69,15 @@ travis_cmd() {
   fi
 
   if [[ -n "$retry" ]]; then
-    travis_retry eval "$cmd $secure"
-    result=$?
+    travis_retry eval "$cmd $secret_filter"
+    result=${PIPESTATUS[0]}
   else
     if [[ -n "$secure" ]]; then
-      eval "$cmd $secure" 2>/dev/null
+      eval "$cmd $secure" 2>/dev/null $secret_filter
     else
-      eval "$cmd $secure"
+      eval "$cmd $secure" $secret_filter
     fi
-    result=$?
+    result=${PIPESTATUS[0]}
     if [[ -n $secure && $result -ne 0 ]]; then
       echo -e "${ANSI_RED}The previous command failed, possibly due to a malformed secure environment variable.${ANSI_CLEAR}
 ${ANSI_RED}Please be sure to escape special characters such as ' ' and '$'.${ANSI_CLEAR}
@@ -257,6 +268,12 @@ decrypt() {
 
 vers2int() {
   printf '1%03d%03d%03d%03d' $(echo "$1" | tr '.' ' ')
+}
+
+set_up_filter() {
+  for s in ${secrets[*]}; do
+    secret_filter="${secret_filter} | sed 's/${s}//'"
+  done
 }
 
 <%# based on http://stackoverflow.com/a/30576368 by gniourf_gniourf :heart_eyes_cat: %>

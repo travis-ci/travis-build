@@ -34,7 +34,11 @@ module Travis
 
         def handle_export(data, options = {})
           key, value, options = handle_secure_vars(*data, options)
-          handle_cmd("export #{key}=#{value}", options)
+          ret_val = []
+          if options[:echo] && options[:secure]
+            ret_val << handle_cmd("_push_secret #{value.shellescape}", options.merge(echo: false))
+          end
+          ret_val << handle_cmd("export #{key}=#{value}", options)
         end
         alias handle_set handle_export
 

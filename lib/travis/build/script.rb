@@ -184,6 +184,7 @@ module Travis
 
         def export
           apply :env
+          sh.raw "set_up_filter", echo: false
         end
 
         def prepare
