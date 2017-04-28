@@ -38,6 +38,7 @@ module Travis
             end
             sh.cd :back, echo: false, stack: true
           end
+          sh.cmd "firefox --version", echo: true
         end
 
         private
