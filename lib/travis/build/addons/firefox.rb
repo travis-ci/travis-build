@@ -63,19 +63,19 @@ module Travis
           def export_source_url
             host = 'download.mozilla.org'
 
-            product = case latest
+            case latest
 
             when 'latest'
-              'firefox-latest'
+              product = 'firefox-latest'
             when 'latest-beta'
-              'firefox-beta-latest'
+              product = 'firefox-beta-latest'
             when 'latest-esr'
-              'firefox-esr-latest'
+              product = 'firefox-esr-latest'
             when 'latest-dev'
               # The name 'aurora' is nickname for "developer edition",
               # documented in https://wiki.mozilla.org/Firefox/Channels#Developer_Edition_.28aka_Aurora.29
               # This may change in the future and break builds.
-              'firefox-aurora-latest'
+              product = 'firefox-aurora-latest'
             when 'latest-nightly'
               'firefox-nightly-latest'
             when 'latest-unsigned'
@@ -84,7 +84,7 @@ module Travis
               unsigned_archive_file = "firefox-%s.en-US.%s-add-on-devel.%s"
               source_url = "\"https://#{host}/#{path}/#{unsigned_archive_file}\""
             else
-              "firefox-#{version}"
+              product = "firefox-#{version}"
             end
 
             sh.if "$(uname) = 'Linux'" do
