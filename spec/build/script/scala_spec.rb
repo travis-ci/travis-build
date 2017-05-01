@@ -52,9 +52,10 @@ describe Travis::Build::Script::Scala, :sexp do
 
   describe 'script' do
     describe 'if ./project directory or build.sbt file exists' do
-      let(:sexp) { sexp_find(sexp_filter(subject, [:if, '-d project || -f build.sbt'])[1], [:then]) }
+      let(:sexp) { sexp_find(sexp_filter(subject, [:elif, '-d project || -f build.sbt'])[0]) }
 
       it 'runs sbt with default arguments' do
+        # puts sexp_filter(subject, [:elif, '-d project || -f build.sbt']).inspect
         expect(sexp).to include_sexp [:cmd, 'sbt ++2.10.4 test', echo: true, timing: true]
       end
 
