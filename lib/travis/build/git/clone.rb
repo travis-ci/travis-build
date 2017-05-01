@@ -9,6 +9,7 @@ module Travis
           write_netrc if data.prefer_https? && data.token
 
           sh.fold 'git.checkout' do
+            sh.export 'GIT_LFS_SKIP_SMUDGE', '1' if lfs_skip_smudge?
             clone_or_fetch
             delete_netrc
             sh.cd dir
@@ -65,6 +66,10 @@ module Travis
 
           def quiet?
             config[:git][:quiet]
+          end
+
+          def lfs_skip_smudge?
+            config[:git][:lfs_skip_smudge] == true
           end
 
           def dir
