@@ -90,11 +90,13 @@ module Travis
         end
 
         def update_sbt
-          return if app_host.empty?
-
-          sh.cmd "curl -sf -o sbt.tmp https://#{app_host}/files/sbt", echo: false
-          sh.if "$? -ne 0" do
+          if app_host.empty?
             sh.cmd "curl -sf -o sbt.tmp #{SBT_URL}", assert: true
+          else
+            sh.cmd "curl -sf -o sbt.tmp https://#{app_host}/files/sbt", echo: false
+            sh.if "$? -ne 0" do
+              sh.cmd "curl -sf -o sbt.tmp #{SBT_URL}", assert: true
+            end
           end
           sh.raw "sed -e '/addSbt \\(warn\\|info\\)/d' sbt.tmp | sudo tee #{SBT_PATH} > /dev/null && rm -f sbt.tmp"
         end
