@@ -27,7 +27,7 @@ module Travis
           end
 
           def params
-            secrets.size.times.map { |i| "-s $SECRET#{i}" }.join(" ")
+            secrets.size.times.map { |i| "-s \"$SECRET#{i}\"" }.join(" ")
           end
 
           def exports
