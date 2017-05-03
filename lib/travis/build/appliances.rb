@@ -23,6 +23,7 @@ require 'travis/build/appliances/rm_oraclejdk8_symlink'
 require 'travis/build/appliances/rvm_use'
 require 'travis/build/appliances/services'
 require 'travis/build/appliances/show_system_info'
+require 'travis/build/appliances/setup_filter'
 require 'travis/build/appliances/validate'
 require 'travis/build/appliances/npm_registry'
 

@@ -179,6 +179,10 @@ module Travis
           apply :enable_i386
         end
 
+        def setup_filter
+          apply :setup_filter
+        end
+
         def checkout
           apply :checkout
         end
