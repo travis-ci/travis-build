@@ -19,10 +19,14 @@ module Filter
 
   class Runner < Scanner
     def read
-      PTY.spawn(reader) do |stdout, stdin, _pid|
+      PTY.spawn(reader) do |stdout, stdin, pid|
         yield stdout.readchar until stdout.closed?
+
+        _, exit_status = Process.wait2(pid)
+        exit_status
       end
-    rescue PTY::ChildExited
+    rescue PTY::ChildExited => e
+      e.status
     end
   end
 
@@ -68,8 +72,7 @@ if __FILE__ == $0
     end
   end
 
-  runner.run($stdout)
-  exit $?.exitstatus
+  exit runner.run($stdout)
 end
 
 __END__
