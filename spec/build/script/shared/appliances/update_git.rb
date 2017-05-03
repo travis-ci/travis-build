@@ -23,7 +23,7 @@ fi
     end
 
     after :each do
-      Travis::Build.config.update_glibc = ""
+      Travis::Build.config.update_git = ""
     end
   end
 end
