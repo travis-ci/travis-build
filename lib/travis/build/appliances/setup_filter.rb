@@ -6,7 +6,7 @@ module Travis
     module Appliances
       class SetupFilter < Base
         def apply?
-          secrets.any? and config[:filter_secrets]
+          secrets.any? and !app_host.empty? and config[:filter_secrets]
         end
 
         def apply
