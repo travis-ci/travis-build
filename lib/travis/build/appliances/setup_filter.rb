@@ -31,7 +31,7 @@ module Travis
           end
 
           def exports
-            mapped = secrets.with_index.map do |value, index|
+            mapped = secrets.each_with_index.map do |value, index|
               "SECRET#{index}=#{Shellwords.escape(value)}"
             end
             mapped.join(" ")
