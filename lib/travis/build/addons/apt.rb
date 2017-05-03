@@ -88,7 +88,7 @@ module Travis
         private
 
           def add_apt_sources
-            sh.echo "Adding APT Sources (BETA)", ansi: :yellow
+            sh.echo "Adding APT Sources", ansi: :yellow
 
             whitelisted = []
             disallowed = []
@@ -144,7 +144,7 @@ module Travis
           end
 
           def add_apt_packages
-            sh.echo "Installing APT Packages (BETA)", ansi: :yellow
+            sh.echo "Installing APT Packages", ansi: :yellow
 
             whitelisted, disallowed = config_packages.partition { |pkg| package_whitelisted?(package_whitelists[config_dist] || [], pkg) }
 
