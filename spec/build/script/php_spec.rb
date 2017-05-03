@@ -13,6 +13,14 @@ describe Travis::Build::Script::Php, :sexp do
 
   it_behaves_like 'a build script sexp'
 
+  it 'configures mysql sockets' do
+    should include_sexp [:cmd, 'travis_configure_php_mysql56']
+  end
+
+  it 'ensures /etc/hhvm/php.ini is owned by travis' do
+    should include_sexp [:raw, 'sudo chown $(whoami) /etc/hhvm/php.ini']
+  end
+
   it 'sets TRAVIS_PHP_VERSION' do
     should include_sexp [:export, ['TRAVIS_PHP_VERSION', '5.5']]
   end
@@ -49,7 +57,7 @@ describe Travis::Build::Script::Php, :sexp do
     let(:path)     { '/etc/hhvm/php.ini' }
     let(:addition) { %(date.timezone = "UTC"\nhhvm.libxml.ext_entity_whitelist=file,http,https\n) }
     before { data[:config][:php] = 'hhvm' }
-    it { should include_sexp [:raw, "sudo mkdir -p $(dirname #{path}); echo '#{addition}' | sudo tee -a #{path} > /dev/null"] }
+    it { should include_sexp [:raw, "sudo mkdir -p $(dirname #{path}); echo '#{addition}' | sudo tee -a #{path} >/dev/null"] }
     it { should include_sexp [:raw, "sudo chown $(whoami) #{path}"] }
     it { should include_sexp [:raw, "grep session.save_path #{path} | cut -d= -f2 | sudo xargs mkdir -m 01733 -p"] }
   end

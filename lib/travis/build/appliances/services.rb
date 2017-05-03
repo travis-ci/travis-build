@@ -24,6 +24,15 @@ module Travis
               end
             end
 
+            if services.delete('mysql')
+              sh.if "$(grep -E '^socket = /run/mysql-5.6' #{HOME_DIR}/.my.cnf)" do
+                sh.cmd "sudo service mysql-5.6 start", assert: false, echo: true, timing: true
+              end
+              sh.else do
+                sh.cmd "sudo service mysql start", assert: false, echo: true, timing: true
+              end
+            end
+
             services.each do |name|
               sh.cmd "sudo service #{name.shellescape} start", assert: false, echo: true, timing: true
             end
