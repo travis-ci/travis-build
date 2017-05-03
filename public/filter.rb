@@ -65,15 +65,20 @@ if __FILE__ == $0
   end
 
   runner = Filter::Runner.new(command)
+  secrets = []
 
   until ARGV.empty?
     case option = ARGV.shift
-    when '-e' then runner = Filter::StringFilter.new(runner, ENV[ARGV.shift].to_s)
-    when '-s' then runner = Filter::StringFilter.new(runner, ARGV.shift.to_s)
+    when '-e' then secrets << ENV[ARGV.shift].to_s
+    when '-s' then secrets << ARGV.shift
     else
       $stderr.puts "unknown option", DATA.read
       exit 1
     end
+  end
+
+  secrets.uniq.sort_by { |s| -s.length }.each do |secret|
+    runner = Filter::StringFilter.new(runner, secret)
   end
 
   exit runner.run($stdout)

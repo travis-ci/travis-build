@@ -4,17 +4,10 @@ require 'timeout'
 require_relative '../public/filter'
 
 describe Filter do
-  class CustomWriter < Filter::Scanner
-    def read(&block)
-      reader.each_char(&block)
-    end
-  end
-
   def filter(input, *secrets)
-    io     = StringIO.new
-    filter = secrets.inject(CustomWriter.new(input)) { |r, s| Filter::StringFilter.new(r, s) }
-    filter.run(io)
-    io.string
+    path = File.expand_path('../../public/filter.rb', __FILE__)
+    secrets = secrets.map { |s| "-s #{Shellwords.escape(s)}" }.join " "
+    `ruby #{path} echo\\ #{Shellwords.escape(input)} #{secrets}`.chomp
   end
 
   def with_timeout(command, timeout)
