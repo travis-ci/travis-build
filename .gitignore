@@ -11,4 +11,3 @@ rspec.log
 coverage/
 .*env
 /public/files/
-!/public/files/filter.rb
