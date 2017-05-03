@@ -63,7 +63,7 @@ if __FILE__ == $0
     when '-e' then runner = Filter::StringFilter.new(runner, ENV[ARGV.shift].to_s)
     when '-s' then runner = Filter::StringFilter.new(runner, ARGV.shift.to_s)
     else
-      $stderr.puts DATA.read
+      $stderr.puts "unknown option", DATA.read
       exit 1
     end
   end
@@ -73,6 +73,6 @@ if __FILE__ == $0
 end
 
 __END__
-Usage: filter COMMAND [OPTIONS]
+Usage: filter.rb COMMAND [OPTIONS]
           -e VAR    filter environment variable named VAR
           -s STR    filter string STR
