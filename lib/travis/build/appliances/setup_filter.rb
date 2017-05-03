@@ -15,7 +15,7 @@ module Travis
               export TRAVIS_FILTERED=1
               #{exports}
               curl -sf -o ~/filter.rb #{Shellwords.escape(download_url)}
-              exec ruby ~/filter.rb /usr/bin/env TERM=xterm /bin/bash --login "$HOME"/build.sh #{params}
+              exec ruby ~/filter.rb "/usr/bin/env TERM=xterm /bin/bash --login $HOME/build.sh" #{params}
             fi
           SHELL
         end
