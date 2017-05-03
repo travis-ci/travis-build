@@ -38,7 +38,7 @@ module Travis
           end
 
           def secrets
-            @secrets ||= env.groups.flat_map { |g| g.vars }.select(&:secure?).map(&:value)
+            @secrets ||= env.groups.flat_map(&:vars).select(&:secure?).map(&:value)
           end
 
           def env
