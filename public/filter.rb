@@ -21,7 +21,6 @@ module Filter
     def read
       PTY.spawn(reader) do |stdout, stdin, pid|
         yield stdout.readchar until stdout.closed?
-
         _, exit_status = Process.wait2(pid)
         exit_status
       end
@@ -43,7 +42,7 @@ module Filter
       reader.read do |char|
         buffer << char
         if string == buffer
-          string.size.times { yield '*' }
+          yield '[secure]'
           buffer = ""
         elsif !string.start_with?(buffer)
           buffer.each_char(&block)
