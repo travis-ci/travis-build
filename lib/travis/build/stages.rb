@@ -10,6 +10,7 @@ module Travis
 
     class Stages
       STAGES = [
+        Stage.new(:builtin,     :setup_filter,   :always),
         Stage.new(:builtin,     :configure,      :always),
         Stage.new(:builtin,     :checkout,       :always),
         Stage.new(:builtin,     :prepare,        :always),
