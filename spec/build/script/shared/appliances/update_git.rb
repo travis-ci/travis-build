@@ -1,6 +1,7 @@
 shared_examples_for "update git" do
   let(:command) {[:cmd, <<-EOF
 if [ ! $(uname|grep Darwin) ]; then
+  DEBIAN_FRONTEND=noninteractive sudo -E add-apt-repository -y ppa:git-core/ppa
   DEBIAN_FRONTEND=noninteractive sudo -E apt-get -yq update 2>&1 >> ~/apt-get-update.log
   DEBIAN_FRONTEND=noninteractive sudo -E apt-get -yq --no-install-suggests --no-install-recommends --force-yes install git
 fi
