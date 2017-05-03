@@ -23,7 +23,7 @@ module Travis
         private
 
           def download_url
-            "https://#{app_host}/filter.rb"
+            "https://#{app_host}/filter.rb".untaint
           end
 
           def params
@@ -32,7 +32,7 @@ module Travis
 
           def exports
             mapped = secrets.each_with_index.map do |value, index|
-              "SECRET#{index}=#{Shellwords.escape(value)}"
+              "SECRET#{index}=#{Shellwords.escape(value).untaint}"
             end
             mapped.join(" ")
           end
