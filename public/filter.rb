@@ -20,7 +20,7 @@ module Filter
   class Runner < Scanner
     def read
       PTY.spawn(reader) do |stdout, stdin, _pid|
-        yield stdout.readchar until stdout.eof?
+        yield stdout.readchar until stdout.closed?
       end
     rescue PTY::ChildExited
     end
