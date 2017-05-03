@@ -20,12 +20,17 @@ module Filter
   class Runner < Scanner
     def read
       PTY.spawn(reader) do |stdout, stdin, pid|
-        yield stdout.readchar until stdout.closed?
-        _, exit_status = Process.wait2(pid)
-        exit_status
+        begin
+          yield stdout.readchar until stdout.eof?
+        rescue Errno::EIO
+        end
+
+        until PTY.check(pid, true)
+          sleep 0.1
+        end
       end
     rescue PTY::ChildExited => e
-      e.status
+      e.status.exitstatus
     end
   end
 
