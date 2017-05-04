@@ -5,8 +5,14 @@ module Travis
   module Build
     module Appliances
       class SetupFilter < Base
+        DEFAULT_SETTING = true
+
         def apply?
-          secrets.any? and !app_host.empty?
+          enabled? and secrets.any?
+        end
+
+        def enabled?
+          config[:filter_secrets].nil? ? DEFAULT_SETTING : config[:filter_secrets]
         end
 
         def apply
