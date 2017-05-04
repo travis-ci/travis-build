@@ -26,6 +26,23 @@ describe Filter do
     example { expect(filter('abcdef', 'a', 'bc', 'def')).to be == 'abc[secure]' }
   end
 
+  describe 'sets the status code correctly' do
+    example do
+      with_timeout('true', 1)
+      expect($?.exitstatus).to be == 0
+    end
+
+    example do
+      with_timeout('false', 1)
+      expect($?.exitstatus).to be == 1
+    end
+
+    example do
+      with_timeout('sleep 0.2; exit 128', 1)
+      expect($?.exitstatus).to be == 128
+    end
+  end
+
   it 'live streams' do
     command = %q[ruby public/filter.rb 'ruby -e "print :foo; sleep 0.01; print :bar; sleep"']
     expect(with_timeout(command, 1)).to be == 'foobar'
