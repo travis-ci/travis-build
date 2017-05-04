@@ -1,36 +1,15 @@
-require 'pty'
-
 module Filter
-  class Scanner
-    attr_reader :reader
-
-    def initialize(reader)
-      @reader = reader
-    end
-
-    def read(&block)
-      reader.read(&block)
-    end
-
+  class Scanner < Struct.new(:reader)
     def run(io)
       read { |char| io.print char }
     end
   end
 
-  class Runner < Scanner
-    def read
-      PTY.spawn(reader) do |stdout, stdin, pid|
-        begin
-          yield stdout.readchar until stdout.eof?
-        rescue Errno::EIO
-        end
-
-        until PTY.check(pid, true)
-          sleep 0.1
-        end
+  class Stdin < Scanner
+    def read(&block)
+      while !$stdin.eof? && char = $stdin.readchar
+        block.call char
       end
-    rescue PTY::ChildExited => e
-      e.status.exitstatus
     end
   end
 
@@ -43,15 +22,15 @@ module Filter
     end
 
     def read(&block)
-      buffer = ""
+      buffer = ''
       reader.read do |char|
         buffer << char
         if string == buffer
           yield '[secure]'
-          buffer = ""
+          buffer.clear
         elsif !string.start_with?(buffer)
           buffer.each_char(&block)
-          buffer = ""
+          buffer.clear
         end
       end
     end
@@ -59,12 +38,6 @@ module Filter
 end
 
 if __FILE__ == $0
-  unless command = ARGV.shift
-    $stderr.puts DATA.read
-    exit 1
-  end
-
-  runner = Filter::Runner.new(command)
   secrets = []
 
   until ARGV.empty?
@@ -77,14 +50,17 @@ if __FILE__ == $0
     end
   end
 
-  secrets.uniq.sort_by { |s| -s.length }.each do |secret|
-    runner = Filter::StringFilter.new(runner, secret) if secret.length >= 3
+  secrets = secrets.reject { |s| s.length < 3 }
+  secrets = secrets.uniq.sort_by { |s| -s.length }
+
+  filter = secrets.inject(Filter::Stdin.new($stdin)) do |filter, secret|
+    Filter::StringFilter.new(filter, secret)
   end
 
-  exit runner.run($stdout)
+  filter.run($stdout)
 end
 
 __END__
-Usage: filter.rb COMMAND [OPTIONS]
-          -e VAR    filter environment variable named VAR
-          -s STR    filter string STR
+Usage: filter.rb [OPTIONS]
+          -e VAR filter environment variable named VAR
+          -s STR filter string STR
