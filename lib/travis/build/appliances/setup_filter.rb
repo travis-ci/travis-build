@@ -22,8 +22,13 @@ module Travis
 
         private
 
+          def host
+            return 'build.travis-ci.com' if app_host.empty?
+            app_host
+          end
+
           def download_url
-            "https://#{app_host}/filter.rb".untaint
+            "https://#{host}/filter.rb".untaint
           end
 
           def params
