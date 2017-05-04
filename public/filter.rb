@@ -78,7 +78,7 @@ if __FILE__ == $0
   end
 
   secrets.uniq.sort_by { |s| -s.length }.each do |secret|
-    runner = Filter::StringFilter.new(runner, secret)
+    runner = Filter::StringFilter.new(runner, secret) if secret.length >= 3
   end
 
   exit runner.run($stdout)

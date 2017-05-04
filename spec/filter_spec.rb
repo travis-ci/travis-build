@@ -23,6 +23,7 @@ describe Filter do
     example { expect(filter('foobar foobaz', 'foobar', 'baz')).to be == '[secure] foo[secure]' }
     example { expect(filter('foobar foobaz', 'foobar', 'foo')).to be == '[secure] [secure]baz' }
     example { expect(filter('foobar foobaz', 'foo', 'foobar')).to be == '[secure] [secure]baz' }
+    example { expect(filter('abcdef', 'a', 'bc', 'def')).to be == 'abc[secure]' }
   end
 
   it 'live streams' do
