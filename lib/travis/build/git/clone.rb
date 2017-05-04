@@ -57,7 +57,7 @@ module Travis
 
           def clone_args
             args = "--depth=#{depth}"
-            args << " --branch=#{branch}" unless data.ref || data.tag
+            args << " --branch=#{tag || branch}" unless data.ref
             args << " --quiet" if quiet?
             args
           end
@@ -67,7 +67,11 @@ module Travis
           end
 
           def branch
-            data.branch.shellescape
+            data.branch.shellescape if data.branch
+          end
+
+          def tag
+            data.tag.shellescape if data.tag
           end
 
           def quiet?
