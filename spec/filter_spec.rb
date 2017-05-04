@@ -27,6 +27,6 @@ describe Filter do
 
   it 'live streams' do
     command = %q[ruby public/filter.rb 'ruby -e "print :foo; sleep 0.01; print :bar; sleep"']
-    expect(with_timeout(command, 0.5)).to be == 'foobar'
+    expect(with_timeout(command, 1)).to be == 'foobar'
   end
 end
