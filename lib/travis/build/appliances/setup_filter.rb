@@ -6,7 +6,7 @@ module Travis
     module Appliances
       class SetupFilter < Base
         def apply?
-          secrets.any? and !app_host.empty? and config[:filter_secrets]
+          secrets.any? and !app_host.empty?
         end
 
         def apply
@@ -22,8 +22,13 @@ module Travis
 
         private
 
+          def host
+            return 'build.travis-ci.com' if app_host.empty?
+            app_host
+          end
+
           def download_url
-            "https://#{app_host}/filter.rb".untaint
+            "https://#{host}/filter.rb".untaint
           end
 
           def params
