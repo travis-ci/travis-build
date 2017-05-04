@@ -160,6 +160,7 @@ module Travis
           apply :show_system_info
           apply :fix_rwky_redis
           apply :update_glibc
+          apply :update_libssl
           apply :clean_up_path
           apply :fix_resolv_conf
           apply :fix_etc_hosts
