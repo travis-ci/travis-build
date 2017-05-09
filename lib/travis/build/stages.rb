@@ -3,6 +3,7 @@ require 'travis/build/stages/base'
 require 'travis/build/stages/builtin'
 require 'travis/build/stages/custom'
 require 'travis/build/stages/conditional'
+require 'travis/build/stages/skip'
 
 module Travis
   module Build
@@ -75,14 +76,12 @@ module Travis
         define_header_stage
 
         STAGES.each do |stage|
-          define_stage(stage.type, stage.name) unless skip?(stage)
+          define_stage(stage.type, stage.name)
         end
 
         sh.raw "source $HOME/.travis/job_stages"
 
         STAGES.each do |stage|
-          next if skip?(stage)
-
           case stage.run_in_debug
           when :always
             sh.raw "travis_run_#{stage.name}"
@@ -114,6 +113,7 @@ module Travis
 
       def run_stage(type, name)
         type = :builtin if fallback?(type, name)
+        type = :skip    if skip?(type, name)
         stage = self.class.const_get(type.to_s.camelize).new(script, name)
         stage.run
       end
@@ -122,8 +122,8 @@ module Travis
         script.debug_build_via_api?
       end
 
-      def skip?(stage)
-        stage.type == :custom && SKIP_KEYWORDS.any? { |kw| config[stage.name] == kw }
+      def skip?(type, name)
+        type == :custom && SKIP_KEYWORDS.any? { |word| config[name] == word }
       end
     end
   end
