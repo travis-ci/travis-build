@@ -41,6 +41,11 @@ describe Travis::Build::Addons::Firefox, :sexp do
   context 'given a valid version "latest"' do
     let(:config) { 'latest' }
     it { should include_sexp [:export, ['PATH', "$HOME/firefox-latest/firefox:$PATH"], echo: true] }
+    it "exports correct FIREFOX_SOURCE_URL for the Mac" do
+      expect(sexp_find(subject, [:if, "$(uname) = 'Linux'"], [:else])).to include_sexp(
+        [:export, ['FIREFOX_SOURCE_URL', "\'https://#{host}/?product=firefox-latest&lang=en-US&os=osx'"], echo: true]
+      )
+    end
   end
 
   context 'given a valid version "latest-beta"' do
