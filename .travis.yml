@@ -1,8 +1,9 @@
 language: ruby
 
 cache:
-  branch: md5deep
   bundler: true
+
+dist: trusty
 
 sudo: false
 
