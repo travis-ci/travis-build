@@ -14,9 +14,6 @@ module Travis
 
           # prevent curl from polluting logs but still show errors
           sh.export 'NIX_CURL_FLAGS', '-sS'
-          sh.cmd "echo silent | tee ~/.curlrc > /dev/null"
-          sh.cmd "echo show-error | tee -a ~/.curlrc > /dev/null"
-          sh.cmd "echo retry=2 | tee -a ~/.curlrc > /dev/null"
         end
 
         def configure
@@ -43,7 +40,8 @@ module Travis
           super
 
           sh.fold 'nix.install' do
-            sh.cmd "curl https://nixos.org/nix/install | sh"
+            sh.cmd "wget --retry-connrefused --waitretry=1 -O /tmp/nix-install https://nixos.org/nix/install"
+            sh.cmd "sh /tmp/nix-install"
             sh.cmd "source $HOME/.nix-profile/etc/profile.d/nix.sh"
           end
         end
@@ -51,8 +49,8 @@ module Travis
         def announce
           super
 
-          sh.echo 'Nix support for Travis CI is community maintained.', ansi: :red
-          sh.echo 'Please open any issues at https://github.com/travis-ci/travis-ci/issues/new and cc @domenkozar @garbas @matthewbauer', ansi: :red
+          sh.echo 'Nix support for Travis CI is community maintained.', ansi: :green
+          sh.echo 'Please open any issues at https://github.com/travis-ci/travis-ci/issues/new and cc @domenkozar @garbas @matthewbauer', ansi: :green
 
           sh.cmd "nix-env --version"
         end

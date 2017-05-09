@@ -7,7 +7,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-support
-  revision: 2cd02d2a06fdd1e2fc2f129148c168b56f7c190f
+  revision: 113cff17fe383bb72fcfae3a97a8ce98c228342f
   specs:
     travis-support (0.0.1)
 
@@ -145,4 +145,4 @@ DEPENDENCIES
   travis-support!
 
 BUNDLED WITH
-   1.13.6
+   1.13.7

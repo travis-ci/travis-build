@@ -324,8 +324,8 @@ module Travis
           return if packages.empty?
           packages = Array(packages)
           if config[:os] == 'linux'
-            unless config[:sudo]
-              sh.echo "R binary packages not supported with 'sudo: false', "\
+            if !config[:sudo] or config[:dist] == 'precise'
+              sh.echo "R binary packages not supported with 'sudo: false' or 'dist: precise', "\
                 ' falling back to source install'
               return r_install packages
             end
@@ -506,13 +506,13 @@ module Travis
 
         def normalized_r_version(v=config[:r].to_s)
           case v
-          when 'release' then '3.3.3'
-          when 'oldrel' then '3.2.5'
+          when 'release' then '3.4.0'
+          when 'oldrel' then '3.3.3'
           when '3.0' then '3.0.3'
           when '3.1' then '3.1.3'
           when '3.2' then '3.2.5'
-          when '3.3' then '3.3.2'
           when '3.3' then '3.3.3'
+          when '3.4' then '3.4.0'
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true

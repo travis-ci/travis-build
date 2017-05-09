@@ -161,6 +161,7 @@ travis_result() {
 }
 
 travis_terminate() {
+  set +e
   pkill -9 -P $$ &> /dev/null || true
   exit $1
 }
