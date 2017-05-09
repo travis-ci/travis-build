@@ -91,6 +91,10 @@ module Travis
         update_glibc: ENV.fetch(
           'TRAVIS_BUILD_UPDATE_GLIBC',
           ENV.fetch('TRAVIS_UPDATE_GLIBC', ENV.fetch('UPDATE_GLIBC', ''))
+        ),
+        update_git: ENV.fetch(
+          'TRAVIS_BUILD_UPDATE_GIT',
+          ENV.fetch('TRAVIS_UPDATE_GIT', ENV.fetch('UPDATE_GIT', ''))
         )
       )
 
