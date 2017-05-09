@@ -57,6 +57,7 @@ shared_examples_for 'a build script sexp' do
   it_behaves_like 'build script stages'
   it_behaves_like 'npm registry override'
   it_behaves_like 'update libc6'
+  it_behaves_like 'update libssl1.0.0'
   it_behaves_like 'rvm use'
 
   it 'calls travis_result' do
