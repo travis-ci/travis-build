@@ -78,7 +78,7 @@ module Travis
               # This may change in the future and break builds.
               product = 'firefox-aurora-latest'
             when 'latest-nightly'
-              'firefox-nightly-latest'
+              product = 'firefox-nightly-latest'
             when 'latest-unsigned'
               host = 'index.taskcluster.net'
               path = "v1/task/gecko.v2.mozilla-release.latest.firefox.%s-add-on-devel/artifacts/public/build"
