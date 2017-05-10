@@ -14,6 +14,7 @@ mkdir -p $HOME/.travis
 cat <<'EOFUNC' >>$HOME/.travis/job_stages
 ANSI_RED="\033[31;1m"
 ANSI_GREEN="\033[32;1m"
+ANSI_YELLOW="\033[33;1m"
 ANSI_RESET="\033[0m"
 ANSI_CLEAR="\033[0K"
 
