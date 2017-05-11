@@ -125,6 +125,7 @@ module Travis
           def write_default_gems
             sh.mkdir '$rvm_path/gemsets', recursive: true, echo: false
             sh.cmd 'echo -e "gem-wrappers\nrubygems-bundler\nbundler\nrake\nrvm\n" > $rvm_path/gemsets/global.gems', echo: false, timing: false
+            sh.cmd 'echo -e "jruby-openssl\njruby-launcher\ngem-wrappers\nrubygems-bundler\nbundler\nrake\nrvm\n" > $rvm_path/gemsets/jruby/global.gems', echo: false, timing: false
           end
 
           def force_187_p371(version)
