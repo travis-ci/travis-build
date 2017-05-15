@@ -79,7 +79,7 @@ SH
               env << "COVERITY_SCAN_BUILD_COMMAND=\"${COVERITY_SCAN_BUILD_COMMAND:-#{@config[:build_command]}}\""
               env << "COVERITY_SCAN_BUILD_COMMAND_PREPEND=\"${COVERITY_SCAN_BUILD_COMMAND_PREPEND:-#{@config[:build_command_prepend]}}\""
               env << "COVERITY_SCAN_BRANCH_PATTERN=${COVERITY_SCAN_BRANCH_PATTERN:-#{@config[:branch_pattern]}}"
-              sh.cmd "curl -s #{@config[:build_script_url]} | #{env.join(' ')} bash", echo: true
+              sh.cmd "curl -sf #{@config[:build_script_url]} | #{env.join(' ')} bash", echo: true, assert: true
             end
           end
           sh.else echo:true do
