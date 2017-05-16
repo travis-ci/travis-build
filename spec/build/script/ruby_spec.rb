@@ -141,6 +141,18 @@ describe Travis::Build::Script::Ruby, :sexp do
     end
   end
 
+  context 'when testing with 2.3' do
+    before :each do
+      data[:config][:rvm] = '2.3'
+    end
+
+    it 'ensures rvm alias is defined' do
+      sexp = sexp_find(subject, [:if, "-z $(rvm alias list | grep ^2\\\\.3)"], [:then])
+      store_example "rvm-alias"
+      expect(sexp).to include_sexp [:cmd, "rvm alias create 2.3 ruby-2.3.4", assert: true, echo: true, timing: true]
+    end
+  end
+
   context 'when testing with rbx' do
     before :each do
       data[:config][:rvm] = 'rbx'
