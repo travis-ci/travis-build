@@ -1,3 +1,5 @@
+require 'travis/support'
+
 module Travis
   module Build
     autoload :Config, 'travis/build/config'
@@ -43,6 +45,12 @@ module Travis
           Script.const_get(name, false) rescue Script::Ruby
         end
       end
+
+      def logger
+        @logger ||= Travis::Logger.configure(Logger.new(STDOUT))
+      end
+
+      attr_writer :logger
     end
   end
 end
