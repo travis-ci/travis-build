@@ -14,6 +14,11 @@ module Travis
           rvm_remote_server_verify_downloads3=1
         )
 
+        RVM_VERSION_ALIASES = {
+          '2.3' => '2.3.4',
+          '2.4' => '2.4.1'
+        }
+
         def export
           super
           sh.export 'TRAVIS_RUBY_VERSION', config[:rvm], echo: false if rvm?
@@ -51,6 +56,9 @@ module Travis
 
           def setup_rvm
             write_default_gems
+            if without_teeny?(version)
+              setup_rvm_aliases
+            end
             sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false, timing: false)
             sh.file '$rvm_path/user/db', CONFIG.join("\n")
             send rvm_strategy
@@ -130,6 +138,19 @@ module Travis
 
           def force_187_p371(version)
             version.gsub(/^1\.8\.7.*$/, '1.8.7-p371')
+          end
+
+          def setup_rvm_aliases
+            RVM_VERSION_ALIASES.select {|k,v| k == version}.each do |alias_version, real_version|
+              grep_str = alias_version.gsub('.', '\\\\\\.')
+              sh.if "-z $(rvm alias list | grep ^#{grep_str})" do
+                sh.cmd "rvm alias create #{alias_version} ruby-#{real_version}", echo: true, assert: true
+              end
+            end
+          end
+
+          def without_teeny?(version)
+            version =~ /\A(\d+)(\.\d+)\z/
           end
       end
     end
