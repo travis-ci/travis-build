@@ -15,6 +15,7 @@ gem 'rack-ssl', '~> 1.4'
 gem 'sentry-raven'
 gem 'sinatra', '~> 1.4'
 gem 'travis-config'
+gem 'travis-rollout', git: 'https://github.com/travis-ci/travis-rollout', ref: 'sf-refactor'
 gem 'travis-support', git: 'https://github.com/travis-ci/travis-support'
 
 gem 'faraday'
