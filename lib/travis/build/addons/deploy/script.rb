@@ -132,6 +132,7 @@ module Travis
                 script.stages.run_stage(:custom, :before_deploy)
                 sh.fold('dpl.0') { install }
                 cmd(run_command, echo: false, assert: false, timing: true)
+                sh.export "TRAVIS_DEPLOY_STATUS", "$?"
                 script.stages.run_stage(:custom, :after_deploy)
               end
             end
