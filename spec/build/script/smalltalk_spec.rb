@@ -36,6 +36,13 @@ describe Travis::Build::Script::Smalltalk, :sexp do
       data[:config][:smalltalk] = 'Squeak-5.0'
       data[:config][:os] = 'linux'
     end
+    it 'sets up rtprio for OpenSmalltalkVM' do
+      should include_sexp [:cmd, "pushd $(mktemp -d) > /dev/null"]
+      should include_sexp [:cmd, "gcc -o set_rtprio_limit set_rtprio_limit.c"]
+      should include_sexp [:cmd, "chmod +x ./set_rtprio_limit"]
+      should include_sexp [:cmd, "sudo ./set_rtprio_limit $$"]
+      should include_sexp [:cmd, "popd > /dev/null"]
+    end
     it 'installs default dependencies' do
       should include_sexp [:cmd, "sudo apt-get install -y --no-install-recommends libc6:i386 libuuid1:i386 libfreetype6:i386 libssl1.0.0:i386", retry: true]
     end
@@ -55,6 +62,11 @@ describe Travis::Build::Script::Smalltalk, :sexp do
     before do
       data[:config][:smalltalk] = 'Squeak-5.0'
       data[:config][:os] = 'osx'
+    end
+    it 'should not set up rtprio for OpenSmalltalkVM' do
+      should_not include_sexp [:cmd, "gcc -o set_rtprio_limit set_rtprio_limit.c", assert: true, echo: true, timing: true]
+      should_not include_sexp [:cmd, "chmod +x ./set_rtprio_limit", assert: true, echo: true, timing: true]
+      should_not include_sexp [:cmd, "sudo ./set_rtprio_limit $$", assert: true, echo: true, timing: true]
     end
     it 'does not try to call apt-get' do
       should_not include_sexp [:cmd, "sudo apt-get install -y --no-install-recommends libc6:i386 libuuid1:i386 libfreetype6:i386 libssl1.0.0:i386", retry: true]

@@ -15,13 +15,11 @@ module Travis
 
         def configure
           super
-
           if is_squeak? or is_etoys?
             install_dependencies(DEFAULT_DEPS)
           elsif is_pharo? or is_moose?
             install_dependencies(PHARO_DEPS)
           elsif is_gemstone?
-
             sh.fold 'gemstone_prepare_dependencies' do
               sh.echo 'Preparing build for GemStone', ansi: :yellow
               gemstone_configure_hosts
@@ -33,12 +31,11 @@ module Travis
               when 'osx'
                 gemstone_prepare_osx_shared_memory
               end
-
               gemstone_prepare_netldi
               gemstone_prepare_directories
             end
-
           end
+          set_rtprio_limit if config[:os] == 'linux'
         end
 
         def export
@@ -233,6 +230,18 @@ module Travis
               sh.cmd 'sudo mkdir -p /opt/gemstone /opt/gemstone/log /opt/gemstone/locks'
               sh.cmd 'sudo chown $USER:${GROUPS[0]} /opt/gemstone /opt/gemstone/log /opt/gemstone/locks'
               sh.cmd 'sudo chmod 770 /opt/gemstone /opt/gemstone/log /opt/gemstone/locks'
+            end
+          end
+
+          def set_rtprio_limit
+            sh.fold "set_rtprio_limit" do
+              sh.echo "Setting up real time priority for OpenSmalltalk VMs", ansi: :yellow
+              sh.cmd "pushd $(mktemp -d) > /dev/null", echo: false
+              sh.file "set_rtprio_limit.c", template('smalltalk/set_rtprio_limit.c')
+              sh.cmd "gcc -o set_rtprio_limit set_rtprio_limit.c"
+              sh.cmd "chmod +x ./set_rtprio_limit"
+              sh.cmd "sudo ./set_rtprio_limit $$"
+              sh.cmd "popd > /dev/null", echo: false
             end
           end
 
