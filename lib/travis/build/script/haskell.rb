@@ -33,8 +33,8 @@ module Travis
 
         def setup
           super
+          sh.export 'PATH', "/opt/ghc/bin:${TRAVIS_GHC_ROOT}/${TRAVIS_HASKELL_VERSION}/bin:${PATH}", assert: true
           sh.export 'TRAVIS_HASKELL_VERSION', "$(travis_ghc_find '#{version}')"
-          sh.export 'PATH', "${TRAVIS_GHC_ROOT}/${TRAVIS_HASKELL_VERSION}/bin:${PATH}", assert: true
           sh.cmd 'cabal update', fold: 'cabal', retry: true
         end
 
