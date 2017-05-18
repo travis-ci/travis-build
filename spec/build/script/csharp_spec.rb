@@ -131,8 +131,8 @@ describe Travis::Build::Script::Csharp, :sexp do
       should include_sexp [:cmd, 'mono --version', echo: true, timing: true]
     end
 
-    it 'announces xbuild version' do
-      should include_sexp [:cmd, 'xbuild /version', echo: true, timing: true]
+    it 'announces msbuild version' do
+      should include_sexp [:cmd, 'msbuild /version', echo: true, timing: true]
     end
   end
 
@@ -151,7 +151,7 @@ describe Travis::Build::Script::Csharp, :sexp do
 
     it 'builds specified solution' do
       data[:config][:solution] = 'foo.sln'
-      should include_sexp [:cmd, 'xbuild /p:Configuration=Release foo.sln', echo: true, timing: true]
+      should include_sexp [:cmd, 'msbuild /p:Configuration=Release foo.sln', echo: true, timing: true]
     end
   end
 

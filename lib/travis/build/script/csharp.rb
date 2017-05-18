@@ -138,7 +138,7 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
           super
 
           sh.cmd 'mono --version', timing: true if is_mono_enabled
-          sh.cmd 'xbuild /version', timing: true if is_mono_enabled
+          sh.cmd 'msbuild /version', timing: true if is_mono_enabled
           sh.echo ''
 
           sh.cmd 'dotnet --info', timing: true if is_dotnet_enabled
@@ -157,7 +157,7 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
 
         def script
           if config[:solution] && is_mono_enabled
-            sh.cmd "xbuild /p:Configuration=Release #{config[:solution]}", timing: true
+            sh.cmd "msbuild /p:Configuration=Release #{config[:solution]}", timing: true
           else
             sh.failure 'No solution or script defined, exiting'
           end
