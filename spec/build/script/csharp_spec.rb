@@ -131,7 +131,13 @@ describe Travis::Build::Script::Csharp, :sexp do
       should include_sexp [:cmd, 'mono --version', echo: true, timing: true]
     end
 
+    it 'announces xbuild version' do
+      data[:config][:mono] = '3.8.0'
+      should include_sexp [:cmd, 'xbuild /version', echo: true, timing: true]
+    end
+
     it 'announces msbuild version' do
+      data[:config][:mono] = '5.0.0'
       should include_sexp [:cmd, 'msbuild /version', echo: true, timing: true]
     end
   end
