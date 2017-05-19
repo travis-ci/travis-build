@@ -22,7 +22,7 @@ module Travis
 
             sh.if '$(uname) = "Linux"' do
               sh.if "$(lsb_release -cs) = 'precise'" do
-                sh.echo "Google Chrome addon is not supported on Precsie", ansi: :yellow
+                sh.echo "Google Chrome addon is not supported on Precise", ansi: :yellow
               end
               sh.else do
                 sh.cmd "wget -O /tmp/$(basename $CHROME_SOURCE_URL) $CHROME_SOURCE_URL", echo: true, timing: true, retry: true
