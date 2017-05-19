@@ -109,9 +109,9 @@ module Travis
                 # output.
                 sh.cmd 'brew update >/dev/null', retry: true
 
-                # R-devel builds available at research.att.com
+                # (unsigned) R-devel builds available at research.att.com
                 if r_version == 'devel'
-                  r_url = "https://r.research.att.com/mavericks/R-devel/R-devel-mavericks-signed.pkg"
+                  r_url = "https://r.research.att.com/mavericks/R-devel/R-devel-mavericks.pkg"
 
                 # The latest release is the only one available in /bin/macosx
                 elsif r_version == r_latest
