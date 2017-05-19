@@ -6,6 +6,7 @@ require 'metriks'
 require 'travis/build'
 require 'travis/api/build/sentry'
 require 'travis/api/build/metriks'
+require 'logger'
 
 module Travis
   module Api
@@ -26,6 +27,8 @@ module Travis
                              Travis::Build.config.librato.source.to_s.empty?
 
           use Rack::Deflater
+
+          enable :logging
         end
 
         helpers do
@@ -70,7 +73,12 @@ module Travis
         end
 
         post '/script' do
-          payload = JSON.parse(request.body.read)
+          env['rack.logger'] = ::Logger.new(STDERR)
+          logger.level = ::Logger.const_get(Travis::Build.config.log_level)
+
+          request_json = request.body.read
+          payload = JSON.parse(request_json)
+          logger.debug "request_json=#{request_json}"
 
           unless Travis::Build.config.sentry_dsn.empty?
             Raven.extra_context(
@@ -80,6 +88,7 @@ module Travis
           end
 
           compiled = Travis::Build.script(payload).compile
+          logger.debug "compiled_script=#{compiled}"
 
           content_type 'application/x-sh'
           status 200

@@ -1,5 +1,6 @@
 require 'hashr'
 require 'travis/config'
+require 'logger'
 
 module Travis
   module Build
@@ -127,7 +128,8 @@ module Travis
         update_glibc: ENV.fetch(
           'TRAVIS_BUILD_UPDATE_GLIBC',
           ENV.fetch('TRAVIS_UPDATE_GLIBC', ENV.fetch('UPDATE_GLIBC', ''))
-        )
+        ),
+        log_level: ENV.fetch('TRAVIS_BUILD_LOG_LEVEL', "WARN")
       )
 
       default(
