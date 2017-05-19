@@ -28,10 +28,10 @@ For more information, consult <DOC LINK>, or email support@travis-ci.com.
 
 "
 
-echo -en "${TMATE_MSG}" > $HOME/.tmate-msg
+echo -en "${TMATE_MSG}" > $HOME/.travis/debug_help
 sleep 2 # this sleep is necessary so that `echo`'s buffer can be flushed to disk
         # before starting the tmate session
-$TMATE new-session -d "cat $HOME/.tmate-msg; /bin/bash -l"
+$TMATE new-session -d "cat $HOME/.travis/debug_help; /bin/bash -l"
 $TMATE wait tmate-ready
 
 echo -e "${ANSI_YELLOW}Use the following SSH command to access the interactive debugging environment:${ANSI_RESET}"
