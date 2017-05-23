@@ -11,7 +11,7 @@ module Travis
 
         def after_prepare
           sh.fold 'install_firefox' do
-            sanitize(raw_version)
+            @version, @latest = sanitize_version
 
             unless version
               sh.echo "Invalid version '#{raw_version}' given.", ansi: :red
@@ -46,10 +46,9 @@ module Travis
             config.to_s.strip.shellescape
           end
 
-          def sanitize(input)
-            if m = /\A(?<version>[\d\.]+(?:esr|b\d+)?|(?<latest>latest(?:-(?:beta|dev|esr|nightly|unsigned))?)?)\z/.match(input.chomp)
-              @version = m[:version]
-              @latest  = m[:latest]
+          def sanitize_version
+            if m = /\A(?<version>[\d\.]+(?:esr|b\d+)?|(?<latest>latest(?:-(?:beta|dev|esr|nightly|unsigned))?)?)\z/.match(raw_version.chomp)
+              [m[:version], m[:latest]]
             end
           end
 
