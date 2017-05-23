@@ -11,7 +11,7 @@ module Travis
 
         def after_prepare
           sh.fold 'install_chrome' do
-            sanitize(raw_version)
+            @version ||= sanitize_version
 
             unless version
               sh.echo "Invalid version '#{raw_version}' given.", ansi: :red
@@ -45,9 +45,9 @@ module Travis
             config.to_s.strip.shellescape
           end
 
-          def sanitize(input)
-            if m = /\A(?<version>stable|beta)\z/.match(input.chomp)
-              @version = m[:version]
+          def sanitize_version
+            if m = /\A(?<version>stable|beta)\z/.match(raw_version.chomp)
+              m[:version]
             end
           end
 
