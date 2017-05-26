@@ -174,8 +174,12 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
         end
 
         def composer_self_update
-          sh.cmd "composer self-update 1.0.0", assert: false unless version =~ /^5\.2/
-          sh.cmd "composer self-update", assert: false unless version =~ /^5\.2/
+          unless version =~ /^5\.2/
+            sh.if '-n $(composer --version | grep -o "version [^ ]*1\\.0-dev")' do
+              sh.cmd "composer self-update 1.0.0", assert: false
+            end
+            sh.cmd "composer self-update", assert: false
+          end
         end
       end
     end
