@@ -33,7 +33,7 @@ def fetch_githubusercontent_file(from, host = 'raw.githubusercontent.com', to = 
 
   public_files_dir = "public/files"
   to = File.basename(from) unless to
-  to = File.join("..", public_files_dir, to)
+  to = File.join("..", public_files_dir, to) unless to.start_with?('/')
 
   response = conn.get do |req|
     logger.info "Fetching #{conn.url_prefix.to_s}#{from}"
@@ -66,7 +66,8 @@ def latest_release_for(repo)
   if response.success?
     json_data = JSON.parse(response.body)
     fail "No releases found for #{repo}" if json_data.empty?
-    latest = json_data.sort { |a,b| version_for(a["tag_name"]) <=> version_for(b["tag_name"]) }.last["tag_name"]
+    return yield(json_data) if block_given?
+    return json_data.sort { |a,b| version_for(a["tag_name"]) <=> version_for(b["tag_name"]) }.last["tag_name"]
   else
     fail "Could not find releases for #{repo}"
   end
@@ -143,18 +144,46 @@ file 'public/files/gimme' => 'public/files' do
   fetch_githubusercontent_file "travis-ci/gimme/#{latest_release}/gimme"
 end
 
-desc "update godep for Darwin"
-file 'public/files/godep_darwin_amd64' => 'public/files' do
-  latest_release = latest_release_for 'tools/godep'
-  logger.info "Latest godep release is #{latest_release}"
-  fetch_githubusercontent_file "tools/godep/releases/download/#{latest_release}/godep_darwin_amd64", "github.com"
+[
+  %w(Darwin darwin_amd64 apple-darwin),
+  %w(Linux linux_amd64 unknown-linux-gnu)
+].each do |desc, bin_suffix, tarball_suffix|
+  desc "update redactor for #{desc}"
+  file "public/files/redactor_#{bin_suffix}" => 'public/files' do
+    latest_release = latest_release_for('travis-ci/redactor') do |json_data|
+      json_data.sort do |a, b|
+        a.fetch('tag_name', '').split(/[-\.]/) <=> b.fetch('tag_name', '').split(/[-\.]/)
+      end.last.fetch('tag_name', nil)
+    end
+    logger.info "Latest redactor release is #{latest_release}"
+    fetch_dest = File.join(Dir.tmpdir, "redactor-#{tarball_suffix}.tar.gz")
+    fetch_githubusercontent_file(
+      File.join(
+        'travis-ci/redactor/releases/download',
+        latest_release,
+        "redactor-#{latest_release}-x86_64-#{tarball_suffix}.tar.gz"
+      ),
+      'github.com',
+      fetch_dest
+    )
+
+    sh "tar -C public/files -xzf #{fetch_dest}"
+    mv 'public/files/redactor', "public/files/redactor_#{bin_suffix}"
+    chmod 0o755, "public/files/redactor_#{bin_suffix}"
+    rm_rf fetch_dest
+  end
 end
 
-desc "update godep for Linux"
-file 'public/files/godep_linux_amd64' => 'public/files' do
-  latest_release = latest_release_for 'tools/godep'
-  logger.info "Latest godep release is #{latest_release}"
-  fetch_githubusercontent_file "tools/godep/releases/download/#{latest_release}/godep_linux_amd64", "github.com"
+[
+  %w(Darwin darwin_amd64),
+  %w(Linux linux_amd64)
+].each do |desc, bin_suffix|
+  desc "update godep for #{desc}"
+  file "public/files/godep_#{bin_suffix}" => 'public/files' do
+    latest_release = latest_release_for 'tools/godep'
+    logger.info "Latest godep release is #{latest_release}"
+    fetch_githubusercontent_file "tools/godep/releases/download/#{latest_release}/godep_#{bin_suffix}", "github.com"
+  end
 end
 
 desc 'update nvm.sh'
@@ -213,16 +242,18 @@ multitask update_godep: Rake::FileList[
 desc 'update static files'
 multitask update_static_files: Rake::FileList[
   'lib/travis/build/addons/sauce_connect/sauce_connect.sh',
-  'public/files/sc-linux.tar.gz',
-  'public/files/sc-osx.zip',
-  'public/files/godep_darwin_amd64',
-  'public/files/godep_linux_amd64',
   'public/files/casher',
   'public/files/gimme',
+  'public/files/godep_darwin_amd64',
+  'public/files/godep_linux_amd64',
   'public/files/nvm.sh',
+  'public/files/redactor_darwin_amd64',
+  'public/files/redactor_linux_amd64',
+  'public/files/rustup-init.sh',
   'public/files/sbt',
-  'public/files/tmate-static-linux-amd64.tar.gz',
-  'public/files/rustup-init.sh'
+  'public/files/sc-linux.tar.gz',
+  'public/files/sc-osx.zip',
+  'public/files/tmate-static-linux-amd64.tar.gz'
 ]
 
 desc "show contents in public/files"
