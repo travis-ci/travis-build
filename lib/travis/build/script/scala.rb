@@ -86,6 +86,7 @@ module Travis
               sh.cmd "curl -sf -o sbt.tmp #{SBT_URL}", assert: true
             end
             sh.raw "sed -e '/addSbt \\(warn\\|info\\)/d' sbt.tmp | sudo tee #{SBT_PATH} > /dev/null && rm -f sbt.tmp"
+            sh.chmod "+x", SBT_PATH, sudo: true
           end
       end
     end

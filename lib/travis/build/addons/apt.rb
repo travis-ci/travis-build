@@ -183,10 +183,18 @@ module Travis
 
           def config_sources
             @config_sources ||= Array(config[:sources]).flatten.compact
+          rescue TypeError => e
+            if e.message =~ /no implicit conversion of Symbol into Integer/
+              raise Travis::Build::AptSourcesConfigError.new
+            end
           end
 
           def config_packages
             @config_packages ||= Array(config[:packages]).flatten.compact
+          rescue TypeError => e
+            if e.message =~ /no implicit conversion of Symbol into Integer/
+              raise Travis::Build::AptPackagesConfigError.new
+            end
           end
 
           def config_dist

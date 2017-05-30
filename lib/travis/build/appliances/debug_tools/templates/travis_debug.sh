@@ -19,7 +19,7 @@ while [[ $# > 0 ]]; do
   esac
 done
 
-$TMATE new-session -d '/bin/bash'
+$TMATE new-session -d '/bin/bash -l'
 $TMATE wait tmate-ready
 
 echo -e "${ANSI_YELLOW}Use the following SSH command to access the interactive debugging environment:${ANSI_RESET}"
