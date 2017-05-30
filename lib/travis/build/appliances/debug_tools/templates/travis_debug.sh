@@ -24,7 +24,7 @@ TMATE_MSG="
 Run individual commands; or execute configured build phases
 with ${ANSI_BLUE}\`travis_run_*\`${ANSI_RESET} functions (e.g., ${ANSI_BLUE}\`travis_run_before_install\`${ANSI_RESET}).
 
-For more information, consult <DOC LINK>, or email support@travis-ci.com.
+For more information, consult https://docs.travis-ci.com/user/running-build-in-debug-mode/, or email support@travis-ci.com.
 
 "
 
