@@ -21,6 +21,12 @@ module Travis
               export TRAVIS_FILTERED=1
               #{exports}
               curl -sf -o ~/filter.rb #{Shellwords.escape(download_url)}
+
+              if [ $? -ne 0 ]; then
+                echo "Download from #{Shellwords.escape(download_url)} failed. Trying #{Shellwords.escape("https://build.travis-ci.com/filter.rb".untaint)}..."
+                curl -sf -o ~/filter.rb #{Shellwords.escape("https://build.travis-ci.com/filter.rb".untaint)}
+              fi
+
               exec ruby ~/filter.rb "/usr/bin/env TERM=xterm /bin/bash --login $HOME/build.sh" #{params}
             fi
           SHELL
