@@ -194,9 +194,12 @@ module Travis
             # Install dependencies for the package we're testing.
             install_deps
           end
-          sh.fold 'R-installed-versions' do
-            sh.echo 'Installed package versions', ansi: :yellow
-            sh.cmd 'Rscript -e \'devtools::session_info(installed.packages()[, "Package"])\''
+
+          if @devtools_installed
+            sh.fold 'R-installed-versions' do
+              sh.echo 'Installed package versions', ansi: :yellow
+              sh.cmd 'Rscript -e \'devtools::session_info(installed.packages()[, "Package"])\''
+            end
           end
         end
 
@@ -230,8 +233,10 @@ module Travis
           end
           export_rcheck_dir
 
-          # Output check summary
-          sh.cmd 'Rscript -e "message(devtools::check_failures(path = \"${RCHECK_DIR}\"))"', echo: false
+          if @devtools_installed
+            # Output check summary
+            sh.cmd 'Rscript -e "message(devtools::check_failures(path = \"${RCHECK_DIR}\"))"', echo: false
+          end
 
           # Build fails if R CMD check fails
           sh.if '$CHECK_RET -ne 0' do
@@ -249,7 +254,7 @@ module Travis
           end
 
           # Check revdeps, if requested.
-          if config[:r_check_revdep]
+          if @devtools_installed and config[:r_check_revdep]
             sh.echo "Checking reverse dependencies"
             revdep_script =
               'library("devtools");' \
