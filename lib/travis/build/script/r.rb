@@ -444,7 +444,7 @@ module Travis
             sh.cmd "curl -fLo /tmp/#{texlive_filename} #{texlive_url}"
             sh.cmd "tar xzf /tmp/#{texlive_filename} -C ~"
             sh.export 'PATH', "/$HOME/texlive/bin/x86_64-linux:$PATH"
-            sh.cmd 'tlmgr update --self'
+            sh.cmd 'tlmgr update --self', assert: false
           when 'osx'
             # We use basictex due to disk space constraints.
             mactex = 'BasicTeX.pkg'
@@ -458,11 +458,11 @@ module Travis
             sh.rm "/tmp/#{mactex}"
             sh.export 'PATH', '/usr/texbin:/Library/TeX/texbin:$PATH'
 
-            sh.cmd 'sudo tlmgr update --self'
+            sh.cmd 'sudo tlmgr update --self', assert: false
 
             # Install common packages
             sh.cmd 'sudo tlmgr install inconsolata upquote '\
-              'courier courier-scaled helvetic'
+              'courier courier-scaled helvetic', assert: false
           end
         end
 
