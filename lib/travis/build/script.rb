@@ -168,7 +168,7 @@ module Travis
           apply :no_ipv6_localhost
           apply :fix_etc_mavenrc
           apply :etc_hosts_pinning
-          apply :fix_wwdr_certificate
+          # apply :fix_wwdr_certificate
           apply :put_localhost_first
           apply :home_paths
           apply :disable_initramfs
