@@ -10,6 +10,9 @@ module Travis
             vars = line.scan(PATTERN).map { |var| var[0, 2] }
             vars = vars.map { |var| var << { secure: true } } if secure
             vars
+
+          rescue Exception => e
+            raise Travis::Build::EnvVarDefinitionError
           end
 
           def mark_secure(vars)

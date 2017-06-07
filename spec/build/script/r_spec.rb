@@ -25,7 +25,7 @@ describe Travis::Build::Script::R, :sexp do
     data[:config][:r] = 'bioc-release'
     should include_sexp [:cmd, %r{source\(\"https://bioconductor.org/biocLite.R\"\)},
                          assert: true, echo: true, timing: true, retry: true]
-    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.3.2']]
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.4.0']]
   end
 
   it 'r_packages works with a single package set' do
@@ -46,7 +46,7 @@ describe Travis::Build::Script::R, :sexp do
   end
 
   it 'downloads and installs latest R' do
-    should include_sexp [:cmd, %r{^curl.*https://s3\.amazonaws\.com/rstudio-travis/R-3\.3\.2-\$\(lsb_release -cs\)\.xz},
+    should include_sexp [:cmd, %r{^curl.*https://s3\.amazonaws\.com/rstudio-travis/R-3\.4\.0-\$\(lsb_release -cs\)\.xz},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
@@ -100,7 +100,7 @@ describe Travis::Build::Script::R, :sexp do
 
   it 'downloads pandoc and installs into /usr/bin/pandoc' do
     data[:config][:pandoc_version] = '1.15.2'
-    should include_sexp [:cmd, %r{curl -Lo /tmp/pandoc-1\.15\.2-1-amd64\.deb https://github\.com/jgm/pandoc/releases/download/1\.15\.2/pandoc-1\.15\.2-1-amd64\.deb},
+    should include_sexp [:cmd, %r{curl.*/tmp/pandoc-1\.15\.2-1-amd64\.deb https://github\.com/jgm/pandoc/releases/download/1\.15\.2/pandoc-1\.15\.2-1-amd64\.deb},
                          assert: true, echo: true, timing: true]
 
     should include_sexp [:cmd, %r{sudo dpkg -i /tmp/pandoc-},
@@ -197,11 +197,11 @@ describe Travis::Build::Script::R, :sexp do
     }
     it {
       data[:config][:r] = 'release'
-      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.3.2")
+      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.4.0")
     }
     it {
       data[:config][:r] = 'oldrel'
-      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.2.5")
+      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.3.3")
     }
     it {
       data[:config][:r] = '3.1'

@@ -21,14 +21,16 @@ module Travis
             sh.mkdir install_dir, echo: false, recursive: true
             sh.cd install_dir, echo: false, stack: true
 
-            sh.if "$(uname) = 'Linux'" do
-              sh.cmd "wget -q -O tmate.tar.gz #{static_build_linux_url}", echo: false, retry: true
-              sh.cmd "tar --strip-components=1 -xf tmate.tar.gz", echo: false
-            end
-            sh.else do
-              sh.echo "We are setting up the debug environment. This may take a while..."
-              sh.cmd "brew update &> /dev/null", echo: false, retry: true
-              sh.cmd "brew install tmate &> /dev/null", echo: false, retry: true
+            sh.if "-z $(command -v tmate)" do
+              sh.if "$(uname) = 'Linux'" do
+                sh.cmd "wget -q -O tmate.tar.gz #{static_build_linux_url}", echo: false, retry: true
+                sh.cmd "tar --strip-components=1 -xf tmate.tar.gz", echo: false
+              end
+              sh.else do
+                sh.echo "We are setting up the debug environment. This may take a while..."
+                sh.cmd "brew update &> /dev/null", echo: false, retry: true
+                sh.cmd "brew install tmate &> /dev/null", echo: false, retry: true
+              end
             end
 
             sh.file "travis_debug.sh", template('travis_debug.sh')

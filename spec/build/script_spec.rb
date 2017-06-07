@@ -53,6 +53,30 @@ describe Travis::Build::Script, :sexp do
     end
   end
 
+  context 'when install phase is `"skip"`' do
+    it 'execute `travis_run_install` function, and set the test result' do
+      payload[:config][:install] = 'skip'
+      should include_sexp [:raw, 'travis_run_install']
+      should_not include_sexp [:raw, 'travis_result 0'] # these functions are hard to test, extract an bash ast type :function?
+    end
+  end
+
+  context 'when script phase is `"skip"`' do
+    it 'execute `travis_run_script` function, and set the test result' do
+      payload[:config][:script] = 'skip'
+      should include_sexp [:raw, 'travis_run_install']
+      should include_sexp [:raw, 'travis_result 0'] # these functions are hard to test, extract an bash ast type :function?
+    end
+  end
+
+  context 'when before_install phase is `["skip"]`' do
+    it 'executes `travis_run_before_install` function' do
+      payload[:config][:before_install] = ['skip']
+
+      should include_sexp [:raw, 'travis_run_install']
+    end
+  end
+
   context 'when running a debug build' do
     let(:payload) { payload_for(:push_debug, :ruby, config: { cache: ['apt', 'bundler'] }).merge(config) }
     it_behaves_like 'a debug script'

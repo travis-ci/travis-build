@@ -96,7 +96,7 @@ module Travis
 
                 r_filename = "R-#{r_version}-$(lsb_release -cs).xz"
                 r_url = "https://s3.amazonaws.com/rstudio-travis/#{r_filename}"
-                sh.cmd "curl -Lo /tmp/#{r_filename} #{r_url}", retry: true
+                sh.cmd "curl -fLo /tmp/#{r_filename} #{r_url}", retry: true
                 sh.cmd "tar xJf /tmp/#{r_filename} -C ~"
                 sh.export 'PATH', "$HOME/R-bin/bin:$PATH", echo: false
                 sh.export 'LD_LIBRARY_PATH', "$HOME/R-bin/lib:$LD_LIBRARY_PATH", echo: false
@@ -129,14 +129,14 @@ module Travis
                 end
 
                 # Install from latest CRAN binary build for OS X
-                sh.cmd "curl -Lo /tmp/R.pkg #{r_url}", retry: true
+                sh.cmd "curl -fLo /tmp/R.pkg #{r_url}", retry: true
 
                 sh.echo 'Installing OS X binary package for R'
                 sh.cmd 'sudo installer -pkg "/tmp/R.pkg" -target /'
                 sh.rm '/tmp/R.pkg'
 
                 # Install gfortran libraries the precompiled binaries are linked to
-                sh.cmd 'curl -Lo /tmp/gfortran.tar.bz2 http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2', retry: true
+                sh.cmd 'curl -fLo /tmp/gfortran.tar.bz2 http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2', retry: true
                 sh.cmd 'sudo tar fvxz /tmp/gfortran.tar.bz2 -C /'
                 sh.rm '/tmp/gfortran.tar.bz2'
 
@@ -324,8 +324,8 @@ module Travis
           return if packages.empty?
           packages = Array(packages)
           if config[:os] == 'linux'
-            unless config[:sudo]
-              sh.echo "R binary packages not supported with 'sudo: false', "\
+            if !config[:sudo] or config[:dist] == 'precise'
+              sh.echo "R binary packages not supported with 'sudo: false' or 'dist: precise', "\
                 ' falling back to source install'
               return r_install packages
             end
@@ -436,7 +436,7 @@ module Travis
           when 'linux'
             texlive_filename = 'texlive.tar.gz'
             texlive_url = 'https://github.com/jimhester/ubuntu-bin/releases/download/latest/texlive.tar.gz'
-            sh.cmd "curl -Lo /tmp/#{texlive_filename} #{texlive_url}"
+            sh.cmd "curl -fLo /tmp/#{texlive_filename} #{texlive_url}"
             sh.cmd "tar xzf /tmp/#{texlive_filename} -C ~"
             sh.export 'PATH', "/$HOME/texlive/bin/x86_64-linux:$PATH"
             sh.cmd 'tlmgr update --self'
@@ -469,7 +469,7 @@ module Travis
               "#{pandoc_filename}"
 
             # Download and install pandoc
-            sh.cmd "curl -Lo /tmp/#{pandoc_filename} #{pandoc_url}"
+            sh.cmd "curl -fLo /tmp/#{pandoc_filename} #{pandoc_url}"
             sh.cmd "sudo dpkg -i /tmp/#{pandoc_filename}"
 
             # Fix any missing dependencies
@@ -483,7 +483,7 @@ module Travis
               "#{pandoc_filename}"
 
             # Download and install pandoc
-            sh.cmd "curl -Lo /tmp/#{pandoc_filename} #{pandoc_url}"
+            sh.cmd "curl -fLo /tmp/#{pandoc_filename} #{pandoc_url}"
             sh.cmd "sudo installer -pkg \"/tmp/#{pandoc_filename}\" -target /"
 
             # Cleanup
@@ -495,7 +495,7 @@ module Travis
         # See FAQ: https://github.com/Homebrew/brew/blob/master/share/doc/homebrew/FAQ.md
         def disable_homebrew
           return unless (config[:os] == 'osx')
-          sh.cmd "curl -sSOL https://raw.githubusercontent.com/Homebrew/install/master/uninstall"
+          sh.cmd "curl -fsSOL https://raw.githubusercontent.com/Homebrew/install/master/uninstall"
           sh.cmd "sudo ruby uninstall --force"
           sh.cmd "rm uninstall"
         end
@@ -506,12 +506,13 @@ module Travis
 
         def normalized_r_version(v=config[:r].to_s)
           case v
-          when 'release' then '3.3.2'
-          when 'oldrel' then '3.2.5'
+          when 'release' then '3.4.0'
+          when 'oldrel' then '3.3.3'
           when '3.0' then '3.0.3'
           when '3.1' then '3.1.3'
           when '3.2' then '3.2.5'
-          when '3.3' then '3.3.2'
+          when '3.3' then '3.3.3'
+          when '3.4' then '3.4.0'
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true

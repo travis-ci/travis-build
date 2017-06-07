@@ -1,0 +1,9 @@
+{
+  "config":{
+    "script": "skip"
+  },
+  "repository":{
+    "slug":"travis-repos/chirp-org-staging",
+    "source_url":"https://github.com/travis-repos/chirp-org-staging.git"
+  }
+}
