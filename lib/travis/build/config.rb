@@ -91,8 +91,7 @@ module Travis
         update_glibc: ENV.fetch(
           'TRAVIS_BUILD_UPDATE_GLIBC',
           ENV.fetch('TRAVIS_UPDATE_GLIBC', ENV.fetch('UPDATE_GLIBC', ''))
-        ),
-        uptime_status_code: ENV.fetch('TRAVIS_BUILD_UPTIME_STATUS_CODE', '204')
+        )
       )
 
       default(
