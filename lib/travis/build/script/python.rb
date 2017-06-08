@@ -98,7 +98,7 @@ module Travis
 
           def install_python_archive(version = 'nightly')
             if version =~ /^pypy/
-              if md = /^(?<interpreter>pypy[^-]*)(-(?<version>.*))?/.match(version)
+              if md = /^(?<interpreter>pypy[^-]*)-(?<version>.*)/.match(version)
                 lang = md[:interpreter]
                 vers = md[:version]
               end
@@ -108,8 +108,7 @@ module Travis
             end
             sh.raw archive_url_for('travis-python-archives', vers, lang)
             sh.echo "Downloading archive: ${archive_url}", ansi: :yellow
-            archive_basename = [lang, vers].compact.join("-")
-            archive_filename = "#{archive_basename}.tar.bz2"
+            archive_filename = "#{lang}-#{vers}.tar.bz2"
             sh.cmd "curl -s -o #{archive_filename} ${archive_url}", assert: true
             sh.cmd "sudo tar xjf #{archive_filename} --directory /", echo: true, assert: true
             sh.cmd "rm #{archive_filename}", echo: false
