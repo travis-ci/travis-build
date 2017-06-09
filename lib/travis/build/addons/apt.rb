@@ -162,7 +162,7 @@ module Travis
 
               if whitelisted.any? {|pkg| pkg == "ttf-mscorefonts-installer"}
                   command = 'echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections'
-                  sh.cmd command, echo: true, timing: true
+                  sh.cmd command, echo: true, timing: false
               end
 
               sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
