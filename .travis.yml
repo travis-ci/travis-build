@@ -7,37 +7,33 @@ dist: trusty
 
 sudo: false
 
+rvm: 2.3.4
+
 env:
   global:
-  - RUBYOPT='-W0'
   - COVERAGE=1
   matrix:
   - INTEGRATION_SPECS=0
   - INTEGRATION_SPECS=1
 
-matrix:
+stages:
+  - "test"
+  - ":ship: it to Quay.io"
+
+jobs:
   include:
-    - sudo: required
+    - stage: "test"
+      sudo: required
       dist: trusty
       env:
-      script:
-        - docker build -t travis-build .
-        - docker run -d -it -p 5000:5000 -e PORT=5000 travis-build
-        - sleep 10
-        - e=0; for f in example_payloads/*.json; do echo ${f##*/}; curl -sf -X POST -d @$f localhost:5000/script >/dev/null || let e=$e+1; done; test $e -eq 0
+      script: ./script/validate-example-payloads-with-docker
+    - stage: ":ship: it to Quay.io"
+      sudo: required
+      dist: trusty
+      env:
+      script: ./script/docker-build-and-push
 
-script:
-  - bundle exec rake
-  - e=0; for f in examples/*.sh.txt; do echo "checking bash syntax $f"; bash -n $f || let e=$e+1; done; test $e -eq 0
-  - |
-    e=0
-    mkdir -p $HOME/.travis
-    for f in examples/*-integration-*.sh.txt; do
-      cat > $HOME/.travis/job_stages < /dev/null
-      sed -i '/^source $HOME\/\.travis\/job_stages/,$d' $f
-      bash --norc -c "source $f && source $HOME/.travis/job_stages || exit 1" || let e=$e+1
-    done
-    test $e -eq 0
+script: bundle exec rake && ./script/validate-bash-syntax
 
 after_success: bundle exec codeclimate-test-reporter
 
