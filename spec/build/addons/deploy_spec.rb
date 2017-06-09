@@ -127,8 +127,17 @@ describe Travis::Build::Addons::Deploy, :sexp do
     # it { p subject; p sexp; expect(sexp_find(sexp, [:if, '(! (-z $TRAVIS_PULL_REQUEST))'])).to include_sexp is_pull_request }
     # it { expect(sexp_find(sexp, [:if, '(! ($TRAVIS_BRANCH = master))'])).to include_sexp not_permitted }
     # it { expect(sexp_find(sexp, [:if, '(! ($FOO = foo))'])).to include_sexp custom_condition }
-    it { expect(sexp_find(sexp, [:if, ' ! $TRAVIS_BRANCH = master'])).to include_sexp not_permitted }
-    it { expect(sexp_find(sexp, [:if, ' ! $FOO = foo'])).to include_sexp custom_condition }
+    it { expect(sexp_find(sexp, [:if, ' ! ($TRAVIS_BRANCH = master)'])).to include_sexp not_permitted }
+    it { expect(sexp_find(sexp, [:if, ' ! ($FOO = foo)'])).to include_sexp custom_condition }
+  end
+
+  describe 'deploy with compound condition fails' do
+    let(:config) { { provider: 'heroku', on: { condition: '$FOO = foo && $BAR = bar'} } }
+    let(:sexp)   { sexp_find(subject, [:if, '($TRAVIS_BRANCH = master) && ($FOO = foo && $BAR = bar)'], [:else]) }
+
+    let(:custom_condition) { [:echo, 'Skipping a deployment with the heroku provider because a custom condition was not met', ansi: :yellow] }
+
+    it { expect(sexp_find(sexp, [:if, ' ! ($FOO = foo && $BAR = bar)'])).to include_sexp custom_condition }
   end
 
   describe 'deploy condition fails with tags' do
@@ -137,7 +146,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
 
     let(:not_tag) { [:echo, "Skipping a deployment with the heroku provider because this is not a tagged commit", ansi: :yellow] }
 
-    it { expect(sexp_find(sexp, [:if, ' ! "$TRAVIS_TAG" != ""'])).to include_sexp not_tag }
+    it { expect(sexp_find(sexp, [:if, ' ! ("$TRAVIS_TAG" != "")'])).to include_sexp not_tag }
   end
 end
 

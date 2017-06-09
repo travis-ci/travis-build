@@ -71,6 +71,9 @@ MESSAGE
         def export
           super
 
+          sh.export 'TRAVIS_DART_TEST', (!!task[:test]).to_s, echo: false
+          sh.export 'TRAVIS_DART_ANALYZE', (!!task[:dartanalyzer]).to_s, echo: false
+          sh.export 'TRAVIS_DART_FORMAT', (!!task[:dartfmt]).to_s, echo: false
           sh.export 'TRAVIS_DART_VERSION', task[:dart], echo: false
         end
 
@@ -231,16 +234,24 @@ MESSAGE
               sh.echo "dartfmt arguments aren't supported.", ansi: :red
             end
 
-            sh.if package_installed?('dart_style'), raw: true do
+            sh.if package_direct_dependency?('dart_style'), raw: true do
               sh.raw 'function dartfmt() { pub run dart_style:format "$@"; }'
             end
 
             sh.cmd 'unformatted=`dartfmt -n .`'
+            # If `dartfmt` fails for some reason
+            sh.if '$? -ne 0' do
+              sh.failure ""
+            end
             sh.if '! -z "$unformatted"' do
               sh.echo "Files are unformatted:", ansi: :red
               sh.echo "$unformatted"
               sh.failure ""
             end
+          end
+
+          def package_direct_dependency?(package)
+            "[[ -f pubspec.yaml ]] && (pub deps | grep -q \"^[|']-- #{package} \")"
           end
 
           def package_installed?(package)

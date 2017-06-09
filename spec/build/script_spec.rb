@@ -54,10 +54,18 @@ describe Travis::Build::Script, :sexp do
   end
 
   context 'when install phase is `"skip"`' do
-    it 'does not execute `travis_run_install` function' do
+    it 'execute `travis_run_install` function, and set the test result' do
       payload[:config][:install] = 'skip'
+      should include_sexp [:raw, 'travis_run_install']
+      should_not include_sexp [:raw, 'travis_result 0'] # these functions are hard to test, extract an bash ast type :function?
+    end
+  end
 
-      should_not include_sexp [:raw, 'travis_run_install']
+  context 'when script phase is `"skip"`' do
+    it 'execute `travis_run_script` function, and set the test result' do
+      payload[:config][:script] = 'skip'
+      should include_sexp [:raw, 'travis_run_install']
+      should include_sexp [:raw, 'travis_result 0'] # these functions are hard to test, extract an bash ast type :function?
     end
   end
 

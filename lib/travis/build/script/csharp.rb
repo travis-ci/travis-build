@@ -45,18 +45,37 @@ View valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csh
                 sh.cmd 'sudo apt-get install -qq mono-complete mono-vbnc fsharp', timing: true, assert: true
               else
                 sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF', echo: false, assert: true
-                sh.if '$(lsb_release -cs) = precise' do
-                  sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy-libtiff-compat main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false, assert: true
+
+                if config[:mono] == 'alpha'
+                  # new Mono repo layout
+                  sh.if '$(lsb_release -cs) = precise' do
+                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu alpha-precise main' > /etc/apt/sources.list.d/mono-official-alpha.list\"", echo: false, assert: true
+                  end
+                  sh.elif '$(lsb_release -cs) = trusty' do
+                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu alpha-trusty main' > /etc/apt/sources.list.d/mono-official-alpha.list\"", echo: false, assert: true
+                  end
+                  sh.elif '$(lsb_release -cs) = xenial' do
+                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu alpha-xenial main' > /etc/apt/sources.list.d/mono-official-alpha.list\"", echo: false, assert: true
+                  end
+                  sh.else do
+                    sh.failure "The version of this operating system is not supported by Mono. View valid versions at https://docs.travis-ci.com/user/languages/csharp/"
+                  end
+                else
+                  # old Mono repo layout
+                  sh.if '$(lsb_release -cs) = precise' do
+                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy-libtiff-compat main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false, assert: true
+                  end
+                  mono_repos.each do |repo|
+                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian #{repo} main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false, assert: true
+                  end
                 end
-                mono_repos.each do |repo|
-                  sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian #{repo} main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false, assert: true
-                end
+
                 sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
                 sh.cmd "sudo apt-get install -qq mono-complete mono-vbnc fsharp nuget #{'referenceassemblies-pcl' if !is_mono_3_8_0}", timing: true, assert: true
                                                                                       # PCL Assemblies only supported on mono 3.10 and greater
               end
             when 'osx'
-              sh.cmd "curl -o \"/tmp/mdk.pkg\" -fL #{mono_osx_url}", timing: true, assert: true, echo: true
+              sh.cmd "wget --retry-connrefused --waitretry=1 -O /tmp/mdk.pkg #{mono_osx_url}", timing: true, assert: true, echo: true
               sh.cmd 'sudo installer -package "/tmp/mdk.pkg" -target "/" -verboseR', timing: true, assert: true
               sh.cmd 'eval $(/usr/libexec/path_helper -s)', timing: false, assert: true
             else
@@ -66,7 +85,7 @@ View valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csh
             if is_mono_before_3_12 && config[:os] == 'linux'
               # we need to fetch an ancient version of certdata (from 2009) because newer versions run into a Mono bug: https://github.com/mono/mono/pull/1514
               # this is the same file that was used in the old mozroots before https://github.com/mono/mono/pull/3188 so nothing really changes (but still less than ideal)
-              sh.cmd 'curl -fL -o /tmp/certdata.txt https://hg.mozilla.org/releases/mozilla-release/raw-file/5d447d9abfdf/security/nss/lib/ckfw/builtins/certdata.txt'
+              sh.cmd 'wget --retry-connrefused --waitretry=1 -O /tmp/certdata.txt https://hg.mozilla.org/releases/mozilla-release/raw-file/5d447d9abfdf/security/nss/lib/ckfw/builtins/certdata.txt'
               sh.cmd 'mozroots --import --sync --quiet --file /tmp/certdata.txt', timing: true
             end
           end
@@ -88,10 +107,10 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
             when 'linux'
               sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 417A0893', assert: true
               sh.if '$(lsb_release -cs) = trusty' do
-                sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] http://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
+                sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
               end
               sh.elif '$(lsb_release -cs) = xenial' do
-                sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] http://apt-mo.trafficmanager.net/repos/dotnet-release/ xenial main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
+                sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet-release/ xenial main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
               end
               sh.else do
                 sh.failure "The version of this operating system is not supported by .NET Core. View valid versions at https://docs.travis-ci.com/user/languages/csharp/"
@@ -106,7 +125,7 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
               sh.cmd 'mkdir -p /usr/local/lib', timing: false, assert: true
               sh.cmd 'ln -s /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib /usr/local/lib/', timing: false, assert: true
               sh.cmd 'ln -s /usr/local/opt/openssl/lib/libssl.1.0.0.dylib /usr/local/lib/', timing: false, assert: true
-              sh.cmd "curl -o \"/tmp/dotnet.pkg\" -fL #{dotnet_osx_url}", timing: true, assert: true, echo: true
+              sh.cmd "wget --retry-connrefused --waitretry=1 -O /tmp/dotnet.pkg #{dotnet_osx_url}", timing: true, assert: true, echo: true
               sh.cmd 'sudo installer -package "/tmp/dotnet.pkg" -target "/" -verboseR', timing: true, assert: true
               sh.cmd 'eval $(/usr/libexec/path_helper -s)', timing: false, assert: true
             else
@@ -150,9 +169,6 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
           case config[:mono]
           when 'latest'
             repos << 'wheezy'
-          when 'alpha'
-            repos << 'wheezy'
-            repos << 'alpha'
           when 'beta'
             repos << 'wheezy'
             repos << 'beta'

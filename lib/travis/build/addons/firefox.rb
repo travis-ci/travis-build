@@ -11,7 +11,7 @@ module Travis
 
         def after_prepare
           sh.fold 'install_firefox' do
-            sanitize(raw_version)
+            @version, @latest = sanitize_version
 
             unless version
               sh.echo "Invalid version '#{raw_version}' given.", ansi: :red
@@ -38,6 +38,7 @@ module Travis
             end
             sh.cd :back, echo: false, stack: true
           end
+          sh.cmd "firefox --version", echo: true
         end
 
         private
@@ -45,10 +46,9 @@ module Travis
             config.to_s.strip.shellescape
           end
 
-          def sanitize(input)
-            if m = /\A(?<version>[\d\.]+(?:esr|b\d+)?|(?<latest>latest(?:-(?:beta|dev|esr|nightly))?)?)\z/.match(input.chomp)
-              @version = m[:version]
-              @latest  = m[:latest]
+          def sanitize_version
+            if m = /\A(?<version>[\d\.]+(?:esr|b\d+)?|(?<latest>latest(?:-(?:beta|dev|esr|nightly|unsigned))?)?)\z/.match(raw_version.chomp)
+              [m[:version], m[:latest]]
             end
           end
 
@@ -61,31 +61,40 @@ module Travis
           end
 
           def export_source_url
-            product = case latest
+            host = 'download.mozilla.org'
+
+            case latest
+
             when 'latest'
-              'firefox-latest'
+              product = 'firefox-latest'
             when 'latest-beta'
-              'firefox-beta-latest'
+              product = 'firefox-beta-latest'
             when 'latest-esr'
-              'firefox-esr-latest'
+              product = 'firefox-esr-latest'
             when 'latest-dev'
               # The name 'aurora' is nickname for "developer edition",
               # documented in https://wiki.mozilla.org/Firefox/Channels#Developer_Edition_.28aka_Aurora.29
               # This may change in the future and break builds.
-              'firefox-aurora-latest'
+              product = 'firefox-aurora-latest'
             when 'latest-nightly'
-              'firefox-nightly-latest'
+              product = 'firefox-nightly-latest'
+            when 'latest-unsigned'
+              host = 'index.taskcluster.net'
+              path = "v1/task/gecko.v2.mozilla-release.latest.firefox.%s-add-on-devel/artifacts/public/build"
+              unsigned_archive_file = "firefox-%s.en-US.%s-add-on-devel.%s"
+              source_url_linux = "\"https://#{host}/#{path}/#{unsigned_archive_file}\""
+              source_url_mac   = "\"https://#{host}/#{path}/#{unsigned_archive_file}\""
             else
-              "firefox-#{version}"
+              product = "firefox-#{version}"
             end
-
-            host = 'download.mozilla.org'
 
             sh.if "$(uname) = 'Linux'" do
-              sh.export 'FIREFOX_SOURCE_URL', "'https://#{host}/?product=#{product}&lang=en-US&os=linux64'"
+              source_url_linux ||= "'https://#{host}/?product=#{product}&lang=en-US&os=linux64'"
+              sh.export 'FIREFOX_SOURCE_URL', source_url_linux % [ "linux64", "$(curl -sfL https://#{host}/#{path}/buildbot_properties.json | jq -r .properties.appVersion)" % "linux64", "linux-x86_64", "tar.bz2" ]
             end
             sh.else do
-              sh.export 'FIREFOX_SOURCE_URL', "'https://#{host}/?product=#{product}&lang=en-US&os=osx'"
+              source_url_mac ||= "'https://#{host}/?product=#{product}&lang=en-US&os=osx'"
+              sh.export 'FIREFOX_SOURCE_URL', source_url_mac % ["macosx64", "$(curl -sfL https://#{host}/#{path}/buildbot_properties.json | jq -r .properties.appVersion)" % "macosx64", "mac", "dmg" ]
             end
           end
 

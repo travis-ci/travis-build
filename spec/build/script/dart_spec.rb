@@ -244,7 +244,7 @@ describe Travis::Build::Script::Dart, :sexp do
       before { data[:config][:dart_task] = 'dartfmt' }
 
       describe 'when dart_style is installed' do
-        let(:sexp) { sexp_find(subject, [:elif, "[[ -d packages/dart_style ]] || grep -q ^dart_style: .packages 2> /dev/null"]) }
+        let(:sexp) { sexp_find(subject, [:elif, "[[ -f pubspec.yaml ]] && (pub deps | grep -q \"^[|']-- dart_style \")"]) }
         it "runs the installed version of dartfmt" do
           should include_sexp [:raw, 'function dartfmt() { pub run dart_style:format "$@"; }']
         end

@@ -26,7 +26,7 @@ describe Travis::Build::Addons::Browserstack, :sexp do
   describe 'without access_key' do
     let(:config) { {} }
 
-    it { should include_sexp [:echo, "access_key is invalid.", ansi: :red] }
+    it { should include_sexp [:echo, "Browserstack access_key is invalid.", ansi: :red] }
   end
 
   describe 'with access_key' do
@@ -40,7 +40,7 @@ describe Travis::Build::Addons::Browserstack, :sexp do
     let(:config) { { os: 'linux', username: 'user1', access_key: 'accesskey' } }
 
     it_behaves_like 'installs browserstack local'
-    it { should include_sexp [:export, ["#{described_class::ENV_USER}", config[:username]], {:echo => true}] }
+    it { should include_sexp [:export, ["#{described_class::ENV_USER}", config[:username] + "-travis"], {:echo => true}] }
     it { should include_sexp [:cmd, "#{described_class::BROWSERSTACK_HOME}/BrowserStackLocal -d start #{config[:access_key]} -localIdentifier $BROWSERSTACK_LOCAL_IDENTIFIER"] }
   end
 

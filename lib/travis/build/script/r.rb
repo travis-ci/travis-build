@@ -194,9 +194,12 @@ module Travis
             # Install dependencies for the package we're testing.
             install_deps
           end
-          sh.fold 'R-installed-versions' do
-            sh.echo 'Installed package versions', ansi: :yellow
-            sh.cmd 'Rscript -e \'devtools::session_info(installed.packages()[, "Package"])\''
+
+          if @devtools_installed
+            sh.fold 'R-installed-versions' do
+              sh.echo 'Installed package versions', ansi: :yellow
+              sh.cmd 'Rscript -e \'devtools::session_info(installed.packages()[, "Package"])\''
+            end
           end
         end
 
@@ -230,8 +233,10 @@ module Travis
           end
           export_rcheck_dir
 
-          # Output check summary
-          sh.cmd 'Rscript -e "message(devtools::check_failures(path = \"${RCHECK_DIR}\"))"', echo: false
+          if @devtools_installed
+            # Output check summary
+            sh.cmd 'Rscript -e "message(devtools::check_failures(path = \"${RCHECK_DIR}\"))"', echo: false
+          end
 
           # Build fails if R CMD check fails
           sh.if '$CHECK_RET -ne 0' do
@@ -249,7 +254,7 @@ module Travis
           end
 
           # Check revdeps, if requested.
-          if config[:r_check_revdep]
+          if @devtools_installed and config[:r_check_revdep]
             sh.echo "Checking reverse dependencies"
             revdep_script =
               'library("devtools");' \
@@ -324,8 +329,8 @@ module Travis
           return if packages.empty?
           packages = Array(packages)
           if config[:os] == 'linux'
-            unless config[:sudo]
-              sh.echo "R binary packages not supported with 'sudo: false', "\
+            if !config[:sudo] or config[:dist] == 'precise'
+              sh.echo "R binary packages not supported with 'sudo: false' or 'dist: precise', "\
                 ' falling back to source install'
               return r_install packages
             end
@@ -439,7 +444,7 @@ module Travis
             sh.cmd "curl -fLo /tmp/#{texlive_filename} #{texlive_url}"
             sh.cmd "tar xzf /tmp/#{texlive_filename} -C ~"
             sh.export 'PATH', "/$HOME/texlive/bin/x86_64-linux:$PATH"
-            sh.cmd 'tlmgr update --self'
+            sh.cmd 'tlmgr update --self', assert: false
           when 'osx'
             # We use basictex due to disk space constraints.
             mactex = 'BasicTeX.pkg'
@@ -453,11 +458,11 @@ module Travis
             sh.rm "/tmp/#{mactex}"
             sh.export 'PATH', '/usr/texbin:/Library/TeX/texbin:$PATH'
 
-            sh.cmd 'sudo tlmgr update --self'
+            sh.cmd 'sudo tlmgr update --self', assert: false
 
             # Install common packages
             sh.cmd 'sudo tlmgr install inconsolata upquote '\
-              'courier courier-scaled helvetic'
+              'courier courier-scaled helvetic', assert: false
           end
         end
 
@@ -506,13 +511,13 @@ module Travis
 
         def normalized_r_version(v=config[:r].to_s)
           case v
-          when 'release' then '3.3.3'
-          when 'oldrel' then '3.2.5'
+          when 'release' then '3.4.0'
+          when 'oldrel' then '3.3.3'
           when '3.0' then '3.0.3'
           when '3.1' then '3.1.3'
           when '3.2' then '3.2.5'
-          when '3.3' then '3.3.2'
           when '3.3' then '3.3.3'
+          when '3.4' then '3.4.0'
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true

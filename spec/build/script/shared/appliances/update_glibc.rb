@@ -13,9 +13,21 @@ fi
     end
   end
 
+  context "when sudo is enabled" do
+    before :each do
+      data[:paranoid] = false
+    end
+
+    it 'updates libc6' do
+      should_not include_sexp(command)
+    end
+  end
+
   context "when update_glibc is unset" do
+    let(:sxep) { sexp_find(subject, [:if, "-n $(command -v lsb_release) && $(lsb_release -cs) = 'precise'"]) }
     before :each do
       Travis::Build.config.update_glibc = '1'
+      data[:paranoid] = true
     end
 
     it 'updates libc6' do

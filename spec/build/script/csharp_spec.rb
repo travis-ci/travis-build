@@ -23,7 +23,7 @@ describe Travis::Build::Script::Csharp, :sexp do
     it 'sets up package repository for dotnet' do
       data[:config][:dotnet] = '1.0.0-preview2-003121'
       should include_sexp [:cmd, 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 417A0893', assert: true]
-      should include_sexp [:cmd, "sudo sh -c \"echo 'deb [arch=amd64] http://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true]
+      should include_sexp [:cmd, "sudo sh -c \"echo 'deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true]
       should include_sexp [:cmd, 'sudo apt-get update -qq', timing: true, assert: true]
     end
 
@@ -89,7 +89,7 @@ describe Travis::Build::Script::Csharp, :sexp do
 
     it 'selects alpha version when specified' do
       data[:config][:mono] = 'alpha'
-      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian alpha main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", assert: true]
+      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu alpha-trusty main' > /etc/apt/sources.list.d/mono-official-alpha.list\"", assert: true]
     end
 
     it 'selects beta version when specified' do
@@ -158,7 +158,7 @@ describe Travis::Build::Script::Csharp, :sexp do
   describe 'osx' do
     it 'installs' do
       data[:config][:os] = 'osx'
-      should include_sexp [:cmd, "curl -o \"/tmp/mdk.pkg\" -fL http://download.mono-project.com/archive/mdk-latest.pkg", timing: true, assert: true, echo: true]
+      should include_sexp [:cmd, "wget --retry-connrefused --waitretry=1 -O /tmp/mdk.pkg http://download.mono-project.com/archive/mdk-latest.pkg", timing: true, assert: true, echo: true]
       should include_sexp [:cmd, "sudo installer -package \"/tmp/mdk.pkg\" -target \"/\" -verboseR", timing: true, assert: true]
       should include_sexp [:cmd, "eval $(/usr/libexec/path_helper -s)", assert: true]
     end
@@ -170,7 +170,7 @@ describe Travis::Build::Script::Csharp, :sexp do
       should include_sexp [:cmd, "mkdir -p /usr/local/lib", assert: true]
       should include_sexp [:cmd, "ln -s /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib /usr/local/lib/", assert: true]
       should include_sexp [:cmd, "ln -s /usr/local/opt/openssl/lib/libssl.1.0.0.dylib /usr/local/lib/", assert: true]
-      should include_sexp [:cmd, "curl -o \"/tmp/dotnet.pkg\" -fL https://dotnetcli.azureedge.net/dotnet/preview/Installers/1.0.0-preview2-003121/dotnet-dev-osx-x64.1.0.0-preview2-003121.pkg", timing: true, assert: true, echo: true]
+      should include_sexp [:cmd, "wget --retry-connrefused --waitretry=1 -O /tmp/dotnet.pkg https://dotnetcli.azureedge.net/dotnet/preview/Installers/1.0.0-preview2-003121/dotnet-dev-osx-x64.1.0.0-preview2-003121.pkg", timing: true, assert: true, echo: true]
       should include_sexp [:cmd, "sudo installer -package \"/tmp/dotnet.pkg\" -target \"/\" -verboseR", timing: true, assert: true]
       should include_sexp [:cmd, "eval $(/usr/libexec/path_helper -s)", assert: true]
     end
@@ -178,25 +178,25 @@ describe Travis::Build::Script::Csharp, :sexp do
     it 'selects alpha' do
       data[:config][:os] = 'osx'
       data[:config][:mono] = 'alpha'
-      should include_sexp [:cmd, "curl -o \"/tmp/mdk.pkg\" -fL http://download.mono-project.com/archive/mdk-latest-alpha.pkg", timing: true, assert: true, echo: true]
+      should include_sexp [:cmd, "wget --retry-connrefused --waitretry=1 -O /tmp/mdk.pkg http://download.mono-project.com/archive/mdk-latest-alpha.pkg", timing: true, assert: true, echo: true]
     end
 
     it 'selects beta' do
       data[:config][:os] = 'osx'
       data[:config][:mono] = 'beta'
-      should include_sexp [:cmd, "curl -o \"/tmp/mdk.pkg\" -fL http://download.mono-project.com/archive/mdk-latest-beta.pkg", timing: true, assert: true, echo: true]
+      should include_sexp [:cmd, "wget --retry-connrefused --waitretry=1 -O /tmp/mdk.pkg http://download.mono-project.com/archive/mdk-latest-beta.pkg", timing: true, assert: true, echo: true]
     end
 
     it 'selects weekly' do
       data[:config][:os] = 'osx'
       data[:config][:mono] = 'weekly'
-      should include_sexp [:cmd, "curl -o \"/tmp/mdk.pkg\" -fL http://download.mono-project.com/archive/mdk-latest-weekly.pkg", timing: true, assert: true, echo: true]
+      should include_sexp [:cmd, "wget --retry-connrefused --waitretry=1 -O /tmp/mdk.pkg http://download.mono-project.com/archive/mdk-latest-weekly.pkg", timing: true, assert: true, echo: true]
     end
 
     it 'selects 4.0.1' do
       data[:config][:os] = 'osx'
       data[:config][:mono] = '4.0.1'
-      should include_sexp [:cmd, "curl -o \"/tmp/mdk.pkg\" -fL http://download.mono-project.com/archive/4.0.1/macos-10-x86/MonoFramework-MDK-4.0.1.macos10.xamarin.x86.pkg", timing: true, assert: true, echo: true]
+      should include_sexp [:cmd, "wget --retry-connrefused --waitretry=1 -O /tmp/mdk.pkg http://download.mono-project.com/archive/4.0.1/macos-10-x86/MonoFramework-MDK-4.0.1.macos10.xamarin.x86.pkg", timing: true, assert: true, echo: true]
     end
   end
 end

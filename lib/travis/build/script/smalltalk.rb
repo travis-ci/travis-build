@@ -119,7 +119,7 @@ module Travis
             sh.fold 'install_packages' do
               sh.echo 'Installing dependencies', ansi: :yellow
 
-              sh.if '$(lsb_release -cs) != precise' do
+              sh.if '$(uname -m) != ppc64le && $(lsb_release -cs) != precise' do
                 sh.cmd 'sudo dpkg --add-architecture i386'
               end
 
@@ -199,7 +199,7 @@ module Travis
               sh.cmd 'sudo ln -f -s /lib/i386-linux-gnu/libpam.so.0 /lib/libpam.so.0'
               sh.cmd 'sudo ln -f -s /usr/lib/i386-lin-gnu/libstdc++.so.6 /usr/lib/i386-linux-gnu/libstdc++.so'
             end
-            sh.if '$(lsb_release -cs) = trusty' do
+            sh.if '$(uname -m) != ppc64le && $(lsb_release -cs) = trusty' do
               sh.cmd 'sudo dpkg --add-architecture i386'
               gemstone_install_linux_dependencies
               sh.cmd 'sudo ln -f -s /usr/lib/i386-lin-gnu/libstdc++.so.6 /usr/lib/i386-linux-gnu/libstdc++.so'
