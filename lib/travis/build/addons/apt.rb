@@ -160,6 +160,11 @@ module Travis
                 stop_postgresql
               end
 
+              if whitelisted.any? {|pkg| pkg == "ttf-mscorefonts-installer"}
+                  command = 'echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections'
+                  sh.cmd command, echo: true, timing: false
+              end
+
               sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
               sh.cmd "sudo -E apt-get -yq update &>> ~/apt-get-update.log", echo: true, timing: true
               command = 'sudo -E apt-get -yq --no-install-suggests --no-install-recommends ' \
