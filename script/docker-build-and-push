@@ -17,8 +17,8 @@ docker tag $local_image $quay_image:${TRAVIS_COMMIT:0:7};
 docker push $quay_image:${TRAVIS_COMMIT:0:7};
 
 if [ ${TRAVIS_BRANCH} = "master" ]; then
-  docker tag $local_image $quay_image:latest";
-  docker push $quay_image:$TRAVIS_BRANCH";
+  docker tag $local_image $quay_image:latest;
+  docker push $quay_image:$TRAVIS_BRANCH;
 fi
 
 exit 0;
