@@ -1,17 +1,17 @@
 require 'spec_helper'
 
-describe Travis::Build::Addons::Sonarqube, :sexp do
+describe Travis::Build::Addons::Sonarcloud, :sexp do
   let(:script) { stub('script') }
   let(:config) { :true }
   let(:job)    { { :branch => 'master' } }
-  let(:data)   { payload_for(:push, :ruby, job: job, config: { addons: { sonarqube: config } }) }
+  let(:data)   { payload_for(:push, :ruby, job: job, config: { addons: { sonarcloud: config } }) }
   let(:sh)     { Travis::Shell::Builder.new }
   let(:addon)  { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
   subject      { sh.to_sexp }
   before       { addon.before_before_script }
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['curl -sSLo $HOME/.sonarscanner/sonar-scanner.zip http://repo1.maven.org/maven2/org/sonarsource/scanner/cli/sonar-scanner-cli/2.8/sonar-scanner-cli-2.8.zip'] }
+    let(:code) { ['curl -sSLo "$HOME/.sonarscanner/sonar-scanner.zip" "http://repo1.maven.org/maven2/org/sonarsource/scanner/cli/sonar-scanner-cli/2.8/sonar-scanner-cli-2.8.zip"'] }
   end
 
   describe 'scanner and build wrapper installation' do
@@ -52,21 +52,21 @@ describe Travis::Build::Addons::Sonarqube, :sexp do
     
     it { should include_sexp [:export, ['SONAR_GITHUB_TOKEN', 'mytoken' ]] }
     it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS', 
-      "\"{ \\\"sonar.analysis.mode\\\" : \\\"preview\\\", \\\"sonar.github.repository\\\" : \\\"travis-ci/travis-ci\\\", \\\"sonar.github.pullRequest\\\" : \\\"123\\\", \\\"sonar.github.oauth\\\" : \\\"$SONAR_GITHUB_TOKEN\\\", \\\"sonar.host.url\\\" : \\\"https://sonarqube.com\\\" }\""]] }  
+      "\"{ \\\"sonar.analysis.mode\\\" : \\\"preview\\\", \\\"sonar.github.repository\\\" : \\\"travis-ci/travis-ci\\\", \\\"sonar.github.pullRequest\\\" : \\\"123\\\", \\\"sonar.github.oauth\\\" : \\\"$SONAR_GITHUB_TOKEN\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }  
   end
   
   describe 'add organization' do
     let(:config) { { :organization => 'myorg' } }
     
     it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS', 
-      "\"{ \\\"sonar.organization\\\" : \\\"myorg\\\", \\\"sonar.host.url\\\" : \\\"https://sonarqube.com\\\" }\""]] }  
+      "\"{ \\\"sonar.organization\\\" : \\\"myorg\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }  
   end
   
   describe 'branch analysis' do
     let(:config) { { :branches => ['branch2', 'branch*'] } }
     let(:job)    { { :branch => 'branch1' } }
     
-    it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS', "\"{ \\\"sonar.branch\\\" : \\\"branch1\\\", \\\"sonar.host.url\\\" : \\\"https://sonarqube.com\\\" }\""]] }
+    it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS', "\"{ \\\"sonar.branch\\\" : \\\"branch1\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
   end
   
   describe 'skip branch' do
@@ -80,6 +80,6 @@ describe Travis::Build::Addons::Sonarqube, :sexp do
   describe 'define login with env' do
     let(:config) { { :env => { :SONAR_TOKEN => 'mytoken' } } }
     
-    it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS', "\"{ \\\"sonar.host.url\\\" : \\\"https://sonarqube.com\\\", \\\"sonar.login\\\" : \\\"$SONAR_TOKEN\\\" }\""]] }
+    it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS', "\"{ \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\", \\\"sonar.login\\\" : \\\"$SONAR_TOKEN\\\" }\""]] }
   end
 end
