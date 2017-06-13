@@ -31,6 +31,8 @@ export USER
 TRAVIS_TEST_RESULT=
 TRAVIS_CMD=
 
+export TRAVIS_NUMCORES=$(($(taskset -cp $$ | grep , -c)+1))
+
 travis_cmd() {
   local assert output display retry timing cmd result secure
 
