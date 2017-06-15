@@ -17,11 +17,12 @@ module Travis
 
         def apply
           sh.raw <<-SHELL
-            curl -sf -o ~/filter.rb #{Shellwords.escape(download_url)}
-            exec > >(
+            if [[ -z "$TRAVIS_FILTERED" ]]; then
+              export TRAVIS_FILTERED=1
               #{exports}
-              ruby ~/filter.rb #{args}
-            ) 2>&1
+              curl -sf -o ~/filter.rb #{Shellwords.escape(download_url)}
+              exec ruby ~/filter.rb "/usr/bin/env TERM=xterm /bin/bash --login $HOME/build.sh" #{params}
+            fi
           SHELL
         end
 
@@ -36,15 +37,15 @@ module Travis
             "https://#{host}/filter.rb".untaint
           end
 
-          def args
-            secrets.size.times.map { |ix| "-e SECRET_#{ix}" }.join(" ")
+          def params
+            secrets.size.times.map { |i| "-s \"$SECRET#{i}\"" }.join(" ")
           end
 
           def exports
-            values = secrets.map(&:untaint)
-            values = values.map { |value| Shellwords.escape(value) }
-            values = values.map.with_index { |value, ix| "export SECRET_#{ix}=#{value}" }
-            values.join(' ')
+            mapped = secrets.each_with_index.map do |value, index|
+              "SECRET#{index}=#{Shellwords.escape(value).untaint}"
+            end
+            mapped.join(" ")
           end
 
           def secrets
