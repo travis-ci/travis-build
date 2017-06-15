@@ -1,10 +1,10 @@
 require 'spec_helper'
 require 'timeout'
 
-require_relative '../public/filter'
+require_relative '../public/filter/redirect_io'
 
 describe Filter do
-  let(:cmd) { File.expand_path('../../public/filter.rb', __FILE__) }
+  let(:cmd) { File.expand_path('../../public/filter/redirect_io.rb', __FILE__) }
   def filter(input, *secrets)
     args  = secrets.map { |s| "-s #{Shellwords.escape(s)}" }.join " "
     input = Shellwords.escape(input)
