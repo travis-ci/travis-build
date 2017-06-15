@@ -24,28 +24,37 @@ module Travis
           end
         end
 
-        DEFAULT_SETTING = true
+        ENABLED = true
+
+        HOST = 'build.travis-ci.com'
+
+        MSGS = {
+          filter: 'Using filter strategy %p for repo %s on job id=%s number=%s'
+        }
 
         SH = {
+          curl: %(
+              curl -sf -o ~/filter.rb %{url}
+              if [ $? -ne 0 ]; then
+                echo "Download from %{url} failed. Trying %{fallback_url} ..."
+                curl -sf -o ~/filter.rb %{fallback_url}
+              fi
+          ),
           pty: %(
             if [[ -z "$TRAVIS_FILTERED" ]]; then
               export TRAVIS_FILTERED=1
-              curl -sf -o ~/filter.rb %s
-              %s
-              exec ruby ~/filter.rb "/usr/bin/env TERM=xterm /bin/bash --login $HOME/build.sh" %s
+              %{curl}
+              %{exports}
+              exec ruby ~/filter.rb "/usr/bin/env TERM=xterm /bin/bash --login $HOME/build.sh" %{args}
             fi
           ),
           redirect_io: %(
             exec > >(
-              curl -sf -o ~/filter.rb %s
-              %s
-              ruby ~/filter.rb %s
+              %{curl}
+              %{exports}
+              ruby ~/filter.rb %{args}
             ) 2>&1
           )
-        }
-
-        MSGS = {
-          filter: 'Using filter strategy %p for repo %s on job id=%s number=%s'
         }
 
         def apply?
@@ -54,22 +63,30 @@ module Travis
 
         def apply
           info :filter, strategy, data.repository[:slug].to_s, data.job[:id], data.job[:number]
-          puts SH[strategy] % [Shellwords.escape(download_url), exports, args] if ENV['ROLLOUT_DEBUG']
-          sh.raw SH[strategy] % [Shellwords.escape(download_url), exports, args]
+          puts code if ENV['ROLLOUT_DEBUG']
+          sh.raw code
         end
 
         private
 
+          def code
+            data = { exports: exports, args: args, url: url, fallback_url: url(HOST) }
+            curl = SH[:curl] % data
+            SH[strategy] % data.merge(curl: curl)
+          end
+
           def enabled?
-            config[:filter_secrets].nil? ? DEFAULT_SETTING : config[:filter_secrets]
+            config[:filter_secrets].nil? ? ENABLED : config[:filter_secrets]
           end
 
           def strategy
             @strategy ||= Rollout.new(data).matches? ? :redirect_io : :pty
           end
 
-          def download_url
-            "https://#{host}/filter#{'_pty' if strategy == :pty}.rb".untaint
+          def url(host = nil)
+            host ||= app_host || HOST
+            url = "https://#{host}/filter/#{strategy}.rb"
+            Shellwords.escape(url).untaint
           end
 
           def args
@@ -89,10 +106,6 @@ module Travis
 
           def env
             @env ||= Build::Env.new(data)
-          end
-
-          def host
-            app_host.empty? ? 'build.travis-ci.com' : app_host
           end
 
           def info(msg, *args)
