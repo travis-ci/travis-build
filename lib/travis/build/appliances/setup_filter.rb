@@ -54,7 +54,6 @@ module Travis
 
         def apply
           info :filter, strategy, data.repository[:slug].to_s, data.job[:id], data.job[:number]
-          puts SH[strategy] % [Shellwords.escape(download_url), exports, args] if ENV['ROLLOUT_DEBUG']
           sh.raw SH[strategy] % [Shellwords.escape(download_url), exports, args]
         end
 
