@@ -19,7 +19,6 @@ module Travis
           sh.raw <<-SHELL
             if [[ -z "$TRAVIS_FILTERED" ]]; then
               export TRAVIS_FILTERED=1
-              #{exports}
               mkdir -p ~/.travis
               if [[ "$TRAVIS_OS_NAME" == osx ]]; then
                 curl -sf -o #{redactor} #{Shellwords.escape(download_url('osx'))}
@@ -47,18 +46,11 @@ module Travis
           end
 
           def params
-            secrets.size.times.map { |i| "-s \"$SECRET#{i}\"" }.join(" ")
+            secrets.map { |s| "-s #{Shellwords.escape(s)}".untaint }.join(' ')
           end
 
           def redactor
             '~/.travis/redactor'
-          end
-
-          def exports
-            mapped = secrets.each_with_index.map do |value, index|
-              "SECRET#{index}=#{Shellwords.escape(value).untaint}"
-            end
-            mapped.join(" ")
           end
 
           def secrets
