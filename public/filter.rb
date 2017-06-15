@@ -1,5 +1,3 @@
-require 'shellwords'
-
 module Filter
   class Scanner < Struct.new(:reader)
     def run(io)
@@ -39,10 +37,6 @@ module Filter
   end
 end
 
-def unescape(str)
-  `echo #{str}`.chomp rescue ''
-end
-
 if __FILE__ == $0
   secrets = []
 
@@ -57,7 +51,6 @@ if __FILE__ == $0
   end
 
   secrets = secrets.reject { |s| s.length < 3 }
-  secrets = secrets.map { |s| [s, unescape(s)] }.flatten
   secrets = secrets.uniq.sort_by { |s| -s.length }
 
   filter = secrets.inject(Filter::Stdin.new($stdin)) do |filter, secret|

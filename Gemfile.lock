@@ -12,13 +12,6 @@ GIT
     jemalloc (1.4.5)
 
 GIT
-  remote: https://github.com/travis-ci/travis-rollout
-  revision: 643477fb44ea35d483ed24cc89ced459719c6e6c
-  ref: sf-refactor
-  specs:
-    travis-rollout (0.0.1)
-
-GIT
   remote: https://github.com/travis-ci/travis-support
   revision: 113cff17fe383bb72fcfae3a97a8ce98c228342f
   specs:
@@ -153,8 +146,7 @@ DEPENDENCIES
   sinatra (~> 1.4)
   sinatra-contrib
   travis-config
-  travis-rollout!
   travis-support!
 
 BUNDLED WITH
-   1.14.6
+   1.13.7
