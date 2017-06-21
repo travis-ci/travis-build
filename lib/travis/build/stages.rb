@@ -32,6 +32,7 @@ module Travis
         Stage.new(:conditional, :after_success,  false),
         Stage.new(:conditional, :after_failure,  false),
         Stage.new(:custom,      :after_script,   false),
+        Stage.new(:custom,      :cleanup,        false),
         Stage.new(:builtin,     :finish,         :always),
       ]
 
@@ -43,6 +44,7 @@ module Travis
         setup_casher:   { assert: true,  echo: true,  timing: true  },
         setup_cache:    { assert: true,  echo: true,  timing: true  },
         debug:          { assert: false, echo: true,  timing: true  },
+        cleanup:        { assert: false, echo: true,  timing: true  },
         before_install: { assert: true,  echo: true,  timing: true  },
         install:        { assert: true,  echo: true,  timing: true  },
         before_script:  { assert: true,  echo: true,  timing: true  },

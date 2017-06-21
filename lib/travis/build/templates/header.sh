@@ -7,6 +7,8 @@ if [[ -s <%= home %>/.bash_profile ]] ; then
   source <%= home %>/.bash_profile
 fi
 
+trap "travis_run_cleanup" SIGHUP SIGINT SIGQUIT SIGABRT SIGKILL SIGALRM SIGTERM
+
 echo "source $HOME/.travis/job_stages" >> <%= home %>/.bashrc
 
 mkdir -p $HOME/.travis

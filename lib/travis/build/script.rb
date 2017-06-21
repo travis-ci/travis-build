@@ -201,6 +201,9 @@ module Travis
           apply :disable_sudo
         end
 
+        def cleanup
+        end
+
         def reset_state
           if debug_build_via_api?
             raise "Debug payload does not contain 'previous_state' value." unless previous_state = data.debug_options[:previous_state]
