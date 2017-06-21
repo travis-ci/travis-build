@@ -21,6 +21,8 @@ stages:
   - ":ship: it to Quay.io"
 
 jobs:
+  allow_failures:
+    - script: ./script/docker-build-and-push
   include:
     - stage: "test"
       sudo: required
