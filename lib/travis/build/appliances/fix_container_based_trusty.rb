@@ -28,7 +28,7 @@ module Travis
         def patch_redis_init
           sh.if "-f #{REDIS_INIT} && sudo grep -q ulimit #{REDIS_INIT}" do
             sh.raw(
-              %(sudo sed -i -e 's/ulimit/echo HACKED no ulimit/g' #{REDIS_INIT})
+              %(sudo sed -i -e 's/^\\s+ulimit/echo noulimit/g' #{REDIS_INIT})
             )
           end
         end
