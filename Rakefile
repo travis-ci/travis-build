@@ -8,4 +8,5 @@ end
 
 $LOAD_PATH.unshift(File.expand_path('../lib', __FILE__))
 require 'travis/build/rake_tasks'
+  rm_rf 'lib/travis/build/addons/sauce_connect/sauce_connect.sh'
 include Travis::Build::RakeTasks
