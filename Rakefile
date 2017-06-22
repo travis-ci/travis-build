@@ -3,6 +3,7 @@ require 'faraday'
 require 'faraday_middleware'
 require 'logger'
 require 'rubygems'
+require 'tmpdir'
 
 begin
   require 'rspec/core/rake_task'

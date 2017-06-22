@@ -40,8 +40,8 @@ module Travis
 
           def download_url(os_name)
             {
-              'osx' => "https://#{host}/redactor_darwin_amd64".untaint,
-              'linux' => "https://#{host}/redactor_linux_amd64".untaint,
+              'osx' => "https://#{host}/files/redactor_darwin_amd64".untaint,
+              'linux' => "https://#{host}/files/redactor_linux_amd64".untaint,
             }.fetch(os_name)
           end
 
