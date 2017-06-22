@@ -54,7 +54,7 @@ function travis_start_sauce_connect() {
     tar.gz)
       sc_dir=$(tar -ztf ${sc_archive} | head -n1);;
     zip)
-      sc_dir=$(unzip -l ${sc_archive} | sed '0,/^---/d' | sed '/^---/,$d' | head -n 1 | awk '{print $NF}' | sed 's:/$::');;
+      sc_dir=$(unzip -l ${sc_archive} | sed '0,/---/d' | head -n 1 | awk '{print $NF}' | sed 's:/$::');;
   esac
 
   echo "Extracting Sauce Connect"
