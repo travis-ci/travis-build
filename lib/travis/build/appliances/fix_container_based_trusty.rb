@@ -10,7 +10,6 @@ module Travis
         private_constant :REDIS_INIT
 
         def apply
-          sh.echo '@meatballhat wuz here', ansi: :yellow
           sh.if sh_is_linux? do
             sh.if sh_is_trusty? do
               patch_redis_init
@@ -33,7 +32,7 @@ module Travis
         end
 
         def patch_redis_init
-          sh.if "-f #{REDIS_INIT} && sudo grep -q ulimit #{REDIS_INIT}" do
+          sh.if "-f #{REDIS_INIT}" do
             sh.echo 'Patching redis-server init script', ansi: :yellow
             sh.raw(
               %(sudo sed -i '/^ *ulimit/s/ulimit/echo noulimit/g' #{REDIS_INIT})
