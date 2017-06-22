@@ -18,6 +18,10 @@ module Travis
           end
         end
 
+        def apply?
+          true
+        end
+
         private
 
         def sh_is_linux?
