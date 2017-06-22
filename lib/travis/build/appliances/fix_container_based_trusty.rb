@@ -10,19 +10,22 @@ module Travis
         private_constant :REDIS_INIT
 
         def apply
-          sh.if "#{sh_is_linux?} && #{sh_is_trusty?}" do
-            patch_redis_init
+          sh.echo '@meatballhat wuz here', ansi: :yellow
+          sh.if sh_is_linux? do
+            sh.if sh_is_trusty? do
+              patch_redis_init
+            end
           end
         end
 
         private
 
         def sh_is_linux?
-          '$(uname) == Linux'
+          '$(uname) = Linux'
         end
 
         def sh_is_trusty?
-          '$(lsb_release -sc 2>/dev/null) == trusty'
+          '$(lsb_release -sc 2>/dev/null) = trusty'
         end
 
         def patch_redis_init
