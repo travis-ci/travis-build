@@ -35,7 +35,7 @@ module Travis
           sh.if "-f #{REDIS_INIT}" do
             sh.echo 'Patching redis-server init script', ansi: :yellow
             sh.raw(
-              %(sudo sed -i '/^ *ulimit/s/ulimit/echo noulimit/g' #{REDIS_INIT})
+              %(sudo sed -i '/ulimit -n/s/ulimit.*/echo noulimit/g' #{REDIS_INIT})
             )
           end
         end
