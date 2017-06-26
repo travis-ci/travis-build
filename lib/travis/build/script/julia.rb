@@ -43,7 +43,7 @@ module Travis
               sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L --retry 7 '#{julia_url}' } \
                        '| tar -C ~/julia -x -z --strip-components=1 -f -'
             when 'osx'
-              sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L -o julia.dmg '#{julia_url}'}
+              sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L --retry 7 -o julia.dmg '#{julia_url}'}
               sh.cmd 'mkdir juliamnt'
               sh.cmd 'hdiutil mount -readonly -mountpoint juliamnt julia.dmg'
               sh.cmd 'cp -a juliamnt/*.app/Contents/Resources/julia ~/'
