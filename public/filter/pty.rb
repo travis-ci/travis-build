@@ -1,7 +1,5 @@
 require 'pty'
-
-# This file only exists for enterprise, and can be removed once everyone has upgraded
-# to 2.2 (?)
+require 'shellwords'
 
 module Filter
   class Scanner
@@ -61,6 +59,10 @@ module Filter
   end
 end
 
+def unescape(str)
+  `echo #{str}`.chomp rescue ''
+end
+
 if __FILE__ == $0
   unless command = ARGV.shift
     $stderr.puts DATA.read
@@ -80,6 +82,7 @@ if __FILE__ == $0
     end
   end
 
+  secrets = secrets.map { |s| [s, unescape(s)] }.flatten
   secrets.uniq.sort_by { |s| -s.length }.each do |secret|
     runner = Filter::StringFilter.new(runner, secret) if secret.length >= 3
   end

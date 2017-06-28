@@ -3,6 +3,7 @@ set -e
 ANSI_RED="\033[31;1m"
 ANSI_GREEN="\033[32;1m"
 ANSI_YELLOW="\033[33;1m"
+ANSI_BLUE="\033[34;1m"
 ANSI_RESET="\033[0m"
 ANSI_CLEAR="\033[0K"
 
@@ -19,7 +20,18 @@ while [[ $# > 0 ]]; do
   esac
 done
 
-$TMATE new-session -d '/bin/bash -l'
+TMATE_MSG="
+Run individual commands; or execute configured build phases
+with ${ANSI_BLUE}\`travis_run_*\`${ANSI_RESET} functions (e.g., ${ANSI_BLUE}\`travis_run_before_install\`${ANSI_RESET}).
+
+For more information, consult https://docs.travis-ci.com/user/running-build-in-debug-mode/, or email support@travis-ci.com.
+
+"
+
+echo -en "${TMATE_MSG}" > $HOME/.travis/debug_help
+sleep 2 # this sleep is necessary so that `echo`'s buffer can be flushed to disk
+        # before starting the tmate session
+$TMATE new-session -d "cat $HOME/.travis/debug_help; /bin/bash -l"
 $TMATE wait tmate-ready
 
 echo -e "${ANSI_YELLOW}Use the following SSH command to access the interactive debugging environment:${ANSI_RESET}"
