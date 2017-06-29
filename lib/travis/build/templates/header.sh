@@ -135,10 +135,14 @@ travis_internal_ruby() {
   bash_qsort_numeric "${rubies_array[@]}"
   rubies_array_sorted=( ${bash_qsort_numeric_ret[@]} )
   rubies_array_len="${#rubies_array_sorted[@]}"
-  i=$(( rubies_array_len - 1 ))
-  selected_ruby="${rubies_array_sorted[${i}]}"
-  selected_ruby="${selected_ruby##*_}"
-  echo "${selected_ruby:-default}"
+  if (( rubies_array_len <= 0 )); then
+    echo "default"
+  else
+    i=$(( rubies_array_len - 1 ))
+    selected_ruby="${rubies_array_sorted[${i}]}"
+    selected_ruby="${selected_ruby##*_}"
+    echo "${selected_ruby:-default}"
+  fi
 }
 
 travis_assert() {
