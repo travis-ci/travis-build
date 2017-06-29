@@ -294,6 +294,12 @@ if [[ -f /etc/apt/sources.list.d/rabbitmq-source.list ]] ; then
   sudo rm -f /etc/apt/sources.list.d/rabbitmq-source.list
 fi
 
+<%# XXX Forcefully removing neo4j source until we figure out a better way %>
+<%# See https://www.traviscistatus.com/incidents/fyskznm7wg2c %>
+if [[ -f /etc/apt/sources.list.d/neo4j.list ]] ; then
+  sudo rm -f /etc/apt/sources.list.d/neo4j.list
+fi
+
 mkdir -p <%= build_dir %>
 cd       <%= build_dir %>
 
