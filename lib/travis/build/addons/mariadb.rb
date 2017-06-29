@@ -17,7 +17,7 @@ module Travis
             sh.cmd "apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 #{MARIADB_GPG_KEY}", sudo: true
             sh.cmd 'add-apt-repository "deb http://%p/mariadb/repo/%p/ubuntu $(lsb_release -cs) main"' % [MARIADB_MIRROR, mariadb_version], sudo: true
             sh.cmd "apt-get update -qq", assert: false, sudo: true
-            sh.cmd "apt-get install -y -o Dpkg::Options::='--force-confnew' mariadb-server mariadb-server-#{mariadb_version} libmariadbclient-dev", sudo: true, echo: true, timing: true
+            sh.cmd "apt-get install -y -o Dpkg::Options::='--force-confnew' mariadb-server mariadb-server-#{mariadb_version} #{mariadb_client}", sudo: true, echo: true, timing: true
             sh.echo "Starting MariaDB v#{mariadb_version}", ansi: :yellow
             sh.cmd "service mysql start", sudo: true, assert: false, echo: true, timing: true
             sh.export 'TRAVIS_MARIADB_VERSION', mariadb_version, echo: false
@@ -28,6 +28,15 @@ module Travis
         private
         def mariadb_version
           config.to_s.shellescape
+        end
+
+        def mariadb_client
+          if config >= 10.2
+            # As of MariaDB 10.2 the headers are included
+            'libmariadbclient18'
+          else
+            'libmariadbclient18 libmariadbclient-dev'
+          end
         end
       end
     end
