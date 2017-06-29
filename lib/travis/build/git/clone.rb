@@ -50,14 +50,18 @@ module Travis
           end
 
           def clone_args
-            args = "--depth=#{depth}"
+            args = depth_flag
             args << " --branch=#{branch}" unless data.ref
             args << " --quiet" if quiet?
             args
           end
 
-          def depth
-            config[:git][:depth].to_s.shellescape
+          def depth_flag
+            if config[:git][:depth]
+              "--depth=#{config[:git][:depth].to_s.shellescape}"
+            else
+              ""
+            end
           end
 
           def branch
