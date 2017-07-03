@@ -25,6 +25,10 @@ def version_for(version_str)
   end
 end
 
+def semver_sort(a, b)
+  Gem::Version.new(a.to_s) <=> Gem::Version.new(b.to_s)
+end
+
 def fetch_githubusercontent_file(from, host: 'raw.githubusercontent.com',
                                  to: nil, mode: 'a+rx')
   conn = Faraday.new("https://#{host}") do |f|
@@ -68,7 +72,10 @@ def latest_release_for(repo)
   if response.success?
     json_data = JSON.parse(response.body)
     fail "No releases found for #{repo}" if json_data.empty?
-    latest = json_data.sort { |a,b| version_for(a["tag_name"]) <=> version_for(b["tag_name"]) }.last["tag_name"]
+    json_data.sort! do |a, b|
+      semver_sort(a['tag_name'].sub(/^v/, ''), b['tag_name'].sub(/^v/, ''))
+    end
+    json_data.last['tag_name']
   else
     fail "Could not find releases for #{repo}"
   end
@@ -124,6 +131,19 @@ def fetch_sc(platform)
   chmod 'a+rx', dest
 end
 
+def expand_semver_aliases(full_version)
+  fullparts = full_version.split('.')
+  major = fullparts.first
+  {
+    full_version => full_version,
+    major => full_version,
+    "#{major}.x" => full_version,
+    "#{major}.x.x" => full_version,
+    "#{fullparts[0]}.#{fullparts[1]}" => full_version,
+    "#{fullparts[0]}.#{fullparts[1]}.x" => full_version,
+  }
+end
+
 task 'assets:precompile' => %i(
   clean
   update_sc
@@ -147,14 +167,14 @@ end
 
 desc 'update gimme'
 file 'public/files/gimme' => 'public/files' do
-  latest_release = latest_release_for 'travis-ci/gimme'
+  latest_release = latest_release_for('travis-ci/gimme')
   logger.info "Latest gimme release is #{latest_release}"
   fetch_githubusercontent_file "travis-ci/gimme/#{latest_release}/gimme"
 end
 
 desc "update godep for Darwin"
 file 'public/files/godep_darwin_amd64' => 'public/files' do
-  latest_release = latest_release_for 'tools/godep'
+  latest_release = latest_release_for('tools/godep')
   logger.info "Latest godep release is #{latest_release}"
   fetch_githubusercontent_file(
     "tools/godep/releases/download/#{latest_release}/godep_darwin_amd64",
@@ -164,7 +184,7 @@ end
 
 desc "update godep for Linux"
 file 'public/files/godep_linux_amd64' => 'public/files' do
-  latest_release = latest_release_for 'tools/godep'
+  latest_release = latest_release_for('tools/godep')
   logger.info "Latest godep release is #{latest_release}"
   fetch_githubusercontent_file(
     "tools/godep/releases/download/#{latest_release}/godep_linux_amd64",
@@ -174,7 +194,7 @@ end
 
 desc 'update nvm.sh'
 file 'public/files/nvm.sh' => 'public/files' do
-  latest_release = latest_release_for 'creationix/nvm'
+  latest_release = latest_release_for('creationix/nvm')
   logger.info "Latest nvm release is #{latest_release}"
   fetch_githubusercontent_file "creationix/nvm/#{latest_release}/nvm.sh"
   fetch_githubusercontent_file "creationix/nvm/#{latest_release}/nvm-exec"
@@ -187,7 +207,7 @@ end
 
 desc 'update tmate'
 file 'public/files/tmate-static-linux-amd64.tar.gz' => 'public/files' do
-  latest_release = latest_release_for 'tmate-io/tmate'
+  latest_release = latest_release_for('tmate-io/tmate')
   logger.info "Latest tmate release is #{latest_release}"
   fetch_githubusercontent_file(
     File.join(
@@ -205,37 +225,24 @@ file 'public/files/rustup-init.sh' => 'public/files' do
 end
 
 desc 'update raw gimme versions'
-file 'public/files/gimme-versions-binary-linux' => 'tmp' do
+file 'tmp/gimme-versions-binary-linux' => 'tmp' do
   fetch_githubusercontent_file(
     'travis-ci/gimme/master/.testdata/sample-binary-linux',
-    to: 'gimme-versions-binary-linux',
+    to: File.expand_path('../tmp/gimme-versions-binary-linux', __FILE__),
     mode: 0o644
   )
 end
 
 desc 'update gimme versions'
-file 'public/files/gimme-versions-binary-linux.json' => 'public/files/gimme-versions-binary-linux' do
-  raw = File.read('public/files/gimme-versions-binary-linux').split(/\n/).reject do |line|
+file 'public/version-aliases/go.json' => 'tmp/gimme-versions-binary-linux' do
+  raw = File.read('tmp/gimme-versions-binary-linux').split(/\n/).reject do |line|
     line.strip.empty? || line.strip.start_with?('#')
   end
 
-  raw.sort! do |a, b|
-    a.split('.').map(&:to_i) <=> b.split('.').map(&:to_i)
-  end
+  raw.sort!(&method(:semver_sort))
 
   out = {}
-  raw.each do |full_version|
-    fullparts = full_version.split('.')
-    major = fullparts.first
-    out.merge!(
-      full_version => full_version,
-      "#{major}" => full_version,
-      "#{major}.x" => full_version,
-      "#{major}.x.x" => full_version,
-      "#{fullparts[0]}.#{fullparts[1]}" => full_version,
-      "#{fullparts[0]}.#{fullparts[1]}.x" => full_version
-    )
-  end
+  raw.each { |full_version| out.merge!(expand_semver_aliases(full_version)) }
 
   raise StandardError, 'no go versions parsed' if out.empty?
 
@@ -245,37 +252,39 @@ file 'public/files/gimme-versions-binary-linux.json' => 'public/files/gimme-vers
   )
 
   File.write(
-    'public/files/gimme-versions-binary-linux.json',
+    'public/version-aliases/go.json',
     JSON.pretty_generate(out)
   )
 end
 
 desc 'update raw ghc versions'
-file 'public/files/ghc-versions.html' => 'tmp' do
+file 'tmp/ghc-versions.html' => 'tmp' do
   fetch_githubusercontent_file(
     '~ghc',
     host: 'downloads.haskell.org',
-    to: 'ghc-versions.html',
+    to: File.expand_path('../tmp/ghc-versions.html', __FILE__),
     mode: 0o644
   )
 end
 
 desc 'update ghc versions'
-file 'public/files/ghc-versions.json' => 'public/files/ghc-versions.html' do
+file 'public/version-aliases/ghc.json' => 'tmp/ghc-versions.html' do
   out = {}
-  File.read('public/files/ghc-versions.html')
+  File.read('tmp/ghc-versions.html')
       .scan(%r[<a href="[^"]+">(?<version>\d[^<>]+)/</a>]i)
       .to_a
       .flatten
       .reject { |v| v =~ /-(rc|latest)/ }
-      .sort { |a, b| a.split('.').map(&:to_i) <=> b.split('.').map(&:to_i) }
+      .sort(&method(:semver_sort))
       .each do |full_version|
     fullparts = full_version.split('.')
     major = fullparts.first
     out.merge!(
       full_version => full_version,
+      major => full_version,
       "#{major}.x" => full_version,
       "#{major}.x.x" => full_version,
+      "#{fullparts[0]}.#{fullparts[1]}" => full_version,
       "#{fullparts[0]}.#{fullparts[1]}.x" => full_version,
     )
   end
@@ -315,6 +324,12 @@ multitask update_godep: Rake::FileList[
   'public/files/godep_linux_amd64'
 ]
 
+desc 'update version aliases'
+multitask update_version_aliases: Rake::FileList[
+  'public/version-aliases/ghc.json',
+  'public/version-aliases/go.json'
+]
+
 desc 'update static files'
 multitask update_static_files: Rake::FileList[
   'lib/travis/build/addons/sauce_connect/sauce_connect.sh',
@@ -327,9 +342,7 @@ multitask update_static_files: Rake::FileList[
   'public/files/sbt',
   'public/files/sc-linux.tar.gz',
   'public/files/sc-osx.zip',
-  'public/files/tmate-static-linux-amd64.tar.gz',
-  'public/files/gimme-versions-binary-linux.json',
-  'public/files/ghc-versions.json'
+  'public/files/tmate-static-linux-amd64.tar.gz'
 ]
 
 desc "show contents in public/files"

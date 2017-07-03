@@ -8,25 +8,11 @@ module Travis
       self.env_namespace = 'travis_build'
 
       def go_version_aliases_hash
-        @go_version_aliases_hash ||= JSON.parse(
-          File.read(
-            File.expand_path(
-              '../../../../public/files/gimme-versions-binary-linux.json',
-              __FILE__
-            )
-          ).untaint
-        )
+        @go_version_aliases_hash ||= version_aliases_hash('go')
       end
 
       def ghc_version_aliases_hash
-        @ghc_version_aliases_hash ||= JSON.parse(
-          File.read(
-            File.expand_path(
-              '../../../../public/files/ghc-versions.json',
-              __FILE__
-            )
-          ).untaint
-        )
+        @ghc_version_aliases_hash ||= version_aliases_hash('ghc')
       end
 
       define(
@@ -88,6 +74,19 @@ module Travis
       default(
         access: %i(key),
       )
+
+      private
+
+        def version_aliases_hash(name)
+          JSON.parse(
+            File.read(
+              File.expand_path(
+                "../../../../public/version-aliases/#{name}.json",
+                __FILE__
+              )
+            ).untaint
+          )
+        end
     end
   end
 end
