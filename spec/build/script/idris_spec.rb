@@ -22,7 +22,7 @@ describe Travis::Build::Script::Idris, :sexp do
 
   context "when cache is configured" do
     let(:options) { { fetch_timeout: 20, push_timeout: 30, type: 's3', s3: { bucket: 's3_bucket', secret_access_key: 's3_secret_access_key', access_key_id: 's3_access_key_id' } } }
-    let(:data)   { payload_for(:push, :rust, config: { cache: 'idris' }, cache_options: options) }
+    let(:data)   { payload_for(:push, :idris, config: { cache: 'idris' }, cache_options: options) }
 
     it 'caches desired directories' do
       should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add $HOME/.stack', timing: true]
