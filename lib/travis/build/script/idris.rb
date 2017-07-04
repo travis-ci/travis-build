@@ -81,7 +81,7 @@ module Travis
 
           sh.fold 'idris-install' do
             sh.echo 'Installing Idris', ansi: :yellow
-            sh.cmd %Q{'stack install --install-ghc #{idris_package}'}
+            sh.cmd %Q{'travis_wait 60 stack install --install-ghc #{idris_package}'}
           end
 
           def announce
