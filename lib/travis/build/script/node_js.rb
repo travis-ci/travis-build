@@ -6,6 +6,8 @@ module Travis
 
         YARN_REQUIRED_NODE_VERSION = '4'
 
+        NPM_QUIET_TREE_VERSION = '5'
+
         def export
           super
           if node_js_given_in_config?
@@ -196,7 +198,12 @@ module Travis
           end
 
           def npm_install(args)
-            sh.cmd "npm install #{args}", retry: true, fold: 'install'
+            sh.fold "install.npm" do
+              sh.cmd "npm install #{args}", retry: true
+              sh.if "$(vers2int `npm -v`) -gt $(vers2int #{NPM_QUIET_TREE_VERSION})" do
+                sh.cmd "npm ls", echo: true
+              end
+            end
           end
 
           def install_yarn
