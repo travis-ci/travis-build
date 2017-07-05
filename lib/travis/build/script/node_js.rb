@@ -20,8 +20,8 @@ module Travis
           prepend_path './node_modules/.bin'
           convert_legacy_nodejs_config
           update_nvm
-          nvm_install
           npm_disable_prefix
+          nvm_install
           npm_disable_spinner
           npm_disable_progress
           npm_disable_strict_ssl unless npm_strict_ssl?
