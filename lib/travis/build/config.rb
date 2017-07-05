@@ -81,14 +81,14 @@ module Travis
           force_reinstall: ENV.fetch('TRAVIS_BUILD_GIMME_FORCE_REINSTALL', ''),
           url: ENV.fetch(
             'TRAVIS_BUILD_GIMME_URL',
-            'https://raw.githubusercontent.com/travis-ci/gimme/v1.0.0/gimme'
+            'https://raw.githubusercontent.com/travis-ci/gimme/v1.1.0/gimme'
           )
         },
-        go_version: ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.7.4'),
+        go_version: ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.8.3'),
         go_version_aliases: ENV.fetch(
           'TRAVIS_BUILD_GO_VERSION_ALIASES', (
             latest_semver_aliases(
-              '1' => '1.8.1'
+              '1' => '1.8.3'
             ).merge(
               '1.0' => '1.0.3',
               '1.0.x' => '1.0.3',
@@ -99,10 +99,10 @@ module Travis
               '1.4.x' => '1.4.3',
               '1.5.x' => '1.5.4',
               '1.6.x' => '1.6.4',
-              '1.7.x' => '1.7.5',
-              '1.8.x' => '1.8.1',
-              '1.x' => '1.8.1',
-              '1.x.x' => '1.8.1'
+              '1.7.x' => '1.7.6',
+              '1.8.x' => '1.8.3',
+              '1.x' => '1.8.3',
+              '1.x.x' => '1.8.3'
             ).map { |k, v| "#{k}:#{v}" }.join(',')
           )
         ),

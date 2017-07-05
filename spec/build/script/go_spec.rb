@@ -19,7 +19,7 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   it 'sets TRAVIS_GO_VERSION' do
-    should include_sexp [:export, ['TRAVIS_GO_VERSION', '1.7.4']]
+    should include_sexp [:export, ['TRAVIS_GO_VERSION', '1.8.3']]
   end
 
   it 'conditionally sets GOMAXPROCS to 2' do
@@ -27,7 +27,7 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   it 'sets the default go version if not :go config given' do
-    should include_sexp [:cmd, 'GIMME_OUTPUT=$(gimme 1.7.4) && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'GIMME_OUTPUT=$(gimme 1.8.3) && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
   end
 
   it 'sets the go version from config :go' do
@@ -63,7 +63,7 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   {
-    '1' => '1.8.1',
+    '1' => '1.8.3',
     '1.0' => '1.0.3',
     '1.0.x' => '1.0.3',
     '1.1.x' => '1.1.2',
@@ -73,10 +73,10 @@ describe Travis::Build::Script::Go, :sexp do
     '1.4.x' => '1.4.3',
     '1.5.x' => '1.5.4',
     '1.6.x' => '1.6.4',
-    '1.7.x' => '1.7.5',
-    '1.8.x' => '1.8.1',
-    '1.x' => '1.8.1',
-    '1.x.x' => '1.8.1',
+    '1.7.x' => '1.7.6',
+    '1.8.x' => '1.8.3',
+    '1.x' => '1.8.3',
+    '1.x.x' => '1.8.3',
     'default' => Travis::Build::Script::Go::DEFAULTS[:go],
     'go1' => 'go1',
     'go1.4.1' => '1.4.1'
