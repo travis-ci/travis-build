@@ -198,7 +198,7 @@ module Travis
           end
 
           def npm_install(args)
-            sh.fold "install.pm" do
+            sh.fold "install.npm" do
               sh.cmd "npm install #{args}", retry: true
               sh.if "$(vers2int `npm -v`) -gt $(vers2int #{NPM_QUIET_TREE_VERSION})" do
                 sh.cmd "npm ls", echo: true
