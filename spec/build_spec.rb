@@ -13,7 +13,7 @@ describe Travis::Build do
       D: ['d'],
       Dart: ['dart'],
       Erlang: ['erlang'],
-      Generic: ['generic', 'bash', 'sh', 'shell'],
+      Generic: ['generic', 'bash', 'sh', 'shell', 'minimal'],
       Go: ['go'],
       Groovy: ['groovy'],
       Haskell: ['haskell'],
