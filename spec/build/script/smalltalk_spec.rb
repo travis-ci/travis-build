@@ -135,4 +135,14 @@ describe Travis::Build::Script::Smalltalk, :sexp do
     end
   end
 
+  describe 'set smalltalk vm' do
+    before do
+      data[:config][:smalltalk_vm] = 'Pharo-vmLatest70'
+    end
+
+    it 'sets TRAVIS_SMALLTALK_VM' do
+      should include_sexp [:export, ['TRAVIS_SMALLTALK_VM', 'Pharo-vmLatest70']]
+    end
+  end
+
 end

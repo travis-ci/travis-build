@@ -1,5 +1,5 @@
-# Copyright (c) 2015-2016 Software Architecture Group (Hasso Plattner Institute)
-# Copyright (c) 2015-2016 Fabio Niephaus, Google Inc.
+# Copyright (c) 2015-2017 Software Architecture Group (Hasso Plattner Institute)
+# Copyright (c) 2015-2017 Fabio Niephaus, Google Inc.
 
 module Travis
   module Build
@@ -43,15 +43,16 @@ module Travis
 
         def export
           super
-          sh.export 'TRAVIS_SMALLTALK_VERSION', smalltalk_version, echo: false
           sh.export 'TRAVIS_SMALLTALK_CONFIG', smalltalk_config, echo: false
+          sh.export 'TRAVIS_SMALLTALK_VERSION', smalltalk_version, echo: false
+          sh.export 'TRAVIS_SMALLTALK_VM', smalltalk_vm, echo: false
         end
 
         def setup
           super
 
-          sh.echo 'Smalltalk for Travis-CI is not officially supported, ' \
-            'but is community maintained.', ansi: :green
+          sh.echo 'Smalltalk for Travis CI is not officially supported, ' \
+            'but is community-maintained.', ansi: :green
           sh.echo 'Please file any issues using the following link', ansi: :green
           sh.echo '  https://github.com/hpi-swa/smalltalkCI/issues', ansi: :green
 
@@ -82,12 +83,16 @@ module Travis
             config.fetch(:smalltalk_edge, {}).fetch(:branch, "master")
           end
 
+          def smalltalk_config
+            config[:smalltalk_config].to_s
+          end
+
           def smalltalk_version
             config[:smalltalk].to_s
           end
 
-          def smalltalk_config
-            config[:smalltalk_config].to_s
+          def smalltalk_vm
+            config[:smalltalk_vm].to_s
           end
 
           def is_squeak?
