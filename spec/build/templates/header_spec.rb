@@ -12,12 +12,12 @@ describe 'header.sh', integration: true do
       build_dir: build_dir,
       root: build_dir,
       home: build_dir,
-      internal_ruby_regex: Travis::Build::Script::INTERNAL_RUBY_REGEX
+      internal_ruby_regex: Travis::Build.config.internal_ruby_regex.untaint
     ).render(header_sh)
   end
 
   let :bash_body do
-    script = %w(export)
+    script = ["source $HOME/.travis/job_stages", "export"]
     header_sh.read.split("\n").grep(/^[a-z][a-z_]+\(\) \{/).each do |func|
       script << "type #{func.match(/^(.+)\(\) \{/)[1]}"
     end
@@ -57,7 +57,7 @@ describe 'header.sh', integration: true do
   end
 
   {
-    SHELL: '/bin/bash',
+    SHELL: /.+/, # nonempty
     TERM: 'xterm',
     USER: 'travis'
   }.each do |env_var, val|
@@ -71,6 +71,7 @@ describe 'header.sh', integration: true do
 
     let :bash_body do
       <<-EOF.gsub(/^\s+> ?/, '')
+        > source $HOME/.travis/job_stages
         > rvm() {
         >   if [[ $1 != list && $2 != strings ]]; then
         >     return
@@ -102,7 +103,7 @@ describe 'header.sh', integration: true do
       end
 
       it 'selects the latest valid version' do
-        expect(bash_output.strip).to eq('2.2.5')
+        expect(bash_output.strip).to match(/^2\.2\.5$/)
       end
     end
 
@@ -119,7 +120,7 @@ describe 'header.sh', integration: true do
       end
 
       it 'selects 1.9.3' do
-        expect(bash_output.strip).to eq('1.9.3')
+        expect(bash_output.strip).to match(/^1\.9\.3$/)
       end
     end
 
@@ -137,7 +138,7 @@ describe 'header.sh', integration: true do
       end
 
       it 'selects the highest version with a 2-digit patch level' do
-        expect(bash_output.strip).to eq('2.1.10')
+        expect(bash_output.strip).to match(/^2\.1\.10$/)
       end
     end
   end

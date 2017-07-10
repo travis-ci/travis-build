@@ -57,7 +57,20 @@ module Travis
         end
 
         def script
-          sh.cmd 'phpunit'
+          sh.raw '_phpunit_bin=$(jq -r .config[\"bin-dir\"] $TRAVIS_BUILD_DIR/composer.json 2>/dev/null)/phpunit'
+          sh.if "-n $COMPOSER_BIN_DIR && -x $COMPOSER_BIN_DIR/phpunit" do
+            sh.cmd '$COMPOSER_BIN_DIR/phpunit'
+          end
+          sh.elif "-n $_phpunit_bin && -x $_phpunit_bin" do
+            sh.raw "echo \"$ $_phpunit_bin\""
+            sh.cmd "${_phpunit_bin}", echo: false
+          end
+          sh.elif "-x $TRAVIS_BUILD_DIR/vendor/bin/phpunit" do
+            sh.cmd "$TRAVIS_BUILD_DIR/vendor/bin/phpunit"
+          end
+          sh.else do
+            sh.cmd 'phpunit'
+          end
         end
 
         def cache_slug
@@ -90,6 +103,11 @@ module Travis
         end
 
         def configure_hhvm
+          sh.if '"$(lsb_release -sc 2>/dev/null)" = "precise"' do
+            sh.echo "HHVM is no longer supported on Ubuntu Precise. Please consider using Trusty with \\`dist: trusty\\`.", ansi: :yellow
+            sh.raw "travis_terminate 1"
+          end
+
           if nightly?
             install_hhvm_nightly
           elsif hhvm?
@@ -120,10 +138,6 @@ module Travis
         end
 
         def install_hhvm_nightly
-          sh.if '"$(lsb_release -sc 2>/dev/null)" = "precise"' do
-            sh.echo "HHVM nightly is no longer supported on Ubuntu Precise. See https://github.com/travis-ci/travis-ci/issues/3788 and https://github.com/facebook/hhvm/issues/5220", ansi: :yellow
-            sh.raw "travis_terminate 1"
-          end
           sh.echo 'Installing HHVM nightly', ansi: :yellow
           sh.cmd 'sudo apt-get update -qq'
           sh.cmd 'sudo apt-get install hhvm-nightly -y 2>&1 >/dev/null'
@@ -151,7 +165,8 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
             version = '7.0'
           end
           sh.raw archive_url_for('travis-php-archives', version)
-          sh.cmd "curl -s -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /", echo: false, assert: false
+          sh.echo "Downloading archive: ${archive_url}", ansi: :yellow
+          sh.cmd "curl -s -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /", echo: true, assert: false
           sh.cmd "rm -f archive.tar.bz2", echo: false
         end
 
@@ -160,7 +175,12 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
         end
 
         def composer_self_update
-          sh.cmd "composer self-update", assert: false unless version =~ /^5\.2/
+          unless version =~ /^5\.2/
+            sh.if '-n $(composer --version | grep -o "version [^ ]*1\\.0-dev")' do
+              sh.cmd "composer self-update 1.0.0", assert: false
+            end
+            sh.cmd "composer self-update", assert: false
+          end
         end
       end
     end

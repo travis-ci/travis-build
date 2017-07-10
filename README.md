@@ -12,7 +12,11 @@ form.
 
 ## Running test suites
 
-Run `bundle exec rspec spec`.
+Run
+
+```
+bundle exec rake
+```
 
 ## Use as addon for CLI
 
@@ -59,7 +63,13 @@ environment to aid you in debugging the build failures.
 
 In addition to the travis CLI plugin you can also run the standalone CLI script:
 
-    bundle exec script/compile < payload.json > build.sh
+    $ bundle exec script/compile < payload.json > build.sh
+
+## Docker container
+
+If you want to run travis-build locally on your machine (e.g. to interact with [worker](https://github.com/travis-ci/worker)), you can also run it as a docker container with docker-compose:
+
+    $ docker-compose up
 
 ## License & copyright information
 

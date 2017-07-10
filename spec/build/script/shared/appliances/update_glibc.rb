@@ -7,15 +7,27 @@ fi
   EOF
   ]}
 
-  context "when TRAVIS_UPDATE_GLIBC is unset" do
+  context "when update_glibc is unset" do
     it 'updates libc6' do
       should_not include_sexp(command)
     end
   end
 
-  context "when TRAVIS_UPDATE_GLIBC is unset" do
+  context "when sudo is enabled" do
     before :each do
-      ENV['TRAVIS_UPDATE_GLIBC'] = '1'
+      data[:paranoid] = false
+    end
+
+    it 'updates libc6' do
+      should_not include_sexp(command)
+    end
+  end
+
+  context "when update_glibc is unset" do
+    let(:sxep) { sexp_find(subject, [:if, "-n $(command -v lsb_release) && $(lsb_release -cs) = 'precise'"]) }
+    before :each do
+      Travis::Build.config.update_glibc = '1'
+      data[:paranoid] = true
     end
 
     it 'updates libc6' do
@@ -23,7 +35,7 @@ fi
     end
 
     after :each do
-      ENV.delete 'TRAVIS_UPDATE_GLIBC'
+      Travis::Build.config.update_glibc = ''
     end
   end
 end

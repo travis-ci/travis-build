@@ -17,7 +17,7 @@ module Travis
     class Script
       class Haxe < Script
         DEFAULTS = {
-          haxe: '3.2.1',
+          haxe: '3.4.2',
           neko: '2.1.0'
         }
 

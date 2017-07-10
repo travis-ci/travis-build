@@ -7,9 +7,13 @@ describe Travis::Build::Addons::AptPackages, :sexp do
   let(:addon)     { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
   let(:package_whitelists) { { precise: ['curl', 'git'] } }
   let(:paranoid)  { true }
+  let(:whitelist_skip)     { false }
   subject         { sh.to_sexp }
 
-  before do
+  before :each do
+    described_class.instance_variable_set(:@package_whitelists, nil)
+    described_class.instance_variable_set(:@source_whitelists, nil)
+    addon.stubs(:skip_whitelist?).returns(whitelist_skip)
     addon.stubs(:package_whitelists).returns(package_whitelists)
     addon.before_prepare
   end

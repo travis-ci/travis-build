@@ -36,7 +36,13 @@ module Travis
             @data = data
             @config = config
             @silent = false
+
             @allow_failure = config.delete(:allow_failure)
+
+          rescue TypeError => e
+            if e.message =~ /no implicit conversion of Symbol into String/
+              raise Travis::Build::DeployConfigError.new
+            end
           end
 
           def deploy
@@ -182,7 +188,7 @@ module Travis
             end
 
             def negate_condition(conditions)
-              Array(conditions).flatten.compact.map { |condition| " ! #{condition}" }.join(" && ")
+              Array(conditions).flatten.compact.map { |condition| " ! (#{condition})" }.join(" && ")
             end
 
             def build_gem_locally_from(source, branch)

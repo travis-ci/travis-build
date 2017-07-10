@@ -63,8 +63,9 @@ module Travis
 
         def install_perl_archive(version)
           sh.raw archive_url_for('travis-perl-archives', version)
+          sh.echo "Downloading archive: ${archive_url}", ansi: :yellow
           sh.cmd "curl -s -o perl-#{version}.tar.bz2 ${archive_url}", echo: false
-          sh.cmd "sudo tar xjf perl-#{version}.tar.bz2 --directory /", echo: false
+          sh.cmd "sudo tar xjf perl-#{version}.tar.bz2 --directory /", echo: true
           sh.cmd "rm perl-#{version}.tar.bz2", echo: false
         end
 

@@ -16,7 +16,7 @@ module Travis
         def setup
           super
           CLEANUPS.each do |find_arg|
-            sh.raw "find #{find_arg[:directory]} -name #{find_arg[:glob]} -delete"
+            sh.raw "find #{find_arg[:directory]} -name #{find_arg[:glob]} -delete 2>/dev/null"
           end
         end
 

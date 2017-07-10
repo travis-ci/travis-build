@@ -1,6 +1,10 @@
 shared_examples_for '/etc/hosts pinning' do
   before do
-    ENV['ETC_HOSTS_PINNING'] = '127.0.0.1 foo,0.0.0.0 bar'
+    Travis::Build.config.etc_hosts_pinning = '127.0.0.1 foo,0.0.0.0 bar'
+  end
+
+  after do
+    Travis::Build.config.etc_hosts_pinning = ''
   end
 
   it 'writes to /etc/hosts' do

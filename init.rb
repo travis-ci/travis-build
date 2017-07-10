@@ -24,7 +24,7 @@ module Travis
           set_up_config(match_data)
         elsif arg.length > 0
           warn "#{arg.first} does not look like a job number. Last build's first job is assumed."
-          @config = last_build.jobs[0].config
+          @compile_config = last_build.jobs[0].config
         else
           ## No arg case; use .travis.yml from $PWD
           config = travis_config
@@ -44,13 +44,13 @@ module Travis
           set_up_env(config, global_env)
         end
 
-        puts Travis::Build.script(push_down_deploy(@config)).compile(true)
+        puts Travis::Build.script(push_down_deploy(@compile_config)).compile(true)
       end
 
       private
         def data
           {
-            :config => @config,
+            :config => @compile_config,
             :repository => {
               :slug => slug,
               :source_url => source_url,
@@ -72,7 +72,7 @@ module Travis
         def set_up_config(match_data)
           @build = build(match_data[:build])
           @job_number = match_data[:job].to_i - 1
-          @config = @build.jobs[@job_number].config
+          @compile_config = @build.jobs[@job_number].config
         end
 
         def sanitize_global_env(config)
@@ -94,8 +94,8 @@ module Travis
         end
 
         def set_up_env(config, global_env)
-          @config = config.delete_if {|k,v| k == 'env' }
-          @config['env'] = global_env
+          @compile_config = config.delete_if {|k,v| k == 'env' }
+          @compile_config['env'] = global_env
         end
 
         def push_down_deploy(config)

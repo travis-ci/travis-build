@@ -61,11 +61,11 @@ module Travis
           end
 
           def package_whitelist_url(dist)
-            ENV["TRAVIS_BUILD_APT_PACKAGE_WHITELIST_#{dist.upcase}"].to_s
+            Travis::Build.config.apt_package_whitelist[dist.downcase].to_s
           end
 
           def source_whitelist_url(dist)
-            ENV["TRAVIS_BUILD_APT_SOURCE_WHITELIST_#{dist.upcase}"].to_s
+            Travis::Build.config.apt_source_whitelist[dist.downcase].to_s
           end
         end
 
@@ -75,7 +75,6 @@ module Travis
         end
 
         def before_prepare
-          write_legacy_env_vars
           sh.fold('apt') do
             add_apt_sources unless config_sources.empty?
             add_apt_packages unless config_packages.empty?
@@ -83,18 +82,10 @@ module Travis
         end
 
         def skip_whitelist?
-          ENV['TRAVIS_BUILD_APT_WHITELIST_SKIP']
+          Travis::Build.config.apt_whitelist_skip?
         end
 
         private
-
-          def write_legacy_env_vars
-            return if @legacy_env_vars_written
-            ENV['TRAVIS_BUILD_APT_PACKAGE_WHITELIST'] ||= ENV['TRAVIS_BUILD_APT_PACKAGE_WHITELIST_PRECISE']
-            ENV['TRAVIS_BUILD_APT_SOURCE_WHITELIST'] ||= ENV['TRAVIS_BUILD_APT_SOURCE_WHITELIST_PRECISE']
-            ENV['TRAVIS_BUILD_APT_WHITELIST'] ||= ENV['TRAVIS_BUILD_APT_PACKAGE_WHITELIST_PRECISE']
-            @legacy_env_vars_written = true
-          end
 
           def add_apt_sources
             sh.echo "Adding APT Sources (BETA)", ansi: :yellow
@@ -129,9 +120,7 @@ module Travis
 
             unless disallowed.empty?
               sh.echo "Disallowing sources: #{disallowed.map { |source| Shellwords.escape(source) }.join(', ')}", ansi: :red
-              sh.echo 'If you require these sources, please review the source ' \
-                'approval process at: ' \
-                'https://github.com/travis-ci/apt-source-whitelist#source-approval-process'
+              sh.echo 'If you require these sources, please use `sudo: required` in your `.travis.yml` to manage APT sources.'
             end
 
             unless disallowed_while_sudo.empty?
@@ -194,10 +183,18 @@ module Travis
 
           def config_sources
             @config_sources ||= Array(config[:sources]).flatten.compact
+          rescue TypeError => e
+            if e.message =~ /no implicit conversion of Symbol into Integer/
+              raise Travis::Build::AptSourcesConfigError.new
+            end
           end
 
           def config_packages
             @config_packages ||= Array(config[:packages]).flatten.compact
+          rescue TypeError => e
+            if e.message =~ /no implicit conversion of Symbol into Integer/
+              raise Travis::Build::AptPackagesConfigError.new
+            end
           end
 
           def config_dist
