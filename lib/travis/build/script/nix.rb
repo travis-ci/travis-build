@@ -40,8 +40,19 @@ module Travis
           super
 
           sh.fold 'nix.install' do
-            sh.cmd "wget --retry-connrefused --waitretry=1 -O /tmp/nix-install https://nixos.org/nix/install"
-            sh.cmd "sh /tmp/nix-install"
+            sh.export "NIX_TARBALL", "$(mktemp)"
+            sh.export "NIX_DIR", "$(mktemp -d)"
+            sh.export "NIX_VERSION", "1.11.1"
+            sh.if "$(uname) = 'Linux'" do
+              sh.export "NIX_SYSTEM", "x86_64-linux"
+            end
+            sh.elif "$(uname) = 'Darwin'" do
+              sh.export "NIX_SYSTEM", "x86_64-darwin"
+            end
+            sh.export "NIX_BOOTSTRAP", "https://nixos.org/releases/nix/nix-$NIX_VERSION/nix-$NIX_VERSION-$NIX_SYSTEM.tar.bz2"
+            sh.cmd "wget --retry-connrefused --waitretry=1 -O $NIX_TARBALL $NIX_BOOTSTRAP"
+            sh.cmd "tar xfj $NIX_TARBALL -C $NIX_DIR"
+            sh.cmd "$NIX_DIR/*/install"
             sh.cmd "source $HOME/.nix-profile/etc/profile.d/nix.sh"
           end
         end
