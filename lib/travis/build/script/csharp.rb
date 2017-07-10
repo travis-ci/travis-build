@@ -116,7 +116,7 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
                 sh.failure "The version of this operating system is not supported by .NET Core. View valid versions at https://docs.travis-ci.com/user/languages/csharp/"
               end
               sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
-              sh.cmd "sudo apt-get install -qq dotnet-#{is_dotnet_after_2_0_prev_2? ? "sdk" : "dev"}-#{config[:dotnet]}", timing: true, assert: true
+              sh.cmd "sudo apt-get install -qq dotnet-#{dotnet_package_prefix}-#{config[:dotnet]}", timing: true, assert: true
             when 'osx'
               sh.if '$(sw_vers -productVersion | cut -d . -f 2) -lt 11' do
                 sh.failure "The version of this operating system is not supported by .NET Core. View valid versions at https://docs.travis-ci.com/user/languages/csharp/"
@@ -205,10 +205,14 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
 
         def dotnet_osx_url
           if config[:dotnet].include? "-preview" && !is_dotnet_after_2_0_prev_2?
-            return "https://dotnetcli.azureedge.net/dotnet/preview/Installers/#{config[:dotnet]}/dotnet-#{is_dotnet_after_2_0_prev_2? ? "sdk" : "dev"}-osx-x64.#{config[:dotnet]}.pkg"
+            return "https://dotnetcli.azureedge.net/dotnet/preview/Installers/#{config[:dotnet]}/dotnet-#{dotnet_package_prefix}-osx-x64.#{config[:dotnet]}.pkg"
           else
             return "https://dotnetcli.azureedge.net/dotnet/Sdk/#{config[:dotnet]}/dotnet-#{is_dotnet_after_2_0_prev_2? ? "sdk" : "dev"}-osx-x64.#{config[:dotnet]}.pkg"
           end
+        end
+
+        def dotnet_package_prefix
+          return is_dotnet_after_2_0_prev_2? ? "sdk" : "dev"
         end
 
         def is_mono_version_valid?
