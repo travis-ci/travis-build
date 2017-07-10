@@ -204,10 +204,10 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
         end
 
         def dotnet_osx_url
-          if config[:dotnet].include? "-preview" && !is_dotnet_after_2_0_prev_2?
+          if config[:dotnet].include? "-preview" && is_dotnet_1_0?
             return "https://dotnetcli.azureedge.net/dotnet/preview/Installers/#{config[:dotnet]}/dotnet-#{dotnet_package_prefix}-osx-x64.#{config[:dotnet]}.pkg"
           else
-            return "https://dotnetcli.azureedge.net/dotnet/Sdk/#{config[:dotnet]}/dotnet-#{is_dotnet_after_2_0_prev_2? ? "sdk" : "dev"}-osx-x64.#{config[:dotnet]}.pkg"
+            return "https://dotnetcli.azureedge.net/dotnet/Sdk/#{config[:dotnet]}/dotnet-#{dotnet_package_prefix}-osx-x64.#{config[:dotnet]}.pkg"
           end
         end
 
@@ -281,6 +281,10 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
           return false unless DOTNET_VERSION_REGEXP.match(config[:dotnet])[1].to_i > 1
           return false if config[:dotnet].include? "2.0.0-preview1"
           true
+        end
+
+        def is_dotnet_1_0?
+          return DOTNET_VERSION_REGEXP.match(config[:dotnet])[1] == '1'
         end
       end
     end
