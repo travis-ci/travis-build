@@ -230,11 +230,10 @@ MESSAGE
           def dartfmt
             args = task[:dartfmt]
 
-            if args.is_a?(String)
-              sh.echo "dartfmt arguments aren't supported.", ansi: :red
-            end
-
-            sh.if package_direct_dependency?('dart_style'), raw: true do
+            # If specified `-dartfmt: custom` and there is a dependency on `dart_style` we
+            # will use the custom (pinned) version of dart_style to run formatting checks
+            # instead of the SDK.
+            sh.if args == 'custom' and package_direct_dependency?('dart_style'), raw: true do
               sh.raw 'function dartfmt() { pub run dart_style:format "$@"; }'
             end
 
