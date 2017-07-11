@@ -198,6 +198,7 @@ module Travis
               sh.cmd("git clone https://github.com/#{source} #{source}",    echo: true,  assert: !allow_failure, timing: true)
               sh.cmd("pushd #{source} >& /dev/null",                        echo: false, assert: !allow_failure, timing: true)
               sh.cmd("git checkout #{branch}",                              echo: true,  assert: !allow_failure, timing: true)
+              sh.cmd("git show-ref -s HEAD",                                echo: true,  assert: !allow_failure, timing: true)
               cmd("gem build dpl.gemspec",                                  echo: true,  assert: !allow_failure, timing: true)
               sh.cmd("mv dpl-*.gem $TRAVIS_BUILD_DIR >& /dev/null",         echo: false, assert: !allow_failure, timing: true)
               sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: true)
