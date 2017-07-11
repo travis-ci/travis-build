@@ -233,8 +233,15 @@ MESSAGE
             # If specified `-dartfmt: custom` and there is a dependency on `dart_style` we
             # will use the custom (pinned) version of dart_style to run formatting checks
             # instead of the SDK.
-            sh.if args == 'custom' and package_direct_dependency?('dart_style'), raw: true do
-              sh.raw 'function dartfmt() { pub run dart_style:format "$@"; }'
+            if args == 'custom'
+              sh.if package_direct_dependency?('dart_style'), raw: true do
+                sh.raw 'function dartfmt() { pub run dart_style:format "$@"; }'
+              end
+              sh.else do
+                sh.failure "Since 'custom' was used as the dartfmt argument, you should directly depend on dart_style in pubspec.yaml"
+              end
+            elsif args.is_a?(String)
+              sh.echo "dartfmt only supports 'custom' as an optional argument value.", ansi: :red
             end
 
             sh.cmd 'unformatted=`dartfmt -n .`'
