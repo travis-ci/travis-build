@@ -244,7 +244,7 @@ describe Travis::Build::Script::Dart, :sexp do
       before { data[:config][:dart_task] = 'dartfmt' }
 
       describe 'when dart_style is installed and dartfmt: custom' do
-        before { data[:config][:dart_task] - {dartfmt: 'custom'} }
+        before { data[:config][:dart_task] = {dartfmt: 'custom'} }
 
         let(:sexp) { sexp_find(subject, [:elif, "[[ -f pubspec.yaml ]] && (pub deps | grep -q \"^[|']-- dart_style \")"]) }
         it "runs the installed version of dartfmt" do
