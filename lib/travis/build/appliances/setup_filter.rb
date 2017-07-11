@@ -49,11 +49,14 @@ module Travis
             fi
           ),
           redirect_io: %(
-            exec > >(
-              %{curl}
-              %{exports}
-              ruby ~/filter.rb %{args}
-            ) 2>&1
+            if [[ -z "$TRAVIS_FILTERED" ]]; then
+              export TRAVIS_FILTERED=1
+              exec 9>&1 1>(
+                %{curl}
+                %{exports}
+                ruby ~/filter.rb %{args}
+              ) 2>&1
+            fi
           )
         }
 

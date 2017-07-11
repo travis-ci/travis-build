@@ -166,6 +166,9 @@ travis_result() {
 
 travis_terminate() {
   set +e
+  [[ -n $TRAVIS_FILTERED && -e /dev/fd/9 ]] \
+      && command exec 1>&9 2>&9 9>&- \
+      && sync
   pkill -9 -P $$ &> /dev/null || true
   exit $1
 }
