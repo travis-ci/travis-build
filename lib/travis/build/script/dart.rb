@@ -240,7 +240,7 @@ MESSAGE
                 sh.raw 'function dartfmt() { pub run dart_style:format "$@"; }'
               end
             elsif args.is_a?(String)
-              sh.echo "dartfmt only supports 'custom' as an optional argument value.", ansi: :red
+              sh.echo "dartfmt only supports 'sdk' as an optional argument value.", ansi: :red
             end
 
             sh.cmd 'unformatted=`dartfmt -n .`'
