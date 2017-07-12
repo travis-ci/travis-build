@@ -234,13 +234,14 @@ MESSAGE
             # will use the SDK version of dart_style to run formatting checks instead of
             # the custom pinned version.
             if args != 'sdk'
+              if args.is_a?(String)
+                sh.echo "dartfmt only supports 'sdk' as an optional argument value.", ansi: :red
+              end
               sh.if package_direct_dependency?('dart_style'), raw: true do
                 sh.echo 'Using the provided dart_style package to run format instead of the SDK.'
                 sh.echo "You may specify '- dartfmt: sdk' in order to use the SDK version instead"
                 sh.raw 'function dartfmt() { pub run dart_style:format "$@"; }'
               end
-            elsif args.is_a?(String)
-              sh.echo "dartfmt only supports 'sdk' as an optional argument value.", ansi: :red
             end
 
             sh.cmd 'unformatted=`dartfmt -n .`'
