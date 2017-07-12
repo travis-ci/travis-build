@@ -230,15 +230,14 @@ MESSAGE
           def dartfmt
             args = task[:dartfmt]
 
-            # If specified `-dartfmt: custom` and there is a dependency on `dart_style` we
-            # will use the custom (pinned) version of dart_style to run formatting checks
-            # instead of the SDK.
-            if args == 'custom'
+            # If specified `-dartfmt: sdk` and there is a dependency on `dart_style` we
+            # will use the SDK version of dart_style to run formatting checks instead of
+            # the custom pinned version.
+            if args != 'sdk'
               sh.if package_direct_dependency?('dart_style'), raw: true do
+                sh.echo 'Using the provided dart_style package to run format instead of the SDK.'
+                sh.echo "You may specify '- dartfmt: sdk' in order to use the SDK version instead"
                 sh.raw 'function dartfmt() { pub run dart_style:format "$@"; }'
-              end
-              sh.else do
-                sh.failure "Since 'custom' was used as the dartfmt argument, you should directly depend on dart_style in pubspec.yaml"
               end
             elsif args.is_a?(String)
               sh.echo "dartfmt only supports 'custom' as an optional argument value.", ansi: :red
