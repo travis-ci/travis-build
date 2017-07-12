@@ -51,7 +51,7 @@ module Travis
           redirect_io: %(
             if [[ -z "$TRAVIS_FILTERED" ]]; then
               export TRAVIS_FILTERED=1
-              exec 9>&1 1>(
+              exec 9>&1 1> >(
                 %{curl}
                 %{exports}
                 ruby ~/filter.rb %{args}
