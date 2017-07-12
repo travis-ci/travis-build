@@ -42,21 +42,19 @@ module Travis
           ),
           pty: %(
             if [[ -z "$TRAVIS_FILTERED" ]]; then
-              export TRAVIS_FILTERED=1
+              export TRAVIS_FILTERED=pty
               %{curl}
               %{exports}
               exec ruby ~/filter.rb "/usr/bin/env TERM=xterm /bin/bash --login $HOME/build.sh" %{args}
             fi
           ),
           redirect_io: %(
-            if [[ -z "$TRAVIS_FILTERED" ]]; then
-              export TRAVIS_FILTERED=1
-              exec 9>&1 1> >(
-                %{curl}
-                %{exports}
-                ruby ~/filter.rb %{args}
-              ) 2>&1
-            fi
+            export TRAVIS_FILTERED=redirect_io
+            exec 9>&1 1> >(
+              %{curl}
+              %{exports}
+              ruby ~/filter.rb %{args}
+            ) 2>&1
           )
         }
 

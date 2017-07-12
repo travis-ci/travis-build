@@ -167,7 +167,7 @@ travis_result() {
 travis_terminate() {
   set +e
   # Restoring the file descriptors of redirect_io filter strategy
-  [[ -n $TRAVIS_FILTERED && -e /dev/fd/9 ]] \
+  [[ "$TRAVIS_FILTERED" = redirect_io && -e /dev/fd/9 ]] \
       && sync \
       && command exec 1>&9 2>&9 9>&- \
       && sync
