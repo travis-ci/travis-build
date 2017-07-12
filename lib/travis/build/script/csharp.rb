@@ -206,8 +206,10 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
         def dotnet_osx_url
           if is_dotnet_1_0? && dotnet_is_preview?
             return "https://dotnetcli.azureedge.net/dotnet/preview/Installers/#{config[:dotnet]}/dotnet-#{dotnet_package_prefix}-osx-x64.#{config[:dotnet]}.pkg"
-          else
+          elsif !is_dotnet_after_2_0_prev_2?
             return "https://dotnetcli.azureedge.net/dotnet/Sdk/#{config[:dotnet]}/dotnet-#{dotnet_package_prefix}-osx-x64.#{config[:dotnet]}.pkg"
+          else
+            return "https://dotnetcli.azureedge.net/dotnet/Sdk/#{config[:dotnet]}/dotnet-#{dotnet_package_prefix}-#{config[:dotnet]}-osx-x64.pkg"
           end
         end
 	
