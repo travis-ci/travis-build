@@ -171,6 +171,9 @@ travis_terminate() {
       && sync \
       && command exec 1>&9 2>&9 9>&- \
       && sync
+  TMPDIR=$(mktemp -d)
+  pgrep -u $USER | grep -v -w $$ > $TMPDIR/pids
+  pkill -9 -F $TMPDIR/pids
   pkill -9 -P $$ &> /dev/null || true
   exit $1
 }
