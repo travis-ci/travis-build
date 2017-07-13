@@ -30,10 +30,6 @@ module Travis
             sh.cmd "sudo mount -o remount,exec /run"
             sh.cmd "sudo mount -o remount,exec /run/user"
           end
-
-          # setup /nix dir for rootless install in setup
-          sh.cmd "sudo mkdir -p -m 0755 /nix/"
-          sh.cmd "sudo chown $USER /nix/"
         end
 
         def setup
