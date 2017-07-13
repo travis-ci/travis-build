@@ -41,7 +41,7 @@ module Travis
 
           sh.fold 'nix.install' do
             sh.cmd "wget --retry-connrefused --waitretry=1 -O /tmp/nix-install https://nixos.org/nix/install"
-            sh.cmd "sh /tmp/nix-install"
+            sh.cmd "yes | sh /tmp/nix-install"
             sh.cmd "source $HOME/.nix-profile/etc/profile.d/nix.sh"
           end
         end
