@@ -138,7 +138,7 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
           super
 
           sh.cmd 'mono --version', timing: true if is_mono_enabled
-          sh.cmd 'xbuild /version', timing: true if is_mono_enabled
+          sh.cmd "#{mono_build_cmd} /version", timing: true if is_mono_enabled
           sh.echo ''
 
           sh.cmd 'dotnet --info', timing: true if is_dotnet_enabled
@@ -157,7 +157,7 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
 
         def script
           if config[:solution] && is_mono_enabled
-            sh.cmd "xbuild /p:Configuration=Release #{config[:solution]}", timing: true
+            sh.cmd "#{mono_build_cmd} /p:Configuration=Release #{config[:solution]}", timing: true
           else
             sh.failure 'No solution or script defined, exiting'
           end
@@ -271,6 +271,19 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
           return false if MONO_VERSION_REGEXP.match(config[:mono])[1] == '4' && MONO_VERSION_REGEXP.match(config[:mono])[2].to_i < 4
 
           true
+        end
+
+        def is_mono_after_5
+          return false unless is_mono_version_valid?
+          return true if is_mono_version_keyword?
+
+          return false if MONO_VERSION_REGEXP.match(config[:mono])[1].to_i < 5
+
+          true
+        end
+
+        def mono_build_cmd
+          is_mono_after_5 ? "msbuild" : "xbuild" 
         end
       end
     end
