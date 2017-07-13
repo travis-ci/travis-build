@@ -30,10 +30,6 @@ module Travis
             sh.cmd "sudo mount -o remount,exec /run"
             sh.cmd "sudo mount -o remount,exec /run/user"
           end
-
-          # setup /nix dir for rootless install in setup
-          sh.cmd "sudo mkdir -p -m 0755 /nix/"
-          sh.cmd "sudo chown $USER /nix/"
         end
 
         def setup
@@ -41,7 +37,7 @@ module Travis
 
           sh.fold 'nix.install' do
             sh.cmd "wget --retry-connrefused --waitretry=1 -O /tmp/nix-install https://nixos.org/nix/install"
-            sh.cmd "sh /tmp/nix-install"
+            sh.cmd "yes | sh /tmp/nix-install"
             sh.cmd "source $HOME/.nix-profile/etc/profile.d/nix.sh"
           end
         end
