@@ -31,6 +31,10 @@ export USER
 TRAVIS_TEST_RESULT=
 TRAVIS_CMD=
 
+TRAVIS_TMPDIR=$(mktemp -d)
+
+pgrep -u $USER | grep -v -w $$ > $TRAVIS_TMPDIR/pids_before
+
 travis_cmd() {
   local assert output display retry timing cmd result secure
 
@@ -171,6 +175,11 @@ travis_terminate() {
       && sync \
       && command exec 1>&9 2>&9 9>&- \
       && sync
+  TMPDIR=$(mktemp -d)
+  pgrep -u $USER | grep -v -w $$ > $TRAVIS_TMPDIR/pids_after
+  diff --unchanged-line-format='' --new-line-format="%L" \
+    --old-line-format='' $TRAVIS_TMPDIR/pids_before $TRAVIS_TMPDIR/pids_after > $TRAVIS_TMPDIR/pids
+  pkill -9 -F $TRAVIS_TMPDIR/pids &> /dev/null
   pkill -9 -P $$ &> /dev/null || true
   exit $1
 }
