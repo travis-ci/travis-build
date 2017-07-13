@@ -47,6 +47,7 @@ module Travis
           )
         },
         go_version: ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.8.3'),
+        hide_secrets_in_debug: ENV.fetch('TRAVIS_BUILD_HIDE_SECRETS_IN_DEBUG', ''),
         internal_ruby_regex: ENV.fetch(
           'TRAVIS_BUILD_INTERNAL_RUBY_REGEX',
           '^ruby-(2\.[0-2]\.[0-9]|1\.9\.3)'

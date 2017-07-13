@@ -6,6 +6,8 @@ module Travis
       class Env < Base
         MSG = "Setting environment variables from %s"
 
+        def_delegators :script, :debug_enabled?, :debug_build_via_api?
+
         def apply
           if data.secure_env_removed?
             sh.echo ""
@@ -21,7 +23,15 @@ module Travis
 
           def export(group)
             announce(group) if group.announce?
-            group.vars.each do |var|
+            vars = group.vars
+
+            if (debug_enabled? || debug_build_via_api?) && hide_secrets?
+              if vars.reject!(&:secure?)
+                sh.echo "Removed secrets while running in debug mode"
+              end
+            end
+
+            vars.each do |var|
               sh.export(var.key, var.value, echo: var.echo?, secure: var.secure?)
             end
           end
@@ -33,6 +43,10 @@ module Travis
 
           def env
             @env ||= Build::Env.new(data)
+          end
+
+          def hide_secrets?
+            Travis::Build.config.hide_secrets_in_debug == '1'
           end
       end
     end
