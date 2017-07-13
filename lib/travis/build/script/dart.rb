@@ -234,7 +234,7 @@ MESSAGE
             # will use the SDK version of dart_style to run formatting checks instead of
             # the custom pinned version.
             if args != 'sdk'
-              if args.is_a?(String)
+              if !args.nil?
                 sh.echo "dartfmt only supports 'sdk' as an optional argument value.", ansi: :red
               end
               sh.if package_direct_dependency?('dart_style'), raw: true do
