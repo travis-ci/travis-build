@@ -19,10 +19,6 @@ module Travis
         def configure
           super
 
-          # Set nix config dir and make config Hydra compatible
-          sh.cmd "sudo mkdir -p /etc/nix"
-          sh.cmd "echo 'build-max-jobs = 4' | sudo tee /etc/nix/nix.conf > /dev/null"
-
           # Nix needs to be able to exec on /tmp on Linux
           # This will emit an error in the container but
           # it's still needed for "trusty" Linux.
@@ -39,6 +35,10 @@ module Travis
             sh.cmd "wget --retry-connrefused --waitretry=1 -O /tmp/nix-install https://nixos.org/nix/install"
             sh.cmd "yes | sh /tmp/nix-install"
             sh.cmd "source $HOME/.nix-profile/etc/profile.d/nix.sh"
+
+            # Set nix config dir and make config Hydra compatible
+            sh.cmd "sed -i '/build-max-jobs/d' /etc/nix/nix.conf"
+            sh.cmd "echo 'build-max-jobs = 4' | sudo tee -a /etc/nix/nix.conf > /dev/null"
           end
         end
 
