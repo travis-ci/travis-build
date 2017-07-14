@@ -56,6 +56,8 @@ module Travis
           const = self.class.const_get(name.to_s.camelize)
           const.new(script, sh, data, config) if const && run_addon?(const)
         rescue NameError
+        rescue
+          raise Travis::Build::AddonConfigError.new(name)
         end
 
         def addon_config

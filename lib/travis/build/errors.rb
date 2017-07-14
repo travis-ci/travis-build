@@ -51,5 +51,11 @@ module Travis
         '/user/installing-dependencies'
       end
     end
+
+    class AddonConfigError < CompilationError
+      def initialize(name)
+        @msg = "Addon #{name} has a configuration error."
+      end
+    end
   end
 end
