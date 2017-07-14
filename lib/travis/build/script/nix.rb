@@ -25,6 +25,8 @@ module Travis
           if config[:os] == 'linux'
             sh.cmd "sudo mount -o remount,exec /run"
             sh.cmd "sudo mount -o remount,exec /run/user"
+            sh.cmd "sudo mkdir -p -m 0755 /nix/"
+            sh.cmd "sudo chown $USER /nix/"
           end
         end
 
@@ -32,11 +34,6 @@ module Travis
           super
 
           sh.fold 'nix.install' do
-            sh.if "$TRAVIS_OS_NAME = linux" do
-              sh.cmd "sudo mkdir -p -m 0755 /nix/"
-              sh.cmd "sudo chown $USER /nix/"
-            end
-
             sh.cmd "wget --retry-connrefused --waitretry=1 -O /tmp/nix-install https://nixos.org/nix/install"
             sh.cmd "yes | sh /tmp/nix-install"
 
@@ -45,7 +42,7 @@ module Travis
             sh.cmd "echo 'build-max-jobs = 4' | sudo tee -a /etc/nix/nix.conf > /dev/null"
 
             # single-user install (linux)
-            sh.cmd '[ -e "$HOME/.nix-profile/etc/profile.d/nix.sh"" ] && source $HOME/.nix-profile/etc/profile.d/nix.sh'
+            sh.cmd '[ -e "$HOME/.nix-profile/etc/profile.d/nix.sh" ] && source $HOME/.nix-profile/etc/profile.d/nix.sh'
             # multi-user install (macos)
             sh.cmd '[ -e "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" ] && source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
           end
