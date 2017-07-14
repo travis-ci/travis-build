@@ -39,10 +39,8 @@ module Travis
 
             @allow_failure = config.delete(:allow_failure)
 
-          rescue TypeError => e
-            if e.message =~ /no implicit conversion of Symbol into String/
-              raise Travis::Build::DeployConfigError.new
-            end
+          rescue
+            raise Travis::Build::DeployConfigError.new
           end
 
           def deploy
