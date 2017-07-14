@@ -27,6 +27,8 @@ module Travis
             sh.cmd "sudo mount -o remount,exec /run/user"
             sh.cmd "sudo mkdir -p -m 0755 /nix/"
             sh.cmd "sudo chown $USER /nix/"
+            # Set nix config dir and make config Hydra compatible
+            sh.cmd "echo 'build-max-jobs = 4' | sudo tee /etc/nix/nix.conf > /dev/null"
           end
         end
 
@@ -37,14 +39,13 @@ module Travis
             sh.cmd "wget --retry-connrefused --waitretry=1 -O /tmp/nix-install https://nixos.org/nix/install"
             sh.cmd "yes | sh /tmp/nix-install"
 
-            # Set nix config dir and make config Hydra compatible
-            sh.cmd "sudo sed -i.bak '/build-max-jobs/d' /etc/nix/nix.conf"
-            sh.cmd "echo 'build-max-jobs = 4' | sudo tee -a /etc/nix/nix.conf > /dev/null"
-
-            # single-user install (linux)
-            sh.cmd '[ -e "$HOME/.nix-profile/etc/profile.d/nix.sh" ] && source $HOME/.nix-profile/etc/profile.d/nix.sh'
-            # multi-user install (macos)
-            sh.cmd '[ -e "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" ] && source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+            if config[:os] == 'linux'
+              # single-user install (linux)
+              sh.cmd 'source $HOME/.nix-profile/etc/profile.d/nix.sh'
+            else
+              # multi-user install (macos)
+              sh.cmd 'source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+            end
           end
         end
 
