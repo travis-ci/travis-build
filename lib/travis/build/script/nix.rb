@@ -34,11 +34,15 @@ module Travis
           sh.fold 'nix.install' do
             sh.cmd "wget --retry-connrefused --waitretry=1 -O /tmp/nix-install https://nixos.org/nix/install"
             sh.cmd "yes | sh /tmp/nix-install"
-            sh.cmd "source $HOME/.nix-profile/etc/profile.d/nix.sh"
 
             # Set nix config dir and make config Hydra compatible
             sh.cmd "sed -i '/build-max-jobs/d' /etc/nix/nix.conf"
             sh.cmd "echo 'build-max-jobs = 4' | sudo tee -a /etc/nix/nix.conf > /dev/null"
+
+            # single-user install (linux)
+            sh.cmd '[ -e "$HOME/.nix-profile/etc/profile.d/nix.sh"" ] && source $HOME/.nix-profile/etc/profile.d/nix.sh'
+            # multi-user install (macos)
+            sh.cmd '[ -e "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" ] && source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
           end
         end
 
