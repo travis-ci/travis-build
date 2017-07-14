@@ -175,7 +175,6 @@ travis_terminate() {
       && sync \
       && command exec 1>&9 2>&9 9>&- \
       && sync
-  TMPDIR=$(mktemp -d)
   pgrep -u $USER | grep -v -w $$ > $TRAVIS_TMPDIR/pids_after
   diff --unchanged-line-format='' --new-line-format="%L" \
     --old-line-format='' $TRAVIS_TMPDIR/pids_before $TRAVIS_TMPDIR/pids_after > $TRAVIS_TMPDIR/pids
