@@ -36,7 +36,7 @@ module Travis
             sh.cmd "yes | sh /tmp/nix-install"
 
             # Set nix config dir and make config Hydra compatible
-            sh.cmd "sed -i '/build-max-jobs/d' /etc/nix/nix.conf"
+            sh.cmd "sed -i.bak '/build-max-jobs/d' /etc/nix/nix.conf"
             sh.cmd "echo 'build-max-jobs = 4' | sudo tee -a /etc/nix/nix.conf > /dev/null"
 
             # single-user install (linux)
