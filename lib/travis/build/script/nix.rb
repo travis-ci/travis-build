@@ -32,6 +32,11 @@ module Travis
           super
 
           sh.fold 'nix.install' do
+            sh.if "$TRAVIS_OS_NAME = linux" do
+              sh.cmd "sudo mkdir -p -m 0755 /nix/"
+              sh.cmd "sudo chown $USER /nix/"
+            end
+
             sh.cmd "wget --retry-connrefused --waitretry=1 -O /tmp/nix-install https://nixos.org/nix/install"
             sh.cmd "yes | sh /tmp/nix-install"
 
