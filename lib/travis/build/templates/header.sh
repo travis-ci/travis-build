@@ -176,9 +176,7 @@ travis_terminate() {
       && command exec 1>&9 2>&9 9>&- \
       && sync
   pgrep -u $USER | grep -v -w $$ > $TRAVIS_TMPDIR/pids_after
-  diff --unchanged-line-format='' --new-line-format="%L" \
-    --old-line-format='' $TRAVIS_TMPDIR/pids_before $TRAVIS_TMPDIR/pids_after > $TRAVIS_TMPDIR/pids
-  pkill -9 -F $TRAVIS_TMPDIR/pids &> /dev/null
+  kill -9 $(awk 'NR==FNR{a[$1]++;next};!($1 in a)' <$TRAVIS_TMPDIR/pids_{before,after})
   pkill -9 -P $$ &> /dev/null || true
   exit $1
 }
