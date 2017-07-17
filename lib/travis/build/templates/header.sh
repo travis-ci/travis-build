@@ -31,9 +31,10 @@ export USER
 TRAVIS_TEST_RESULT=
 TRAVIS_CMD=
 
-TRAVIS_TMPDIR=$(mktemp -d)
-
-pgrep -u $USER | grep -v -w $$ > $TRAVIS_TMPDIR/pids_before
+if [ -f /.dockerenv ]; then
+  TRAVIS_TMPDIR=$(mktemp -d)
+  pgrep -u $USER | grep -v -w $$ > $TRAVIS_TMPDIR/pids_before
+fi
 
 travis_cmd() {
   local assert output display retry timing cmd result secure
@@ -175,8 +176,10 @@ travis_terminate() {
       && sync \
       && command exec 1>&9 2>&9 9>&- \
       && sync
-  pgrep -u $USER | grep -v -w $$ > $TRAVIS_TMPDIR/pids_after
-  kill -9 $(awk 'NR==FNR{a[$1]++;next};!($1 in a)' $TRAVIS_TMPDIR/pids_{before,after}) || true
+  if [ -f /.dockerenv ]; then
+    pgrep -u $USER | grep -v -w $$ > $TRAVIS_TMPDIR/pids_after
+    kill -9 $(awk 'NR==FNR{a[$1]++;next};!($1 in a)' $TRAVIS_TMPDIR/pids_{before,after}) &> /dev/null || true
+  fi
   pkill -9 -P $$ &> /dev/null || true
   exit $1
 }
