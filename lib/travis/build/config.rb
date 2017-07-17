@@ -29,6 +29,7 @@ module Travis
           trusty: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_WHITELIST_TRUSTY', '')
         },
         apt_whitelist_skip: ENV.fetch('TRAVIS_BUILD_APT_WHITELIST_SKIP', ''),
+        archive_host: ENV.fetch('TRAVIS_BUILD_ARCHIVE_HOST', 's3.amazonaws.com'),
         cabal_default: ENV.fetch('TRAVIS_BUILD_CABAL_DEFAULT', '1.22'),
         auth_disabled: ENV.fetch('TRAVIS_BUILD_AUTH_DISABLED', ''),
         enable_debug_tools: ENV.fetch(

@@ -101,6 +101,10 @@ module Travis
         cache_slug_keys.compact.join('-')
       end
 
+      def archive_host
+        @archive_host ||= Travis::Build.config.archive_host.to_s.strip.untaint || 's3.amazonaws.com'
+      end
+
       def archive_url_for(bucket, version, lang = self.class.name.split('::').last.downcase, ext = 'bz2')
         sh.if "$(uname) = 'Linux'" do
           sh.raw "travis_host_os=$(lsb_release -is | tr 'A-Z' 'a-z')"
@@ -111,7 +115,7 @@ module Travis
           sh.raw "travis_rel=$(sw_vers -productVersion)"
           sh.raw "travis_rel_version=${travis_rel%*.*}"
         end
-        "archive_url=https://s3.amazonaws.com/#{bucket}/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/#{lang}-#{version}.tar.#{ext}"
+        "archive_url=https://#{archive_host}/#{bucket}/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/#{lang}-#{version}.tar.#{ext}"
       end
 
       def debug_build_via_api?

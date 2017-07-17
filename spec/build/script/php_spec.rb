@@ -36,8 +36,8 @@ describe Travis::Build::Script::Php, :sexp do
 
   describe 'installs php nightly' do
     before { data[:config][:php] = 'nightly' }
-    # expect(sexp).to include_sexp [:raw, "archive_url=https://s3.amazonaws.com/travis-php-archives/php-#{version}-archive.tar.bz2"]
-    xit { should include_sexp [:cmd, 'curl -s -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /', timing: true] }
+    it { should include_sexp [:raw, "archive_url=https://s3.amazonaws.com/travis-php-archives/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/php-nightly.tar.bz2", assert: true] }
+    it { should include_sexp [:cmd, 'curl -s -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /', echo: true, timing: true] }
   end
 
   describe 'installs php 7' do
@@ -74,8 +74,24 @@ describe Travis::Build::Script::Php, :sexp do
     let(:sexp) { sexp_find(subject, [:if, "$? -ne 0"], [:then]) }
 
     xit 'installs PHP version on demand' do
-      expect(sexp).to include_sexp [:raw, "archive_url=https://s3.amazonaws.com/travis-php-archives/php-#{version}-archive.tar.bz2"]
+      expect(sexp).to include_sexp [:raw, "archive_url=https://s3.amazonaws.com/travis-php-archives/php-#{version}.tar.bz2"]
       expect(sexp).to include_sexp [:cmd, "curl -s -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /", timing: true]
+    end
+  end
+
+  context 'when archive_host is set' do
+    before :all do
+      Travis::Build.config.archive_host = 'runtime-archives.example.com'
+    end
+
+    describe 'installs php nightly from specified archive_host' do
+      before { data[:config][:php] = 'nightly' }
+      it { should include_sexp [:raw, "archive_url=https://runtime-archives.example.com/travis-php-archives/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/php-nightly.tar.bz2", assert: true] }
+      it { should include_sexp [:cmd, 'curl -s -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /', echo: true, timing: true] }
+    end
+
+    after :all do
+      Travis::Build.config.archive_host = nil
     end
   end
 
