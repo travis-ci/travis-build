@@ -33,7 +33,7 @@ TRAVIS_CMD=
 
 if [ -f /.dockerenv ]; then
   TRAVIS_TMPDIR=$(mktemp -d)
-  pgrep -u $USER | grep -v -w $$ > $TRAVIS_TMPDIR/pids_before
+  pgrep -u $USER > $TRAVIS_TMPDIR/pids_before
 fi
 
 travis_cmd() {
