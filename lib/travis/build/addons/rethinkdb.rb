@@ -7,8 +7,6 @@ module Travis
       class Rethinkdb < Base
         SUPER_USER_SAFE = true
 
-        RETHINKDB_GPG_KEY = '0x3A8F2399'
-
         def after_prepare
           sh.fold 'rethinkdb' do
             sh.if "$(uname) != 'Linux'" do
@@ -17,7 +15,7 @@ module Travis
             sh.else do
               sh.echo "Installing RethinkDB version #{rethinkdb_version}", ansi: :yellow
               sh.cmd "service rethinkdb stop", sudo: true
-              sh.cmd "apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 #{RETHINKDB_GPG_KEY}", sudo: true
+              sh.cmd "wget -qO- https://download.rethinkdb.com/apt/pubkey.gpg | sudo apt-key add -v -''", echo: true
               sh.cmd 'echo -e "\ndeb http://download.rethinkdb.com/apt $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list > /dev/null'
               sh.cmd "apt-get update -qq", assert: false, sudo: true
               sh.cmd "package_version=`apt-cache show rethinkdb | grep -F \"Version: #{rethinkdb_version}\" | sort -r | head -n 1 | awk '{printf $2}'`"
