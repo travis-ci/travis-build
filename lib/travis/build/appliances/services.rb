@@ -43,8 +43,11 @@ module Travis
         def apply_mysql
           sh.raw <<~BASH
             travis_mysql_ping() {
-              local i
-              until (( i++ > 10 )) || mysql <<<'select 1;'; do sleep 1; done
+              local i timeout=10
+              until (( i++ >= $timeout )) || mysql <<<'select 1;' >&/dev/null; do sleep 1; done
+              if (( i > $timeout )); then
+                echo -e "${ANSI_RED}MySQL did not start within ${timeout} seconds${ANSI_RESET}"
+              fi
               unset -f travis_mysql_ping
             }
           BASH
