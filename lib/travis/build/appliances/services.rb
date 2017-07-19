@@ -43,11 +43,13 @@ module Travis
         def apply_mysql
           sh.raw <<~BASH
             travis_mysql_ping() {
-              mysql &>/dev/null <<<'SHOW VARIABLES like "%version%"'
+              local i
+              until (( i++ > 10 )) || mysql <<<'select 1;'; do sleep 1; done
+              unset -f travis_mysql_ping
             }
           BASH
           sh.cmd 'sudo service mysql start', assert: false, echo: true, timing: true
-          sh.cmd 'travis_wait travis_mysql_ping', assert: false, echo: false, timing: false
+          sh.cmd 'travis_mysql_ping', assert: false, echo: false, timing: false
         end
 
         private

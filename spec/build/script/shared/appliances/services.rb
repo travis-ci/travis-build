@@ -43,7 +43,7 @@ shared_examples_for 'starts services' do
           )
         expect(subject)
           .to include_sexp(
-            [:cmd, 'travis_wait travis_mysql_ping']
+            [:cmd, 'travis_mysql_ping']
           )
       end
     end
