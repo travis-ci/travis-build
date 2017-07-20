@@ -9,26 +9,37 @@ module Travis
           sh.fold 'crystal_install' do
             sh.echo 'Installing Crystal', ansi: :yellow
 
-            version = select_version
-            return unless version
+            case config[:os]
+            when 'linux'
+              version = select_apt_version
+              return unless version
 
-            sh.cmd %Q(curl -sSL '#{version[:key][:url]}' > "$HOME/crystal_repository_key.asc")
-            sh.if %Q("$(gpg --with-fingerprint "$HOME/crystal_repository_key.asc" | grep "Key fingerprint" | cut -d "=" -f2 | tr -d " ")" != "#{version[:key][:fingerprint]}") do
-              sh.failure "The repository key needed to install Crystal did not have the expected fingerprint. Your build was aborted."
+              sh.cmd %Q(curl -sSL '#{version[:key][:url]}' > "$HOME/crystal_repository_key.asc")
+              sh.if %Q("$(gpg --with-fingerprint "$HOME/crystal_repository_key.asc" | grep "Key fingerprint" | cut -d "=" -f2 | tr -d " ")" != "#{version[:key][:fingerprint]}") do
+                sh.failure "The repository key needed to install Crystal did not have the expected fingerprint. Your build was aborted."
+              end
+              sh.cmd %q(sudo sh -c "apt-key add '$HOME/crystal_repository_key.asc'")
+
+              sh.cmd %Q(sudo sh -c 'echo "deb #{version[:url]} crystal main" > /etc/apt/sources.list.d/crystal-nightly.list')
+              sh.cmd %q(sudo sh -c 'apt-get update')
+              sh.cmd %Q(sudo apt-get install -y #{version[:package]} libgmp-dev)
+
+              sh.echo 'Installing Shards', ansi: :yellow
+
+              sh.cmd %q(sudo sh -c "curl -sSL https://github.com/crystal-lang/shards/releases/latest | \
+                        egrep -o '/crystal-lang/shards/releases/download/v[0-9\.]*/shards.*linux_.*64.gz' | \
+                        xargs -Ipath curl -sSL https://github.com/path | \
+                        gunzip > /usr/local/bin/shards && \
+                        chmod +x /usr/local/bin/shards")
+            when 'osx'
+              if config[:crystal] && config[:crystal] != "latest"
+                sh.failure %Q(Specifying Crystal version is not yet supported by the macOS environment)
+              end
+              sh.cmd %q(brew update)
+              sh.cmd %q(brew install crystal-lang)
+            else
+              sh.failure %Q(Operating system not supported: "#{config[:os]}")
             end
-            sh.cmd %q(sudo sh -c "apt-key add '$HOME/crystal_repository_key.asc'")
-
-            sh.cmd %Q(sudo sh -c 'echo "deb #{version[:url]} crystal main" > /etc/apt/sources.list.d/crystal-nightly.list')
-            sh.cmd %q(sudo sh -c 'apt-get update')
-            sh.cmd %Q(sudo apt-get install -y #{version[:package]} libgmp-dev)
-
-            sh.echo 'Installing Shards', ansi: :yellow
-
-            sh.cmd %q(sudo sh -c "curl -sSL https://github.com/crystal-lang/shards/releases/latest | \
-                      egrep -o '/crystal-lang/shards/releases/download/v[0-9\.]*/shards.*linux_.*64.gz' | \
-                      xargs -Ipath curl -sSL https://github.com/path | \
-                      gunzip > /usr/local/bin/shards && \
-                      chmod +x /usr/local/bin/shards")
           end
         end
 
@@ -61,7 +72,7 @@ module Travis
 
         private
 
-        def select_version
+        def select_apt_version
           key = {
             url: "https://dist.crystal-lang.org/rpm/RPM-GPG-KEY",
             fingerprint: "5995C83CD754BE448164192909617FD37CC06B54"
