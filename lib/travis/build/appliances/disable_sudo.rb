@@ -6,6 +6,7 @@ module Travis
       class DisableSudo < Base
         WRITE_SUDO = <<-EOC
 cat <<-'EOF' > _sudo
+#!/bin/bash
 if [[ -f \$HOME/.sudo-run ]]; then
   exit 1
 fi
