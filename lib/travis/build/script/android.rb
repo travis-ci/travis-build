@@ -19,6 +19,8 @@ module Travis
           end
 
           install_sdk_components unless components.empty?
+
+          ensure_tools_bin_path
         end
 
         def script
@@ -59,18 +61,26 @@ module Travis
               match[:version] if match
             }
           end
-        end
 
-        def components
-          android_config[:components] || []
-        end
+          def ensure_tools_bin_path
+            tools_bin_path = '/usr/local/android-sdk/tools/bin'
+            sh.if "$(echo $PATH: | grep -v #{tools_bin_path})" do
+              sh.export "PATH", "#{tools_bin_path}:$PATH"
+            end
+          end
 
-        def licenses
-          android_config[:licenses] || []
-        end
+          def components
+            android_config[:components] || []
+          end
 
-        def android_config
-          config[:android] || {}
+          def licenses
+            android_config[:licenses] || []
+          end
+
+          def android_config
+            config[:android] || {}
+          end
+
         end
     end
   end
