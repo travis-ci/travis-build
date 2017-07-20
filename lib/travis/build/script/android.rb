@@ -64,7 +64,7 @@ module Travis
 
           def ensure_tools_bin_path
             tools_bin_path = '/usr/local/android-sdk/tools/bin'
-            sh.if "$(echo $PATH: | grep -v #{tools_bin_path})" do
+            sh.if "$(echo :$PATH: | grep -v :#{tools_bin_path}:)" do
               sh.export "PATH", "#{tools_bin_path}:$PATH"
             end
           end
