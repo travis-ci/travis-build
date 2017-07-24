@@ -58,7 +58,7 @@ function travis_start_sauce_connect() {
           unzip sc-osx.zip;;
   esac
 
-  sc_bin=$(find sc-* -type f -perm -0400 -name sc)
+  sc_bin=$(find sc-* -type f -perm -0500 -name sc)
 
   ${sc_bin} \
     ${sc_tunnel_id_arg} \
