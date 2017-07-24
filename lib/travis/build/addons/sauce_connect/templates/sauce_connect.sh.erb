@@ -50,13 +50,6 @@ function travis_start_sauce_connect() {
     curl -o ${sc_archive} -sf ${sc_download_url}
   fi
 
-  case ${sc_distro_fmt} in
-    tar.gz)
-      sc_dir=$(tar -ztf ${sc_archive} | head -n1);;
-    zip)
-      sc_dir=$(unzip -l ${sc_archive} | sed '0,/^---/d' | sed '/^---/,$d' | head -n 1 | awk '{print $NF}' | sed 's:/$::');;
-  esac
-
   echo "Extracting Sauce Connect"
   case "${sc_distro_fmt}" in
       tar.gz)
@@ -65,7 +58,9 @@ function travis_start_sauce_connect() {
           unzip sc-osx.zip;;
   esac
 
-  ${sc_dir}/bin/sc \
+  sc_bin=$(find sc-* -type f -perm -0500 -name sc)
+
+  ${sc_bin} \
     ${sc_tunnel_id_arg} \
     -f ${sc_readyfile} \
     -l ${sc_logfile} \
