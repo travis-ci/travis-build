@@ -156,7 +156,6 @@ module Travis
 
       def task_clean
         rm_rf(top + 'public/files')
-        rm_rf 'lib/travis/build/addons/sauce_connect/sauce_connect.sh'
       end
 
       def file_update_casher
