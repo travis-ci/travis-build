@@ -43,7 +43,7 @@ module Travis
         end
 
         def setup
-          sh.cmd %Q'GIMME_OUTPUT=$(gimme #{go_version}) && eval "$GIMME_OUTPUT"'
+          sh.cmd %Q'GIMME_OUTPUT=$(gimme #{go_version} | tee -a $HOME/.bashrc) && eval "$GIMME_OUTPUT"'
 
           # NOTE: $GOPATH is a plural ":"-separated var a la $PATH.  We export
           # only a single path here, but users who want to treat $GOPATH as
