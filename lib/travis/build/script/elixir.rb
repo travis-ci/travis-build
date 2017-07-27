@@ -26,11 +26,11 @@ module Travis
           super
 
           sh.fold "elixir" do
+            archive = elixir_archive_name(elixir_version, otp_release)
             sh.if "! -f #{HOME_DIR}/.kiex/elixirs/elixir-#{elixir_version}.env" do
-              archive = "https://repo.hex.pm/builds/elixir/v#{elixir_version}.zip"
               sh.echo "Installing Elixir #{elixir_version}"
               sh.cmd "wget #{archive}", assert: true, timing: true
-              sh.cmd "unzip -d #{KIEX_ELIXIR_HOME}/elixir-#{elixir_version} v#{elixir_version}.zip 2>&1 > /dev/null", echo: false
+              sh.cmd "unzip -d #{KIEX_ELIXIR_HOME}/elixir-#{elixir_version} v#{elixir_version}*.zip 2>&1 > /dev/null", echo: false
               sh.cmd "echo 'export ELIXIR_VERSION=#{elixir_version}
 export PATH=#{KIEX_ELIXIR_HOME}elixir-#{elixir_version}/bin:$PATH
 export MIX_ARCHIVES=#{KIEX_MIX_HOME}elixir-#{elixir_version}' > #{KIEX_ELIXIR_HOME}elixir-#{elixir_version}.env"
@@ -77,6 +77,10 @@ export MIX_ARCHIVES=#{KIEX_MIX_HOME}elixir-#{elixir_version}' > #{KIEX_ELIXIR_HO
           Gem::Version.new(elixir_version) > Gem::Version.new('1.2.999') # use this for pre-release 1.3.0
         end
 
+        def elixir_1_4_0_or_higher?
+          Gem::Version.new(elixir_version) > Gem::Version.new('1.3.999')
+        end
+
         def elixir_1_0_x?
           Gem::Version.new(elixir_version) < Gem::Version.new('1.1') &&
           Gem::Version.new(elixir_version) >= Gem::Version.new('1.0.0')
@@ -86,8 +90,22 @@ export MIX_ARCHIVES=#{KIEX_MIX_HOME}elixir-#{elixir_version}' > #{KIEX_ELIXIR_HO
           Gem::Version.new(otp_release) > Gem::Version.new('17.999')
         end
 
+        def otp_release_19_0_or_higher?
+          Gem::Version.new(otp_release) > Gem::Version.new('18.999')
+        end
+
         def required_otp_version
           elixir_1_2_0_or_higher? ? '18.0' : '17.4'
+        end
+
+        def elixir_archive_name(elixir_version, otp_release)
+          otp_major_release = otp_release.split('.').first
+
+          if elixir_1_4_0_or_higher? && otp_release_19_0_or_higher?
+            "https://repo.hex.pm/builds/elixir/v#{elixir_version}-otp-#{otp_major_release}.zip"
+          else
+            "https://repo.hex.pm/builds/elixir/v#{elixir_version}.zip"
+          end
         end
       end
     end
