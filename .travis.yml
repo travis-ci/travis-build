@@ -23,19 +23,22 @@ stages:
 jobs:
   allow_failures:
     - script: ./script/docker-build-and-push
+    - script: "bundle exec rake update_static_files"
   include:
     - stage: "test"
       sudo: required
       dist: trusty
       env:
       script: ./script/validate-example-payloads-with-docker
+    - stage: "test rake"
+      script: "bundle exec rake update_static_files"
     - stage: ":ship: it to Quay.io"
       sudo: required
       dist: trusty
       env:
       script: ./script/docker-build-and-push
 
-script: bundle exec rake && ./script/validate-bash-syntax
+script: bundle exec rake spec && ./script/validate-bash-syntax
 
 after_success: bundle exec codeclimate-test-reporter
 
