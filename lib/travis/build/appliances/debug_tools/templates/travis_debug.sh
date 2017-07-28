@@ -7,6 +7,8 @@ ANSI_BLUE="\033[34;1m"
 ANSI_RESET="\033[0m"
 ANSI_CLEAR="\033[0K"
 
+TIMEOUT=30 # minutes
+
 TMATE="tmate -S /tmp/tmate.sock"
 
 function warn() {
@@ -37,13 +39,14 @@ $TMATE wait tmate-ready
 echo -e "${ANSI_YELLOW}Use the following SSH command to access the interactive debugging environment:${ANSI_RESET}"
 $TMATE display -p `echo -e "${ANSI_GREEN}#{tmate_ssh}${ANSI_RESET}"`
 
+minute=0
 if [[ "$QUIET" == "1" ]]; then
   echo -e "This build is running in quiet mode. No session output will be displayed.${ANSI_RESET}"
-  echo -e "This debug build will stay alive for 30 minutes.${ANSI_RESET}"
+  echo -e "This debug build will stay alive for ${TIMEOUT} minutes.${ANSI_RESET}"
   echo -n .
-  while $TMATE has-session &> /dev/null; do
+  while (( $minute < $TIMEOUT )) && $TMATE has-session &> /dev/null; do
     sleep 1
-    (( ++i % 60 == 0 )) && echo -n .
+    (( ++i % 60 == 0 )) && (( minute++ )) && echo -n .
   done
   echo
 else
