@@ -23,14 +23,6 @@ module Travis
               sh.cmd %Q(sudo sh -c 'echo "deb #{version[:url]} crystal main" > /etc/apt/sources.list.d/crystal-nightly.list')
               sh.cmd %q(sudo sh -c 'apt-get update')
               sh.cmd %Q(sudo apt-get install -y #{version[:package]} libgmp-dev)
-
-              sh.echo 'Installing Shards', ansi: :yellow
-
-              sh.cmd %q(sudo sh -c "curl -sSL https://github.com/crystal-lang/shards/releases/latest | \
-                        egrep -o '/crystal-lang/shards/releases/download/v[0-9\.]*/shards.*linux_.*64.gz' | \
-                        xargs -Ipath curl -sSL https://github.com/path | \
-                        gunzip > /usr/local/bin/shards && \
-                        chmod +x /usr/local/bin/shards")
             when 'osx'
               if config[:crystal] && config[:crystal] != "latest"
                 sh.failure %Q(Specifying Crystal version is not yet supported by the macOS environment)
