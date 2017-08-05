@@ -450,8 +450,8 @@ module Travis
             mactex = 'BasicTeX.pkg'
             # TODO(craigcitro): Confirm that this will route us to the
             # nearest mirror.
-            sh.cmd 'wget --retry-on-http-error=403 --waitretry=3 --tries=5 http://mirror.ctan.org/systems/mac/mactex/'\
-                   "#{mactex} -O \"/tmp/#{mactex}\""
+            sh.cmd 'curl -fLo http://mirror.ctan.org/systems/mac/mactex/'\
+                   "#{mactex} -O \"/tmp/#{mactex}\"", retry: true
 
             sh.echo 'Installing OS X binary package for MacTeX'
             sh.cmd "sudo installer -pkg \"/tmp/#{mactex}\" -target /"
