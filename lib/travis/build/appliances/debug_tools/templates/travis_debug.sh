@@ -40,13 +40,14 @@ echo -e "${ANSI_YELLOW}Use the following SSH command to access the interactive d
 $TMATE display -p `echo -e "${ANSI_GREEN}#{tmate_ssh}${ANSI_RESET}"`
 
 minute=0
+second=0
 if [[ "$QUIET" == "1" ]]; then
   echo -e "This build is running in quiet mode. No session output will be displayed.${ANSI_RESET}"
   echo -e "This debug build will stay alive for ${TIMEOUT} minutes.${ANSI_RESET}"
   echo -n .
   while (( $minute < $TIMEOUT )) && $TMATE has-session &> /dev/null; do
     sleep 1
-    (( ++i % 60 == 0 )) && (( minute++ )) && echo -n .
+    (( ++second % 60 == 0 )) && (( minute++ )) && echo -n .
   done
   echo
 else
