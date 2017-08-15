@@ -148,7 +148,7 @@ module Travis
           end
 
           def go_get_cmd
-            if go_version == 'go1' || (go_version !~ /tip|master/ && comparable_go_version <= Gem::Version.new('1.2'))
+            if go_version == 'go1' || (go_version[/^[0-9]/] && comparable_go_version <= Gem::Version.new('1.2'))
               'go get'
             else
               'go get -t'
