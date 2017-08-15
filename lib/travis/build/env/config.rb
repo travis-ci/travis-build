@@ -5,7 +5,7 @@ module Travis
     class Env
       class Config < Base
         def source
-          '.travis.yml'
+          ENV['TRAVIS_YML_PATH'] || '.travis.yml'
         end
 
         def vars
