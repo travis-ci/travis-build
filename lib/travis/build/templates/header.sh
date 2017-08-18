@@ -11,6 +11,8 @@ echo "source $HOME/.travis/job_stages" >> <%= home %>/.bashrc
 
 mkdir -p $HOME/.travis
 
+rm -f $HOME/.travis/job_stages
+
 cat <<'EOFUNC' >>$HOME/.travis/job_stages
 ANSI_RED="\033[31;1m"
 ANSI_GREEN="\033[32;1m"
