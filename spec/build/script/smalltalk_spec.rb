@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Smalltalk, :sexp do
+  APT_GET_BASE = 'sudo apt-get install -y --no-install-recommends libc6:i386 libuuid1:i386 libfreetype6:i386 libssl1.0.0:i386'
+
   let(:data)      { payload_for(:push, :smalltalk) }
   let(:script)    { described_class.new(data) }
   let(:defaults)  { described_class::DEFAULTS }
@@ -12,12 +14,12 @@ describe Travis::Build::Script::Smalltalk, :sexp do
     let(:cmds) { ['$SMALLTALK_CI_HOME/run.sh'] }
   end
 
-  it "downloads and extracts correct script" do
-    should include_sexp [:cmd, "wget -q -O smalltalkCI.zip https://github.com/hpi-swa/smalltalkCI/archive/master.zip", assert: true, echo: true, timing: true]
-    should include_sexp [:cmd, "unzip -q -o smalltalkCI.zip", assert: true, echo: true, timing: true]
-    should include_sexp [:cmd, "pushd smalltalkCI-* > /dev/null", assert: true, timing: true]
-    should include_sexp [:cmd, "source env_vars", assert: true, echo: true, timing: true]
-    should include_sexp [:cmd, "popd > /dev/null; popd > /dev/null", assert: true, timing: true]
+  it 'downloads and extracts correct script' do
+    should include_sexp [:cmd, 'wget -q -O smalltalkCI.zip https://github.com/hpi-swa/smalltalkCI/archive/master.zip', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'unzip -q -o smalltalkCI.zip', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'pushd smalltalkCI-* > /dev/null', assert: true, timing: true]
+    should include_sexp [:cmd, 'source env_vars', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'popd > /dev/null; popd > /dev/null', assert: true, timing: true]
   end
 
   describe 'using edge versions' do
@@ -27,27 +29,58 @@ describe Travis::Build::Script::Smalltalk, :sexp do
       data[:config][:smalltalk_edge][:branch] = 'dev'
     end
     it 'installs the correct script' do
-      should include_sexp [:cmd, "wget -q -O smalltalkCI.zip https://github.com/HPI-BP2015H/smalltalkCI/archive/dev.zip", assert: true, echo: true, timing: true]
+      should include_sexp [:cmd, 'wget -q -O smalltalkCI.zip https://github.com/HPI-BP2015H/smalltalkCI/archive/dev.zip', assert: true, echo: true, timing: true]
     end
   end
 
-  describe 'Squeak on Linux' do
+  describe 'Squeak-5.0 on Linux' do
     before do
       data[:config][:smalltalk] = 'Squeak-5.0'
       data[:config][:os] = 'linux'
     end
     it 'installs default dependencies' do
-      should include_sexp [:cmd, "sudo apt-get install -y --no-install-recommends libc6:i386 libuuid1:i386 libfreetype6:i386 libssl1.0.0:i386", retry: true]
+      should include_sexp [:cmd, APT_GET_BASE, retry: true]
     end
   end
 
-  describe 'Pharo on Linux' do
+  describe 'Squeak64-5.0 on Linux' do
+    before do
+      data[:config][:smalltalk] = 'Squeak64-5.0'
+      data[:config][:os] = 'linux'
+    end
+    it 'does not try to call apt-get' do
+      should_not include_sexp [:cmd, APT_GET_BASE, retry: true]
+    end
+  end
+
+  describe 'Squeak-5.0 with Squeak64-5.0 vm on Linux' do
+    before do
+      data[:config][:smalltalk] = 'Squeak-5.0'
+      data[:config][:smalltalk_vm] = 'Squeak64-5.0'
+      data[:config][:os] = 'linux'
+    end
+    it 'does not try to call apt-get' do
+      should_not include_sexp [:cmd, APT_GET_BASE, retry: true]
+    end
+  end
+
+  describe 'Pharo-5.0 on Linux' do
     before do
       data[:config][:smalltalk] = 'Pharo-5.0'
       data[:config][:os] = 'linux'
     end
     it 'installs Pharo dependencies' do
-      should include_sexp [:cmd, "sudo apt-get install -y --no-install-recommends libc6:i386 libuuid1:i386 libfreetype6:i386 libssl1.0.0:i386 libcairo2:i386", retry: true]
+      should include_sexp [:cmd, "#{APT_GET_BASE} libcairo2:i386", retry: true]
+    end
+  end
+
+  describe 'Pharo64-6.0 on Linux' do
+    before do
+      data[:config][:smalltalk] = 'Pharo64-6.0'
+      data[:config][:os] = 'linux'
+    end
+    it 'installs Pharo dependencies' do
+      should_not include_sexp [:cmd, "#{APT_GET_BASE} libcairo2:i386", retry: true]
     end
   end
 
@@ -57,7 +90,7 @@ describe Travis::Build::Script::Smalltalk, :sexp do
       data[:config][:os] = 'osx'
     end
     it 'does not try to call apt-get' do
-      should_not include_sexp [:cmd, "sudo apt-get install -y --no-install-recommends libc6:i386 libuuid1:i386 libfreetype6:i386 libssl1.0.0:i386", retry: true]
+      should_not include_sexp [:cmd, APT_GET_BASE, retry: true]
     end
   end
 
@@ -70,7 +103,7 @@ describe Travis::Build::Script::Smalltalk, :sexp do
 
     it 'set hostname' do
       should include_sexp [:cmd, "sed -e \"s/^\\(127\\.0\\.0\\.1.*\\)$/\\1 $(hostname)/\" /etc/hosts | sed -e \"s/^\\(::1.*\\)$/\\1 $(hostname)/\" > /tmp/hosts"]
-      should include_sexp [:cmd, "cat /tmp/hosts | sudo tee /etc/hosts > /dev/null"]
+      should include_sexp [:cmd, 'cat /tmp/hosts | sudo tee /etc/hosts > /dev/null']
     end
 
     it 'prepare shared memory' do
@@ -83,9 +116,9 @@ describe Travis::Build::Script::Smalltalk, :sexp do
     end
 
     it 'installs the dependencies' do
-      should include_sexp [:cmd, "sudo apt-get install -y --no-install-recommends " +
-                     "libpam0g:i386 libssl1.0.0:i386 gcc-multilib libstdc++6:i386 " +
-                     "libfreetype6:i386 pstack libgl1-mesa-glx:i386 libxcb-dri2-0:i386", retry: true]
+      should include_sexp [:cmd, 'sudo apt-get install -y --no-install-recommends ' +
+                     'libpam0g:i386 libssl1.0.0:i386 gcc-multilib libstdc++6:i386 ' +
+                     'libfreetype6:i386 pstack libgl1-mesa-glx:i386 libxcb-dri2-0:i386', retry: true]
     end
   end
 
@@ -111,7 +144,7 @@ describe Travis::Build::Script::Smalltalk, :sexp do
     end
 
     it 'does not try to call apt-get' do
-      should_not include_sexp [:cmd, "apt-get", retry: true]
+      should_not include_sexp [:cmd, 'apt-get', retry: true]
     end
   end
 
@@ -132,6 +165,16 @@ describe Travis::Build::Script::Smalltalk, :sexp do
 
     it 'sets TRAVIS_SMALLTALK_CONFIG' do
       should include_sexp [:export, ['TRAVIS_SMALLTALK_CONFIG', 'mySuperTest.ston']]
+    end
+  end
+
+  describe 'set smalltalk vm' do
+    before do
+      data[:config][:smalltalk_vm] = 'Pharo-vmLatest70'
+    end
+
+    it 'sets TRAVIS_SMALLTALK_VM' do
+      should include_sexp [:export, ['TRAVIS_SMALLTALK_VM', 'Pharo-vmLatest70']]
     end
   end
 
