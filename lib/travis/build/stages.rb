@@ -106,6 +106,7 @@ module Travis
       def define_stage(type, name)
         sh.raw "cat <<'EOFUNC_#{name.upcase}' >>$HOME/.travis/job_stages"
         sh.raw "function travis_run_#{name}() {"
+        sh.raw "  trap '[[ $- =~ e ]] && travis_terminate 1' ERR" if type == :custom
         commands = run_stage(type, name)
         close = (commands.nil? || commands.empty?) ? ":\n}" : "}"
         sh.raw close
