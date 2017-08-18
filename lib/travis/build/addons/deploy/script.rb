@@ -28,6 +28,10 @@ module Travis
             smalltalk
           ).map(&:to_sym)
 
+          PROVIDERS_REQUIRING_TAG = %w(
+            releases
+          )
+
           attr_accessor :script, :sh, :data, :config, :allow_failure
 
           def initialize(script, sh, data, config)
@@ -111,7 +115,7 @@ module Travis
             end
 
             def tags_condition
-              if config[:provider] == 'releases'
+              if PROVIDERS_REQUIRING_TAG.any? { |provider| config[:provider].to_s.upcase == provider.to_s.upcase }
                 '"$TRAVIS_TAG" != ""'
               else
                 case on[:tags]
