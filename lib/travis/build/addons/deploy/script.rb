@@ -115,13 +115,10 @@ module Travis
             end
 
             def tags_condition
-              if PROVIDERS_REQUIRING_TAG.any? { |provider| config[:provider].to_s.upcase == provider.to_s.upcase }
+              if provider_requires_tag? || on[:tags]
                 '"$TRAVIS_TAG" != ""'
               else
-                case on[:tags]
-                when true  then '"$TRAVIS_TAG" != ""'
-                when false then '"$TRAVIS_TAG" = ""'
-                end
+                '"$TRAVIS_TAG" = ""'
               end
             end
 
@@ -195,6 +192,10 @@ module Travis
 
             def negate_condition(conditions)
               Array(conditions).flatten.compact.map { |condition| " ! (#{condition})" }.join(" && ")
+            end
+
+            def provider_requires_tag?
+              PROVIDERS_REQUIRING_TAG.any? { |provider| config[:provider].to_s.upcase == provider.to_s.upcase }
             end
 
             def build_gem_locally_from(source, branch)
