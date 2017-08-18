@@ -32,7 +32,7 @@ TRAVIS_TEST_RESULT=
 TRAVIS_CMD=
 
 set -E
-trap '[[ $- =~ e ]] && echo caught && travis_terminate 1' ERR
+trap '[[ $- =~ e ]] && travis_terminate 1' ERR
 
 TRAVIS_TMPDIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'travis_tmp')
 pgrep -u $USER | grep -v -w $$ > $TRAVIS_TMPDIR/pids_before
