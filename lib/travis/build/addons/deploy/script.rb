@@ -111,9 +111,13 @@ module Travis
             end
 
             def tags_condition
-              case on[:tags]
-              when true  then '"$TRAVIS_TAG" != ""'
-              when false then '"$TRAVIS_TAG" = ""'
+              if config[:provider] == 'releases'
+                '"$TRAVIS_TAG" != ""'
+              else
+                case on[:tags]
+                when true  then '"$TRAVIS_TAG" != ""'
+                when false then '"$TRAVIS_TAG" = ""'
+                end
               end
             end
 
