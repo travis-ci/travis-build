@@ -149,5 +149,16 @@ describe Travis::Build::Addons::Deploy, :sexp do
 
     it { expect(sexp_find(sexp, [:if, ' ! ("$TRAVIS_TAG" != "")'])).to include_sexp not_tag }
   end
+
+  context 'when deploying with "releases" provider' do
+    let(:config) { { provider: 'releases' } }
+    let(:sexp)   { sexp_find(subject, [:if, ' ! ("$TRAVIS_TAG" != "")']) }
+
+    let(:not_tag) { [:echo, "Skipping a deployment with the releases provider because this is not a tagged commit", ansi: :yellow] }
+
+    it "implicitly requires a tag" do
+      expect(sexp_find(sexp, [])).to include_sexp not_tag
+    end
+  end
 end
 
