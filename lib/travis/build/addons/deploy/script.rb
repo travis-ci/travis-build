@@ -28,6 +28,10 @@ module Travis
             smalltalk
           ).map(&:to_sym)
 
+          PROVIDERS_REQUIRING_TAG = %w(
+            releases
+          )
+
           attr_accessor :script, :sh, :data, :config, :allow_failure
 
           def initialize(script, sh, data, config)
@@ -111,9 +115,10 @@ module Travis
             end
 
             def tags_condition
-              case on[:tags]
-              when true  then '"$TRAVIS_TAG" != ""'
-              when false then '"$TRAVIS_TAG" = ""'
+              if provider_requires_tag? || on[:tags]
+                '"$TRAVIS_TAG" != ""'
+              else
+                '"$TRAVIS_TAG" = ""'
               end
             end
 
@@ -187,6 +192,10 @@ module Travis
 
             def negate_condition(conditions)
               Array(conditions).flatten.compact.map { |condition| " ! (#{condition})" }.join(" && ")
+            end
+
+            def provider_requires_tag?
+              PROVIDERS_REQUIRING_TAG.any? { |provider| config[:provider].to_s.upcase == provider.to_s.upcase }
             end
 
             def build_gem_locally_from(source, branch)
