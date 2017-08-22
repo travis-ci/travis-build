@@ -36,6 +36,7 @@ module Travis
           super
 
           sh.cmd 'rustc --version'
+          sh.cmd 'rustup --version'
           sh.cmd 'cargo --version'
           sh.echo ''
         end

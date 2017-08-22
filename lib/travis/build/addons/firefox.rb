@@ -72,10 +72,7 @@ module Travis
             when 'latest-esr'
               product = 'firefox-esr-latest'
             when 'latest-dev'
-              # The name 'aurora' is nickname for "developer edition",
-              # documented in https://wiki.mozilla.org/Firefox/Channels#Developer_Edition_.28aka_Aurora.29
-              # This may change in the future and break builds.
-              product = 'firefox-aurora-latest'
+              product = 'firefox-devedition-latest'
             when 'latest-nightly'
               product = 'firefox-nightly-latest'
             when 'latest-unsigned'
