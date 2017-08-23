@@ -24,7 +24,12 @@ module Travis
             sh.cmd './rebar get-deps', fold: 'install', retry: true
           end
           sh.elif rebar_configured do
-            sh.cmd 'rebar get-deps', fold: 'install', retry: true
+            sh.if "command -v rebar3" do
+              sh.cmd 'rebar3 get-deps', fold: 'install', retry: true
+            end
+            sh.else do
+              sh.cmd 'rebar get-deps', fold: 'install', retry: true
+            end
           end
         end
 
@@ -33,7 +38,12 @@ module Travis
             sh.cmd './rebar compile && ./rebar skip_deps=true eunit'
           end
           sh.elif rebar_configured do
-            sh.cmd 'rebar compile && rebar skip_deps=true eunit'
+            sh.if "command -v rebar3" do
+              sh.cmd 'rebar3 compile && rebar3 skip_deps=true eunit'
+            end
+            sh.else do
+              sh.cmd 'rebar compile && rebar skip_deps=true eunit'
+            end
           end
           sh.else do
             sh.cmd 'make test'

@@ -54,11 +54,14 @@ describe Travis::Build::Script::Erlang, :sexp do
 
     it 'runs `rebar compile && rebar skip_deps=true eunit` if rebar config exists, but ./rebar does not' do
       branch = sexp_find(sexp, [:elif, '(-f rebar.config || -f Rebar.config)'])
-      expect(branch).to include_sexp [:cmd, 'rebar compile && rebar skip_deps=true eunit', echo: true, timing: true]
+      rebar3_branch = sexp_find(branch, [:if, 'command -v rebar3'])
+      rebar_branch  = sexp_find(branch, [:else])
+      expect(rebar3_branch).to include_sexp [:cmd, 'rebar3 compile && rebar3 skip_deps=true eunit', echo: true, timing: true]
+      expect(rebar_branch).to include_sexp  [:cmd, 'rebar compile && rebar skip_deps=true eunit',  echo: true, timing: true]
     end
 
     it 'runs `make test` if rebar config does not exist' do
-      branch = sexp_find(sexp, [:else])
+      branch = sexp_filter(sexp, [:else])[1] # the first 'else' occurs in sh.if "command -v rebar3"
       expect(branch).to include_sexp [:cmd, "make test", echo: true, timing: true]
     end
   end
