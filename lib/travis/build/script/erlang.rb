@@ -36,7 +36,7 @@ module Travis
           end
           sh.elif rebar_configured do
             sh.if "command -v rebar3" do
-              sh.cmd 'rebar3 compile && rebar3 eunit'
+              sh.cmd 'rebar3 eunit'
             end
             sh.else do
               sh.cmd 'rebar compile && rebar skip_deps=true eunit'
