@@ -22,12 +22,22 @@ module Travis
 
           def clone_or_fetch
             sh.if "! -d #{dir}/.git" do
-              sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, retry: true
-              if github?
-                sh.if "$? -ne 0" do
-                  sh.echo "Failed to clone from GitHub.", ansi: :red
-                  sh.echo "Checking GitHub status (https://status.github.com/api/last-message.json):"
-                  sh.raw "curl -sL https://status.github.com/api/last-message.json | jq -r .[]"
+              if sparseCheckout?
+                sh.cmd "git init #{dir}", assert: true, retry: true
+                sh.cmd "git -C #{dir} config core.sparseCheckout true", assert: true, retry: true
+                sh.cmd "echo #{sparseCheckout} >> #{dir}/.git/info/sparseCheckout", assert: true, retry: true
+                sh.cmd "git -C #{dir} remote add origin #{data.source_url}", assert: true, retry: true
+                sh.cmd "git -C #{dir} pull origin #{branch} #{pull_args}", assert: true, retry: true
+                sh.cmd "cat #{sparseCheckout} >> #{dir}/.git/info/sparseCheckout", assert: true, retry: true
+                sh.cmd "git -C #{dir} reset --hard", assert: true, timing: false
+              else
+                sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, retry: true
+                if github?
+                  sh.if "$? -ne 0" do
+                    sh.echo "Failed to clone from GitHub.", ansi: :red
+                    sh.echo "Checking GitHub status (https://status.github.com/api/last-message.json):"
+                    sh.raw "curl -sL https://status.github.com/api/last-message.json | jq -r .[]"
+                  end
                 end
               end
             end
@@ -62,6 +72,12 @@ module Travis
             args
           end
 
+          def pull_args
+            args = "--depth=#{depth}"
+            args << " --quiet" if quiet?
+            args
+          end
+
           def depth
             config[:git][:depth].to_s.shellescape
           end
@@ -80,6 +96,10 @@ module Travis
 
           def lfs_skip_smudge?
             config[:git][:lfs_skip_smudge] == true
+          end
+
+          def sparseCheckout?
+            !!config[:git][:sparseCheckout]
           end
 
           def dir
