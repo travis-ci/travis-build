@@ -22,13 +22,13 @@ module Travis
 
           def clone_or_fetch
             sh.if "! -d #{dir}/.git" do
-              if sparse_checkout?
+              if sparse_checkout
                 sh.cmd "git init #{dir}", assert: true, retry: true
                 sh.cmd "git -C #{dir} config core.sparseCheckout true", assert: true, retry: true
-                sh.cmd "echo #{sparseCheckout} >> #{dir}/.git/info/sparseCheckout", assert: true, retry: true
+                sh.cmd "echo #{sparse_checkout} >> #{dir}/.git/info/sparseCheckout", assert: true, retry: true
                 sh.cmd "git -C #{dir} remote add origin #{data.source_url}", assert: true, retry: true
                 sh.cmd "git -C #{dir} pull origin #{branch} #{pull_args}", assert: true, retry: true
-                sh.cmd "cat #{sparseCheckout} >> #{dir}/.git/info/sparseCheckout", assert: true, retry: true
+                sh.cmd "cat #{sparse_checkout} >> #{dir}/.git/info/sparseCheckout", assert: true, retry: true
                 sh.cmd "git -C #{dir} reset --hard", assert: true, timing: false
               else
                 sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: true, retry: true
@@ -98,8 +98,8 @@ module Travis
             config[:git][:lfs_skip_smudge] == true
           end
 
-          def sparse_checkout?
-            !!config[:git][:sparse_checkout]
+          def sparse_checkout
+            config[:git][:sparse_checkout]
           end
 
           def dir
