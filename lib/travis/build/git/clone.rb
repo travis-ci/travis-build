@@ -22,7 +22,7 @@ module Travis
 
           def clone_or_fetch
             sh.if "! -d #{dir}/.git" do
-              if sparseCheckout?
+              if sparse_checkout?
                 sh.cmd "git init #{dir}", assert: true, retry: true
                 sh.cmd "git -C #{dir} config core.sparseCheckout true", assert: true, retry: true
                 sh.cmd "echo #{sparseCheckout} >> #{dir}/.git/info/sparseCheckout", assert: true, retry: true
@@ -98,8 +98,8 @@ module Travis
             config[:git][:lfs_skip_smudge] == true
           end
 
-          def sparseCheckout?
-            !!config[:git][:sparseCheckout]
+          def sparse_checkout?
+            !!config[:git][:sparse_checkout]
           end
 
           def dir
