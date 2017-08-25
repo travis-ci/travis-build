@@ -43,7 +43,7 @@ module Travis
           force_reinstall: ENV.fetch('TRAVIS_BUILD_GIMME_FORCE_REINSTALL', ''),
           url: ENV.fetch(
             'TRAVIS_BUILD_GIMME_URL',
-            'https://raw.githubusercontent.com/travis-ci/gimme/v1.0.0/gimme'
+            'https://raw.githubusercontent.com/travis-ci/gimme/v1.2.0/gimme'
           )
         },
         go_version: ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.9'),
