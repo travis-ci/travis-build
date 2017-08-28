@@ -29,7 +29,7 @@ module Travis
           end
 
           def on
-            on = config[:on] || config[true] || config[:true] || {}
+            on = config[:if] || config[:on] || config[true] || config[:true] || {}
             on = { branch: on.to_str } if on.respond_to?(:to_str)
             on[:ruby] ||= on.delete(:rvm) if on.include?(:rvm)
             on[:node] ||= on.delete(:node_js) if on.include?(:node_js)
