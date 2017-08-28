@@ -28,6 +28,7 @@ require 'travis/build/appliances/show_system_info'
 require 'travis/build/appliances/setup_filter'
 require 'travis/build/appliances/validate'
 require 'travis/build/appliances/npm_registry'
+require 'travis/build/appliances/update_rubygems'
 
 module Travis
   module Build
