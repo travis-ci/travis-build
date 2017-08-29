@@ -40,7 +40,6 @@ module Travis
         ),
         ghc_default: ENV.fetch('TRAVIS_BUILD_GHC_DEFAULT', '7.10.3'),
         gimme: {
-          force_reinstall: ENV.fetch('TRAVIS_BUILD_GIMME_FORCE_REINSTALL', ''),
           url: ENV.fetch(
             'TRAVIS_BUILD_GIMME_URL',
             'https://raw.githubusercontent.com/travis-ci/gimme/v1.2.0/gimme'
