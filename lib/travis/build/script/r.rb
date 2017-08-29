@@ -217,7 +217,7 @@ module Travis
           sh.export 'PKG_TARBALL', "$(perl -ne '#{tarball_script}' DESCRIPTION)", echo: false
           sh.fold 'R-build' do
             sh.echo 'Building package', ansi: :yellow
-            sh.echo "Building with: R CMD build ${R_BUILD_ARGS}"
+            sh.echo "Building with: R CMD build #{config[:r_build_args]}"
             sh.cmd "R CMD build #{config[:r_build_args]} .",
                    assert: true
           end
