@@ -19,7 +19,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
   it { store_example }
 
   it_behaves_like 'compiled script' do
-    let(:cmds) { ['ruby -S gem install dpl', 'ruby -S dpl'] }
+    let(:cmds) { ['ruby -S gem install ${GEM}', 'ruby -S dpl'] }
   end
 
   context "when after_success is also present" do
@@ -34,7 +34,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
 
     it { expect(sexp).to include_sexp [:cmd, './before_deploy_1.sh', assert: true, echo: true, timing: true] }
     it { expect(sexp).to include_sexp [:cmd, './before_deploy_2.sh', assert: true, echo: true, timing: true] }
-    it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl', assert: true, timing: true] }
+    it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install ${GEM}', assert: true, timing: true] }
     # it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=heroku --password=foo --email=user@host --fold', assert: true, timing: true] }
     # it { expect(sexp).to include_sexp terminate_on_failure }
     it { expect(sexp).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=\"heroku\" --password=\"foo\" --email=\"user@host\" --fold; if [ $? -ne 0 ]; then echo \"failed to deploy\"; travis_terminate 2; fi", {:timing=>true}] }
@@ -114,6 +114,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
     it { should match_sexp [:if, '($TRAVIS_BRANCH = master) && ($BAR = bar)'] }
     # it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=nodejitsu --user=foo --api_key=bar --fold', assert: true, timing: true] }
     it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider="nodejitsu" --user="foo" --api_key="bar" --fold; if [ $? -ne 0 ]; then echo "failed to deploy"; travis_terminate 2; fi', timing: true] }
+    it { store_example "multiple-providers" }
   end
 
   describe 'allow_failure' do
@@ -142,6 +143,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
     # it { expect(sexp_find(sexp, [:if, '(! ($FOO = foo))'])).to include_sexp custom_condition }
     it { expect(sexp_find(sexp, [:if, ' ! ($TRAVIS_BRANCH = master)'])).to include_sexp not_permitted }
     it { expect(sexp_find(sexp, [:if, ' ! ($FOO = foo)'])).to include_sexp custom_condition }
+    it { store_example "custom-condition-fails" }
   end
 
   describe 'deploy with compound condition fails' do

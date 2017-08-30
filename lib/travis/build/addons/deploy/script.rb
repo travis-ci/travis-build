@@ -141,9 +141,11 @@ module Travis
                 branch = edge.fetch(:branch, 'master')
                 build_gem_locally_from(src, branch)
               end
-              command = "gem install dpl"
+              command = "gem install ${GEM}"
               command << "-*.gem --local" if edge == 'local' || edge.respond_to?(:fetch)
               command << " --pre" if edge
+
+              sh.raw "[[ $(travis_internal_ruby) = 1.9* ]]; GEM=\"dpl -v '< 1.9'\" || GEM=\"dpl\""
               cmd(command, echo: false, assert: !allow_failure, timing: true)
               sh.cmd "rm -f dpl-*.gem", echo: false, assert: false, timing: false
             end
