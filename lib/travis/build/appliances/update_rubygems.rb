@@ -7,6 +7,8 @@ module Travis
         RUBYGEMS_BASELINE_VERSION='2.6.13'
         def apply
           sh.cmd "cat >$HOME/.rvm/hooks/after_use <<EORVMHOOK
+gem >&/dev/null || return 0
+
 vers2int() {
   printf '1%03d%03d%03d%03d' $(echo \"$1\" | tr '.' ' ')
 }
