@@ -38,8 +38,8 @@ module Travis
           sh.export "PATH", "/opt/ghc/${TRAVIS_HASKELL_VERSION}/bin:${PATH}"
           sh.raw "fi"
           sh.export 'TRAVIS_HASKELL_VERSION', "$(travis_ghc_find '#{version}')"
-          sh.raw "if test -x /opt/ghc/#{cabal_version}/bin/cabal; then"
-          sh.export "PATH", "/opt/ghc/#{cabal_version}/bin:${PATH}"
+          sh.raw "if test -x /opt/cabal/#{cabal_version}/bin/cabal; then"
+          sh.export "PATH", "/opt/cabal/#{cabal_version}/bin:${PATH}"
           sh.raw "fi"
           sh.cmd 'cabal update', fold: 'cabal', retry: true
         end
