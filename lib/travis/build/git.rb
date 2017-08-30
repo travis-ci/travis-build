@@ -13,7 +13,7 @@ module Travis
           strategy: 'clone',
           quiet: false,
           lfs_skip_smudge: false,
-          sparseCheckout: false,
+          sparse_checkout: false,
         }
       }
 
