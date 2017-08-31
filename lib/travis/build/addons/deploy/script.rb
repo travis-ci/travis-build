@@ -16,7 +16,7 @@ module Travis
 
             @allow_failure = config.delete(:allow_failure)
 
-            @conditional = Travis::Build::Addons::Conditional.new(sh, "deploy", config)
+            @conditional = Travis::Build::Addons::Conditional.new(sh, self, config)
 
           rescue
             raise Travis::Build::DeployConfigError.new
@@ -33,6 +33,10 @@ module Travis
             else
               check_conditions_and_run
             end
+          end
+
+          def warning_message_template
+            "Skipping a deployment with the #{config[:provider]} provider because " + '%s'
           end
 
           private
