@@ -6,13 +6,15 @@ module Travis
       class Base
         include Template
 
-        attr_reader :script, :sh, :data, :config
+        attr_reader :script, :sh, :data, :config, :conditional
 
         def initialize(script, sh, data, config)
           @script = script
           @sh = sh
           @data = data
           @config = normalize_config(config)
+
+          @conditional = Travis::Build::Addons::Conditional.new(sh, self, config)
         end
 
         def normalize_config(config)
@@ -22,6 +24,10 @@ module Travis
           else
             {}
           end
+        end
+
+        def conditions
+          conditional.conditions
         end
       end
     end

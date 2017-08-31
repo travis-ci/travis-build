@@ -27,4 +27,15 @@ describe Travis::Build::Addons::Mariadb, :sexp do
   it { should include_sexp [:cmd, "apt-get install -y -o Dpkg::Options::='--force-confnew' $PACKAGES", sudo: true, echo: true, timing: true] }
   it { should include_sexp [:cmd, "service mysql start", sudo: true, echo: true, timing: true] }
   it { should include_sexp [:cmd, "mysql --version", echo: true] }
+
+  context "config contains `if` condition" do
+    let(:config) { { version: '10.2', if: { branch: "this" } } }
+    it { should include_sexp [:cmd, "PACKAGES='mariadb-server mariadb-server-10.2'", echo: true] }
+    it { store_example "if" }
+  end
+
+  context "config contains a version hash" do
+    let(:config) { { version: '10.2' } }
+    it { should include_sexp [:cmd, "PACKAGES='mariadb-server mariadb-server-10.2'", echo: true] }
+  end
 end

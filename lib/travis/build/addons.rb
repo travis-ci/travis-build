@@ -1,4 +1,5 @@
 require 'active_support/core_ext/string/inflections.rb'
+require 'travis/build/addons/conditional'
 require 'travis/build/addons/apt'
 require 'travis/build/addons/apt_packages'
 require 'travis/build/addons/artifacts'
@@ -23,7 +24,7 @@ require 'travis/build/addons/srcclr'
 module Travis
   module Build
     class Addons
-      attr_reader :script, :sh, :data, :config
+      attr_reader :script, :sh, :data, :config, :conditional
 
       def initialize(script, sh, data, config)
         @script = script

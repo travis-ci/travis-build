@@ -11,6 +11,40 @@ module Travis
         MARIADB_MIRROR  = 'nyc2.mirrors.digitalocean.com'
 
         def after_prepare
+          if config.is_a? Hash
+            if conditional.conditions.empty?
+              run
+            else
+              sh.if(conditional.conditions) do
+                run
+              end
+
+              sh.else do
+                conditional.warning_messages
+              end
+            end
+
+            return
+          end
+
+          run
+        end
+
+        def warning_message_template
+          "Skipping MariaDB addon because " + '%s'
+        end
+
+        private
+        def mariadb_version
+          @mariadb_version ||=
+            if config.is_a? Hash
+              config.delete(:version).to_s.shellescape
+            else
+              config.to_s.shellescape
+            end
+        end
+
+        def run
           sh.fold 'mariadb' do
             sh.echo "Installing MariaDB version #{mariadb_version}", ansi: :yellow
             sh.cmd "service mysql stop", sudo: true
@@ -25,11 +59,6 @@ module Travis
             sh.export 'TRAVIS_MARIADB_VERSION', mariadb_version, echo: false
             sh.cmd "mysql --version", assert: false, echo: true
           end
-        end
-
-        private
-        def mariadb_version
-          config.to_s.shellescape
         end
       end
     end
