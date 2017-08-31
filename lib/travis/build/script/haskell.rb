@@ -37,7 +37,7 @@ module Travis
           sh.raw "if test -x /opt/ghc/${TRAVIS_HASKELL_VERSION}/bin/ghc; then"
           sh.export "PATH", "/opt/ghc/${TRAVIS_HASKELL_VERSION}/bin:${PATH}"
           sh.raw "fi"
-          sh.raw "if ! travis_ghc_find #{version}; then travis_terminate 1; fi"
+          sh.raw "if ! travis_ghc_find #{version} >&/dev/null; then travis_terminate 1; fi"
           sh.export 'TRAVIS_HASKELL_VERSION', "$(travis_ghc_find '#{version}')"
           sh.raw "if test -x /opt/cabal/#{cabal_version}/bin/cabal; then"
           sh.export "PATH", "/opt/cabal/#{cabal_version}/bin:${PATH}"
