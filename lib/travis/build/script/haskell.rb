@@ -45,7 +45,7 @@ module Travis
             sh.export "PATH", "/opt/cabal/#{cabal_version}/bin:${PATH}"
           end
           sh.if "! $(cabal --numeric-version 2>/dev/null) = #{cabal_version}*" do
-            sh.terminate 2, "cabal #{version} not found. Terminating."
+            sh.terminate 2, "cabal #{cabal_version} not found. Terminating."
           end
           sh.cmd 'cabal update', fold: 'cabal', retry: true
         end
