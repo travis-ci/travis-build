@@ -38,14 +38,18 @@ module Travis
           sh.if "-x /opt/ghc/${TRAVIS_HASKELL_VERSION}/bin/ghc" do
             sh.export "PATH", "/opt/ghc/${TRAVIS_HASKELL_VERSION}/bin:${PATH}"
           end
-          sh.if "! $(ghc --numeric-version 2>/dev/null) = #{version}*" do
-            sh.terminate 2, "${ANSI_RED}GHC #{version} not found. Terminating.${ANSI_RESET}"
+          unless version =~ /\Ahead\z/
+            sh.if "! $(ghc --numeric-version 2>/dev/null) = #{version}*" do
+              sh.terminate 2, "${ANSI_RED}GHC #{version} not found. Terminating.${ANSI_RESET}"
+            end
           end
           sh.if "-x /opt/cabal/#{cabal_version}/bin/cabal" do
             sh.export "PATH", "/opt/cabal/#{cabal_version}/bin:${PATH}"
           end
-          sh.if "! $(cabal --numeric-version 2>/dev/null) = #{cabal_version}*" do
-            sh.terminate 2, "${ANSI_RED}cabal #{cabal_version} not found. Terminating.${ANSI_RESET}"
+          unless cabal_version =~ /\Ahead\z/
+            sh.if "! $(cabal --numeric-version 2>/dev/null) = #{cabal_version}*" do
+              sh.terminate 2, "${ANSI_RED}cabal #{cabal_version} not found. Terminating.${ANSI_RESET}"
+            end
           end
           sh.cmd 'cabal update', fold: 'cabal', retry: true
         end
