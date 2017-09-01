@@ -22,7 +22,7 @@ module Travis
           )
           # Automatic installation of exact versions *only*.
           if version =~ /^(\d+\.\d+\.\d+|head)$/ && cabal_version =~ /^(\d+\.\d+|head)$/
-            sh.raw "if ! travis_ghc_find '#{version}' &>/dev/null; then"
+            sh.raw "if [[ !(travis_ghc_find '#{version}' &>/dev/null) || $(cabal --numeric-version 2>/dev/null) = #{cabal_version}* ]]; then"
             sh.raw 'travis_fold start ghc.install'
             sh.echo "ghc-#{version} is not installed; attempting installation", ansi: :yellow
             sh.raw "travis_ghc_install '#{version}' '#{cabal_version}'"
@@ -39,13 +39,13 @@ module Travis
             sh.export "PATH", "/opt/ghc/${TRAVIS_HASKELL_VERSION}/bin:${PATH}"
           end
           sh.if "! $(ghc --numeric-version 2>/dev/null) = #{version}*" do
-            sh.terminate 2, "GHC #{version} not found. Terminating."
+            sh.terminate 2, "${ANSI_RED}GHC #{version} not found. Terminating.${ANSI_RESET}"
           end
           sh.if "-x /opt/cabal/#{cabal_version}/bin/cabal" do
             sh.export "PATH", "/opt/cabal/#{cabal_version}/bin:${PATH}"
           end
           sh.if "! $(cabal --numeric-version 2>/dev/null) = #{cabal_version}*" do
-            sh.terminate 2, "cabal #{cabal_version} not found. Terminating."
+            sh.terminate 2, "${ANSI_RED}cabal #{cabal_version} not found. Terminating.${ANSI_RESET}"
           end
           sh.cmd 'cabal update', fold: 'cabal', retry: true
         end
