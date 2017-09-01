@@ -19,7 +19,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
   it { store_example }
 
   it_behaves_like 'compiled script' do
-    let(:cmds) { ['ruby -S gem install ${GEM}', 'ruby -S dpl'] }
+    let(:cmds) { ['ruby -S gem install ${GEM[*]}', 'ruby -S dpl'] }
   end
 
   context "when after_success is also present" do
@@ -34,7 +34,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
 
     it { expect(sexp).to include_sexp [:cmd, './before_deploy_1.sh', assert: true, echo: true, timing: true] }
     it { expect(sexp).to include_sexp [:cmd, './before_deploy_2.sh', assert: true, echo: true, timing: true] }
-    it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install ${GEM}', assert: true, timing: true] }
+    it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install ${GEM[*]}', assert: true, timing: true] }
     # it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=heroku --password=foo --email=user@host --fold', assert: true, timing: true] }
     # it { expect(sexp).to include_sexp terminate_on_failure }
     it { expect(sexp).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=\"heroku\" --password=\"foo\" --email=\"user@host\" --fold; if [ $? -ne 0 ]; then echo \"failed to deploy\"; travis_terminate 2; fi", {:timing=>true}] }
