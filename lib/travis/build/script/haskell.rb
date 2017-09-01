@@ -34,14 +34,19 @@ module Travis
         def setup
           super
           sh.export 'PATH', "/opt/ghc/bin:${TRAVIS_GHC_ROOT}/${TRAVIS_HASKELL_VERSION}/bin:${PATH}", assert: true
-          sh.raw "if test -x /opt/ghc/${TRAVIS_HASKELL_VERSION}/bin/ghc; then"
-          sh.export "PATH", "/opt/ghc/${TRAVIS_HASKELL_VERSION}/bin:${PATH}"
-          sh.raw "fi"
-          sh.raw "if ! travis_ghc_find #{version} >&/dev/null; then travis_terminate 1; fi"
+          sh.if "-x /opt/ghc/${TRAVIS_HASKELL_VERSION}/bin/ghc" do
+            sh.export "PATH", "/opt/ghc/${TRAVIS_HASKELL_VERSION}/bin:${PATH}"
+          end
+          sh.if "! $(ghc --numeric-version 2>/dev/null) = #{version}*" do
+            sh.terminate 2, "GHC #{version} not found. Terminating."
+          end
           sh.export 'TRAVIS_HASKELL_VERSION', "$(travis_ghc_find '#{version}')"
-          sh.raw "if test -x /opt/cabal/#{cabal_version}/bin/cabal; then"
-          sh.export "PATH", "/opt/cabal/#{cabal_version}/bin:${PATH}"
-          sh.raw "fi"
+          sh.if "-x /opt/cabal/#{cabal_version}/bin/cabal" do
+            sh.export "PATH", "/opt/cabal/#{cabal_version}/bin:${PATH}"
+          end
+          sh.if "! $(cabal --numeric-version 2>/dev/null) = #{cabal_version}*" do
+            sh.terminate 2, "cabal #{version} not found. Terminating."
+          end
           sh.cmd 'cabal update', fold: 'cabal', retry: true
         end
 
