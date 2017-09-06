@@ -24,7 +24,7 @@ module Travis
             sh.cmd './rebar get-deps', fold: 'install', retry: true
           end
           sh.elif rebar_configured do
-            sh.if "!(command -v rebar3)" do
+            sh.if "-z $(command -v rebar3)" do
               sh.cmd 'rebar get-deps', fold: 'install', retry: true
             end
           end
