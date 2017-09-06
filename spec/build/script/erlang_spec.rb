@@ -55,7 +55,7 @@ describe Travis::Build::Script::Erlang, :sexp do
 
     it 'runs appropriate rebar/rebar3 command if rebar config exists, but ./rebar does not' do
       branch = sexp_find(sexp, [:elif, '(-f rebar.config || -f Rebar.config)'])
-      rebar3_branch = sexp_find(branch, [:if, 'command -v rebar3'])
+      rebar3_branch = sexp_find(branch, [:if, '-n $(command -v rebar3)'])
       rebar_branch  = sexp_find(branch, [:else])
       expect(rebar3_branch).to include_sexp [:cmd, 'rebar3 eunit', echo: true, timing: true]
       expect(rebar_branch).to  include_sexp [:cmd, 'rebar compile && rebar skip_deps=true eunit',  echo: true, timing: true]
