@@ -42,7 +42,7 @@ describe Travis::Build::Script::Android, :sexp do
 
       data[:config][:android][:packages] = packages
 
-      cmd = "yes | sdkmanager --sdk_root=/opt/android \"build-tools;26.0.1\" \"extras;android;m2-repository\""
+      cmd = "yes | sdkmanager --sdk_root=/opt/android build-tools;26.0.1 extras;android;m2-repository"
       should include_sexp [:cmd, cmd, options]
     end
 

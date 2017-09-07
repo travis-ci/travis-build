@@ -47,7 +47,7 @@ module Travis
               sh.echo 'Installing Android dependencies'
               if android_packages
                 sh.cmd "mkdir -p #{ANDROID_SDK_ROOT}", echo: true
-                sh.cmd "yes | sdkmanager --sdk_root=#{ANDROID_SDK_ROOT} \\\"#{Array(android_packages).compact.join("\\\" \\\"")}\\\"", echo: true # assumes license acceptance
+                sh.cmd "yes | sdkmanager --sdk_root=#{ANDROID_SDK_ROOT} #{Array(android_packages).compact.join(' ')}", echo: true # assumes license acceptance
               else
                 components.compact.each do |name|
                   sh.cmd install_sdk_component(name)
