@@ -5,6 +5,7 @@ module Travis
     class Script
       class Android < Script
         DEFAULTS = {}
+        ANDROID_SDK_ROOT='/opt/android'
 
         include Jdk
 
@@ -18,9 +19,10 @@ module Travis
             sh.cmd  "for v in $(ls /usr/local/android-sdk/build-tools/ | sort -r 2>/dev/null); do echo build-tools-$v; done; echo", echo: false, timing: false
           end
 
-          install_sdk_components unless components.empty?
+          install_sdk_components
 
-          ensure_tools_bin_path
+          ensure_path '/usr/local/android-sdk/tools/bin'
+          ensure_path "#{ANDROID_SDK_ROOT}/tools/bin"
         end
 
         def script
@@ -43,8 +45,13 @@ module Travis
           def install_sdk_components
             sh.fold 'android.install' do
               sh.echo 'Installing Android dependencies'
-              components.each do |name|
-                sh.cmd install_sdk_component(name)
+              if android_packages
+                sh.cmd "mkdir -p #{ANDROID_SDK_ROOT}", echo: true
+                sh.cmd "yes | sdkmanager --sdk_root=#{ANDROID_SDK_ROOT} \"#{Array(android_packages).compact.join(" ")}\"", echo: true # assumes license acceptance
+              else
+                components.compact.each do |name|
+                  sh.cmd install_sdk_component(name)
+                end
               end
             end
           end
@@ -62,15 +69,18 @@ module Travis
             }
           end
 
-          def ensure_tools_bin_path
-            tools_bin_path = '/usr/local/android-sdk/tools/bin'
-            sh.if "$(echo :$PATH: | grep -v :#{tools_bin_path}:)" do
-              sh.export "PATH", "#{tools_bin_path}:$PATH"
+          def ensure_path(path)
+            sh.if "$(echo :$PATH: | grep -v :#{path}:)" do
+              sh.export "PATH", "#{path}:$PATH"
             end
           end
 
           def components
             android_config[:components] || []
+          end
+
+          def android_packages
+            android_config[:packages]
           end
 
           def licenses
