@@ -19,10 +19,10 @@ module Travis
             sh.cmd  "for v in $(ls /usr/local/android-sdk/build-tools/ | sort -r 2>/dev/null); do echo build-tools-$v; done; echo", echo: false, timing: false
           end
 
-          install_sdk_components
-
           ensure_path '/usr/local/android-sdk/tools/bin'
           ensure_path "#{ANDROID_SDK_ROOT}/tools/bin"
+
+          install_sdk_components
         end
 
         def script
