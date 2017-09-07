@@ -37,6 +37,15 @@ describe Travis::Build::Script::Android, :sexp do
       end
     end
 
+    it 'installs the provided sdk packages using `sdkmanager`' do
+      packages = %w(build-tools;26.0.1 extras;android;m2-repository)
+
+      data[:config][:android][:packages] = packages
+
+      cmd = "yes | sdkmanager --sdk_root=/opt/android \"build-tools;26.0.1\" \"extras;android;m2-repository\""
+      should include_sexp [:cmd, cmd, options]
+    end
+
     it 'installs the provided sdk components accepting a single license' do
       components = %w(sysimg-19 sysimg-18)
       license    = 'mips-android-sysimage-license-15del8cc'
