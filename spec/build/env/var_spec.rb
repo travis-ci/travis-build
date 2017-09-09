@@ -34,6 +34,14 @@ describe Travis::Build::Env::Var do
       expect(parse("FOO='' BAR=bar")).to eq([['FOO', "''"], ['BAR', 'bar']])
     end
 
+    it "parses FOO= BAR=bar" do
+      expect(parse("FOO= BAR=bar")).to eq([['FOO', ""], ['BAR', 'bar']])
+    end
+
+    it "parses FOO= BAR=" do
+      expect(parse("FOO= BAR=")).to eq([['FOO', ""], ['BAR', '']])
+    end
+
     it "parses FOO='foo' BAR=bar" do
       expect(parse("FOO='foo' BAR=bar")).to eq([['FOO', "'foo'"], ['BAR', 'bar']])
     end
@@ -52,6 +60,18 @@ describe Travis::Build::Env::Var do
 
     it 'parses FOO="foo foo" BAR="bar bar"' do
       expect(parse('FOO="foo foo" BAR="bar bar"')).to eq([['FOO', '"foo foo"'], ['BAR', '"bar bar"']])
+    end
+
+    it 'parses FOO="$var" BAR="bar bar"' do
+      expect(parse('FOO="$var" BAR="bar bar"')).to eq([['FOO', '"$var"'], ['BAR', '"bar bar"']])
+    end
+
+    it 'parses FOO=$var BAR="bar bar"' do
+      expect(parse('FOO=$var BAR="bar bar"')).to eq([['FOO', '$var'], ['BAR', '"bar bar"']])
+    end
+
+    it 'parses FOO=$(command) BAR="bar bar"' do
+      expect(parse('FOO=$(command) BAR="bar bar"')).to eq([['FOO', '$(command)'], ['BAR', '"bar bar"']])
     end
   end
 
