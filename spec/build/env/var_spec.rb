@@ -38,7 +38,7 @@ describe Travis::Build::Env::Var do
       expect(parse("FOO= BAR=bar")).to eq([['FOO', ""], ['BAR', 'bar']])
     end
 
-    it "parses FOO= BAR=" do
+    it "assigns empty strings" do
       expect(parse("FOO= BAR=")).to eq([['FOO', ""], ['BAR', '']])
     end
 
@@ -70,8 +70,24 @@ describe Travis::Build::Env::Var do
       expect(parse('FOO=$var BAR="bar bar"')).to eq([['FOO', '$var'], ['BAR', '"bar bar"']])
     end
 
-    it 'parses FOO=$(command) BAR="bar bar"' do
+    it 'preserves $()' do
       expect(parse('FOO=$(command) BAR="bar bar"')).to eq([['FOO', '$(command)'], ['BAR', '"bar bar"']])
+    end
+
+    it 'preserves ${NAME}' do
+      expect(parse('FOO=${NAME} BAR="bar bar"')).to eq([['FOO', '${NAME}'], ['BAR', '"bar bar"']])
+    end
+
+    it 'preserves $' do
+      expect(parse('FOO=$ BAR="bar bar"')).to eq([['FOO', '$'], ['BAR', '"bar bar"']])
+    end
+
+    it 'preserves embedded =' do
+      expect(parse('FOO=comm=bar BAR="bar bar"')).to eq([['FOO', 'comm=bar'], ['BAR', '"bar bar"']])
+    end
+
+    it 'ignores unquoted bare word' do
+      expect(parse('FOO=$comm bar BAR="bar bar"')).to eq([['FOO', '$comm'], ['BAR', '"bar bar"']])
     end
   end
 

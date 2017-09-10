@@ -6,14 +6,17 @@ module Travis
         (?:SECURE )? # optionally starts with "SECURE "
         ([\w]+)= # left hand side, var name
           ( # right hand side is one of
-            ("|')([^\3]*?)(\3) # quoted stuff
+            ("|'|`)([^\3]*?)(\3) # quoted stuff
             |
-            \$\([^\)]*?\) # $(command) output -- this is not especially useful,
-                          # as it is just another case of the next case
+            \$\([^\)]*\) # $(command) output
             |
-            [^"'\ ]+ # some bare word
+            \$\{[^\}]+\} # ${NAME}
             |
-            (?=\s) # an empty string
+            \$\S* # $STUFF or $ (which assigns the value '$')
+            |
+            [^"'`\$\ ]+ # some bare word, not containing ", ', `, or $
+            |
+            (?=\s) # an empty string (look for a space ahead)
             |
             \z # the end of the string
           )
