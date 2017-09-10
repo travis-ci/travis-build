@@ -6,7 +6,7 @@ module Travis
         (?:SECURE )? # optionally starts with "SECURE "
         ([\w]+)= # left hand side, var name
           ( # right hand side is one of
-            ("|'|`)([^\3]*?)(\3) # quoted stuff
+            ("|'|`).*?((?<!\\)\3) # quoted stuff
             |
             \$\([^\)]*\) # $(command) output
             |

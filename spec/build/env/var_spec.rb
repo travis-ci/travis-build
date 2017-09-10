@@ -89,6 +89,10 @@ describe Travis::Build::Env::Var do
     it 'ignores unquoted bare word' do
       expect(parse('FOO=$comm bar BAR="bar bar"')).to eq([['FOO', '$comm'], ['BAR', '"bar bar"']])
     end
+
+    it 'parses quoted string, with escaped end-quote mark inside' do
+      expect(parse('FOO="foo\\"bar" BAR="bar bar"')).to eq([['FOO', '"foo\\"bar"'], ['BAR', '"bar bar"']])
+    end
   end
 
   describe 'secure?' do
