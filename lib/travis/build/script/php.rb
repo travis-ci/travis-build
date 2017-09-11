@@ -25,6 +25,7 @@ module Travis
             else
               sh.cmd "phpenv global hhvm 2>/dev/null", assert: true
             end
+            sh.mkdir "$HOME/.phpenv/versions/hhvm/etc/conf.d", recursive: true
           else
             sh.cmd "phpenv global #{version} 2>/dev/null", assert: false
             sh.if "$? -ne 0" do
