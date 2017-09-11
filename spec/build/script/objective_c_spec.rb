@@ -31,7 +31,7 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
     end
 
     it 'announces CocoaPods version if a Podfile exists' do
-      sexp = sexp_filter(subject, [:if, '-f Podfile'])[0]
+      sexp = sexp_filter(subject, [:if, '-f Podfile'])[1]
       expect(sexp).to include_sexp [:cmd, 'pod --version', echo: true]
     end
   end
@@ -77,7 +77,7 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
     end
 
     it 'runs pod install if a Podfile exists' do
-      sexp = sexp_filter(subject, [:if, '-f Podfile'])[1]
+      sexp = sexp_filter(subject, [:if, '-f Podfile'])[2]
       expect(sexp).to include_sexp [:cmd, 'pod install', assert: true, echo: true, retry: true, timing: true]
     end
 
