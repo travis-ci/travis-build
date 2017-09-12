@@ -2,7 +2,25 @@ module Travis
   module Build
     class Env
       class Var
-        PATTERN = /(?:SECURE )?([\w]+)=(("|')(.*?)(\3)|\$\(.*?\)|[^"' ]+)/
+        PATTERN = /
+        (?:SECURE )? # optionally starts with "SECURE "
+        ([\w]+)= # left hand side, var name
+          ( # right hand side is one of
+            ("|'|`).*?((?<!\\)\3) # quoted stuff
+            |
+            \$\([^\)]*\) # $(command) output
+            |
+            \$\{[^\}]+\} # ${NAME}
+            |
+            \$\S* # $STUFF or $ (which assigns the value '$')
+            |
+            [^"'`\$\ ]+ # some bare word, not containing ", ', `, or $
+            |
+            (?=\s) # an empty string (look for a space ahead)
+            |
+            \z # the end of the string
+          )
+        /x
 
         class << self
           def parse(line)
