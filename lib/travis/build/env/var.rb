@@ -8,9 +8,10 @@ module Travis
           ( # right hand side is one of
             ("|'|`).*?((?<!\\)\3) # quoted stuff
             |
-            \$\S* # $STUFF or $ (which assigns the value '$')
+            \$\(.*?\) # $(things)
             |
             [^"'`\ ]+ # some bare word, not containing ", ', or `
+                      # (this includes many variations of things starting in $)
             |
             (?=\s) # an empty string (look for a space ahead)
             |
