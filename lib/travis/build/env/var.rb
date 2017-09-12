@@ -3,7 +3,7 @@ module Travis
     class Env
       class Var
         PATTERN = /
-        (?:SECURE )? # optionally starts with "SECURE "
+        (?:SECURE\ )? # optionally starts with "SECURE "
         ([\w]+)= # left hand side, var name
           ( # right hand side is one of
             ("|'|`).*?((?<!\\)\3) # quoted stuff

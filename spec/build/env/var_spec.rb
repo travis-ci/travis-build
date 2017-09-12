@@ -101,6 +101,10 @@ describe Travis::Build::Env::Var do
     it 'allow $ in the middle' do
       expect(parse('APP_URL=http://$APP_HOST:8080 BAR="bar bar"')).to eq([['APP_URL', 'http://$APP_HOST:8080'], ['BAR', '"bar bar"']])
     end
+
+    it 'env var can start with SECURE' do
+      expect(parse('SECURE_VAR=value BAR="bar bar"')).to eq([['SECURE_VAR', 'value'], ['BAR', '"bar bar"']])
+    end
   end
 
   describe 'secure?' do
