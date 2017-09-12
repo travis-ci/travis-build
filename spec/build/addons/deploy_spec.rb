@@ -42,14 +42,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
     it { expect(sexp).to include_sexp [:cmd, './after_deploy_2.sh', echo: true, timing: true] }
   end
 
-  describe 'branch specific option hashes (using :if)' do
-    let(:data)   { super().merge(branch: 'staging') }
-    let(:config) { { provider: 'heroku', if: { branch: { staging: 'foo', production: 'bar' } } } }
-
-    it { should match_sexp [:if, '($TRAVIS_BRANCH = staging || $TRAVIS_BRANCH = production)'] }
-  end
-
-  describe 'branch specific option hashes (using :on)' do
+  describe 'branch specific option hashes' do
     let(:data)   { super().merge(branch: 'staging') }
     let(:config) { { provider: 'heroku', on: { branch: { staging: 'foo', production: 'bar' } } } }
 
@@ -71,13 +64,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
     it { should_not match_sexp [:if, '($TRAVIS_BRANCH = not_foo)'] }
   end
 
-  describe 'option specific Ruby version (using :if)' do
-    let(:config) { { provider: 'heroku', if: { ruby: 'foo' } } }
-
-    it { should match_sexp [:if, '($TRAVIS_BRANCH = master) && ($TRAVIS_RUBY_VERSION = foo)'] }
-  end
-
-  describe 'option specific Ruby version (using :on)' do
+  describe 'option specific Ruby version' do
     let(:config) { { provider: 'heroku', on: { ruby: 'foo' } } }
 
     it { should match_sexp [:if, '($TRAVIS_BRANCH = master) && ($TRAVIS_RUBY_VERSION = foo)'] }
