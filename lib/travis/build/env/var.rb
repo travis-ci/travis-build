@@ -14,7 +14,7 @@ module Travis
             |
             \$\S* # $STUFF or $ (which assigns the value '$')
             |
-            [^"'`\$\ ]+ # some bare word, not containing ", ', `, or $
+            [^"'`\ ]+ # some bare word, not containing ", ', or `
             |
             (?=\s) # an empty string (look for a space ahead)
             |

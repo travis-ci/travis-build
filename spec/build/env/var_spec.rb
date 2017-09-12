@@ -93,6 +93,10 @@ describe Travis::Build::Env::Var do
     it 'parses quoted string, with escaped end-quote mark inside' do
       expect(parse('FOO="foo\\"bar" BAR="bar bar"')).to eq([['FOO', '"foo\\"bar"'], ['BAR', '"bar bar"']])
     end
+
+    it 'allow $ in the middle' do
+      expect(parse('APP_URL=http://$APP_HOST:8080 BAR="bar bar"')).to eq([['APP_URL', 'http://$APP_HOST:8080'], ['BAR', '"bar bar"']])
+    end
   end
 
   describe 'secure?' do
