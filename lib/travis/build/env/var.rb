@@ -8,10 +8,6 @@ module Travis
           ( # right hand side is one of
             ("|'|`).*?((?<!\\)\3) # quoted stuff
             |
-            \$\([^\)]*\) # $(command) output
-            |
-            \$\{[^\}]+\} # ${NAME}
-            |
             \$\S* # $STUFF or $ (which assigns the value '$')
             |
             [^"'`\ ]+ # some bare word, not containing ", ', or `

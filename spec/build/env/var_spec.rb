@@ -78,6 +78,10 @@ describe Travis::Build::Env::Var do
       expect(parse('FOO=${NAME} BAR="bar bar"')).to eq([['FOO', '${NAME}'], ['BAR', '"bar bar"']])
     end
 
+    it 'preserves ${NAME}STUFF' do
+      expect(parse('FOO=${NAME}STUFF BAR="bar bar"')).to eq([['FOO', '${NAME}STUFF'], ['BAR', '"bar bar"']])
+    end
+
     it 'preserves $' do
       expect(parse('FOO=$ BAR="bar bar"')).to eq([['FOO', '$'], ['BAR', '"bar bar"']])
     end
