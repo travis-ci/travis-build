@@ -124,7 +124,7 @@ module Travis
       end
 
       def skip?(type, name)
-        type == :custom && SKIP_KEYWORDS.any? { |word| config[name] == word }
+        type != :builtin && SKIP_KEYWORDS.any? { |word| config[name] == word }
       end
     end
   end

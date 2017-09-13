@@ -180,6 +180,7 @@ module Travis
           apply :rvm_use
           apply :rm_oraclejdk8_symlink
           apply :enable_i386
+          apply :update_rubygems
         end
 
         def setup_filter
