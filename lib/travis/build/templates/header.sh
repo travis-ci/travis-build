@@ -83,6 +83,11 @@ ${ANSI_RED}For more information, see https://docs.travis-ci.com/user/encryption-
   fi
 
   if [[ -n "$assert" ]]; then
+    if [[ $travis_build_step = script && $travis_func_index > 0 ]]; then
+      echo -e "${ANSI_RED} We show an error message because this is the second (or later) command in 'script' and it failed.${ANSI_CLEAR}"
+      echo -e "${ANSI_RED} This is new behavior, and it should be notified.${ANSI_CLEAR}"
+    fi
+
     travis_assert $result
   fi
   ((travis_func_index += 1))
