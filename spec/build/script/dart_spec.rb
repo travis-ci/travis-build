@@ -32,7 +32,7 @@ describe Travis::Build::Script::Dart, :sexp do
   it "runs tests by default" do
     should include_sexp [:cmd,
       "pub global run test_runner --disable-ansi --skip-browser-tests",
-      echo: true, timing: true]
+      echo: true, timing: true, assert: true]
   end
 
   describe 'installs content_shell if config has a :with_content_shell key set with true' do
@@ -159,11 +159,11 @@ describe Travis::Build::Script::Dart, :sexp do
         end
 
         it 'starts xvfb' do
-          expect(sexp).to include_sexp [:cmd, 'sh -e /etc/init.d/xvfb start', echo: true, timing: true]
+          expect(sexp).to include_sexp [:cmd, 'sh -e /etc/init.d/xvfb start', echo: true, timing: true, assert: true]
         end
 
         it 'runs pub run test -p vm -p content-shell -p firefox' do
-          expect(sexp).to include_sexp [:cmd, 'pub run test -p vm -p content-shell -p firefox', echo: true, timing: true]
+          expect(sexp).to include_sexp [:cmd, 'pub run test -p vm -p content-shell -p firefox', echo: true, timing: true, assert: true]
         end
       end
 
@@ -171,7 +171,7 @@ describe Travis::Build::Script::Dart, :sexp do
         let(:sexp) { sexp_filter(super(), [:then]) }
 
         it 'runs pub run test with XVFB' do
-          expect(sexp).to include_sexp [:cmd, 'xvfb-run -s "-screen 0 1024x768x24" pub run test', echo: true, timing: true]
+          expect(sexp).to include_sexp [:cmd, 'xvfb-run -s "-screen 0 1024x768x24" pub run test', echo: true, timing: true, assert: true]
         end
 
         describe 'with test args' do
@@ -184,7 +184,7 @@ describe Travis::Build::Script::Dart, :sexp do
         describe 'with xvfb being false' do
           before { data[:config][:xvfb] = false }
           it "runs pub run test without XVFB" do
-            expect(sexp).to include_sexp [:cmd, 'pub run test', echo: true, timing: true]
+            expect(sexp).to include_sexp [:cmd, 'pub run test', echo: true, timing: true, assert: true]
           end
         end
 
@@ -206,20 +206,20 @@ describe Travis::Build::Script::Dart, :sexp do
       end
 
       it 'installs the test runner' do
-        expect(sexp).to include_sexp [:cmd, 'pub global activate test_runner', echo: true, timing: true]
+        expect(sexp).to include_sexp [:cmd, 'pub global activate test_runner', echo: true, timing: true, assert: true]
       end
 
       describe 'with with_content_shell being true' do
         before { data[:config][:with_content_shell] = true }
 
         it 'runs pub global run test_runner via xvfb-run' do
-          expect(sexp).to include_sexp [:cmd, 'xvfb-run -s "-screen 0 1024x768x24" pub global run test_runner --disable-ansi', echo: true, timing: true]
+          expect(sexp).to include_sexp [:cmd, 'xvfb-run -s "-screen 0 1024x768x24" pub global run test_runner --disable-ansi', echo: true, timing: true, assert: true]
         end
       end
 
       describe 'with with_content_shell being nil' do
         it 'runs pub run test' do
-          expect(sexp).to include_sexp [:cmd, 'pub global run test_runner --disable-ansi --skip-browser-tests', echo: true, timing: true]
+          expect(sexp).to include_sexp [:cmd, 'pub global run test_runner --disable-ansi --skip-browser-tests', echo: true, timing: true, assert: true]
         end
       end
     end
@@ -228,14 +228,14 @@ describe Travis::Build::Script::Dart, :sexp do
       before { data[:config][:dart_task] = 'dartanalyzer' }
 
       it "runs dartanalyzer on the whole package" do
-        should include_sexp [:cmd, 'dartanalyzer .', echo: true, timing: true]
+        should include_sexp [:cmd, 'dartanalyzer .', echo: true, timing: true, assert: true]
       end
 
       describe 'with arguments' do
         before { data[:config][:dart_task] = {dartanalyzer: '--fatal-warnings lib'} }
 
         it "runs dartanalyzer with those arguments" do
-          should include_sexp [:cmd, 'dartanalyzer --fatal-warnings lib', echo: true, timing: true]
+          should include_sexp [:cmd, 'dartanalyzer --fatal-warnings lib', echo: true, timing: true, assert: true]
         end
       end
     end
@@ -246,7 +246,7 @@ describe Travis::Build::Script::Dart, :sexp do
       describe 'when dart_style is installed but dartfmt: sdk is not specified' do
         let(:sexp) { sexp_find(subject, [:elif, "[[ -f pubspec.yaml ]] && (pub deps | grep -q \"^[|']-- dart_style \")"]) }
         it "runs the installed version of dartfmt" do
-          should include_sexp [:raw, 'function dartfmt() { pub run dart_style:format "$@"; }']
+          should include_sexp [:raw, 'function dartfmt() { pub run dart_style:format "$@"; }', assert: true]
         end
       end
 

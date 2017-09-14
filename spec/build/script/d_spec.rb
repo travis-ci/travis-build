@@ -28,7 +28,7 @@ describe Travis::Build::Script::D, :sexp do
   end
 
   it 'runs dub test with DC' do
-    should include_sexp [:cmd, 'dub test --compiler=$DC', echo: true, timing: true]
+    should include_sexp [:cmd, 'dub test --compiler=$DC', echo: true, timing: true, assert: true]
   end
 
   context 'when an old dmd version is configured' do

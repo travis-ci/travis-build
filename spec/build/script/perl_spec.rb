@@ -48,17 +48,17 @@ describe Travis::Build::Script::Perl, :sexp do
 
     it 'runs perl Build.PL && ./Build test if Build.PL exists' do
       branch = sexp_find(sexp, [:then])
-      expect(branch).to include_sexp [:cmd, 'perl Build.PL && ./Build && ./Build test', echo: true, timing: true]
+      expect(branch).to include_sexp [:cmd, 'perl Build.PL && ./Build && ./Build test', echo: true, timing: true, assert: true]
     end
 
     it 'runs perl Makefile.PL && make test if Makefile.PL exists' do
       branch = sexp_find(sexp, [:elif, '-f Makefile.PL'])
-      expect(branch).to include_sexp [:cmd, 'perl Makefile.PL && make test', echo: true, timing: true]
+      expect(branch).to include_sexp [:cmd, 'perl Makefile.PL && make test', echo: true, timing: true, assert: true]
     end
 
     it 'runs make test if no Build.PL or Makefile.PL exists' do
       branch = sexp_find(sexp, [:else])
-      expect(branch).to include_sexp [:cmd, 'make test', echo: true, timing: true]
+      expect(branch).to include_sexp [:cmd, 'make test', echo: true, timing: true, assert: true]
     end
   end
 end

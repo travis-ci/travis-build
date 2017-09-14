@@ -27,7 +27,7 @@ describe Travis::Build::Script::Clojure, :sexp do
     end
 
     it 'runs lein test' do
-      should include_sexp [:cmd, 'lein test', echo: true, timing: true]
+      should include_sexp [:cmd, 'lein test', echo: true, timing: true, assert: true]
     end
   end
 
@@ -45,7 +45,7 @@ describe Travis::Build::Script::Clojure, :sexp do
     end
 
     it 'runs lein2 test if lein: lein2 given' do
-      should include_sexp [:cmd, 'lein2 test', echo: true, timing: true]
+      should include_sexp [:cmd, 'lein2 test', echo: true, timing: true, assert: true]
     end
   end
 

@@ -60,10 +60,10 @@ describe Travis::Build::Script::Android, :sexp do
   describe 'script' do
     let(:sexp) { sexp_find(subject, [:if, '-f gradlew']) }
 
-    let(:gradlew_connected_check) { [:cmd, './gradlew build connectedCheck', echo: true, timing: true] }
-    let(:gradle_connected_check)  { [:cmd, 'gradle build connectedCheck', echo: true, timing: true] }
-    let(:mvn_install_b)           { [:cmd, 'mvn install -B', echo: true, timing: true] }
-    let(:ant_install_test)        { [:cmd, 'ant debug install test', echo: true, timing: true] }
+    let(:gradlew_connected_check) { [:cmd, './gradlew build connectedCheck', echo: true, timing: true, assert: true] }
+    let(:gradle_connected_check)  { [:cmd, 'gradle build connectedCheck', echo: true, timing: true, assert: true] }
+    let(:mvn_install_b)           { [:cmd, 'mvn install -B', echo: true, timing: true, assert: true] }
+    let(:ant_install_test)        { [:cmd, 'ant debug install test', echo: true, timing: true, assert: true] }
 
     it 'runs ./gradlew build connectedCheck if ./gradlew exists' do
       branch = sexp_find(sexp, [:then])

@@ -97,12 +97,12 @@ describe Travis::Build::Script::NodeJs, :sexp do
 
     it 'runs npm test if package.json exists' do
       branch = sexp_find(sexp, [:then])
-      expect(sexp).to include_sexp [:cmd, 'npm test', echo: true, timing: true]
+      expect(sexp).to include_sexp [:cmd, 'npm test', echo: true, timing: true, assert: true]
     end
 
     it 'runs make test if no package.json exists' do
       branch = sexp_find(sexp, [:else])
-      expect(sexp).to include_sexp [:cmd, 'make test', echo: true, timing: true]
+      expect(sexp).to include_sexp [:cmd, 'make test', echo: true, timing: true, assert: true]
     end
   end
 

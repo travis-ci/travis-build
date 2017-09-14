@@ -62,7 +62,7 @@ shared_examples_for 'a build script sexp' do
   it_behaves_like 'rvm use'
 
   it 'calls travis_result' do
-    should include_sexp [:raw, 'travis_result $?']
+    should include_sexp [:raw, 'travis_result $?', assert: true]
   end
 end
 

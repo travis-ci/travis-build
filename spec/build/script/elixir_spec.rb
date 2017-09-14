@@ -35,7 +35,7 @@ describe Travis::Build::Script::Elixir, :sexp do
 
   describe 'script' do
     it 'runs "mix test"' do
-      should include_sexp [:cmd, 'mix test', echo: true, timing: true]
+      should include_sexp [:cmd, 'mix test', echo: true, timing: true, assert: true]
     end
   end
 

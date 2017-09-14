@@ -31,7 +31,7 @@ describe Travis::Build::Script::Php, :sexp do
   end
 
   it 'runs phpunit' do
-    should include_sexp [:cmd, 'phpunit', echo: true, timing: true]
+    should include_sexp [:cmd, 'phpunit', echo: true, timing: true, assert: true]
   end
 
   describe 'installs php nightly' do

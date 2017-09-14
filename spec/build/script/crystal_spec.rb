@@ -19,7 +19,7 @@ describe Travis::Build::Script::Crystal, :sexp do
   it "runs tests by default" do
     should include_sexp [:cmd,
       "crystal spec",
-      echo: true, timing: true]
+      echo: true, timing: true, assert: true]
   end
 
   context "versions" do

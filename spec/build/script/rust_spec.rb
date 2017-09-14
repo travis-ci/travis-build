@@ -27,15 +27,15 @@ describe Travis::Build::Script::Rust, :sexp do
   end
 
   it 'runs cargo test' do
-    should include_sexp [:cmd, 'cargo test --verbose', echo: true, timing: true]
+    should include_sexp [:cmd, 'cargo test --verbose', echo: true, timing: true, assert: true]
   end
 
   it 'runs cargo build' do
-    should include_sexp [:cmd, 'cargo build --verbose', echo: true, timing: true]
+    should include_sexp [:cmd, 'cargo build --verbose', echo: true, timing: true, assert: true]
   end
 
   it 'runs cargo test' do
-    should include_sexp [:cmd, 'cargo test --verbose', echo: true, timing: true]
+    should include_sexp [:cmd, 'cargo test --verbose', echo: true, timing: true, assert: true]
   end
 
   context "when cache is configured" do

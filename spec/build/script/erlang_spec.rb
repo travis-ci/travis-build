@@ -49,17 +49,17 @@ describe Travis::Build::Script::Erlang, :sexp do
 
     it 'runs `./rebar compile && ./rebar skip_deps=true eunit` if both rebar config and ./rebar exist' do
       branch = sexp_find(sexp, [:then])
-      expect(branch).to include_sexp [:cmd, './rebar compile && ./rebar skip_deps=true eunit', echo: true, timing: true]
+      expect(branch).to include_sexp [:cmd, './rebar compile && ./rebar skip_deps=true eunit', echo: true, timing: true, assert: true]
     end
 
     it 'runs `rebar compile && rebar skip_deps=true eunit` if rebar config exists, but ./rebar does not' do
       branch = sexp_find(sexp, [:elif, '(-f rebar.config || -f Rebar.config)'])
-      expect(branch).to include_sexp [:cmd, 'rebar compile && rebar skip_deps=true eunit', echo: true, timing: true]
+      expect(branch).to include_sexp [:cmd, 'rebar compile && rebar skip_deps=true eunit', echo: true, timing: true, assert: true]
     end
 
     it 'runs `make test` if rebar config does not exist' do
       branch = sexp_find(sexp, [:else])
-      expect(branch).to include_sexp [:cmd, "make test", echo: true, timing: true]
+      expect(branch).to include_sexp [:cmd, "make test", echo: true, timing: true, assert: true]
     end
   end
 

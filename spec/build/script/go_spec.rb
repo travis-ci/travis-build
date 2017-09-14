@@ -154,7 +154,7 @@ describe Travis::Build::Script::Go, :sexp do
       end
 
       it 'runs make' do
-        expect(sexp).to include_sexp [:cmd, 'make', echo: true, timing: true]
+        expect(sexp).to include_sexp [:cmd, 'make', echo: true, timing: true, assert: true]
       end
     end
   end

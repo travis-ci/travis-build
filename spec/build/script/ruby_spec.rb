@@ -95,12 +95,12 @@ describe Travis::Build::Script::Ruby, :sexp do
   describe 'script' do
     it 'runs bundle exec rake if a gemfile exists' do
       sexp = sexp_find(subject, [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}"], [:then])
-      should include_sexp [:cmd, 'bundle exec rake', echo: true, timing: true]
+      should include_sexp [:cmd, 'bundle exec rake', echo: true, timing: true, assert: true]
     end
 
     it 'runs rake if a gemfile does not exist' do
       sexp = sexp_find(subject, [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}"], [:else])
-      should include_sexp [:cmd, 'rake', echo: true, timing: true]
+      should include_sexp [:cmd, 'rake', echo: true, timing: true, assert: true]
     end
   end
 

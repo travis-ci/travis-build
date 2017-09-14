@@ -93,12 +93,12 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
     describe 'if the project is a RubyMotion project' do
       it 'runs `rake spec`' do
         branch = sexp_find(sexp, [:then])
-        expect(branch).to include_sexp [:cmd, 'bundle exec rake spec', echo: true, timing: true]
+        expect(branch).to include_sexp [:cmd, 'bundle exec rake spec', echo: true, timing: true, assert: true]
       end
 
       it 'runs `bundle exec rake spec` if there is a Gemfile' do
         branch = sexp_find(sexp, [:elif, is_ruby_motion])
-        expect(branch).to include_sexp [:cmd, 'rake spec', echo: true, timing: true]
+        expect(branch).to include_sexp [:cmd, 'rake spec', echo: true, timing: true, assert: true]
       end
     end
 
@@ -110,7 +110,7 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
 
       it 'runs xctool' do
         branch = sexp_find(sexp, [:else])
-        expect(branch).to include_sexp [:cmd, 'xctool -workspace YourWorkspace.xcworkspace -scheme YourScheme build test', echo: true, timing: true]
+        expect(branch).to include_sexp [:cmd, 'xctool -workspace YourWorkspace.xcworkspace -scheme YourScheme build test', echo: true, timing: true, assert: true]
       end
     end
 
@@ -123,12 +123,12 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
       end
 
       it 'runs xctool' do
-        expect(branch).to include_sexp [:cmd, 'xctool -project YourProject.xcodeproj -scheme YourScheme build test', echo: true, timing: true]
+        expect(branch).to include_sexp [:cmd, 'xctool -project YourProject.xcodeproj -scheme YourScheme build test', echo: true, timing: true, assert: true]
       end
 
       it 'passes an SDK version to xctool' do
         data[:config][:xcode_sdk] = '7.0'
-        expect(branch).to include_sexp [:cmd, 'xctool -project YourProject.xcodeproj -scheme YourScheme -sdk 7.0 build test', echo: true, timing: true]
+        expect(branch).to include_sexp [:cmd, 'xctool -project YourProject.xcodeproj -scheme YourScheme -sdk 7.0 build test', echo: true, timing: true, assert: true]
       end
     end
 

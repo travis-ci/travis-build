@@ -27,7 +27,7 @@ shared_examples_for 'a jvm build sexp' do
   end
 
   describe 'script' do
-    let(:options) { { echo: true, timing: true } }
+    let(:options) { { echo: true, timing: true, assert: true } }
     let(:sexp)    { sexp_filter(subject, [:if, '-f gradlew'])[1] }
 
     it 'runs `./gradlew check` if gradlew exists' do

@@ -46,7 +46,7 @@ module Travis
         before_install: { assert: true,  echo: true,  timing: true  },
         install:        { assert: true,  echo: true,  timing: true  },
         before_script:  { assert: true,  echo: true,  timing: true  },
-        script:         { assert: false, echo: true,  timing: true  },
+        script:         { assert: true,  echo: true,  timing: true  },
         after_success:  { assert: false, echo: true,  timing: true  },
         after_failure:  { assert: false, echo: true,  timing: true  },
         after_script:   { assert: false, echo: true,  timing: true  },

@@ -175,7 +175,7 @@ describe Travis::Build::Script::Csharp, :sexp do
 
     it 'builds specified solution' do
       data[:config][:solution] = 'foo.sln'
-      should include_sexp [:cmd, 'xbuild /p:Configuration=Release foo.sln', echo: true, timing: true]
+      should include_sexp [:cmd, 'xbuild /p:Configuration=Release foo.sln', echo: true, timing: true, assert: true]
     end
   end
 

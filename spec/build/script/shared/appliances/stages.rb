@@ -1,6 +1,6 @@
 shared_examples_for 'build script stages' do
   def assert_stage?(stage)
-    %w(before_install install before_script).include?(stage)
+    %w(before_install install before_script script).include?(stage)
   end
 
   %w(before_install install before_script script after_script after_success).each do |stage|

@@ -39,7 +39,7 @@ describe Travis::Build::Script::Haskell, :sexp do
   end
 
   it 'runs cabal configure --enable-tests && cabal build && cabal test' do
-    should include_sexp [:cmd, 'cabal configure --enable-tests && cabal build && cabal test', echo: true, timing: true]
+    should include_sexp [:cmd, 'cabal configure --enable-tests && cabal build && cabal test', echo: true, timing: true, assert: true]
   end
 
   [

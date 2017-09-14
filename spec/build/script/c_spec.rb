@@ -22,7 +22,7 @@ describe Travis::Build::Script::C, :sexp do
   end
 
   it 'runs ./configure && make && make test' do
-    should include_sexp [:cmd, './configure && make && make test', echo: true, timing: true]
+    should include_sexp [:cmd, './configure && make && make test', echo: true, timing: true, assert: true]
   end
 
   describe '#cache_slug' do
