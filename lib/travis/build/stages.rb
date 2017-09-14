@@ -106,6 +106,8 @@ module Travis
       def define_stage(type, name)
         sh.raw "cat <<'EOFUNC_#{name.upcase}' >>$HOME/.travis/job_stages"
         sh.raw "function travis_run_#{name}() {"
+        sh.raw "  travis_build_step=\"#{name}\""
+        sh.raw "  travis_func_index=0"
         commands = run_stage(type, name)
         close = (commands.nil? || commands.empty?) ? ":\n}" : "}"
         sh.raw close

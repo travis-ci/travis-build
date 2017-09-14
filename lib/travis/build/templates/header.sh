@@ -85,6 +85,7 @@ ${ANSI_RED}For more information, see https://docs.travis-ci.com/user/encryption-
   if [[ -n "$assert" ]]; then
     travis_assert $result
   fi
+  ((travis_func_index += 1))
 
   return $result
 }
