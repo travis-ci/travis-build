@@ -4,3 +4,5 @@ services:
     build: .
     ports:
     - 4000:4000
+    environment:
+      - TRAVIS_BUILD_APP_HOST=build.travis-ci.org
