@@ -174,7 +174,13 @@ module Travis
 
             def cmd(cmd, *args)
               sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
-              sh.cmd("rvm $(travis_internal_ruby) --fuzzy do ruby -S #{cmd}", *args)
+              sh.if("$(travis_internal_ruby) = 1.9*") do
+                sh.raw("_command=\"#{cmd} -v '< 1.9'\"")
+              end
+              sh.else do
+                sh.raw("_command=\"#{cmd}\"")
+              end
+              sh.cmd("rvm $(travis_internal_ruby) --fuzzy do ruby -S $_command", *args)
             end
 
             def options

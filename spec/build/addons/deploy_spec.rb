@@ -19,7 +19,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
   it { store_example }
 
   it_behaves_like 'compiled script' do
-    let(:cmds) { ['ruby -S gem install dpl', 'ruby -S dpl'] }
+    let(:cmds) { ['ruby -S $_command'] }
   end
 
   context "when after_success is also present" do
@@ -34,10 +34,10 @@ describe Travis::Build::Addons::Deploy, :sexp do
 
     it { expect(sexp).to include_sexp [:cmd, './before_deploy_1.sh', assert: true, echo: true, timing: true] }
     it { expect(sexp).to include_sexp [:cmd, './before_deploy_2.sh', assert: true, echo: true, timing: true] }
-    it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl', assert: true, timing: true] }
+    it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S $_command', assert: true, timing: true] }
     # it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=heroku --password=foo --email=user@host --fold', assert: true, timing: true] }
     # it { expect(sexp).to include_sexp terminate_on_failure }
-    it { expect(sexp).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=\"heroku\" --password=\"foo\" --email=\"user@host\" --fold; if [ $? -ne 0 ]; then echo \"failed to deploy\"; travis_terminate 2; fi", {:timing=>true}] }
+    it { expect(sexp).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do ruby -S $_command", {:timing=>true}] }
     it { expect(sexp).to include_sexp [:cmd, './after_deploy_1.sh', echo: true, timing: true] }
     it { expect(sexp).to include_sexp [:cmd, './after_deploy_2.sh', echo: true, timing: true] }
   end
@@ -110,10 +110,10 @@ describe Travis::Build::Addons::Deploy, :sexp do
 
     it { should match_sexp [:if, '($TRAVIS_BRANCH = master) && ($FOO = foo)'] }
     # it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=heroku --password=foo --email=user@host --fold', assert: true, timing: true] }
-    it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider="heroku" --password="foo" --email="user@host" --fold; if [ $? -ne 0 ]; then echo "failed to deploy"; travis_terminate 2; fi', timing: true] }
+    it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S $_command', timing: true] }
     it { should match_sexp [:if, '($TRAVIS_BRANCH = master) && ($BAR = bar)'] }
     # it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=nodejitsu --user=foo --api_key=bar --fold', assert: true, timing: true] }
-    it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider="nodejitsu" --user="foo" --api_key="bar" --fold; if [ $? -ne 0 ]; then echo "failed to deploy"; travis_terminate 2; fi', timing: true] }
+    it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S $_command', timing: true] }
   end
 
   describe 'allow_failure' do
@@ -132,6 +132,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
     let(:config) { { provider: 'heroku', on: { condition: '$FOO = foo'} } }
     # let(:sexp)   { sexp_find(subject, [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master) && ($FOO = foo)'], [:else]) }
     let(:sexp)   { sexp_find(subject, [:if, '($TRAVIS_BRANCH = master) && ($FOO = foo)'], [:else]) }
+    let(:sexp_else)   { sexp_if_then_else(subject, '($TRAVIS_BRANCH = master) && ($FOO = foo)')[:else] }
 
     let(:is_pull_request)  { [:echo, 'Skipping a deployment with the heroku provider because the current build is a pull request.', ansi: :yellow] }
     let(:not_permitted)    { [:echo, 'Skipping a deployment with the heroku provider because this branch is not permitted', ansi: :yellow] }
@@ -140,13 +141,20 @@ describe Travis::Build::Addons::Deploy, :sexp do
     # it { p subject; p sexp; expect(sexp_find(sexp, [:if, '(! (-z $TRAVIS_PULL_REQUEST))'])).to include_sexp is_pull_request }
     # it { expect(sexp_find(sexp, [:if, '(! ($TRAVIS_BRANCH = master))'])).to include_sexp not_permitted }
     # it { expect(sexp_find(sexp, [:if, '(! ($FOO = foo))'])).to include_sexp custom_condition }
-    it { expect(sexp_find(sexp, [:if, ' ! ($TRAVIS_BRANCH = master)'])).to include_sexp not_permitted }
-    it { expect(sexp_find(sexp, [:if, ' ! ($FOO = foo)'])).to include_sexp custom_condition }
+    it { expect(sexp_find(sexp_else, [:if, ' ! ($TRAVIS_BRANCH = master)'])).to include_sexp not_permitted }
+    it { expect(sexp_find(sexp_else, [:if, ' ! ($FOO = foo)'])).to include_sexp custom_condition }
+  end
+
+  context 'when travis_internal_ruby() matches 1.9*' do
+    let(:config) { { provider: 'heroku' } }
+    let(:sexp)   { sexp_if_then_else(subject, '$(travis_internal_ruby) = 1.9*')[:then] }
+
+    it { expect(sexp_find(sexp)).to include_sexp([:raw, "_command=\"gem install dpl -v '< 1.9'\""]) }
   end
 
   describe 'deploy with compound condition fails' do
     let(:config) { { provider: 'heroku', on: { condition: '$FOO = foo && $BAR = bar'} } }
-    let(:sexp)   { sexp_find(subject, [:if, '($TRAVIS_BRANCH = master) && ($FOO = foo && $BAR = bar)'], [:else]) }
+    let(:sexp)   { sexp_if_then_else(subject, '($TRAVIS_BRANCH = master) && ($FOO = foo && $BAR = bar)')[:else] }
 
     let(:custom_condition) { [:echo, 'Skipping a deployment with the heroku provider because a custom condition was not met', ansi: :yellow] }
 

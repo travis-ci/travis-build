@@ -29,6 +29,16 @@ module SpecHelpers
       parts.inject(sexp) { |sexp, part| sexp_filter(sexp, part).first } || []
     end
 
+    def sexp_if_then_else(sexp, condition)
+      # given the `:if` sexp with `condition`, return a hash with keys
+      # :then and :else, each representing `:then` and `:else` s-expressions.
+      # `:else` might be `nil`.
+      # sexp_find(sexp, [:if, condition]) returns s-expression of the form:
+      #   [:if, condition, [:then, []], [:else, []]]
+      # of which we want the second and the third elements
+      [:then, :else].zip(sexp_find(sexp, [:if, condition])[2,2]).to_h
+    end
+
     def sexp_filter(sexp, part, result = [])
       return result unless sexp.is_a?(Array)
       result << sexp if sexp_matches?(sexp[0, part.length], part)
