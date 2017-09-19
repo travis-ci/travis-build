@@ -24,7 +24,7 @@ EOF
 
         def apply
           sh.raw WRITE_SUDO
-          sh.cmd CLEANUP
+          sh.cmd CLEANUP, echo: true, timing: true
         end
 
         def apply?
