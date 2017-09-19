@@ -10,7 +10,7 @@ module Travis
             |
             \$\(.*?\) # $(things)
             |
-            [^"'`\ ]+ # some bare word, not containing ", ', or `
+            [^"'\ ]+ # some bare word, not containing " or '
                       # (this includes many variations of things starting in $)
             |
             (?=\s) # an empty string (look for a space ahead)
