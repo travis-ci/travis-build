@@ -161,6 +161,7 @@ module Travis
           apply :show_system_info
           apply :fix_rwky_redis
           apply :fix_container_based_trusty
+          apply :fix_sudo_enabled_trusty
           apply :update_glibc
           apply :update_libssl
           apply :clean_up_path
@@ -180,6 +181,7 @@ module Travis
           apply :rvm_use
           apply :rm_oraclejdk8_symlink
           apply :enable_i386
+          apply :update_rubygems
         end
 
         def setup_filter

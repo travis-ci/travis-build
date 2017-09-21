@@ -15,6 +15,7 @@ require 'travis/build/appliances/update_libssl'
 require 'travis/build/appliances/fix_etc_hosts'
 require 'travis/build/appliances/no_ipv6_localhost'
 require 'travis/build/appliances/fix_container_based_trusty'
+require 'travis/build/appliances/fix_sudo_enabled_trusty'
 require 'travis/build/appliances/fix_etc_mavenrc'
 require 'travis/build/appliances/fix_ps4'
 require 'travis/build/appliances/fix_resolv_conf'
@@ -28,6 +29,7 @@ require 'travis/build/appliances/show_system_info'
 require 'travis/build/appliances/setup_filter'
 require 'travis/build/appliances/validate'
 require 'travis/build/appliances/npm_registry'
+require 'travis/build/appliances/update_rubygems'
 
 module Travis
   module Build
