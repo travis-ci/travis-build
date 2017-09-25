@@ -42,7 +42,9 @@ script:
   - mkdir -p public/files && touch public/files/nvm.sh
   - bundle exec rake lib/travis/build/addons/sauce_connect/sauce_connect.sh spec && ./script/validate-bash-syntax
 
-after_success: bundle exec codeclimate-test-reporter
+after_success:
+  - bundle exec codeclimate-test-reporter
+  - script/send-docker-hub-trigger
 
 before_deploy: ruby script/build_s3_index_html.rb
 
