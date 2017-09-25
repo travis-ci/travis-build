@@ -19,6 +19,7 @@ env:
 stages:
   - "test"
   - ":ship: it to Quay.io"
+  - "trigger automated build on Docker Hub"
 
 jobs:
   allow_failures:
@@ -37,6 +38,8 @@ jobs:
       dist: trusty
       env:
       script: ./script/docker-build-and-push
+    - stage: "trigger automated build on Docker Hub"
+      script: script/send-docker-hub-trigger
 
 script:
   - mkdir -p public/files && touch public/files/nvm.sh
@@ -44,7 +47,6 @@ script:
 
 after_success:
   - bundle exec codeclimate-test-reporter
-  - script/send-docker-hub-trigger
 
 before_deploy: ruby script/build_s3_index_html.rb
 
