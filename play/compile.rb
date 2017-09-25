@@ -25,14 +25,14 @@ data = {
     pull_request: false
   },
   config: {
-    rvm: 'ruby-head',
+    # rvm: 'ruby-head',
     # jdk: 'jdk-foo',
-    # language: 'c',
+     language: 'generic',
     # services: ['redis'],
     # after_success: 'yo dawg',
     # after_failure: 'yo kaputt',
     # after_script: 'travis-artifacts upload shit',
-    # script: 'bundle exec rspec'
+    script: 'echo "foo"'
   },
   timeouts: {
     # git_clone: 300
@@ -49,4 +49,3 @@ data = {
 script = Travis::Build.script(data)
 script = script.compile
 puts script
-
