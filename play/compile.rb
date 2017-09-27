@@ -33,6 +33,7 @@ data = {
     # after_success: 'yo dawg',
     # after_failure: 'yo kaputt',
     # after_script: 'travis-artifacts upload shit',
+    # script: 'bundle exec rspec'
     script: 'echo "foo"'
   },
   timeouts: {
