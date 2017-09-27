@@ -9,6 +9,7 @@ module Travis
         end
 
         def apply?
+          return unless super
           if data.key?(:fix_etc_hosts)
             data[:fix_etc_hosts]
           else

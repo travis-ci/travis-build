@@ -9,7 +9,11 @@ module Travis
         def_delegators :script, :sh, :data, :config, :app_host
 
         def apply?
-          true
+          not windows?
+        end
+
+        def windows?
+          config[:os] == 'windows'
         end
       end
     end

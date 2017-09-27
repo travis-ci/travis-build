@@ -28,6 +28,7 @@ data = {
     # rvm: 'ruby-head',
     # jdk: 'jdk-foo',
      language: 'generic',
+     os: 'windows',
     # services: ['redis'],
     # after_success: 'yo dawg',
     # after_failure: 'yo kaputt',
