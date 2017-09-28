@@ -20,11 +20,21 @@ touch \$HOME/.sudo-run
 exit 1
 EOF
         EOC
-        CLEANUP = 'sudo -n sh -c "chmod 4755 _sudo; chown root:root _sudo; mv _sudo `which sudo`; find / \\( -perm -4000 -o -perm -2000 \\) -a ! -name sudo -exec chmod a-s {} \; 2>/dev/null && sed -e \'s/^%.*//\' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis"'
+        CLEANUP = <<-EOC
+sudo -n sh -c "
+    chmod 4755 _sudo
+    chown root:root _sudo
+    mv _sudo `which sudo`
+    set -e
+    mount -o remount,nosuid /
+    sed -e 's/^%.*//' -i.bak /etc/sudoers
+    rm -f /etc/sudoers.d/travis
+"
+EOC
 
         def apply
           sh.raw WRITE_SUDO
-          sh.cmd CLEANUP
+          sh.cmd CLEANUP, echo: true, timing: true
         end
 
         def apply?
