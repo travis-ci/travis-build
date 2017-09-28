@@ -145,7 +145,7 @@ module Travis
               command << "-*.gem --local" if edge == 'local' || edge.respond_to?(:fetch)
               command << " --pre" if edge
 
-              sh.raw "[[ $(travis_internal_ruby) = 1.9* ]] && GEM=\"dpl -v '< 1.9'\" || GEM=dpl"
+              sh.raw "[[ $TRAVIS_RUBY_VERSION = 1.9* ]] && GEM=\"dpl -v '< 1.9'\" || GEM=dpl"
               cmd(command, echo: false, assert: !allow_failure, timing: true)
               sh.cmd "rm -f dpl-*.gem", echo: false, assert: false, timing: false
             end
