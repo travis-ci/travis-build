@@ -18,6 +18,7 @@ env:
 
 stages:
   - "test"
+  - stage: "test update_static_files Rake task"
   - ":ship: it to Quay.io"
 
 jobs:
