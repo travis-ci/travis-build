@@ -30,17 +30,18 @@ data = {
      language: 'generic',
      os: 'windows',
     # services: ['redis'],
-    # after_success: 'yo dawg',
-    # after_failure: 'yo kaputt',
-    # after_script: 'travis-artifacts upload shit',
+    after_success: 'echo "after_success"',
+    after_failure: 'echo "after_failure"',
+    after_script: 'echo "after_script"',
     # script: 'bundle exec rspec'
-    script: 'echo "foo"'
+    script: 'echo $FOO'
   },
   timeouts: {
     # git_clone: 300
   },
   env_vars: [
-    { name: 'FOO', value: 'foo' }
+    { name: 'FOO', value: 'foo', public: true },
+    { name: 'BAR', value: 'bar', public: false }
   ]
 }
 
