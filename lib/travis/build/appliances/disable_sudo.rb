@@ -26,7 +26,7 @@ sudo -n sh -c "
     chown root:root _sudo
     mv _sudo `which sudo`
     set -e
-    find / \\( -perm -4000 -o -perm -2000 \\) -a ! -name sudo -exec chmod a-s {} \; 2>/dev/null
+    mount -o remount,nosuid /
     sed -e 's/^%.*//' -i.bak /etc/sudoers
     rm -f /etc/sudoers.d/travis
 "
