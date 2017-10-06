@@ -69,16 +69,14 @@ export MIX_ARCHIVES=#{KIEX_MIX_HOME}elixir-#{elixir_version}' > #{KIEX_ELIXIR_HO
           !( elixir_1_2_0_or_higher? && !otp_release_18_0_or_higher?)
         end
 
-        def elixir_1_2_0_or_higher?
-          Gem::Version.new(elixir_version) > Gem::Version.new('1.1.999') # use this for pre-release 1.2.0
-        end
-
-        def elixir_1_3_0_or_higher?
-          Gem::Version.new(elixir_version) > Gem::Version.new('1.2.999') # use this for pre-release 1.3.0
-        end
-
-        def elixir_1_4_0_or_higher?
-          Gem::Version.new(elixir_version) > Gem::Version.new('1.3.999')
+        def method_missing(m, *args, &block)
+          case m
+          when /\Aelixir_(\d+)_(\d+)_(\d+)_or_higher\?\z/
+            x, y, z = $~[1,3].map(&:to_i)
+            Gem::Version.new(elixir_version) > Gem::Version.new("#{x}.#{y-1}.999")
+          else
+            super
+          end
         end
 
         def elixir_1_0_x?
