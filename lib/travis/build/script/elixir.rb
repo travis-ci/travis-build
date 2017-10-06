@@ -74,6 +74,9 @@ export MIX_ARCHIVES=#{KIEX_MIX_HOME}elixir-#{elixir_version}' > #{KIEX_ELIXIR_HO
           when /\Aelixir_(\d+)_(\d+)_(\d+)_or_higher\?\z/
             x, y, z = $~[1,3].map(&:to_i)
             Gem::Version.new(elixir_version) > Gem::Version.new("#{x}.#{y-1}.999")
+          when /\Aotp_release_(\d+)_(\d+)_or_higher\?\z/
+            x, y = $~[1,2].map(&:to_i)
+            Gem::Version.new(otp_release) > Gem::Version.new("#{x-1}.999")
           else
             super
           end
@@ -82,14 +85,6 @@ export MIX_ARCHIVES=#{KIEX_MIX_HOME}elixir-#{elixir_version}' > #{KIEX_ELIXIR_HO
         def elixir_1_0_x?
           Gem::Version.new(elixir_version) < Gem::Version.new('1.1') &&
           Gem::Version.new(elixir_version) >= Gem::Version.new('1.0.0')
-        end
-
-        def otp_release_18_0_or_higher?
-          Gem::Version.new(otp_release) > Gem::Version.new('17.999')
-        end
-
-        def otp_release_19_0_or_higher?
-          Gem::Version.new(otp_release) > Gem::Version.new('18.999')
         end
 
         def required_otp_version
