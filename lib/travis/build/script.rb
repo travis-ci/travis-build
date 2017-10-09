@@ -179,6 +179,7 @@ module Travis
           apply :debug_tools
           apply :npm_registry
           apply :rvm_use
+          apply :rm_mongodb32_source
           apply :rm_oraclejdk8_symlink
           apply :enable_i386
           apply :update_rubygems
