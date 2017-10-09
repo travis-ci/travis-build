@@ -183,6 +183,7 @@ module Travis
           apply :rm_oraclejdk8_symlink
           apply :enable_i386
           apply :update_rubygems
+          apply :disable_brew_update
         end
 
         def setup_filter
