@@ -103,6 +103,9 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
             # the nuget cache initialization on first run doesn't make sense on Travis since it'd be cleared after the build is done
             sh.export 'DOTNET_SKIP_FIRST_TIME_EXPERIENCE', '1'
 
+            # opt out of dotnet-cli telemetry
+            sh.export 'DOTNET_CLI_TELEMETRY_OPTOUT', '1'
+
             case config[:os]
             when 'linux'
               sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 417A0893', assert: true
