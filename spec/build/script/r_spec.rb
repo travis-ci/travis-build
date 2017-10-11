@@ -76,7 +76,17 @@ describe Travis::Build::Script::R, :sexp do
   end
   it 'downloads and installs gfortran libraries on OS X' do
     data[:config][:os] = 'osx'
+    data[:config][:r] = 'oldrel'
+    data[:config][:fortran] = true
     should include_sexp [:cmd, %r{^curl.*#{Regexp.escape('/tmp/gfortran.tar.bz2 http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2')}},
+                         assert: true, echo: true, retry: true, timing: true]
+  end
+
+  it 'downloads and installs Coudert gfortran on OS X for R 3.4' do
+    data[:config][:os] = 'osx'
+    data[:config][:r] = 'release'
+    data[:config][:fortran] = true
+    should include_sexp [:cmd, %r{^curl.*#{Regexp.escape('/tmp/gfortran61.dmg http://coudert.name/software/gfortran-6.1-ElCapitan.dmg')}},
                          assert: true, echo: true, retry: true, timing: true]
   end
 

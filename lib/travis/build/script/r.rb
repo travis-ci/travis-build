@@ -25,6 +25,7 @@ module Travis
           # Heavy dependencies
           pandoc: true,
           latex: true,
+          fortran: true,
           pandoc_version: '1.15.2',
           # Bioconductor
           bioc: 'https://bioconductor.org/biocLite.R',
@@ -88,11 +89,14 @@ module Travis
                 # Dependencies queried with `apt-cache depends -i r-base-dev`.
                 # qpdf and texinfo are also needed for --as-cran # checks:
                 # https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
+                optional_apt_pkgs = ""
+                optional_apt_pkgs << "gfortran" if config[:fortran]
                 sh.cmd 'sudo apt-get install -y --no-install-recommends '\
-                  'build-essential gcc g++ gfortran libblas-dev liblapack-dev '\
+                  'build-essential gcc g++ libblas-dev liblapack-dev '\
                   'libncurses5-dev libreadline-dev libjpeg-dev '\
                   'libpng-dev zlib1g-dev libbz2-dev liblzma-dev cdbs qpdf texinfo '\
-                  'libmagick++-dev libssh2-1-dev', retry: true
+                  'libmagick++-dev libssh2-1-dev '\
+                  "#{optional_apt_pkgs}", retry: true
 
                 r_filename = "R-#{r_version}-$(lsb_release -cs).xz"
                 r_url = "https://s3.amazonaws.com/rstudio-travis/#{r_filename}"
@@ -135,10 +139,7 @@ module Travis
                 sh.cmd 'sudo installer -pkg "/tmp/R.pkg" -target /'
                 sh.rm '/tmp/R.pkg'
 
-                # Install gfortran libraries the precompiled binaries are linked to
-                sh.cmd 'curl -fLo /tmp/gfortran.tar.bz2 http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2', retry: true
-                sh.cmd 'sudo tar fvxz /tmp/gfortran.tar.bz2 -C /'
-                sh.rm '/tmp/gfortran.tar.bz2'
+                setup_fortran_osx if config[:fortran]
 
               else
                 sh.failure "Operating system not supported: #{config[:os]}"
@@ -493,6 +494,22 @@ module Travis
 
             # Cleanup
             sh.rm "/tmp/#{pandoc_filename}"
+          end
+        end
+
+        # Install gfortran libraries the precompiled binaries are linked to
+        def setup_fortran_osx
+          return unless (config[:os] == 'osx')
+          if r_version < '3.4'
+            sh.cmd 'curl -fLo /tmp/gfortran.tar.bz2 http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2', retry: true
+            sh.cmd 'sudo tar fvxz /tmp/gfortran.tar.bz2 -C /'
+            sh.rm '/tmp/gfortran.tar.bz2'
+          else
+            sh.cmd "curl -fLo /tmp/gfortran61.dmg http://coudert.name/software/gfortran-6.1-ElCapitan.dmg", retry: true
+            sh.cmd 'sudo hdiutil attach /tmp/gfortran61.dmg -mountpoint /Volumes/gfortran'
+            sh.cmd 'sudo installer -pkg "/Volumes/gfortran/gfortran-6.1-ElCapitan/gfortran.pkg" -target /'
+            sh.cmd 'sudo hdiutil detach /Volumes/gfortran'
+            sh.rm '/tmp/gfortran61.pkg'
           end
         end
 
