@@ -115,7 +115,7 @@ module Travis
           end
 
           def setup_path(version = 'nightly')
-            sh.cmd "echo 'export PATH=/opt/python/#{version}/bin:$PATH' | sudo tee -a #{PYENV_PATH_FILE}"
+            sh.cmd "echo 'export PATH=/opt/python/#{version}/bin:$PATH' | sudo tee -a #{PYENV_PATH_FILE} &>/dev/null"
           end
       end
     end
