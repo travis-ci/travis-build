@@ -509,7 +509,7 @@ module Travis
             sh.cmd 'sudo hdiutil attach /tmp/gfortran61.dmg -mountpoint /Volumes/gfortran'
             sh.cmd 'sudo installer -pkg "/Volumes/gfortran/gfortran-6.1-ElCapitan/gfortran.pkg" -target /'
             sh.cmd 'sudo hdiutil detach /Volumes/gfortran'
-            sh.rm '/tmp/gfortran61.pkg'
+            sh.rm '/tmp/gfortran61.dmg'
           end
         end
 
