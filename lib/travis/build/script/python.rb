@@ -11,7 +11,6 @@ module Travis
         SCRIPT_MISSING       = 'Please override the script: key in your .travis.yml to run tests.'
 
         PYENV_PATH_FILE      = '/etc/profile.d/pyenv.sh'
-        TEMP_PYENV_PATH_FILE = '/tmp/pyenv.sh'
 
         def export
           super
@@ -116,8 +115,7 @@ module Travis
           end
 
           def setup_path(version = 'nightly')
-            sh.cmd "sed -e 's|export PATH=\\(.*\\)$|export PATH=/opt/python/#{version}/bin:\\1|' #{PYENV_PATH_FILE} > #{TEMP_PYENV_PATH_FILE}"
-            sh.cmd "cat #{TEMP_PYENV_PATH_FILE} | sudo tee #{PYENV_PATH_FILE} > /dev/null"
+            sh.cmd "echo 'export PATH=/opt/python/#{version}/bin:$PATH' | sudo tee -a #{PYENV_PATH_FILE} &>/dev/null"
           end
       end
     end
