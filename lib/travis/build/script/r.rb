@@ -241,7 +241,7 @@ module Travis
 
           # Build fails if R CMD check fails
           sh.if '$CHECK_RET -ne 0' do
-            dump_logs
+            dump_error_logs
             sh.failure 'R CMD check failed'
           end
 
@@ -249,10 +249,14 @@ module Travis
           if config[:warnings_are_errors]
             sh.cmd 'grep -q -R "WARNING" "${RCHECK_DIR}/00check.log"', echo: false, assert: false
             sh.if '$? -eq 0' do
-              dump_logs
+              dump_error_logs
               sh.failure "Found warnings, treating as errors (as requested)."
             end
           end
+
+          # Always dump the .out logs, so you can inspect test .Rout for
+          # information.
+          dump_log("out")
 
           # Check revdeps, if requested.
           if @devtools_installed and config[:r_check_revdep]
@@ -380,8 +384,7 @@ module Travis
           sh.export 'RCHECK_DIR', "$(expr \"$PKG_TARBALL\" : '\\(.*\\)_').Rcheck", echo: false
         end
 
-        def dump_logs
-          export_rcheck_dir
+        def dump_error_logs
           dump_log("fail")
           dump_log("log")
           dump_log("out")
