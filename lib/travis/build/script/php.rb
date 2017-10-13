@@ -31,6 +31,13 @@ module Travis
             sh.if "$? -ne 0" do
               install_php_on_demand(version)
             end
+            sh.else do
+              sh.fold "pearrc" do
+                sh.echo "Writing $HOME/.pearrc", ansi: :yellow
+                overwrite_pearrc(version)
+                sh.cmd "pear config-show", echo: true
+              end
+            end
             sh.cmd "phpenv global #{version}", assert: true
           end
           sh.cmd "phpenv rehash", assert: false, echo: false, timing: false
@@ -182,6 +189,67 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
             end
             sh.cmd "composer self-update", assert: false
           end
+        end
+
+        def overwrite_pearrc(version)
+          # content reverse engineered from PEAR_Config 0.9
+          template = %q(
+            a:13:{
+              s:15:"preferred_state";
+              s:6:"stable";
+              s:8:"temp_dir";
+              s:17:"/tmp/pear/install";
+              s:12:"download_dir";
+              s:17:"/tmp/pear/install";
+              s:7:"bin_dir";
+              s:%i:"/home/travis/.phpenv/versions/%s/bin";
+              s:7:"php_dir";
+              s:%i:"/home/travis/.phpenv/versions/%s/share/pear";
+              s:7:"doc_dir";
+              s:%i:"/home/travis/.phpenv/versions/%s/docs";
+              s:8:"data_dir";
+              s:%i:"/home/travis/.phpenv/versions/%s/data";
+              s:7:"cfg_dir";
+              s:%i:"/home/travis/.phpenv/versions/%s/cfg";
+              s:7:"www_dir";
+              s:%i:"/home/travis/.phpenv/versions/%s/www";
+              s:7:"man_dir";
+              s:%i:"/home/travis/.phpenv/versions/%s/man";
+              s:8:"test_dir";
+              s:%i:"/home/travis/.phpenv/versions/%s/tests";
+              s:10:"__channels";
+              a:3:{
+                s:5:"__uri";
+                a:0:{}
+                s:11:"doc.php.net";
+                a:0:{}
+                s:12:"pecl.php.net";
+                a:0:{}
+              }
+              s:13:"auto_discover";i:1;
+            }
+          )
+
+          pearrc_content = template.gsub(/\s/,'') % [
+            "/home/travis/.phpenv/versions/#{version}/bin".length,
+            version,
+            "/home/travis/.phpenv/versions/#{version}/share/pear".length,
+            version,
+            "/home/travis/.phpenv/versions/#{version}/docs".length,
+            version,
+            "/home/travis/.phpenv/versions/#{version}/data".length,
+            version,
+            "/home/travis/.phpenv/versions/#{version}/cfg".length,
+            version,
+            "/home/travis/.phpenv/versions/#{version}/www".length,
+            version,
+            "/home/travis/.phpenv/versions/#{version}/man".length,
+            version,
+            "/home/travis/.phpenv/versions/#{version}/tests".length,
+            version,
+          ]
+
+          sh.cmd "echo '#{pearrc_content}' > $HOME/.pearrc", echo: false
         end
       end
     end
