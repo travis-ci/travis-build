@@ -19,6 +19,8 @@ module Travis
         def configure
           super
 
+          sh.cmd "echo '-sS --retry 3' > ~/.curlrc"
+
           # Nix needs to be able to exec on /tmp on Linux
           # This will emit an error in the container but
           # it's still needed for "trusty" Linux.
