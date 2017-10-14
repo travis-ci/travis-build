@@ -16,15 +16,16 @@ module Travis
   module Build
     class Script
       class Haxe < Script
+
         DEFAULTS = {
-          haxe: '3.4.3',
+          haxe: 'stable',
           neko: '2.1.0'
         }
 
         def export
           super
 
-          sh.export 'TRAVIS_HAXE_VERSION', config[:haxe].to_s, echo: false
+          sh.export 'TRAVIS_HAXE_VERSION', haxe_version, echo: false
           sh.export 'TRAVIS_NEKO_VERSION', config[:neko].to_s, echo: false
         end
 
@@ -124,6 +125,20 @@ module Travis
 
         private
 
+          def haxe_versions
+            require 'faraday'
+            JSON.parse(Faraday.get("https://haxe.org/website-content/downloads/versions.json").body.to_s)
+          end
+
+          def haxe_version
+            case config[:haxe]
+            when 'stable'
+              haxe_versions['current']
+            else
+              config[:haxe].to_s
+            end
+          end
+
           def neko_url
             case config[:os]
             when 'linux'
@@ -136,7 +151,8 @@ module Travis
           end
 
           def haxe_url
-            case config[:haxe]
+            haxe_ver = haxe_version
+            case haxe_ver
             when 'development'
               os = case config[:os]
               when 'linux'
@@ -152,8 +168,7 @@ module Travis
               when 'osx'
                 'osx'
               end
-              version = config[:haxe].to_s
-              "http://haxe.org/website-content/downloads/#{version}/downloads/haxe-#{version}-#{os}.tar.gz"
+              "http://haxe.org/website-content/downloads/#{haxe_ver}/downloads/haxe-#{haxe_ver}-#{os}.tar.gz"
             end
           end
 
