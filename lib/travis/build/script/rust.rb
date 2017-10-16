@@ -15,8 +15,12 @@ module Travis
           sh.export 'TRAVIS_RUST_VERSION', config[:rust].to_s.shellescape, echo: false
         end
 
-        def setup
-          super
+        def setup_cache
+          if data.cache?(:cargo)
+            sh.fold 'cache.cargo' do
+              directory_cache.add "$HOME/.cargo", "target"
+            end
+          end
 
           sh.fold('rustup-install') do
             sh.echo 'Installing Rust', ansi: :yellow
@@ -44,14 +48,6 @@ module Travis
         def script
           sh.cmd 'cargo build --verbose'
           sh.cmd 'cargo test --verbose'
-        end
-
-        def setup_cache
-          if data.cache?(:cargo)
-            sh.fold 'cache.cargo' do
-              directory_cache.add "$HOME/.cargo", "target"
-            end
-          end
         end
 
         def cache_slug
