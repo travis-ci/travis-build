@@ -16,15 +16,16 @@ module Travis
   module Build
     class Script
       class Haxe < Script
+
         DEFAULTS = {
-          haxe: '3.4.3',
+          haxe: 'stable',
           neko: '2.1.0'
         }
 
         def export
           super
 
-          sh.export 'TRAVIS_HAXE_VERSION', config[:haxe].to_s, echo: false
+          sh.export 'TRAVIS_HAXE_VERSION', haxe_version, echo: false
           sh.export 'TRAVIS_NEKO_VERSION', config[:neko].to_s, echo: false
         end
 
@@ -124,6 +125,35 @@ module Travis
 
         private
 
+          def haxe_stable
+            require 'faraday'
+
+            def haxeorg_stable
+              versions = JSON.parse(Faraday.get("https://haxe.org/website-content/downloads/versions.json").body.to_s)
+              versions['current']
+            rescue
+              nil
+            end
+
+            def github_stable
+              versions = JSON.parse(Faraday.get("https://api.github.com/repos/HaxeFoundation/haxe/releases/latest").body.to_s)
+              versions['name']
+            rescue
+              nil
+            end
+
+            haxeorg_stable || github_stable || "3.4.4"
+          end
+
+          def haxe_version
+            case config[:haxe]
+            when 'stable'
+              haxe_stable
+            else
+              config[:haxe].to_s
+            end
+          end
+
           def neko_url
             case config[:os]
             when 'linux'
@@ -136,7 +166,8 @@ module Travis
           end
 
           def haxe_url
-            case config[:haxe]
+            haxe_ver = haxe_version
+            case haxe_ver
             when 'development'
               os = case config[:os]
               when 'linux'
@@ -152,8 +183,7 @@ module Travis
               when 'osx'
                 'osx'
               end
-              version = config[:haxe].to_s
-              "http://haxe.org/website-content/downloads/#{version}/downloads/haxe-#{version}-#{os}.tar.gz"
+              "http://haxe.org/website-content/downloads/#{haxe_ver}/downloads/haxe-#{haxe_ver}-#{os}.tar.gz"
             end
           end
 
