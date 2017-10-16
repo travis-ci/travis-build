@@ -125,15 +125,30 @@ module Travis
 
         private
 
-          def haxe_versions
+          def haxe_stable
             require 'faraday'
-            JSON.parse(Faraday.get("https://haxe.org/website-content/downloads/versions.json").body.to_s)
+
+            def haxeorg_stable
+              versions = JSON.parse(Faraday.get("https://haxe.org/website-content/downloads/versions.json").body.to_s)
+              versions['current']
+            rescue
+              nil
+            end
+
+            def github_stable
+              versions = JSON.parse(Faraday.get("https://api.github.com/repos/HaxeFoundation/haxe/releases/latest").body.to_s)
+              versions['name']
+            rescue
+              nil
+            end
+
+            haxeorg_stable || github_stable || "3.4.4"
           end
 
           def haxe_version
             case config[:haxe]
             when 'stable'
-              haxe_versions['current']
+              haxe_stable
             else
               config[:haxe].to_s
             end
