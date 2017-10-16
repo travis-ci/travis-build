@@ -5,17 +5,18 @@ require 'travis/build/appliances/base'
 module Travis
   module Build
     module Appliances
-      class FixContainerBasedTrusty < Base
+      class FixSudoEnabledTrusty < Base
         def apply
           sh.if sh_is_linux? do
             sh.if sh_is_trusty? do
-              # NOTE: no fixes currently needed :tada:
+              sh.cmd 'unset _JAVA_OPTIONS', echo: false
+              sh.cmd 'unset MALLOC_ARENA_MAX', echo: false
             end
           end
         end
 
         def apply?
-          false
+          !data.disable_sudo?
         end
 
         private
