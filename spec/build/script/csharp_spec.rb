@@ -72,6 +72,11 @@ describe Travis::Build::Script::Csharp, :sexp do
       should include_sexp [:echo, "\"foo\" is either an invalid version of \"dotnet\" or unsupported on this operating system.\nView valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/csharp/"]
     end
 
+    it 'throws a error with an invalid .NET Core version' do
+      data[:config][:dotnet] = 2.0
+      should include_sexp [:echo, "\"2.0\" is either an invalid version of \"dotnet\" or unsupported on this operating system.\nView valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/csharp/"]
+    end
+
     it 'throws a error with an invalid version' do
       data[:config][:mono] = '12.55.523'
       should include_sexp [:echo, "\"12.55.523\" is either an invalid version of \"mono\" or unsupported on this operating system.\nView valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csharp/"]
