@@ -102,6 +102,26 @@ describe Travis::Build::Env::Var do
       expect(parse('APP_URL=http://$APP_HOST:8080 BAR="bar bar"')).to eq([['APP_URL', 'http://$APP_HOST:8080'], ['BAR', '"bar bar"']])
     end
 
+    it 'allow ` in the middle' do
+      expect(parse('PATH=FOO:`pwd`/bin BAR="bar bar"')).to eq([['PATH', 'FOO:`pwd`/bin'], ['BAR', '"bar bar"']])
+    end
+
+    it '`` with a space inside' do
+      expect(parse('KERNEL=`uname -r` BAR="bar bar"')).to eq([['KERNEL', '`uname -r`'], ['BAR', '"bar bar"']])
+    end
+
+    it 'some stuff, followed by `` with a space inside' do
+      expect(parse('KERNEL=a`uname -r` BAR="bar bar"')).to eq([['KERNEL', 'a`uname -r`'], ['BAR', '"bar bar"']])
+    end
+
+    it 'some stuff, followed by $() with a space inside' do
+      expect(parse('KERNEL=a$(uname -r) BAR="bar bar"')).to eq([['KERNEL', 'a$(uname -r)'], ['BAR', '"bar bar"']])
+    end
+
+    it 'some stuff, followed by "" with a space inside' do
+      expect(parse('KERNEL=a"$(find \"$HOME\" {} \;)" BAR="bar bar"')).to eq([['KERNEL', 'a"$(find \\"$HOME\\" {} \\;)"'], ['BAR', '"bar bar"']])
+    end
+
     it 'handle space after the initial $ in ()' do
       expect(parse('CAT_VERSION=$(cat VERSION)')).to eq([['CAT_VERSION', '$(cat VERSION)']])
     end

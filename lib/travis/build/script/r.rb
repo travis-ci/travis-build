@@ -25,6 +25,7 @@ module Travis
           # Heavy dependencies
           pandoc: true,
           latex: true,
+          fortran: true,
           pandoc_version: '1.15.2',
           # Bioconductor
           bioc: 'https://bioconductor.org/biocLite.R',
@@ -88,11 +89,14 @@ module Travis
                 # Dependencies queried with `apt-cache depends -i r-base-dev`.
                 # qpdf and texinfo are also needed for --as-cran # checks:
                 # https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
+                optional_apt_pkgs = ""
+                optional_apt_pkgs << "gfortran" if config[:fortran]
                 sh.cmd 'sudo apt-get install -y --no-install-recommends '\
-                  'build-essential gcc g++ gfortran libblas-dev liblapack-dev '\
+                  'build-essential gcc g++ libblas-dev liblapack-dev '\
                   'libncurses5-dev libreadline-dev libjpeg-dev '\
                   'libpng-dev zlib1g-dev libbz2-dev liblzma-dev cdbs qpdf texinfo '\
-                  'libmagick++-dev libssh2-1-dev', retry: true
+                  'libmagick++-dev libssh2-1-dev '\
+                  "#{optional_apt_pkgs}", retry: true
 
                 r_filename = "R-#{r_version}-$(lsb_release -cs).xz"
                 r_url = "https://s3.amazonaws.com/rstudio-travis/#{r_filename}"
@@ -135,10 +139,7 @@ module Travis
                 sh.cmd 'sudo installer -pkg "/tmp/R.pkg" -target /'
                 sh.rm '/tmp/R.pkg'
 
-                # Install gfortran libraries the precompiled binaries are linked to
-                sh.cmd 'curl -fLo /tmp/gfortran.tar.bz2 http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2', retry: true
-                sh.cmd 'sudo tar fvxz /tmp/gfortran.tar.bz2 -C /'
-                sh.rm '/tmp/gfortran.tar.bz2'
+                setup_fortran_osx if config[:fortran]
 
               else
                 sh.failure "Operating system not supported: #{config[:os]}"
@@ -240,7 +241,7 @@ module Travis
 
           # Build fails if R CMD check fails
           sh.if '$CHECK_RET -ne 0' do
-            dump_logs
+            dump_error_logs
             sh.failure 'R CMD check failed'
           end
 
@@ -248,10 +249,14 @@ module Travis
           if config[:warnings_are_errors]
             sh.cmd 'grep -q -R "WARNING" "${RCHECK_DIR}/00check.log"', echo: false, assert: false
             sh.if '$? -eq 0' do
-              dump_logs
+              dump_error_logs
               sh.failure "Found warnings, treating as errors (as requested)."
             end
           end
+
+          # Always dump the .out logs, so you can inspect test .Rout for
+          # information.
+          dump_log("out")
 
           # Check revdeps, if requested.
           if @devtools_installed and config[:r_check_revdep]
@@ -379,8 +384,7 @@ module Travis
           sh.export 'RCHECK_DIR', "$(expr \"$PKG_TARBALL\" : '\\(.*\\)_').Rcheck", echo: false
         end
 
-        def dump_logs
-          export_rcheck_dir
+        def dump_error_logs
           dump_log("fail")
           dump_log("log")
           dump_log("out")
@@ -496,6 +500,22 @@ module Travis
           end
         end
 
+        # Install gfortran libraries the precompiled binaries are linked to
+        def setup_fortran_osx
+          return unless (config[:os] == 'osx')
+          if r_version < '3.4'
+            sh.cmd 'curl -fLo /tmp/gfortran.tar.bz2 http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2', retry: true
+            sh.cmd 'sudo tar fvxz /tmp/gfortran.tar.bz2 -C /'
+            sh.rm '/tmp/gfortran.tar.bz2'
+          else
+            sh.cmd "curl -fLo /tmp/gfortran61.dmg http://coudert.name/software/gfortran-6.1-ElCapitan.dmg", retry: true
+            sh.cmd 'sudo hdiutil attach /tmp/gfortran61.dmg -mountpoint /Volumes/gfortran'
+            sh.cmd 'sudo installer -pkg "/Volumes/gfortran/gfortran-6.1-ElCapitan/gfortran.pkg" -target /'
+            sh.cmd 'sudo hdiutil detach /Volumes/gfortran'
+            sh.rm '/tmp/gfortran61.dmg'
+          end
+        end
+
         # Uninstalls the preinstalled homebrew
         # See FAQ: https://github.com/Homebrew/brew/blob/master/share/doc/homebrew/FAQ.md
         def disable_homebrew
@@ -511,13 +531,13 @@ module Travis
 
         def normalized_r_version(v=config[:r].to_s)
           case v
-          when 'release' then '3.4.1'
+          when 'release' then '3.4.2'
           when 'oldrel' then '3.3.3'
           when '3.0' then '3.0.3'
           when '3.1' then '3.1.3'
           when '3.2' then '3.2.5'
           when '3.3' then '3.3.3'
-          when '3.4' then '3.4.1'
+          when '3.4' then '3.4.2'
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true
