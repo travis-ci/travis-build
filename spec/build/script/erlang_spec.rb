@@ -37,9 +37,10 @@ describe Travis::Build::Script::Erlang, :sexp do
       expect(branch).to include_sexp [:cmd, './rebar get-deps', assert: true, echo: true, retry: true, timing: true]
     end
 
-    it 'runs `rebar get-deps` if rebar config exists, but ./rebar does not' do
+    it 'runs appropriate rebar command if rebar config exists, but ./rebar does not and rebar3 is not found' do
       branch = sexp_find(sexp, [:elif, '(-f rebar.config || -f Rebar.config)'])
-      expect(branch).to include_sexp [:cmd, 'rebar get-deps', assert: true, echo: true, retry: true, timing: true]
+      rebar_branch = sexp_find(branch, [:if, '-z $(command -v rebar3)'])
+      expect(rebar_branch).to  include_sexp [:cmd, 'rebar get-deps', assert: true, echo: true, retry: true, timing: true]
     end
   end
 
@@ -52,13 +53,16 @@ describe Travis::Build::Script::Erlang, :sexp do
       expect(branch).to include_sexp [:cmd, './rebar compile && ./rebar skip_deps=true eunit', echo: true, timing: true]
     end
 
-    it 'runs `rebar compile && rebar skip_deps=true eunit` if rebar config exists, but ./rebar does not' do
+    it 'runs appropriate rebar/rebar3 command if rebar config exists, but ./rebar does not' do
       branch = sexp_find(sexp, [:elif, '(-f rebar.config || -f Rebar.config)'])
-      expect(branch).to include_sexp [:cmd, 'rebar compile && rebar skip_deps=true eunit', echo: true, timing: true]
+      rebar3_branch = sexp_find(branch, [:if, '-n $(command -v rebar3)'])
+      rebar_branch  = sexp_find(branch, [:else])
+      expect(rebar3_branch).to include_sexp [:cmd, 'rebar3 eunit', echo: true, timing: true]
+      expect(rebar_branch).to  include_sexp [:cmd, 'rebar compile && rebar skip_deps=true eunit',  echo: true, timing: true]
     end
 
     it 'runs `make test` if rebar config does not exist' do
-      branch = sexp_find(sexp, [:else])
+      branch = sexp_filter(sexp, [:else])[1] # the first 'else' occurs in sh.if "command -v rebar3"
       expect(branch).to include_sexp [:cmd, "make test", echo: true, timing: true]
     end
   end
