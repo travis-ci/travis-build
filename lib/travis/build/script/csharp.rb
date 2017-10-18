@@ -216,9 +216,9 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
             return "https://dotnetcli.azureedge.net/dotnet/Sdk/#{config[:dotnet]}/dotnet-#{dotnet_package_prefix}-#{config[:dotnet]}-osx-x64.pkg"
           end
         end
-	
+
         def dotnet_is_preview?
-          return config[:dotnet].include? "-preview"
+          return Array(config[:dotnet]).include? "-preview"
         end
 
         def dotnet_package_prefix
@@ -288,8 +288,8 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
         end
 
         def is_dotnet_after_2_0_prev_2?
-          return false unless config[:dotnet][0].to_i > 1
-          return false if config[:dotnet].include? "2.0.0-preview1"
+          return false unless Array(config[:dotnet])[0].to_i > 1
+          return false if Array(config[:dotnet]).include? "2.0.0-preview1"
           true
         end
 
