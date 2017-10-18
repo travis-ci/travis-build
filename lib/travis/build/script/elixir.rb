@@ -67,18 +67,21 @@ export MIX_ARCHIVES=#{KIEX_MIX_HOME}elixir-#{elixir_version}' > #{KIEX_ELIXIR_HO
         def otp_release_requirement_satisfied?
           !( elixir_1_0_x? &&  otp_release_18_0_or_higher?) &&
           !( elixir_1_2_0_or_higher? && !otp_release_18_0_or_higher?)
+        rescue
+          false
         end
 
-        def elixir_1_2_0_or_higher?
-          Gem::Version.new(elixir_version) > Gem::Version.new('1.1.999') # use this for pre-release 1.2.0
-        end
-
-        def elixir_1_3_0_or_higher?
-          Gem::Version.new(elixir_version) > Gem::Version.new('1.2.999') # use this for pre-release 1.3.0
-        end
-
-        def elixir_1_4_0_or_higher?
-          Gem::Version.new(elixir_version) > Gem::Version.new('1.3.999')
+        def method_missing(m, *args, &block)
+          case m
+          when /\Aelixir_(\d+)_(\d+)_(\d+)_or_higher\?\z/
+            x, y, z = $~[1,3].map(&:to_i)
+            Gem::Version.new(elixir_version) > Gem::Version.new("#{x}.#{y-1}.999")
+          when /\Aotp_release_(\d+)_(\d+)_or_higher\?\z/
+            x, y = $~[1,2].map(&:to_i)
+            Gem::Version.new(otp_release) > Gem::Version.new("#{x-1}.999")
+          else
+            super
+          end
         end
 
         def elixir_1_0_x?
@@ -86,16 +89,14 @@ export MIX_ARCHIVES=#{KIEX_MIX_HOME}elixir-#{elixir_version}' > #{KIEX_ELIXIR_HO
           Gem::Version.new(elixir_version) >= Gem::Version.new('1.0.0')
         end
 
-        def otp_release_18_0_or_higher?
-          Gem::Version.new(otp_release) > Gem::Version.new('17.999')
-        end
-
-        def otp_release_19_0_or_higher?
-          Gem::Version.new(otp_release) > Gem::Version.new('18.999')
-        end
-
         def required_otp_version
-          elixir_1_2_0_or_higher? ? '18.0' : '17.4'
+          if elixir_1_6_0_or_higher?
+            '19.0'
+          elsif elixir_1_2_0_or_higher?
+            '18.0'
+          else
+            '17.4'
+          end
         end
 
         def elixir_archive_name(elixir_version, otp_release)
