@@ -15,8 +15,7 @@ describe Travis::Build::Script::Csharp, :sexp do
   describe 'configure' do
     it 'sets up package repository for mono' do
       should include_sexp [:cmd, 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF', assert: true]
-      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", assert: true]
-      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy-libtiff-compat main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", assert: true]
+      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu trusty main' > /etc/apt/sources.list.d/mono-official.list\"", assert: true]
       should include_sexp [:cmd, 'sudo apt-get update -qq', timing: true, assert: true]
     end
 
@@ -103,32 +102,37 @@ describe Travis::Build::Script::Csharp, :sexp do
     end
 
     it 'selects latest version by default' do
-      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", assert: true]
+      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu trusty main' > /etc/apt/sources.list.d/mono-official.list\"", assert: true]
     end
 
     it 'selects correct version' do
       data[:config][:mono] = '3.12.0'
-      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy/snapshots/3.12.0 main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", assert: true]
+      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy/snapshots/3.12.0 main' >> /etc/apt/sources.list.d/mono-official.list\"", assert: true]
+    end
+
+    it 'selects correct version on new repo' do
+      data[:config][:mono] = '5.2.0'
+      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu trusty/snapshots/5.2.0 main' > /etc/apt/sources.list.d/mono-official.list\"", assert: true]
     end
 
     it 'selects alpha version when specified' do
       data[:config][:mono] = 'alpha'
-      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu alpha-trusty main' > /etc/apt/sources.list.d/mono-official-alpha.list\"", assert: true]
+      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu alpha-trusty main' > /etc/apt/sources.list.d/mono-official.list\"", assert: true]
     end
 
     it 'selects beta version when specified' do
       data[:config][:mono] = 'beta'
-      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian beta main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", assert: true]
+      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu beta-trusty main' > /etc/apt/sources.list.d/mono-official.list\"", assert: true]
     end
 
     it 'selects nightly (which really is weekly, but kept to avoid breaking existing scripts) version when specified' do
       data[:config][:mono] = 'nightly'
-      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian nightly main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", assert: true]
+      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu nightly main' >> /etc/apt/sources.list.d/mono-official.list\"", assert: true]
     end
 
     it 'selects weekly version when specified' do
       data[:config][:mono] = 'weekly'
-      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian nightly main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", assert: true]
+      should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu nightly main' >> /etc/apt/sources.list.d/mono-official.list\"", assert: true]
     end
 
     it 'selects no version of Mono when specified' do

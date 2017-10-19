@@ -44,30 +44,39 @@ View valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csh
                 sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
                 sh.cmd 'sudo apt-get install -qq mono-complete mono-vbnc fsharp', timing: true, assert: true
               else
-                sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF', echo: false, assert: true
+                sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF', assert: true
 
-                if config[:mono] == 'alpha'
+                if is_mono_after_5_0
                   # new Mono repo layout
+                  repo_prefix = 'alpha-' if config[:mono] == 'alpha'
+                  repo_prefix = 'beta-'  if config[:mono] == 'beta'
+                  repo_suffix = "/snapshots/#{config[:mono]}" if !is_mono_version_keyword?
+
+                  # main packages
                   sh.if '$(lsb_release -cs) = precise' do
-                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu alpha-precise main' > /etc/apt/sources.list.d/mono-official-alpha.list\"", echo: false, assert: true
+                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu #{repo_prefix}precise#{repo_suffix} main' > /etc/apt/sources.list.d/mono-official.list\"", assert: true
                   end
                   sh.elif '$(lsb_release -cs) = trusty' do
-                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu alpha-trusty main' > /etc/apt/sources.list.d/mono-official-alpha.list\"", echo: false, assert: true
+                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu #{repo_prefix}trusty#{repo_suffix} main' > /etc/apt/sources.list.d/mono-official.list\"", assert: true
                   end
                   sh.elif '$(lsb_release -cs) = xenial' do
-                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu alpha-xenial main' > /etc/apt/sources.list.d/mono-official-alpha.list\"", echo: false, assert: true
+                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu #{repo_prefix}xenial#{repo_suffix} main' > /etc/apt/sources.list.d/mono-official.list\"", assert: true
                   end
                   sh.else do
                     sh.failure "The version of this operating system is not supported by Mono. View valid versions at https://docs.travis-ci.com/user/languages/csharp/"
                   end
+
+                  # nightly packages
+                  if config[:mono] == 'nightly' || config[:mono] == 'weekly'
+                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu nightly main' >> /etc/apt/sources.list.d/mono-official.list\"", assert: true
+                  end
                 else
                   # old Mono repo layout
                   sh.if '$(lsb_release -cs) = precise' do
-                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy-libtiff-compat main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false, assert: true
+                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy-libtiff-compat main' > /etc/apt/sources.list.d/mono-official.list\"", assert: true
                   end
-                  mono_repos.each do |repo|
-                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian #{repo} main' >> /etc/apt/sources.list.d/mono-xamarin.list\"", echo: false, assert: true
-                  end
+
+                  sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy/snapshots/#{config[:mono]} main' >> /etc/apt/sources.list.d/mono-official.list\"", assert: true
                 end
 
                 sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
@@ -167,25 +176,6 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
           end
         end
 
-        def mono_repos
-          repos = []
-
-          case config[:mono]
-          when 'latest'
-            repos << 'wheezy'
-          when 'beta'
-            repos << 'wheezy'
-            repos << 'beta'
-          when 'weekly', 'nightly'  # nightly is a misnomer, but we need to keep it to avoid breaking existing scripts
-            repos << 'wheezy'
-            repos << 'nightly'
-          else
-            repos << "wheezy/snapshots/#{config[:mono]}"
-          end
-
-          repos
-        end
-
         def mono_osx_url
           base_url = 'http://download.mono-project.com/archive/'
 
@@ -283,6 +273,15 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
 
           return false if MONO_VERSION_REGEXP.match(config[:mono])[1].to_i < 4
           return false if MONO_VERSION_REGEXP.match(config[:mono])[1] == '4' && MONO_VERSION_REGEXP.match(config[:mono])[2].to_i < 4
+
+          true
+        end
+
+        def is_mono_after_5_0
+          return false unless is_mono_version_valid?
+          return true if is_mono_version_keyword?
+
+          return false if MONO_VERSION_REGEXP.match(config[:mono])[1].to_i < 5
 
           true
         end
