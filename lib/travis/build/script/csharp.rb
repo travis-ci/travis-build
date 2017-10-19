@@ -12,6 +12,22 @@ module Travis
           dotnet: 'none'
         }
 
+        def config_dotnet
+          config[:dotnet].to_s
+        end
+
+        def config_mono
+          config[:mono].to_s
+        end
+
+        def config_os
+          config[:os].to_s
+        end
+
+        def config_solution
+          config[:solution].to_s if config[:solution]
+        end
+
         MONO_VERSION_REGEXP = /^(\d{1})\.(\d{1,2})\.\d{1,2}$/
         DOTNET_VERSION_REGEXP = /^\d{1}\.\d{1,2}\.\d{1,2}(?:-(?:preview|rc)\d+(\.\d+)?(?:-\d)?-\d{6})?$/
 
@@ -28,13 +44,13 @@ module Travis
 
         def install_mono
           if !is_mono_version_valid?
-            sh.failure "\"#{config[:mono]}\" is either an invalid version of \"mono\" or unsupported on this operating system.
+            sh.failure "\"#{config_mono()}\" is either an invalid version of \"mono\" or unsupported on this operating system.
 View valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csharp/"
           end
 
           sh.fold('mono-install') do
             sh.echo 'Installing Mono', ansi: :yellow
-            case config[:os]
+            case config_os
             when 'linux'
               if is_mono_2_10_8
                 sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
@@ -48,9 +64,9 @@ View valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csh
 
                 if is_mono_after_5_0
                   # new Mono repo layout
-                  repo_prefix = 'alpha-' if config[:mono] == 'alpha' || config[:mono] == 'nightly' || config[:mono] == 'weekly'
-                  repo_prefix = 'beta-'  if config[:mono] == 'beta'
-                  repo_suffix = "/snapshots/#{config[:mono]}" if !is_mono_version_keyword?
+                  repo_prefix = 'alpha-' if config_mono == 'alpha' || config_mono == 'nightly' || config_mono == 'weekly'
+                  repo_prefix = 'beta-'  if config_mono == 'beta'
+                  repo_suffix = "/snapshots/#{config_mono}" if !is_mono_version_keyword?
 
                   # main packages
                   sh.if '$(lsb_release -cs) = precise' do
@@ -67,7 +83,7 @@ View valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csh
                   end
 
                   # nightly packages
-                  if config[:mono] == 'nightly' || config[:mono] == 'weekly'
+                  if config_mono == 'nightly' || config_mono == 'weekly'
                     sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu nightly main' >> /etc/apt/sources.list.d/mono-official.list\"", assert: true
                   end
                 else
@@ -76,7 +92,7 @@ View valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csh
                     sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy-libtiff-compat main' > /etc/apt/sources.list.d/mono-official.list\"", assert: true
                   end
 
-                  sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy/snapshots/#{config[:mono]} main' >> /etc/apt/sources.list.d/mono-official.list\"", assert: true
+                  sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy/snapshots/#{config_mono} main' >> /etc/apt/sources.list.d/mono-official.list\"", assert: true
                 end
 
                 sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
@@ -88,10 +104,10 @@ View valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csh
               sh.cmd 'sudo installer -package "/tmp/mdk.pkg" -target "/" -verboseR', timing: true, assert: true
               sh.cmd 'eval $(/usr/libexec/path_helper -s)', timing: false, assert: true
             else
-              sh.failure "Operating system not supported: #{config[:os]}"
+              sh.failure "Operating system not supported: #{config_os}"
             end
 
-            if is_mono_before_3_12 && config[:os] == 'linux'
+            if is_mono_before_3_12 && config_os == 'linux'
               # we need to fetch an ancient version of certdata (from 2009) because newer versions run into a Mono bug: https://github.com/mono/mono/pull/1514
               # this is the same file that was used in the old mozroots before https://github.com/mono/mono/pull/3188 so nothing really changes (but still less than ideal)
               sh.cmd 'wget --retry-connrefused --waitretry=1 -O /tmp/certdata.txt https://hg.mozilla.org/releases/mozilla-release/raw-file/5d447d9abfdf/security/nss/lib/ckfw/builtins/certdata.txt'
@@ -102,7 +118,7 @@ View valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csh
 
         def install_dotnet
           if !is_dotnet_version_valid?
-            sh.failure "\"#{config[:dotnet]}\" is either an invalid version of \"dotnet\" or unsupported on this operating system.
+            sh.failure "\"#{config_dotnet}\" is either an invalid version of \"dotnet\" or unsupported on this operating system.
 View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/csharp/"
           end
 
@@ -115,7 +131,7 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
             # opt out of dotnet-cli telemetry
             sh.export 'DOTNET_CLI_TELEMETRY_OPTOUT', '1'
 
-            case config[:os]
+            case config_os
             when 'linux'
               sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 417A0893', assert: true
               sh.if '$(lsb_release -cs) = trusty' do
@@ -128,7 +144,7 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
                 sh.failure "The version of this operating system is not supported by .NET Core. View valid versions at https://docs.travis-ci.com/user/languages/csharp/"
               end
               sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
-              sh.cmd "sudo apt-get install -qq dotnet-#{dotnet_package_prefix}-#{config[:dotnet]}", timing: true, assert: true
+              sh.cmd "sudo apt-get install -qq dotnet-#{dotnet_package_prefix}-#{config_dotnet}", timing: true, assert: true
             when 'osx'
               min_osx_minor = 11
               min_osx_minor = 12 if is_dotnet_after_2_0_prev_2?
@@ -146,7 +162,7 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
               sh.cmd 'sudo installer -package "/tmp/dotnet.pkg" -target "/" -verboseR', timing: true, assert: true
               sh.cmd 'eval $(/usr/libexec/path_helper -s)', timing: false, assert: true
             else
-              sh.failure "Operating system not supported: #{config[:os]}"
+              sh.failure "Operating system not supported: #{config_os}"
             end
           end
         end
@@ -165,16 +181,16 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
         def export
           super
 
-          sh.export 'TRAVIS_SOLUTION', config[:solution].to_s.shellescape if config[:solution]
+          sh.export 'TRAVIS_SOLUTION', config_solution.shellescape if config_solution
         end
 
         def install
-          sh.cmd "nuget restore #{config[:solution]}", retry: true if is_mono_enabled && config[:solution] && !is_mono_2_10_8 && !is_mono_3_2_8
+          sh.cmd "nuget restore #{config_solution}", retry: true if is_mono_enabled && config_solution && !is_mono_2_10_8 && !is_mono_3_2_8
         end
 
         def script
-          if config[:solution] && is_mono_enabled
-            sh.cmd "xbuild /p:Configuration=Release #{config[:solution]}", timing: true
+          if config_solution && is_mono_enabled
+            sh.cmd "xbuild /p:Configuration=Release #{config_solution}", timing: true
           else
             sh.failure 'No solution or script defined, exiting'
           end
@@ -183,7 +199,7 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
         def mono_osx_url
           base_url = 'http://download.mono-project.com/archive/'
 
-          case config[:mono]
+          case config_mono
           when 'latest'
             return base_url + 'mdk-latest.pkg'
           when 'alpha'
@@ -194,25 +210,25 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
             return base_url + 'mdk-latest-weekly.pkg'
           else
             if is_mono_after_4_4
-              return base_url + config[:mono] + "/macos-10-universal/MonoFramework-MDK-#{config[:mono]}.macos10.xamarin.universal.pkg"
+              return base_url + config_mono + "/macos-10-universal/MonoFramework-MDK-#{config_mono}.macos10.xamarin.universal.pkg"
             else
-              return base_url + config[:mono] + "/macos-10-x86/MonoFramework-MDK-#{config[:mono]}.macos10.xamarin.x86.pkg"
+              return base_url + config_mono + "/macos-10-x86/MonoFramework-MDK-#{config_mono}.macos10.xamarin.x86.pkg"
             end
           end
         end
 
         def dotnet_osx_url
           if is_dotnet_1_0? && dotnet_is_preview?
-            return "https://dotnetcli.azureedge.net/dotnet/preview/Installers/#{config[:dotnet]}/dotnet-#{dotnet_package_prefix}-osx-x64.#{config[:dotnet]}.pkg"
+            return "https://dotnetcli.azureedge.net/dotnet/preview/Installers/#{config_dotnet}/dotnet-#{dotnet_package_prefix}-osx-x64.#{config_dotnet}.pkg"
           elsif !is_dotnet_after_2_0_prev_2?
-            return "https://dotnetcli.azureedge.net/dotnet/Sdk/#{config[:dotnet]}/dotnet-#{dotnet_package_prefix}-osx-x64.#{config[:dotnet]}.pkg"
+            return "https://dotnetcli.azureedge.net/dotnet/Sdk/#{config_dotnet}/dotnet-#{dotnet_package_prefix}-osx-x64.#{config_dotnet}.pkg"
           else
-            return "https://dotnetcli.azureedge.net/dotnet/Sdk/#{config[:dotnet]}/dotnet-#{dotnet_package_prefix}-#{config[:dotnet]}-osx-x64.pkg"
+            return "https://dotnetcli.azureedge.net/dotnet/Sdk/#{config_dotnet}/dotnet-#{dotnet_package_prefix}-#{config_dotnet}-osx-x64.pkg"
           end
         end
 	
         def dotnet_is_preview?
-          return config[:dotnet].include? "-preview"
+          return config_dotnet.include? "-preview"
         end
 
         def dotnet_package_prefix
@@ -220,53 +236,53 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
         end
 
         def is_mono_version_valid?
-          return false unless config[:os] == 'linux' || config[:os] == 'osx'
+          return false unless config_os == 'linux' || config_os == 'osx'
           return true if is_mono_version_keyword?
-          return false unless MONO_VERSION_REGEXP === config[:mono]
+          return false unless MONO_VERSION_REGEXP === config_mono
 
-          return false if MONO_VERSION_REGEXP.match(config[:mono])[1] == '2' && !is_mono_2_10_8 && config[:os] == 'linux'
-          return false if MONO_VERSION_REGEXP.match(config[:mono])[1].to_i < 2 && config[:os] == 'linux'
+          return false if MONO_VERSION_REGEXP.match(config_mono)[1] == '2' && !is_mono_2_10_8 && config_os == 'linux'
+          return false if MONO_VERSION_REGEXP.match(config_mono)[1].to_i < 2 && config_os == 'linux'
 
           true
         end
 
         def is_dotnet_version_valid?
-          return false unless config[:os] == 'linux' || config[:os] == 'osx'
-          return false unless DOTNET_VERSION_REGEXP === config[:dotnet]
+          return false unless config_os == 'linux' || config_os == 'osx'
+          return false unless DOTNET_VERSION_REGEXP === config_dotnet
 
           true
         end
 
         def is_mono_enabled
-          config[:mono] != 'none'
+          config_mono != 'none'
         end
 
         def is_dotnet_enabled
-          config[:dotnet] != 'none'
+          config_dotnet != 'none'
         end
 
         def is_mono_version_keyword?
-          ['latest', 'alpha', 'beta', 'weekly', 'nightly', 'none'].include? config[:mono]
+          ['latest', 'alpha', 'beta', 'weekly', 'nightly', 'none'].include? config_mono
         end
 
         def is_mono_2_10_8
-          config[:mono] == '2.10.8'
+          config_mono == '2.10.8'
         end
 
         def is_mono_3_2_8
-          config[:mono] == '3.2.8'
+          config_mono == '3.2.8'
         end
 
         def is_mono_3_8_0
-          config[:mono] == '3.8.0'
+          config_mono == '3.8.0'
         end
 
         def is_mono_before_3_12
           return false unless is_mono_version_valid?
           return false if is_mono_version_keyword?
 
-          return true if MONO_VERSION_REGEXP.match(config[:mono])[1] == '2'
-          return true if MONO_VERSION_REGEXP.match(config[:mono])[1] == '3' && MONO_VERSION_REGEXP.match(config[:mono])[2].to_i < 12
+          return true if MONO_VERSION_REGEXP.match(config_mono)[1] == '2'
+          return true if MONO_VERSION_REGEXP.match(config_mono)[1] == '3' && MONO_VERSION_REGEXP.match(config_mono)[2].to_i < 12
 
           false
         end
@@ -275,8 +291,8 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
           return false unless is_mono_version_valid?
           return true if is_mono_version_keyword?
 
-          return false if MONO_VERSION_REGEXP.match(config[:mono])[1].to_i < 4
-          return false if MONO_VERSION_REGEXP.match(config[:mono])[1] == '4' && MONO_VERSION_REGEXP.match(config[:mono])[2].to_i < 4
+          return false if MONO_VERSION_REGEXP.match(config_mono)[1].to_i < 4
+          return false if MONO_VERSION_REGEXP.match(config_mono)[1] == '4' && MONO_VERSION_REGEXP.match(config_mono)[2].to_i < 4
 
           true
         end
@@ -285,19 +301,19 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
           return false unless is_mono_version_valid?
           return true if is_mono_version_keyword?
 
-          return false if MONO_VERSION_REGEXP.match(config[:mono])[1].to_i < 5
+          return false if MONO_VERSION_REGEXP.match(config_mono)[1].to_i < 5
 
           true
         end
 
         def is_dotnet_after_2_0_prev_2?
-          return false unless config[:dotnet][0].to_i > 1
-          return false if config[:dotnet].include? "2.0.0-preview1"
+          return false unless config_dotnet[0].to_i > 1
+          return false if config_dotnet.include? "2.0.0-preview1"
           true
         end
 
         def is_dotnet_1_0?
-          return config[:dotnet][0] == '1'
+          return config_dotnet[0] == '1'
         end
       end
     end
