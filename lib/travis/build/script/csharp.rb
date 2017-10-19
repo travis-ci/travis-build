@@ -130,7 +130,9 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
               sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
               sh.cmd "sudo apt-get install -qq dotnet-#{dotnet_package_prefix}-#{config[:dotnet]}", timing: true, assert: true
             when 'osx'
-              sh.if '$(sw_vers -productVersion | cut -d . -f 2) -lt 11' do
+              min_osx_minor = 11
+              min_osx_minor = 12 if is_dotnet_after_2_0_prev_2?
+              sh.if "$(sw_vers -productVersion | cut -d . -f 2) -lt #{min_osx_minor}" do
                 sh.failure "The version of this operating system is not supported by .NET Core. View valid versions at https://docs.travis-ci.com/user/languages/csharp/"
               end
               sh.cmd 'brew update', timing: true, assert: true
