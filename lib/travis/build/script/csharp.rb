@@ -48,7 +48,7 @@ View valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csh
 
                 if is_mono_after_5_0
                   # new Mono repo layout
-                  repo_prefix = 'alpha-' if config[:mono] == 'alpha'
+                  repo_prefix = 'alpha-' if config[:mono] == 'alpha' || config[:mono] == 'nightly' || config[:mono] == 'weekly'
                   repo_prefix = 'beta-'  if config[:mono] == 'beta'
                   repo_suffix = "/snapshots/#{config[:mono]}" if !is_mono_version_keyword?
 
