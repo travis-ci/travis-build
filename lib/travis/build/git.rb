@@ -27,9 +27,12 @@ module Travis
         disable_interactive_auth
         install_ssh_key
 
-        if use_tarball?
+        if use_tarball? && ! data.pull_request?
           download_tarball
         else
+          if use_tarball? && data.pull_request?
+            sh.echo "\ntarball strategy is not supported on pull request builds"
+          end
           clone_or_fetch
           submodules
         end
