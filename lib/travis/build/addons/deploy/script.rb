@@ -36,7 +36,11 @@ module Travis
             @data = data
             @config = config
             @silent = false
+
             @allow_failure = config.delete(:allow_failure)
+
+          rescue
+            raise Travis::Build::DeployConfigError.new
           end
 
           def deploy
@@ -75,7 +79,7 @@ module Travis
 
             def on
               @on ||= begin
-                on = config.delete(:on) || config.delete(true) || config.delete(:true) || {}
+                on = config.delete(:if) || config.delete(:on) || config.delete(true) || config.delete(:true) || {}
                 on = { branch: on.to_str } if on.respond_to? :to_str
                 on[:ruby] ||= on[:rvm] if on.include? :rvm
                 on[:node] ||= on[:node_js] if on.include? :node_js
@@ -182,7 +186,7 @@ module Travis
             end
 
             def negate_condition(conditions)
-              Array(conditions).flatten.compact.map { |condition| " ! #{condition}" }.join(" && ")
+              Array(conditions).flatten.compact.map { |condition| " ! (#{condition})" }.join(" && ")
             end
 
             def build_gem_locally_from(source, branch)
@@ -192,6 +196,7 @@ module Travis
               sh.cmd("git clone https://github.com/#{source} #{source}",    echo: true,  assert: !allow_failure, timing: true)
               sh.cmd("pushd #{source} >& /dev/null",                        echo: false, assert: !allow_failure, timing: true)
               sh.cmd("git checkout #{branch}",                              echo: true,  assert: !allow_failure, timing: true)
+              sh.cmd("git show-ref -s HEAD",                                echo: true,  assert: !allow_failure, timing: true)
               cmd("gem build dpl.gemspec",                                  echo: true,  assert: !allow_failure, timing: true)
               sh.cmd("mv dpl-*.gem $TRAVIS_BUILD_DIR >& /dev/null",         echo: false, assert: !allow_failure, timing: true)
               sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: true)

@@ -5,26 +5,26 @@ describe Travis::Build::Addons::Deploy::Config do
   let(:config) { {} }
   let(:object) { described_class.new(Travis::Build::Data.new(data), config) }
 
-  describe 'on' do
+  shared_examples 'conditions' do |key|
     subject { object.on }
 
     describe 'moves a given String to the branch key' do
-      let(:config) { { on: 'production' } }
+      let(:config) { { key => 'production' } }
       it { should include(branch: 'production') }
     end
 
     describe 'moves a given String to the branch key' do
-      let(:config) { { on: 'production' } }
+      let(:config) { { key => 'production' } }
       it { should include(branch: 'production') }
     end
 
     describe 'turns a given :rvm key into a :ruby key' do
-      let(:config) { { on: { rvm: '2.1.1' } } }
+      let(:config) { { key => { rvm: '2.1.1' } } }
       it { should include(ruby: '2.1.1') }
     end
 
     describe 'turns a given :rvm key into a :ruby key' do
-      let(:config) { { on: { node_js: '0.11' } } }
+      let(:config) { { key => { node_js: '0.11' } } }
       it { should include(node: '0.11') }
     end
 
@@ -37,6 +37,14 @@ describe Travis::Build::Addons::Deploy::Config do
       let(:config) { { true: { branch: 'production' } } }
       it { should include(branch: 'production') }
     end
+  end
+
+  describe 'on' do
+    include_examples 'conditions', :on
+  end
+
+  describe 'if' do
+    include_examples 'conditions', :if
   end
 
   describe 'branches' do

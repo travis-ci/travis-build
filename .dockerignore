@@ -1,0 +1,4 @@
+/.bundle
+/.env
+/.git
+.travis.yml

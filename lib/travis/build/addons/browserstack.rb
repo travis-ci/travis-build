@@ -15,38 +15,14 @@ module Travis
         ENV_LOCAL_IDENTIFIER = 'BROWSERSTACK_LOCAL_IDENTIFIER'
 
         def before_before_script
-          browserstack_key = access_key.to_s
           sh.fold "browserstack.install" do
-            if browserstack_key.empty?
-              sh.echo "access_key is invalid.", ansi: :red
-              return
-            end
-
-            sh.echo "Installing BrowserStack Local", ansi: :yellow
-            case data[:config][:os]
-            when 'linux'
-              bin_package = "#{BROWSERSTACK_BIN_FILE}-linux-x64.zip"
-            when 'osx'
-              bin_package = "#{BROWSERSTACK_BIN_FILE}-darwin-x64.zip"
-            else
-              sh.echo "Unsupported platform: $TRAVIS_OS_NAME.", ansi: :yellow
-              return
-            end
-
-            bin_url = "#{BROWSERSTACK_BIN_URL}/#{bin_package}"
-            sh.cmd "mkdir -p #{BROWSERSTACK_HOME}"
-            sh.cmd "wget -O /tmp/#{bin_package} #{bin_url}", echo: true, timing: true, retry: true
-            sh.cmd "unzip -d #{BROWSERSTACK_HOME}/ /tmp/#{bin_package} 2>&1 > /dev/null", echo: false
-            sh.chmod "+x", "#{BROWSERSTACK_HOME}/#{BROWSERSTACK_BIN_FILE}", echo: false
+            install_browserstack
           end
 
-          sh.fold 'browserstack.start' do
-            sh.echo 'Starting BrowserStack Local', ansi: :yellow
-            sh.cmd "#{build_start_command(browserstack_key)}"
-            browserstack_user = username.to_s
-            sh.export ENV_USER, browserstack_user, echo: true unless browserstack_user.empty?
-            sh.export ENV_KEY, browserstack_key, echo: false
-            sh.export ENV_LOCAL, 'true', echo: true
+          unless browserstack_key.empty?
+            sh.fold 'browserstack.start' do
+              start_browserstack
+            end
           end
         end
 
@@ -158,6 +134,43 @@ module Travis
 
           def proxy_pass
             config[:proxy_pass] || config[:proxyPass]
+          end
+
+          def browserstack_key
+            access_key.to_s
+          end
+
+          def install_browserstack
+            if browserstack_key.empty?
+              sh.echo "Browserstack access_key is invalid.", ansi: :red
+              return
+            end
+
+            sh.echo "Installing BrowserStack Local", ansi: :yellow
+            case data[:config][:os]
+            when 'linux'
+              bin_package = "#{BROWSERSTACK_BIN_FILE}-linux-x64.zip"
+            when 'osx'
+              bin_package = "#{BROWSERSTACK_BIN_FILE}-darwin-x64.zip"
+            else
+              sh.echo "Unsupported platform: $TRAVIS_OS_NAME.", ansi: :yellow
+              return
+            end
+
+            bin_url = "#{BROWSERSTACK_BIN_URL}/#{bin_package}"
+            sh.cmd "mkdir -p #{BROWSERSTACK_HOME}"
+            sh.cmd "wget -O /tmp/#{bin_package} #{bin_url}", echo: true, timing: true, retry: true
+            sh.cmd "unzip -d #{BROWSERSTACK_HOME}/ /tmp/#{bin_package} 2>&1 > /dev/null", echo: false
+            sh.chmod "+x", "#{BROWSERSTACK_HOME}/#{BROWSERSTACK_BIN_FILE}", echo: false
+          end
+
+          def start_browserstack
+            sh.echo 'Starting BrowserStack Local', ansi: :yellow
+            sh.cmd "#{build_start_command(browserstack_key)}"
+            browserstack_user = username.to_s
+            sh.export ENV_USER, browserstack_user + "-travis", echo: true unless browserstack_user.empty?
+            sh.export ENV_KEY, browserstack_key, echo: false
+            sh.export ENV_LOCAL, 'true', echo: true
           end
         end
 

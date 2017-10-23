@@ -2,7 +2,8 @@ module Travis
   module Build
     class Script
       class Rust < Script
-        RUST_RUSTUP = 'https://static.rust-lang.org/rustup.sh'
+        RUST_RUSTUP = 'https://sh.rustup.rs'
+        RUSTUP_CMD = "curl -sSf https://sh.rustup.rs | sh -s -- --default-toolchain=$TRAVIS_RUST_VERSION -y"
 
         DEFAULTS = {
           rust: 'stable',
@@ -14,28 +15,32 @@ module Travis
           sh.export 'TRAVIS_RUST_VERSION', config[:rust].to_s.shellescape, echo: false
         end
 
-        def setup
-          super
-
-          sh.cmd 'mkdir -p ~/rust-installer', echo: false
-          sh.echo ''
-
-          sh.fold('rust-download') do
-            sh.echo 'Installing Rust', ansi: :yellow
-            sh.cmd "curl -sL #{RUST_RUSTUP} -o ~/rust-installer/rustup.sh"
-            # We silence the stderr of rustup.sh for now, as it has a very verbose progress bar
-            sh.cmd "sh ~/rust-installer/rustup.sh #{rustup_args} 2> /dev/null"
+        def setup_cache
+          if data.cache?(:cargo)
+            sh.fold 'cache.cargo' do
+              directory_cache.add "$HOME/.cargo", "target"
+            end
           end
 
-          sh.cmd 'export PATH="$PATH:$HOME/rust/bin"', assert: false, echo: false
-          sh.cmd 'export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/rust/lib"', assert: false, echo: false
-          sh.cmd 'export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:$HOME/rust/lib"', assert: false, echo: false
+          sh.fold('rustup-install') do
+            sh.echo 'Installing Rust', ansi: :yellow
+            unless app_host.empty?
+              sh.cmd "curl -sSf https://#{app_host}/files/rustup-init.sh | sh -s -- --default-toolchain=$TRAVIS_RUST_VERSION -y", echo: true, assert: false
+              sh.if "$? -ne 0" do
+                sh.cmd RUSTUP_CMD, echo: true, assert: true
+              end
+            else
+              sh.cmd RUSTUP_CMD, echo: true, assert: true
+            end
+            sh.export 'PATH', "$HOME/.cargo/bin:$PATH"
+          end
         end
 
         def announce
           super
 
           sh.cmd 'rustc --version'
+          sh.cmd 'rustup --version'
           sh.cmd 'cargo --version'
           sh.echo ''
         end
@@ -43,14 +48,6 @@ module Travis
         def script
           sh.cmd 'cargo build --verbose'
           sh.cmd 'cargo test --verbose'
-        end
-
-        def setup_cache
-          if data.cache?(:cargo)
-            sh.fold 'cache.cargo' do
-              directory_cache.add "$HOME/.cargo", "target"
-            end
-          end
         end
 
         def cache_slug
@@ -65,10 +62,6 @@ module Travis
 
           def version
             config[:rust].to_s
-          end
-
-          def rustup_args
-            "--prefix=~/rust --spec=%s -y --disable-sudo" % version.shellescape
           end
       end
     end

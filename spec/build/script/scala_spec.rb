@@ -4,8 +4,13 @@ describe Travis::Build::Script::Scala, :sexp do
   let(:data)   { payload_for(:push, :scala) }
   let(:script) { described_class.new(data) }
   let(:sbt_path) { '/usr/local/bin/sbt'}
-  let(:sbt_sha) { 'b9c8cb273d38e0d8da9211902a18018fe82aa14e'}
+  let(:sbt_sha) { '4ad1b8a325f75c1a66f3fd100635da5eb28d9c91'}
   let(:sbt_url) { "https://raw.githubusercontent.com/paulp/sbt-extras/#{sbt_sha}/sbt"}
+
+  before do
+    Travis::Build.config.app_host = 'build.travis-ci.org'
+  end
+
   subject      { script.sexp }
   it           { store_example }
 
@@ -30,10 +35,10 @@ describe Travis::Build::Script::Scala, :sexp do
   let(:export_sbt_opts) { [:export, ['SBT_OPTS', '@/etc/sbt/sbtopts'], echo: true] }
 
   describe 'if ./project directory or build.sbt file exists' do
-    let(:sexp) { sexp_find(subject, [:if, '-d project || -f build.sbt']) }
+    let(:sexp) { sexp_find(subject, [:if, '-d project || -f build.sbt'], [:if, "$? -ne 0"]) }
 
     it "updates SBT" do
-      should include_sexp [:cmd, "sudo curl -sS -o sbt.tmp #{sbt_url}"]
+      should include_sexp [:cmd, "curl -sf -o sbt.tmp #{sbt_url}", assert: true]
     end
 
     it 'sets JVM_OPTS' do

@@ -42,7 +42,9 @@ describe Travis::Build::Addons::Artifacts, :sexp do
       end
 
       it 'quotes env var values' do
-        expect(exports.last.last.last).to match(/^".*"$/)
+        exports.each do |export|
+          expect(export.fetch(1).fetch(1)).to match(/^".*"$/)
+        end
       end
     end
 
