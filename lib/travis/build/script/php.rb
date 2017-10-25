@@ -32,10 +32,12 @@ module Travis
               install_php_on_demand(version)
             end
             sh.else do
-              sh.fold "pearrc" do
-                sh.echo "Writing $HOME/.pearrc", ansi: :yellow
-                overwrite_pearrc(version)
-                sh.cmd "pear config-show", echo: true
+              unless php_5_3_or_older?
+                sh.fold "pearrc" do
+                  sh.echo "Writing $HOME/.pearrc", ansi: :yellow
+                  overwrite_pearrc(version)
+                  sh.cmd "pear config-show", echo: true
+                end
               end
             end
             sh.cmd "phpenv global #{version}", assert: true
@@ -189,6 +191,10 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
             end
             sh.cmd "composer self-update", assert: false
           end
+        end
+
+        def php_5_3_or_older?
+          !hhvm? && Gem::Version.new(version) < Gem::Version.new('5.4')
         end
 
         def overwrite_pearrc(version)
