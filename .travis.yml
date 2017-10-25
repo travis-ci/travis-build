@@ -37,7 +37,7 @@ jobs:
       dist: trusty
       env:
       script: ./script/docker-build-and-push
-      if: NOT type IN (pull_request)
+      if: (NOT type IN (pull_request)) AND (branch = master)
 
 script:
   - mkdir -p public/files && touch public/files/nvm.sh
