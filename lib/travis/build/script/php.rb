@@ -31,8 +31,8 @@ module Travis
             sh.if "$? -ne 0" do
               install_php_on_demand(version)
             end
-            sh.else do
-              unless php_5_3_or_older?
+            unless php_5_3_or_older?
+              sh.else do
                 sh.fold "pearrc" do
                   sh.echo "Writing $HOME/.pearrc", ansi: :yellow
                   overwrite_pearrc(version)
