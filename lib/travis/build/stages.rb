@@ -76,9 +76,13 @@ module Travis
       def run
         define_header_stage
 
+        sh.raw "# START_FUNCS"
+
         STAGES.each do |stage|
           define_stage(stage.type, stage.name)
         end
+
+        sh.raw "# END_FUNCS"
 
         sh.raw "source $HOME/.travis/job_stages"
 
