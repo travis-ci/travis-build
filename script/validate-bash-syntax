@@ -12,7 +12,7 @@ for f in examples/*.sh.txt; do
   echo "checking bash syntax for stage functions in $f"
   sed -e '1,/START_FUNCS/ d' $f | sed -e '/END_FUNCS/,$ d' > ${f%*.txt}
   rm -f ~/.travis/job_stages
-  bash -c "source ${f%*.txt}; source ~/.travis/job_stages || true" || let e=$e+1
+  bash -c "source ${f%*.txt}; if [[ -f ~/.travis/job_stages ]]; then source ~/.travis/job_stages; fi" || let e=$e+1
 done
 test $e -eq 0
 
