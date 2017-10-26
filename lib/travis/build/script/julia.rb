@@ -94,14 +94,14 @@ module Travis
               ext = 'linux-x86_64.tar.gz'
               nightlyext = 'linux64.tar.gz'
             when 'osx'
-              osarch = 'osx/x64'
-              ext = 'osx10.7+.dmg'
-              nightlyext = 'osx.dmg'
+              osarch = 'mac/x64'
+              ext = 'mac64.dmg'
+              nightlyext = ext
             end
             case config[:julia].to_s
             when 'release'
               # CHANGEME on new minor releases (once or twice a year)
-              url = "julialang-s3.julialang.org/bin/#{osarch}/0.5/julia-0.5-latest-#{ext}"
+              url = "julialang-s3.julialang.org/bin/#{osarch}/0.6/julia-0.6-latest-#{ext}"
             when 'nightly'
               url = "julialangnightlies-s3.julialang.org/bin/#{osarch}/julia-latest-#{nightlyext}"
             when /^(\d+\.\d+)\.\d+$/
