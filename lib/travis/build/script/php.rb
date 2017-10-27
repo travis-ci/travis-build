@@ -31,13 +31,6 @@ module Travis
             sh.if "$? -ne 0" do
               install_php_on_demand(version)
             end
-            sh.else do
-              sh.fold "pearrc" do
-                sh.echo "Writing $HOME/.pearrc", ansi: :yellow
-                overwrite_pearrc(version)
-                sh.cmd "pear config-show", echo: true
-              end
-            end
             sh.cmd "phpenv global #{version}", assert: true
           end
           sh.cmd "phpenv rehash", assert: false, echo: false, timing: false
