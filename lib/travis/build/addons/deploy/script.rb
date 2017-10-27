@@ -141,12 +141,13 @@ module Travis
                 branch = edge.fetch(:branch, 'master')
                 build_gem_locally_from(src, branch)
               end
-              command = "gem install ${GEM[*]}"
-              command << "-*.gem --local" if edge == 'local' || edge.respond_to?(:fetch)
-              command << " --pre" if edge
 
-              sh.raw "[[ $TRAVIS_RUBY_VERSION = 1.9* ]] && GEM=\"dpl -v '< 1.9'\" || GEM=dpl"
-              cmd(command, echo: false, assert: !allow_failure, timing: true)
+              sh.if "[[ $(travis_internal_ruby) = 1.9* ]]" do
+                cmd(gem_command(true), echo: false, assert: !allow_failure, timing: true)
+              end
+              sh.else do
+                cmd(gem_command, echo: false, assert: !allow_failure, timing: true)
+              end
               sh.cmd "rm -f dpl-*.gem", echo: false, assert: false, timing: false
             end
 
@@ -177,6 +178,13 @@ module Travis
             def cmd(cmd, *args)
               sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
               sh.cmd("rvm $(travis_internal_ruby) --fuzzy do ruby -S #{cmd}", *args)
+            end
+
+            def gem_command(pre_19 = false)
+              command = "gem install dpl"
+              command << " -v '< 1.9' " if pre_19
+              command << "-*.gem --local" if edge == 'local' || edge.respond_to?(:fetch)
+              command << " --pre" if edge
             end
 
             def options
