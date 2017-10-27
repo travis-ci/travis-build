@@ -258,6 +258,10 @@ module Travis
           # information.
           dump_log("out")
 
+          # If a fold (like dump log) is the last command it is not folded, so
+          # add a dummy command
+          sh.cmd 'TRUE', echo: false
+
           # Check revdeps, if requested.
           if @devtools_installed and config[:r_check_revdep]
             sh.echo "Checking reverse dependencies"
