@@ -136,10 +136,10 @@ module Travis
 
             def install
               sh.if "$(travis_internal_ruby) = 1.9*" do
-                cmd(gem_command(true), echo: false, assert: !allow_failure, timing: true)
+                cmd(dpl_install_command(true), echo: false, assert: !allow_failure, timing: true)
               end
               sh.else do
-                cmd(gem_command, echo: false, assert: !allow_failure, timing: true)
+                cmd(dpl_install_command, echo: false, assert: !allow_failure, timing: true)
               end
               sh.cmd "rm -f dpl-*.gem", echo: false, assert: false, timing: false
             end
@@ -173,7 +173,7 @@ module Travis
               sh.cmd("rvm $(travis_internal_ruby) --fuzzy do ruby -S #{cmd}", *args)
             end
 
-            def gem_command(pre_19 = false)
+            def dpl_install_command(pre_19 = false)
               edge = config[:edge]
               if edge.respond_to? :fetch
                 src = edge.fetch(:source, 'travis-ci/dpl')
