@@ -134,14 +134,7 @@ module Travis
               end
             end
 
-            def install(edge = config[:edge])
-              edge = config[:edge]
-              if edge.respond_to? :fetch
-                src = edge.fetch(:source, 'travis-ci/dpl')
-                branch = edge.fetch(:branch, 'master')
-                build_gem_locally_from(src, branch)
-              end
-
+            def install
               sh.if "[[ $(travis_internal_ruby) = 1.9* ]]" do
                 cmd(gem_command(true), echo: false, assert: !allow_failure, timing: true)
               end
@@ -181,10 +174,18 @@ module Travis
             end
 
             def gem_command(pre_19 = false)
+              edge = config[:edge]
+              if edge.respond_to? :fetch
+                src = edge.fetch(:source, 'travis-ci/dpl')
+                branch = edge.fetch(:branch, 'master')
+                build_gem_locally_from(src, branch)
+              end
+
               command = "gem install dpl"
               command << " -v '< 1.9' " if pre_19
               command << "-*.gem --local" if edge == 'local' || edge.respond_to?(:fetch)
               command << " --pre" if edge
+              command
             end
 
             def options
