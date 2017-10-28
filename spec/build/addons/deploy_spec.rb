@@ -132,7 +132,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
   describe 'deploy condition fails' do
     let(:config) { { provider: 'heroku', on: { condition: '$FOO = foo'} } }
     # let(:sexp)   { sexp_find(subject, [:if, '(-z $TRAVIS_PULL_REQUEST) && ($TRAVIS_BRANCH = master) && ($FOO = foo)'], [:else]) }
-    let(:sexp)   { sexp_find(subject, [:if, '($TRAVIS_BRANCH = master) && ($FOO = foo)'], [:else]) }
+    let(:sexp)   { sexp_filter(subject, [:if, '($TRAVIS_BRANCH = master) && ($FOO = foo)'], [:else])[1] }
 
     let(:is_pull_request)  { [:echo, 'Skipping a deployment with the heroku provider because the current build is a pull request.', ansi: :yellow] }
     let(:not_permitted)    { [:echo, 'Skipping a deployment with the heroku provider because this branch is not permitted', ansi: :yellow] }
@@ -148,7 +148,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
 
   describe 'deploy with compound condition fails' do
     let(:config) { { provider: 'heroku', on: { condition: '$FOO = foo && $BAR = bar'} } }
-    let(:sexp)   { sexp_find(subject, [:if, '($TRAVIS_BRANCH = master) && ($FOO = foo && $BAR = bar)'], [:else]) }
+    let(:sexp)   { sexp_filter(subject, [:if, '($TRAVIS_BRANCH = master) && ($FOO = foo && $BAR = bar)'], [:else])[1] }
 
     let(:custom_condition) { [:echo, 'Skipping a deployment with the heroku provider because a custom condition was not met', ansi: :yellow] }
 
