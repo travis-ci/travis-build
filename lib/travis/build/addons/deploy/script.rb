@@ -135,7 +135,7 @@ module Travis
             end
 
             def install
-              sh.if "[[ $(travis_internal_ruby) = 1.9* ]]" do
+              sh.if "$(travis_internal_ruby) = 1.9*" do
                 cmd(gem_command(true), echo: false, assert: !allow_failure, timing: true)
               end
               sh.else do
