@@ -135,7 +135,7 @@ module Travis
             end
 
             def install
-              sh.if "$(travis_internal_ruby) = 1.9*" do
+              sh.if "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*" do
                 cmd(dpl_install_command(true), echo: false, assert: !allow_failure, timing: true)
               end
               sh.else do
