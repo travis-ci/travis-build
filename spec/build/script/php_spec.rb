@@ -40,11 +40,18 @@ describe Travis::Build::Script::Php, :sexp do
     xit { should include_sexp [:cmd, 'curl -s -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /', timing: true] }
   end
 
-  describe 'installs php nightly' do
-    before { data[:config][:php] = '5.3' }
-    # expect(sexp).to include_sexp [:raw, "archive_url=https://s3.amazonaws.com/travis-php-archives/php-#{version}-archive.tar.bz2"]
-    it { should include_sexp [:cmd, 'curl -s -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /', echo: true, timing: true] }
-    it { store_example "5.3" }
+  context 'with php 5.4' do
+    describe 'writes ~/.pearrc if necessary' do
+      before { data[:config][:php] = '5.4' }
+      it { should include_sexp [:echo, 'Writing $HOME/.pearrc', ansi: :yellow] }
+    end
+  end
+
+  context 'with php 5.3' do
+    describe 'does not write ~/.pearrc' do
+      before { data[:config][:php] = '5.3' }
+      it { should_not include_sexp [:echo, 'Writing $HOME/.pearrc', ansi: :yellow] }
+    end
   end
 
   describe 'installs php 7' do
