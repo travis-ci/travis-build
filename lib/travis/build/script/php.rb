@@ -194,7 +194,9 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
         end
 
         def php_5_3_or_older?
-          !hhvm? && Gem::Version.new(version) < Gem::Version.new('5.4')
+          !hhvm? && !nightly? && Gem::Version.new(version) < Gem::Version.new('5.4')
+        rescue
+          false
         end
 
         def overwrite_pearrc(version)
