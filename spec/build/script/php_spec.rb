@@ -40,6 +40,20 @@ describe Travis::Build::Script::Php, :sexp do
     xit { should include_sexp [:cmd, 'curl -s -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /', timing: true] }
   end
 
+  context 'with php nightly' do
+    describe 'writes ~/.pearrc if necessary' do
+      before { data[:config][:php] = 'nightly' }
+      it { should include_sexp [:echo, 'Writing $HOME/.pearrc', ansi: :yellow] }
+    end
+  end
+
+  context 'with unrecognized php version' do
+    describe 'writes ~/.pearrc if necessary' do
+      before { data[:config][:php] = 'foobar' }
+      it { should include_sexp [:echo, 'Writing $HOME/.pearrc', ansi: :yellow] }
+    end
+  end
+
   context 'with php 5.4' do
     describe 'writes ~/.pearrc if necessary' do
       before { data[:config][:php] = '5.4' }
