@@ -22,7 +22,9 @@ module Travis
 
           if php_5_3_or_older?
             sh.if "$(lsb_release -sc 2>/dev/null) != precise" do
-              sh.echo "PHP #{version} is supported only on Precise. Terminating.", ansi: :red
+              sh.echo "PHP #{version} is supported only on Precise.", ansi: :red
+              sh.echo "See https://docs.travis-ci.com/user/reference/trusty#PHP-images on how to test PHP 5.3 on Precise.", ansi: :red
+              sh.echo "Terminating.", ansi: :red
               sh.raw "travis_terminate 1"
             end
           end
