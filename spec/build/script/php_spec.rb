@@ -62,9 +62,18 @@ describe Travis::Build::Script::Php, :sexp do
   end
 
   context 'with php 5.3' do
+    before { data[:config][:php] = '5.3' }
+    after { store_example "5.3" }
     describe 'does not write ~/.pearrc' do
-      before { data[:config][:php] = '5.3' }
       it { should_not include_sexp [:echo, 'Writing $HOME/.pearrc', ansi: :yellow] }
+    end
+
+    describe 'when running on non-Precise image' do
+      let(:sexp) { sexp_find(sexp_filter(subject, [:if, "$(lsb_release -sc 2>/dev/null) != precise"])[0], [:then]) }
+
+      it "terminates early" do
+        expect(sexp).to include_sexp [:raw, "travis_terminate 1", assert: true]
+      end
     end
   end
 
