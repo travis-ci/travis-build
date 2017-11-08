@@ -28,6 +28,8 @@ module Travis
             smalltalk
           ).map(&:to_sym)
 
+          WANT_18 = true # whether or not we want `dpl` < 1.9
+
           attr_accessor :script, :sh, :data, :config, :allow_failure
 
           def initialize(script, sh, data, config)
@@ -136,7 +138,7 @@ module Travis
 
             def install
               sh.if "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*" do
-                cmd(dpl_install_command(true), echo: false, assert: !allow_failure, timing: true)
+                cmd(dpl_install_command(WANT_18), echo: false, assert: !allow_failure, timing: true)
               end
               sh.else do
                 cmd(dpl_install_command, echo: false, assert: !allow_failure, timing: true)
@@ -173,7 +175,7 @@ module Travis
               sh.cmd("rvm $(travis_internal_ruby) --fuzzy do ruby -S #{cmd}", *args)
             end
 
-            def dpl_install_command(pre_19 = false)
+            def dpl_install_command(want_pre_19 = false)
               edge = config[:edge]
               if edge.respond_to? :fetch
                 src = edge.fetch(:source, 'travis-ci/dpl')
@@ -182,7 +184,7 @@ module Travis
               end
 
               command = "gem install dpl"
-              command << " -v '< 1.9' " if pre_19
+              command << " -v '< 1.9' " if want_pre_19
               command << "-*.gem --local" if edge == 'local' || edge.respond_to?(:fetch)
               command << " --pre" if edge
               command
