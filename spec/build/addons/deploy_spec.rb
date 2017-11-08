@@ -34,6 +34,17 @@ describe Travis::Build::Addons::Deploy, :sexp do
 
     it { expect(sexp).to include_sexp [:cmd, './before_deploy_1.sh', assert: true, echo: true, timing: true] }
     it { expect(sexp).to include_sexp [:cmd, './before_deploy_2.sh', assert: true, echo: true, timing: true] }
+    it "installs dpl < 1.9 if travis_internal_ruby returns 1.9*" do
+      expect(
+        sexp_find(sexp, [:if, "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*"], [:then])
+      ).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl -v '< 1.9' ", assert: true, timing: true]
+    end
+
+    it "installs latest dpl if travis_internal_ruby does not return 1.9*" do
+      expect(
+        sexp_find(sexp, [:if, "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*"], [:else])
+      ).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl", assert: true, timing: true]
+    end
     it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl', assert: true, timing: true] }
     # it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=heroku --password=foo --email=user@host --fold', assert: true, timing: true] }
     # it { expect(sexp).to include_sexp terminate_on_failure }
