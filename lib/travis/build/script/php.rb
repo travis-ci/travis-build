@@ -19,6 +19,16 @@ module Travis
 
         def setup
           super
+
+          if php_5_3_or_older?
+            sh.if "$(lsb_release -sc 2>/dev/null) != precise" do
+              sh.echo "PHP #{version} is supported only on Precise.", ansi: :red
+              sh.echo "See https://docs.travis-ci.com/user/reference/trusty#PHP-images on how to test PHP 5.3 on Precise.", ansi: :red
+              sh.echo "Terminating.", ansi: :red
+              sh.raw "travis_terminate 1"
+            end
+          end
+
           if hhvm?
             if nightly?
               sh.cmd "phpenv global hhvm-nightly 3>/dev/null", assert: true
@@ -31,11 +41,13 @@ module Travis
             sh.if "$? -ne 0" do
               install_php_on_demand(version)
             end
-            sh.else do
-              sh.fold "pearrc" do
-                sh.echo "Writing $HOME/.pearrc", ansi: :yellow
-                overwrite_pearrc(version)
-                sh.cmd "pear config-show", echo: true
+            unless php_5_3_or_older?
+              sh.else do
+                sh.fold "pearrc" do
+                  sh.echo "Writing $HOME/.pearrc", ansi: :yellow
+                  overwrite_pearrc(version)
+                  sh.cmd "pear config-show", echo: true
+                end
               end
             end
             sh.cmd "phpenv global #{version}", assert: true
@@ -189,6 +201,12 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
             end
             sh.cmd "composer self-update", assert: false
           end
+        end
+
+        def php_5_3_or_older?
+          !hhvm? && !nightly? && Gem::Version.new(version) < Gem::Version.new('5.4')
+        rescue
+          false
         end
 
         def overwrite_pearrc(version)

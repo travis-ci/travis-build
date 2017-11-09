@@ -40,6 +40,43 @@ describe Travis::Build::Script::Php, :sexp do
     xit { should include_sexp [:cmd, 'curl -s -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /', timing: true] }
   end
 
+  context 'with php nightly' do
+    describe 'writes ~/.pearrc if necessary' do
+      before { data[:config][:php] = 'nightly' }
+      it { should include_sexp [:echo, 'Writing $HOME/.pearrc', ansi: :yellow] }
+    end
+  end
+
+  context 'with unrecognized php version' do
+    describe 'writes ~/.pearrc if necessary' do
+      before { data[:config][:php] = 'foobar' }
+      it { should include_sexp [:echo, 'Writing $HOME/.pearrc', ansi: :yellow] }
+    end
+  end
+
+  context 'with php 5.4' do
+    describe 'writes ~/.pearrc if necessary' do
+      before { data[:config][:php] = '5.4' }
+      it { should include_sexp [:echo, 'Writing $HOME/.pearrc', ansi: :yellow] }
+    end
+  end
+
+  context 'with php 5.3' do
+    before { data[:config][:php] = '5.3' }
+    after { store_example "5.3" }
+    describe 'does not write ~/.pearrc' do
+      it { should_not include_sexp [:echo, 'Writing $HOME/.pearrc', ansi: :yellow] }
+    end
+
+    describe 'when running on non-Precise image' do
+      let(:sexp) { sexp_find(sexp_filter(subject, [:if, "$(lsb_release -sc 2>/dev/null) != precise"])[0], [:then]) }
+
+      it "terminates early" do
+        expect(sexp).to include_sexp [:raw, "travis_terminate 1", assert: true]
+      end
+    end
+  end
+
   describe 'installs php 7' do
     before { data[:config][:php] = '7' }
     it { should include_sexp [:cmd, 'ln -s ~/.phpenv/versions/7.0 ~/.phpenv/versions/7', assert: true, timing: true] }
