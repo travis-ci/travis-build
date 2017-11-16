@@ -162,6 +162,7 @@ module Travis
           apply :rm_riak_source
           apply :fix_rwky_redis
           apply :update_mongodb32_key
+          apply :update_hhvm_key
           apply :apt_get_update
           apply :fix_container_based_trusty
           apply :fix_sudo_enabled_trusty
