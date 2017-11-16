@@ -14,7 +14,7 @@ module Travis
             EOF
             sh.cmd command, echo: false
             sh.cmd "apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xB4112585D386EB94", echo: false, assert: false, sudo: true
-            sh.cmd "add-apt-repository 'deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc) main'", echo: false, assert: false, sudo: true
+            sh.cmd 'add-apt-repository "deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc) main"', echo: false, assert: false, sudo: true
           end
         end
       end
