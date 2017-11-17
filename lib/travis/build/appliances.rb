@@ -24,6 +24,7 @@ require 'travis/build/appliances/fix_mvn_settings_xml'
 require 'travis/build/appliances/home_paths'
 require 'travis/build/appliances/put_localhost_first'
 require 'travis/build/appliances/update_mongo32_key'
+require 'travis/build/appliances/fix_hhvm_source'
 require 'travis/build/appliances/rm_oraclejdk8_symlink'
 require 'travis/build/appliances/rvm_use'
 require 'travis/build/appliances/services'
@@ -32,6 +33,7 @@ require 'travis/build/appliances/setup_filter'
 require 'travis/build/appliances/validate'
 require 'travis/build/appliances/npm_registry'
 require 'travis/build/appliances/update_rubygems'
+require 'travis/build/appliances/apt_get_update'
 
 module Travis
   module Build
