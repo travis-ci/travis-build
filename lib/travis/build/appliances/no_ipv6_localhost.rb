@@ -5,7 +5,7 @@ module Travis
     module Appliances
       class NoIpv6Localhost < Base
         def apply
-          sh.raw %(sudo sed -e 's/^\\([0-9a-f:]\\+\\) localhost/\\1/' -i'.bak' /etc/hosts)
+          sh.raw %(sudo sed -e 's/^\\([0-9a-f:]\\+\\s\\)localhost\\(.*\\)/\\1 /' -i'.bak' /etc/hosts)
         end
 
         def apply?
