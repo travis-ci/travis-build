@@ -32,6 +32,16 @@ module Travis
       end
     end
 
+    class DeployConditionError < DeployConfigError
+      def initialize(msg = "The \\`deploy.on\\` should be a hash (dictionary).")
+        super
+      end
+
+      def doc_path
+        '/user/deployment#Conditional-Releases-with-on%3A'
+      end
+    end
+
     class AptSourcesConfigError < CompilationError
       def initialize(msg = "\\`apt\\` should be a hash with key \\`sources\\` and an array as a value.")
         super

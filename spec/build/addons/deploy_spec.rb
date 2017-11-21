@@ -174,5 +174,12 @@ describe Travis::Build::Addons::Deploy, :sexp do
 
     it { expect(sexp_find(sexp, [:if, ' ! ("$TRAVIS_TAG" != "")'])).to include_sexp not_tag }
   end
+
+  context "when deploy.on is an array" do
+    let(:config) { { provider: 'heroku', on: ["master", "dev"] } }
+    it "should raise DeployConfigError" do
+      expect { subject}.to raise_error(Travis::Build::DeployConfigError)
+    end
+  end
 end
 
