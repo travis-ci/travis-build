@@ -62,6 +62,7 @@ module Travis
             sh.cmd 'unzip -q -o smalltalkCI.zip'
             sh.cmd 'pushd smalltalkCI-* > /dev/null', echo: false
             sh.cmd 'source env_vars'
+            sh.cmd 'export PATH="$(pwd)/bin:$PATH"'
             sh.cmd 'popd > /dev/null; popd > /dev/null', echo: false
           end
         end
@@ -69,7 +70,7 @@ module Travis
         def script
           super
 
-          sh.cmd "$SMALLTALK_CI_HOME/run.sh"
+          sh.cmd "smalltalkci"
         end
 
         private
