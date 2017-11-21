@@ -33,7 +33,7 @@ module Travis
     end
 
     class DeployConditionError < DeployConfigError
-      def initialize(msg = "The \\`deploy.on\\` should be a hash (dictionary).")
+      def initialize(msg = "\\`deploy.on\\` should be a hash (dictionary).")
         super
       end
 
