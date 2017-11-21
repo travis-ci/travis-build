@@ -46,12 +46,18 @@ module Travis
           end
 
           def checkout
-            sh.cmd "git checkout -qf #{data.pull_request ? 'FETCH_HEAD' : data.commit}", timing: false
+            sh.cmd "git checkout -qf #{checkout_ref}", timing: false
+          end
+
+          def checkout_ref
+            return 'FETCH_HEAD' if data.pull_request
+            return data.tag     if data.tag
+            data.commit
           end
 
           def clone_args
             args = depth_flag
-            args << " --branch=#{branch}" unless data.ref
+            args << " --branch=#{tag || branch}" unless data.ref
             args << " --quiet" if quiet?
             args
           end
@@ -65,7 +71,11 @@ module Travis
           end
 
           def branch
-            data.branch.shellescape
+            data.branch.shellescape if data.branch
+          end
+
+          def tag
+            data.tag.shellescape if data.tag
           end
 
           def quiet?

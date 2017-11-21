@@ -38,7 +38,7 @@ module Travis
           Script::Cpp
         when 'objective-c', 'swift' then
           Script::ObjectiveC
-        when 'bash', 'sh', 'shell' then
+        when 'bash', 'sh', 'shell', 'minimal' then
           Script::Generic
         else
           name = lang.split('_').map { |w| w.capitalize }.join

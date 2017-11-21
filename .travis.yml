@@ -23,19 +23,25 @@ stages:
 jobs:
   allow_failures:
     - script: ./script/docker-build-and-push
+    - script: "bundle exec rake update_static_files"
   include:
     - stage: "test"
       sudo: required
       dist: trusty
       env:
       script: ./script/validate-example-payloads-with-docker
+    - stage: "test update_static_files Rake task"
+      script: "bundle exec rake update_static_files"
     - stage: ":ship: it to Quay.io"
       sudo: required
       dist: trusty
       env:
       script: ./script/docker-build-and-push
+      if: (NOT type IN (pull_request)) AND (branch = master)
 
-script: bundle exec rake && ./script/validate-bash-syntax
+script:
+  - mkdir -p public/files && touch public/files/nvm.sh
+  - bundle exec rake lib/travis/build/addons/sauce_connect/sauce_connect.sh spec && ./script/validate-bash-syntax
 
 after_success: bundle exec codeclimate-test-reporter
 
@@ -56,3 +62,8 @@ deploy:
     branch: master
     condition: $INTEGRATION_SPECS == 1
     repo: travis-ci/travis-build
+
+notifications:
+  slack:
+    rooms:
+      - secure: "b/ZO/Dx63fWhYxnL++tZszwk285fSUjLeo99S1GZ+epo1W6Ea/XXX1M+rhqQxdSbK4JfyLtQQpuc/DOGf1Wk3GjSqJo7g7HA11kLfwPZDvfGSvBJ6Bh3VhtOI/OLLGXjeFkPidtesYqJiWaiECvpBe6dYTgS9e5AhwU7uoUnX7s="

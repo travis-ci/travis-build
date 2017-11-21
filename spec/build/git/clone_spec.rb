@@ -138,6 +138,7 @@ describe Travis::Build::Git::Clone, :sexp do
   let(:cd)            { [:cd,  'travis-ci/travis-ci', echo: true] }
   let(:fetch_ref)     { [:cmd, %r(git fetch origin \+[\w/]+:), assert: true, echo: true, retry: true, timing: true] }
   let(:checkout_push) { [:cmd, 'git checkout -qf 313f61b', assert: true, echo: true] }
+  let(:checkout_tag)  { [:cmd, 'git checkout -qf v1.0.0', assert: true, echo: true] }
   let(:checkout_pull) { [:cmd, 'git checkout -qf FETCH_HEAD', assert: true, echo: true] }
 
   it { should include_sexp cd }
@@ -147,8 +148,14 @@ describe Travis::Build::Git::Clone, :sexp do
     it { should include_sexp fetch_ref }
   end
 
-  describe 'with no ref given' do
+  describe 'with a tag given' do
+    before { payload[:job][:tag] = 'v1.0.0' }
+    it { should include_sexp checkout_tag }
+  end
+
+  describe 'with no ref or tag given' do
     it { should_not include_sexp fetch_ref }
+    it { should_not include_sexp checkout_tag }
   end
 
   describe 'checks out the given commit for a push request' do

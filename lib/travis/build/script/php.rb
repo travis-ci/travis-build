@@ -19,16 +19,36 @@ module Travis
 
         def setup
           super
+
+          if php_5_3_or_older?
+            sh.if "$(lsb_release -sc 2>/dev/null) != precise" do
+              sh.echo "PHP #{version} is supported only on Precise.", ansi: :red
+              sh.echo "See https://docs.travis-ci.com/user/reference/trusty#PHP-images on how to test PHP 5.3 on Precise.", ansi: :red
+              sh.echo "Terminating.", ansi: :red
+              sh.raw "travis_terminate 1"
+            end
+          end
+
           if hhvm?
             if nightly?
               sh.cmd "phpenv global hhvm-nightly 3>/dev/null", assert: true
             else
               sh.cmd "phpenv global hhvm 2>/dev/null", assert: true
             end
+            sh.mkdir "$HOME/.phpenv/versions/hhvm/etc/conf.d", recursive: true
           else
             sh.cmd "phpenv global #{version} 2>/dev/null", assert: false
             sh.if "$? -ne 0" do
               install_php_on_demand(version)
+            end
+            unless php_5_3_or_older?
+              sh.else do
+                sh.fold "pearrc" do
+                  sh.echo "Writing $HOME/.pearrc", ansi: :yellow
+                  overwrite_pearrc(version)
+                  sh.cmd "pear config-show", echo: true
+                end
+              end
             end
             sh.cmd "phpenv global #{version}", assert: true
           end
@@ -123,14 +143,14 @@ module Travis
               sh.raw 'sudo find /etc/apt -type f -exec sed -e "/hhvm\\.com/d" -i.bak {} \;'
 
               if hhvm_version
-                sh.raw "echo \"deb http://dl.hhvm.com/ubuntu $(lsb_release -sc)-lts-#{hhvm_version} main\" | sudo tee -a /etc/apt/sources.list >&/dev/null"
+                sh.raw "echo \"deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc)-lts-#{hhvm_version} main\" | sudo tee -a /etc/apt/sources.list >&/dev/null"
                 sh.raw 'sudo apt-get purge hhvm >&/dev/null'
               else
                 # use latest
-                sh.cmd 'echo "deb http://dl.hhvm.com/ubuntu $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list'
+                sh.cmd 'echo "deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list'
               end
 
-              sh.cmd 'sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0x5a16e7281be7a449'
+              sh.cmd 'sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xB4112585D386EB94'
               sh.cmd 'sudo apt-get update -qq'
               sh.cmd "sudo apt-get install -y hhvm", timing: true, echo: true, assert: true
             end
@@ -181,6 +201,38 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
             end
             sh.cmd "composer self-update", assert: false
           end
+        end
+
+        def php_5_3_or_older?
+          !hhvm? && !nightly? && Gem::Version.new(version) < Gem::Version.new('5.4')
+        rescue
+          false
+        end
+
+        def overwrite_pearrc(version)
+          pear_config = %q(
+            [
+              'preferred_state' => "stable",
+              'temp_dir'     => "/tmp/pear/install",
+              'download_dir' => "/tmp/pear/install",
+              'bin_dir'      => "/home/travis/.phpenv/versions/__VERSION__/bin",
+              'php_dir'      => "/home/travis/.phpenv/versions/__VERSION__/share/pear",
+              'doc_dir'      => "/home/travis/.phpenv/versions/__VERSION__/docs",
+              'data_dir'     => "/home/travis/.phpenv/versions/__VERSION__/data",
+              'cfg_dir'      => "/home/travis/.phpenv/versions/__VERSION__/cfg",
+              'www_dir'      => "/home/travis/.phpenv/versions/__VERSION__/www",
+              'man_dir'      => "/home/travis/.phpenv/versions/__VERSION__/man",
+              'test_dir'     => "/home/travis/.phpenv/versions/__VERSION__/tests",
+              '__channels'   => [
+                '__uri' => [],
+                'doc.php.net' => [],
+                'pecl.php.net' => []
+              ],
+              'auto_discover' => 1
+            ]
+          ).gsub("__VERSION__", version)
+
+          sh.cmd "echo '<?php error_reporting(0); echo serialize(#{pear_config}) ?>' | php > $HOME/.pearrc", echo: false
         end
       end
     end
