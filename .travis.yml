@@ -63,7 +63,7 @@ deploy:
     condition: $INTEGRATION_SPECS == 1
     repo: travis-ci/travis-build
 
-notofications:
+notifications:
   slack:
     rooms:
       - secure: "b/ZO/Dx63fWhYxnL++tZszwk285fSUjLeo99S1GZ+epo1W6Ea/XXX1M+rhqQxdSbK4JfyLtQQpuc/DOGf1Wk3GjSqJo7g7HA11kLfwPZDvfGSvBJ6Bh3VhtOI/OLLGXjeFkPidtesYqJiWaiECvpBe6dYTgS9e5AhwU7uoUnX7s="
