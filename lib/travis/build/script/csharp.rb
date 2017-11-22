@@ -171,7 +171,7 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
           super
 
           sh.cmd 'mono --version', timing: true if is_mono_enabled
-          sh.cmd 'xbuild /version', timing: true if is_mono_enabled
+          sh.cmd "#{mono_build_cmd} /version", timing: true if is_mono_enabled
           sh.echo ''
 
           sh.cmd 'dotnet --info', timing: true if is_dotnet_enabled
@@ -190,7 +190,7 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
 
         def script
           if config_solution && is_mono_enabled
-            sh.cmd "xbuild /p:Configuration=Release #{config_solution}", timing: true
+            sh.cmd "#{mono_build_cmd} /p:Configuration=Release #{config_solution}", timing: true
           else
             sh.failure 'No solution or script defined, exiting'
           end
@@ -227,6 +227,10 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
 
         def dotnet_package_prefix
           return is_dotnet_after_2_0? ? "sdk" : "dev"
+        end
+
+        def mono_build_cmd
+          is_mono_after_5_0 ? "msbuild" : "xbuild" 
         end
 
         def is_mono_version_valid?
