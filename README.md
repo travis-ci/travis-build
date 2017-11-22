@@ -21,7 +21,7 @@ Run
 
 You can set travis-build up as a plugin for the [command line client](https://github.com/travis-ci/travis.rb):
 
-    git clone https://github.com/charlesreid1/travis-build
+    git clone https://github.com/travis-ci/travis-build
     cd travis-build
     mkdir -p ~/.travis
     ln -s $PWD ~/.travis/travis-build
