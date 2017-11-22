@@ -273,6 +273,22 @@ vers2int() {
   printf '1%03d%03d%03d%03d' $(echo "$1" | tr '.' ' ')
 }
 
+_ensure_ruby_23() {
+  if ! (rvm list | grep 2\.[3-9] 2>&1 >/dev/null); then
+    echo "${ANSI_YELLOW}Homebrew requires Ruby 2.3 or later.${ANSI_RESET}"
+    rvm install 2.3 --binary --fuzzy
+  fi
+}
+
+do_brew() {
+  if [[ $(vers2int $(ruby -e 'puts RUBY_VERSION')) -lt $(vers2int 2.3) ]]; then
+    _ensure_ruby_23
+    rvm 2.3 do brew "$@"
+  else
+    brew "$@"
+  fi
+}
+
 <%# based on http://stackoverflow.com/a/30576368 by gniourf_gniourf :heart_eyes_cat: %>
 bash_qsort_numeric() {
    local pivot i smaller=() larger=()

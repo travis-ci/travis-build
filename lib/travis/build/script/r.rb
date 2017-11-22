@@ -111,7 +111,7 @@ module Travis
               when 'osx'
                 # We want to update, but we don't need the 800+ lines of
                 # output.
-                sh.cmd 'brew update >/dev/null', retry: true
+                sh.cmd 'do_brew update >/dev/null', retry: true
 
                 # R-devel builds available at research.att.com
                 if r_version == 'devel'
@@ -363,7 +363,7 @@ module Travis
           return unless (config[:os] == 'osx')
           pkg_arg = packages.join(' ')
           sh.echo "Installing brew packages: #{packages.join(', ')}"
-          sh.cmd "brew install #{pkg_arg}", retry: true
+          sh.cmd "do_brew install #{pkg_arg}", retry: true
         end
 
         def install_deps

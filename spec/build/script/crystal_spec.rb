@@ -30,7 +30,7 @@ describe Travis::Build::Script::Crystal, :sexp do
 
     it "installs latest macOS release by default" do
       data[:config][:os] = "osx"
-      should include_sexp [:cmd, "brew install crystal-lang"]
+      should include_sexp [:cmd, "do_brew install crystal-lang"]
     end
 
     it "installs latest linux release when explicitly asked for" do
