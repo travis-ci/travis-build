@@ -28,8 +28,8 @@ module Travis
               end
               sh.else do
                 sh.echo "We are setting up the debug environment. This may take a while..."
-                sh.cmd "brew update &> /dev/null", echo: false, retry: true
-                sh.cmd "brew install tmate &> /dev/null", echo: false, retry: true
+                sh.cmd "do_brew update &> /dev/null", echo: false, retry: true
+                sh.cmd "do_brew install tmate &> /dev/null", echo: false, retry: true
               end
             end
 
