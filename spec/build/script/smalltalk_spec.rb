@@ -11,7 +11,7 @@ describe Travis::Build::Script::Smalltalk, :sexp do
 
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=smalltalk'] }
-    let(:cmds) { ['$SMALLTALK_CI_HOME/run.sh'] }
+    let(:cmds) { ['smalltalkci'] }
   end
 
   it 'downloads and extracts correct script' do
@@ -19,6 +19,7 @@ describe Travis::Build::Script::Smalltalk, :sexp do
     should include_sexp [:cmd, 'unzip -q -o smalltalkCI.zip', assert: true, echo: true, timing: true]
     should include_sexp [:cmd, 'pushd smalltalkCI-* > /dev/null', assert: true, timing: true]
     should include_sexp [:cmd, 'source env_vars', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'export PATH="$(pwd)/bin:$PATH"', assert: true, echo: true, timing: true]
     should include_sexp [:cmd, 'popd > /dev/null; popd > /dev/null', assert: true, timing: true]
   end
 

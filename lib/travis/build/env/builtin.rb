@@ -40,7 +40,7 @@ module Travis
               TRAVIS_JOB_NUMBER:      job[:number],
               TRAVIS_BRANCH:          job[:branch],
               TRAVIS_COMMIT:          job[:commit],
-              TRAVIS_COMMIT_MESSAGE: '$(git log --format=%B -n 1)',
+              TRAVIS_COMMIT_MESSAGE: '$(git log --format=%B -n 1 | head -c 32768)',
               TRAVIS_COMMIT_RANGE:    job[:commit_range],
               TRAVIS_REPO_SLUG:       repository[:slug],
               TRAVIS_OS_NAME:         config[:os],

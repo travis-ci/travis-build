@@ -54,11 +54,11 @@ describe Travis::Build::Script::Haskell, :sexp do
       end
 
       it 'checks for existing installation' do
-        should include_sexp [:raw, %(if ! travis_ghc_find '#{ghc_config[:ghc]}' &>/dev/null; then)]
+        should include_sexp [:raw, %(if [[ ! $(travis_ghc_find #{ghc_config[:ghc]} &>/dev/null) || $(cabal --numeric-version 2>/dev/null) != #{ghc_config[:cabal]}* ]]; then)]
       end
 
       it 'installs ghc version when not present' do
-        should include_sexp [:echo, %(ghc-#{ghc_config[:ghc]} is not installed; attempting installation), ansi: :yellow]
+        should include_sexp [:echo, %(Updating ghc-#{ghc_config[:ghc]} and cabal-#{ghc_config[:cabal]}), ansi: :yellow]
         should include_sexp [:raw, %(travis_ghc_install '#{ghc_config[:ghc]}' '#{ghc_config[:cabal]}')]
         should include_sexp [:export, ['TRAVIS_HASKELL_VERSION', %($(travis_ghc_find '#{ghc_config[:ghc]}'))], echo: true]
       end

@@ -99,6 +99,13 @@ describe Travis::Build::Git::Clone, :sexp do
       it { should include_sexp clone }
     end
 
+    describe 'with depth "false"' do
+      let(:depth) { false }
+      let(:args) { " --branch=#{branch.shellescape}" }
+      before { payload[:config][:git]['depth'] = depth }
+      it { should include_sexp clone }
+    end
+
     describe 'with lfs_skip_smudge true' do
       before { payload[:config][:git]['lfs_skip_smudge'] = true }
       it { expect(sexp).to include_sexp [:export, ['GIT_LFS_SKIP_SMUDGE', '1'], echo: true] }
