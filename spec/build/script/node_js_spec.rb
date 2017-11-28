@@ -68,6 +68,27 @@ describe Travis::Build::Script::NodeJs, :sexp do
           expect(sexp).to include_sexp [:export, ['TRAVIS_NODE_VERSION', '0.10']]
         end
       end
+
+    end
+  end
+
+  describe 'PATH manipulation' do
+    let(:sexp) { sexp_find(subject, [:if, "$(echo :$PATH: | grep -v :./node_modules/.bin:)"]) }
+
+    context "when node_modules option is not set" do
+      it 'does adds "./node_modules/.bin" to PATH' do
+        expect(sexp).to include_sexp [:export, ['PATH', "./node_modules/.bin:$PATH"], echo: true]
+      end
+    end
+
+    context "when node_modules option is set to false" do
+      before :each do
+        data[:config][:node_modules] = false
+      end
+
+      it 'does not add "./node_modules/.bin" to PATH' do
+        expect(sexp).not_to include_sexp [:export, ['PATH', "./node_modules/.bin:$PATH"], echo: true]
+      end
     end
   end
 
