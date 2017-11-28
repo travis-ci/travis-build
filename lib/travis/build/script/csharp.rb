@@ -152,8 +152,8 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
                 sh.failure "The version of this operating system is not supported by .NET Core. View valid versions at https://docs.travis-ci.com/user/languages/csharp/"
               end
               if !is_dotnet_after_2_0_prev_2?
-                sh.cmd 'do_brew update', timing: true, assert: true
-                sh.cmd 'do_brew install openssl', timing: true, assert: true
+                sh.cmd 'brew update', timing: true, assert: true
+                sh.cmd 'brew install openssl', timing: true, assert: true
                 sh.cmd 'mkdir -p /usr/local/lib', timing: false, assert: true
                 sh.cmd 'ln -s /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib /usr/local/lib/', timing: false, assert: true
                 sh.cmd 'ln -s /usr/local/opt/openssl/lib/libssl.1.0.0.dylib /usr/local/lib/', timing: false, assert: true

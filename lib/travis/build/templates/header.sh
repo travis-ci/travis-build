@@ -280,12 +280,12 @@ _ensure_ruby_23() {
   fi
 }
 
-do_brew() {
+brew() {
   if [[ $(vers2int $(ruby -e 'puts RUBY_VERSION')) -lt $(vers2int 2.3) ]]; then
     _ensure_ruby_23
     rvm 2.3 do brew "$@"
   else
-    brew "$@"
+    command brew "$@"
   fi
 }
 

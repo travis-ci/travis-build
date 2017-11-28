@@ -27,8 +27,8 @@ module Travis
               if config[:crystal] && config[:crystal] != "latest"
                 sh.failure %Q(Specifying Crystal version is not yet supported by the macOS environment)
               end
-              sh.cmd %q(do_brew update)
-              sh.cmd %q(do_brew install crystal-lang)
+              sh.cmd %q(brew update)
+              sh.cmd %q(brew install crystal-lang)
             else
               sh.failure %Q(Operating system not supported: "#{config[:os]}")
             end
