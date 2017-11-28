@@ -28,8 +28,8 @@ module Travis
           config[:solution].to_s if config[:solution]
         end
 
-        MONO_VERSION_REGEXP = /^(\d{1})\.(\d{1,2})\.\d{1,2}$/
-        DOTNET_VERSION_REGEXP = /^\d{1}\.\d{1,2}\.\d{1,2}(?:-(?:preview|rc)\d+(\.\d+)?(?:-\d)?-\d{6})?$/
+        MONO_VERSION_REGEXP   = /^(\d{1})\.(\d{1,2})\.\d{1,2}$/
+        DOTNET_VERSION_REGEXP = /^(\d{1})\.(\d{1,2})\.\d{1,2}$/
 
         def configure
           super
@@ -133,12 +133,12 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
 
             case config_os
             when 'linux'
-              sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 417A0893', assert: true
+              sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys BE1229CF', assert: true
               sh.if '$(lsb_release -cs) = trusty' do
-                sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
+                sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-trusty-prod trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
               end
               sh.elif '$(lsb_release -cs) = xenial' do
-                sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet-release/ xenial main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
+                sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-xenial-prod xenial main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
               end
               sh.else do
                 sh.failure "The version of this operating system is not supported by .NET Core. View valid versions at https://docs.travis-ci.com/user/languages/csharp/"
@@ -147,11 +147,11 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
               sh.cmd "sudo apt-get install -qq dotnet-#{dotnet_package_prefix}-#{config_dotnet}", timing: true, assert: true
             when 'osx'
               min_osx_minor = 11
-              min_osx_minor = 12 if is_dotnet_after_2_0_prev_2?
+              min_osx_minor = 12 if is_dotnet_after_2_0?
               sh.if "$(sw_vers -productVersion | cut -d . -f 2) -lt #{min_osx_minor}" do
                 sh.failure "The version of this operating system is not supported by .NET Core. View valid versions at https://docs.travis-ci.com/user/languages/csharp/"
               end
-              if !is_dotnet_after_2_0_prev_2?
+              if !is_dotnet_after_2_0?
                 sh.cmd 'brew update', timing: true, assert: true
                 sh.cmd 'brew install openssl', timing: true, assert: true
                 sh.cmd 'mkdir -p /usr/local/lib', timing: false, assert: true
@@ -171,7 +171,7 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
           super
 
           sh.cmd 'mono --version', timing: true if is_mono_enabled
-          sh.cmd 'xbuild /version', timing: true if is_mono_enabled
+          sh.cmd "#{mono_build_cmd} /version", timing: true if is_mono_enabled
           sh.echo ''
 
           sh.cmd 'dotnet --info', timing: true if is_dotnet_enabled
@@ -190,7 +190,7 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
 
         def script
           if config_solution && is_mono_enabled
-            sh.cmd "xbuild /p:Configuration=Release #{config_solution}", timing: true
+            sh.cmd "#{mono_build_cmd} /p:Configuration=Release #{config_solution}", timing: true
           else
             sh.failure 'No solution or script defined, exiting'
           end
@@ -218,21 +218,19 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
         end
 
         def dotnet_osx_url
-          if is_dotnet_1_0? && dotnet_is_preview?
-            return "https://dotnetcli.azureedge.net/dotnet/preview/Installers/#{config_dotnet}/dotnet-#{dotnet_package_prefix}-osx-x64.#{config_dotnet}.pkg"
-          elsif !is_dotnet_after_2_0_prev_2?
-            return "https://dotnetcli.azureedge.net/dotnet/Sdk/#{config_dotnet}/dotnet-#{dotnet_package_prefix}-osx-x64.#{config_dotnet}.pkg"
-          else
+          if is_dotnet_after_2_0?
             return "https://dotnetcli.azureedge.net/dotnet/Sdk/#{config_dotnet}/dotnet-#{dotnet_package_prefix}-#{config_dotnet}-osx-x64.pkg"
+          else
+            return "https://dotnetcli.azureedge.net/dotnet/Sdk/#{config_dotnet}/dotnet-#{dotnet_package_prefix}-osx-x64.#{config_dotnet}.pkg"
           end
         end
 
-        def dotnet_is_preview?
-          return config_dotnet.include? "-preview"
+        def dotnet_package_prefix
+          return is_dotnet_after_2_0? ? "sdk" : "dev"
         end
 
-        def dotnet_package_prefix
-          return is_dotnet_after_2_0_prev_2? ? "sdk" : "dev"
+        def mono_build_cmd
+          is_mono_after_5_0 ? "msbuild" : "xbuild" 
         end
 
         def is_mono_version_valid?
@@ -306,14 +304,12 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
           true
         end
 
-        def is_dotnet_after_2_0_prev_2?
-          return false unless config_dotnet[0].to_i > 1
-          return false if config_dotnet.include? "2.0.0-preview1"
-          true
-        end
+        def is_dotnet_after_2_0?
+          return false unless is_dotnet_version_valid?
 
-        def is_dotnet_1_0?
-          return config_dotnet[0] == '1'
+          return false if DOTNET_VERSION_REGEXP.match(config_dotnet)[1].to_i < 2
+
+          true
         end
       end
     end

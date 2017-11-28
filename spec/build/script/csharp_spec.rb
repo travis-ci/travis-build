@@ -19,24 +19,17 @@ describe Travis::Build::Script::Csharp, :sexp do
       should include_sexp [:cmd, 'sudo apt-get update -qq', timing: true, assert: true]
     end
 
-    it 'sets up package repository for dotnet 1.0' do
-      data[:config][:dotnet] = '1.0.0-preview2-003121'
-      should include_sexp [:cmd, 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 417A0893', assert: true]
-      should include_sexp [:cmd, "sudo sh -c \"echo 'deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true]
+    it 'sets up package repository for dotnet 1.1.5' do
+      data[:config][:dotnet] = '1.1.5'
+      should include_sexp [:cmd, 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys BE1229CF', assert: true]
+      should include_sexp [:cmd, "sudo sh -c \"echo 'deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-trusty-prod trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true]
       should include_sexp [:cmd, 'sudo apt-get update -qq', timing: true, assert: true]
     end
 
-    it 'sets up package repository for dotnet 2.0 preview 1' do
-      data[:config][:dotnet] = '2.0.0-preview1-005977'
-      should include_sexp [:cmd, 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 417A0893', assert: true]
-      should include_sexp [:cmd, "sudo sh -c \"echo 'deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true]
-      should include_sexp [:cmd, 'sudo apt-get update -qq', timing: true, assert: true]
-    end
-
-    it 'sets up package repository for dotnet 2.0 preview 2 and above' do
-      data[:config][:dotnet] = '2.0.0-preview2-006497'
-      should include_sexp [:cmd, 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 417A0893', assert: true]
-      should include_sexp [:cmd, "sudo sh -c \"echo 'deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true]
+    it 'sets up package repository for dotnet 2.0.0 and above' do
+      data[:config][:dotnet] = '2.0.0'
+      should include_sexp [:cmd, 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys BE1229CF', assert: true]
+      should include_sexp [:cmd, "sudo sh -c \"echo 'deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-trusty-prod trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true]
       should include_sexp [:cmd, 'sudo apt-get update -qq', timing: true, assert: true]
     end
 
@@ -44,19 +37,14 @@ describe Travis::Build::Script::Csharp, :sexp do
       should include_sexp [:cmd, 'sudo apt-get install -qq mono-complete mono-vbnc fsharp nuget referenceassemblies-pcl', timing: true, assert: true]
     end
 
-    it "installs dotnet 1.0" do
-      data[:config][:dotnet] = '1.0.0-preview2-003121'
-      should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-dev-1.0.0-preview2-003121', timing: true, assert: true]
+    it "installs dotnet 1.1.5" do
+      data[:config][:dotnet] = '1.1.5'
+      should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-dev-1.1.5', timing: true, assert: true]
     end
 
-    it "installs dotnet 2.0 preview 1" do
-      data[:config][:dotnet] = '2.0.0-preview1-005977'
-      should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-dev-2.0.0-preview1-005977', timing: true, assert: true]
-    end
-
-    it "installs dotnet 2.0 preview 2 and above" do
-      data[:config][:dotnet] = '2.0.0-preview2-006497'
-      should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-sdk-2.0.0-preview2-006497', timing: true, assert: true]
+    it "installs dotnet 2.0.0 and above" do
+      data[:config][:dotnet] = '2.0.0'
+      should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-sdk-2.0.0', timing: true, assert: true]
     end
   end
 
@@ -170,7 +158,13 @@ describe Travis::Build::Script::Csharp, :sexp do
     end
 
     it 'announces xbuild version' do
+      data[:config][:mono] = '3.8.0'
       should include_sexp [:cmd, 'xbuild /version', echo: true, timing: true]
+    end
+
+    it 'announces msbuild version' do
+      data[:config][:mono] = '5.0.0'
+      should include_sexp [:cmd, 'msbuild /version', echo: true, timing: true]
     end
   end
 
@@ -189,7 +183,7 @@ describe Travis::Build::Script::Csharp, :sexp do
 
     it 'builds specified solution' do
       data[:config][:solution] = 'foo.sln'
-      should include_sexp [:cmd, 'xbuild /p:Configuration=Release foo.sln', echo: true, timing: true]
+      should include_sexp [:cmd, 'msbuild /p:Configuration=Release foo.sln', echo: true, timing: true]
     end
   end
 
@@ -201,35 +195,23 @@ describe Travis::Build::Script::Csharp, :sexp do
       should include_sexp [:cmd, "eval $(/usr/libexec/path_helper -s)", assert: true]
     end
 
-    it 'installs dotnet 1.0' do
+    it 'installs dotnet 1.1.5' do
       data[:config][:os] = 'osx'
-      data[:config][:dotnet] = '1.0.0-preview2-003121'
-      should include_sexp [:cmd, "do_brew install openssl", timing: true, assert: true]
+      data[:config][:dotnet] = '1.1.5'
+      should include_sexp [:cmd, "brew install openssl", timing: true, assert: true]
       should include_sexp [:cmd, "mkdir -p /usr/local/lib", assert: true]
       should include_sexp [:cmd, "ln -s /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib /usr/local/lib/", assert: true]
       should include_sexp [:cmd, "ln -s /usr/local/opt/openssl/lib/libssl.1.0.0.dylib /usr/local/lib/", assert: true]
-      should include_sexp [:cmd, "wget --retry-connrefused --waitretry=1 -O /tmp/dotnet.pkg https://dotnetcli.azureedge.net/dotnet/preview/Installers/1.0.0-preview2-003121/dotnet-dev-osx-x64.1.0.0-preview2-003121.pkg", timing: true, assert: true, echo: true]
+      should include_sexp [:cmd, "wget --retry-connrefused --waitretry=1 -O /tmp/dotnet.pkg https://dotnetcli.azureedge.net/dotnet/Sdk/1.1.5/dotnet-dev-osx-x64.1.1.5.pkg", timing: true, assert: true, echo: true]
       should include_sexp [:cmd, "sudo installer -package \"/tmp/dotnet.pkg\" -target \"/\" -verboseR", timing: true, assert: true]
       should include_sexp [:cmd, "eval $(/usr/libexec/path_helper -s)", assert: true]
     end
 
-    it 'installs dotnet 2.0 preview 1' do
+    it 'installs dotnet 2.0.0 and above' do
       data[:config][:os] = 'osx'
-      data[:config][:dotnet] = '2.0.0-preview1-005977'
-      should include_sexp [:cmd, "do_brew install openssl", timing: true, assert: true]
-      should include_sexp [:cmd, "mkdir -p /usr/local/lib", assert: true]
-      should include_sexp [:cmd, "ln -s /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib /usr/local/lib/", assert: true]
-      should include_sexp [:cmd, "ln -s /usr/local/opt/openssl/lib/libssl.1.0.0.dylib /usr/local/lib/", assert: true]
-      should include_sexp [:cmd, "wget --retry-connrefused --waitretry=1 -O /tmp/dotnet.pkg https://dotnetcli.azureedge.net/dotnet/Sdk/2.0.0-preview1-005977/dotnet-dev-osx-x64.2.0.0-preview1-005977.pkg", timing: true, assert: true, echo: true]
-      should include_sexp [:cmd, "sudo installer -package \"/tmp/dotnet.pkg\" -target \"/\" -verboseR", timing: true, assert: true]
-      should include_sexp [:cmd, "eval $(/usr/libexec/path_helper -s)", assert: true]
-    end
-
-    it 'installs dotnet 2.0 preview 2 and above' do
-      data[:config][:os] = 'osx'
-      data[:config][:dotnet] = '2.0.0-preview2-006497'
-      should_not include_sexp [:cmd, "do_brew install openssl", timing: true, assert: true]
-      should include_sexp [:cmd, "wget --retry-connrefused --waitretry=1 -O /tmp/dotnet.pkg https://dotnetcli.azureedge.net/dotnet/Sdk/2.0.0-preview2-006497/dotnet-sdk-2.0.0-preview2-006497-osx-x64.pkg", timing: true, assert: true, echo: true]
+      data[:config][:dotnet] = '2.0.0'
+      should_not include_sexp [:cmd, "brew install openssl", timing: true, assert: true]
+      should include_sexp [:cmd, "wget --retry-connrefused --waitretry=1 -O /tmp/dotnet.pkg https://dotnetcli.azureedge.net/dotnet/Sdk/2.0.0/dotnet-sdk-2.0.0-osx-x64.pkg", timing: true, assert: true, echo: true]
       should include_sexp [:cmd, "sudo installer -package \"/tmp/dotnet.pkg\" -target \"/\" -verboseR", timing: true, assert: true]
       should include_sexp [:cmd, "eval $(/usr/libexec/path_helper -s)", assert: true]
     end
