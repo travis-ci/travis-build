@@ -33,7 +33,7 @@ touch \$HOME/.sudo-run
 exit 1
 EOF
         EOC
-        CLEANUP = 'sudo -n sh -c "chmod 4755 _sudo; chown root:root _sudo; mv _sudo `which sudo`; find / \\( -perm -4000 -o -perm -2000 \\) -a ! -name sudo -exec chmod a-s {} \; 2>/dev/null && sed -e \'s/^%.*//\' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis"'
+        CLEANUP = 'sudo -n sh -c "chmod 4755 _sudo; chown root:root _sudo; mv _sudo `which sudo`; find / \\( -perm -4000 -o -perm -2000 \\) -a ! -name sudo -a ! -name chrome-sandbox -exec chmod a-s {} \; 2>/dev/null && sed -e \'s/^%.*//\' -i.bak /etc/sudoers && rm -f /etc/sudoers.d/travis"'
 
         def apply
           sh.raw WRITE_SUDO
