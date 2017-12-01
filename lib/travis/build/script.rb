@@ -101,6 +101,10 @@ module Travis
         cache_slug_keys.compact.join('-')
       end
 
+      def cache_name
+        config[:cache].is_a?(Hash) && config[:cache][:name]
+      end
+
       def archive_url_for(bucket, version, lang = self.class.name.split('::').last.downcase, ext = 'bz2')
         file_name = "#{[lang, version].compact.join("-")}.tar.#{ext}"
         sh.if "$(uname) = 'Linux'" do

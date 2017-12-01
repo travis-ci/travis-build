@@ -36,7 +36,7 @@ module Travis
         end
 
         def cache_slug
-          super.tap { |slug| slug << "--rvm-" << ruby_version.to_s if rvm? }
+          cache_name || super.tap { |slug| slug << "--rvm-" << ruby_version.to_s if rvm? }
         end
 
         private

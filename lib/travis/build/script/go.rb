@@ -101,7 +101,7 @@ module Travis
         end
 
         def cache_slug
-          super << '--go-' << go_version
+          cache_name || super << '--go-' << go_version
         end
 
         private

@@ -94,7 +94,7 @@ module Travis
         end
 
         def cache_slug
-          super << "--php-" << version
+          cache_name || super << "--php-" << version
         end
 
         private

@@ -35,7 +35,7 @@ module Travis
         end
 
         def cache_slug
-          super << '--lein-' << lein
+          cache_name || super << '--lein-' << lein
         end
 
         private

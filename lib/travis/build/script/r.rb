@@ -284,7 +284,7 @@ module Travis
         end
 
         def cache_slug
-          super << '--R-' << r_version
+          cache_name || super << '--R-' << r_version
         end
 
         def use_directory_cache?

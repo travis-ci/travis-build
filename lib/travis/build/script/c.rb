@@ -24,7 +24,7 @@ module Travis
         end
 
         def cache_slug
-          super << '--compiler-' << compiler
+          cache_name || (super << '--compiler-' << compiler)
         end
 
         def setup_cache

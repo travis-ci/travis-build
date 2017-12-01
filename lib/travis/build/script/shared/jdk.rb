@@ -32,7 +32,7 @@ module Travis
 
         def cache_slug
           return super unless uses_jdk?
-          super << '--jdk-' << config[:jdk].to_s
+          cache_name || super << '--jdk-' << config[:jdk].to_s
         end
 
         private

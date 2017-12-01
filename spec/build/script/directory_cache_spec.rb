@@ -90,6 +90,13 @@ describe Travis::Build::Script::DirectoryCache, :sexp do
         it { expect(file_name).to eq "cache-#{CACHE_SLUG_EXTRAS}--rvm-default--gemfile-Gemfile.tgz" }
       end
     end
+
+    context 'Given "cache.name: foo"' do
+      let(:config) { { cache: { name: "foo", bundler: true } } }
+      let(:file_name) { URI(cache.fetch_url).path.split('/').last }
+
+      it { expect(file_name).to eq 'foo.tgz' }
+    end
   end
 
   describe '#push_url' do

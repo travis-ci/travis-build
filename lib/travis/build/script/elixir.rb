@@ -55,7 +55,7 @@ export MIX_ARCHIVES=#{KIEX_MIX_HOME}elixir-#{elixir_version}' > #{KIEX_ELIXIR_HO
         end
 
         def cache_slug
-          super << '--elixir-' << elixir_version
+          cache_name || super << '--elixir-' << elixir_version
         end
 
         private

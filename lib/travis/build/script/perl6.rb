@@ -54,7 +54,7 @@ module Travis
         end
 
         def cache_slug
-          super << '--perl6-' << version
+          cache_name || super << '--perl6-' << version
         end
 
         def version

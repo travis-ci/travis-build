@@ -11,7 +11,7 @@ module Travis
         }.freeze
 
         def cache_slug
-          super << '--d-' << config[:d]
+          cache_name || super << '--d-' << config[:d]
         end
 
         def setup

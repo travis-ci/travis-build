@@ -57,7 +57,7 @@ module Travis
         end
 
         def cache_slug
-          super << "--scala-" << version
+          cache_name || super << "--scala-" << version
         end
 
         private

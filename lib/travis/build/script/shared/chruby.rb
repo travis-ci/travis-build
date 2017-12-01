@@ -13,7 +13,7 @@ module Travis
         end
 
         def cache_slug
-          super.tap { |slug| slug << "--rvm-" << config[:ruby].to_s if chruby? }
+          cache_name || super.tap { |slug| slug << "--rvm-" << config[:ruby].to_s if chruby? }
         end
 
         private

@@ -27,6 +27,10 @@ module Travis
           end
         end
 
+        def cache_slug
+          cache_name || super
+        end
+
         private
 
           def uses_java?

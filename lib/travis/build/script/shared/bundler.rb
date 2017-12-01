@@ -66,7 +66,7 @@ module Travis
         end
 
         def cache_slug
-          super << '--gemfile-' << config[:gemfile].to_s
+          cache_name || super << '--gemfile-' << config[:gemfile].to_s
         end
 
         private

@@ -69,7 +69,7 @@ module Travis
         end
 
         def cache_slug
-          super << '--node-' << version
+          cache_name || super << '--node-' << version
         end
 
         def setup_cache

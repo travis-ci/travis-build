@@ -66,7 +66,7 @@ module Travis
         end
 
         def cache_slug
-          super << '--python-' << version
+          cache_name || super << '--python-' << version
         end
 
         def use_directory_cache?

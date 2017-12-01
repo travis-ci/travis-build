@@ -47,7 +47,7 @@ module Travis
         end
 
         def cache_slug
-          super << '--perl-' << version
+          cache_name || super << '--perl-' << version
         end
 
         # safe_yaml parses strings like 5.10 to 5.1

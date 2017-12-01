@@ -48,7 +48,7 @@ module Travis
         end
 
         def cache_slug
-          super << '--otp-' << otp_release
+          cache_name || super << '--otp-' << otp_release
         end
 
         private
