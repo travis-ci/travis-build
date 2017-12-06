@@ -23,7 +23,7 @@ module Travis
           def clone_or_fetch
             sh.if "! -d #{dir}/.git" do
               if sparse_checkout
-                sh.echo "Cloning with sparse checkout specificd with #{sparse_checkout}", ansi: :yellow
+                sh.echo "Cloning with sparse checkout specified with #{sparse_checkout}", ansi: :yellow
                 sh.cmd "git init #{dir}", assert: true, retry: true
                 sh.cmd "git -C #{dir} config core.sparseCheckout true", assert: true, retry: true
                 sh.cmd "echo #{sparse_checkout} >> #{dir}/.git/info/sparseCheckout", assert: true, retry: true
