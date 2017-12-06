@@ -34,9 +34,7 @@ module Travis
                 sh.cmd "git -C #{dir} reset --hard", assert: true, timing: false
               else
                 sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: false, retry: true
-                if github?
-                  warn_github_status
-                end
+                warn_github_status
               end
             end
             sh.else do
@@ -141,6 +139,8 @@ module Travis
           end
 
           def warn_github_status
+            return unless github?
+            
             sh.if "$? -ne 0" do
               sh.echo "Failed to clone from GitHub.", ansi: :red
               sh.echo "Checking GitHub status (https://status.github.com/api/last-message.json):"
