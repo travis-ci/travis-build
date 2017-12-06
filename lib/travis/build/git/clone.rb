@@ -26,11 +26,11 @@ module Travis
                 sh.echo "Cloning with sparse checkout specified with #{sparse_checkout}", ansi: :yellow
                 sh.cmd "git init #{dir}", assert: true, retry: true
                 sh.cmd "git -C #{dir} config core.sparseCheckout true", assert: true, retry: true
-                sh.cmd "echo #{sparse_checkout} >> #{dir}/.git/info/sparseCheckout", assert: true, retry: true
+                sh.cmd "echo #{sparse_checkout} >> #{dir}/.git/info/sparse-checkout", assert: true, retry: true
                 sh.cmd "git -C #{dir} remote add origin #{data.source_url}", assert: true, retry: true
                 sh.cmd "git -C #{dir} pull origin #{branch} #{pull_args}", assert: false, retry: true
                 warn_github_status
-                sh.cmd "cat #{sparse_checkout} >> #{dir}/.git/info/sparseCheckout", assert: true, retry: true
+                sh.cmd "cat #{sparse_checkout} >> #{dir}/.git/info/sparse-checkout", assert: true, retry: true
                 sh.cmd "git -C #{dir} reset --hard", assert: true, timing: false
               else
                 sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: false, retry: true
