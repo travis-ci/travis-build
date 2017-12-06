@@ -13,8 +13,8 @@ module Travis
         PYENV_PATH_FILE      = '/etc/profile.d/pyenv.sh'
 
         def export
-          super
           sh.export 'TRAVIS_PYTHON_VERSION', version, echo: false
+          super
         end
 
         def configure

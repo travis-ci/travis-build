@@ -7,12 +7,12 @@ module Travis
         }
 
         def export
-          super
           sh.export 'CXX', cxx
           sh.export 'CC', cc # some projects also need to compile some C, e.g. Rubinius. MK.
           if data.cache?(:ccache)
             sh.export 'PATH', "/usr/lib/ccache:$PATH"
           end
+          super
         end
 
         def announce

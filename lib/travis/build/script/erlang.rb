@@ -7,8 +7,8 @@ module Travis
         }
 
         def export
-          super
           sh.export 'TRAVIS_OTP_RELEASE', otp_release, echo: false
+          super
         end
 
         def setup

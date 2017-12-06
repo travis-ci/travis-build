@@ -33,12 +33,12 @@ module Travis
         end
 
         def export
-          super
           sh.echo "Disabling Homebrew auto update. If your Homebrew package requires Homebrew DB be up to date, please run \\`brew update\\` explicitly.", ansi: :yellow
           sh.export 'HOMEBREW_NO_AUTO_UPDATE', '1', echo: true
           [:sdk, :scheme, :project, :workspace].each do |key|
             sh.export "TRAVIS_XCODE_#{key.upcase}", config[:"xcode_#{key}"].to_s.shellescape, echo: false
           end
+          super
         end
 
         def setup_cache

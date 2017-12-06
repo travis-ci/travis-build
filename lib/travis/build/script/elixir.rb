@@ -10,8 +10,8 @@ module Travis
         KIEX_MIX_HOME    = '$HOME/.kiex/mix/'
 
         def export
-          super
           sh.export 'TRAVIS_ELIXIR_VERSION', elixir_version, echo: false
+          super
         end
 
         def setup

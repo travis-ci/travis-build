@@ -10,9 +10,8 @@ module Travis
         }
 
         def export
-          super
-
           sh.export 'TRAVIS_RUST_VERSION', config[:rust].to_s.shellescape, echo: false
+          super
         end
 
         def setup_cache

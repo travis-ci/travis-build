@@ -44,7 +44,6 @@ module Travis
         end
 
         def export
-          super
           sh.export 'TRAVIS_R_VERSION', r_version, echo: false
           sh.export 'TRAVIS_R_VERSION_STRING', config[:r].to_s, echo: false
           sh.export 'R_LIBS_USER', '~/R/Library', echo: false
@@ -52,6 +51,7 @@ module Travis
           sh.export '_R_CHECK_CRAN_INCOMING_', 'false', echo: false
           sh.export 'NOT_CRAN', 'true', echo: false
           sh.export 'R_PROFILE', "~/.Rprofile.site", echo: false
+          super
         end
 
         def configure

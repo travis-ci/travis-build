@@ -20,8 +20,8 @@ module Travis
         }
 
         def export
-          super
           sh.export 'TRAVIS_RUBY_VERSION', config[:rvm], echo: false if rvm?
+          super
         end
 
         def setup

@@ -41,10 +41,10 @@ module Travis
         end
 
         def export
-          super
           sh.export 'TRAVIS_SMALLTALK_CONFIG', smalltalk_config, echo: false
           sh.export 'TRAVIS_SMALLTALK_VERSION', smalltalk_version, echo: false
           sh.export 'TRAVIS_SMALLTALK_VM', smalltalk_vm, echo: false
+          super
         end
 
         def setup
@@ -102,7 +102,7 @@ module Travis
           def is_squeak?
             is_platform?('squeak')
           end
-          
+
           def is_etoys?
             is_platform?('etoys')
           end

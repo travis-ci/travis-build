@@ -16,10 +16,9 @@ module Travis
         }
 
         def export
-          super
-
           sh.export 'TRAVIS_JULIA_VERSION', config[:julia].to_s.shellescape,
             echo: false
+          super
         end
 
         def setup

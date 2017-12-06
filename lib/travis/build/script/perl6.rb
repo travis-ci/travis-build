@@ -13,8 +13,8 @@ module Travis
         }
 
         def export
-          super
           sh.export 'TRAVIS_PERL6_VERSION', version, echo: false
+          super
         end
 
         def configure
