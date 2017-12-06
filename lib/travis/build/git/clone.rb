@@ -30,7 +30,7 @@ module Travis
                 sh.cmd "git -C #{dir} remote add origin #{data.source_url}", assert: true, retry: true
                 sh.cmd "git -C #{dir} pull origin #{branch} #{pull_args}", assert: false, retry: true
                 warn_github_status
-                sh.cmd "echo #{sparse_checkout} >> #{dir}/.git/info/sparseCheckout", assert: true, retry: true
+                sh.cmd "cat #{sparse_checkout} >> #{dir}/.git/info/sparseCheckout", assert: true, retry: true
                 sh.cmd "git -C #{dir} reset --hard", assert: true, timing: false
               else
                 sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: false, retry: true
