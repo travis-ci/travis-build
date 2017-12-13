@@ -50,6 +50,7 @@ module Travis
                 npm_install config[:npm_args]
               end
               sh.else do
+                sh.export "PATH", "$PATH:`yarn global bin`", echo: true
                 sh.cmd "yarn", retry: true, fold: 'install'
               end
             end
