@@ -34,6 +34,7 @@ require 'travis/build/appliances/validate'
 require 'travis/build/appliances/npm_registry'
 require 'travis/build/appliances/update_rubygems'
 require 'travis/build/appliances/apt_get_update'
+require 'travis/build/appliances/no_world_writable_dirs'
 
 module Travis
   module Build

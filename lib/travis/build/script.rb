@@ -186,6 +186,7 @@ module Travis
           apply :rm_oraclejdk8_symlink
           apply :enable_i386
           apply :update_rubygems
+          apply :no_world_writable_dirs
         end
 
         def setup_filter
