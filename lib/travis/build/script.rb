@@ -187,6 +187,7 @@ module Travis
           apply :enable_i386
           apply :update_rubygems
           apply :no_world_writable_dirs
+          apply :ensure_path_components
         end
 
         def setup_filter
