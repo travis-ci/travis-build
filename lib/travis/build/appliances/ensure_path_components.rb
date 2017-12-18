@@ -13,7 +13,7 @@ module Travis
           COMPONENTS.each do |pc|
             sh.cmd <<-EOF
 pc=#{pc}
-if [[ -n $pc && :$PATH: =~ :$pc: ]]; then export PATH=$PATH:$pc; fi
+if [[ -n $pc && ! :$PATH: =~ :$pc: ]]; then export PATH=$PATH:$pc; fi
 unset pc
             EOF
           end
