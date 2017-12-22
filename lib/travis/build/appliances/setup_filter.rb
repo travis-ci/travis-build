@@ -25,6 +25,7 @@ module Travis
 
           def blocklist
             ENV["ROLLOUT_REDIRECT_IO_OWNERS_BLOCKLIST"].to_s.split(',')
+          end
         end
 
         ENABLED = true
