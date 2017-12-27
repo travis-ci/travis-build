@@ -466,7 +466,7 @@ module Travis
 
             # Install common packages
             sh.cmd 'sudo tlmgr install inconsolata upquote '\
-              'courier courier-scaled helvetic', assert: false
+              'courier courier-scaled helvetic titling', assert: false
           end
         end
 
