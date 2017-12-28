@@ -6,6 +6,7 @@ module Travis
     class Addons
       class Firefox < Base
         SUPER_USER_SAFE = true
+        WGET_FLAGS = ' --no-verbose'
 
         attr_reader :version, :latest
 
@@ -23,12 +24,12 @@ module Travis
             sh.chown 'travis', install_dir, recursive: true
             sh.cd install_dir, echo: false, stack: true
             sh.if '$(uname) = "Linux"' do
-              sh.cmd "wget -O /tmp/#{filename} $FIREFOX_SOURCE_URL", echo: true, timing: true, retry: true
+              sh.cmd "wget#{WGET_FLAGS} -O /tmp/#{filename} $FIREFOX_SOURCE_URL", echo: true, timing: true, retry: true
               sh.cmd "tar xf /tmp/#{filename}"
               sh.export 'PATH', "#{install_dir}/firefox:$PATH"
             end
             sh.elif '$(uname) = "Darwin"' do
-              sh.cmd "wget -O /tmp/#{filename('dmg')} $FIREFOX_SOURCE_URL", echo: true, timing: true, retry: true
+              sh.cmd "wget#{WGET_FLAGS} -O /tmp/#{filename('dmg')} $FIREFOX_SOURCE_URL", echo: true, timing: true, retry: true
               sh.cmd "hdiutil mount -readonly -mountpoint firefox /tmp/#{filename('dmg')}"
               sh.cmd "sudo rm -rf /Applications/Firefox.app"
               sh.cmd "sudo cp -a firefox/Firefox.app /Applications"
