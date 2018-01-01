@@ -18,8 +18,13 @@ module Travis
           super
 
           sh.echo 'D support for Travis-CI is community maintained.', ansi: :green
-          sh.echo 'Please make sure to ping @MartinNowak, @klickverbot and @ibuclaw '\
+          sh.echo 'Please make sure to ping @MartinNowak and @wilzbach'\
             'when filing issues under https://github.com/travis-ci/travis-ci/issues.', ansi: :green
+
+          sh.echo 'DMD-related issues: https://issues.dlang.org', ansi: :green
+          sh.echo 'LDC-related issues: https://github.com/ldc-developers/ldc/issues', ansi: :green
+          sh.echo 'GDC-related issues: https://bugzilla.gdcproject.org', ansi: :green
+          sh.echo 'DUB-related issues: https://github.com/dlang/dub/issues', ansi: :green
 
           sh.fold 'compiler-download' do
             sh.echo 'Installing compiler and dub', ansi: :yellow
