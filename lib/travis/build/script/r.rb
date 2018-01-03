@@ -254,10 +254,6 @@ module Travis
             end
           end
 
-          # Always dump the .out logs, so you can inspect test .Rout for
-          # information.
-          dump_log("out")
-
           # Check revdeps, if requested.
           if @devtools_installed and config[:r_check_revdep]
             sh.echo "Checking reverse dependencies"
