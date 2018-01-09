@@ -7,7 +7,7 @@ module Travis
         def apply
           sh.raw <<-EOF
 function curl() {
-  /usr/bin/curl --retry 2 -sS "$@"
+  command curl --retry 2 -sS "$@"
 }
           EOF
         end
