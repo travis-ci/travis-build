@@ -52,7 +52,7 @@ module Travis
             sh.if "! -f $HOME/.lein/self-installs/home/travis/.lein/leiningen-#{version}-standalone.jar" do
               sh.fold "leiningen.update" do
                 sh.echo "Updating leiningen to #{version}", ansi: :yellow
-                sh.cmd "env LEIN_ROOT=true curl -L -o /usr/local/bin/lein https://raw.githubusercontent.com/technomancy/leiningen/#{version}/bin/lein", echo: true, assert: true, sudo: true
+                sh.cmd "env LEIN_ROOT=true curl --retry 2 -L -o /usr/local/bin/lein https://raw.githubusercontent.com/technomancy/leiningen/#{version}/bin/lein", echo: true, assert: true, sudo: true
                 sh.cmd "rm -rf $HOME/.lein", echo: false
                 sh.cmd "lein self-install", echo: true, assert: true
               end

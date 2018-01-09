@@ -291,7 +291,7 @@ module Travis
             end
 
             def curl_cmd(flags, location, remote_location)
-              "curl #{flags} -o #{location} #{remote_location}"
+              "curl --retry 2 #{flags} -o #{location} #{remote_location}"
             end
 
         end

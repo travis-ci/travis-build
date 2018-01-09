@@ -3,7 +3,7 @@ module Travis
     class Script
       class Rust < Script
         RUST_RUSTUP = 'https://sh.rustup.rs'
-        RUSTUP_CMD = "curl -sSf https://sh.rustup.rs | sh -s -- --default-toolchain=$TRAVIS_RUST_VERSION -y"
+        RUSTUP_CMD = "curl --retry 2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain=$TRAVIS_RUST_VERSION -y"
 
         DEFAULTS = {
           rust: 'stable',
@@ -25,7 +25,7 @@ module Travis
           sh.fold('rustup-install') do
             sh.echo 'Installing Rust', ansi: :yellow
             unless app_host.empty?
-              sh.cmd "curl -sSf https://#{app_host}/files/rustup-init.sh | sh -s -- --default-toolchain=$TRAVIS_RUST_VERSION -y", echo: true, assert: false
+              sh.cmd "curl --retry 2 -sSf https://#{app_host}/files/rustup-init.sh | sh -s -- --default-toolchain=$TRAVIS_RUST_VERSION -y", echo: true, assert: false
               sh.if "$? -ne 0" do
                 sh.cmd RUSTUP_CMD, echo: true, assert: true
               end

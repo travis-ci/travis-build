@@ -38,10 +38,10 @@ module Travis
 
         SH = {
           curl: %(
-              curl -sf -o ~/filter.rb %{url}
+              curl --retry 2 -sf -o ~/filter.rb %{url}
               if [ $? -ne 0 ]; then
                 echo "Download from %{url} failed. Trying %{fallback_url} ..."
-                curl -sf -o ~/filter.rb %{fallback_url}
+                curl --retry 2 -sf -o ~/filter.rb %{fallback_url}
               fi
           ),
           pty: %(

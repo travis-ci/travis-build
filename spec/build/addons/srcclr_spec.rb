@@ -12,14 +12,14 @@ describe Travis::Build::Addons::Srcclr, :sexp do
   context 'given true config' do
     let(:config) { true }
     it {
-      should include_sexp [:cmd, 'curl -sSL https://download.sourceclear.com/ci.sh |  bash', {:echo=>true, :timing=>true}]
+      should include_sexp [:cmd, 'curl --retry 2 -sSL https://download.sourceclear.com/ci.sh |  bash', {:echo=>true, :timing=>true}]
     }
   end
 
  context 'given true config' do
     let(:config) { { debug: true } }
     it {
-      should include_sexp [:cmd, 'curl -sSL https://download.sourceclear.com/ci.sh | env DEBUG=1 bash', {:echo=>true, :timing=>true}]
+      should include_sexp [:cmd, 'curl --retry 2 -sSL https://download.sourceclear.com/ci.sh | env DEBUG=1 bash', {:echo=>true, :timing=>true}]
     }
   end
 

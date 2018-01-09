@@ -18,7 +18,7 @@ module Travis
           end
 
           def download
-            cmd  = "curl -o #{filename} #{auth_header}-L #{tarball_url}"
+            cmd  = "curl --retry 2 -o #{filename} #{auth_header}-L #{tarball_url}"
             echo = cmd.gsub(data.token || /\Za/, '[SECURE]')
             sh.cmd cmd, echo: echo, retry: true
           end

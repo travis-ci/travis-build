@@ -93,7 +93,7 @@ MESSAGE
 
           sh.fold 'dart_install' do
             sh.echo 'Installing Dart', ansi: :yellow
-            sh.cmd "curl #{archive_url}/sdk/dartsdk-#{os}-x64-release.zip > $HOME/dartsdk.zip"
+            sh.cmd "curl --retry 2 #{archive_url}/sdk/dartsdk-#{os}-x64-release.zip > $HOME/dartsdk.zip"
             sh.cmd "unzip $HOME/dartsdk.zip -d $HOME > /dev/null"
             sh.cmd "rm $HOME/dartsdk.zip"
             sh.cmd 'export DART_SDK="$HOME/dart-sdk"'
@@ -107,7 +107,7 @@ MESSAGE
 
               sh.cmd "mkdir $HOME/dartium"
               sh.cmd "cd $HOME/dartium"
-              sh.cmd "curl #{archive_url}/dartium/dartium-#{os}-x64-release.zip > dartium.zip"
+              sh.cmd "curl --retry 2 #{archive_url}/dartium/dartium-#{os}-x64-release.zip > dartium.zip"
               sh.cmd "unzip dartium.zip > /dev/null"
               sh.cmd "rm dartium.zip"
               sh.cmd 'dartium_dir="${PWD%/}/$(ls)"'
@@ -135,7 +135,7 @@ MESSAGE
               # Download and install Content Shell
               sh.cmd "mkdir $HOME/content_shell"
               sh.cmd "cd $HOME/content_shell"
-              sh.cmd "curl #{archive_url}/dartium/content_shell-linux-x64-release.zip > content_shell.zip"
+              sh.cmd "curl --retry 2 #{archive_url}/dartium/content_shell-linux-x64-release.zip > content_shell.zip"
               sh.cmd "unzip content_shell.zip > /dev/null"
               sh.cmd "rm content_shell.zip"
               sh.cmd 'export PATH="${PWD%/}/$(ls):$PATH"'

@@ -61,11 +61,11 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
     before { cache.install }
 
     let(:url) { "https://raw.githubusercontent.com/travis-ci/casher/#{branch}/bin/casher" }
-    let(:cmd) { [:cmd,  "curl -sf  -o $CASHER_DIR/bin/casher #{url}", retry: true, echo: 'Installing caching utilities'] }
+    let(:cmd) { [:cmd,  "curl --retry 2 -sf  -o $CASHER_DIR/bin/casher #{url}", retry: true, echo: 'Installing caching utilities'] }
 
     describe 'uses casher production in default mode' do
       let(:branch) { 'production' }
-      let(:cmd) { [:cmd,  "curl -sf  -o $CASHER_DIR/bin/casher #{url}",retry: true, echo: "Installing caching utilities from the Travis CI server (https://#{Travis::Build.config.app_host}/files/casher) failed, failing over to using GitHub (#{url})"] }
+      let(:cmd) { [:cmd,  "curl --retry 2 -sf  -o $CASHER_DIR/bin/casher #{url}",retry: true, echo: "Installing caching utilities from the Travis CI server (https://#{Travis::Build.config.app_host}/files/casher) failed, failing over to using GitHub (#{url})"] }
       it { should include_sexp [:export, ['CASHER_DIR', '$HOME/.casher'], echo: true] }
       it { should include_sexp [:mkdir, '$CASHER_DIR/bin', recursive: true] }
       it { should include_sexp cmd }
@@ -86,7 +86,7 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
 
     describe 'using debug flag' do
       let(:config) { { cache: { debug: true, branch: branch } } }
-      let(:cmd) { [:cmd,  "curl -sf -v -w '#{described_class::CURL_FORMAT}' -o $CASHER_DIR/bin/casher #{url}", retry: true, echo: 'Installing caching utilities'] }
+      let(:cmd) { [:cmd,  "curl --retry 2 -sf -v -w '#{described_class::CURL_FORMAT}' -o $CASHER_DIR/bin/casher #{url}", retry: true, echo: 'Installing caching utilities'] }
       it { should include_sexp cmd }
     end
   end

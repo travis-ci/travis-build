@@ -14,7 +14,7 @@ module Travis
               version = select_apt_version
               return unless version
 
-              sh.cmd %Q(curl -sSL '#{version[:key][:url]}' > "$HOME/crystal_repository_key.asc")
+              sh.cmd %Q(curl --retry 2 -sSL '#{version[:key][:url]}' > "$HOME/crystal_repository_key.asc")
               sh.if %Q("$(gpg --with-fingerprint "$HOME/crystal_repository_key.asc" | grep "Key fingerprint" | cut -d "=" -f2 | tr -d " ")" != "#{version[:key][:fingerprint]}") do
                 sh.failure "The repository key needed to install Crystal did not have the expected fingerprint. Your build was aborted."
               end

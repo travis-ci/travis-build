@@ -19,7 +19,7 @@ module Travis
               sh.echo "Running SourceClear agent", ansi: :yellow
               debug_env = debug? ? "env DEBUG=1" : ""
 
-              sh.cmd "curl -sSL https://download.sourceclear.com/ci.sh | #{debug_env} bash", echo: true, timing: true
+              sh.cmd "curl --retry 2 -sSL https://download.sourceclear.com/ci.sh | #{debug_env} bash", echo: true, timing: true
             end
           end
         end

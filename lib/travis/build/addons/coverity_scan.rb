@@ -44,7 +44,7 @@ module Travis
         def authorize_quota
           scr = <<SH
 export SCAN_URL=#{SCAN_URL}
-AUTH_RES=`curl -s --form project="$PROJECT_NAME" --form token="$COVERITY_SCAN_TOKEN" $SCAN_URL/api/upload_permitted`
+AUTH_RES=`curl --retry 2 -s --form project="$PROJECT_NAME" --form token="$COVERITY_SCAN_TOKEN" $SCAN_URL/api/upload_permitted`
 if [ "$AUTH_RES" = "Access denied" ]; then
   echo -e "\033[33;1mCoverity Scan API access denied. Check \\$PROJECT_NAME and \\$COVERITY_SCAN_TOKEN.\033[0m"
   exit 1
@@ -79,7 +79,7 @@ SH
               env << "COVERITY_SCAN_BUILD_COMMAND=\"${COVERITY_SCAN_BUILD_COMMAND:-#{@config[:build_command]}}\""
               env << "COVERITY_SCAN_BUILD_COMMAND_PREPEND=\"${COVERITY_SCAN_BUILD_COMMAND_PREPEND:-#{@config[:build_command_prepend]}}\""
               env << "COVERITY_SCAN_BRANCH_PATTERN=${COVERITY_SCAN_BRANCH_PATTERN:-#{@config[:branch_pattern]}}"
-              sh.cmd "curl -s #{@config[:build_script_url]} | #{env.join(' ')} bash", echo: true
+              sh.cmd "curl --retry 2 -s #{@config[:build_script_url]} | #{env.join(' ')} bash", echo: true
             end
           end
           sh.else echo:true do
