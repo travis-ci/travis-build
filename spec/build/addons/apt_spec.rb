@@ -208,7 +208,7 @@ describe Travis::Build::Addons::Apt, :sexp do
     end
 
     def apt_key_add_command(key_url)
-      "curl -sSL #{key_url.inspect} | sudo -E apt-key add -"
+      "curl --retry 2 -sSL #{key_url.inspect} | sudo -E apt-key add -"
     end
 
     context 'with multiple whitelisted sources' do

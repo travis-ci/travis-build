@@ -38,7 +38,7 @@ describe Travis::Build::Script::Scala, :sexp do
     let(:sexp) { sexp_find(subject, [:if, '-d project || -f build.sbt'], [:if, "$? -ne 0"]) }
 
     it "updates SBT" do
-      should include_sexp [:cmd, "curl -sf -o sbt.tmp #{sbt_url}", assert: true]
+      should include_sexp [:cmd, "curl --retry 2 -sf -o sbt.tmp #{sbt_url}", assert: true]
     end
 
     it 'sets JVM_OPTS' do

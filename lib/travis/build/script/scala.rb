@@ -81,9 +81,9 @@ module Travis
           def update_sbt
             return if app_host.empty?
 
-            sh.cmd "curl -sf -o sbt.tmp https://#{app_host}/files/sbt", echo: false
+            sh.cmd "curl --retry 2 -sf -o sbt.tmp https://#{app_host}/files/sbt", echo: false
             sh.if "$? -ne 0" do
-              sh.cmd "curl -sf -o sbt.tmp #{SBT_URL}", assert: true
+              sh.cmd "curl --retry 2 -sf -o sbt.tmp #{SBT_URL}", assert: true
             end
             sh.raw "sed -e '/addSbt \\(warn\\|info\\)/d' sbt.tmp | sudo tee #{SBT_PATH} > /dev/null && rm -f sbt.tmp"
             sh.chmod "+x", SBT_PATH, sudo: true

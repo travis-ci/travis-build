@@ -161,7 +161,7 @@ module Travis
           def install_gimme
             sh.echo "Installing gimme from #{gimme_url.inspect}", ansi: :yellow
             sh.mkdir "#{HOME_DIR}/bin", echo: false, recursive: true
-            sh.cmd "curl -sL -o #{HOME_DIR}/bin/gimme '#{gimme_url}'", echo: false
+            sh.cmd "curl --retry 2 -sL -o #{HOME_DIR}/bin/gimme '#{gimme_url}'", echo: false
           end
 
           def gimme_config
@@ -185,7 +185,7 @@ module Travis
             sh.echo "Updating gimme", ansi: :yellow
 
             sh.mkdir "#{HOME_DIR}/bin", echo: false, recursive: true
-            sh.cmd "curl -sf -o $HOME/bin/gimme https://#{app_host}/files/gimme", echo: false
+            sh.cmd "curl --retry 2 -sf -o $HOME/bin/gimme https://#{app_host}/files/gimme", echo: false
             sh.if "$? -ne 0" do
               install_gimme
             end
@@ -202,10 +202,10 @@ module Travis
             sh.mkdir "$HOME/gopath/bin", echo: false, recursive: true
 
             sh.if "$TRAVIS_OS_NAME = osx" do
-              sh.cmd "curl -sL -o #{godep} https://#{app_host}/files/godep_darwin_amd64", echo: false
+              sh.cmd "curl --retry 2 -sL -o #{godep} https://#{app_host}/files/godep_darwin_amd64", echo: false
             end
             sh.elif "$TRAVIS_OS_NAME = linux" do
-              sh.cmd "curl -sL -o #{godep} https://#{app_host}/files/godep_linux_amd64", echo: false
+              sh.cmd "curl --retry 2 -sL -o #{godep} https://#{app_host}/files/godep_linux_amd64", echo: false
             end
 
             sh.if "$? -ne 0" do

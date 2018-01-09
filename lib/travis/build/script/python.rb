@@ -109,7 +109,7 @@ module Travis
             sh.echo "Downloading archive: ${archive_url}", ansi: :yellow
             archive_basename = [lang, vers].compact.join("-")
             archive_filename = "#{archive_basename}.tar.bz2"
-            sh.cmd "curl -s -o #{archive_filename} ${archive_url}", assert: true
+            sh.cmd "curl --retry 2 -s -o #{archive_filename} ${archive_url}", assert: true
             sh.cmd "sudo tar xjf #{archive_filename} --directory /", echo: true, assert: true
             sh.cmd "rm #{archive_filename}", echo: false
           end

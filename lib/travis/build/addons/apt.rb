@@ -132,7 +132,7 @@ module Travis
             unless whitelisted.empty?
               sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
               whitelisted.each do |source|
-                sh.cmd "curl -sSL #{source['key_url'].untaint.inspect} | sudo -E apt-key add -", echo: true, assert: true, timing: true if source['key_url']
+                sh.cmd "curl --retry 2 -sSL #{source['key_url'].untaint.inspect} | sudo -E apt-key add -", echo: true, assert: true, timing: true if source['key_url']
                 if source['sourceline'].start_with? 'ppa:'
                   sh.cmd "sudo -E apt-add-repository -y #{source['sourceline'].untaint.inspect}", echo: true, assert: true, timing: true
                 else

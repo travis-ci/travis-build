@@ -99,7 +99,7 @@ module Travis
 
                 r_filename = "R-#{r_version}-$(lsb_release -cs).xz"
                 r_url = "https://s3.amazonaws.com/rstudio-travis/#{r_filename}"
-                sh.cmd "curl -fLo /tmp/#{r_filename} #{r_url}", retry: true
+                sh.cmd "curl --retry 2 -fLo /tmp/#{r_filename} #{r_url}", retry: true
                 sh.cmd "tar xJf /tmp/#{r_filename} -C ~"
                 sh.export 'PATH', "$HOME/R-bin/bin:$PATH", echo: false
                 sh.export 'LD_LIBRARY_PATH', "$HOME/R-bin/lib:$LD_LIBRARY_PATH", echo: false
@@ -132,7 +132,7 @@ module Travis
                 end
 
                 # Install from latest CRAN binary build for OS X
-                sh.cmd "curl -fLo /tmp/R.pkg #{r_url}", retry: true
+                sh.cmd "curl --retry 2 -fLo /tmp/R.pkg #{r_url}", retry: true
 
                 sh.echo 'Installing OS X binary package for R'
                 sh.cmd 'sudo installer -pkg "/tmp/R.pkg" -target /'
@@ -426,7 +426,7 @@ module Travis
           when 'linux'
             texlive_filename = 'texlive.tar.gz'
             texlive_url = 'https://github.com/jimhester/ubuntu-bin/releases/download/latest/texlive.tar.gz'
-            sh.cmd "curl -fLo /tmp/#{texlive_filename} #{texlive_url}"
+            sh.cmd "curl --retry 2 -fLo /tmp/#{texlive_filename} #{texlive_url}"
             sh.cmd "tar xzf /tmp/#{texlive_filename} -C ~"
             sh.export 'PATH', "/$HOME/texlive/bin/x86_64-linux:$PATH"
             sh.cmd 'tlmgr update --self', assert: false
@@ -435,7 +435,7 @@ module Travis
             mactex = 'BasicTeX.pkg'
             # TODO(craigcitro): Confirm that this will route us to the
             # nearest mirror.
-            sh.cmd "curl -fLo \"/tmp/#{mactex}\" --retry 3 http://mirror.ctan.org/systems/mac/mactex/"\
+            sh.cmd "curl --retry 2 -fLo \"/tmp/#{mactex}\" --retry 3 http://mirror.ctan.org/systems/mac/mactex/"\
                    "#{mactex}"
 
             sh.echo 'Installing OS X binary package for MacTeX'
@@ -459,7 +459,7 @@ module Travis
               "#{pandoc_filename}"
 
             # Download and install pandoc
-            sh.cmd "curl -fLo /tmp/#{pandoc_filename} #{pandoc_url}"
+            sh.cmd "curl --retry 2 -fLo /tmp/#{pandoc_filename} #{pandoc_url}"
             sh.cmd "sudo dpkg -i /tmp/#{pandoc_filename}"
 
             # Fix any missing dependencies
@@ -473,7 +473,7 @@ module Travis
               "#{pandoc_filename}"
 
             # Download and install pandoc
-            sh.cmd "curl -fLo /tmp/#{pandoc_filename} #{pandoc_url}"
+            sh.cmd "curl --retry 2 -fLo /tmp/#{pandoc_filename} #{pandoc_url}"
             sh.cmd "sudo installer -pkg \"/tmp/#{pandoc_filename}\" -target /"
 
             # Cleanup
@@ -485,11 +485,11 @@ module Travis
         def setup_fortran_osx
           return unless (config[:os] == 'osx')
           if r_version < '3.4'
-            sh.cmd 'curl -fLo /tmp/gfortran.tar.bz2 http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2', retry: true
+            sh.cmd 'curl --retry 2 -fLo /tmp/gfortran.tar.bz2 http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2', retry: true
             sh.cmd 'sudo tar fvxz /tmp/gfortran.tar.bz2 -C /'
             sh.rm '/tmp/gfortran.tar.bz2'
           else
-            sh.cmd "curl -fLo /tmp/gfortran61.dmg http://coudert.name/software/gfortran-6.1-ElCapitan.dmg", retry: true
+            sh.cmd "curl --retry 2 -fLo /tmp/gfortran61.dmg http://coudert.name/software/gfortran-6.1-ElCapitan.dmg", retry: true
             sh.cmd 'sudo hdiutil attach /tmp/gfortran61.dmg -mountpoint /Volumes/gfortran'
             sh.cmd 'sudo installer -pkg "/Volumes/gfortran/gfortran-6.1-ElCapitan/gfortran.pkg" -target /'
             sh.cmd 'sudo hdiutil detach /Volumes/gfortran'
@@ -501,7 +501,7 @@ module Travis
         # See FAQ: https://github.com/Homebrew/brew/blob/master/share/doc/homebrew/FAQ.md
         def disable_homebrew
           return unless (config[:os] == 'osx')
-          sh.cmd "curl -fsSOL https://raw.githubusercontent.com/Homebrew/install/master/uninstall"
+          sh.cmd "curl --retry 2 -fsSOL https://raw.githubusercontent.com/Homebrew/install/master/uninstall"
           sh.cmd "sudo ruby uninstall --force"
           sh.cmd "rm uninstall"
         end

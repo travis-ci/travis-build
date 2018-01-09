@@ -83,11 +83,11 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   [
-    "https://raw.githubusercontent.com/travis-ci/gimme/master/gimme' ; curl -sL -o ~/bin/gimme 'https://gist.githubusercontent.com/meatballhat/e2baf03f7ffae8047ccd/raw/f6d89b63eadb5faeeeed5b1bcd63c3fb60df3900/breakout.sh",
+    "https://raw.githubusercontent.com/travis-ci/gimme/master/gimme' ; curl --retry 2 -sL -o ~/bin/gimme 'https://gist.githubusercontent.com/meatballhat/e2baf03f7ffae8047ccd/raw/f6d89b63eadb5faeeeed5b1bcd63c3fb60df3900/breakout.sh",
     'https://gist.githubusercontent.com/meatballhat/e2baf03f7ffae8047ccd/raw/f6d89b63eadb5faeeeed5b1bcd63c3fb60df3900/breakout.sh'
   ].each do |url|
     it "ignores invalid gimme_config.url #{url}" do
-      should include_sexp [:cmd, "curl -sL -o $HOME/bin/gimme '#{defaults[:gimme_config][:url]}'"]
+      should include_sexp [:cmd, "curl --retry 2 -sL -o $HOME/bin/gimme '#{defaults[:gimme_config][:url]}'"]
     end
   end
 

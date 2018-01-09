@@ -62,7 +62,7 @@ describe Travis::Build::Addons::Firefox, :sexp do
     let(:config) { 'latest-unsigned' }
     it "exports latest-unsigned source URL" do
       expect(sexp_find(subject, [:if, "$(uname) = 'Linux'"])).to include_sexp(
-        [:export, ['FIREFOX_SOURCE_URL', "\"https://index.taskcluster.net/v1/task/gecko.v2.mozilla-release.latest.firefox.linux64-add-on-devel/artifacts/public/build/firefox-$(curl -sfL https://index.taskcluster.net/v1/task/gecko.v2.mozilla-release.latest.firefox.linux64-add-on-devel/artifacts/public/build/buildbot_properties.json | jq -r .properties.appVersion).en-US.linux-x86_64-add-on-devel.tar.bz2\""], echo: true]
+        [:export, ['FIREFOX_SOURCE_URL', "\"https://index.taskcluster.net/v1/task/gecko.v2.mozilla-release.latest.firefox.linux64-add-on-devel/artifacts/public/build/firefox-$(curl --retry 2 -sfL https://index.taskcluster.net/v1/task/gecko.v2.mozilla-release.latest.firefox.linux64-add-on-devel/artifacts/public/build/buildbot_properties.json | jq -r .properties.appVersion).en-US.linux-x86_64-add-on-devel.tar.bz2\""], echo: true]
       )
     end
     it { should include_sexp [:export, ['PATH', "$HOME/firefox-latest-unsigned/firefox:$PATH"], echo: true] }

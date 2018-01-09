@@ -140,11 +140,11 @@ module Travis
 
           def warn_github_status
             return unless github?
-            
+
             sh.if "$? -ne 0" do
               sh.echo "Failed to clone from GitHub.", ansi: :red
               sh.echo "Checking GitHub status (https://status.github.com/api/last-message.json):"
-              sh.raw "curl -sL https://status.github.com/api/last-message.json | jq -r .[]"
+              sh.raw "curl --retry 2 -sL https://status.github.com/api/last-message.json | jq -r .[]"
               sh.raw "travis_terminate 1"
             end
           end
