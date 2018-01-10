@@ -187,6 +187,7 @@ module Travis
           apply :enable_i386
           apply :update_rubygems
           apply :ensure_path_components
+          apply :redefine_curl
         end
 
         def setup_filter

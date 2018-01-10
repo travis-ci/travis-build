@@ -1,5 +1,6 @@
 require 'travis/build/appliances/checkout'
 require 'travis/build/appliances/clean_up_path'
+require 'travis/build/appliances/redefine_curl'
 require 'travis/build/appliances/debug_tools'
 require 'travis/build/appliances/deprecations'
 require 'travis/build/appliances/disable_sudo'
