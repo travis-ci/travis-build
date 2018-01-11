@@ -161,7 +161,7 @@ module Travis
           apply :show_system_info
           apply :rm_riak_source
           apply :fix_rwky_redis
-          apply :update_mongodb_key
+          apply :update_apt_keys
           apply :fix_hhvm_source
           apply :apt_get_update
           apply :fix_container_based_trusty
