@@ -3,7 +3,7 @@ require 'travis/build/appliances/base'
 module Travis
   module Build
     module Appliances
-      class AptKeyUpdate < Base
+      class UpdateAptKeys < Base
         def apply
           command = <<-EOF
           if [[ -d /var/lib/apt/lists && -n $(command -v apt-get) ]]; then
