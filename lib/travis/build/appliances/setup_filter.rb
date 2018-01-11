@@ -59,6 +59,18 @@ module Travis
               %{exports}
               ruby ~/filter.rb %{args}
             ) 2>&1
+
+            echo 'import os' >~/nonblock.py
+            echo 'import sys' >>~/nonblock.py
+            echo 'import fcntl' >>~/nonblock.py
+
+            echo 'flags_stdout = fcntl.fcntl(sys.stdout, fcntl.F_GETFL)' >>~/nonblock.py
+            echo 'fcntl.fcntl(sys.stdout, fcntl.F_SETFL, flags_stdout&~os.O_NONBLOCK)' >>~/nonblock.py
+
+            echo 'flags_stderr = fcntl.fcntl(sys.stderr, fcntl.F_GETFL)' >>~/nonblock.py
+            echo 'fcntl.fcntl(sys.stderr, fcntl.F_SETFL, flags_stderr&~os.O_NONBLOCK)' >>~/nonblock.py
+            sleep 10
+            python ~/nonblock.py
           )
         }
 
