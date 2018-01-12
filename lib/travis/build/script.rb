@@ -163,6 +163,7 @@ module Travis
           apply :fix_rwky_redis
           apply :update_apt_keys
           apply :fix_hhvm_source
+          apply :update_mongo_arch
           apply :apt_get_update
           apply :fix_container_based_trusty
           apply :fix_sudo_enabled_trusty
