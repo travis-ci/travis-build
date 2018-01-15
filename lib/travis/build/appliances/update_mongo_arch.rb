@@ -6,7 +6,7 @@ module Travis
       class UpdateMongoArch < Base
         def apply
           command = <<-EOF
-            if command -v lsb_release &>/dev/null && [[ $(lsb_release -sc) != precise ]]; then
+            if command -v lsb_release &>/dev/null; then
               shopt -s nullglob
               for f in /etc/apt/sources.list.d/mongodb-*.list; do
                 grep -vq arch=amd64 "$f" && sudo sed -i 's/^deb /deb [arch=amd64] /' "$f"
