@@ -188,6 +188,7 @@ module Travis
           apply :update_rubygems
           apply :ensure_path_components
           apply :redefine_curl
+          apply :nonblock_pipe
         end
 
         def setup_filter
