@@ -69,7 +69,7 @@ module Travis
 
             echo 'flags_stderr = fcntl.fcntl(sys.stderr, fcntl.F_GETFL)' >>~/nonblock.py
             echo 'fcntl.fcntl(sys.stderr, fcntl.F_SETFL, flags_stderr&~os.O_NONBLOCK)' >>~/nonblock.py
-            sleep 10
+            echo
             python ~/nonblock.py
           )
         }
