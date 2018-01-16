@@ -34,7 +34,6 @@ module Travis
             sh.cmd <<-'EOT'.gsub(/^              /, '')
               __mirrors=(
                 "https://dlang.org/install.sh"
-                "https://downloads.dlang.org/other/install.sh"
                 "https://nightlies.dlang.org/install.sh"
                 "https://github.com/dlang/installer/raw/stable/script/install.sh"
               )
