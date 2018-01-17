@@ -206,10 +206,10 @@ module Travis
             sh.mkdir "$HOME/gopath/bin", echo: false, recursive: true
 
             sh.if "$TRAVIS_OS_NAME = osx" do
-              sh.cmd "curl -o #{dep} https://github.com/golang/dep/releases/download/v0.3.2/dep-darwin-amd64", echo: false
+              sh.cmd "curl -sL -o #{dep} https://github.com/golang/dep/releases/download/v0.3.2/dep-darwin-amd64", echo: false
             end
             sh.elif "$TRAVIS_OS_NAME = linux" do
-              sh.cmd "curl -o #{dep} https://github.com/golang/dep/releases/download/v0.3.2/dep-linux-amd64", echo: false
+              sh.cmd "curl -sL -o #{dep} https://github.com/golang/dep/releases/download/v0.3.2/dep-linux-amd64", echo: false
             end
 
             sh.cmd "chmod +x #{dep}"
