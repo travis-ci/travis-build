@@ -34,15 +34,14 @@ module Travis
             sh.cmd <<-'EOT'.gsub(/^              /, '')
               __mirrors=(
                 "https://dlang.org/install.sh"
-                "https://downloads.dlang.org/other/install.sh"
                 "https://nightlies.dlang.org/install.sh"
                 "https://github.com/dlang/installer/raw/stable/script/install.sh"
               )
               for i in {0..4}; do
                 for mirror in "${__mirrors[@]}" ; do
-                    if curl -fsSL -A "$CURL_USER_AGENT" --connect-timeout 5 --speed-time 30 --speed-limit 1024 "$mirror" -O ; then
-                        break 2
-                    fi
+                  if curl -fsSL -A "$CURL_USER_AGENT" --connect-timeout 5 --speed-time 30 --speed-limit 1024 "$mirror" -O ; then
+                    break 2
+                  fi
                 done
                 sleep $((1 << i))
               done

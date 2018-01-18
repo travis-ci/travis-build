@@ -15,8 +15,6 @@ describe Travis::Build::Script::D, :sexp do
   it 'downloads and runs the installer script' do
     should include_sexp [:cmd, %r{https://dlang\.org/install\.sh},
                          assert: true, echo: true, timing: true]
-    should include_sexp [:cmd, %r{https://downloads\.dlang\.org/other/install\.sh},
-                         assert: true, echo: true, timing: true]
     should include_sexp [:cmd, %r{https://nightlies\.dlang\.org/install\.sh},
                          assert: true, echo: true, timing: true]
     should include_sexp [:cmd, %r{https://github\.com/dlang/installer/raw/stable/script/install\.sh},
