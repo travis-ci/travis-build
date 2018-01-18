@@ -87,7 +87,7 @@ describe Travis::Build::Git::Clone, :sexp do
     let(:cmd)  { "git clone #{args} #{url} #{dir}" }
     subject    { sexp_find(sexp, [:if, "! -d #{dir}/.git"]) }
 
-    let(:clone) { [:cmd, cmd, assert: true, echo: true, retry: true, timing: true] }
+    let(:clone) { [:cmd, cmd, echo: true, retry: true, timing: true] }
 
     describe 'with no depth specified' do
       it { should include_sexp clone }
@@ -95,6 +95,13 @@ describe Travis::Build::Git::Clone, :sexp do
 
     describe 'with a custom depth' do
       let(:depth) { 1 }
+      before { payload[:config][:git]['depth'] = depth }
+      it { should include_sexp clone }
+    end
+
+    describe 'with depth "false"' do
+      let(:depth) { false }
+      let(:args) { " --branch=#{branch.shellescape}" }
       before { payload[:config][:git]['depth'] = depth }
       it { should include_sexp clone }
     end
@@ -159,5 +166,13 @@ describe Travis::Build::Git::Clone, :sexp do
   describe 'checks out the given commit for a pull request' do
     before { payload[:job][:pull_request] = true }
     it { should include_sexp checkout_pull }
+  end
+
+  context "When sparse_checkout is requested" do
+    before { payload[:config][:git]['sparse_checkout'] = 'sparse_checkout_file' }
+    it { should include_sexp [:cmd, "git -C travis-ci/travis-ci pull origin master --depth=50", echo: true, timing: true, retry: true]}
+    it { should include_sexp [:cmd, "echo sparse_checkout_file >> travis-ci/travis-ci/.git/info/sparse-checkout", assert: true, echo: true, timing: true, retry: true]}
+    it { should include_sexp [:cmd, "cat travis-ci/travis-ci/sparse_checkout_file >> travis-ci/travis-ci/.git/info/sparse-checkout", assert: true, echo: true, timing: true, retry: true]}
+    it { store_example "git-sparse-checkout"}
   end
 end

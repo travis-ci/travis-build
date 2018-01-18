@@ -12,7 +12,8 @@ module Travis
           submodules: true,
           strategy: 'clone',
           quiet: false,
-          lfs_skip_smudge: false
+          lfs_skip_smudge: false,
+          sparse_checkout: false,
         }
       }
 

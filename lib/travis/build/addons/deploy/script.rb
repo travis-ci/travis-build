@@ -97,6 +97,10 @@ module Travis
                 custom_conditions,
                 tags_condition,
               ].flatten.compact.map { |c| "(#{c})" }.join(" && ")
+            rescue TypeError => e
+              if e.message =~ /no implicit conversion of Symbol into Integer/
+                raise Travis::Build::DeployConditionError.new
+              end
             end
 
             def repo_condition
