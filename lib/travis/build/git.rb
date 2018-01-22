@@ -61,7 +61,7 @@ module Travis
         end
 
         def rm_key
-          sh.rm '~/.ssh/source_rsa', force: true, echo: false
+          sh.rm '~/.ssh/id_rsa', force: true, echo: false
         end
 
         def config

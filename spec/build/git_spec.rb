@@ -5,7 +5,7 @@ describe Travis::Build::Git, :sexp do
   let(:script)  { Travis::Build::Script.new(payload) }
   subject       { script.sexp }
 
-  let(:rm_ssh_key)    { [:rm, '~/.ssh/source_rsa', force: true] }
+  let(:rm_ssh_key)    { [:rm, '~/.ssh/id_rsa', force: true] }
 
   it { should include_sexp rm_ssh_key }
 end
