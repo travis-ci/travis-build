@@ -28,6 +28,8 @@ module Travis
             smalltalk
           ).map(&:to_sym)
 
+          WANT_18 = true # whether or not we want `dpl` < 1.9
+
           attr_accessor :script, :sh, :data, :config, :allow_failure
 
           def initialize(script, sh, data, config)
@@ -95,6 +97,10 @@ module Travis
                 custom_conditions,
                 tags_condition,
               ].flatten.compact.map { |c| "(#{c})" }.join(" && ")
+            rescue TypeError => e
+              if e.message =~ /no implicit conversion of Symbol into Integer/
+                raise Travis::Build::DeployConditionError.new
+              end
             end
 
             def repo_condition
@@ -134,17 +140,13 @@ module Travis
               end
             end
 
-            def install(edge = config[:edge])
-              edge = config[:edge]
-              if edge.respond_to? :fetch
-                src = edge.fetch(:source, 'travis-ci/dpl')
-                branch = edge.fetch(:branch, 'master')
-                build_gem_locally_from(src, branch)
+            def install
+              sh.if "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*" do
+                cmd(dpl_install_command(WANT_18), echo: false, assert: !allow_failure, timing: true)
               end
-              command = "gem install dpl"
-              command << "-*.gem --local" if edge == 'local' || edge.respond_to?(:fetch)
-              command << " --pre" if edge
-              cmd(command, echo: false, assert: !allow_failure, timing: true)
+              sh.else do
+                cmd(dpl_install_command, echo: false, assert: !allow_failure, timing: true)
+              end
               sh.cmd "rm -f dpl-*.gem", echo: false, assert: false, timing: false
             end
 
@@ -175,6 +177,21 @@ module Travis
             def cmd(cmd, *args)
               sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
               sh.cmd("rvm $(travis_internal_ruby) --fuzzy do ruby -S #{cmd}", *args)
+            end
+
+            def dpl_install_command(want_pre_19 = false)
+              edge = config[:edge]
+              if edge.respond_to? :fetch
+                src = edge.fetch(:source, 'travis-ci/dpl')
+                branch = edge.fetch(:branch, 'master')
+                build_gem_locally_from(src, branch)
+              end
+
+              command = "gem install dpl"
+              command << " -v '< 1.9' " if want_pre_19
+              command << "-*.gem --local" if edge == 'local' || edge.respond_to?(:fetch)
+              command << " --pre" if edge
+              command
             end
 
             def options
