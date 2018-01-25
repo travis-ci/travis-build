@@ -39,9 +39,12 @@ jobs:
       script: ./script/docker-build-and-push
       if: (NOT type IN (pull_request)) AND (branch = master)
 
+before_script:
+  - bundle exec rake clean assets:precompile
+
 script:
-  - mkdir -p public/files && touch public/files/nvm.sh
-  - bundle exec rake lib/travis/build/addons/sauce_connect/sauce_connect.sh spec && ./script/validate-bash-syntax
+  - bundle exec rake spec
+  - ./script/validate-bash-syntax
 
 after_success: bundle exec codeclimate-test-reporter
 
