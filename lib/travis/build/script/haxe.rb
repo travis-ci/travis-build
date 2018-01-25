@@ -19,7 +19,7 @@ module Travis
 
         DEFAULTS = {
           haxe: 'stable',
-          neko: '2.1.0'
+          neko: '2.2.0'
         }
 
         def export
@@ -162,7 +162,7 @@ module Travis
               os = 'osx64'
             end
             version = config[:neko]
-            "http://nekovm.org/_media/neko-#{version}-#{os}.tar.gz"
+            "https://github.com/HaxeFoundation/neko/releases/download/v#{version.to_s.gsub(".", "-")}/neko-#{version}-#{os}.tar.gz"
           end
 
           def haxe_url
@@ -183,7 +183,7 @@ module Travis
               when 'osx'
                 'osx'
               end
-              "http://haxe.org/website-content/downloads/#{haxe_ver}/downloads/haxe-#{haxe_ver}-#{os}.tar.gz"
+              "https://haxe.org/website-content/downloads/#{haxe_ver}/downloads/haxe-#{haxe_ver}-#{os}.tar.gz"
             end
           end
 

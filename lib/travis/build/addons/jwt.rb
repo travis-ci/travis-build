@@ -8,6 +8,8 @@ module Travis
         SUPER_USER_SAFE = true
 
         def before_before_install
+          sh.echo "JWT addon will be deprecated on April 17, 2018. Please read our announcement at https://blog.travis-ci.com/2018-01-23-jwt-addon-is-deprecated", ansi: :red
+
           tokens = {}
           Array(config).each do |secret|
             pull_request = self.data.pull_request ? self.data.pull_request : ""

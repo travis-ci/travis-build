@@ -6,6 +6,7 @@ module Travis
     class Addons
       class Chrome < Base
         SUPER_USER_SAFE = true
+        WGET_FLAGS = ' --no-verbose'
 
         attr_reader :version
 
@@ -25,12 +26,12 @@ module Travis
                 sh.echo "Google Chrome addon is not supported on Precise", ansi: :yellow
               end
               sh.else do
-                sh.cmd "wget -O /tmp/$(basename $CHROME_SOURCE_URL) $CHROME_SOURCE_URL", echo: true, timing: true, retry: true
+                sh.cmd "wget#{WGET_FLAGS} -O /tmp/$(basename $CHROME_SOURCE_URL) $CHROME_SOURCE_URL", echo: true, timing: true, retry: true
                 sh.cmd "sudo dpkg -i /tmp/$(basename $CHROME_SOURCE_URL)"
               end
             end
             sh.elif '$(uname) = "Darwin"' do
-              sh.cmd "wget -O /tmp/$(basename $CHROME_SOURCE_URL) $CHROME_SOURCE_URL", echo: true, timing: true, retry: true
+              sh.cmd "wget#{WGET_FLAGS} -O /tmp/$(basename $CHROME_SOURCE_URL) $CHROME_SOURCE_URL", echo: true, timing: true, retry: true
               sh.cmd "hdiutil mount -readonly -mountpoint chrome /tmp/$(basename $CHROME_SOURCE_URL)"
               sh.cmd "sudo rm -rf /Applications/Google\\ Chrome.app"
               sh.cmd "sudo cp -a chrome/Google\\ Chrome.app /Applications"

@@ -201,7 +201,7 @@ module Travis
 
             sh.mkdir "$HOME/gopath/bin", echo: false, recursive: true
 
-            sh.if "$TRAVIS_OS_NAME = macx" do
+            sh.if "$TRAVIS_OS_NAME = osx" do
               sh.cmd "curl -sL -o #{godep} https://#{app_host}/files/godep_darwin_amd64", echo: false
             end
             sh.elif "$TRAVIS_OS_NAME = linux" do
