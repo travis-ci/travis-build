@@ -12,6 +12,7 @@ rvm: 2.3.4
 env:
   global:
   - COVERAGE=1
+  - RUBYOPT=-W0
   matrix:
   - INTEGRATION_SPECS=0
   - INTEGRATION_SPECS=1
@@ -39,9 +40,12 @@ jobs:
       script: ./script/docker-build-and-push
       if: (NOT type IN (pull_request)) AND (branch = master)
 
+before_script:
+  - bundle exec rake clean assets:precompile
+
 script:
-  - mkdir -p public/files && touch public/files/nvm.sh
-  - bundle exec rake lib/travis/build/addons/sauce_connect/sauce_connect.sh spec && ./script/validate-bash-syntax
+  - bundle exec rake spec
+  - ./script/validate-bash-syntax
 
 after_success: bundle exec codeclimate-test-reporter
 

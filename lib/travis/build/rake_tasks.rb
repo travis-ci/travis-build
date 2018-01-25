@@ -156,6 +156,8 @@ module Travis
 
       def task_clean
         rm_rf(top + 'public/files')
+        rm_rf(top + 'tmp/go-versions-binary-linux')
+        rm_rf(top + 'tmp/ghc-versions.html')
       end
 
       def file_update_casher
