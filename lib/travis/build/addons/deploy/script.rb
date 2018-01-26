@@ -141,6 +141,9 @@ module Travis
             end
 
             def install
+              if install_local?(config[:edge])
+                sh.cmd "pushd $TRAVIS_BUILD_DIR >&/dev/null", echo: false
+              end
               sh.if "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*" do
                 cmd(dpl_install_command(WANT_18), echo: false, assert: !allow_failure, timing: true)
               end
@@ -148,6 +151,9 @@ module Travis
                 cmd(dpl_install_command, echo: false, assert: !allow_failure, timing: true)
               end
               sh.cmd "rm -f dpl-*.gem", echo: false, assert: false, timing: false
+              if install_local?(config[:edge])
+                sh.cmd "popd >&/dev/null", echo: false
+              end
             end
 
             def run_command(assert = !allow_failure)
@@ -189,7 +195,7 @@ module Travis
 
               command = "gem install dpl"
               command << " -v '< 1.9' " if want_pre_19
-              command << "-*.gem --local" if edge == 'local' || edge.respond_to?(:fetch)
+              command << "-*.gem --local" if install_local?(edge)
               command << " --pre" if edge
               command
             end
@@ -222,6 +228,12 @@ module Travis
               sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: true)
             ensure
               sh.cmd("test -e /tmp/dpl && rm -rf dpl", echo: false, assert: false, timing: true)
+            end
+
+            def install_local?(edge)
+              edge == 'local' || edge.respond_to?(:fetch)
+            rescue
+              false
             end
         end
       end
