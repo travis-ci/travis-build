@@ -142,10 +142,10 @@ module Travis
 
             def install
               sh.if "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*" do
-                cmd(dpl_install_command(WANT_18), echo: false, assert: !allow_failure, timing: true)
+                cmd(dpl_install_command(WANT_18), echo: true, assert: !allow_failure, timing: true)
               end
               sh.else do
-                cmd(dpl_install_command, echo: false, assert: !allow_failure, timing: true)
+                cmd(dpl_install_command, echo: true, assert: !allow_failure, timing: true)
               end
               sh.cmd "rm -f $TRAVIS_BUILD_DIR/dpl-*.gem", echo: false, assert: false, timing: false
             end
