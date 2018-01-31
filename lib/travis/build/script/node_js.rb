@@ -41,6 +41,9 @@ module Travis
           sh.cmd 'node --version'
           sh.cmd 'npm --version'
           sh.cmd 'nvm --version'
+          sh.if "-f yarn.lock" do
+             sh.cmd 'yarn --version'
+          end
         end
 
         def install
@@ -61,7 +64,17 @@ module Travis
 
         def script
           sh.if '-f package.json' do
-            sh.cmd 'npm test'
+            sh.if "-f yarn.lock" do
+              sh.if yarn_req_not_met do
+                sh.cmd 'npm test'
+              end
+              sh.else do
+                sh.cmd 'yarn test'
+              end
+            end
+            sh.else do
+              sh.cmd 'npm test'
+            end
           end
           sh.else do
             sh.cmd 'make test'
