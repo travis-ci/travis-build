@@ -29,6 +29,8 @@ module Travis
             smalltalk
           ).map(&:to_sym)
 
+          WANT_18 = true # whether or not we want `dpl` < 1.9
+
           attr_accessor :script, :sh, :data, :config, :allow_failure
 
           def initialize(script, sh, data, config)
@@ -37,7 +39,11 @@ module Travis
             @data = data
             @config = config
             @silent = false
+
             @allow_failure = config.delete(:allow_failure)
+
+          rescue
+            raise Travis::Build::DeployConfigError.new
           end
 
           def deploy
@@ -76,7 +82,7 @@ module Travis
 
             def on
               @on ||= begin
-                on = config.delete(:on) || config.delete(true) || config.delete(:true) || {}
+                on = config.delete(:if) || config.delete(:on) || config.delete(true) || config.delete(:true) || {}
                 on = { branch: on.to_str } if on.respond_to? :to_str
                 on[:ruby] ||= on[:rvm] if on.include? :rvm
                 on[:node] ||= on[:node_js] if on.include? :node_js
@@ -92,6 +98,10 @@ module Travis
                 custom_conditions,
                 tags_condition,
               ].flatten.compact.map { |c| "(#{c})" }.join(" && ")
+            rescue TypeError => e
+              if e.message =~ /no implicit conversion of Symbol into Integer/
+                raise Travis::Build::DeployConditionError.new
+              end
             end
 
             def repo_condition
@@ -131,18 +141,14 @@ module Travis
               end
             end
 
-            def install(edge = config[:edge])
-              edge = config[:edge]
-              if edge.respond_to? :fetch
-                src = edge.fetch(:source, 'travis-ci/dpl')
-                branch = edge.fetch(:branch, 'master')
-                build_gem_locally_from(src, branch)
+            def install
+              sh.if "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*" do
+                cmd(dpl_install_command(WANT_18), echo: true, assert: !allow_failure, timing: true)
               end
-              command = "gem install dpl"
-              command << "-*.gem --local" if edge == 'local' || edge.respond_to?(:fetch)
-              command << " --pre" if edge
-              cmd(command, echo: false, assert: !allow_failure, timing: true)
-              sh.cmd "rm -f dpl-*.gem", echo: false, assert: false, timing: false
+              sh.else do
+                cmd(dpl_install_command, echo: true, assert: !allow_failure, timing: true)
+              end
+              sh.cmd "rm -f $TRAVIS_BUILD_DIR/dpl-*.gem", echo: false, assert: false, timing: false
             end
 
             def run_command(assert = !allow_failure)
@@ -174,6 +180,25 @@ module Travis
               sh.cmd("rvm $(travis_internal_ruby) --fuzzy do ruby -S #{cmd}", *args)
             end
 
+            def dpl_install_command(want_pre_19 = false)
+              edge = config[:edge]
+              if edge.respond_to? :fetch
+                src = edge.fetch(:source, 'travis-ci/dpl')
+                branch = edge.fetch(:branch, 'master')
+                build_gem_locally_from(src, branch)
+              end
+
+              command = "gem install"
+              if install_local?(edge)
+                command << " $TRAVIS_BUILD_DIR/dpl-*.gem --local"
+              else
+                command << " dpl"
+              end
+              command << " -v '< 1.9' " if want_pre_19
+              command << " --pre" if edge
+              command
+            end
+
             def options
               config.flat_map { |k,v| option(k,v) }.compact.join(" ")
             end
@@ -183,7 +208,7 @@ module Travis
             end
 
             def negate_condition(conditions)
-              Array(conditions).flatten.compact.map { |condition| " ! #{condition}" }.join(" && ")
+              Array(conditions).flatten.compact.map { |condition| " ! (#{condition})" }.join(" && ")
             end
 
             def build_gem_locally_from(source, branch)
@@ -193,6 +218,7 @@ module Travis
               sh.cmd("git clone https://github.com/#{source} #{source}",    echo: true,  assert: !allow_failure, timing: true)
               sh.cmd("pushd #{source} >& /dev/null",                        echo: false, assert: !allow_failure, timing: true)
               sh.cmd("git checkout #{branch}",                              echo: true,  assert: !allow_failure, timing: true)
+              sh.cmd("git show-ref -s HEAD",                                echo: true,  assert: !allow_failure, timing: true)
               cmd("gem build dpl.gemspec",                                  echo: true,  assert: !allow_failure, timing: true)
               sh.cmd("mv dpl-*.gem $TRAVIS_BUILD_DIR >& /dev/null",         echo: false, assert: !allow_failure, timing: true)
               sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: true)
@@ -201,6 +227,12 @@ module Travis
               sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: true)
             ensure
               sh.cmd("test -e /tmp/dpl && rm -rf dpl", echo: false, assert: false, timing: true)
+            end
+
+            def install_local?(edge)
+              edge == 'local' || edge.respond_to?(:fetch)
+            rescue
+              false
             end
         end
       end

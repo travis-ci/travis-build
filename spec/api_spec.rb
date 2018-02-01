@@ -11,6 +11,8 @@ describe Travis::Api::Build::App, :include_sinatra_helpers do
 
     Travis::Api::Build::App.any_instance
       .stubs(:api_tokens).returns(%w(the-token the-other-token))
+    Travis::Api::Build::App.any_instance
+      .stubs(:auth_disabled?).returns(false)
     set_app(app)
   end
 
@@ -63,6 +65,17 @@ describe Travis::Api::Build::App, :include_sinatra_helpers do
       end
     end
 
+    context 'without an Authorization header and authorization is disabled' do
+      before do
+        Travis::Api::Build::App.any_instance
+          .stubs(:auth_disabled?).returns(true)
+      end
+      it 'returns 200' do
+        response = post '/script', {}, input: PAYLOADS[:push].to_json
+        expect(response.status).to be == 200
+      end
+    end
+
     context 'with an incorrect token' do
       it 'returns 403' do
         header('Authorization', 'token not-the-token')
@@ -85,10 +98,10 @@ describe Travis::Api::Build::App, :include_sinatra_helpers do
     /uptime
   ).each do |path|
     describe "GET #{path}" do
-      it 'responds 204' do
+      it 'responds 200' do
         header('Authorization', 'token the-token')
         response = get path
-        expect(response.status).to eq(204)
+        expect(response.status).to eq(200)
       end
     end
   end

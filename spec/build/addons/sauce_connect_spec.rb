@@ -14,7 +14,7 @@ describe Travis::Build::Addons::SauceConnect, :sexp do
   end
 
   shared_examples_for 'starts sauce connect' do
-    it { should include_sexp [:cmd, 'travis_start_sauce_connect', echo: true, timing: true, retry: true] }
+    it { should include_sexp [:cmd, 'travis_start_sauce_connect', assert: true, echo: true, timing: true, retry: true] }
     it { should include_sexp [:export, ['TRAVIS_SAUCE_CONNECT', 'true']] }
   end
 

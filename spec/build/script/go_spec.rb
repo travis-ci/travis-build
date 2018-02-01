@@ -19,7 +19,7 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   it 'sets TRAVIS_GO_VERSION' do
-    should include_sexp [:export, ['TRAVIS_GO_VERSION', '1.7.4']]
+    should include_sexp [:export, ['TRAVIS_GO_VERSION', '1.9']]
   end
 
   it 'conditionally sets GOMAXPROCS to 2' do
@@ -27,12 +27,12 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   it 'sets the default go version if not :go config given' do
-    should include_sexp [:cmd, 'GIMME_OUTPUT=$(gimme 1.7.4) && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'GIMME_OUTPUT="$(gimme 1.9 | tee -a $HOME/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
   end
 
   it 'sets the go version from config :go' do
     data[:config][:go] = 'go1.2'
-    should include_sexp [:cmd, 'GIMME_OUTPUT=$(gimme 1.2.2) && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'GIMME_OUTPUT="$(gimme 1.2.2 | tee -a $HOME/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
   end
 
   shared_examples 'gopath fix' do
@@ -59,37 +59,19 @@ describe Travis::Build::Script::Go, :sexp do
 
   it 'installs the go version' do
     data[:config][:go] = 'go1.1'
-    should include_sexp [:cmd, 'GIMME_OUTPUT=$(gimme 1.1) && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'GIMME_OUTPUT="$(gimme 1.1 | tee -a $HOME/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
   end
 
-  {
-    '1' => '1.7.4',
-    '1.0' => '1.0.3',
-    '1.0.x' => '1.0.3',
-    '1.1.x' => '1.1.2',
-    '1.2' => '1.2.2',
-    '1.2.x' => '1.2.2',
-    '1.3.x' => '1.3.3',
-    '1.4.x' => '1.4.3',
-    '1.5.x' => '1.5.4',
-    '1.6.x' => '1.6.4',
-    '1.7.x' => '1.7.4',
-    '1.8.x' => '1.8rc1',
-    '1.x' => '1.7.4',
-    '1.x.x' => '1.7.4',
-    'default' => Travis::Build::Script::Go::DEFAULTS[:go],
-    'go1' => 'go1',
-    'go1.4.1' => '1.4.1'
-  }.each do |version_alias, version|
+  Travis::Build.config.go_version_aliases_hash.each do |version_alias, version|
     it "sets version #{version.inspect} for alias #{version_alias.inspect}" do
       data[:config][:go] = version_alias
-      should include_sexp [:cmd, %Q'GIMME_OUTPUT=$(gimme #{version}) && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
+      should include_sexp [:cmd, %Q'GIMME_OUTPUT="$(gimme #{version} | tee -a $HOME/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
     end
   end
 
   it 'passes through arbitrary tag versions' do
     data[:config][:go] = 'release9000'
-    should include_sexp [:cmd, 'GIMME_OUTPUT=$(gimme release9000) && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'GIMME_OUTPUT="$(gimme release9000 | tee -a $HOME/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
   end
 
   it 'announces go version' do
@@ -101,7 +83,7 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   [
-    "https://raw.githubusercontent.com/meatballhat/gimme/master/gimme' ; curl -sL -o ~/bin/gimme 'https://gist.githubusercontent.com/meatballhat/e2baf03f7ffae8047ccd/raw/f6d89b63eadb5faeeeed5b1bcd63c3fb60df3900/breakout.sh",
+    "https://raw.githubusercontent.com/travis-ci/gimme/master/gimme' ; curl -sL -o ~/bin/gimme 'https://gist.githubusercontent.com/meatballhat/e2baf03f7ffae8047ccd/raw/f6d89b63eadb5faeeeed5b1bcd63c3fb60df3900/breakout.sh",
     'https://gist.githubusercontent.com/meatballhat/e2baf03f7ffae8047ccd/raw/f6d89b63eadb5faeeeed5b1bcd63c3fb60df3900/breakout.sh'
   ].each do |url|
     it "ignores invalid gimme_config.url #{url}" do
@@ -177,4 +159,3 @@ describe Travis::Build::Script::Go, :sexp do
     end
   end
 end
-

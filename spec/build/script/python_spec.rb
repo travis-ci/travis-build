@@ -26,6 +26,7 @@ describe Travis::Build::Script::Python, :sexp do
   it 'sets up the python version (pypy)' do
     data[:config][:python] = 'pypy'
     should include_sexp [:cmd,  'source ~/virtualenv/pypy/bin/activate', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd,  "curl -s -o pypy.tar.bz2 ${archive_url}", assert: true]
   end
 
   it 'sets up the python version (pypy-5.3.1)' do
@@ -44,6 +45,7 @@ describe Travis::Build::Script::Python, :sexp do
 
   it 'sets up the python version (pypy3)' do
     data[:config][:python] = 'pypy3'
+    should include_sexp [:cmd,  "curl -s -o pypy3.tar.bz2 ${archive_url}", assert: true]
     should include_sexp [:cmd,  'source ~/virtualenv/pypy3/bin/activate', assert: true, echo: true, timing: true]
   end
 
@@ -53,8 +55,18 @@ describe Travis::Build::Script::Python, :sexp do
 
   it 'sets up the python version nightly' do
     data[:config][:python] = 'nightly'
-    should include_sexp [:cmd,  'sudo tar xjf python-nightly.tar.bz2 --directory /', assert: true]
+    should include_sexp [:cmd,  'sudo tar xjf python-nightly.tar.bz2 --directory /', echo: true, assert: true]
     should include_sexp [:cmd,  'source ~/virtualenv/pythonnightly/bin/activate', assert: true, echo: true, timing: true]
+  end
+
+  context 'when specified Python is not pre-installed' do
+    let(:version) { '2.7' }
+    let(:sexp) { sexp_find(subject, [:if, "! -f ~/virtualenv/python#{version}/bin/activate"]) }
+
+    it "downloads archive" do
+      branch = sexp_find(sexp, [:then])
+      expect(branch).to include_sexp [:raw, "archive_url=https://s3.amazonaws.com/travis-python-archives/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/python-#{version}.tar.bz2"]
+    end
   end
 
   it 'announces python --version' do

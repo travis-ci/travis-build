@@ -21,10 +21,10 @@ module Travis
           # Build/test options
           r_build_args: '',
           r_check_args: '--as-cran',
-          r_check_revdep: false,
           # Heavy dependencies
           pandoc: true,
           latex: true,
+          fortran: true,
           pandoc_version: '1.15.2',
           # Bioconductor
           bioc: 'https://bioconductor.org/biocLite.R',
@@ -81,42 +81,30 @@ module Travis
                 # times to work around flaky connection to Launchpad PPAs.
                 sh.cmd 'sudo apt-get update -qq', retry: true
 
-                # Install precompiled R if on precise
-                sh.if '$(lsb_release -cs) == "precise"' do
-                  # Install only the dependencies for an R development environment except for
-                  # libpcre3-dev or r-base-core because they will be included in
-                  # the R binary tarball.
-                  # Dependencies queried with `apt-cache depends -i r-base-dev`.
-                  # qpdf and texinfo are also needed for --as-cran # checks:
-                  # https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
-                  sh.cmd 'sudo apt-get install -y --no-install-recommends '\
-                    'build-essential gcc g++ gfortran libblas-dev liblapack-dev '\
-                    'libncurses5-dev libreadline-dev libjpeg-dev '\
-                    'libpng-dev zlib1g-dev libbz2-dev liblzma-dev cdbs qpdf texinfo '\
-                    'libmagick++-dev libssh2-1-dev', retry: true
+                # Install precompiled R
+                # Install only the dependencies for an R development environment except for
+                # libpcre3-dev or r-base-core because they will be included in
+                # the R binary tarball.
+                # Dependencies queried with `apt-cache depends -i r-base-dev`.
+                # qpdf and texinfo are also needed for --as-cran # checks:
+                # https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
+                optional_apt_pkgs = ""
+                optional_apt_pkgs << "gfortran" if config[:fortran]
+                sh.cmd 'sudo apt-get install -y --no-install-recommends '\
+                  'build-essential gcc g++ libblas-dev liblapack-dev '\
+                  'libncurses5-dev libreadline-dev libjpeg-dev '\
+                  'libpng-dev zlib1g-dev libbz2-dev liblzma-dev cdbs qpdf texinfo '\
+                  'libmagick++-dev libssh2-1-dev '\
+                  "#{optional_apt_pkgs}", retry: true
 
-                  r_filename = "R-#{r_version}.xz"
-                  r_url = "https://s3.amazonaws.com/rstudio-travis/R-#{r_version}.xz"
-                  sh.cmd "curl -Lo /tmp/#{r_filename} #{r_url}", retry: true
-                  sh.cmd "tar xJf /tmp/#{r_filename} -C ~"
-                  sh.export 'PATH', "$HOME/R-bin/bin:$PATH", echo: false
-                  sh.export 'LD_LIBRARY_PATH', "$HOME/R-bin/lib:$LD_LIBRARY_PATH", echo: false
-                  sh.rm "/tmp/#{r_filename}"
-                end
+                r_filename = "R-#{r_version}-$(lsb_release -cs).xz"
+                r_url = "https://s3.amazonaws.com/rstudio-travis/#{r_filename}"
+                sh.cmd "curl -fLo /tmp/#{r_filename} #{r_url}", retry: true
+                sh.cmd "tar xJf /tmp/#{r_filename} -C ~"
+                sh.export 'PATH', "$HOME/R-bin/bin:$PATH", echo: false
+                sh.export 'LD_LIBRARY_PATH', "$HOME/R-bin/lib:$LD_LIBRARY_PATH", echo: false
+                sh.rm "/tmp/#{r_filename}"
 
-                # If on trusty just use the ubuntu package
-                sh.if '$(lsb_release -cs) == "trusty"' do
-                  # Install an R development environment. qpdf is also needed for
-                  # --as-cran checks:
-                  #   https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
-                  sh.cmd 'sudo apt-get install -y --no-install-recommends r-base-dev ' +
-                    'r-recommended qpdf texinfo libmagick++-dev libssh2-1-dev', retry: true
-
-                  # Change permissions for /usr/local/lib/R/site-library
-                  # This should really be via 'sudo adduser travis staff'
-                  # but that may affect only the next shell
-                  sh.cmd 'sudo chmod 2777 /usr/local/lib/R /usr/local/lib/R/site-library'
-                end
                 sh.cmd "sudo mkdir -p /usr/local/lib/R/site-library $R_LIBS_USER"
                 sh.cmd 'sudo chmod 2777 /usr/local/lib/R /usr/local/lib/R/site-library $R_LIBS_USER'
               when 'osx'
@@ -144,16 +132,13 @@ module Travis
                 end
 
                 # Install from latest CRAN binary build for OS X
-                sh.cmd "curl -Lo /tmp/R.pkg #{r_url}", retry: true
+                sh.cmd "curl -fLo /tmp/R.pkg #{r_url}", retry: true
 
                 sh.echo 'Installing OS X binary package for R'
                 sh.cmd 'sudo installer -pkg "/tmp/R.pkg" -target /'
                 sh.rm '/tmp/R.pkg'
 
-                # Install gfortran libraries the precompiled binaries are linked to
-                sh.cmd 'curl -Lo /tmp/gfortran.tar.bz2 http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2', retry: true
-                sh.cmd 'sudo tar fvxz /tmp/gfortran.tar.bz2 -C /'
-                sh.rm '/tmp/gfortran.tar.bz2'
+                setup_fortran_osx if config[:fortran]
 
               else
                 sh.failure "Operating system not supported: #{config[:os]}"
@@ -209,9 +194,12 @@ module Travis
             # Install dependencies for the package we're testing.
             install_deps
           end
-          sh.fold 'R-installed-versions' do
-            sh.echo 'Installed package versions', ansi: :yellow
-            sh.cmd 'Rscript -e \'devtools::session_info(installed.packages()[, "Package"])\''
+
+          if @devtools_installed
+            sh.fold 'R-installed-versions' do
+              sh.echo 'Installed package versions', ansi: :yellow
+              sh.cmd 'Rscript -e \'devtools::session_info(installed.packages()[, "Package"])\''
+            end
           end
         end
 
@@ -245,12 +233,14 @@ module Travis
           end
           export_rcheck_dir
 
-          # Output check summary
-          sh.cmd 'Rscript -e "message(devtools::check_failures(path = \"${RCHECK_DIR}\"))"', echo: false
+          if @devtools_installed
+            # Output check summary
+            sh.cmd 'Rscript -e "message(devtools::check_failures(path = \"${RCHECK_DIR}\"))"', echo: false
+          end
 
           # Build fails if R CMD check fails
           sh.if '$CHECK_RET -ne 0' do
-            dump_logs
+            dump_error_logs
             sh.failure 'R CMD check failed'
           end
 
@@ -258,23 +248,9 @@ module Travis
           if config[:warnings_are_errors]
             sh.cmd 'grep -q -R "WARNING" "${RCHECK_DIR}/00check.log"', echo: false, assert: false
             sh.if '$? -eq 0' do
-              dump_logs
+              dump_error_logs
               sh.failure "Found warnings, treating as errors (as requested)."
             end
-          end
-
-          # Check revdeps, if requested.
-          if config[:r_check_revdep]
-            sh.echo "Checking reverse dependencies"
-            revdep_script =
-              'library("devtools");' \
-              'res <- revdep_check();' \
-              'if (length(res) > 0) {' \
-              ' revdep_check_summary(res);' \
-              ' revdep_check_save_logs(res);' \
-              ' q(status = 1, save = "no");' \
-              '}'
-            sh.cmd "Rscript -e '#{revdep_script}'", assert: true
           end
 
         end
@@ -339,8 +315,8 @@ module Travis
           return if packages.empty?
           packages = Array(packages)
           if config[:os] == 'linux'
-            unless config[:sudo]
-              sh.echo "R binary packages not supported with 'sudo: false', "\
+            if !config[:sudo] or config[:dist] == 'precise'
+              sh.echo "R binary packages not supported with 'sudo: false' or 'dist: precise', "\
                 ' falling back to source install'
               return r_install packages
             end
@@ -389,8 +365,7 @@ module Travis
           sh.export 'RCHECK_DIR', "$(expr \"$PKG_TARBALL\" : '\\(.*\\)_').Rcheck", echo: false
         end
 
-        def dump_logs
-          export_rcheck_dir
+        def dump_error_logs
           dump_log("fail")
           dump_log("log")
           dump_log("out")
@@ -451,28 +426,28 @@ module Travis
           when 'linux'
             texlive_filename = 'texlive.tar.gz'
             texlive_url = 'https://github.com/jimhester/ubuntu-bin/releases/download/latest/texlive.tar.gz'
-            sh.cmd "curl -Lo /tmp/#{texlive_filename} #{texlive_url}"
+            sh.cmd "curl -fLo /tmp/#{texlive_filename} #{texlive_url}"
             sh.cmd "tar xzf /tmp/#{texlive_filename} -C ~"
             sh.export 'PATH', "/$HOME/texlive/bin/x86_64-linux:$PATH"
-            sh.cmd 'tlmgr update --self'
+            sh.cmd 'tlmgr update --self', assert: false
           when 'osx'
             # We use basictex due to disk space constraints.
             mactex = 'BasicTeX.pkg'
             # TODO(craigcitro): Confirm that this will route us to the
             # nearest mirror.
-            sh.cmd 'wget http://mirror.ctan.org/systems/mac/mactex/'\
-                   "#{mactex} -O \"/tmp/#{mactex}\""
+            sh.cmd "curl -fLo \"/tmp/#{mactex}\" --retry 3 http://mirror.ctan.org/systems/mac/mactex/"\
+                   "#{mactex}"
 
             sh.echo 'Installing OS X binary package for MacTeX'
             sh.cmd "sudo installer -pkg \"/tmp/#{mactex}\" -target /"
             sh.rm "/tmp/#{mactex}"
             sh.export 'PATH', '/usr/texbin:/Library/TeX/texbin:$PATH'
 
-            sh.cmd 'sudo tlmgr update --self'
+            sh.cmd 'sudo tlmgr update --self', assert: false
 
             # Install common packages
             sh.cmd 'sudo tlmgr install inconsolata upquote '\
-              'courier courier-scaled helvetic'
+              'courier courier-scaled helvetic', assert: false
           end
         end
 
@@ -484,7 +459,7 @@ module Travis
               "#{pandoc_filename}"
 
             # Download and install pandoc
-            sh.cmd "curl -Lo /tmp/#{pandoc_filename} #{pandoc_url}"
+            sh.cmd "curl -fLo /tmp/#{pandoc_filename} #{pandoc_url}"
             sh.cmd "sudo dpkg -i /tmp/#{pandoc_filename}"
 
             # Fix any missing dependencies
@@ -498,7 +473,7 @@ module Travis
               "#{pandoc_filename}"
 
             # Download and install pandoc
-            sh.cmd "curl -Lo /tmp/#{pandoc_filename} #{pandoc_url}"
+            sh.cmd "curl -fLo /tmp/#{pandoc_filename} #{pandoc_url}"
             sh.cmd "sudo installer -pkg \"/tmp/#{pandoc_filename}\" -target /"
 
             # Cleanup
@@ -506,11 +481,27 @@ module Travis
           end
         end
 
+        # Install gfortran libraries the precompiled binaries are linked to
+        def setup_fortran_osx
+          return unless (config[:os] == 'osx')
+          if r_version < '3.4'
+            sh.cmd 'curl -fLo /tmp/gfortran.tar.bz2 http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2', retry: true
+            sh.cmd 'sudo tar fvxz /tmp/gfortran.tar.bz2 -C /'
+            sh.rm '/tmp/gfortran.tar.bz2'
+          else
+            sh.cmd "curl -fLo /tmp/gfortran61.dmg http://coudert.name/software/gfortran-6.1-ElCapitan.dmg", retry: true
+            sh.cmd 'sudo hdiutil attach /tmp/gfortran61.dmg -mountpoint /Volumes/gfortran'
+            sh.cmd 'sudo installer -pkg "/Volumes/gfortran/gfortran-6.1-ElCapitan/gfortran.pkg" -target /'
+            sh.cmd 'sudo hdiutil detach /Volumes/gfortran'
+            sh.rm '/tmp/gfortran61.dmg'
+          end
+        end
+
         # Uninstalls the preinstalled homebrew
         # See FAQ: https://github.com/Homebrew/brew/blob/master/share/doc/homebrew/FAQ.md
         def disable_homebrew
           return unless (config[:os] == 'osx')
-          sh.cmd "curl -sSOL https://raw.githubusercontent.com/Homebrew/install/master/uninstall"
+          sh.cmd "curl -fsSOL https://raw.githubusercontent.com/Homebrew/install/master/uninstall"
           sh.cmd "sudo ruby uninstall --force"
           sh.cmd "rm uninstall"
         end
@@ -521,12 +512,13 @@ module Travis
 
         def normalized_r_version(v=config[:r].to_s)
           case v
-          when 'release' then '3.3.2'
-          when 'oldrel' then '3.2.5'
+          when 'release' then '3.4.2'
+          when 'oldrel' then '3.3.3'
           when '3.0' then '3.0.3'
           when '3.1' then '3.1.3'
           when '3.2' then '3.2.5'
-          when '3.3' then '3.3.2'
+          when '3.3' then '3.3.3'
+          when '3.4' then '3.4.2'
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true

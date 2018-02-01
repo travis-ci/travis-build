@@ -37,7 +37,7 @@ shared_examples_for 'a jdk build sexp' do
   end
 
   describe 'if build.gradle exists' do
-    let(:sexp) { sexp_find(subject, [:if, '-f build.gradle'], [:then]) }
+    let(:sexp) { sexp_find(subject, [:if, '-f build.gradle || -f build.gradle.kts'], [:then]) }
 
     it "sets TERM to 'dumb'" do
       expect(sexp).to include_sexp set_dumb_term

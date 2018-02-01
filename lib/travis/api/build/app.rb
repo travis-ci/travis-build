@@ -20,16 +20,17 @@ module Travis
         end
 
         configure do
-          use Sentry unless Travis::Build.config.sentry_dsn.empty?
-          use Metriks unless Travis::Build.config.librato.email.empty? ||
-                             Travis::Build.config.librato.token.empty? ||
-                             Travis::Build.config.librato.source.empty?
+          use Sentry unless Travis::Build.config.sentry_dsn.to_s.empty?
+          use Metriks unless Travis::Build.config.librato.email.to_s.empty? ||
+                             Travis::Build.config.librato.token.to_s.empty? ||
+                             Travis::Build.config.librato.source.to_s.empty?
 
           use Rack::Deflater
         end
 
         helpers do
           def auth_disabled?
+            Travis::Build.config.auth_disabled? ||
             api_tokens.empty? && (
               settings.development? || settings.test?
             )
@@ -96,7 +97,7 @@ module Travis
             'Travis-Build-Uptime' => "#{Time.now.utc - settings.start}s",
             'Travis-Build-Version' => Travis::Build.version
           )
-          status 204
+          status 200
         end
       end
     end

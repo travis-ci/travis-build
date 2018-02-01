@@ -120,9 +120,7 @@ module Travis
 
             unless disallowed.empty?
               sh.echo "Disallowing sources: #{disallowed.map { |source| Shellwords.escape(source) }.join(', ')}", ansi: :red
-              sh.echo 'If you require these sources, please review the source ' \
-                'approval process at: ' \
-                'https://github.com/travis-ci/apt-source-whitelist#source-approval-process'
+              sh.echo 'If you require these sources, please use `sudo: required` in your `.travis.yml` to manage APT sources.'
             end
 
             unless disallowed_while_sudo.empty?
@@ -185,10 +183,18 @@ module Travis
 
           def config_sources
             @config_sources ||= Array(config[:sources]).flatten.compact
+          rescue TypeError => e
+            if e.message =~ /no implicit conversion of Symbol into Integer/
+              raise Travis::Build::AptSourcesConfigError.new
+            end
           end
 
           def config_packages
             @config_packages ||= Array(config[:packages]).flatten.compact
+          rescue TypeError => e
+            if e.message =~ /no implicit conversion of Symbol into Integer/
+              raise Travis::Build::AptPackagesConfigError.new
+            end
           end
 
           def config_dist

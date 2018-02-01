@@ -6,6 +6,7 @@ require 'rbconfig'
 
 require 'travis/build/addons'
 require 'travis/build/appliances'
+require 'travis/build/errors'
 require 'travis/build/git'
 require 'travis/build/helpers'
 require 'travis/build/stages'
@@ -54,7 +55,7 @@ module Travis
         end
       end
 
-      include Module.new { Stages::STAGES.each_slice(2).map(&:last).flatten.each { |stage| define_method(stage) {} } }
+      include Module.new { Stages::STAGES.map(&:name).flatten.each { |stage| define_method(stage) {} } }
       include Appliances, DirectoryCache, Deprecation, Template
 
       attr_reader :sh, :data, :options, :validator, :addons, :stages
@@ -72,6 +73,12 @@ module Travis
 
       def compile(ignore_taint = false)
         Shell.generate(sexp, ignore_taint)
+      rescue Travis::Shell::Generator::TaintedOutput => to
+        raise to
+      rescue Exception => e
+        event = Travis::Build.config.sentry_dsn.empty? ? nil : Raven.capture_exception(e)
+
+        show_compile_error_msg(e, event)
       end
 
       def sexp
@@ -96,6 +103,7 @@ module Travis
       end
 
       def archive_url_for(bucket, version, lang = self.class.name.split('::').last.downcase, ext = 'bz2')
+        file_name = "#{[lang, version].compact.join("-")}.tar.#{ext}"
         sh.if "$(uname) = 'Linux'" do
           sh.raw "travis_host_os=$(lsb_release -is | tr 'A-Z' 'a-z')"
           sh.raw "travis_rel_version=$(lsb_release -rs)"
@@ -105,7 +113,7 @@ module Travis
           sh.raw "travis_rel=$(sw_vers -productVersion)"
           sh.raw "travis_rel_version=${travis_rel%*.*}"
         end
-        "archive_url=https://s3.amazonaws.com/#{bucket}/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/#{lang}-#{version}.tar.#{ext}"
+        "archive_url=https://s3.amazonaws.com/#{bucket}/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/#{file_name}"
       end
 
       def debug_build_via_api?
@@ -152,10 +160,20 @@ module Travis
 
         def configure
           apply :show_system_info
+          apply :rm_riak_source
+          apply :fix_rwky_redis
+          apply :update_apt_keys
+          apply :fix_hhvm_source
+          apply :update_mongo_arch
+          apply :apt_get_update
+          apply :fix_container_based_trusty
+          apply :fix_sudo_enabled_trusty
           apply :update_glibc
+          apply :update_libssl
           apply :clean_up_path
           apply :fix_resolv_conf
           apply :fix_etc_hosts
+          apply :fix_mvn_settings_xml
           apply :no_ipv6_localhost
           apply :fix_etc_mavenrc
           apply :etc_hosts_pinning
@@ -168,6 +186,16 @@ module Travis
           apply :npm_registry
           apply :rvm_use
           apply :rm_oraclejdk8_symlink
+          apply :enable_i386
+          apply :update_rubygems
+          apply :ensure_path_components
+          apply :redefine_curl
+          apply :nonblock_pipe
+        end
+
+        def setup_filter
+          apply :no_world_writable_dirs
+          apply :setup_filter
         end
 
         def checkout
@@ -234,6 +262,48 @@ module Travis
 
         def debug_enabled?
           Travis::Build.config.enable_debug_tools == '1'
+        end
+
+        def app_host
+          @app_host ||= Travis::Build.config.app_host.to_s.strip.untaint
+        end
+
+        def error_message_ary(exception, event)
+          if event
+            contact_msg = ", or contact us at support@travis-ci.com"
+            if event.id
+              contact_msg << " with the error ID: #{event.id}"
+            end
+          else
+            contact_msg = ""
+          end
+
+          if exception.is_a? Travis::Build::CompilationError
+            msg = [
+              exception.message
+            ]
+            doc_path = exception.doc_path
+          else
+            msg = [
+              "Unfortunately, we do not know much about this error."
+            ]
+            doc_path = ''
+          end
+
+          [
+            "",
+            "There was an error in the .travis.yml file from which we could not recover.\n",
+            *msg,
+            "",
+            "Please review https://docs.travis-ci.com#{doc_path}#{contact_msg}"
+          ]
+        end
+
+        def show_compile_error_msg(exception, event)
+          @sh = Shell::Builder.new
+          error_message_ary(exception, event).each { |line| sh.raw "echo -e \"\033[31;1m#{line}\033[0m\"" }
+          sh.raw "exit 2"
+          Shell.generate(sh.to_sexp)
         end
     end
   end
