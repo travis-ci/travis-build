@@ -8,7 +8,7 @@ module Travis
           command = <<-EOF
           if [[ -d /var/lib/apt/lists && -n $(command -v apt-get) ]]; then
             sudo rm -rf /var/lib/apt/lists/*
-            sudo apt-get update --option Acquire::http::Timeout="3"
+            sudo apt-get update --option Acquire::http::Timeout="20"
           fi
           EOF
           sh.cmd command
