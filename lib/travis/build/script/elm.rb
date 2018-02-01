@@ -7,7 +7,7 @@ module Travis
 
         DEFAULTS = {
           elm_version: '0.18.0',
-          elm_test_version: '0.18.7'
+          elm_test_version: '0.18.12'
         }
 
         ELM_TEST_REQUIRED_NODE_VERSION = '4.0.0'
