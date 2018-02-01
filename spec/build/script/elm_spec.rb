@@ -14,11 +14,11 @@ describe Travis::Build::Script::Elm, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'sets TRAVIS_ELM_VERSION' do
-    should include_sexp [:export, ['TRAVIS_ELM_VERSION', 'latest']]
+    should include_sexp [:export, ['TRAVIS_ELM_VERSION', Travis::Build::Script::Elm::DEFAULTS[:elm_version]]]
   end
 
   it 'sets TRAVIS_ELM_TEST_VERSION' do
-    should include_sexp [:export, ['TRAVIS_ELM_TEST_VERSION', 'latest']]
+    should include_sexp [:export, ['TRAVIS_ELM_TEST_VERSION', Travis::Build::Script::Elm::DEFAULTS[:elm_test_version]]]
   end
 
   it 'announces elm version' do
@@ -34,6 +34,6 @@ describe Travis::Build::Script::Elm, :sexp do
 
   describe '#cache_slug' do
     subject { described_class.new(data).cache_slug }
-    it { is_expected.to eq("cache-#{CACHE_SLUG_EXTRAS}--node--elm-latest") }
+    it { is_expected.to eq("cache-#{CACHE_SLUG_EXTRAS}--node--elm-#{Travis::Build::Script::Elm::DEFAULTS[:elm_version]}") }
   end
 end
