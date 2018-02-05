@@ -21,7 +21,6 @@ module Travis
           # Build/test options
           r_build_args: '',
           r_check_args: '--as-cran',
-          r_check_revdep: false,
           # Heavy dependencies
           pandoc: true,
           latex: true,
@@ -252,24 +251,6 @@ module Travis
               dump_error_logs
               sh.failure "Found warnings, treating as errors (as requested)."
             end
-          end
-
-          # Always dump the .out logs, so you can inspect test .Rout for
-          # information.
-          dump_log("out")
-
-          # Check revdeps, if requested.
-          if @devtools_installed and config[:r_check_revdep]
-            sh.echo "Checking reverse dependencies"
-            revdep_script =
-              'library("devtools");' \
-              'res <- revdep_check();' \
-              'if (length(res) > 0) {' \
-              ' revdep_check_summary(res);' \
-              ' revdep_check_save_logs(res);' \
-              ' q(status = 1, save = "no");' \
-              '}'
-            sh.cmd "Rscript -e '#{revdep_script}'", assert: true
           end
 
         end

@@ -12,6 +12,7 @@ rvm: 2.3.4
 env:
   global:
   - COVERAGE=1
+  - RUBYOPT=-W0
   matrix:
   - INTEGRATION_SPECS=0
   - INTEGRATION_SPECS=1
@@ -39,9 +40,12 @@ jobs:
       script: ./script/docker-build-and-push
       if: (NOT type IN (pull_request)) AND (branch = master)
 
+before_script:
+  - bundle exec rake clean assets:precompile
+
 script:
-  - mkdir -p public/files && touch public/files/nvm.sh
-  - bundle exec rake lib/travis/build/addons/sauce_connect/sauce_connect.sh spec && ./script/validate-bash-syntax
+  - bundle exec rake spec
+  - ./script/validate-bash-syntax
 
 after_success: bundle exec codeclimate-test-reporter
 
@@ -54,8 +58,8 @@ deploy:
   secret_access_key:
     secure: "Jn9clQh78C2c1zoueTkn0r5kSCHrbb7bMojb8/Ne+6zg0pD/3w25mrhEC4y9b3M/lHoKArOPj4dn03ZErJleM8aOMNMIa6ck8GKP+7EoFlZ/1/C5733HazlldTWDd2+wTOYfSIGOM+mHDP5tmK0S7pr1zEm+/++UExuGZXiCSSI="
   bucket: travis-build-examples
-  local-dir: examples
-  skip-cleanup: true
+  local_dir: examples
+  skip_cleanup: true
   endpoint: travis-build-examples.s3-website-us-east-1.amazonaws.com
   region: us-east-1
   on:
