@@ -273,16 +273,16 @@ vers2int() {
   printf '1%03d%03d%03d%03d' $(echo "$1" | tr '.' ' ')
 }
 
-_ensure_ruby_23() {
-  if ! (rvm list | grep ruby-2\.3 2>&1 >/dev/null); then
+_ensure_ruby_2_3_5() {
+  if ! (rvm list | grep ruby-2\.3\.5 2>&1 >/dev/null); then
     echo "${ANSI_YELLOW}Homebrew requires Ruby 2.3.x.${ANSI_RESET}"
     rvm install 2.3.5 --binary --fuzzy
   fi
 }
 
 brew() {
-  if [[ ! $(vers2int $(ruby -e 'puts RUBY_VERSION')) =~ ^1002003 ]]; then
-    _ensure_ruby_23
+  if [[ ! $(vers2int $(ruby -e 'puts RUBY_VERSION')) =~ ^1002003005 ]]; then
+    _ensure_ruby_2_3_5
     rvm 2.3.5 do brew "$@"
   else
     command brew "$@"
