@@ -274,16 +274,16 @@ vers2int() {
 }
 
 _ensure_ruby_23() {
-  if ! (rvm list | grep 2\.3 2>&1 >/dev/null); then
+  if ! (rvm list | grep ruby-2\.3 2>&1 >/dev/null); then
     echo "${ANSI_YELLOW}Homebrew requires Ruby 2.3.x.${ANSI_RESET}"
-    rvm install 2.3 --binary --fuzzy
+    rvm install 2.3.5 --binary --fuzzy
   fi
 }
 
 brew() {
   if [[ ! $(vers2int $(ruby -e 'puts RUBY_VERSION')) =~ ^1002003 ]]; then
     _ensure_ruby_23
-    rvm 2.3 do brew "$@"
+    rvm 2.3.5 do brew "$@"
   else
     command brew "$@"
   fi
