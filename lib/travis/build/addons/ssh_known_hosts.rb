@@ -19,7 +19,7 @@ module Travis
         private
 
           def config
-            Array(super)
+            [super].flatten
           end
 
           def add_ssh_known_hosts
