@@ -274,8 +274,8 @@ vers2int() {
 }
 
 _ensure_ruby_23() {
-  if ! (rvm list | grep 2\.[3-9] 2>&1 >/dev/null); then
-    echo "${ANSI_YELLOW}Homebrew requires Ruby 2.3 or later.${ANSI_RESET}"
+  if ! (rvm list | grep 2\.3 2>&1 >/dev/null); then
+    echo "${ANSI_YELLOW}Homebrew requires Ruby 2.3.x.${ANSI_RESET}"
     rvm install 2.3 --binary --fuzzy
   fi
 }
