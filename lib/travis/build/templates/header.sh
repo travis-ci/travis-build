@@ -281,7 +281,7 @@ _ensure_ruby_23() {
 }
 
 brew() {
-  if [[ $(vers2int $(ruby -e 'puts RUBY_VERSION')) -lt $(vers2int 2.3) ]]; then
+  if [[ ! $(vers2int $(ruby -e 'puts RUBY_VERSION')) =~ ^1002003 ]]; then
     _ensure_ruby_23
     rvm 2.3 do brew "$@"
   else
