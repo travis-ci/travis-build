@@ -19,10 +19,8 @@ module Travis
             install_browserstack
           end
 
-          unless browserstack_key.empty?
-            sh.fold 'browserstack.start' do
-              start_browserstack
-            end
+          sh.fold 'browserstack.start' do
+            start_browserstack
           end
         end
 
