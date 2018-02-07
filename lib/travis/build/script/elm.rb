@@ -37,8 +37,10 @@ module Travis
         def setup
           super
 
-          install_elm
-          install_elm_test
+          sh.fold 'install.elm' do
+            install_elm
+            install_elm_test
+          end
         end
 
         def script
