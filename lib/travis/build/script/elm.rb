@@ -44,8 +44,7 @@ module Travis
         end
 
         def script
-          sh.cmd 'elm-format --validate .'
-          sh.cmd 'elm-test'
+          sh.cmd 'elm-format --validate . && elm-test'
         end
 
         def setup_cache
