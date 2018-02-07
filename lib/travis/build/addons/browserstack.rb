@@ -138,8 +138,8 @@ module Travis
 
           def install_browserstack
             if browserstack_key.empty?
-              sh.echo "Browserstack access_key is invalid.", ansi: :red
-              return
+              sh.echo "Browserstack access_key is invalid or undefined.", ansi: :red
+              sh.echo "Will fall back to BROWSERSTACK_ACCESS_KEY. If that is undefined or invalid, BrowserStack will fail.", ansi: :yellow
             end
 
             sh.echo "Installing BrowserStack Local", ansi: :yellow
@@ -164,7 +164,7 @@ module Travis
             sh.echo 'Starting BrowserStack Local', ansi: :yellow
             sh.cmd "#{build_start_command(browserstack_key)}"
             browserstack_user = username.to_s
-            sh.export ENV_USER, "${#{ENV_USER}:-#{browserstack_user}}", echo: true unless browserstack_user.empty?
+            sh.export ENV_USER, "${#{ENV_USER}:-#{browserstack_user}}", echo: true
             sh.export ENV_KEY, "${#{ENV_KEY}:-#{browserstack_key}}", echo: false
             sh.export ENV_LOCAL, "${#{ENV_LOCAL}:-true}", echo: true
           end
