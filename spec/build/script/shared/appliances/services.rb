@@ -4,10 +4,6 @@ shared_examples_for 'starts services' do
   describe 'if services were given' do
     let(:services) { [:postgresql] }
 
-    # describe 'folds the services section' do
-    #   it { should_not be_empty }
-    # end
-
     describe 'postgresql' do
       it { should include_sexp [:cmd, 'sudo service postgresql start', echo: true, timing: true] }
       it { store_example 'service postgresql' if data[:config][:language] == :ruby }
@@ -26,8 +22,29 @@ shared_examples_for 'starts services' do
     describe 'mongodb' do
       let(:services) { [:mongodb] }
       it "starts appropriate service based on lsb_release value" do
-        expect(sexp_find(subject, [:if, "$(lsb_release -cs) != 'precise'"])).to include_sexp [:cmd, 'sudo service mongod start', echo: true, timing: true]
-        expect(sexp_find(subject, [:if, "$(lsb_release -cs) != 'precise'"], [:else])).to include_sexp [:cmd, 'sudo service mongodb start', echo: true, timing: true]
+        expect(sexp_find(subject, [:if, "$(lsb_release -cs) != 'precise'"]))
+          .to include_sexp(
+            [:cmd, 'sudo service mongod start', echo: true, timing: true]
+          )
+        expect(
+          sexp_find(subject, [:if, "$(lsb_release -cs) != 'precise'"], [:else])
+        ).to include_sexp(
+          [:cmd, 'sudo service mongodb start', echo: true, timing: true]
+        )
+      end
+    end
+
+    describe 'mysql' do
+      let(:services) { [:mysql] }
+      it 'starts mysql and then travis_waits for ping' do
+        expect(subject)
+          .to include_sexp(
+            [:cmd, 'sudo service mysql start', echo: true, timing: true]
+          )
+        expect(subject)
+          .to include_sexp(
+            [:cmd, 'travis_mysql_ping']
+          )
       end
     end
 

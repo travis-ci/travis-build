@@ -102,6 +102,7 @@ module Travis
       end
 
       def archive_url_for(bucket, version, lang = self.class.name.split('::').last.downcase, ext = 'bz2')
+        file_name = "#{[lang, version].compact.join("-")}.tar.#{ext}"
         sh.if "$(uname) = 'Linux'" do
           sh.raw "travis_host_os=$(lsb_release -is | tr 'A-Z' 'a-z')"
           sh.raw "travis_rel_version=$(lsb_release -rs)"
@@ -111,7 +112,7 @@ module Travis
           sh.raw "travis_rel=$(sw_vers -productVersion)"
           sh.raw "travis_rel_version=${travis_rel%*.*}"
         end
-        "archive_url=https://s3.amazonaws.com/#{bucket}/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/#{lang}-#{version}.tar.#{ext}"
+        "archive_url=https://s3.amazonaws.com/#{bucket}/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/#{file_name}"
       end
 
       def debug_build_via_api?
@@ -158,8 +159,14 @@ module Travis
 
         def configure
           apply :show_system_info
+          apply :rm_riak_source
           apply :fix_rwky_redis
+          apply :update_apt_keys
+          apply :fix_hhvm_source
+          apply :update_mongo_arch
+          apply :apt_get_update
           apply :fix_container_based_trusty
+          apply :fix_sudo_enabled_trusty
           apply :update_glibc
           apply :update_libssl
           apply :clean_up_path
@@ -179,9 +186,14 @@ module Travis
           apply :rvm_use
           apply :rm_oraclejdk8_symlink
           apply :enable_i386
+          apply :update_rubygems
+          apply :ensure_path_components
+          apply :redefine_curl
+          apply :nonblock_pipe
         end
 
         def setup_filter
+          apply :no_world_writable_dirs
           apply :setup_filter
         end
 

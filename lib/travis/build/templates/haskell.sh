@@ -48,7 +48,7 @@ function travis_ghc_install() {
   fi
   if [[ ! -f '<%= root %>/etc/apt/sources.list.d/hvr-ghc.list' ]]; then
     echo -e "\n${ANSI_GREEN}Adding ppa:hvr/ghc.${ANSI_RESET}" >&2
-    sudo apt-add-repository -yq ppa:hvr/ghc
+    sudo apt-add-repository -y ppa:hvr/ghc
   fi
   sudo apt-get update -yqq
   if sudo apt-get install -yq "ghc-${ghc_version}"; then

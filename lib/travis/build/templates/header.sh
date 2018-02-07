@@ -31,6 +31,9 @@ export USER
 TRAVIS_TEST_RESULT=
 TRAVIS_CMD=
 
+TRAVIS_TMPDIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'travis_tmp')
+pgrep -u $USER | grep -v -w $$ > $TRAVIS_TMPDIR/pids_before
+
 travis_cmd() {
   local assert output display retry timing cmd result secure
 
@@ -166,6 +169,13 @@ travis_result() {
 
 travis_terminate() {
   set +e
+  # Restoring the file descriptors of redirect_io filter strategy
+  [[ "$TRAVIS_FILTERED" = redirect_io && -e /dev/fd/9 ]] \
+      && sync \
+      && command exec 1>&9 2>&9 9>&- \
+      && sync
+  pgrep -u $USER | grep -v -w $$ > $TRAVIS_TMPDIR/pids_after
+  kill $(awk 'NR==FNR{a[$1]++;next};!($1 in a)' $TRAVIS_TMPDIR/pids_{before,after}) &> /dev/null || true
   pkill -9 -P $$ &> /dev/null || true
   exit $1
 }
@@ -237,9 +247,7 @@ travis_retry() {
     [ $result -ne 0 ] && {
       echo -e "\n${ANSI_RED}The command \"$@\" failed. Retrying, $count of 3.${ANSI_RESET}\n" >&2
     }
-    "$@"
-    result=$?
-    [ $result -eq 0 ] && break
+    "$@" && { result=0 && break; } || result=$?
     count=$(($count + 1))
     sleep 1
   done

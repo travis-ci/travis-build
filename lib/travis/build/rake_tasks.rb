@@ -111,17 +111,25 @@ module Travis
         dest.chmod(0o755)
       end
 
-      def expand_semver_aliases(full_version)
+      def expand_semver_aliases(full_version, alias_major_minor: true)
         fullparts = full_version.split('.')
         major = fullparts.first
-        {
+
+        expanded = {
           full_version => full_version,
           major => full_version,
           "#{major}.x" => full_version,
           "#{major}.x.x" => full_version,
-          "#{fullparts[0]}.#{fullparts[1]}" => full_version,
-          "#{fullparts[0]}.#{fullparts[1]}.x" => full_version,
+          "#{fullparts[0]}.#{fullparts[1]}.x" => full_version
         }
+
+        if alias_major_minor
+          expanded.merge!(
+            "#{fullparts[0]}.#{fullparts[1]}" => full_version,
+          )
+        end
+
+        expanded
       end
 
       def build_faraday_conn(scheme: 'https', host: 'null.example.com')
@@ -148,6 +156,8 @@ module Travis
 
       def task_clean
         rm_rf(top + 'public/files')
+        rm_rf(top + 'tmp/go-versions-binary-linux')
+        rm_rf(top + 'tmp/ghc-versions.html')
       end
 
       def file_update_casher
@@ -231,7 +241,11 @@ module Travis
         raw.sort!(&method(:semver_cmp))
 
         out = {}
-        raw.each { |full_version| out.merge!(expand_semver_aliases(full_version)) }
+        raw.each do |full_version|
+          out.merge!(
+            expand_semver_aliases(full_version, alias_major_minor: false)
+          )
+        end
 
         raise StandardError, 'no go versions parsed' if out.empty?
 

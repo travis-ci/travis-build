@@ -29,7 +29,7 @@ module Travis
           trusty: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_WHITELIST_TRUSTY', '')
         },
         apt_whitelist_skip: ENV.fetch('TRAVIS_BUILD_APT_WHITELIST_SKIP', ''),
-        cabal_default: ENV.fetch('TRAVIS_BUILD_CABAL_DEFAULT', '1.22'),
+        cabal_default: ENV.fetch('TRAVIS_BUILD_CABAL_DEFAULT', '2.0'),
         auth_disabled: ENV.fetch('TRAVIS_BUILD_AUTH_DISABLED', ''),
         enable_debug_tools: ENV.fetch(
           'TRAVIS_BUILD_ENABLE_DEBUG_TOOLS',
@@ -40,13 +40,12 @@ module Travis
         ),
         ghc_default: ENV.fetch('TRAVIS_BUILD_GHC_DEFAULT', '7.10.3'),
         gimme: {
-          force_reinstall: ENV.fetch('TRAVIS_BUILD_GIMME_FORCE_REINSTALL', ''),
           url: ENV.fetch(
             'TRAVIS_BUILD_GIMME_URL',
-            'https://raw.githubusercontent.com/travis-ci/gimme/v1.0.0/gimme'
+            'https://raw.githubusercontent.com/travis-ci/gimme/v1.2.0/gimme'
           )
         },
-        go_version: ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.8.3'),
+        go_version: ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.9'),
         internal_ruby_regex: ENV.fetch(
           'TRAVIS_BUILD_INTERNAL_RUBY_REGEX',
           '^ruby-(2\.[0-2]\.[0-9]|1\.9\.3)'

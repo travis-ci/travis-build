@@ -25,7 +25,7 @@ describe Travis::Build::Script::R, :sexp do
     data[:config][:r] = 'bioc-release'
     should include_sexp [:cmd, %r{source\(\"https://bioconductor.org/biocLite.R\"\)},
                          assert: true, echo: true, timing: true, retry: true]
-    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.4.0']]
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.4.2']]
   end
 
   it 'r_packages works with a single package set' do
@@ -46,7 +46,7 @@ describe Travis::Build::Script::R, :sexp do
   end
 
   it 'downloads and installs latest R' do
-    should include_sexp [:cmd, %r{^curl.*https://s3\.amazonaws\.com/rstudio-travis/R-3\.4\.0-\$\(lsb_release -cs\)\.xz},
+    should include_sexp [:cmd, %r{^curl.*https://s3\.amazonaws\.com/rstudio-travis/R-3\.4\.2-\$\(lsb_release -cs\)\.xz},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
@@ -76,7 +76,17 @@ describe Travis::Build::Script::R, :sexp do
   end
   it 'downloads and installs gfortran libraries on OS X' do
     data[:config][:os] = 'osx'
+    data[:config][:r] = 'oldrel'
+    data[:config][:fortran] = true
     should include_sexp [:cmd, %r{^curl.*#{Regexp.escape('/tmp/gfortran.tar.bz2 http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2')}},
+                         assert: true, echo: true, retry: true, timing: true]
+  end
+
+  it 'downloads and installs Coudert gfortran on OS X for R 3.4' do
+    data[:config][:os] = 'osx'
+    data[:config][:r] = 'release'
+    data[:config][:fortran] = true
+    should include_sexp [:cmd, %r{^curl.*#{Regexp.escape('/tmp/gfortran61.dmg http://coudert.name/software/gfortran-6.1-ElCapitan.dmg')}},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
@@ -197,7 +207,7 @@ describe Travis::Build::Script::R, :sexp do
     }
     it {
       data[:config][:r] = 'release'
-      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.4.0")
+      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.4.2")
     }
     it {
       data[:config][:r] = 'oldrel'

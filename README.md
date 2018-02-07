@@ -25,10 +25,13 @@ You can set travis-build up as a plugin for the [command line client](https://gi
     ln -s PATH_TO_TRAVIS_BUILD ~/.travis/travis-build
     gem install bundler
     bundle install --gemfile ~/.travis/travis-build/Gemfile
+    bundler binstubs travis
 
-This will add the `compile` command to travis CLI, which produces
+You will now be able to run the `compile` command, which produces
 the bash script that runs the specified job, except that the secure environment
 variables are not defined, and that the build matrix expansion is not considered.
+
+    ~/.travis/travis-build/bin/travis compile
 
 ### _Important_
 
@@ -45,16 +48,16 @@ The command can be invoked in 3 ways:
 1. Without an argument, it produces the bash script for the local `.travis.yml` without considering `env` and `matrix` values
 (`travis-build` is unable to expand these keys correctly).
 
-    `$ travis compile`
+    `$ ~/.travis/travis-build/bin/travis compile`
 
 1. With a single integer, it produces the script for the given build
 (or the first job of that build matrix).
 
-    `$ travis compile 8`
+    `$ ~/.travis/travis-build/bin/travis compile 8`
 
 1. With an argument of the form `M.N`, it produces the bash script for the job `M.N`.
 
-    `$ travis compile 351.2`
+    `$ ~/.travis/travis-build/bin/travis compile 351.2`
 
 The resultant script can be used on a (virtual) machine that closely mimics Travis CI's build
 environment to aid you in debugging the build failures.
