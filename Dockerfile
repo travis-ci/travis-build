@@ -15,4 +15,6 @@ RUN bundle install
 
 COPY . /usr/src/app
 
+RUN bundle exec rake assets:precompile
+
 CMD bundle exec je puma -I lib -p ${PORT:-4000} -t ${PUMA_MIN_THREADS:-8}:${PUMA_MAX_THREADS:-12} -w ${PUMA_WORKERS:-2}
