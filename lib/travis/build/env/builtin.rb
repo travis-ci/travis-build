@@ -44,6 +44,7 @@ module Travis
               TRAVIS_COMMIT_RANGE:    job[:commit_range],
               TRAVIS_REPO_SLUG:       repository[:slug],
               TRAVIS_OS_NAME:         config[:os],
+              TRAVIS_OSX_IMAGE:       config[:osx_image],
               TRAVIS_LANGUAGE:        config[:language],
               TRAVIS_TAG:             job[:tag],
               TRAVIS_SUDO:            (!!!data[:paranoid]).to_s,
