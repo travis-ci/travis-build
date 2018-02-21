@@ -219,6 +219,9 @@ module Travis
               sh.cmd("git checkout #{branch}",                              echo: true,  assert: !allow_failure, timing: true)
               sh.cmd("git show-ref -s HEAD",                                echo: true,  assert: !allow_failure, timing: true)
               cmd("gem build dpl.gemspec",                                  echo: true,  assert: !allow_failure, timing: true)
+              sh.if("-f dpl-#{config[:provider]}.gemspec") do
+                sh.cmd("gem build dpl-#{config[:provider]}.gemspec", echo: true, assert: !allow_failure, timing: true)
+              end
               sh.cmd("mv dpl-*.gem $TRAVIS_BUILD_DIR >& /dev/null",         echo: false, assert: !allow_failure, timing: true)
               sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: true)
               # clean up, so that multiple edge providers can be run
