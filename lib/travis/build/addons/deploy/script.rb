@@ -6,7 +6,7 @@ module Travis
     class Addons
       class Deploy < Base
         class Script
-          VERSIONED_RUNTIMES = %w(
+          VERSIONED_RUNTIMES = %i(
             d
             dart
             elixir
@@ -26,7 +26,7 @@ module Travis
             rust
             scala
             smalltalk
-          ).map(&:to_sym)
+          )
 
           WANT_18 = true # whether or not we want `dpl` < 1.9
 
