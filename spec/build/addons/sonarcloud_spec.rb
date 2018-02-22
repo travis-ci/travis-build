@@ -20,66 +20,86 @@ describe Travis::Build::Addons::Sonarcloud, :sexp do
     it { should include_sexp [:mkdir, "$sq_build_wrapper_dir", {:recursive=>true}] }
     it { should include_sexp [:export, ['PATH', "\"$PATH:$sq_build_wrapper_dir/build-wrapper-linux-x86\""]] }
   end
-  
+
   describe 'skip build wrapper installation with java' do
     let(:data) { super().merge(config: { :language => 'java' })}
-    
+
     it { should include_sexp [:export, ['SONAR_SCANNER_HOME', '$HOME/.sonarscanner/sonar-scanner-2.8'], {:echo=>true}] }
     it { should include_sexp [:export, ['PATH', "\"$PATH:$HOME/.sonarscanner/sonar-scanner-2.8/bin\""]] }
     it { should_not include_sexp [:mkdir, "$sq_build_wrapper_dir", {:recursive=>true}] }
     it { should_not include_sexp [:export, ['PATH', "\"$PATH:$sq_build_wrapper_dir/build-wrapper-linux-x86\""]] }
   end
-  
-  describe 'skip build wrapper with invalid os' do
+
+  describe 'skip build wrapper with invalid OS' do
     let(:data) { super().merge(config: { :language => 'unkown' })}
-    
+
     it { should include_sexp [:export, ['SONAR_SCANNER_HOME', '$HOME/.sonarscanner/sonar-scanner-2.8'], {:echo=>true}] }
     it { should include_sexp [:export, ['PATH', "\"$PATH:$HOME/.sonarscanner/sonar-scanner-2.8/bin\""]] }
-    it { should include_sexp [:echo, "Can't install SonarSource build wrapper for platform: $TRAVIS_OS_NAME.", {:ansi=>:yellow}] }
+    it { should include_sexp [:echo, "Can't install SonarSource build wrapper for platform: $TRAVIS_OS_NAME.", {:ansi=>:red}] }
     it { should_not include_sexp [:export, ['PATH', "\"$PATH:$sq_build_wrapper_dir/build-wrapper-linux-x86\""]] }
   end
-  
-  describe 'skip pull request analysis' do
+
+  describe 'new pull request analysis' do
     let(:job) { super().merge( :pull_request => '123' )}
-    
-    it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS', "\"{ \\\"sonar.scanner.skip\\\" : \\\"true\\\" }\""]] }
-    it { should include_sexp [:export, ['SONARQUBE_SKIPPED', "true"], {:echo=>true}] }
+
+    it { should_not include_sexp [:export, ['SONAR_GITHUB_TOKEN', 'mytoken' ]] }
+    it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS',
+      "\"{ \\\"sonar.pullrequest.key\\\" : \\\"123\\\", \\\"sonar.pullrequest.base\\\" : \\\"master\\\", \\\"sonar.pullrequest.provider\\\" : \\\"GitHub\\\", \\\"sonar.pullrequest.github.repository\\\" : \\\"travis-ci/travis-ci\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
   end
-  
-  describe 'pull request analysis' do
+
+  describe 'deprecated pull request analysis' do
     let(:config) { { :github_token => 'mytoken' } }
     let(:job) { super().merge(:pull_request => '123')}
-    
+
     it { should include_sexp [:export, ['SONAR_GITHUB_TOKEN', 'mytoken' ]] }
-    it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS', 
-      "\"{ \\\"sonar.analysis.mode\\\" : \\\"preview\\\", \\\"sonar.github.repository\\\" : \\\"travis-ci/travis-ci\\\", \\\"sonar.github.pullRequest\\\" : \\\"123\\\", \\\"sonar.github.oauth\\\" : \\\"$SONAR_GITHUB_TOKEN\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }  
+    it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS',
+      "\"{ \\\"sonar.analysis.mode\\\" : \\\"preview\\\", \\\"sonar.github.repository\\\" : \\\"travis-ci/travis-ci\\\", \\\"sonar.github.pullRequest\\\" : \\\"123\\\", \\\"sonar.github.oauth\\\" : \\\"$SONAR_GITHUB_TOKEN\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
   end
-  
+
+  describe 'deprecated pull request analysis with env var from settings' do
+    let(:data) { super().merge(:env_vars => ['name' => 'SONAR_GITHUB_TOKEN', 'value' => 'mytoken', 'public' => false])}
+    let(:job) { super().merge(:pull_request => '123')}
+
+    # it's already set in the env
+    it { should_not include_sexp [:export, ['SONAR_GITHUB_TOKEN', 'mytoken' ]] }
+    it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS',
+      "\"{ \\\"sonar.analysis.mode\\\" : \\\"preview\\\", \\\"sonar.github.repository\\\" : \\\"travis-ci/travis-ci\\\", \\\"sonar.github.pullRequest\\\" : \\\"123\\\", \\\"sonar.github.oauth\\\" : \\\"$SONAR_GITHUB_TOKEN\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
+  end
+
+  describe 'deprecated pull request analysis with env var from yml' do
+    let(:data) { super().merge(config: { :global_env => 'SONAR_GITHUB_TOKEN=mytoken' })}
+    let(:job) { super().merge(:pull_request => '123')}
+
+    # it's already set in the env
+    it { should_not include_sexp [:export, ['SONAR_GITHUB_TOKEN', 'mytoken' ]] }
+    it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS',
+      "\"{ \\\"sonar.analysis.mode\\\" : \\\"preview\\\", \\\"sonar.github.repository\\\" : \\\"travis-ci/travis-ci\\\", \\\"sonar.github.pullRequest\\\" : \\\"123\\\", \\\"sonar.github.oauth\\\" : \\\"$SONAR_GITHUB_TOKEN\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
+  end
+
   describe 'add organization' do
     let(:config) { { :organization => 'myorg' } }
-    
-    it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS', 
-      "\"{ \\\"sonar.organization\\\" : \\\"myorg\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }  
+
+    it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS',
+      "\"{ \\\"sonar.organization\\\" : \\\"myorg\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
   end
-  
+
   describe 'branch analysis' do
     let(:config) { { :branches => ['branch2', 'branch*'] } }
     let(:job)    { { :branch => 'branch1' } }
-    
+
     it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS', "\"{ \\\"sonar.branch\\\" : \\\"branch1\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
   end
-  
+
   describe 'skip branch' do
     let(:config) { { :branches => 'branch1' } }
     let(:job)    { { :branch => 'branch2' } }
-    
+
     it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS', "\"{ \\\"sonar.scanner.skip\\\" : \\\"true\\\" }\""]] }
     it { should include_sexp [:export, ['SONARQUBE_SKIPPED', "true"], {:echo=>true}] }
   end
-  
+
   describe 'define login with env' do
-    let(:config) { { :env => { :SONAR_TOKEN => 'mytoken' } } }
-    
+    let(:data) { super().merge(:env_vars => ['name' => 'SONAR_TOKEN', 'value' => 'mytoken', 'public' => false])}
     it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS', "\"{ \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\", \\\"sonar.login\\\" : \\\"$SONAR_TOKEN\\\" }\""]] }
   end
 end

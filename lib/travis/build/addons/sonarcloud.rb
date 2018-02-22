@@ -17,23 +17,22 @@ module Travis
 
         SKIP_MSGS = {
           branch_disabled: 'this branch is not master or it does not match declared branches',
-          no_pr_token: 'no PR analysis can be done by SonarQube Scanner because the SONAR_GITHUB_TOKEN is not defined',
           no_secure_env: 'it is not running in a secure environment'
         }
-          
+
         def before_before_script
           sh.fold 'sonarcloud.addon' do
             folded
           end
         end
-        
+
         def folded
           sh.echo "SonarCloud addon", echo: false, ansi: :yellow
           sh.echo "addon hash: #{addon_hash}", echo: false
           @sonarqube_scanner_params = {}
           install_sonar_scanner
           install_build_wrapper
-        
+
           if !data.secure_env?
             skip :no_secure_env
             return
@@ -41,37 +40,27 @@ module Travis
             skip :branch_disabled
             return
           end
-        
-          export_tokens
 
-          if data.pull_request
-            sh.if "-z $SONAR_GITHUB_TOKEN" do
-              skip :no_pr_token
-            end
-            sh.else do
-              run
-            end
-            return
-          end
-        
+          export_tokens
           run
         end
-        
+
         def export_tokens
-          if token
-            sh.export 'SONAR_TOKEN', token, echo: false
+          if config[:token]
+            sh.export 'SONAR_TOKEN', config[:token], echo: false
           end
-          if github_token
-            sh.export 'SONAR_GITHUB_TOKEN', github_token, echo: false
+          if config[:github_token]
+            sh.export 'SONAR_GITHUB_TOKEN', config[:github_token], echo: false
           end
         end
-          
+
         def skip(reason)
           sh.echo "Skipping SonarCloud Scan because " + SKIP_MSGS[reason], echo: false, ansi: :yellow
           sh.export 'SONARQUBE_SKIPPED', "true", echo: true
-          export_scanner_params({'sonar.scanner.skip'=> 'true'})
+          add_scanner_param('sonar.scanner.skip', 'true')
+          export_scanner_params
         end
-        
+
         def install_sonar_scanner
           sh.echo "Preparing SonarQube Scanner CLI", echo: false, ansi: :yellow
           scr = <<SH
@@ -84,28 +73,28 @@ SH
           sh.export 'SONAR_SCANNER_HOME', "#{SCANNER_HOME}/sonar-scanner-#{SCANNER_CLI_VERSION}", echo: true
           sh.export 'PATH', %{"$PATH:#{SCANNER_HOME}/sonar-scanner-#{SCANNER_CLI_VERSION}/bin"}, echo: false
         end
-        
+
         def install_build_wrapper
           if language == "java" || language == "node_js"
             sh.echo "Not installing SonarSource build-wrapper because it's a Java or Javascript project", echo: false, ansi: :yellow
             return
           end
-          
+
           sh.echo "Preparing build wrapper for SonarSource C/C++ plugin", echo: false, ansi: :yellow
-            
+
           case os
             when 'linux'
               build_wrapper=BUILD_WRAPPER_LINUX
             when 'osx'
               build_wrapper=BUILD_WRAPPER_MACOSX
             else
-              sh.echo "Can't install SonarSource build wrapper for platform: $TRAVIS_OS_NAME.", ansi: :yellow
+              sh.echo "Can't install SonarSource build wrapper for platform: $TRAVIS_OS_NAME.", ansi: :red
               return
           end
-            
+
           sh.cmd "sq_cpp_hash=$(curl -s #{DEFAULT_SQ_HOST_URL}/deploy/plugins/index.txt | grep \"^cpp\" | sed \"s/.*|\\(.*\\)/\\1/\")"
           sh.cmd "sq_build_wrapper_dir=#{CACHE_DIR}/$sq_cpp_hash"
-            
+
           sh.if "-d $sq_build_wrapper_dir/#{build_wrapper}" do
             sh.echo "Using cached build wrapper"
           end
@@ -114,56 +103,72 @@ SH
             sh.cmd "curl -sSLo $sq_build_wrapper_dir/#{build_wrapper}.zip #{DEFAULT_SQ_HOST_URL}/static/cpp/#{build_wrapper}.zip", echo: false, retry: true
             sh.cmd "unzip -o $sq_build_wrapper_dir/#{build_wrapper}.zip -d $sq_build_wrapper_dir", echo: false
           end
-            
+
           sh.export 'PATH', "\"$PATH:$sq_build_wrapper_dir/#{build_wrapper}\"", echo: false
         end
-        
+
         def run
           sh.echo "Preparing SonarQube Scanner parameters", echo: false, ansi: :yellow
+
           if data.pull_request
-            add_scanner_param("sonar.analysis.mode", "preview")
-            add_scanner_param("sonar.github.repository", data.repository[:slug])
-            add_scanner_param("sonar.github.pullRequest", data.pull_request)
-            add_scanner_param("sonar.github.oauth", "$SONAR_GITHUB_TOKEN")
+            if github_token
+              sh.echo "Github token found, running analysis in the deprecated 'preview' mode. Define the token in the project settings in SonarCloud to benefit from the improved P/R analysis", echo: false, ansi: :yellow
+              add_scanner_param("sonar.analysis.mode", "preview")
+              add_scanner_param("sonar.github.repository", data.repository[:slug])
+              add_scanner_param("sonar.github.pullRequest", data.pull_request)
+              add_scanner_param("sonar.github.oauth", "$SONAR_GITHUB_TOKEN")
+           else
+              add_scanner_param("sonar.pullrequest.key", data.pull_request)
+              add_scanner_param("sonar.pullrequest.base", data.branch)
+              add_scanner_param("sonar.pullrequest.provider", "GitHub")
+              add_scanner_param("sonar.pullrequest.github.repository", data.slug)
+            end
           end
-          
+
           if organization
             add_scanner_param("sonar.organization", organization)
           end
-            
+
           if data.branch != 'master'
-            add_scanner_param("sonar.branch", data.branch)
-          end
-          
-          add_scanner_param("sonar.host.url", DEFAULT_SQ_HOST_URL)
-          
-          sh.if "-n $SONAR_TOKEN" do
-            export_scanner_params({ "sonar.login" => "$SONAR_TOKEN"})
-          end
-          sh.else do
-            export_scanner_params
-          end
-        end
-        
-        private
-        
-          def branch_valid?
-            cur_branch = data.branch || 'master'
-            branches.each do |b|
-              regex = Regexp.new b
-              return true if regex.match(cur_branch)
+            if branches.nil? || branches.empty?
+              add_scanner_param("sonar.branch.name", data.branch)
+            else
+              add_scanner_param("sonar.branch", data.branch)
+              sh.echo "Using deprecated property 'sonar.branch'. Remove declaration of 'branches' in your YML to benefit from the improved branches support", echo: false, ansi: :yellow
             end
-            false
           end
-        
+
+          add_scanner_param("sonar.host.url", DEFAULT_SQ_HOST_URL)
+
+          if token
+            add_scanner_param("sonar.login", "$SONAR_TOKEN")
+          end
+
+          export_scanner_params
+        end
+
+        private
+
+          def branch_valid?
+            if branches.nil? || branches.empty?
+              return true
+            else
+              cur_branch = data.branch || 'master'
+              branches.each do |b|
+                regex = Regexp.new b
+                return true if regex.match(cur_branch)
+              end
+              false
+            end
+          end
+
           def add_scanner_param(key, value)
             @sonarqube_scanner_params[key] = value
           end
-          
-          def export_scanner_params(additional_entries = nil)
+
+          def export_scanner_params
             hash = @sonarqube_scanner_params.clone
-            hash.merge!(additional_entries) if additional_entries
-            
+
             if hash.length > 0
               json = "\"{ "
               hash.each_with_index do |(k,v), i|
@@ -174,33 +179,42 @@ SH
               sh.export 'SONARQUBE_SCANNER_PARAMS', json, echo: false
             end
           end
-          
+
           def addon_hash
             Digest::MD5.hexdigest(File.read(__FILE__).gsub(/\s+/, ""))
           end
-          
+
           def language
             data.language
           end
-          
+
           def os
             data.config[:os]
           end
-          
+
           def organization
             config[:organization]
           end
-        
+
           def token
-            config[:token] if data.secure_env?
+            config[:token] || get_env_var("SONAR_TOKEN") if data.secure_env?
           end
-          
+
+          def env_vars
+            @env ||= Build::Env.new(data).groups.flat_map{|i| i.vars }
+          end
+
+          def get_env_var(key)
+            # find first var with the given key. If one is found (not nil), return its value
+            env_vars.find{|x| x.key == key }&.value
+          end
+
           def github_token
-            config[:github_token] if data.secure_env?
+            config[:github_token] || get_env_var("SONAR_GITHUB_TOKEN") if data.secure_env?
           end
-          
+
           def branches
-            Array(config[:branches] || 'master')
+            Array(config[:branches])
           end
 
           def escape(str)
