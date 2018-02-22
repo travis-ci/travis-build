@@ -190,7 +190,7 @@ module Travis
 
               command = "gem install"
               if install_local?(edge)
-                command << " $TRAVIS_BUILD_DIR/dpl-*.gem --local"
+                command << " $TRAVIS_BUILD_DIR/dpl-*.gem"
               else
                 command << " dpl"
               end
