@@ -6,7 +6,7 @@ module Travis
     class Addons
       class Deploy < Base
         class Script
-          VERSIONED_RUNTIMES = %w(
+          VERSIONED_RUNTIMES = %i(
             d
             dart
             elixir
@@ -26,11 +26,11 @@ module Travis
             rust
             scala
             smalltalk
-          ).map(&:to_sym)
+          )
 
           WANT_18 = true # whether or not we want `dpl` < 1.9
 
-          attr_accessor :script, :sh, :data, :config, :allow_failure
+          attr_accessor :script, :sh, :data, :config, :allow_failure, :provider
 
           def initialize(script, sh, data, config)
             @script = script
@@ -38,6 +38,7 @@ module Travis
             @data = data
             @config = config
             @silent = false
+            @provider = config[:provider].to_s.gsub(/[^a-z0-9]/, '').downcase
 
             @allow_failure = config.delete(:allow_failure)
 
@@ -203,7 +204,7 @@ module Travis
             end
 
             def warning_message(message)
-              sh.echo "Skipping a deployment with the #{config[:provider]} provider because #{message}", ansi: :yellow
+              sh.echo "Skipping a deployment with the #{provider} provider because #{message}", ansi: :yellow
             end
 
             def negate_condition(conditions)
@@ -219,6 +220,9 @@ module Travis
               sh.cmd("git checkout #{branch}",                              echo: true,  assert: !allow_failure, timing: true)
               sh.cmd("git show-ref -s HEAD",                                echo: true,  assert: !allow_failure, timing: true)
               cmd("gem build dpl.gemspec",                                  echo: true,  assert: !allow_failure, timing: true)
+              sh.if("-f dpl-#{provider}.gemspec") do
+                sh.cmd("gem build dpl-#{provider}.gemspec", echo: true, assert: !allow_failure, timing: true)
+              end
               sh.cmd("mv dpl-*.gem $TRAVIS_BUILD_DIR >& /dev/null",         echo: false, assert: !allow_failure, timing: true)
               sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: true)
               # clean up, so that multiple edge providers can be run
