@@ -169,6 +169,7 @@ module Travis
           apply :fix_sudo_enabled_trusty
           apply :update_glibc
           apply :update_libssl
+          apply :update_osx_openssl
           apply :clean_up_path
           apply :fix_resolv_conf
           apply :fix_etc_hosts
