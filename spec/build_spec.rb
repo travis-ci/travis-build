@@ -24,7 +24,7 @@ describe Travis::Build do
       ObjectiveC: ['objective_c', 'objective-c', 'swift'],
       Perl6: ['perl6'],
       Perl: ['perl'],
-      Php: ['php'],
+      Php: ['php', 'hack'],
       PureJava: ['java', 'java-anything'],
       Python: ['python'],
       R: ['r'],
