@@ -100,7 +100,11 @@ module Travis
         private
 
         def version
-          config[:php].to_s
+          if config[:hhvm]
+            "hhvm-#{config[:hhvm].to_s}"
+          else
+            config[:php].to_s
+          end
         end
 
         def hhvm?
