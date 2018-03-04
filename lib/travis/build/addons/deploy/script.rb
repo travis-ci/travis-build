@@ -142,6 +142,9 @@ module Travis
             end
 
             def install
+              if config[:edge]
+                sh.cmd "gem uninstall -ax dpl", echo: true
+              end
               sh.if "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*" do
                 cmd(dpl_install_command(WANT_18), echo: true, assert: !allow_failure, timing: true)
               end

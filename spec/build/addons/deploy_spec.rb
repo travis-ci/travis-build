@@ -106,6 +106,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
     let(:config) { { provider: 'heroku', edge: { source: 'svenvfuchs/dpl', branch: 'foo' } } }
 
     it { should match_sexp [:if, '($TRAVIS_BRANCH = master)'] }
+    it { should include_sexp [:cmd, 'gem uninstall -ax dpl', echo: true] }
     it { store_example "edge"}
   end
 
