@@ -85,7 +85,7 @@ module Travis
         sh.raw "# END_FUNCS"
 
         sh.raw "source $HOME/.travis/job_stages"
-        sh.raw "travis_wait_for_network"
+        sh.raw 'travis_wait_for_network "${TRAVIS_JOB_ID}" "${TRAVIS_REPO_SLUG}"'
 
         STAGES.each do |stage|
           case stage.run_in_debug
