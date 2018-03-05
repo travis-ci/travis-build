@@ -150,6 +150,7 @@ module Travis
             template(
               'header.sh',
               build_dir: BUILD_DIR,
+              app_host: app_host,
               internal_ruby_regex: Travis::Build.config.internal_ruby_regex.untaint,
               root: '/',
               home: HOME_DIR

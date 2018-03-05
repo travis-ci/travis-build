@@ -265,6 +265,33 @@ travis_fold() {
   echo -en "travis_fold:${action}:${name}\r${ANSI_CLEAR}"
 }
 
+travis_http_fetch() {
+  local src="${1}"
+  local dst="${2}"
+
+  if curl --version &>/dev/null; then
+    curl -fsSL -o "${dst}" "${src}" 2>/dev/null
+    return $?
+  fi
+
+  if wget --version &>/dev/null; then
+    wget -q "${src}" -O "${dst}" 2>/dev/null
+    return $?
+  fi
+
+  return 1
+}
+
+travis_wait_for_network() {
+  local result=0
+  local count=1
+  while [ $count -le 9 ]; do
+    travis_http_fetch "<%= app_host %>/empty.txt" /dev/null && break
+    count=$(($count + 1))
+    sleep 1
+  done
+}
+
 decrypt() {
   echo $1 | base64 -d | openssl rsautl -decrypt -inkey <%= home %>/.ssh/id_rsa.repo
 }
@@ -307,6 +334,8 @@ fi
 if [[ -f /etc/apt/sources.list.d/neo4j.list ]] ; then
   sudo rm -f /etc/apt/sources.list.d/neo4j.list
 fi
+
+travis_wait_for_network
 
 mkdir -p <%= build_dir %>
 cd       <%= build_dir %>
