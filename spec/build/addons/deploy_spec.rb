@@ -106,7 +106,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
     let(:config) { { provider: 'heroku', edge: { source: 'svenvfuchs/dpl', branch: 'foo' } } }
 
     it { should match_sexp [:if, '($TRAVIS_BRANCH = master)'] }
-    it { should include_sexp [:cmd, 'gem uninstall -ax dpl', echo: true] }
+    it { should include_sexp [:cmd, 'gem uninstall -aIx dpl', echo: true] }
     it { store_example "edge"}
   end
 
@@ -115,7 +115,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
     let(:config) { { provider: 'heroku', edge: { source: 'svenvfuchs/dpl', branch: 'foo' } } }
 
     it { should match_sexp [:if, '($TRAVIS_BRANCH = master)'] }
-    it { should include_sexp [:cmd, 'gem uninstall -ax dpl', echo: true] }
+    it { should include_sexp [:cmd, 'gem uninstall -aIx dpl', echo: true] }
     it { store_example "edge"}
   end
 
@@ -136,7 +136,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
     it { should match_sexp [:if, '($TRAVIS_BRANCH = master) && ($BAR = bar)'] }
     # it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=nodejitsu --user=foo --api_key=bar --fold', assert: true, timing: true] }
     it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider="nodejitsu" --user="foo" --api_key="bar" --fold; if [ $? -ne 0 ]; then echo "failed to deploy"; travis_terminate 2; fi', timing: true] }
-    it { should_not include_sexp [:cmd, 'gem uninstall -ax dpl', echo: true] }
+    it { should_not include_sexp [:cmd, 'gem uninstall -aIx dpl', echo: true] }
     it { store_example "multiple-providers" }
 
     context 'when dpl switches from release to edge' do
@@ -144,7 +144,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
       let(:nodejitsu) { { provider: 'nodejitsu', user: 'foo', api_key: 'bar', on: { condition: '$BAR = bar' }, edge: true } }
       let(:config)    { [heroku, nodejitsu] }
 
-      it { should include_sexp [:cmd, 'gem uninstall -ax dpl', echo: true] }
+      it { should include_sexp [:cmd, 'gem uninstall -aIx dpl', echo: true] }
     end
 
     context 'when dpl switches from edge to release' do
@@ -152,7 +152,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
       let(:nodejitsu) { { provider: 'nodejitsu', user: 'foo', api_key: 'bar', on: { condition: '$BAR = bar' }, edge: true } }
       let(:config)    { [nodejitsu, heroku] }
 
-      it { should include_sexp [:cmd, 'gem uninstall -ax dpl', echo: true] }
+      it { should include_sexp [:cmd, 'gem uninstall -aIx dpl', echo: true] }
     end
 
     context 'when multiple dpl edge releases use the identical edge definitions' do
@@ -161,7 +161,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
       let(:config)    { [nodejitsu, heroku] }
       let(:second_deploy) { sexp_find(subject, [:fold, "dpl.1"]) }
 
-      it { expect(second_deploy).to_not include_sexp [:cmd, 'gem uninstall -ax dpl', echo: true] }
+      it { expect(second_deploy).to_not include_sexp [:cmd, 'gem uninstall -aIx dpl', echo: true] }
       it { store_example "identical-edges" }
     end
 
@@ -171,7 +171,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
       let(:config)    { [nodejitsu, heroku] }
       let(:second_deploy) { sexp_find(subject, [:fold, "dpl.1"]) }
 
-      it { expect(second_deploy).to include_sexp [:cmd, 'gem uninstall -ax dpl', echo: true] }
+      it { expect(second_deploy).to include_sexp [:cmd, 'gem uninstall -aIx dpl', echo: true] }
     end
   end
 
