@@ -270,12 +270,12 @@ travis_download() {
   local dst="${2}"
 
   if curl --version &>/dev/null; then
-    curl -fsSL --retry=9 --retry-delay=1 -o "${dst}" "${src}" 2>/dev/null
+    curl -fsSL --connect-timeout=5 --retry=9 --retry-delay=1 -o "${dst}" "${src}" 2>/dev/null
     return $?
   fi
 
   if wget --version &>/dev/null; then
-    wget --tries=10 --wait=1 -q "${src}" -O "${dst}" 2>/dev/null
+    wget --connect-timeout=5 --tries=10 --wait=1 -q "${src}" -O "${dst}" 2>/dev/null
     return $?
   fi
 
@@ -286,7 +286,9 @@ travis_wait_for_network() {
   local url="<%= app_host %>/empty.txt"
   url="${url}?job_id=${1:-${TRAVIS_JOB_ID}}"
   url="${url}&repo=${2:-${TRAVIS_REPO_SLUG}}"
+  echo "$(date +%s) start  ${url}" >"<%= home %>/.travis-network.log"
   travis_download "${url}" /dev/null
+  echo "$(date +%s) finish ${url}" >>"<%= home %>/.travis-network.log"
 }
 
 decrypt() {
