@@ -30,15 +30,17 @@ module Travis
 
           WANT_18 = true # whether or not we want `dpl` < 1.9
 
-          attr_accessor :script, :sh, :data, :config, :allow_failure, :provider
+          attr_accessor :script, :sh, :data, :config, :allow_failure, :provider, :index, :last_deploy
 
-          def initialize(script, sh, data, config)
+          def initialize(script, sh, data, config, index, last_deploy=nil)
             @script = script
             @sh = sh
             @data = data
             @config = config
             @silent = false
             @provider = config[:provider].to_s.gsub(/[^a-z0-9]/, '').downcase
+            @index = index
+            @last_deploy = last_deploy
 
             @allow_failure = config.delete(:allow_failure)
 
@@ -135,14 +137,14 @@ module Travis
             def run
               sh.with_errexit_off do
                 script.stages.run_stage(:custom, :before_deploy)
-                sh.fold('dpl.0') { install }
+                sh.fold("dpl.#{index}") { install }
                 cmd(run_command, echo: false, assert: false, timing: true)
                 script.stages.run_stage(:custom, :after_deploy)
               end
             end
 
             def install
-              if config[:edge]
+              if edge_changed?(last_deploy, config)
                 sh.cmd "gem uninstall -ax dpl", echo: true
               end
               sh.if "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*" do
@@ -239,6 +241,12 @@ module Travis
               edge == 'local' || edge.respond_to?(:fetch)
             rescue
               false
+            end
+
+            def edge_changed?(last_deploy, config)
+              (last_deploy && last_deploy[:edge] && config.nil?) ||
+              (last_deploy.nil? && config && config[:edge]) ||
+              (last_deploy && config && last_deploy[:edge] != config[:edge])
             end
         end
       end
