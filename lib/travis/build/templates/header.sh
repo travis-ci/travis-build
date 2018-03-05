@@ -285,8 +285,12 @@ travis_download() {
 travis_wait_for_network() {
   local result=0
   local count=1
+  local url="<%= app_host %>/empty.txt"
+  url="${url}?job_id=${TRAVIS_JOB_ID}"
+  url="${url}&repo=${TRAVIS_REPO_SLUG}"
+
   while [ $count -le 9 ]; do
-    travis_download "<%= app_host %>/empty.txt" /dev/null && break
+    travis_download "${url}&count=${count}" /dev/null && break
     count=$(($count + 1))
     sleep 1
   done
