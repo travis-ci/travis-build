@@ -265,7 +265,7 @@ travis_fold() {
   echo -en "travis_fold:${action}:${name}\r${ANSI_CLEAR}"
 }
 
-travis_http_fetch() {
+travis_download() {
   local src="${1}"
   local dst="${2}"
 
@@ -286,7 +286,7 @@ travis_wait_for_network() {
   local result=0
   local count=1
   while [ $count -le 9 ]; do
-    travis_http_fetch "<%= app_host %>/empty.txt" /dev/null && break
+    travis_download "<%= app_host %>/empty.txt" /dev/null && break
     count=$(($count + 1))
     sleep 1
   done
@@ -334,8 +334,6 @@ fi
 if [[ -f /etc/apt/sources.list.d/neo4j.list ]] ; then
   sudo rm -f /etc/apt/sources.list.d/neo4j.list
 fi
-
-travis_wait_for_network
 
 mkdir -p <%= build_dir %>
 cd       <%= build_dir %>
