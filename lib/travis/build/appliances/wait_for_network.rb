@@ -14,7 +14,7 @@ module Travis
               local url="http://#{app_host}/empty.txt?job_id=${job_id}&repo=${repo}"
 
               while [[ "${count}" -lt 10 ]]; do
-                if ! travis_download "${url}?count=${count}" /dev/null; then
+                if travis_download "${url}?count=${count}" /dev/null; then
                   echo -e "${ANSI_GREEN}Network availability confirmed.${ANSI_RESET}"
                   return
                 fi
