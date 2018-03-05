@@ -162,6 +162,7 @@ module Travis
           apply :show_system_info
           apply :rm_riak_source
           apply :fix_rwky_redis
+          apply :wait_for_network
           apply :update_apt_keys
           apply :fix_hhvm_source
           apply :update_mongo_arch
