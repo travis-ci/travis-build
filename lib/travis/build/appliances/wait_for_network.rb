@@ -13,15 +13,18 @@ module Travis
               local count=1
               local url="http://#{app_host}/empty.txt?job_id=${job_id}&repo=${repo}"
 
-              while [[ "${count}" -lt 10 ]]; do
+              set -o xtrace
+              while [[ "${count}" -lt 20 ]]; do
                 if travis_download "${url}?count=${count}" /dev/null; then
                   echo -e "${ANSI_GREEN}Network availability confirmed.${ANSI_RESET}"
+                  set +o xtrace
                   return
                 fi
                 count=$((count + 1))
                 sleep 1
               done
 
+              set +o xtrace
               echo -e "${ANSI_RED}Timeout waiting for network availability.${ANSI_RESET}"
             }
           BASHSNIP
