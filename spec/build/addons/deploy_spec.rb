@@ -159,7 +159,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
       let(:heroku)    { { provider: 'heroku', password: 'foo', email: 'user@host', on: { condition: '$FOO = foo' }, edge: true } }
       let(:nodejitsu) { { provider: 'nodejitsu', user: 'foo', api_key: 'bar', on: { condition: '$BAR = bar' }, edge: true } }
       let(:config)    { [nodejitsu, heroku] }
-      let(:second_deploy) { sexp_find(subject, [:fold, "dpl.1"]) }
+      let(:second_deploy) { sexp_find(subject, [:fold, "dpl_1"]) }
 
       it { expect(second_deploy).to_not include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
       it { store_example "identical-edges" }
@@ -169,7 +169,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
       let(:heroku)    { { provider: 'heroku', password: 'foo', email: 'user@host', on: { condition: '$FOO = foo' }, edge: {branch: 'feature'} } }
       let(:nodejitsu) { { provider: 'nodejitsu', user: 'foo', api_key: 'bar', on: { condition: '$BAR = bar' }, edge: true } }
       let(:config)    { [nodejitsu, heroku] }
-      let(:second_deploy) { sexp_find(subject, [:fold, "dpl.1"]) }
+      let(:second_deploy) { sexp_find(subject, [:fold, "dpl_1"]) }
 
       it { expect(second_deploy).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
     end

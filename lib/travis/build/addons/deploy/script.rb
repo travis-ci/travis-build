@@ -137,7 +137,7 @@ module Travis
             def run
               sh.with_errexit_off do
                 script.stages.run_stage(:custom, :before_deploy)
-                sh.fold("dpl.#{index}") { install }
+                sh.fold("dpl_#{index}") { install }
                 cmd(run_command, echo: false, assert: false, timing: true)
                 script.stages.run_stage(:custom, :after_deploy)
               end
