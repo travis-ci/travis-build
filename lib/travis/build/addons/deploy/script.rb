@@ -6,7 +6,7 @@ module Travis
     class Addons
       class Deploy < Base
         class Script
-          VERSIONED_RUNTIMES = %w(
+          VERSIONED_RUNTIMES = %i(
             d
             dart
             elixir
@@ -26,11 +26,11 @@ module Travis
             rust
             scala
             smalltalk
-          ).map(&:to_sym)
+          )
 
           WANT_18 = true # whether or not we want `dpl` < 1.9
 
-          attr_accessor :script, :sh, :data, :config, :allow_failure
+          attr_accessor :script, :sh, :data, :config, :allow_failure, :provider
 
           def initialize(script, sh, data, config)
             @script = script
@@ -38,6 +38,7 @@ module Travis
             @data = data
             @config = config
             @silent = false
+            @provider = config[:provider].to_s.gsub(/[^a-z0-9]/, '').downcase
 
             @allow_failure = config.delete(:allow_failure)
 
@@ -142,12 +143,12 @@ module Travis
 
             def install
               sh.if "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*" do
-                cmd(dpl_install_command(WANT_18), echo: false, assert: !allow_failure, timing: true)
+                cmd(dpl_install_command(WANT_18), echo: true, assert: !allow_failure, timing: true)
               end
               sh.else do
-                cmd(dpl_install_command, echo: false, assert: !allow_failure, timing: true)
+                cmd(dpl_install_command, echo: true, assert: !allow_failure, timing: true)
               end
-              sh.cmd "rm -f dpl-*.gem", echo: false, assert: false, timing: false
+              sh.cmd "rm -f $TRAVIS_BUILD_DIR/dpl-*.gem", echo: false, assert: false, timing: false
             end
 
             def run_command(assert = !allow_failure)
@@ -187,9 +188,13 @@ module Travis
                 build_gem_locally_from(src, branch)
               end
 
-              command = "gem install dpl"
+              command = "gem install"
+              if install_local?(edge)
+                command << " $TRAVIS_BUILD_DIR/dpl-*.gem"
+              else
+                command << " dpl"
+              end
               command << " -v '< 1.9' " if want_pre_19
-              command << "-*.gem --local" if edge == 'local' || edge.respond_to?(:fetch)
               command << " --pre" if edge
               command
             end
@@ -199,7 +204,7 @@ module Travis
             end
 
             def warning_message(message)
-              sh.echo "Skipping a deployment with the #{config[:provider]} provider because #{message}", ansi: :yellow
+              sh.echo "Skipping a deployment with the #{provider} provider because #{message}", ansi: :yellow
             end
 
             def negate_condition(conditions)
@@ -215,6 +220,9 @@ module Travis
               sh.cmd("git checkout #{branch}",                              echo: true,  assert: !allow_failure, timing: true)
               sh.cmd("git show-ref -s HEAD",                                echo: true,  assert: !allow_failure, timing: true)
               cmd("gem build dpl.gemspec",                                  echo: true,  assert: !allow_failure, timing: true)
+              sh.if("-f dpl-#{provider}.gemspec") do
+                sh.cmd("gem build dpl-#{provider}.gemspec", echo: true, assert: !allow_failure, timing: true)
+              end
               sh.cmd("mv dpl-*.gem $TRAVIS_BUILD_DIR >& /dev/null",         echo: false, assert: !allow_failure, timing: true)
               sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: true)
               # clean up, so that multiple edge providers can be run
@@ -222,6 +230,12 @@ module Travis
               sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: true)
             ensure
               sh.cmd("test -e /tmp/dpl && rm -rf dpl", echo: false, assert: false, timing: true)
+            end
+
+            def install_local?(edge)
+              edge == 'local' || edge.respond_to?(:fetch)
+            rescue
+              false
             end
         end
       end
