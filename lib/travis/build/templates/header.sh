@@ -28,7 +28,7 @@ export SHELL
 export TERM
 export USER
 
-TRAVIS_TEST_RESULT=
+TRAVIS_TEST_RESULT=0
 TRAVIS_CMD=
 
 TRAVIS_TMPDIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'travis_tmp')
