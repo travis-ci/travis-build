@@ -48,13 +48,13 @@ module Travis
           super
 
           sh.cmd 'crystal --version'
-          sh.cmd 'crystal deps --version'
+          sh.cmd 'shards --version'
           sh.echo ''
         end
 
         def install
           sh.if '-f shard.yml' do
-            sh.cmd "crystal deps"
+            sh.cmd "shards install"
           end
         end
 
