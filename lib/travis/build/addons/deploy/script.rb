@@ -232,11 +232,11 @@ module Travis
               sh.raw "    break;"
               sh.raw "  fi"
               sh.raw "done"
-              sh.cmd("mv dpl-*.gem $TRAVIS_BUILD_DIR >& /dev/null",         echo: false, assert: !allow_failure, timing: true)
-              sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("mv dpl-*.gem $TRAVIS_BUILD_DIR >& /dev/null",         echo: false, assert: !allow_failure, timing: false)
+              sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: false)
               # clean up, so that multiple edge providers can be run
-              sh.cmd("rm -rf $(dirname #{source})",                         echo: false, assert: !allow_failure, timing: true)
-              sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("rm -rf $(dirname #{source})",                         echo: false, assert: !allow_failure, timing: false)
+              sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: false)
             ensure
               sh.cmd("test -e /tmp/dpl && rm -rf dpl", echo: false, assert: false, timing: true)
             end
