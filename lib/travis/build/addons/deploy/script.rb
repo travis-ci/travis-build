@@ -225,14 +225,18 @@ module Travis
               sh.cmd("git checkout #{branch}",                              echo: true,  assert: !allow_failure, timing: true)
               sh.cmd("git show-ref -s HEAD",                                echo: true,  assert: !allow_failure, timing: true)
               cmd("gem build dpl.gemspec",                                  echo: true,  assert: !allow_failure, timing: true)
-              sh.if("-f dpl-#{provider}.gemspec") do
-                sh.cmd("gem build dpl-#{provider}.gemspec", echo: true, assert: !allow_failure, timing: true)
-              end
-              sh.cmd("mv dpl-*.gem $TRAVIS_BUILD_DIR >& /dev/null",         echo: false, assert: !allow_failure, timing: true)
-              sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: true)
+              sh.raw "for f in dpl-*.gemspec; do"
+              sh.raw "  base=${f%*.gemspec}"
+              sh.raw "  if [[ x$(echo #{provider} | tr A-Z a-z | sed 's/[^a-z0-9]//g') = x$(echo ${base#dpl-*} | tr A-Z a-z | sed 's/[^a-z0-9]//g') ]]; then"
+              cmd    "    gem build $f;", echo: true, assert: !allow_failure, timing: true
+              sh.raw "    break;"
+              sh.raw "  fi"
+              sh.raw "done"
+              sh.cmd("mv dpl-*.gem $TRAVIS_BUILD_DIR >& /dev/null",         echo: false, assert: !allow_failure, timing: false)
+              sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: false)
               # clean up, so that multiple edge providers can be run
-              sh.cmd("rm -rf $(dirname #{source})",                         echo: false, assert: !allow_failure, timing: true)
-              sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("rm -rf $(dirname #{source})",                         echo: false, assert: !allow_failure, timing: false)
+              sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: false)
             ensure
               sh.cmd("test -e /tmp/dpl && rm -rf dpl", echo: false, assert: false, timing: true)
             end
