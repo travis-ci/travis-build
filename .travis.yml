@@ -7,7 +7,7 @@ dist: trusty
 
 sudo: false
 
-rvm: 2.3.4
+rvm: 2.5.0
 
 env:
   global:
@@ -30,13 +30,16 @@ jobs:
       sudo: required
       dist: trusty
       env:
+      rvm: 2.5.0
       script: ./script/validate-example-payloads-with-docker
     - stage: "test update_static_files Rake task"
       script: "bundle exec rake update_static_files"
+      rvm: 2.5.0
     - stage: ":ship: it to Quay.io"
       sudo: required
       dist: trusty
       env:
+      rvm: 2.5.0
       script: ./script/docker-build-and-push
       if: (NOT type IN (pull_request)) AND (branch = master)
 
