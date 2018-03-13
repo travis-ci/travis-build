@@ -42,6 +42,7 @@ shared_examples_for 'a build script sexp' do
   end
 
   it_behaves_like 'show system info'
+  it_behaves_like 'reenables IPv6'
   it_behaves_like 'cleans up $PATH'
   it_behaves_like 'validates config'
   it_behaves_like 'paranoid mode on/off'
