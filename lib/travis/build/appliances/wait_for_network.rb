@@ -37,7 +37,7 @@ module Travis
           sh.cmd %W[
             travis_wait_for_network
               '#{wait_retries}' '#{check_urls.join("' '")}'
-          ].join(' '), echo: false
+          ].join(' ').untaint, echo: false
         end
 
         private def check_urls
