@@ -40,11 +40,19 @@ describe Travis::Build::Addons::Sonarcloud, :sexp do
   end
 
   describe 'new pull request analysis' do
-    let(:job) { super().merge( :pull_request => '123' )}
+    let(:job) { super().merge( {:pull_request => '123', :pull_request_head_branch => 'master' })}
 
     it { should_not include_sexp [:export, ['SONAR_GITHUB_TOKEN', 'mytoken' ]] }
     it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS',
-      "\"{ \\\"sonar.pullrequest.key\\\" : \\\"123\\\", \\\"sonar.pullrequest.base\\\" : \\\"master\\\", \\\"sonar.pullrequest.provider\\\" : \\\"GitHub\\\", \\\"sonar.pullrequest.github.repository\\\" : \\\"travis-ci/travis-ci\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
+      "\"{ \\\"sonar.pullrequest.key\\\" : \\\"123\\\", \\\"sonar.pullrequest.branch\\\" : \\\"master\\\", \\\"sonar.pullrequest.base\\\" : \\\"master\\\", \\\"sonar.pullrequest.provider\\\" : \\\"GitHub\\\", \\\"sonar.pullrequest.github.repository\\\" : \\\"travis-ci/travis-ci\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
+  end
+  
+  describe 'new pull request to long branch' do
+    let(:job) { super().merge( {:pull_request => '123', :pull_request_head_branch => 'branch1' })}
+
+    it { should_not include_sexp [:export, ['SONAR_GITHUB_TOKEN', 'mytoken' ]] }
+    it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS',
+      "\"{ \\\"sonar.pullrequest.key\\\" : \\\"123\\\", \\\"sonar.pullrequest.branch\\\" : \\\"branch1\\\", \\\"sonar.pullrequest.base\\\" : \\\"master\\\", \\\"sonar.pullrequest.provider\\\" : \\\"GitHub\\\", \\\"sonar.pullrequest.github.repository\\\" : \\\"travis-ci/travis-ci\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
   end
 
   describe 'deprecated pull request analysis' do

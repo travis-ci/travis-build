@@ -19,11 +19,13 @@ module Travis
           branch_disabled: 'this branch is not master or it does not match declared branches',
           no_secure_env: 'it is not running in a secure environment'
         }
-
+        
         def before_before_script
+          @unfolded_warnings = []
           sh.fold 'sonarcloud.addon' do
             folded
           end
+          @unfolded_warnings.each { |x| sh.echo x, echo: false, ansi: :yellow }
         end
 
         def folded
@@ -112,30 +114,31 @@ SH
 
           if data.pull_request
             if github_token
-              sh.echo "Github token found, running analysis in the deprecated 'preview' mode. Define the token in the project settings in SonarCloud to benefit from the improved P/R analysis", echo: false, ansi: :yellow
+              @unfolded_warnings.push("Github token found in the Travis YML file: running analysis in the deprecated mode. Remove that token and set it in the project settings in SonarCloud to benefit from the improved P/R analysis.")
               add_scanner_param("sonar.analysis.mode", "preview")
-              add_scanner_param("sonar.github.repository", data.repository[:slug])
+              add_scanner_param("sonar.github.repository", data.slug)
               add_scanner_param("sonar.github.pullRequest", data.pull_request)
               add_scanner_param("sonar.github.oauth", "$SONAR_GITHUB_TOKEN")
            else
               add_scanner_param("sonar.pullrequest.key", data.pull_request)
+              add_scanner_param("sonar.pullrequest.branch", data.job[:pull_request_head_branch])
               add_scanner_param("sonar.pullrequest.base", data.branch)
               add_scanner_param("sonar.pullrequest.provider", "GitHub")
               add_scanner_param("sonar.pullrequest.github.repository", data.slug)
+            end
+          else
+            if data.branch != 'master'
+              if branches.nil? || branches.empty?
+                add_scanner_param("sonar.branch.name", data.branch)
+              else
+                add_scanner_param("sonar.branch", data.branch)
+                @unfolded_warnings.push("Remove declaration of the deprecated 'branches' option in your Travis YML file to benefit from the improved branches support. This deprecated option will be removed in the future.")
+              end
             end
           end
 
           if organization
             add_scanner_param("sonar.organization", organization)
-          end
-
-          if data.branch != 'master'
-            if branches.nil? || branches.empty?
-              add_scanner_param("sonar.branch.name", data.branch)
-            else
-              add_scanner_param("sonar.branch", data.branch)
-              sh.echo "Using deprecated property 'sonar.branch'. Remove declaration of 'branches' in your YML to benefit from the improved branches support", echo: false, ansi: :yellow
-            end
           end
 
           add_scanner_param("sonar.host.url", DEFAULT_SQ_HOST_URL)
