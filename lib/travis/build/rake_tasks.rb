@@ -11,7 +11,7 @@ module Travis
   module Build
     module RakeTasks
       def fetch_githubusercontent_file(from, host: 'raw.githubusercontent.com',
-                                       to: nil, mode: 0o755)
+                                       to: nil, mode: 0o755, max_tries: 5)
         conn = build_faraday_conn(host: host)
         to = if to
                Pathname.new(to)
@@ -20,9 +20,21 @@ module Travis
              end
         to = File.join(top, 'public/files', to) unless to.absolute?
 
-        response = conn.get do |req|
-          logger.info "Fetching #{conn.url_prefix.to_s}#{from}"
-          req.url from
+        fetched = false
+        tries = 1
+        response = nil
+
+        while !fetched && tries <= max_tries do
+          response = conn.get do |req|
+            logger.info "Fetching #{conn.url_prefix.to_s}#{from} (try #{tries} of #{max_tries})"
+            req.url from
+          end
+          if response.success?
+            fetched = true
+          else
+            tries += 1
+            sleep 10
+          end
         end
 
         dest = top + to
@@ -36,17 +48,30 @@ module Travis
         logger.info "Error: #{e.message}"
       end
 
-      def latest_release_for(repo)
+      def latest_release_for(repo, max_tries: 5)
         conn = build_faraday_conn(host: 'api.github.com')
 
-        response = conn.get do |req|
-          releases_url = "repos/#{repo}/releases"
-          logger.info "Fetching releases from #{conn.url_prefix.to_s}#{releases_url}"
-          req.url releases_url
-          oauth_token = ENV['GITHUB_OAUTH_TOKEN']
-          if oauth_token && oauth_token != 'notset'
-            logger.info "Adding 'Authorization' header for api.github.com request"
-            req.headers['Authorization'] = "token #{oauth_token}"
+        fetched = false
+        tries = 1
+        response = nil
+
+        while !fetched && tries <= max_tries do
+          response = conn.get do |req|
+            releases_url = "repos/#{repo}/releases"
+            logger.info "Fetching releases from #{conn.url_prefix.to_s}#{releases_url} (try #{tries} of #{max_tries})"
+            req.url releases_url
+            oauth_token = ENV['GITHUB_OAUTH_TOKEN']
+            if oauth_token && oauth_token != 'notset'
+              logger.info "Adding 'Authorization' header for api.github.com request"
+              req.headers['Authorization'] = "token #{oauth_token}"
+            end
+          end
+
+          if response.success?
+            fetched = true
+          else
+            tries += 1
+            sleep 10
           end
         end
 
