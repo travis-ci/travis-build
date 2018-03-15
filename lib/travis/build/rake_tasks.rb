@@ -137,6 +137,16 @@ module Travis
         Faraday.new("#{scheme}://#{host}") do |f|
           f.response :raise_error
           f.use FaradayMiddleware::FollowRedirects
+          f.request :retry,
+            max: 4,
+            interval: 3,
+            interval_randomness: 0.25,
+            backoff_factor: 1.5,
+            exceptions: [
+              Errno::ETIMEDOUT,
+              Timeout::Error,
+              Faraday::ClientError
+            ]
           f.adapter Faraday.default_adapter
         end
       end
