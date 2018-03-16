@@ -48,6 +48,7 @@ module Travis
               TRAVIS_LANGUAGE:        config[:language],
               TRAVIS_TAG:             job[:tag],
               TRAVIS_SUDO:            (!!!data[:paranoid]).to_s,
+              TRAVIS_BUILD_STAGE_NAME: job[:stage_name],
               TRAVIS_PULL_REQUEST_BRANCH: job[:pull_request_head_branch],
               TRAVIS_PULL_REQUEST_SHA: job[:pull_request_head_sha],
               TRAVIS_PULL_REQUEST_SLUG: job[:pull_request_head_slug],
