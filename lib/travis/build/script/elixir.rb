@@ -61,7 +61,7 @@ export MIX_ARCHIVES=#{KIEX_MIX_HOME}elixir-#{elixir_version}' > #{KIEX_ELIXIR_HO
         private
 
         def elixir_version
-          config[:elixir].to_s
+          Array(config[:elixir]).first.to_s
         end
 
         def otp_release_requirement_satisfied?

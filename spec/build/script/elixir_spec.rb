@@ -77,6 +77,8 @@ describe Travis::Build::Script::Elixir, :sexp do
   end
 
   # requirement met
+  installs_required_otp_release(['1.6.0'], '20.0', '20.0')
+  installs_required_otp_release('1.6.0', '19.0', '19.0')
   installs_required_otp_release('1.2.0', '18.0', '18.0')
   installs_required_otp_release('1.1.0', '17.4', '17.4')
   installs_required_otp_release('1.1.0', '18.0', '18.0')
