@@ -66,7 +66,8 @@ export MIX_ARCHIVES=#{KIEX_MIX_HOME}elixir-#{elixir_version}' > #{KIEX_ELIXIR_HO
 
         def otp_release_requirement_satisfied?
           !( elixir_1_0_x? &&  otp_release_18_0_or_higher?) &&
-          !( elixir_1_2_0_or_higher? && !otp_release_18_0_or_higher?)
+          !( elixir_1_2_0_or_higher? && !otp_release_18_0_or_higher?) &&
+          !( elixir_1_6_0_or_higher? && !otp_release_19_0_or_higher?)
         rescue
           false
         end
