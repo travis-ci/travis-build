@@ -3,6 +3,7 @@ require 'spec_helper'
 describe Travis::Build::Addons::Sonarcloud, :sexp do
   let(:script) { stub('script') }
   let(:config) { :true }
+
   let(:job)    { { :branch => 'master' } }
   let(:data)   { payload_for(:push, :ruby, job: job, config: { addons: { sonarcloud: config } }) }
   let(:sh)     { Travis::Shell::Builder.new }
@@ -96,6 +97,22 @@ describe Travis::Build::Addons::Sonarcloud, :sexp do
     let(:job)    { { :branch => 'branch1' } }
 
     it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS', "\"{ \\\"sonar.branch\\\" : \\\"branch1\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
+  end
+  
+  describe 'new branch analysis' do
+    let(:job)    { { :branch => 'branch1' } }
+
+    it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS', "\"{ \\\"sonar.branch.name\\\" : \\\"branch1\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
+  end
+  
+  describe 'dont define branch if default branch' do
+    let(:job)    { { :branch => 'branch1' } }
+    let(:data)   { 
+      super()[:repository][:default_branch] = 'branch1'
+      super()       
+    }
+
+    it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS', "\"{ \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
   end
 
   describe 'skip branch' do

@@ -126,14 +126,12 @@ SH
               add_scanner_param("sonar.pullrequest.provider", "GitHub")
               add_scanner_param("sonar.pullrequest.github.repository", data.slug)
             end
-          else
-            if data.branch != 'master'
-              if branches.nil? || branches.empty?
-                add_scanner_param("sonar.branch.name", data.branch)
-              else
-                add_scanner_param("sonar.branch", data.branch)
-                @unfolded_warnings.push("Remove declaration of the deprecated 'branches' option in your Travis YML file to benefit from the improved branches support. This deprecated option will be removed in the future.")
-              end
+          elsif !default_branch?
+            if branches.nil? || branches.empty?
+              add_scanner_param("sonar.branch.name", data.branch)
+            else
+              add_scanner_param("sonar.branch", data.branch)
+              @unfolded_warnings.push("Remove declaration of the deprecated 'branches' option in your Travis YML file to benefit from the improved branches support. This deprecated option will be removed in the future.")
             end
           end
 
@@ -185,6 +183,10 @@ SH
 
           def addon_hash
             Digest::MD5.hexdigest(File.read(__FILE__).gsub(/\s+/, ""))
+          end
+          
+          def default_branch?
+            data.default_branch == data.branch
           end
 
           def language
