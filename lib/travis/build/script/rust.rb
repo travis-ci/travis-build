@@ -61,7 +61,7 @@ module Travis
         private
 
           def version
-            config[:rust].to_s
+            Array(config[:rust]).first.to_s
           end
       end
     end
