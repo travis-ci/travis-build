@@ -21,7 +21,7 @@ module Travis
 
         def export
           super
-          sh.export 'TRAVIS_RUBY_VERSION', config[:rvm], echo: false if rvm?
+          sh.export 'TRAVIS_RUBY_VERSION', version, echo: false if rvm?
         end
 
         def setup
@@ -42,7 +42,7 @@ module Travis
         private
 
           def version
-            config[:rvm].to_s
+            Array(config[:rvm]).first.to_s
           end
 
           def rvm?
@@ -50,7 +50,7 @@ module Travis
           end
 
           def ruby_version
-            vers = config[:rvm].to_s.gsub(/-(1[89]|2[01])mode$/, '-d\1')
+            vers = version.gsub(/-(1[89]|2[01])mode$/, '-d\1')
             force_187_p371 vers
           end
 
