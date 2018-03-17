@@ -510,7 +510,7 @@ module Travis
           @r_version ||= normalized_r_version
         end
 
-        def normalized_r_version(v=config[:r].to_s)
+        def normalized_r_version(v=Array(config[:r]).first.to_s)
           case v
           when 'release' then '3.4.4'
           when 'oldrel' then '3.3.3'

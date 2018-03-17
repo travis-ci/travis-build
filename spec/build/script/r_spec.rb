@@ -45,6 +45,13 @@ describe Travis::Build::Script::R, :sexp do
     should include_sexp [:export, ['TRAVIS_R_VERSION', '3.3.0']]
   end
 
+  context "when R version is given as an array" do
+    it 'uses the first value' do
+      data[:config][:r] = %w(3.3.0)
+      should include_sexp [:export, ['TRAVIS_R_VERSION', '3.3.0']]
+    end
+  end
+
   it 'downloads and installs latest R' do
     should include_sexp [:cmd, %r{^curl.*https://s3\.amazonaws\.com/rstudio-travis/R-3\.4\.4-\$\(lsb_release -cs\)\.xz},
                          assert: true, echo: true, retry: true, timing: true]
