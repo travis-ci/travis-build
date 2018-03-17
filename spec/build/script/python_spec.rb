@@ -53,6 +53,13 @@ describe Travis::Build::Script::Python, :sexp do
     should include_sexp [:cmd,  'source ~/virtualenv/python2.7/bin/activate', assert: true, echo: true, timing: true]
   end
 
+  context "when python version is given as an array" do
+    before { data[:config][:python] = %w(2.7) }
+    it 'sets up the python version (2.7)' do
+      should include_sexp [:cmd,  'source ~/virtualenv/python2.7/bin/activate', assert: true, echo: true, timing: true]
+    end
+  end
+
   it 'sets up the python version nightly' do
     data[:config][:python] = 'nightly'
     should include_sexp [:cmd,  'sudo tar xjf python-nightly.tar.bz2 --directory /', echo: true, assert: true]
