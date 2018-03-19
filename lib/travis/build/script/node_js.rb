@@ -4,9 +4,9 @@ module Travis
       class NodeJs < Script
         DEFAULT_VERSION = '0.10'
 
-        NVM_VERSION     = '0.32.0' # to coincide with ../files/nvm.sh version
-
         YARN_REQUIRED_NODE_VERSION = '4'
+
+        NPM_QUIET_TREE_VERSION = '5'
 
         def export
           super
@@ -26,6 +26,7 @@ module Travis
           npm_disable_progress
           npm_disable_strict_ssl unless npm_strict_ssl?
           setup_npm_cache if use_npm_cache?
+          install_yarn
         end
 
         def announce
@@ -40,20 +41,19 @@ module Travis
           sh.cmd 'node --version'
           sh.cmd 'npm --version'
           sh.cmd 'nvm --version'
+          sh.if "-f yarn.lock" do
+             sh.cmd 'yarn --version'
+             sh.cmd 'hash -d yarn', echo: false
+          end
         end
 
         def install
           sh.if '-f package.json' do
             sh.if "-f yarn.lock" do
-              sh.if "$(vers2int $(echo `node --version` | tr -d 'v')) -lt $(vers2int #{YARN_REQUIRED_NODE_VERSION})" do
-                sh.echo "Node.js version $(node --version) does not meet requirement for yarn." \
-                  " Please use Node.js #{YARN_REQUIRED_NODE_VERSION} or later.", ansi: :red
+              sh.if yarn_req_not_met do
                 npm_install config[:npm_args]
               end
               sh.else do
-                sh.if "-z \"$(command -v yarn)\"" do
-                  install_yarn
-                end
                 sh.cmd "yarn", retry: true, fold: 'install'
               end
             end
@@ -65,7 +65,17 @@ module Travis
 
         def script
           sh.if '-f package.json' do
-            sh.cmd 'npm test'
+            sh.if "-f yarn.lock" do
+              sh.if yarn_req_not_met do
+                sh.cmd 'npm test'
+              end
+              sh.else do
+                sh.cmd 'yarn test'
+              end
+            end
+            sh.else do
+              sh.cmd 'npm test'
+            end
           end
           sh.else do
             sh.cmd 'make test'
@@ -133,32 +143,30 @@ module Travis
           end
 
           def install_version(ver)
-            sh.cmd "nvm install #{ver}", assert: false
-            sh.if '$? -ne 0' do
-              sh.echo "Failed to install #{ver}. Remote repository may not be reachable.", ansi: :red
-              sh.echo "Using locally available version #{ver}, if applicable."
-              sh.cmd "nvm use #{ver}", assert: false, timing: false
+            sh.fold "nvm.install" do
+              sh.cmd "nvm install #{ver}", assert: false, timing: true
               sh.if '$? -ne 0' do
-                sh.echo "Unable to use #{ver}", ansi: :red
-                sh.cmd "false", assert: true, echo: false, timing: false
+                sh.echo "Failed to install #{ver}. Remote repository may not be reachable.", ansi: :red
+                sh.echo "Using locally available version #{ver}, if applicable."
+                sh.cmd "nvm use #{ver}", assert: false, timing: false
+                sh.if '$? -ne 0' do
+                  sh.echo "Unable to use #{ver}", ansi: :red
+                  sh.cmd "false", assert: true, echo: false, timing: false
+                end
               end
+              sh.export 'TRAVIS_NODE_VERSION', ver, echo: false
             end
-            sh.export 'TRAVIS_NODE_VERSION', ver, echo: false
           end
 
           def update_nvm
             return if app_host.empty?
-            nvm_sh_location = "$HOME/.nvm/nvm.sh"
-            sh.if "$(vers2int `nvm --version`) -lt $(vers2int #{NVM_VERSION})" do
-              sh.echo "Updating nvm to v#{NVM_VERSION}", ansi: :yellow, timing: false
-              sh.raw "mkdir -p $HOME/.nvm"
-              sh.raw "curl -s -o #{nvm_sh_location} https://#{app_host}/files/nvm.sh".untaint, assert: false
-              sh.raw "source #{nvm_sh_location}", assert: false
-            end
-          end
-
-          def app_host
-            @app_host ||= Travis::Build.config.app_host.to_s.strip.untaint
+            sh.echo "Updating nvm", ansi: :yellow, timing: false
+            nvm_dir = "$HOME/.nvm"
+            sh.raw "mkdir -p #{nvm_dir}"
+            sh.raw "curl -s -o #{nvm_dir}/nvm.sh   https://#{app_host}/files/nvm.sh".untaint,   assert: false
+            sh.raw "curl -s -o #{nvm_dir}/nvm-exec https://#{app_host}/files/nvm-exec".untaint, assert: false
+            sh.raw "chmod 0755 #{nvm_dir}/nvm.sh #{nvm_dir}/nvm-exec", assert: true
+            sh.raw "source #{nvm_dir}/nvm.sh", assert: false
           end
 
           def npm_disable_prefix
@@ -205,23 +213,45 @@ module Travis
           end
 
           def npm_install(args)
-            sh.cmd "npm install #{args}", retry: true, fold: 'install'
+            sh.fold "install.npm" do
+              sh.cmd "npm install #{args}", retry: true
+              sh.if "$(vers2int `npm -v`) -gt $(vers2int #{NPM_QUIET_TREE_VERSION})" do
+                sh.cmd "npm ls", echo: true, assert: false
+              end
+            end
           end
 
           def install_yarn
-            sh.if "-z \"$(command -v gpg)\"" do
-              sh.export "YARN_GPG", "no"
+            sh.if "-f yarn.lock" do
+              sh.if yarn_req_not_met do
+                sh.echo "Node.js version $(node --version) does not meet requirement for yarn." \
+                  " Please use Node.js #{YARN_REQUIRED_NODE_VERSION} or later.", ansi: :red
+                npm_install config[:npm_args]
+              end
+              sh.else do
+                sh.fold "install.yarn" do
+                  sh.if "-z \"$(command -v yarn)\"" do
+                    sh.if "-z \"$(command -v gpg)\"" do
+                      sh.export "YARN_GPG", "no"
+                    end
+                    sh.echo   "Installing yarn", ansi: :green
+                    sh.cmd    "curl -o- -L https://yarnpkg.com/install.sh | bash", echo: true, timing: true
+                    sh.echo   "Setting up \\$PATH", ansi: :green
+                    sh.export "PATH", "$HOME/.yarn/bin:$PATH"
+                  end
+                end
+              end
             end
-            sh.echo   "Installing yarn", ansi: :green
-            sh.cmd    "curl -o- -L https://yarnpkg.com/install.sh | bash", echo: true
-            sh.echo   "Setting up \\$PATH", ansi: :green
-            sh.export "PATH", "$HOME/.yarn/bin:$PATH"
           end
 
           def prepend_path(path)
             sh.if "$(echo :$PATH: | grep -v :#{path}:)" do
               sh.export "PATH", "#{path}:$PATH", echo: true
             end
+          end
+
+          def yarn_req_not_met
+            "$(vers2int $(echo `node --version` | tr -d 'v')) -lt $(vers2int #{YARN_REQUIRED_NODE_VERSION})"
           end
       end
     end

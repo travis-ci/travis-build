@@ -11,15 +11,15 @@ module Travis
         }
 
         SBT_PATH = '/usr/local/bin/sbt'
-        SBT_SHA  = 'b9c8cb273d38e0d8da9211902a18018fe82aa14e'
+        SBT_SHA  = '4ad1b8a325f75c1a66f3fd100635da5eb28d9c91'
         SBT_URL  = "https://raw.githubusercontent.com/paulp/sbt-extras/#{SBT_SHA}/sbt"
 
         def configure
           super
           if use_sbt?
             sh.echo "Updating sbt", ansi: :green
-            sh.cmd "sudo curl -sS -o sbt.tmp #{SBT_URL}"
-            sh.raw "sed -e '/addSbt \\(warn\\|info\\)/d' sbt.tmp | sudo tee #{SBT_PATH} > /dev/null && rm -f sbt.tmp"
+
+            update_sbt
           end
         end
 
@@ -76,6 +76,17 @@ module Travis
 
           def not_use_sbt?
             '! -d project && ! -f build.sbt'
+          end
+
+          def update_sbt
+            return if app_host.empty?
+
+            sh.cmd "curl -sf -o sbt.tmp https://#{app_host}/files/sbt", echo: false
+            sh.if "$? -ne 0" do
+              sh.cmd "curl -sf -o sbt.tmp #{SBT_URL}", assert: true
+            end
+            sh.raw "sed -e '/addSbt \\(warn\\|info\\)/d' sbt.tmp | sudo tee #{SBT_PATH} > /dev/null && rm -f sbt.tmp"
+            sh.chmod "+x", SBT_PATH, sudo: true
           end
       end
     end

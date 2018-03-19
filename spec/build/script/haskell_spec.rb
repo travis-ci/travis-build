@@ -14,9 +14,12 @@ describe Travis::Build::Script::Haskell, :sexp do
   it_behaves_like 'a build script sexp'
 
   it "exports PATH variable" do
-    version = "version"
-    data[:config][:ghc] = version
-    should include_sexp [:export, ['PATH', "${TRAVIS_GHC_ROOT}/$(travis_ghc_find #{version})/bin:$PATH"], echo: true, assert: true]
+    should include_sexp [:export, ['PATH', "${TRAVIS_GHC_ROOT}/${TRAVIS_HASKELL_VERSION}/bin:${PATH}"], echo: true, assert: true]
+  end
+
+  it 'exports TRAVIS_HASKELL_VERSION variable' do
+    data[:config][:ghc] = 'default'
+    should include_sexp [:export, ['TRAVIS_HASKELL_VERSION', "$(travis_ghc_find '#{described_class::DEFAULTS[:ghc]}')"], echo: true]
   end
 
   it 'runs cabal update' do
@@ -37,5 +40,42 @@ describe Travis::Build::Script::Haskell, :sexp do
 
   it 'runs cabal configure --enable-tests && cabal build && cabal test' do
     should include_sexp [:cmd, 'cabal configure --enable-tests && cabal build && cabal test', echo: true, timing: true]
+  end
+
+  [
+    { ghc: '7.7.7', cabal: '1.11' },
+    { ghc: '8.8.8', cabal: 'head' },
+    { ghc: 'head', cabal: '1.23' },
+    { ghc: 'head', cabal: 'head' },
+  ].each do |ghc_config|
+    context "when full ghc=#{ghc_config[:ghc]} and cabal=#{ghc_config[:cabal]} versions are given" do
+      before do
+        data[:config].merge!(ghc_config)
+      end
+
+      it 'checks for existing installation' do
+        should include_sexp [:raw, %(if [[ ! $(travis_ghc_find #{ghc_config[:ghc]} &>/dev/null) || $(cabal --numeric-version 2>/dev/null) != #{ghc_config[:cabal]}* ]]; then)]
+      end
+
+      it 'installs ghc version when not present' do
+        should include_sexp [:echo, %(Updating ghc-#{ghc_config[:ghc]} and cabal-#{ghc_config[:cabal]}), ansi: :yellow]
+        should include_sexp [:raw, %(travis_ghc_install '#{ghc_config[:ghc]}' '#{ghc_config[:cabal]}')]
+        should include_sexp [:export, ['TRAVIS_HASKELL_VERSION', %($(travis_ghc_find '#{ghc_config[:ghc]}'))], echo: true]
+      end
+    end
+  end
+
+  context 'when valid alias ghc version is given' do
+    before do
+      described_class.const_set(
+        :GHC_VERSION_ALIASES,
+        described_class::GHC_VERSION_ALIASES.dup.merge('rad' => '8.0.9')
+      )
+      data[:config][:ghc] = 'rad'
+    end
+
+    it 'uses the resolved version' do
+      should include_sexp [:export, ['TRAVIS_HASKELL_VERSION', %($(travis_ghc_find '8.0.9'))], echo: true]
+    end
   end
 end

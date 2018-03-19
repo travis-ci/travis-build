@@ -1,22 +1,51 @@
 language: ruby
 
 cache:
-  branch: md5deep
   bundler: true
+
+dist: trusty
 
 sudo: false
 
+rvm: 2.3.4
+
 env:
   global:
-  - RUBYOPT='-W0'
   - COVERAGE=1
+  - RUBYOPT=-W0
   matrix:
   - INTEGRATION_SPECS=0
   - INTEGRATION_SPECS=1
 
+stages:
+  - "test"
+  - ":ship: it to Quay.io"
+
+jobs:
+  allow_failures:
+    - script: ./script/docker-build-and-push
+    - script: "bundle exec rake update_static_files"
+  include:
+    - stage: "test"
+      sudo: required
+      dist: trusty
+      env:
+      script: ./script/validate-example-payloads-with-docker
+    - stage: "test update_static_files Rake task"
+      script: "bundle exec rake update_static_files"
+    - stage: ":ship: it to Quay.io"
+      sudo: required
+      dist: trusty
+      env:
+      script: ./script/docker-build-and-push
+      if: (NOT type IN (pull_request)) AND (branch = master)
+
+before_script:
+  - bundle exec rake clean assets:precompile
+
 script:
-  - bundle exec rspec spec
-  - for f in examples/*.sh.txt; do echo "checking bash syntax $f"; bash -n $f; done
+  - bundle exec rake spec
+  - ./script/validate-bash-syntax
 
 after_success: bundle exec codeclimate-test-reporter
 
@@ -25,15 +54,15 @@ before_deploy: ruby script/build_s3_index_html.rb
 deploy:
   provider: s3
   access_key_id:
-    secure: bxFEFpuTK00a/ZKQJK9B3ausZweNSd5ZmaeKSk9ozSkaXtqIQEt56C3hlq62PEyltXnnZhirbtYjw9QIrgggMhupKQCkwXEB7l/zgq/y9BDjDNZK8PW2YsJUkLIM5K3hITbW2zgWLJX7zic9W0EHQdoSZ7NW4FlNg47FlyIIJss=
+    secure: "fXt5NG5UGDvpnRFvUUk9J//iSo+Vh28oEUJvjZqiUZ9GRHp5TrIS5vL4bPlD/1RrJRp7BVVj1+4ThXZRzrMhF5xazK8k4ANaUhMdjmRa6arXtqBcXIyUvu//5e80nlXekqMKaW7f5wrLNiKZB+ck7ayGlI1NYLNQ5nCWC6Xxe6s="
   secret_access_key:
-    secure: XZWMXcs2XxJwyQw/uEQbXNADwfzP7R5dGRzSrM8xvA6ErgIEh+ZcMuT7p7iPPWyaGUO9+MOTqM9HqdBcUuigGH4Vqn1e4MQ/LQsxAQWyuostzjuuo7k2q8OgOIXwcvg1+4LaVA4b4GQftw3lqkQ09Xa7yB/X8Y2/IlzpbbpB2YY=
+    secure: "Jn9clQh78C2c1zoueTkn0r5kSCHrbb7bMojb8/Ne+6zg0pD/3w25mrhEC4y9b3M/lHoKArOPj4dn03ZErJleM8aOMNMIa6ck8GKP+7EoFlZ/1/C5733HazlldTWDd2+wTOYfSIGOM+mHDP5tmK0S7pr1zEm+/++UExuGZXiCSSI="
   bucket: travis-build-examples
-  local-dir: examples
-  skip-cleanup: true
+  local_dir: examples
+  skip_cleanup: true
   endpoint: travis-build-examples.s3-website-us-east-1.amazonaws.com
   region: us-east-1
   on:
     branch: master
-    conditions:
-    - $INTEGRATION_SPECS == 1
+    condition: $INTEGRATION_SPECS == 1
+    repo: travis-ci/travis-build

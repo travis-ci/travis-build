@@ -7,8 +7,7 @@ module Travis
         DEFAULTS = {
           gobuild_args: '-v',
           gimme_config: {
-            url: Travis::Build.config.gimme.url.untaint,
-            force_reinstall: Travis::Build.config.gimme.force_reinstall == '1'
+            url: Travis::Build.config.gimme.url.untaint
           },
           go: Travis::Build.config.go_version.untaint
         }
@@ -27,10 +26,9 @@ module Travis
         def prepare
           super
           ensure_gvm_wiped
-          sh.if "! -x '#{HOME_DIR}/bin/gimme' && ! -x '/usr/local/bin/gimme'" do
-            install_gimme
+          sh.if "! -x '#{HOME_DIR}/bin/gimme'" do
+            update_gimme
           end
-          install_gimme if gimme_config[:force_reinstall]
         end
 
         def announce
@@ -41,7 +39,7 @@ module Travis
         end
 
         def setup
-          sh.cmd %Q'GIMME_OUTPUT=$(gimme #{go_version}) && eval "$GIMME_OUTPUT"'
+          sh.cmd %Q'GIMME_OUTPUT="$(gimme #{go_version} | tee -a $HOME/.bashrc)" && eval "$GIMME_OUTPUT"'
 
           # NOTE: $GOPATH is a plural ":"-separated var a la $PATH.  We export
           # only a single path here, but users who want to treat $GOPATH as
@@ -78,7 +76,7 @@ module Travis
 
               if go_version != 'go1' && comparable_go_version >= Gem::Version.new('1.1')
                 sh.if '! -d Godeps/_workspace/src' do
-                  sh.cmd "#{go_get_cmd} github.com/tools/godep", echo: true, retry: true, timing: true, assert: true
+                  fetch_godep
                   sh.cmd 'godep restore', retry: true, timing: true, assert: true, echo: true
                 end
               end
@@ -146,7 +144,7 @@ module Travis
           end
 
           def go_get_cmd
-            if go_version == 'go1' || (go_version !~ /tip|master/ && comparable_go_version <= Gem::Version.new('1.2'))
+            if go_version == 'go1' || (go_version[/^[0-9]/] && comparable_go_version <= Gem::Version.new('1.2'))
               'go get'
             else
               'go get -t'
@@ -164,10 +162,6 @@ module Travis
             sh.echo "Installing gimme from #{gimme_url.inspect}", ansi: :yellow
             sh.mkdir "#{HOME_DIR}/bin", echo: false, recursive: true
             sh.cmd "curl -sL -o #{HOME_DIR}/bin/gimme '#{gimme_url}'", echo: false
-            sh.cmd "chmod +x #{HOME_DIR}/bin/gimme", echo: false
-            sh.export 'PATH', "#{HOME_DIR}/bin:$PATH", retry: false, echo: false
-            # install bootstrap version so that tip/master/whatever can be used immediately
-            sh.cmd %Q'gimme #{DEFAULTS[:go]} &>/dev/null'
           end
 
           def gimme_config
@@ -176,11 +170,49 @@ module Travis
 
           def gimme_url
             cleaned = URI.parse(gimme_config[:url]).to_s.untaint
-            return cleaned if cleaned =~ %r{^https://raw\.githubusercontent\.com/meatballhat/gimme}
+            return cleaned if cleaned =~ %r{^https://raw\.githubusercontent\.com/travis-ci/gimme}
             DEFAULTS[:gimme_config][:url]
           rescue URI::InvalidURIError => e
             warn e
             DEFAULTS[:gimme_config][:url]
+          end
+
+          def update_gimme
+            if app_host.empty?
+              return install_gimme
+            end
+
+            sh.echo "Updating gimme", ansi: :yellow
+
+            sh.mkdir "#{HOME_DIR}/bin", echo: false, recursive: true
+            sh.cmd "curl -sf -o $HOME/bin/gimme https://#{app_host}/files/gimme", echo: false
+            sh.if "$? -ne 0" do
+              install_gimme
+            end
+
+            sh.cmd "chmod +x #{HOME_DIR}/bin/gimme", echo: false
+            sh.export 'PATH', "#{HOME_DIR}/bin:$PATH", retry: false, echo: false
+            # install bootstrap version so that tip/master/whatever can be used immediately
+            sh.cmd %Q'gimme #{DEFAULTS[:go]} &>/dev/null'
+          end
+
+          def fetch_godep
+            godep = "$HOME/gopath/bin/godep"
+
+            sh.mkdir "$HOME/gopath/bin", echo: false, recursive: true
+
+            sh.if "$TRAVIS_OS_NAME = osx" do
+              sh.cmd "curl -sL -o #{godep} https://#{app_host}/files/godep_darwin_amd64", echo: false
+            end
+            sh.elif "$TRAVIS_OS_NAME = linux" do
+              sh.cmd "curl -sL -o #{godep} https://#{app_host}/files/godep_linux_amd64", echo: false
+            end
+
+            sh.if "$? -ne 0" do
+              sh.cmd "#{go_get_cmd} github.com/tools/godep", echo: true, retry: true, timing: true, assert: true
+            end
+
+            sh.cmd "chmod +x #{godep}"
           end
       end
     end
