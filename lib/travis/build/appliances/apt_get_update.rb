@@ -8,10 +8,10 @@ module Travis
           command = <<-EOF
           if [[ -d /var/lib/apt/lists && -n $(command -v apt-get) ]]; then
             sudo rm -rf /var/lib/apt/lists/*
-            sudo apt-get update -qq 2>&1 >/dev/null
+            sudo apt update --option ForceIPv4=1 --option Acquire::Retries="5" --option Acquire::http::Timeout="30"
           fi
           EOF
-          sh.cmd command, echo: false
+          sh.cmd command
         end
       end
     end
