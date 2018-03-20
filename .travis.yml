@@ -60,7 +60,6 @@ deploy:
   bucket: travis-build-examples
   local_dir: examples
   skip_cleanup: true
-  endpoint: travis-build-examples.s3-website-us-east-1.amazonaws.com
   region: us-east-1
   on:
     branch: master
