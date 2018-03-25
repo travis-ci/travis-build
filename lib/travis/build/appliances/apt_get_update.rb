@@ -15,7 +15,7 @@ Acquire {
     Timeout "30";
   };
 };
-            EOS
+EOS
             sudo rm -rf /var/lib/apt/lists/*
             sudo apt-get update -qq 2>&1 >/dev/null
           fi
