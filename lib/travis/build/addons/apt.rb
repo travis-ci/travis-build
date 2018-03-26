@@ -85,6 +85,28 @@ module Travis
           Travis::Build.config.apt_whitelist_skip?
         end
 
+        def before_configure?
+          config[:config] && config[:config][:retries]
+        end
+
+        def before_configure
+          sh.echo "Configuring default apt-get retries", ansi: :yellow
+          sh.raw <<~EOF
+          if [[ -d /var/lib/apt/lists && -n $(command -v apt-get) ]]; then
+            cat <<-EOS > 99-travis-build-retries
+          Acquire {
+            ForceIPv4 "1";
+            Retries "5";
+            https {
+              Timeout "30";
+            };
+          };
+          EOS
+            sudo mv 99-travis-build-retries /etc/apt/apt.conf.d
+          fi
+          EOF
+        end
+
         private
 
           def add_apt_sources
