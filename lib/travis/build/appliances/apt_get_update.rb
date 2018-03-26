@@ -7,11 +7,11 @@ module Travis
         def apply
           retry_under = Travis::Build.config.apt.retries.percentage.to_i || 0 # if under this, we add retry config
           if rand(100) < retry_under
-            sh.if "-f /etc/apt/apt.conf.d/99apt" do
-              sh.echo "Setting retries for apt-get", ansi: :yellow
-              set_retries = <<-EOF
-              if [[ -d /var/lib/apt/lists && -n $(command -v apt-get) ]]; then
-                cat <<-EOS > 99apt
+            set_retries = <<-EOF
+if [[ ! -f /etc/apt/apt.conf.d/99apt ]]; then
+  echo -e "${ANSI_YELLOW}Setting retries for apt-get${ANSI_RESET}"
+  if [[ -d /var/lib/apt/lists && -n $(command -v apt-get) ]]; then
+    cat <<- EOS > 99apt
 Acquire {
   ForceIPv4 "1";
   Retries "5";
@@ -20,11 +20,11 @@ Acquire {
   };
 };
 EOS
-                sudo mv 99apt /etc/apt/apt.conf.d
-              fi
-              EOF
-              sh.cmd set_retries
-            end
+    sudo mv 99apt /etc/apt/apt.conf.d
+  fi
+fi
+            EOF
+            sh.cmd set_retries
           end
 
           command = <<-EOF
