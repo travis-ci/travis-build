@@ -68,6 +68,16 @@ describe Travis::Build::Addons::Firefox, :sexp do
     it { should include_sexp [:export, ['PATH', "$HOME/firefox-latest-unsigned/firefox:$PATH"], echo: true] }
   end
 
+  context 'given a valid version "latest-debug"' do
+    let(:config) { 'latest-debug' }
+    it "exports latest-debug source URL" do
+      expect(sexp_find(subject, [:if, "$(uname) = 'Linux'"])).to include_sexp(
+        [:export, ['FIREFOX_SOURCE_URL', "\"https://index.taskcluster.net/v1/task/gecko.v2.mozilla-central.latest.firefox.linux64-debug/artifacts/public/build/target.tar.bz2\""], echo: true]
+      )
+    end
+    it { should include_sexp [:export, ['PATH', "$HOME/firefox-latest-debug/firefox:$PATH"], echo: true] }
+  end
+
   context 'given a invalid version string' do
     let(:config) { '20.0; sudo rm -rf /' }
 
@@ -79,4 +89,3 @@ describe Travis::Build::Addons::Firefox, :sexp do
     it { should_not include_sexp [:export, ['PATH', "$HOME/firefox-20.0/firefox:$PATH"], echo: true] }
   end
 end
-

@@ -48,7 +48,7 @@ module Travis
           end
 
           def sanitize_version
-            if m = /\A(?<version>[\d\.]+(?:esr|b\d+)?|(?<latest>latest(?:-(?:beta|dev|esr|nightly|unsigned))?)?)\z/.match(raw_version.chomp)
+            if m = /\A(?<version>[\d\.]+(?:esr|b\d+)?|(?<latest>latest(?:-(?:beta|dev|esr|nightly|unsigned|debug))?)?)\z/.match(raw_version.chomp)
               [m[:version], m[:latest]]
             end
           end
@@ -80,19 +80,24 @@ module Travis
               host = 'index.taskcluster.net'
               path = "v1/task/gecko.v2.mozilla-release.latest.firefox.%s-add-on-devel/artifacts/public/build"
               unsigned_archive_file = "firefox-%s.en-US.%s-add-on-devel.%s"
-              source_url_linux = "\"https://#{host}/#{path}/#{unsigned_archive_file}\""
-              source_url_mac   = "\"https://#{host}/#{path}/#{unsigned_archive_file}\""
+              source_url_linux = "\"https://#{host}/#{path}/#{unsigned_archive_file}\"" % ["linux64", "$(curl -sfL https://#{host}/#{path}/buildbot_properties.json | jq -r .properties.appVersion)" % "linux64", "linux-x86_64", "tar.bz2" ]
+              source_url_mac = "\"https://#{host}/#{path}/#{unsigned_archive_file}\"" % ["macosx64", "$(curl -sfL https://#{host}/#{path}/buildbot_properties.json | jq -r .properties.appVersion)" % "macosx64", "mac", "dmg" ]
+            when 'latest-debug'
+              host = 'index.taskcluster.net'
+              path = "v1/task/gecko.v2.mozilla-central.latest.firefox.%s-debug/artifacts/public/build"
+              source_url_linux = "\"https://#{host}/#{path}/target.tar.bz2\"" % ["linux64"]
+              source_url_mac = "\"https://#{host}/#{path}/target.dmg\"" % ["macosx64"]
             else
               product = "firefox-#{version}"
             end
 
             sh.if "$(uname) = 'Linux'" do
               source_url_linux ||= "'https://#{host}/?product=#{product}&lang=en-US&os=linux64'"
-              sh.export 'FIREFOX_SOURCE_URL', source_url_linux % [ "linux64", "$(curl -sfL https://#{host}/#{path}/buildbot_properties.json | jq -r .properties.appVersion)" % "linux64", "linux-x86_64", "tar.bz2" ]
+              sh.export 'FIREFOX_SOURCE_URL', source_url_linux
             end
             sh.else do
               source_url_mac ||= "'https://#{host}/?product=#{product}&lang=en-US&os=osx'"
-              sh.export 'FIREFOX_SOURCE_URL', source_url_mac % ["macosx64", "$(curl -sfL https://#{host}/#{path}/buildbot_properties.json | jq -r .properties.appVersion)" % "macosx64", "mac", "dmg" ]
+              sh.export 'FIREFOX_SOURCE_URL', source_url_mac
             end
           end
 
