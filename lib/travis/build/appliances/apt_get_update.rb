@@ -11,7 +11,7 @@ module Travis
               sh.echo "Setting retries for apt-get", ansi: :yellow
               set_retries = <<-EOF
               if [[ -d /var/lib/apt/lists && -n $(command -v apt-get) ]]; then
-                cat <<-EOS | sudo tee /etc/apt/apt.conf.d/99apt
+                cat <<-EOS > 99apt
 Acquire {
   ForceIPv4 "1";
   Retries "5";
@@ -20,6 +20,8 @@ Acquire {
   };
 };
 EOS
+                sudo mv 99apt /etc/apt/apt.conf.d
+              fi
               EOF
               sh.cmd set_retries
             end
