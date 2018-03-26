@@ -28,7 +28,6 @@ EOS
           command = <<-EOF
             sudo rm -rf /var/lib/apt/lists/*
             sudo apt-get update -qq 2>&1 >/dev/null
-          fi
           EOF
           sh.cmd command
         end
