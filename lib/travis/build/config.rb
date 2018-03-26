@@ -22,6 +22,11 @@ module Travis
           'TRAVIS_BUILD_API_TOKEN', ENV.fetch('API_TOKEN', '')
         ),
         app_host: ENV.fetch('TRAVIS_BUILD_APP_HOST', ''),
+        apt: {
+          retries: {
+            percentage: ENV.fetch('TRAVIS_BUILD_APT_RETRIES_PERCENTAGE', '0')
+          }
+        },
         apt_package_whitelist: {
           precise: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_WHITELIST_PRECISE', ''),
           trusty: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_WHITELIST_TRUSTY', '')
