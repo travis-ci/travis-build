@@ -153,8 +153,22 @@ describe Travis::Build::RakeTasks do
     files.mkpath
     thing = files + 'thing'
     thing.write('wat')
+    Rake::Task[:clean].reenable
     Rake::Task[:clean].invoke
     expect(thing).to_not be_exist
+  end
+
+  it 'can clean up intermediate go and ghc version files' do
+    tmp = top + 'tmp'
+    tmp.mkpath
+    ghc_versions = tmp + 'ghc-versions.html'
+    ghc_versions.write('wat')
+    go_versions = tmp + 'go-versions-binary-linux'
+    go_versions.write('huh')
+    Rake::Task[:clean].reenable
+    Rake::Task[:clean].invoke
+    expect(ghc_versions).to_not be_exist
+    expect(go_versions).to_not be_exist
   end
 
   %w[
@@ -170,10 +184,13 @@ describe Travis::Build::RakeTasks do
     public/files/tmate-static-linux-amd64.tar.gz
     public/version-aliases/ghc.json
     public/version-aliases/go.json
-    tmp/ghc-versions.html
-    tmp/go-versions-binary-linux
   ].each do |filename|
     it "can fetch #{filename}" do
+      %w[
+        tmp/ghc-versions.html
+        tmp/go-versions-binary-linux
+      ].each { |t| Rake::Task[t].reenable }
+
       Rake::Task[filename].reenable
       Rake::Task[filename].invoke
       expect(top + filename).to be_exist

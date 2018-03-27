@@ -37,15 +37,15 @@ describe Travis::Build::Addons::Deploy, :sexp do
     it "installs dpl < 1.9 if travis_internal_ruby returns 1.9*" do
       expect(
         sexp_find(sexp, [:if, "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*"], [:then])
-      ).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl -v '< 1.9' ", assert: true, timing: true]
+      ).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl -v '< 1.9' ", echo: true, assert: true, timing: true]
     end
 
     it "installs latest dpl if travis_internal_ruby does not return 1.9*" do
       expect(
         sexp_find(sexp, [:if, "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*"], [:else])
-      ).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl", assert: true, timing: true]
+      ).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl", echo: true, assert: true, timing: true]
     end
-    it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl', assert: true, timing: true] }
+    it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl', echo: true, assert: true, timing: true] }
     # it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=heroku --password=foo --email=user@host --fold', assert: true, timing: true] }
     # it { expect(sexp).to include_sexp terminate_on_failure }
     it { expect(sexp).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=\"heroku\" --password=\"foo\" --email=\"user@host\" --fold; if [ $? -ne 0 ]; then echo \"failed to deploy\"; travis_terminate 2; fi", {:timing=>true}] }
@@ -106,6 +106,17 @@ describe Travis::Build::Addons::Deploy, :sexp do
     let(:config) { { provider: 'heroku', edge: { source: 'svenvfuchs/dpl', branch: 'foo' } } }
 
     it { should match_sexp [:if, '($TRAVIS_BRANCH = master)'] }
+    it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
+    it { store_example "edge"}
+  end
+
+  context 'when a mix of edge and release dpl are tested' do
+    let(:data)   { super().merge(branch: 'staging') }
+    let(:config) { { provider: 'heroku', edge: { source: 'svenvfuchs/dpl', branch: 'foo' } } }
+
+    it { should match_sexp [:if, '($TRAVIS_BRANCH = master)'] }
+    it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
+    it { store_example "edge"}
   end
 
   describe 'on tags' do
@@ -125,7 +136,43 @@ describe Travis::Build::Addons::Deploy, :sexp do
     it { should match_sexp [:if, '($TRAVIS_BRANCH = master) && ($BAR = bar)'] }
     # it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=nodejitsu --user=foo --api_key=bar --fold', assert: true, timing: true] }
     it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider="nodejitsu" --user="foo" --api_key="bar" --fold; if [ $? -ne 0 ]; then echo "failed to deploy"; travis_terminate 2; fi', timing: true] }
+    it { should_not include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
     it { store_example "multiple-providers" }
+
+    context 'when dpl switches from release to edge' do
+      let(:heroku)    { { provider: 'heroku', password: 'foo', email: 'user@host', on: { condition: '$FOO = foo' } } }
+      let(:nodejitsu) { { provider: 'nodejitsu', user: 'foo', api_key: 'bar', on: { condition: '$BAR = bar' }, edge: true } }
+      let(:config)    { [heroku, nodejitsu] }
+
+      it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
+    end
+
+    context 'when dpl switches from edge to release' do
+      let(:heroku)    { { provider: 'heroku', password: 'foo', email: 'user@host', on: { condition: '$FOO = foo' } } }
+      let(:nodejitsu) { { provider: 'nodejitsu', user: 'foo', api_key: 'bar', on: { condition: '$BAR = bar' }, edge: true } }
+      let(:config)    { [nodejitsu, heroku] }
+
+      it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
+    end
+
+    context 'when multiple dpl edge releases use the identical edge definitions' do
+      let(:heroku)    { { provider: 'heroku', password: 'foo', email: 'user@host', on: { condition: '$FOO = foo' }, edge: true } }
+      let(:nodejitsu) { { provider: 'nodejitsu', user: 'foo', api_key: 'bar', on: { condition: '$BAR = bar' }, edge: true } }
+      let(:config)    { [nodejitsu, heroku] }
+      let(:second_deploy) { sexp_find(subject, [:fold, "dpl_1"]) }
+
+      it { expect(second_deploy).to_not include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
+      it { store_example "identical-edges" }
+    end
+
+    context 'when edge dpl definitions change' do
+      let(:heroku)    { { provider: 'heroku', password: 'foo', email: 'user@host', on: { condition: '$FOO = foo' }, edge: {branch: 'feature'} } }
+      let(:nodejitsu) { { provider: 'nodejitsu', user: 'foo', api_key: 'bar', on: { condition: '$BAR = bar' }, edge: true } }
+      let(:config)    { [nodejitsu, heroku] }
+      let(:second_deploy) { sexp_find(subject, [:fold, "dpl_1"]) }
+
+      it { expect(second_deploy).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
+    end
   end
 
   describe 'allow_failure' do
