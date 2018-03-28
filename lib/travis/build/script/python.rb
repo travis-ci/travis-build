@@ -109,7 +109,10 @@ module Travis
             sh.echo "Downloading archive: ${archive_url}", ansi: :yellow
             archive_basename = [lang, vers].compact.join("-")
             archive_filename = "#{archive_basename}.tar.bz2"
-            sh.cmd "curl -sSf -o #{archive_filename} ${archive_url}", echo: true, assert: true
+            sh.cmd "curl -sSf -o #{archive_filename} ${archive_url}", echo: true, assert: false
+            sh.if "$? != 0" do
+              sh.failure "Unable to download #{version} archive. The archive may not exist. Please consider a different version."
+            end
             sh.cmd "sudo tar xjf #{archive_filename} --directory /", echo: true, assert: true
             sh.cmd "rm #{archive_filename}", echo: false
           end
