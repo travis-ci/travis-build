@@ -215,6 +215,10 @@ module Travis
         fetch_githubusercontent_file 'paulp/sbt-extras/master/sbt'
       end
 
+      def file_update_install_jdk_sh
+        fetch_githubusercontent_file 'sormuras/bach/master/install-jdk.sh'
+      end
+
       def file_update_tmate
         latest_release = latest_release_for('tmate-io/tmate')
         logger.info "Latest tmate release is #{latest_release}"
@@ -335,6 +339,9 @@ module Travis
       desc 'update sbt'
       file('public/files/sbt') { file_update_sbt }
 
+      desc 'update install-jdk.sh'
+      file('public/files/install-jdk.sh') { file_update_install_jdk_sh }
+
       desc 'update tmate'
       file 'public/files/tmate-static-linux-amd64.tar.gz' do
         file_update_tmate
@@ -406,6 +413,7 @@ module Travis
         'public/files/nvm.sh',
         'public/files/rustup-init.sh',
         'public/files/sbt',
+        'public/files/install-jdk.sh',
         'public/files/sc-linux.tar.gz',
         'public/files/sc-osx.zip',
         'public/files/tmate-static-linux-amd64.tar.gz'

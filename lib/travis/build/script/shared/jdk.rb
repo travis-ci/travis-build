@@ -4,7 +4,16 @@ module Travis
       module Jdk
         def configure
           super
-          sh.cmd "jdk_switcher use #{config[:jdk]}", assert: true, echo: true, timing: false if uses_jdk?
+          if uses_jdk?
+            if use_install_jdk?(config[:jdk])
+              download_install_jdk
+              sh.if "-f install-jdk.sh" do
+                sh.cmd "source ./install-jdk.sh #{install_jdk_args config[:jdk]}", echo: true, assert: true
+              end
+            else
+              sh.cmd "jdk_switcher use #{config[:jdk]}", assert: true, echo: true, timing: false if uses_jdk?
+            end
+          end
         end
 
         def export
@@ -43,6 +52,25 @@ module Travis
 
           def uses_jdk?
             !!config[:jdk]
+          end
+
+          def use_install_jdk?(jdk)
+            ! install_jdk_args(jdk).empty?
+          end
+
+          def download_install_jdk
+            return if app_host.empty?
+            sh.cmd "curl -sf -O https://#{app_host}/files/install-jdk.sh"
+          end
+
+          def install_jdk_args(jdk)
+            args_for = {
+              'openjdk9'    => '-F 9',
+              'openjdk10'   => '-F 10 -L GPL',
+              'oraclejdk11' => '-F 11 -L BCL',
+              'openjdk11'   => '-F 11 -L GPL'
+            }
+            args_for.fetch(jdk, '')
           end
       end
     end

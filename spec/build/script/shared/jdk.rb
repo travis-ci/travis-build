@@ -3,6 +3,10 @@ shared_examples_for 'a jdk build sexp' do
   let(:run_jdk_switcher)   { [:cmd, 'jdk_switcher use openjdk7', assert: true, echo: true] }
   let(:set_dumb_term)      { [:export, ['TERM', 'dumb'], echo: true] }
 
+  before do
+    Travis::Build.config.app_host = 'build.travis-ci.org'
+  end
+
   describe 'if no jdk is given' do
     before :each do
       data[:config][:jdk] = nil
@@ -33,6 +37,18 @@ shared_examples_for 'a jdk build sexp' do
 
     it 'runs jdk_switcher' do
       should include_sexp run_jdk_switcher
+    end
+  end
+
+  context "jdk is set to oraclejdk10" do
+    before :each do
+      data[:config][:jdk] = 'oraclejdk11'
+    end
+
+    it { store_example "oraclejdk11" }
+
+    it "downloads install-jdk.sh" do
+      should include_sexp( [:cmd, "curl -sf -O https://build.travis-ci.org/files/install-jdk.sh"])
     end
   end
 
