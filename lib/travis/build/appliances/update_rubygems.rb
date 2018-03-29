@@ -15,10 +15,10 @@ vers2int() {
 
 if [[ \$(vers2int \`gem --version\`) -lt \$(vers2int "%s") ]]; then
   echo ""
-  echo "** Updating RubyGems to the latest version for security reasons. **"
-  echo "** If you need an older version, you can downgrade with 'gem update --system OLD_VERSION'. **"
+  echo -e "\033[32;1m** Updating RubyGems to the latest version for security reasons. **\033[0m"
+  echo -e "\033[32;1m** If you need an older version, you can downgrade with 'gem update --system OLD_VERSION'. **\033[0m"
   echo ""
-  gem update --system
+  gem update --system >&/dev/null
 fi
 EORVMHOOK
 : % RUBYGEMS_BASELINE_VERSION

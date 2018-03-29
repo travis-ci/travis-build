@@ -43,6 +43,7 @@ module Travis
           sh.cmd 'nvm --version'
           sh.if "-f yarn.lock" do
              sh.cmd 'yarn --version'
+             sh.cmd 'hash -d yarn', echo: false
           end
         end
 
