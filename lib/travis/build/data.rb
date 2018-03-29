@@ -128,6 +128,10 @@ module Travis
       def github_id
         repository.fetch(:github_id)
       end
+      
+      def default_branch
+        repository[:default_branch]
+      end
 
       def commit
         job[:commit] || ''

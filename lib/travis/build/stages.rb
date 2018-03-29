@@ -128,7 +128,7 @@ module Travis
       end
 
       def skip?(type, name)
-        type != :builtin && SKIP_KEYWORDS.any? { |word| config[name] == word }
+        type != :builtin && SKIP_KEYWORDS.any? { |word| Array(config[name]) == Array(word) }
       end
     end
   end

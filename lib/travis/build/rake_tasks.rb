@@ -44,7 +44,8 @@ module Travis
           logger.info "Fetching releases from #{conn.url_prefix.to_s}#{releases_url}"
           req.url releases_url
           oauth_token = ENV['GITHUB_OAUTH_TOKEN']
-          if oauth_token
+          if oauth_token && !oauth_token.empty? && oauth_token != 'notset'
+            logger.info "Adding 'Authorization' header for api.github.com request"
             req.headers['Authorization'] = "token #{oauth_token}"
           end
         end
@@ -136,6 +137,16 @@ module Travis
         Faraday.new("#{scheme}://#{host}") do |f|
           f.response :raise_error
           f.use FaradayMiddleware::FollowRedirects
+          f.request :retry,
+            max: 4,
+            interval: 3,
+            interval_randomness: 0.25,
+            backoff_factor: 1.5,
+            exceptions: [
+              Errno::ETIMEDOUT,
+              Timeout::Error,
+              Faraday::ClientError
+            ]
           f.adapter Faraday.default_adapter
         end
       end

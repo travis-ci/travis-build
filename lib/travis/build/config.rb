@@ -1,3 +1,5 @@
+require 'uri'
+
 require 'hashr'
 require 'travis/config'
 
@@ -42,7 +44,7 @@ module Travis
         gimme: {
           url: ENV.fetch(
             'TRAVIS_BUILD_GIMME_URL',
-            'https://raw.githubusercontent.com/travis-ci/gimme/v1.2.0/gimme'
+            'https://raw.githubusercontent.com/travis-ci/gimme/v1.3.0/gimme'
           )
         },
         go_version: ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.9'),
@@ -60,6 +62,19 @@ module Travis
           token: ENV.fetch(
             'TRAVIS_BUILD_LIBRATO_TOKEN', ENV.fetch('LIBRATO_TOKEN', '')
           ),
+        },
+        network: {
+          wait_retries: Integer(ENV.fetch(
+            'TRAVIS_BUILD_NETWORK_WAIT_RETRIES',
+            ENV.fetch('NETWORK_WAIT_RETRIES', '20')
+          )),
+          check_urls: ENV.fetch(
+            'TRAVIS_BUILD_NETWORK_CHECK_URLS',
+            ENV.fetch(
+              'NETWORK_CHECK_URLS',
+              'http://%{app_host}/empty.txt?job_id=%{job_id}&repo=%{repo}'
+            )
+          ).split(',').map { |s| URI.unescape(s.strip) }
         },
         sentry_dsn: ENV.fetch(
           'TRAVIS_BUILD_SENTRY_DSN', ENV.fetch('SENTRY_DSN', '')
