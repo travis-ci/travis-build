@@ -151,6 +151,7 @@ module Travis
             template(
               'header.sh',
               build_dir: BUILD_DIR,
+              app_host: app_host,
               internal_ruby_regex: Travis::Build.config.internal_ruby_regex.untaint,
               root: '/',
               home: HOME_DIR
@@ -162,10 +163,10 @@ module Travis
           apply :show_system_info
           apply :rm_riak_source
           apply :fix_rwky_redis
+          apply :wait_for_network
           apply :update_apt_keys
           apply :fix_hhvm_source
           apply :update_mongo_arch
-          apply :apt_get_update
           apply :fix_container_based_trusty
           apply :fix_sudo_enabled_trusty
           apply :update_glibc
@@ -191,6 +192,7 @@ module Travis
           apply :ensure_path_components
           apply :redefine_curl
           apply :nonblock_pipe
+          apply :apt_get_update
         end
 
         def setup_filter

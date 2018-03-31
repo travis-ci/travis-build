@@ -6,7 +6,7 @@ module Travis
     class Addons
       class Deploy < Base
         class Script
-          VERSIONED_RUNTIMES = %w(
+          VERSIONED_RUNTIMES = %i(
             d
             dart
             elm
@@ -27,18 +27,21 @@ module Travis
             rust
             scala
             smalltalk
-          ).map(&:to_sym)
+          )
 
           WANT_18 = true # whether or not we want `dpl` < 1.9
 
-          attr_accessor :script, :sh, :data, :config, :allow_failure
+          attr_accessor :script, :sh, :data, :config, :allow_failure, :provider, :index, :last_deploy
 
-          def initialize(script, sh, data, config)
+          def initialize(script, sh, data, config, index, last_deploy=nil)
             @script = script
             @sh = sh
             @data = data
             @config = config
             @silent = false
+            @provider = config[:provider].to_s.gsub(/[^a-z0-9]/, '').downcase
+            @index = index
+            @last_deploy = last_deploy
 
             @allow_failure = config.delete(:allow_failure)
 
@@ -135,13 +138,16 @@ module Travis
             def run
               sh.with_errexit_off do
                 script.stages.run_stage(:custom, :before_deploy)
-                sh.fold('dpl.0') { install }
+                sh.fold("dpl_#{index}") { install }
                 cmd(run_command, echo: false, assert: false, timing: true)
                 script.stages.run_stage(:custom, :after_deploy)
               end
             end
 
             def install
+              if edge_changed?(last_deploy, config)
+                cmd "gem uninstall -aIx dpl", echo: true
+              end
               sh.if "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*" do
                 cmd(dpl_install_command(WANT_18), echo: true, assert: !allow_failure, timing: true)
               end
@@ -190,7 +196,7 @@ module Travis
 
               command = "gem install"
               if install_local?(edge)
-                command << " $TRAVIS_BUILD_DIR/dpl-*.gem --local"
+                command << " $TRAVIS_BUILD_DIR/dpl-*.gem"
               else
                 command << " dpl"
               end
@@ -204,7 +210,7 @@ module Travis
             end
 
             def warning_message(message)
-              sh.echo "Skipping a deployment with the #{config[:provider]} provider because #{message}", ansi: :yellow
+              sh.echo "Skipping a deployment with the #{provider} provider because #{message}", ansi: :yellow
             end
 
             def negate_condition(conditions)
@@ -213,18 +219,25 @@ module Travis
 
             def build_gem_locally_from(source, branch)
               sh.echo "Building dpl gem locally with source #{source} and branch #{branch}", ansi: :yellow
-              sh.cmd("gem uninstall -a -x dpl >& /dev/null",                echo: false, assert: !allow_failure, timing: false)
+              cmd("gem uninstall -aIx dpl >& /dev/null",                echo: false, assert: !allow_failure, timing: false)
               sh.cmd("pushd /tmp >& /dev/null",                             echo: false, assert: !allow_failure, timing: true)
               sh.cmd("git clone https://github.com/#{source} #{source}",    echo: true,  assert: !allow_failure, timing: true)
               sh.cmd("pushd #{source} >& /dev/null",                        echo: false, assert: !allow_failure, timing: true)
               sh.cmd("git checkout #{branch}",                              echo: true,  assert: !allow_failure, timing: true)
-              sh.cmd("git show-ref -s HEAD",                                echo: true,  assert: !allow_failure, timing: true)
+              sh.cmd("git rev-parse HEAD",                                echo: true,  assert: !allow_failure, timing: true)
               cmd("gem build dpl.gemspec",                                  echo: true,  assert: !allow_failure, timing: true)
-              sh.cmd("mv dpl-*.gem $TRAVIS_BUILD_DIR >& /dev/null",         echo: false, assert: !allow_failure, timing: true)
-              sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: true)
+              sh.raw "for f in dpl-*.gemspec; do"
+              sh.raw "  base=${f%*.gemspec}"
+              sh.raw "  if [[ x$(echo #{provider} | tr A-Z a-z | sed 's/[^a-z0-9]//g') = x$(echo ${base#dpl-*} | tr A-Z a-z | sed 's/[^a-z0-9]//g') ]]; then"
+              cmd    "    gem build $f;", echo: true, assert: !allow_failure, timing: true
+              sh.raw "    break;"
+              sh.raw "  fi"
+              sh.raw "done"
+              sh.cmd("mv dpl-*.gem $TRAVIS_BUILD_DIR >& /dev/null",         echo: false, assert: !allow_failure, timing: false)
+              sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: false)
               # clean up, so that multiple edge providers can be run
-              sh.cmd("rm -rf $(dirname #{source})",                         echo: false, assert: !allow_failure, timing: true)
-              sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: true)
+              sh.cmd("rm -rf $(dirname #{source})",                         echo: false, assert: !allow_failure, timing: false)
+              sh.cmd("popd >& /dev/null",                                   echo: false, assert: !allow_failure, timing: false)
             ensure
               sh.cmd("test -e /tmp/dpl && rm -rf dpl", echo: false, assert: false, timing: true)
             end
@@ -233,6 +246,12 @@ module Travis
               edge == 'local' || edge.respond_to?(:fetch)
             rescue
               false
+            end
+
+            def edge_changed?(last_deploy, config)
+              (last_deploy && last_deploy[:edge] && config.nil?) ||
+              (last_deploy.nil? && config && config[:edge]) ||
+              (last_deploy && config && last_deploy[:edge] != config[:edge])
             end
         end
       end

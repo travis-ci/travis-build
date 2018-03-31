@@ -280,4 +280,14 @@ describe Travis::Build::Addons::Apt, :sexp do
       end
     end
   end
+
+
+  context "when config.retries is set" do
+    let(:apt_config) { { config: { retries: true } } }
+    before { addon.before_configure }
+
+    it { store_example "retries" }
+
+    it { should include_sexp [:echo, "Configuring default apt-get retries", ansi: :yellow] }
+  end
 end
