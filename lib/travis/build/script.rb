@@ -95,6 +95,8 @@ module Travis
           config[:osx_image],
           OpenSSL::Digest::SHA256.hexdigest(plain_env_vars.sort.join('='))
         ]
+      rescue => e
+        raise Travis::Build::EnvVarDefinitionError("Environment variables must be a string.")
       end
 
       def cache_slug
