@@ -27,8 +27,8 @@ describe Travis::Build::Script::Elm, :sexp do
   end
 
   describe 'script' do
-    it 'runs "elm-test"' do
-      should include_sexp [:cmd, 'elm-test', echo: true, timing: true]
+    it 'runs `elm-test` and `elm-format`' do
+      should include_sexp [:cmd, 'elm-format --validate . && elm-test', echo: true, timing: true]
     end
   end
 
