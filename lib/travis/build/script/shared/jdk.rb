@@ -67,6 +67,7 @@ module Travis
           def install_jdk_args(jdk)
             args_for = {
               'openjdk9'    => '-F 9',
+              'oraclejdk10' => '-F 10 -L BCL',
               'openjdk10'   => '-F 10 -L GPL',
               'oraclejdk11' => '-F 11 -L BCL',
               'openjdk11'   => '-F 11 -L GPL'
