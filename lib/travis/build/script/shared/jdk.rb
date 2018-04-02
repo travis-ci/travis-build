@@ -9,6 +9,7 @@ module Travis
               download_install_jdk
               sh.if "-f install-jdk.sh" do
                 sh.cmd "source ./install-jdk.sh #{install_jdk_args config[:jdk]}", echo: true, assert: true
+                sh.raw 'set +e', echo: false
               end
             else
               sh.cmd "jdk_switcher use #{config[:jdk]}", assert: true, echo: true, timing: false if uses_jdk?
