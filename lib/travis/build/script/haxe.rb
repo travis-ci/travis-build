@@ -23,10 +23,9 @@ module Travis
         }
 
         def export
-          super
-
           sh.export 'TRAVIS_HAXE_VERSION', haxe_version, echo: false
           sh.export 'TRAVIS_NEKO_VERSION', config[:neko].to_s, echo: false
+          super
         end
 
         def configure

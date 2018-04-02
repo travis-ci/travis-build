@@ -179,9 +179,8 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
         end
 
         def export
-          super
-
           sh.export 'TRAVIS_SOLUTION', config_solution.shellescape if config_solution
+          super
         end
 
         def install
@@ -230,7 +229,7 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
         end
 
         def mono_build_cmd
-          is_mono_after_5_0 ? "msbuild" : "xbuild" 
+          is_mono_after_5_0 ? "msbuild" : "xbuild"
         end
 
         def is_mono_version_valid?

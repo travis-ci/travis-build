@@ -7,11 +7,11 @@ module Travis
         }
 
         def export
-          super
           sh.export 'CC', compiler
           if data.cache?(:ccache)
             sh.export 'PATH', "/usr/lib/ccache:$PATH"
           end
+          super
         end
 
         def announce

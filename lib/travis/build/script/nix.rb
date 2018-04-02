@@ -10,10 +10,9 @@ module Travis
         DEFAULTS = {}
 
         def export
-          super
-
           # prevent curl from polluting logs but still show errors
           sh.export 'NIX_CURL_FLAGS', '-sS'
+          super
         end
 
         def configure

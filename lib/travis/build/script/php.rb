@@ -13,8 +13,8 @@ module Travis
         end
 
         def export
-          super
           sh.export 'TRAVIS_PHP_VERSION', version, echo: false
+          super
         end
 
         def setup

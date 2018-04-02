@@ -8,8 +8,8 @@ module Travis
         end
 
         def export
-          super
           sh.export 'TRAVIS_JDK_VERSION', config[:jdk], echo: false if uses_jdk?
+          super
         end
 
         def setup
