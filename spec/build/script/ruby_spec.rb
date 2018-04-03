@@ -32,6 +32,11 @@ describe Travis::Build::Script::Ruby, :sexp do
       should include_sexp [:cmd, 'rvm use 2.0 --install --binary --fuzzy', assert: true, echo: true, timing: true]
     end
 
+    it 'sets the version from config :rvm (when given as an array)' do
+      data[:config][:rvm] = %w(2.0)
+      should include_sexp [:cmd, 'rvm use 2.0 --install --binary --fuzzy', assert: true, echo: true, timing: true]
+    end
+
     it 'sets up rvm from .ruby-version' do
       sexp = sexp_find(subject, [:if, '-f .ruby-version'], [:then])
       expect(sexp).to include_sexp [:cmd, 'rvm use $(< .ruby-version) --install --binary --fuzzy', assert: true, echo: true, timing: true]

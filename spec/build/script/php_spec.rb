@@ -82,6 +82,11 @@ describe Travis::Build::Script::Php, :sexp do
     it { should include_sexp [:cmd, 'ln -s ~/.phpenv/versions/7.0 ~/.phpenv/versions/7', assert: true, timing: true] }
   end
 
+  context 'when php version is given as array' do
+    before { data[:config][:php] = %w(7) }
+    it { should include_sexp [:cmd, 'ln -s ~/.phpenv/versions/7.0 ~/.phpenv/versions/7', assert: true, timing: true] }
+  end
+
   describe 'fixes php.ini for hhvm' do
     let(:path)     { '/etc/hhvm/php.ini' }
     let(:addition) { %(date.timezone = "UTC"\nhhvm.libxml.ext_entity_whitelist=file,http,https\n) }

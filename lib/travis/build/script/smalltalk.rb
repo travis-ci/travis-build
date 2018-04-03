@@ -88,7 +88,7 @@ module Travis
           end
 
           def smalltalk_version
-            config[:smalltalk].to_s
+            Array(config[:smalltalk]).first.to_s
           end
 
           def smalltalk_vm
@@ -102,7 +102,7 @@ module Travis
           def is_squeak?
             is_platform?('squeak')
           end
-          
+
           def is_etoys?
             is_platform?('etoys')
           end
