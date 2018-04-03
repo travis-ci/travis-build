@@ -30,6 +30,8 @@ module Travis
 
           sh.echo "Disabling Gradle daemon", ansi: :yellow
           sh.cmd 'mkdir -p ~/.gradle && echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties', echo: true
+
+          sh.export 'PATH', '$JAVA_HOME/bin:$PATH' unless use_install_jdk?(config[:jdk])
         end
 
         def announce
