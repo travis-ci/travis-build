@@ -27,6 +27,13 @@ describe Travis::Build::Script::Scala, :sexp do
     should include_sexp [:echo, 'Using Scala 2.10.4']
   end
 
+  context "when scala version is given as an array" do
+    before { data[:config][:scala] = %w( 2.12.1 )}
+    it "exports TRAVIS_SCALA_VERSION given as the first value" do
+      should include_sexp [:export, ['TRAVIS_SCALA_VERSION', '2.12.1']]
+    end
+  end
+
   let(:export_jvm_opts) { [:export, ['JVM_OPTS', '@/etc/sbt/jvmopts'], echo: true] }
   let(:export_sbt_opts) { [:export, ['SBT_OPTS', '@/etc/sbt/sbtopts'], echo: true] }
 

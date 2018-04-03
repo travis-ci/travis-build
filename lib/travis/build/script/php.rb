@@ -100,7 +100,7 @@ module Travis
         private
 
         def version
-          config[:php].to_s
+          Array(config[:php]).first.to_s
         end
 
         def hhvm?
