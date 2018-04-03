@@ -19,7 +19,7 @@ module Travis
               eval "${nullglob_state}"
             }
           BASH
-          sh.cmd 'travis_disable_apt_sources'
+          sh.cmd 'travis_disable_apt_sources', echo: false
         end
       end
     end
