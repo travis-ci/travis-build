@@ -130,10 +130,10 @@ describe Travis::Build::Script::NodeJs, :sexp do
     end
   end
 
-  describe 'node 0.6.x' do
+  describe 'strict-ssl' do
     # let(:npm_set_strict_ssl) { [:cmd, 'npm conf set strict-ssl false', assert: true, echo: true] }
     let(:npm_set_strict_ssl) { [:cmd, 'npm conf set strict-ssl false', assert: true, echo: true, timing: true] }
-    ['0.6', '0.6.1', '0.6.99'].each do |version|
+    ['0.6', '0.6.1', '0.6.99', '0.8', '0.8.1', '0.8.99'].each do |version|
       it "sets strict-ssl to false for node #{version}" do
         data[:config][:node_js] = version
         should include_sexp npm_set_strict_ssl
