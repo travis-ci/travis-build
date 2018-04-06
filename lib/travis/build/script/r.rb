@@ -98,7 +98,7 @@ module Travis
                   "#{optional_apt_pkgs}", retry: true
 
                 r_filename = "R-#{r_version}-$(lsb_release -cs).xz"
-                r_url = "https://s3.amazonaws.com/rstudio-travis/#{r_filename}"
+                r_url = "https://travis-ci.rstudio.org/#{r_filename}"
                 sh.cmd "curl -fLo /tmp/#{r_filename} #{r_url}", retry: true
                 sh.cmd "tar xJf /tmp/#{r_filename} -C ~"
                 sh.export 'PATH', "$HOME/R-bin/bin:$PATH", echo: false
