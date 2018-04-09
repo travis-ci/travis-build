@@ -406,7 +406,9 @@ module Travis
           unless @devtools_installed
             case config[:os]
             when 'linux'
-              if config[:sudo]
+              # We can't use devtools binaries with R-devel because the ABI has
+              # changed.
+              if config[:sudo] and r_version != 'devel'
                 r_binary_install ['devtools']
               else
                 r_install ['devtools']
