@@ -131,7 +131,7 @@ module Travis
           end
 
           def normalized_go_version
-            v = config[:go].to_s
+            v = Array(config[:go]).first.to_s
             return v if v == 'go1'
             GO_VERSION_ALIASES.fetch(v.sub(/^go/, ''), v).sub(/^go/, '')
           end

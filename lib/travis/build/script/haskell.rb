@@ -69,12 +69,12 @@ module Travis
         end
 
         def version
-          v = config[:ghc].to_s
+          v = Array(config[:ghc]).first.to_s
           GHC_VERSION_ALIASES.fetch(v, v)
         end
 
         def cabal_version
-          config[:cabal].to_s
+          Array(config[:cabal]).first.to_s
         end
       end
     end

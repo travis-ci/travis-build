@@ -62,6 +62,13 @@ describe Travis::Build::Script::Go, :sexp do
     should include_sexp [:cmd, 'GIMME_OUTPUT="$(gimme 1.1 | tee -a $HOME/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
   end
 
+  context "when go version is an array" do
+    it "installs the first version specified" do
+      data[:config][:go] = ['1.6']
+      should include_sexp [:cmd, 'GIMME_OUTPUT="$(gimme 1.6 | tee -a $HOME/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
+    end
+  end
+
   Travis::Build.config.go_version_aliases_hash.each do |version_alias, version|
     it "sets version #{version.inspect} for alias #{version_alias.inspect}" do
       data[:config][:go] = version_alias

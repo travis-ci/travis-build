@@ -150,7 +150,7 @@ module Travis
             when 'stable'
               haxe_stable
             else
-              config[:haxe].to_s
+              Array(config[:haxe]).first.to_s
             end
           end
 
@@ -161,7 +161,7 @@ module Travis
             when 'osx'
               os = 'osx64'
             end
-            version = config[:neko]
+            version = Array(config[:neko]).first
             "https://github.com/HaxeFoundation/neko/releases/download/v#{version.to_s.gsub(".", "-")}/neko-#{version}-#{os}.tar.gz"
           end
 

@@ -76,7 +76,7 @@ module Travis
         private
 
           def version
-            config[:python].to_s
+            Array(config[:python]).first.to_s
           end
 
           def virtualenv_activate

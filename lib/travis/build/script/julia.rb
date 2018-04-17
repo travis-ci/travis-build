@@ -98,18 +98,18 @@ module Travis
               ext = 'mac64.dmg'
               nightlyext = ext
             end
-            case config[:julia].to_s
+            case julia_version = Array(config[:julia]).first.to_s
             when 'release'
               # CHANGEME on new minor releases (once or twice a year)
               url = "julialang-s3.julialang.org/bin/#{osarch}/0.6/julia-0.6-latest-#{ext}"
             when 'nightly'
               url = "julialangnightlies-s3.julialang.org/bin/#{osarch}/julia-latest-#{nightlyext}"
             when /^(\d+\.\d+)\.\d+$/
-              url = "julialang-s3.julialang.org/bin/#{osarch}/#{$1}/julia-#{config[:julia]}-#{ext}"
+              url = "julialang-s3.julialang.org/bin/#{osarch}/#{$1}/julia-#{julia_version}-#{ext}"
             when /^(\d+\.\d+)$/
               url = "julialang-s3.julialang.org/bin/#{osarch}/#{$1}/julia-#{$1}-latest-#{ext}"
             else
-              sh.failure "Unknown Julia version: #{config[:julia]}"
+              sh.failure "Unknown Julia version: #{julia_version}"
             end
             "https://#{url}"
           end

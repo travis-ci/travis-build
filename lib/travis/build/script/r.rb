@@ -406,7 +406,9 @@ module Travis
           unless @devtools_installed
             case config[:os]
             when 'linux'
-              if config[:sudo]
+              # We can't use devtools binaries with R-devel because the ABI has
+              # changed.
+              if config[:sudo] and r_version != 'devel'
                 r_binary_install ['devtools']
               else
                 r_install ['devtools']
@@ -510,7 +512,7 @@ module Travis
           @r_version ||= normalized_r_version
         end
 
-        def normalized_r_version(v=config[:r].to_s)
+        def normalized_r_version(v=Array(config[:r]).first.to_s)
           case v
           when 'release' then '3.4.4'
           when 'oldrel' then '3.3.3'

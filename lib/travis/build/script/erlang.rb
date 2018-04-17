@@ -54,7 +54,7 @@ module Travis
         private
 
           def otp_release
-            config[:otp_release].to_s
+            Array(config[:otp_release]).first.to_s
           end
 
           def rebar_configured
