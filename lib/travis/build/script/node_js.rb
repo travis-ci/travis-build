@@ -218,7 +218,7 @@ module Travis
 
           def npm_install(args)
             sh.fold "install.npm" do
-              sh.if "$(vers2int `npm -v`) -gt $(vers2int 5.7.1)" do
+              sh.if "$(vers2int `npm -v`) -gt $(vers2int 5.8.0)" do
                 sh.cmd "npm ci #{args}", retry: true
               sh.else do
                 sh.cmd "npm install #{args}", retry: true
