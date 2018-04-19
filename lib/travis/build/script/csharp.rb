@@ -64,28 +64,26 @@ View valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csh
 
                 if is_mono_after_5_0
                   # new Mono repo layout
-                  repo_prefix = 'alpha-' if config_mono == 'alpha' || config_mono == 'nightly' || config_mono == 'weekly'
-                  repo_prefix = 'beta-'  if config_mono == 'beta'
+                  repo_prefix = is_mono_preview || is_mono_nightly ? 'preview-' : 'stable-'
                   repo_suffix = "/snapshots/#{config_mono}" if !is_mono_version_keyword?
 
                   # main packages
                   sh.if '$(lsb_release -cs) = precise' do
                     sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu #{repo_prefix}precise#{repo_suffix} main' > /etc/apt/sources.list.d/mono-official.list\"", assert: true
+                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu nightly-precise main' >> /etc/apt/sources.list.d/mono-official.list\"", assert: true if is_mono_nightly
                   end
                   sh.elif '$(lsb_release -cs) = trusty' do
                     sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu #{repo_prefix}trusty#{repo_suffix} main' > /etc/apt/sources.list.d/mono-official.list\"", assert: true
+                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu nightly-trusty main' >> /etc/apt/sources.list.d/mono-official.list\"", assert: true if is_mono_nightly
                   end
                   sh.elif '$(lsb_release -cs) = xenial' do
                     sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu #{repo_prefix}xenial#{repo_suffix} main' > /etc/apt/sources.list.d/mono-official.list\"", assert: true
+                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu nightly-xenial main' >> /etc/apt/sources.list.d/mono-official.list\"", assert: true if is_mono_nightly
                   end
                   sh.else do
                     sh.failure "The version of this operating system is not supported by Mono. View valid versions at https://docs.travis-ci.com/user/languages/csharp/"
                   end
 
-                  # nightly packages
-                  if config_mono == 'nightly' || config_mono == 'weekly'
-                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu nightly main' >> /etc/apt/sources.list.d/mono-official.list\"", assert: true
-                  end
                 else
                   # old Mono repo layout
                   sh.if '$(lsb_release -cs) = precise' do
@@ -202,12 +200,10 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
           case config_mono
           when 'latest'
             return base_url + 'mdk-latest.pkg'
-          when 'alpha'
-            return base_url + 'mdk-latest-alpha.pkg'
-          when 'beta'
-            return base_url + 'mdk-latest-beta.pkg'
+          when 'alpha', 'beta', 'preview'
+            return base_url + 'mdk-latest-preview.pkg'
           when 'weekly', 'nightly'
-            return base_url + 'mdk-latest-weekly.pkg'
+            return base_url + 'mdk-latest-nightly.pkg'
           else
             if is_mono_after_4_4
               return base_url + config_mono + "/macos-10-universal/MonoFramework-MDK-#{config_mono}.macos10.xamarin.universal.pkg"
@@ -260,7 +256,15 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
         end
 
         def is_mono_version_keyword?
-          ['latest', 'alpha', 'beta', 'weekly', 'nightly', 'none'].include? config_mono
+          ['latest', 'alpha', 'beta', 'preview', 'weekly', 'nightly', 'none'].include? config_mono
+        end
+
+        def is_mono_nightly
+          config_mono == 'nightly' || config_mono == 'weekly'
+        end
+
+        def is_mono_preview
+          config_mono == 'alpha' || config_mono == 'beta' || config_mono == 'preview'
         end
 
         def is_mono_2_10_8
