@@ -80,6 +80,10 @@ View valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csh
                     sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu #{repo_prefix}xenial#{repo_suffix} main' > /etc/apt/sources.list.d/mono-official.list\"", assert: true
                     sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu nightly-xenial main' >> /etc/apt/sources.list.d/mono-official.list\"", assert: true if is_mono_nightly
                   end
+                  sh.elif '$(lsb_release -cs) = bionic' do
+                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu #{repo_prefix}bionic#{repo_suffix} main' > /etc/apt/sources.list.d/mono-official.list\"", assert: true
+                    sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu nightly-bionic main' >> /etc/apt/sources.list.d/mono-official.list\"", assert: true if is_mono_nightly
+                  end
                   sh.else do
                     sh.failure "The version of this operating system is not supported by Mono. View valid versions at https://docs.travis-ci.com/user/languages/csharp/"
                   end
@@ -137,6 +141,9 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
               end
               sh.elif '$(lsb_release -cs) = xenial' do
                 sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-xenial-prod xenial main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
+              end
+              sh.elif '$(lsb_release -cs) = bionic' do
+                sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-bionic-prod bionic main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
               end
               sh.else do
                 sh.failure "The version of this operating system is not supported by .NET Core. View valid versions at https://docs.travis-ci.com/user/languages/csharp/"
