@@ -190,7 +190,7 @@ module Travis
           end
 
           def npm_strict_ssl?
-            !node_0_6? && !node_0_8?
+            !node_0_6? && !node_0_8? && !node_0_9?
           end
 
           def node_0_6?
@@ -199,6 +199,10 @@ module Travis
 
           def node_0_8?
             (config[:node_js] || '').to_s.split('.')[0..1] == %w(0 8)
+          end
+
+          def node_0_9?
+            (config[:node_js] || '').to_s.split('.')[0..1] == %w(0 9)
           end
 
           def use_npm_cache?
