@@ -11,7 +11,7 @@ describe Travis::Build::Git::Clone, :sexp do
   let(:branch) { payload[:job][:branch] || 'master' }
 
   let(:oauth_token) { 'abcdef01234' }
-  let(:netrc)  { /echo -e "machine #{host}\n  login travis-ci\n  password #{oauth_token}\n" > \$HOME\/\.netrc/ }
+  let(:netrc)  { /echo -e "machine #{host}\\n  login #{oauth_token}\\n" > \$HOME\/\.netrc/ }
   let(:host)   { 'github.com' }
 
   before :each do
@@ -56,6 +56,18 @@ describe Travis::Build::Git::Clone, :sexp do
       it 'does not write to $HOME/.netrc' do
         should_not include_sexp [:raw, netrc, assert: true ]
       end
+    end
+  end
+
+  context 'with an https source_url and an installation_id' do
+    let(:netrc)  { /echo -e "machine #{host}\\n  login travis-ci\\n  password access_token\\n" > \$HOME\/\.netrc/ }
+
+    before { Travis::GithubApps.any_instance.stubs(:access_token).returns 'access_token' }
+    before { payload[:repository][:source_url] = "https://github.com/travis-ci/travis-ci.git" }
+    before { payload[:repository][:installation_id] = 1 }
+
+    it 'writes to $HOME/.netrc' do
+      expect(script.sexp).to include_sexp [:raw, netrc, assert: true ]
     end
   end
 

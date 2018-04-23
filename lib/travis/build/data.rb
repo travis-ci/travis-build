@@ -1,5 +1,7 @@
+require 'faraday'
 require 'core_ext/hash/deep_merge'
 require 'core_ext/hash/deep_symbolize_keys'
+require 'travis/github_apps'
 require 'travis/build/data/ssh_key'
 
 # actually, the worker payload can be cleaned up a lot ...
@@ -128,7 +130,7 @@ module Travis
       def github_id
         repository.fetch(:github_id)
       end
-      
+
       def default_branch
         repository[:default_branch]
       end
@@ -162,7 +164,7 @@ module Travis
       end
 
       def token
-        data[:oauth_token]
+        installation? ? installation_token : data[:oauth_token]
       end
 
       def debug_options
@@ -171,6 +173,18 @@ module Travis
 
       def prefer_https?
         source_url.downcase.start_with? "https"
+      end
+
+      def installation?
+        !!installation_id
+      end
+
+      def installation_id
+        repository[:installation_id]
+      end
+
+      def installation_token
+        GithubApps.new.access_token(installation_id)
       end
     end
   end

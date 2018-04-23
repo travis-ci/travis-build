@@ -12,6 +12,15 @@ GIT
     jemalloc (1.4.5)
 
 GIT
+  remote: https://github.com/travis-ci/travis-github_apps
+  revision: bd0aa9c73645fe4617e843e15aa635b1e64af3b4
+  specs:
+    travis-github_apps (0.1.0)
+      activesupport (>= 3.2)
+      jwt
+      redis
+
+GIT
   remote: https://github.com/travis-ci/travis-rollout
   revision: 643477fb44ea35d483ed24cc89ced459719c6e6c
   ref: sf-refactor
@@ -104,6 +113,7 @@ GEM
     rb-fsevent (0.9.8)
     rb-inotify (0.9.8)
       ffi (>= 0.5.0)
+    redis (4.0.1)
     rerun (0.11.0)
       listen (~> 3.0)
     rspec (3.5.0)
@@ -185,6 +195,7 @@ DEPENDENCIES
   sinatra-contrib
   travis
   travis-config
+  travis-github_apps!
   travis-rollout!
   travis-support!
 
