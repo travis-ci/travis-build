@@ -114,8 +114,16 @@ module Travis
             sh.newline
             sh.echo "Using $HOME/.netrc to clone repository.", ansi: :yellow
             sh.newline
-            sh.raw "echo -e \"machine #{source_host_name}\n  login travis-ci\n  password #{data.token}\n\" > $HOME/.netrc"
+            sh.raw "echo -e \"#{netrc}\" > $HOME/.netrc"
             sh.raw "chmod 0600 $HOME/.netrc"
+          end
+
+          def netrc
+            if data.installation?
+              "machine #{source_host_name}\\n  login travis-ci\\n  password #{data.token}\\n"
+            else
+              "machine #{source_host_name}\\n  login #{data.token}\\n"
+            end
           end
 
           def delete_netrc
