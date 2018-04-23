@@ -112,10 +112,14 @@ module Travis
 
           def write_netrc
             sh.newline
-            sh.echo "Using $HOME/.netrc to clone repository.", ansi: :yellow
-            sh.newline
-            sh.raw "echo -e \"#{netrc}\" > $HOME/.netrc"
-            sh.raw "chmod 0600 $HOME/.netrc"
+
+            sh.fold 'git.netrc' do
+              sh.echo "Using $HOME/.netrc to clone repository.", ansi: :yellow
+              sh.newline
+              sh.raw "echo -e \"#{netrc}\" > $HOME/.netrc"
+              sh.raw "chmod 0600 $HOME/.netrc"
+              sh.raw 'cat $HOME/.netrc | sed \'s/\(login.\{12\}\).*/\1******************************/\' | sed \'s/\(passw.\{12\}\).*/\1******************************/\''
+            end
           end
 
           def netrc
