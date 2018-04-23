@@ -114,7 +114,7 @@ module Travis
             sh.newline
             sh.echo "Using $HOME/.netrc to clone repository.", ansi: :yellow
             sh.newline
-            sh.raw "echo -e \"machine #{source_host_name}\n  login #{data.token}\\n\" > $HOME/.netrc"
+            sh.raw "echo -e \"machine #{source_host_name}\n  login travis-ci\n  password #{data.token}\n\" > $HOME/.netrc"
             sh.raw "chmod 0600 $HOME/.netrc"
           end
 
@@ -140,7 +140,7 @@ module Travis
 
           def warn_github_status
             return unless github?
-            
+
             sh.if "$? -ne 0" do
               sh.echo "Failed to clone from GitHub.", ansi: :red
               sh.echo "Checking GitHub status (https://status.github.com/api/last-message.json):"
