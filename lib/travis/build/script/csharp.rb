@@ -187,9 +187,9 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
           super
 
           sh.export 'TRAVIS_SOLUTION', config_solution.shellescape if config_solution
-          sh.export 'STANDARD_CI_SOURCE_REVISION_ID', '${TRAVIS_COMMIT}'
-          sh.export 'STANDARD_CI_REPOSITORY_URL', 'https://github.com/${TRAVIS_REPO_SLUG}'
-          sh.export 'STANDARD_CI_REPOSITORY_TYPE', 'git'
+          sh.export 'STANDARD_CI_SOURCE_REVISION_ID', '${TRAVIS_COMMIT}', echo: false
+          sh.export 'STANDARD_CI_REPOSITORY_URL', 'https://github.com/${TRAVIS_REPO_SLUG}', echo: false
+          sh.export 'STANDARD_CI_REPOSITORY_TYPE', 'git', echo: false
         end
 
         def install
