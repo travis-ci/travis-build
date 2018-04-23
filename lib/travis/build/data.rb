@@ -184,7 +184,7 @@ module Travis
       end
 
       def installation_token
-        GithubApps.new.access_token(installation_id)
+        GithubApps.new(installation_id).access_token
       end
     end
   end
