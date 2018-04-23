@@ -13,10 +13,11 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-github_apps
-  revision: bd0aa9c73645fe4617e843e15aa635b1e64af3b4
+  revision: b589c48935a020084347e6206e96044e0c0ce6ac
   specs:
-    travis-github_apps (0.1.0)
+    travis-github_apps (0.2.0)
       activesupport (>= 3.2)
+      faraday
       jwt
       redis
 
