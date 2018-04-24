@@ -35,7 +35,7 @@ module Travis
           end
 
           def custom_ssh_key?
-            data.ssh_key? && CUSTO_KEYS .include?(data.ssh_key[:source])
+            data.ssh_key? && CUSTOM_KEYS.include?(data.ssh_key[:source])
           end
 
           def source_host_name

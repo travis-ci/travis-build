@@ -12,7 +12,6 @@ module Travis
           sh.fold 'git.checkout' do
             sh.export 'GIT_LFS_SKIP_SMUDGE', '1' if lfs_skip_smudge?
             clone_or_fetch
-            netrc.delete
             sh.cd dir
             fetch_ref if fetch_ref?
             checkout
