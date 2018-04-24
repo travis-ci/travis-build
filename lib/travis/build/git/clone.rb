@@ -1,17 +1,18 @@
 require 'shellwords'
 require 'uri'
+require 'travis/build/git/netrc'
 
 module Travis
   module Build
     class Git
       class Clone < Struct.new(:sh, :data)
         def apply
-          write_netrc if data.prefer_https? && data.token
+          netrc.write if netrc.write?
 
           sh.fold 'git.checkout' do
             sh.export 'GIT_LFS_SKIP_SMUDGE', '1' if lfs_skip_smudge?
             clone_or_fetch
-            delete_netrc
+            netrc.delete
             sh.cd dir
             fetch_ref if fetch_ref?
             checkout
@@ -19,6 +20,10 @@ module Travis
         end
 
         private
+
+          def netrc
+            @netrc ||= Netrc.new(sh, data)
+          end
 
           def clone_or_fetch
             sh.if "! -d #{dir}/.git" do
@@ -110,46 +115,6 @@ module Travis
             data.config
           end
 
-          def write_netrc
-            sh.newline
-
-            sh.fold 'git.netrc' do
-              sh.echo "Using $HOME/.netrc to clone repository.", ansi: :yellow
-              sh.newline
-              sh.raw "echo -e \"#{netrc}\" > $HOME/.netrc"
-              sh.raw "chmod 0600 $HOME/.netrc"
-              sh.raw 'cat $HOME/.netrc | sed \'s/\(login.\{12\}\).*/\1******************************/\' | sed \'s/\(passw.\{12\}\).*/\1******************************/\''
-            end
-          end
-
-          def netrc
-            if data.installation?
-              "machine #{source_host_name}\\n  login travis-ci\\n  password #{data.token}\\n"
-            else
-              "machine #{source_host_name}\\n  login #{data.token}\\n"
-            end
-          end
-
-          def delete_netrc
-            sh.raw "rm -f $HOME/.netrc"
-          end
-
-          def github?
-            source_host_name.downcase == 'github.com' || source_host_name.downcase.end_with?('.github.com')
-          end
-
-          def source_host_name
-            md = /[^@]+@(.*):/.match(data.source_url)
-            if md
-              # we will assume that the URL looks like one for git+ssh; e.g., git@github.com:travis-ci/travis-build.git
-              host = md[1]
-            else
-              host = URI.parse(data.source_url).host
-            end
-
-            host
-          end
-
           def warn_github_status
             return unless github?
 
@@ -159,6 +124,17 @@ module Travis
               sh.raw "curl -sL https://status.github.com/api/last-message.json | jq -r .[]"
               sh.raw "travis_terminate 1"
             end
+          end
+
+          def github?
+            source_host_name.downcase == 'github.com' || source_host_name.downcase.end_with?('.github.com')
+          end
+
+          def source_host_name
+            # we will assume that the URL looks like one for git+ssh; e.g., git@github.com:travis-ci/travis-build.git
+            match = /[^@]+@(.*):/.match(data.source_url)
+            return match[1] if match
+            host = URI.parse(data.source_url).host
           end
       end
     end

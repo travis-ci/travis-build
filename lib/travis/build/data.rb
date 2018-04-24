@@ -83,8 +83,12 @@ module Travis
         data[:env_vars] || []
       end
 
+      def ssh_key?
+        !!ssh_key
+      end
+
       def ssh_key
-        if ssh_key = data[:ssh_key]
+        @ssh_key ||= if ssh_key = data[:ssh_key]
           SshKey.new(ssh_key[:value], ssh_key[:source], ssh_key[:encoded])
         elsif source_key = data[:config][:source_key]
           SshKey.new(source_key, nil, true)

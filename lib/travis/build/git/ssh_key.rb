@@ -20,8 +20,9 @@ module Travis
         end
 
         private
+
           def apply?
-            !data.prefer_https?
+            !data.prefer_https? && data.ssh_key?
           end
 
           def key
