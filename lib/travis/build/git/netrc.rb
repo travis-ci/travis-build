@@ -42,7 +42,7 @@ module Travis
             # we will assume that the URL looks like one for git+ssh; e.g., git@github.com:travis-ci/travis-build.git
             match = /[^@]+@(.*):/.match(data.source_url)
             return match[1] if match
-            host = URI.parse(data.source_url).host
+            URI.parse(data.source_url).host
           end
       end
     end
