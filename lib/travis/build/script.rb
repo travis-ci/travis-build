@@ -160,12 +160,9 @@ module Travis
 
         def configure
           apply :show_system_info
-          apply :rm_riak_source
-          apply :fix_rwky_redis
+          apply :disable_apt_sources
           apply :wait_for_network
           apply :update_apt_keys
-          apply :fix_hhvm_source
-          apply :update_mongo_arch
           apply :fix_container_based_trusty
           apply :fix_sudo_enabled_trusty
           apply :update_glibc
