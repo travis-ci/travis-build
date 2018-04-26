@@ -406,13 +406,9 @@ module Travis
           unless @devtools_installed
             case config[:os]
             when 'linux'
-              # We can't use devtools binaries with R-devel because the ABI has
-              # changed.
-              if config[:sudo] and r_version != 'devel'
-                r_binary_install ['devtools']
-              else
+              # We can't use devtools binaries because R versions < 3.5 are not
+              # compatible with R versions >= 3.5
                 r_install ['devtools']
-              end
             else
               devtools_check = '!requireNamespace("devtools", quietly = TRUE)'
               devtools_install = 'install.packages("devtools")'
