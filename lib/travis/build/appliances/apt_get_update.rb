@@ -7,7 +7,7 @@ module Travis
         def apply
           sh.cmd <<-EOF
             sudo rm -rf /var/lib/apt/lists/*
-            sudo apt-get update -qq 2>&1 >/dev/null
+            sudo apt-get update -qq >/dev/null 2>&1
           EOF
         end
       end
