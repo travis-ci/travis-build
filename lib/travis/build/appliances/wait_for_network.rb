@@ -38,6 +38,7 @@ module Travis
             travis_wait_for_network
               '#{wait_retries}' '#{check_urls.join("' '")}'
           ].join(' ').untaint, echo: false
+          sh.echo
         end
 
         private def check_urls
