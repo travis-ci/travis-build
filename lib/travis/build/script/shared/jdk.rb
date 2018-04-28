@@ -18,8 +18,7 @@ module Travis
             sh.export 'TERM', 'dumb'
           end
 
-          sh.echo "Disabling Gradle daemon", ansi: :yellow
-          sh.cmd 'mkdir -p ~/.gradle && echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties', echo: true
+          sh.cmd 'mkdir -p ~/.gradle && echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties', echo: false
         end
 
         def announce
