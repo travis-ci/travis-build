@@ -8,7 +8,9 @@ module Travis
             if use_install_jdk?(config[:jdk])
               download_install_jdk
               sh.if "-f install-jdk.sh" do
-                sh.cmd "source ./install-jdk.sh #{install_jdk_args config[:jdk]}", echo: true, assert: true
+                sh.export "JAVA_HOME", "$HOME/#{jdk}"
+                sh.cmd "bash install-jdk.sh #{install_jdk_args config[:jdk]} --target $JAVA_HOME", echo: true, assert: true
+                sh.export "PATH", "$JAVA_HOME/bin:$PATH"
                 sh.raw 'set +e', echo: false
               end
             else
@@ -32,7 +34,6 @@ module Travis
           sh.echo "Disabling Gradle daemon", ansi: :yellow
           sh.cmd 'mkdir -p ~/.gradle && echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties', echo: true, timing: false
 
-          sh.export 'PATH', '$JAVA_HOME/bin:$PATH' unless use_install_jdk?(config[:jdk])
         end
 
         def announce
@@ -56,6 +57,10 @@ module Travis
 
           def uses_jdk?
             !!config[:jdk]
+          end
+
+          def jdk
+            config[:jdk].gsub(/\s/,'')
           end
 
           def use_install_jdk?(jdk)
