@@ -74,8 +74,13 @@ module Travis
                   '--recv-keys E084DAB9'
 
                 # Add marutter's c2d4u repository.
-                sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter"'
-                sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u"'
+                if r_version_less_than('3.5.0')
+                  sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter"'
+                  sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u"'
+                else
+                  sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter3.5"'
+                  sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u3.5"'
+                end
 
                 # Update after adding all repositories. Retry several
                 # times to work around flaky connection to Launchpad PPAs.
@@ -482,7 +487,7 @@ module Travis
         # Install gfortran libraries the precompiled binaries are linked to
         def setup_fortran_osx
           return unless (config[:os] == 'osx')
-          if r_version < '3.4'
+          if r_version_less_than('3.4')
             sh.cmd 'curl -fLo /tmp/gfortran.tar.bz2 http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2', retry: true
             sh.cmd 'sudo tar fvxz /tmp/gfortran.tar.bz2 -C /'
             sh.rm '/tmp/gfortran.tar.bz2'
@@ -506,6 +511,11 @@ module Travis
 
         def r_version
           @r_version ||= normalized_r_version
+        end
+
+        def r_version_less_than(str)
+          return if normalized_r_version == 'devel' # always false (devel is highest version)
+          Gem::Version.new(normalized_r_version) < Gem::Version.new(str)
         end
 
         def normalized_r_version(v=Array(config[:r]).first.to_s)
@@ -546,7 +556,7 @@ module Travis
             v[:CRAN] = config[:cran]
           end
           # If the version is less than 3.2 we need to use http repositories
-          if r_version < '3.2'
+          if r_version_less_than('3.2')
             v.each {|_, url| url.sub!(/^https:/, "http:")}
             config[:bioc].sub!(/^https:/, "http:")
           end
