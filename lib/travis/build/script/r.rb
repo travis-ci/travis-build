@@ -74,8 +74,13 @@ module Travis
                   '--recv-keys E084DAB9'
 
                 # Add marutter's c2d4u repository.
-                sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter"'
-                sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u"'
+                if r_version < '3.5.0'
+                  sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter"'
+                  sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u"'
+                else
+                  sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter3.5"'
+                  sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u3.5"'
+                end
 
                 # Update after adding all repositories. Retry several
                 # times to work around flaky connection to Launchpad PPAs.
