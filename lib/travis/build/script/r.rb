@@ -119,7 +119,7 @@ module Travis
 
                 # R-devel builds available at research.att.com
                 if r_version == 'devel'
-                  r_url = "https://r.research.att.com/mavericks/R-devel/R-devel-mavericks-signed.pkg"
+                  r_url = "https://r.research.att.com/el-capitan/R-devel/R-devel-el-capitan-signed.pkg"
 
                 # The latest release is the only one available in /bin/macosx
                 elsif r_version == r_latest
@@ -131,9 +131,11 @@ module Travis
                 elsif r_version == '3.2.5'
                   r_url = "#{repos[:CRAN]}/bin/macosx/old/R-3.2.4-revised.pkg"
 
-                # all other binaries are in /bin/macosx/old
-                else
+                # the old archive has moved after 3.4.0
+                elsif r_version_less_than('3.4.0')
                   r_url = "#{repos[:CRAN]}/bin/macosx/old/R-#{r_version}.pkg"
+                else
+                  r_url = "#{repos[:CRAN]}/bin/macosx/el-capitan/base/R-#{r_version}.pkg"
                 end
 
                 # Install from latest CRAN binary build for OS X
@@ -501,7 +503,7 @@ module Travis
         end
 
         # Uninstalls the preinstalled homebrew
-        # See FAQ: https://github.com/Homebrew/brew/blob/master/share/doc/homebrew/FAQ.md
+        # See FAQ: https://docs.brew.sh/FAQ#how-do-i-uninstall-old-versions-of-a-formula
         def disable_homebrew
           return unless (config[:os] == 'osx')
           sh.cmd "curl -fsSOL https://raw.githubusercontent.com/Homebrew/install/master/uninstall"
