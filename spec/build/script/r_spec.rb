@@ -25,7 +25,7 @@ describe Travis::Build::Script::R, :sexp do
     data[:config][:r] = 'bioc-release'
     should include_sexp [:cmd, %r{source\(\"https://bioconductor.org/biocLite.R\"\)},
                          assert: true, echo: true, timing: true, retry: true]
-    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.4.4']]
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.5.0']]
   end
 
   it 'r_packages works with a single package set' do
@@ -53,7 +53,7 @@ describe Travis::Build::Script::R, :sexp do
   end
 
   it 'downloads and installs latest R' do
-    should include_sexp [:cmd, %r{^curl.*https://s3\.amazonaws\.com/rstudio-travis/R-3\.4\.4-\$\(lsb_release -cs\)\.xz},
+    should include_sexp [:cmd, %r{^curl.*https://s3\.amazonaws\.com/rstudio-travis/R-3\.5\.0-\$\(lsb_release -cs\)\.xz},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
@@ -142,13 +142,7 @@ describe Travis::Build::Script::R, :sexp do
                          assert: true, echo: true, timing: true]
   end
 
-  it 'installs binary devtools if sudo: required' do
-    data[:config][:sudo] = 'required'
-    should include_sexp [:cmd, /sudo apt-get install.*r-cran-devtools/,
-                         assert: true, echo: true, timing: true, retry: true]
-  end
-
-  it 'installs source devtools if sudo: is missing' do
+  it 'installs source devtools' do
     should include_sexp [:cmd, /Rscript -e 'install\.packages\(c\(\"devtools\"\)/,
                          assert: true, echo: true, timing: true]
 
@@ -214,7 +208,7 @@ describe Travis::Build::Script::R, :sexp do
     }
     it {
       data[:config][:r] = 'release'
-      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.4.4")
+      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.5.0")
     }
     it {
       data[:config][:r] = 'oldrel'

@@ -312,6 +312,7 @@ module Travis
         update_sc
         update_godep
         update_static_files
+        update_version_aliases
         ls_public_files
       )
 

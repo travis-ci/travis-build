@@ -24,12 +24,13 @@ module Travis
 
         def setup
           super
+
           sh.if '-f build.gradle || -f build.gradle.kts' do
             sh.export 'TERM', 'dumb'
           end
 
           sh.echo "Disabling Gradle daemon", ansi: :yellow
-          sh.cmd 'mkdir -p ~/.gradle && echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties', echo: true
+          sh.cmd 'mkdir -p ~/.gradle && echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties', echo: true, timing: false
 
           sh.export 'PATH', '$JAVA_HOME/bin:$PATH' unless use_install_jdk?(config[:jdk])
         end
