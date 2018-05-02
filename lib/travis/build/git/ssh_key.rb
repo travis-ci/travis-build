@@ -22,7 +22,7 @@ module Travis
         private
 
           def apply?
-            !data.prefer_https? && data.ssh_key?
+            data.ssh_key?
           end
 
           def key
