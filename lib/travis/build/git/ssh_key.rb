@@ -5,9 +5,9 @@ module Travis
         def apply
           return unless apply?
 
-          sh.fold 'ssh_key' do
-            sh.echo messages
-          end
+          sh.newline
+          sh.echo messages
+          sh.newline
 
           sh.file '~/.ssh/id_rsa', key.value
           sh.chmod 600, '~/.ssh/id_rsa', echo: false
@@ -30,7 +30,7 @@ module Travis
           end
 
           def messages
-            msgs = ["Installing SSH key#{" from: #{source}" if key.source}"]
+            msgs = ["Installing an SSH key#{" from: #{source}" if key.source}"]
             msgs << "Key fingerprint: #{key.fingerprint}" if key.fingerprint
             msgs
           end
