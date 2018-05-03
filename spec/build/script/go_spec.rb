@@ -69,13 +69,6 @@ describe Travis::Build::Script::Go, :sexp do
     end
   end
 
-  Travis::Build.config.go_version_aliases_hash.each do |version_alias, version|
-    it "sets version #{version.inspect} for alias #{version_alias.inspect}" do
-      data[:config][:go] = version_alias
-      should include_sexp [:cmd, %Q'GIMME_OUTPUT="$(gimme #{version} | tee -a $HOME/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
-    end
-  end
-
   it 'passes through arbitrary tag versions' do
     data[:config][:go] = 'release9000'
     should include_sexp [:cmd, 'GIMME_OUTPUT="$(gimme release9000 | tee -a $HOME/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]

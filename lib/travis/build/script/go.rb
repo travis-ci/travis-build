@@ -11,9 +11,6 @@ module Travis
           },
           go: Travis::Build.config.go_version.untaint
         }
-        GO_VERSION_ALIASES = Travis::Build.config.go_version_aliases_hash.merge(
-          'default' => DEFAULTS[:go]
-        ).freeze
 
         def export
           super
@@ -133,7 +130,7 @@ module Travis
           def normalized_go_version
             v = Array(config[:go]).first.to_s
             return v if v == 'go1'
-            GO_VERSION_ALIASES.fetch(v.sub(/^go/, ''), v).sub(/^go/, '')
+            v.sub(/^go/, '')
           end
 
           def comparable_go_version
