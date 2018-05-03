@@ -72,7 +72,7 @@ module Travis
 
         def before_prepare?
           SUPPORTED_OPERATING_SYSTEMS.any? do |os_match|
-            data[:config][:os].to_s.match?(os_match)
+            data[:config][:os].to_s =~ os_match
           end && SUPPORTED_DISTS.include?(data[:config][:dist].to_s)
         end
 
