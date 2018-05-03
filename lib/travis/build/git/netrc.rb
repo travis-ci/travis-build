@@ -2,7 +2,7 @@ module Travis
   module Build
     class Git
       class Netrc < Struct.new(:sh, :data)
-        CUSTOM_KEYS = %w(repository_settings travis_yaml)
+        CUSTOM_KEYS = [:repository_settings, :travis_yaml]
 
         def write?
           !custom_ssh_key? && data.prefer_https? && data.token
