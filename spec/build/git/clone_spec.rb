@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Travis::Build::Git::Clone, :sexp do
   let(:payload)  { payload_for(:push, :ruby) }
   let(:script)   { Travis::Build::Script.new(payload) }
-  subject(:sexp) { sexp_find(script.sexp, [:fold, 'git.checkout']) }
+  subject(:sexp) { script.sexp }
 
   let(:url)    { 'git://github.com/travis-ci/travis-ci.git' }
   let(:dir)    { 'travis-ci/travis-ci' }
@@ -66,8 +66,34 @@ describe Travis::Build::Git::Clone, :sexp do
     before { payload[:repository][:source_url] = "https://github.com/travis-ci/travis-ci.git" }
     before { payload[:repository][:installation_id] = 1 }
 
-    it 'writes to $HOME/.netrc' do
-      expect(script.sexp).to include_sexp [:raw, netrc, assert: true ]
+    context 'given no custom ssh key' do
+      it 'writes to $HOME/.netrc' do
+        expect(script.sexp).to include_sexp [:raw, netrc, assert: true ]
+      end
+    end
+
+    context 'given a repository settings key' do
+      before { payload[:ssh_key] = { source: 'repository_settings', value: 'key', encoded: false } }
+
+      it 'does not write to $HOME/.netrc' do
+        should_not include_sexp [:raw, netrc, assert: true ]
+      end
+    end
+
+    context 'given a travis yaml key' do
+      before { payload[:ssh_key] = { source: 'travis_yaml', value: 'key', encoded: false } }
+
+      it 'does not write to $HOME/.netrc' do
+        should_not include_sexp [:raw, netrc, assert: true ]
+      end
+    end
+
+    context 'given a default repository key' do
+      before { payload[:ssh_key] = { source: 'default_repository_key', value: 'key', encoded: false } }
+
+      it 'writes to $HOME/.netrc' do
+        expect(script.sexp).to include_sexp [:raw, netrc, assert: true ]
+      end
     end
   end
 
