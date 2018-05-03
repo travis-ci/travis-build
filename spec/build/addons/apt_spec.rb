@@ -6,10 +6,10 @@ describe Travis::Build::Addons::Apt, :sexp do
   let(:data)               { payload_for(:push, :ruby, config: { dist: dist, addons: { apt: apt_config } }, paranoid: paranoid) }
   let(:sh)                 { Travis::Shell::Builder.new }
   let(:addon)              { described_class.new(script, sh, Travis::Build::Data.new(data), apt_config) }
-  let(:apt_config)             { {} }
-  let(:dist)               { :precise }
-  let(:source_whitelists)  { { precise: [{ alias: 'testing', sourceline: 'deb http://example.com/deb repo main' }] } }
-  let(:package_whitelists) { { precise: %w(git curl) } }
+  let(:apt_config)         { {} }
+  let(:dist)               { :xenial }
+  let(:source_whitelists)  { { xenial: [{ alias: 'testing', sourceline: 'deb http://example.com/deb repo main' }] } }
+  let(:package_whitelists) { { xenial: %w(git curl) } }
   let(:paranoid)           { true }
   let(:whitelist_skip)     { false }
   subject                  { sh.to_sexp }
@@ -32,18 +32,23 @@ describe Travis::Build::Addons::Apt, :sexp do
     end
   end
 
-  context 'when on linux' do
-    let(:data) { payload_for(:push, :ruby, config: { os: 'linux', dist: 'precise' }) }
+  %w[
+    linux
+    linux-ppc64le
+  ].each do |os|
+    context "when on #{os}" do
+      let(:data) { payload_for(:push, :ruby, config: { os: os, dist: 'xenial' }) }
 
-    it 'will run' do
-      expect(addon.before_prepare?).to eql(true)
-    end
+      it 'will run' do
+        expect(addon.before_prepare?).to eql(true)
+      end
 
-    context 'with unknown dist' do
-      let(:data) { payload_for(:push, :ruby, config: { os: 'linux', dist: 'dapper' }) }
+      context 'with unknown dist' do
+        let(:data) { payload_for(:push, :ruby, config: { os: os, dist: 'dapper' }) }
 
-      it 'will not run' do
-        expect(addon.before_prepare?).to eql(false)
+        it 'will not run' do
+          expect(addon.before_prepare?).to eql(false)
+        end
       end
     end
   end
@@ -101,7 +106,7 @@ describe Travis::Build::Addons::Apt, :sexp do
 
     it 'defaults source whitelist to empty hash' do
       expect(described_class.source_whitelists)
-        .to eql({ precise: {}, trusty: {}, unset: {} })
+        .to eql({ precise: {}, trusty: {}, xenial: {}, unset: {} })
     end
   end
 
@@ -164,16 +169,16 @@ describe Travis::Build::Addons::Apt, :sexp do
   context 'with sources' do
     let(:deadsnakes) do
       {
-        'alias' => 'deadsnakes-precise',
-        'sourceline' => 'ppa:fkrull/deadsnakes-precise',
+        'alias' => 'deadsnakes-xenial',
+        'sourceline' => 'ppa:fkrull/deadsnakes-xenial',
         'key_url' => nil
       }
     end
 
     let(:packagecloud) do
       {
-        'alias' => 'packagecloud-precise',
-        'sourceline' => 'deb https://packagecloud.io/chef/stable/ubuntu/ precise main',
+        'alias' => 'packagecloud-xenial',
+        'sourceline' => 'deb https://packagecloud.io/chef/stable/ubuntu/ xenial main',
         'key_url' => 'https://packagecloud.io/gpg.key'
       }
     end
@@ -181,15 +186,15 @@ describe Travis::Build::Addons::Apt, :sexp do
     let(:evilbadthings) do
       {
         'alias' => 'evilbadthings',
-        'sourceline' => 'deb https://evilbadthings.com/chef/stable/ubuntu/ precise main'
+        'sourceline' => 'deb https://evilbadthings.com/chef/stable/ubuntu/ xenial main'
       }
     end
 
     let(:source_whitelists) do
       {
-        precise: {
-          'deadsnakes-precise' => deadsnakes,
-          'packagecloud-precise' => packagecloud
+        xenial: {
+          'deadsnakes-xenial' => deadsnakes,
+          'packagecloud-xenial' => packagecloud
         }
       }
     end
@@ -212,14 +217,14 @@ describe Travis::Build::Addons::Apt, :sexp do
     end
 
     context 'with multiple whitelisted sources' do
-      let(:apt_config) { { sources: ['deadsnakes-precise'] } }
+      let(:apt_config) { { sources: ['deadsnakes-xenial'] } }
 
       it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_key_add_command(deadsnakes['key_url']), echo: true, assert: true, timing: true] }
     end
 
     context 'with multiple sources, some whitelisted' do
-      let(:apt_config) { { sources: ['packagecloud-precise', 'deadsnakes-precise', 'evilbadthings', 'ppa:evilbadppa', { sourceline: 'foobar', key_url: 'deadbeef' }] } }
+      let(:apt_config) { { sources: ['packagecloud-xenial', 'deadsnakes-xenial', 'evilbadthings', 'ppa:evilbadppa', { sourceline: 'foobar', key_url: 'deadbeef' }] } }
 
       it { should include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
       it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
@@ -232,7 +237,7 @@ describe Travis::Build::Addons::Apt, :sexp do
     end
 
     context 'with singular whitelisted source' do
-      let(:apt_config) { { sources: 'packagecloud-precise' } }
+      let(:apt_config) { { sources: 'packagecloud-xenial' } }
 
       it { should include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
     end
@@ -245,7 +250,7 @@ describe Travis::Build::Addons::Apt, :sexp do
 
     context 'when sudo is enabled' do
       let(:paranoid) { false }
-      let(:apt_config) { { sources: ['packagecloud-precise', 'deadsnakes-precise', 'evilbadthings', 'ppa:archivematica/externals', { sourceline: 'foobar', key_url: 'deadbeef' }] } }
+      let(:apt_config) { { sources: ['packagecloud-xenial', 'deadsnakes-xenial', 'evilbadthings', 'ppa:archivematica/externals', { sourceline: 'foobar', key_url: 'deadbeef' }] } }
 
       it { should include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
       it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
@@ -263,7 +268,7 @@ describe Travis::Build::Addons::Apt, :sexp do
 
     context 'when whitelist skipping is enabled' do
       let(:paranoid) { true }
-      let(:apt_config) { { sources: ['packagecloud-precise', 'deadsnakes-precise', 'evilbadthings', 'ppa:archivematica/externals', { sourceline: 'foobar', key_url: 'deadbeef' }] } }
+      let(:apt_config) { { sources: ['packagecloud-xenial', 'deadsnakes-xenial', 'evilbadthings', 'ppa:archivematica/externals', { sourceline: 'foobar', key_url: 'deadbeef' }] } }
       let(:whitelist_skip) { true }
 
       it { should include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
