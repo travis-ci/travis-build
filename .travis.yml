@@ -7,7 +7,7 @@ dist: trusty
 
 sudo: false
 
-rvm: 2.3.4
+rvm: 2.5.1
 
 env:
   global:
