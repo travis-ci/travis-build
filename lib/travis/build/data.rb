@@ -83,6 +83,10 @@ module Travis
         data[:env_vars] || []
       end
 
+      def custom_ssh_key?
+        !!ssh_key&.custom?
+      end
+
       def ssh_key?
         !!ssh_key
       end
@@ -115,16 +119,34 @@ module Travis
         !!data[:paranoid]
       end
 
-      def source_host
-        source_url =~ %r(^(?:https?|git)(?:://|@)([^/]*?)(?:/|:)) && $1
-      end
-
       def api_url
         repository[:api_url]
       end
 
       def source_url
-        repository[:source_url]
+        source_ssh? ? source_ssh_url : source_https_url
+      end
+
+      def source_https?
+        !source_ssh?
+      end
+
+      def source_ssh?
+        repo_private? && !installation? or
+        repo_private? && custom_ssh_key? or
+        prefer_https?
+      end
+
+      def source_host
+        repository[:source_host]
+      end
+
+      def source_ssh_url
+        "git@#{source_host}:#{slug}.git"
+      end
+
+      def source_https_url
+        "https://#{source_host}/#{slug}.git"
       end
 
       def slug
@@ -133,6 +155,10 @@ module Travis
 
       def github_id
         repository.fetch(:github_id)
+      end
+
+      def repo_private?
+        repository[:private]
       end
 
       def default_branch
@@ -176,7 +202,7 @@ module Travis
       end
 
       def prefer_https?
-        source_url.downcase.start_with? "https"
+        data[:prefer_https]
       end
 
       def installation?
