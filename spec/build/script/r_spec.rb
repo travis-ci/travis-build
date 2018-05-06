@@ -116,8 +116,8 @@ describe Travis::Build::Script::R, :sexp do
   end
 
   it 'downloads pandoc and installs into /usr/bin/pandoc' do
-    data[:config][:pandoc_version] = '1.15.2'
-    should include_sexp [:cmd, %r{curl.*/tmp/pandoc-1\.15\.2-1-amd64\.deb https://github\.com/jgm/pandoc/releases/download/1\.15\.2/pandoc-1\.15\.2-1-amd64\.deb},
+    data[:config][:pandoc_version] = '2.2'
+    should include_sexp [:cmd, %r{curl.*/tmp/pandoc-2\.2-1-amd64\.deb https://github\.com/jgm/pandoc/releases/download/2\.2/pandoc-2\.2-1-amd64\.deb},
                          assert: true, echo: true, timing: true]
 
     should include_sexp [:cmd, %r{sudo dpkg -i /tmp/pandoc-},
