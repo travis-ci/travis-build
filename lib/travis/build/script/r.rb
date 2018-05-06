@@ -25,7 +25,7 @@ module Travis
           pandoc: true,
           latex: true,
           fortran: true,
-          pandoc_version: '1.15.2',
+          pandoc_version: '2.2',
           # Bioconductor
           bioc: 'https://bioconductor.org/biocLite.R',
           bioc_required: false,
