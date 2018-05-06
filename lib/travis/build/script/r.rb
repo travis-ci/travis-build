@@ -473,7 +473,15 @@ module Travis
             # Cleanup
             sh.rm "/tmp/#{pandoc_filename}"
           when 'osx'
-            pandoc_filename = "pandoc-#{config[:pandoc_version]}-osx.pkg"
+          
+            # Change OS name if requested version is less than 1.19.2.2
+            # Name change was introduced in v2.0 of pandoc.
+            # c.f. "Build Infrastructure Improvements" section of
+            # https://github.com/jgm/pandoc/releases/tag/2.0
+            # Lastly, the last binary for macOS before 2.0 is 1.19.2.1
+            os_short_name = version_check_less_than("#{config[:pandoc_version]}", "1.19.2.2") ? "macOS" : "osx"
+            
+            pandoc_filename = "pandoc-#{config[:pandoc_version]}-#{os_short_name}.pkg"
             pandoc_url = "https://github.com/jgm/pandoc/releases/download/#{config[:pandoc_version]}/"\
               "#{pandoc_filename}"
 
@@ -510,6 +518,11 @@ module Travis
           sh.cmd "sudo ruby uninstall --force"
           sh.cmd "rm uninstall"
         end
+        
+        # Abstract out version check
+        def version_check_less_than(version_str_new, version_str_old)
+            Gem::Version.new(version_str_old) < Gem::Version.new(version_str_new)
+        end
 
         def r_version
           @r_version ||= normalized_r_version
@@ -517,7 +530,7 @@ module Travis
 
         def r_version_less_than(str)
           return if normalized_r_version == 'devel' # always false (devel is highest version)
-          Gem::Version.new(normalized_r_version) < Gem::Version.new(str)
+          version_check_less_than(str, normalized_r_version)
         end
 
         def normalized_r_version(v=Array(config[:r]).first.to_s)
