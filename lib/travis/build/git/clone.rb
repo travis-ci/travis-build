@@ -1,5 +1,4 @@
 require 'shellwords'
-require 'uri'
 require 'travis/build/git/netrc'
 
 module Travis
@@ -7,8 +6,6 @@ module Travis
     class Git
       class Clone < Struct.new(:sh, :data)
         def apply
-          netrc.write if netrc.write?
-
           sh.fold 'git.checkout' do
             sh.export 'GIT_LFS_SKIP_SMUDGE', '1' if lfs_skip_smudge?
             clone_or_fetch
@@ -19,10 +16,6 @@ module Travis
         end
 
         private
-
-          def netrc
-            @netrc ||= Netrc.new(sh, data)
-          end
 
           def clone_or_fetch
             sh.if "! -d #{dir}/.git" do
@@ -126,14 +119,8 @@ module Travis
           end
 
           def github?
-            source_host_name.downcase == 'github.com' || source_host_name.downcase.end_with?('.github.com')
-          end
-
-          def source_host_name
-            # we will assume that the URL looks like one for git+ssh; e.g., git@github.com:travis-ci/travis-build.git
-            match = /[^@]+@(.*):/.match(data.source_url)
-            return match[1] if match
-            URI.parse(data.source_url).host
+            host = data.source_host.downcase
+            host == 'github.com' || host.end_with?('.github.com')
           end
       end
     end
