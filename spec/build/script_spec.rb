@@ -95,22 +95,25 @@ describe Travis::Build::Script, :sexp do
       context 'with config[:apt][:update] not given' do
         before { payload[:config].delete(:apt) }
         it { expect(code).to include 'sudo apt-get update' }
+        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
+      end
+
+      context 'with config[:apt][:update] not given and apt-get update used in before_install' do
+        before { payload[:config][:install] = ['apt-get -s install foo'] }
+        it { expect(code).to_not include 'sudo apt-get update' }
+        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
       end
 
       context 'with config[:apt][:update] being true' do
         before { payload[:config][:apt] = { update: true } }
         it { expect(code).to include 'sudo apt-get update' }
-      end
-
-      context 'with config[:apt][:update] being true and apt-get update used in before_install' do
-        before { payload[:config][:apt] = { update: true } }
-        before { payload[:config][:install] = ['apt-get -s install foo'] }
-        it { expect(code).to_not include 'sudo apt-get update' }
+        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
       end
 
       context 'with config[:apt][:update] being false' do
         before { payload[:config][:apt] = { update: false } }
         it { expect(code).to_not include 'sudo apt-get update' }
+        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
       end
     end
 
@@ -121,16 +124,26 @@ describe Travis::Build::Script, :sexp do
       context 'with config[:apt][:update] not given' do
         before { payload[:config].delete(:apt) }
         it { expect(code).to_not include 'sudo apt-get update' }
+        it { expect(code).to include 'Running apt-get update by default has been disabled' }
+      end
+
+      context 'with config[:apt][:update] not given and apt-get update used in before_install' do
+        before { payload[:config][:install] = ['apt-get -s install foo'] }
+        it { code }
+        it { expect(code).to include 'sudo apt-get update' }
+        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
       end
 
       context 'with config[:apt][:update] being true' do
         before { payload[:config][:apt] = { update: true } }
         it { expect(code).to include 'sudo apt-get update' }
+        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
       end
 
       context 'with config[:apt][:update] being false' do
         before { payload[:config][:apt] = { update: false } }
         it { expect(code).to_not include 'sudo apt-get update' }
+        xit { expect(code).to include 'Running apt-get update by default has been disabled' }
       end
     end
   end

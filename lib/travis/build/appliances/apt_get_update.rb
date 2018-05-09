@@ -4,29 +4,42 @@ module Travis
   module Build
     module Appliances
       class AptGetUpdate < Base
+        MSGS = {
+          disabled: "Running apt-get update by default has been disabled. You can opt into running apt-get update by setting this in your .travis.yml file:\n\n  apt:\n    update: true"
+        }
+
         def apply
           use_mirror if use_mirror?
-          apt_get_update if apt_get_update?
+          disabled   if disabled?
+          update     if update?
         end
 
         private
 
-          def apt_get_update?
+          def disabled?
+            ENV['APT_GET_UPDATE_OPT_IN'] && !update?
+          end
+
+          def update?
             if ENV['APT_GET_UPDATE_OPT_IN']
-              !!config[:update] && !uses_apt_get?
+              !!config[:update] || used?
             else
-              !config[:update].is_a?(FalseClass) && !uses_apt_get?
+              !config[:update].is_a?(FalseClass) && !used?
             end
           end
 
-          def apt_get_update
+          def disabled
+            sh.echo MSGS[:disabled]
+          end
+
+          def update
             sh.cmd <<-EOF
               sudo rm -rf /var/lib/apt/lists/*
               sudo apt-get update #{'-qq  >/dev/null 2>&1' unless debug?}
             EOF
           end
 
-          def uses_apt_get?
+          def used?
             %i(before_install install before_script script before_cache).any? do |stage|
               Array(data[:config][stage]).flatten.compact.any? do |script|
                 script.to_s =~ /apt-get .*install/
