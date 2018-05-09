@@ -19,7 +19,7 @@ module Travis
           end
 
           def use_mirror?
-            !!mirror && rollout?(:apt_get_mirror_ubuntu, uid: repo_id)
+            !!mirror && rollout?(:apt_get_mirror_ubuntu, uid: repo_id, owner: repo_owner)
           end
 
           def use_mirror
@@ -44,6 +44,10 @@ module Travis
 
           def repo_slug
             data.repository[:slug].to_s
+          end
+
+          def repo_owner
+            repo_slug.split('/').first
           end
       end
     end
