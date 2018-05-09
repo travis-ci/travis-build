@@ -30,7 +30,7 @@ module Travis
           end
 
           def disabled
-            sh.echo MSGS[:disabled], ansi: :red
+            sh.echo MSGS[:disabled], ansi: :yellow
             sh.echo MSGS[:opt_in]
           end
 
