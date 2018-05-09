@@ -23,7 +23,7 @@ module Travis
           end
 
           def use_mirror
-            sh.cmd "sudo sed -i 's_http://archive.ubuntu.com/ubuntu/_#{mirror.dup.untaint}_' /etc/apt/sources.list"
+            sh.cmd "sudo sed -i -e 's|http://.*\.ubuntu\.com/ubuntu/|#{mirror.dup.untaint}|' /etc/apt/sources.list"
           end
 
           def mirror
