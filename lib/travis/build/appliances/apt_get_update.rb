@@ -19,7 +19,7 @@ module Travis
           end
 
           def use_mirror?
-            !!mirror
+            !!mirror && rollout?(:apt_get_mirror_ubuntu, uid: repo_id)
           end
 
           def use_mirror
@@ -31,10 +31,18 @@ module Travis
           end
 
           def debug?
-            Travis::Rollout.matches?(:debug_apt, repo: slug)
+            rollout?(:debug_apt, repo: repo_slug)
           end
 
-          def slug
+          def rollout?(*args)
+            Travis::Rollout.matches?(*args)
+          end
+
+          def repo_id
+            data.repository[:id]
+          end
+
+          def repo_slug
             data.repository[:slug].to_s
           end
       end
