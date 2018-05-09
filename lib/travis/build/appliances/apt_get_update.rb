@@ -13,9 +13,9 @@ module Travis
 
           def apt_get_update?
             if ENV['APT_GET_UPDATE_OPT_IN']
-              !!config[:update]
+              !!config[:update] && !uses_apt_get?
             else
-              !config[:update].is_a?(FalseClass)
+              !config[:update].is_a?(FalseClass) && !uses_apt_get?
             end
           end
 
@@ -24,6 +24,14 @@ module Travis
               sudo rm -rf /var/lib/apt/lists/*
               sudo apt-get update #{'-qq  >/dev/null 2>&1' unless debug?}
             EOF
+          end
+
+          def uses_apt_get?
+            %i(before_install install before_script script before_cache).any? do |stage|
+              Array(data[:config][stage]).flatten.compact.any? do |script|
+                script.to_s =~ /apt-get .*install/
+              end
+            end
           end
 
           def use_mirror?

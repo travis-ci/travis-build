@@ -94,13 +94,18 @@ describe Travis::Build::Script, :sexp do
     context 'with APT_GET_UPDATE_OPT_IN not enabled' do
       context 'with config[:apt][:update] not given' do
         before { payload[:config].delete(:apt) }
-        it { code }
         it { expect(code).to include 'sudo apt-get update' }
       end
 
       context 'with config[:apt][:update] being true' do
         before { payload[:config][:apt] = { update: true } }
         it { expect(code).to include 'sudo apt-get update' }
+      end
+
+      context 'with config[:apt][:update] being true and apt-get update used in before_install' do
+        before { payload[:config][:apt] = { update: true } }
+        before { payload[:config][:install] = ['apt-get -s install foo'] }
+        it { expect(code).to_not include 'sudo apt-get update' }
       end
 
       context 'with config[:apt][:update] being false' do
