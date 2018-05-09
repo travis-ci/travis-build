@@ -159,6 +159,7 @@ module Travis
         end
 
         def configure
+          apply :set_x
           apply :show_system_info
           apply :rm_riak_source
           apply :fix_rwky_redis

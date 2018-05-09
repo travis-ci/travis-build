@@ -3,8 +3,6 @@ module Travis
     class Git
       class SshKey < Struct.new(:sh, :data)
         def apply
-          return unless apply?
-
           sh.fold 'ssh_key' do
             sh.echo messages
           end
@@ -20,10 +18,6 @@ module Travis
         end
 
         private
-
-          def apply?
-            data.ssh_key?
-          end
 
           def key
             data.ssh_key
