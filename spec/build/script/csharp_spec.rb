@@ -46,6 +46,11 @@ describe Travis::Build::Script::Csharp, :sexp do
       data[:config][:dotnet] = '2.0.0'
       should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-sdk-2.0.0', timing: true, assert: true]
     end
+
+    it "installs dotnet 2.1.300-rc1-008673" do
+      data[:config][:dotnet] = '2.1.300-rc1-008673'
+      should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-sdk-2.1.300-rc1-008673', timing: true, assert: true]
+    end
   end
 
   describe 'version switching' do
@@ -223,6 +228,16 @@ describe Travis::Build::Script::Csharp, :sexp do
       should include_sexp [:cmd, "sudo installer -package \"/tmp/dotnet.pkg\" -target \"/\" -verboseR", timing: true, assert: true]
       should include_sexp [:cmd, "eval $(/usr/libexec/path_helper -s)", assert: true]
     end
+
+    it 'installs dotnet 2.1.300-rc1-008673 and above' do
+      data[:config][:os] = 'osx'
+      data[:config][:dotnet] = '2.1.300-rc1-008673'
+      should_not include_sexp [:cmd, "brew install openssl", timing: true, assert: true]
+      should include_sexp [:cmd, "wget --retry-connrefused --waitretry=1 -O /tmp/dotnet.pkg https://dotnetcli.azureedge.net/dotnet/Sdk/2.1.300-rc1-008673/dotnet-sdk-2.1.300-rc1-008673-osx-x64.pkg", timing: true, assert: true, echo: true]
+      should include_sexp [:cmd, "sudo installer -package \"/tmp/dotnet.pkg\" -target \"/\" -verboseR", timing: true, assert: true]
+      should include_sexp [:cmd, "eval $(/usr/libexec/path_helper -s)", assert: true]
+    end
+
     it 'selects preview when alpha specified' do
       data[:config][:os] = 'osx'
       data[:config][:mono] = 'alpha'
