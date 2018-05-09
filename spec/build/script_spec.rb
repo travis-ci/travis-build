@@ -124,7 +124,6 @@ describe Travis::Build::Script, :sexp do
       context 'with config[:apt][:update] not given' do
         before { payload[:config].delete(:apt) }
         it { expect(code).to_not include 'sudo apt-get update' }
-        it { puts code }
         it { expect(code).to include 'Running apt-get update by default has been disabled' }
       end
 
