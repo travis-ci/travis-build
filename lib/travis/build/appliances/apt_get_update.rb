@@ -5,7 +5,8 @@ module Travis
     module Appliances
       class AptGetUpdate < Base
         MSGS = {
-          disabled: "Running apt-get update by default has been disabled. You can opt into running apt-get update by setting this in your .travis.yml file:\n\n  apt:\n    update: true"
+          disabled: "Running apt-get update by default has been disabled.",
+          opt_in:   "You can opt into running apt-get update by setting this in your .travis.yml file:\n\n  apt:\n    update: true"
         }
 
         def apply
@@ -29,7 +30,8 @@ module Travis
           end
 
           def disabled
-            sh.echo MSGS[:disabled]
+            sh.echo MSGS[:disabled], ansi: :red
+            sh.echo MSGS[:opt_in]
           end
 
           def update
