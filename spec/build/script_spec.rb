@@ -89,4 +89,44 @@ describe Travis::Build::Script, :sexp do
     let(:payload) { payload_for(:push_debug, :ruby, config: { cache: ['apt', 'bundler'] }).merge(config) }
     it_behaves_like 'a debug script'
   end
+
+  context 'apt-get update' do
+    context 'with APT_GET_UPDATE_OPT_IN not enabled' do
+      context 'with config[:apt][:update] not given' do
+        before { payload[:config].delete(:apt) }
+        it { code }
+        it { expect(code).to include 'sudo apt-get update' }
+      end
+
+      context 'with config[:apt][:update] being true' do
+        before { payload[:config][:apt] = { update: true } }
+        it { expect(code).to include 'sudo apt-get update' }
+      end
+
+      context 'with config[:apt][:update] being false' do
+        before { payload[:config][:apt] = { update: false } }
+        it { expect(code).to_not include 'sudo apt-get update' }
+      end
+    end
+
+    context 'with APT_GET_UPDATE_OPT_IN enabled' do
+      before { ENV['APT_GET_UPDATE_OPT_IN'] = 'true' }
+      after { ENV.delete('APT_GET_UPDATE_OPT_IN') }
+
+      context 'with config[:apt][:update] not given' do
+        before { payload[:config].delete(:apt) }
+        it { expect(code).to_not include 'sudo apt-get update' }
+      end
+
+      context 'with config[:apt][:update] being true' do
+        before { payload[:config][:apt] = { update: true } }
+        it { expect(code).to include 'sudo apt-get update' }
+      end
+
+      context 'with config[:apt][:update] being false' do
+        before { payload[:config][:apt] = { update: false } }
+        it { expect(code).to_not include 'sudo apt-get update' }
+      end
+    end
+  end
 end

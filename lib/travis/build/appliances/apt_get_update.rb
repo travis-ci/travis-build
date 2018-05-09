@@ -6,10 +6,18 @@ module Travis
       class AptGetUpdate < Base
         def apply
           use_mirror if use_mirror?
-          apt_get_update
+          apt_get_update if apt_get_update?
         end
 
         private
+
+          def apt_get_update?
+            if ENV['APT_GET_UPDATE_OPT_IN']
+              !!config[:update]
+            else
+              !config[:update].is_a?(FalseClass)
+            end
+          end
 
           def apt_get_update
             sh.cmd <<-EOF
@@ -48,6 +56,10 @@ module Travis
 
           def repo_owner
             repo_slug.split('/').first
+          end
+
+          def config
+            data[:config][:apt] || {}
           end
       end
     end
