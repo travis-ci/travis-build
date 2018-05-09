@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Travis::Build::Script, :sexp do
   let(:config)  { PAYLOADS[:worker_config] }
-  let(:payload) { payload_for(:push, :ruby, config: { cache: 'bundler'}).merge(config) }
+  let(:payload) { payload_for(:push, :ruby, config: { addons: {}, cache: 'bundler'}).merge(config) }
   let(:script)  { Travis::Build.script(payload) }
   let(:code)    { script.compile }
   subject       { script.sexp }
@@ -115,6 +115,18 @@ describe Travis::Build::Script, :sexp do
         it { expect(code).to_not include 'sudo apt-get update' }
         it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
       end
+
+      context 'with config[:addons][:apt][:update] being true' do
+        before { payload[:config][:addons][:apt] = { update: true } }
+        it { expect(code).to include 'sudo apt-get update' }
+        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
+      end
+
+      context 'with config[:addons][:apt][:update] being false' do
+        before { payload[:config][:addons][:apt] = { update: false } }
+        it { expect(code).to_not include 'sudo apt-get update' }
+        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
+      end
     end
 
     context 'with APT_GET_UPDATE_OPT_IN enabled' do
@@ -142,6 +154,18 @@ describe Travis::Build::Script, :sexp do
 
       context 'with config[:apt][:update] being false' do
         before { payload[:config][:apt] = { update: false } }
+        it { expect(code).to_not include 'sudo apt-get update' }
+        it { expect(code).to include 'Running apt-get update by default has been disabled' }
+      end
+
+      context 'with config[:addons][:apt][:update] being true' do
+        before { payload[:config][:addons][:apt] = { update: true } }
+        it { expect(code).to include 'sudo apt-get update' }
+        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
+      end
+
+      context 'with config[:addons][:apt][:update] being false' do
+        before { payload[:config][:addons][:apt] = { update: false } }
         it { expect(code).to_not include 'sudo apt-get update' }
         it { expect(code).to include 'Running apt-get update by default has been disabled' }
       end

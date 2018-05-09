@@ -6,7 +6,7 @@ module Travis
       class AptGetUpdate < Base
         MSGS = {
           disabled: "Running apt-get update by default has been disabled.",
-          opt_in:   "You can opt into running apt-get update by setting this in your .travis.yml file:\n\n  apt:\n    update: true"
+          opt_in:   "You can opt into running apt-get update by setting this in your .travis.yml file:\n\n  addons:\n    apt:\n      update: true"
         }
 
         def apply
@@ -82,7 +82,11 @@ module Travis
           end
 
           def config
-            data[:config][:apt] || {}
+            apt_config || {}
+          end
+
+          def apt_config
+            (data[:config][:addons] && data[:config][:addons][:apt]) || data[:config][:apt]
           end
       end
     end
