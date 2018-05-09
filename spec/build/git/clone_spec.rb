@@ -5,7 +5,7 @@ describe Travis::Build::Git::Clone, :sexp do
   let(:script)   { Travis::Build::Script.new(payload) }
   subject(:sexp) { script.sexp }
 
-  let(:url)    { 'git://github.com/travis-ci/travis-ci.git' }
+  let(:url)    { 'https://github.com/travis-ci/travis-ci.git' }
   let(:dir)    { 'travis-ci/travis-ci' }
   let(:depth)  { Travis::Build::Git::DEFAULTS[:git][:depth] }
   let(:branch) { payload[:job][:branch] || 'master' }
@@ -17,110 +17,6 @@ describe Travis::Build::Git::Clone, :sexp do
   before :each do
     payload[:config][:git] = { strategy: 'clone' }
   end
-
-  context 'when source_url starts with "https"' do
-    before { payload[:repository][:source_url] = "https://github.com/travis-ci/travis-ci.git" }
-
-    context "when payload includes oauth_token" do
-      # case where (in Enterprise) scheduler sets the source URL with https
-      before { payload[:oauth_token] = oauth_token }
-
-      it 'writes to $HOME/.netrc' do
-        expect(script.sexp).to include_sexp [:raw, netrc, assert: true ]
-      end
-    end
-
-    context "when payload does not include oauth_token" do
-      # hosted .org
-      it 'does not write to $HOME/.netrc' do
-        should_not include_sexp [:raw, netrc, assert: true ]
-      end
-    end
-  end
-
-  context 'when source_url starts with "https" on a GitHub Enterprise host' do
-    let(:host) { 'ghe.example.com'}
-    before { payload[:repository][:source_url] = "https://#{host}/travis-ci/travis-ci.git" }
-
-    context "when payload includes oauth_token" do
-      # case where (in Enterprise) scheduler sets the source URL with https
-      before { payload[:oauth_token] = oauth_token }
-
-      it 'writes to $HOME/.netrc' do
-        expect(script.sexp).to include_sexp [:raw, netrc, assert: true ]
-      end
-    end
-
-    context "when payload does not include oauth_token" do
-      # hosted .org
-      it 'does not write to $HOME/.netrc' do
-        should_not include_sexp [:raw, netrc, assert: true ]
-      end
-    end
-  end
-
-  context 'with an https source_url and an installation_id' do
-    let(:netrc)  { /echo -e "machine #{host}\\n  login travis-ci\\n  password access_token\\n" > \$HOME\/\.netrc/ }
-
-    before { Travis::GithubApps.any_instance.stubs(:access_token).returns 'access_token' }
-    before { payload[:repository][:source_url] = "https://github.com/travis-ci/travis-ci.git" }
-    before { payload[:repository][:installation_id] = 1 }
-
-    context 'given no custom ssh key' do
-      it 'writes to $HOME/.netrc' do
-        expect(script.sexp).to include_sexp [:raw, netrc, assert: true ]
-      end
-    end
-
-    context 'given a repository settings key' do
-      before { payload[:ssh_key] = { source: 'repository_settings', value: 'key', encoded: false } }
-
-      it 'does not write to $HOME/.netrc' do
-        should_not include_sexp [:raw, netrc, assert: true ]
-      end
-    end
-
-    context 'given a travis yaml key' do
-      before { payload[:ssh_key] = { source: 'travis_yaml', value: 'key', encoded: false } }
-
-      it 'does not write to $HOME/.netrc' do
-        should_not include_sexp [:raw, netrc, assert: true ]
-      end
-    end
-
-    context 'given a default repository key' do
-      before { payload[:ssh_key] = { source: 'default_repository_key', value: 'key', encoded: false } }
-
-      it 'writes to $HOME/.netrc' do
-        expect(script.sexp).to include_sexp [:raw, netrc, assert: true ]
-      end
-    end
-  end
-
-  context 'when source_url starts with "git"' do
-    context "when payload includes oauth_token" do
-      # hosted .com, or Enterprise with default config
-      before { payload[:oauth_token] = oauth_token }
-
-      it 'does not write to $HOME/.netrc' do
-        should_not include_sexp [:raw, netrc, assert: true ]
-      end
-    end
-
-    context "when payload does not include oauth_token" do
-      # this should not happen
-      it 'does not write to $HOME/.netrc' do
-        should_not include_sexp [:raw, netrc, assert: true ]
-      end
-    end
-  end
-
-  context 'when source_url starts with "git"' do
-    it 'deos not write to $HOME/.netrc' do
-      should_not include_sexp [:raw, netrc, assert: true ]
-    end
-  end
-
 
   describe 'when the repository is not yet cloned' do
     let(:args) { "--depth=#{depth} --branch=#{branch.shellescape}" }

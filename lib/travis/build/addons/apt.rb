@@ -35,7 +35,7 @@ module Travis
             end
             loaded
           rescue => e
-            warn e
+            warn e unless ENV['ENV'] == 'test'
             loaded
           end
 
@@ -49,7 +49,7 @@ module Travis
             end
             loaded
           rescue => e
-            warn e
+            warn e unless ENV['ENV'] == 'test'
             loaded
           end
 
