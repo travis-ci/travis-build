@@ -31,7 +31,7 @@ module Travis
           end
 
           def debug?
-            rollout?(:debug_apt, repo: repo_slug)
+            rollout?(:debug_apt, repo: repo_slug, owner: repo_owner)
           end
 
           def rollout?(*args)
