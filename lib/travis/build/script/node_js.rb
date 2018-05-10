@@ -210,18 +210,6 @@ module Travis
           def use_npm_cache?
             Array(config[:cache]).include?('npm')
           end
-        
-          def has_package_lock_file?
-            sh.if "-f package-lock.json"
-          end
-        
-          def has_shrinkwrap_file?
-            sh.if "-f npm-shrinkwrap.json"
-          end
-        
-          def has_lock_file?
-            has_package_lock_file? || has_shinkwrap_file?
-          end
 
           def setup_npm_cache
             if data.hosts && data.hosts[:npm_cache]
@@ -236,8 +224,12 @@ module Travis
 
           def npm_install(args)
             sh.fold "install.npm" do
-              sh.if "$(vers2int `npm -v`) -gt $(vers2int #{NPM_CI_CMD_VERSION})" && has_lock_file? do
-                sh.cmd "npm ci #{args}", retry: true
+              sh.if "$(vers2int `npm -v`) -gt $(vers2int #{NPM_CI_CMD_VERSION})" do
+                sh.if "-f npm-shrinkwrap.json -o -f package-lock.json" do
+                  sh.cmd "npm ci #{args}", retry: true
+                else
+                  sh.cmd "npm install #{args}", retry: true
+                end
               end
               sh.else do
                 sh.cmd "npm install #{args}", retry: true
