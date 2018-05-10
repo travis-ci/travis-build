@@ -224,7 +224,7 @@ module Travis
 
           def npm_install(args)
             sh.fold "install.npm" do
-              sh.if "$(vers2int `npm -v`) -gt $(vers2int #{NPM_CI_CMD_VERSION})" do
+              sh.if "$(vers2int `npm -v`) -ge $(vers2int #{NPM_CI_CMD_VERSION})" do
                 sh.if "-f npm-shrinkwrap.json -o -f package-lock.json" do
                   sh.cmd "npm ci #{args}", retry: true
                 else
