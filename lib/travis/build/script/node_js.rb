@@ -7,6 +7,8 @@ module Travis
         YARN_REQUIRED_NODE_VERSION = '4'
 
         NPM_QUIET_TREE_VERSION = '5'
+        
+        NPM_CI_CMD_VERSION = '5.8.0'
 
         def export
           super
@@ -208,6 +210,18 @@ module Travis
           def use_npm_cache?
             Array(config[:cache]).include?('npm')
           end
+        
+          def has_package_lock_file?
+            sh.if "-f package-lock.json"
+          end
+        
+          def has_shrinkwrap_file?
+            sh.if "-f npm-shrinkwrap.json"
+          end
+        
+          def has_lock_file?
+            has_package_lock_file? || has_shinkwrap_file?
+          end
 
           def setup_npm_cache
             if data.hosts && data.hosts[:npm_cache]
@@ -222,7 +236,7 @@ module Travis
 
           def npm_install(args)
             sh.fold "install.npm" do
-              sh.if "$(vers2int `npm -v`) -gt $(vers2int 5.8.0)" do
+              sh.if "$(vers2int `npm -v`) -gt $(vers2int #{NPM_CI_CMD_VERSION})" && has_lock_file? do
                 sh.cmd "npm ci #{args}", retry: true
               end
               sh.else do
