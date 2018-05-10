@@ -72,7 +72,7 @@ In addition to the travis CLI plugin you can also run the standalone CLI script:
 
 If you want to run travis-build locally on your machine (e.g. to interact with [worker](https://github.com/travis-ci/worker)), you can also run it as a docker container with docker-compose:
 
-    $ docker-compose up
+    $ docker-compose up --build
 
 ## License & copyright information
 
