@@ -7,6 +7,7 @@ describe Travis::Build::Addons::SauceConnect, :sexp do
   let(:sh)     { Travis::Shell::Builder.new }
   let(:addon)  { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
   subject      { sh.to_sexp }
+  before       { File.write('lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh', '') }
   before       { addon.before_before_script }
 
   it_behaves_like 'compiled script' do
