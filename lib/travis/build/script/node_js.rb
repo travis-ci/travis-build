@@ -25,7 +25,6 @@ module Travis
           npm_disable_spinner
           npm_disable_progress
           npm_disable_strict_ssl unless npm_strict_ssl?
-          setup_npm_cache if use_npm_cache?
           install_yarn
         end
 
@@ -93,10 +92,16 @@ module Travis
               directory_cache.add '$HOME/.cache/yarn'
             end
           end
+          if data.cache?(:npm)
+            sh.fold 'cache.npm' do
+              sh.echo ''
+              directory_cache.add '$HOME/.npm'
+            end
+          end
         end
 
         def use_directory_cache?
-          super || data.cache?(:yarn)
+          super || data.cache?(:yarn) || data.cache?(:npm)
         end
 
         private
@@ -203,17 +208,6 @@ module Travis
 
           def node_0_9?
             (config[:node_js] || '').to_s.split('.')[0..1] == %w(0 9)
-          end
-
-          def use_npm_cache?
-            Array(config[:cache]).include?('npm')
-          end
-
-          def setup_npm_cache
-            if data.hosts && data.hosts[:npm_cache]
-              sh.cmd 'npm config set registry http://registry.npmjs.org/', timing: false
-              sh.cmd "npm config set proxy #{data.hosts[:npm_cache]}", timing: false
-            end
           end
 
           def iojs_3_plus?
