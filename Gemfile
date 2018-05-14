@@ -5,7 +5,6 @@ ruby File.read(File.expand_path('../.ruby-version', __FILE__)).strip if ENV.key?
 gem 'rake'
 gem 'activesupport', '~> 4.0'
 gem 'addressable', '~> 2.3'
-gem 'jwt'
 gem 'coder'
 gem 'jemalloc', git: 'https://github.com/joshk/jemalloc-rb'
 gem 'metriks', '0.9.9.6'
