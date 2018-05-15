@@ -15,7 +15,15 @@ module Travis
           update     if update?
         end
 
+        def apply?
+          is_linux?
+        end
+
         private
+
+          def is_linux?
+            data[:config][:os] == 'linux'
+          end
 
           def disabled?
             ENV['APT_GET_UPDATE_OPT_IN'] && !update?
