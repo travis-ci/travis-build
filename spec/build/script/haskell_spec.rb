@@ -67,10 +67,9 @@ describe Travis::Build::Script::Haskell, :sexp do
 
   context 'when valid alias ghc version is given' do
     before do
-      described_class.const_set(
-        :GHC_VERSION_ALIASES,
-        described_class::GHC_VERSION_ALIASES.dup.merge('rad' => '8.0.9')
-      )
+      aliases = described_class::GHC_VERSION_ALIASES.dup.merge('rad' => '8.0.9')
+      described_class.send(:remove_const, :GHC_VERSION_ALIASES)
+      described_class.const_set(:GHC_VERSION_ALIASES, aliases)
       data[:config][:ghc] = 'rad'
     end
 

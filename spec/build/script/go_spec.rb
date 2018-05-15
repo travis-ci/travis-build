@@ -36,24 +36,21 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   shared_examples 'gopath fix' do
-    it { should include_sexp [:mkdir, "$HOME/gopath/src/#{hostname}/travis-ci/travis-ci", echo: true, recursive: true] }
-    it { should include_sexp [:cmd, "rsync -az ${TRAVIS_BUILD_DIR}/ $HOME/gopath/src/#{hostname}/travis-ci/travis-ci/", echo: true] }
-    it { should include_sexp [:export, ['TRAVIS_BUILD_DIR', "$HOME/gopath/src/#{hostname}/travis-ci/travis-ci"], echo: true] }
-    it { should include_sexp [:cd, "$HOME/gopath/src/#{hostname}/travis-ci/travis-ci", assert: true, echo: true] }
+    it { should include_sexp [:mkdir, "$HOME/gopath/src/#{host}/travis-ci/travis-ci", echo: true, recursive: true] }
+    it { should include_sexp [:cmd, "rsync -az ${TRAVIS_BUILD_DIR}/ $HOME/gopath/src/#{host}/travis-ci/travis-ci/", echo: true] }
+    it { should include_sexp [:export, ['TRAVIS_BUILD_DIR', "$HOME/gopath/src/#{host}/travis-ci/travis-ci"], echo: true] }
+    it { should include_sexp [:cd, "$HOME/gopath/src/#{host}/travis-ci/travis-ci", assert: true, echo: true] }
   end
 
   describe 'with github.com' do
-    let(:hostname) { 'github.com' }
+    let(:host) { 'github.com' }
+    before { data[:repository]['source_host'] = host }
     it_behaves_like 'gopath fix'
   end
 
   describe 'with ghs' do
-    let(:hostname) { 'ghe.example.com' }
-
-    before do
-      data[:repository]['source_url'] = "git@#{hostname}:travis-ci/travis-ci.git"
-    end
-
+    let(:host) { 'ghe.example.com' }
+    before { data[:repository]['source_host'] = host }
     it_behaves_like 'gopath fix'
   end
 
