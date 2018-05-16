@@ -3,11 +3,9 @@ module Travis
     class Git
       class SshKey < Struct.new(:sh, :data)
         def apply
-          return unless apply?
-
-          sh.newline
-          sh.echo messages
-          sh.newline
+          sh.fold 'ssh_key' do
+            sh.echo messages
+          end
 
           sh.file '~/.ssh/id_rsa', key.value
           sh.chmod 600, '~/.ssh/id_rsa', echo: false
@@ -21,16 +19,12 @@ module Travis
 
         private
 
-          def apply?
-            !data.prefer_https? && data.ssh_key?
-          end
-
           def key
             data.ssh_key
           end
 
           def messages
-            msgs = ["Installing an SSH key#{" from: #{source}" if key.source}"]
+            msgs = ["Installing SSH key#{" from: #{source}" if key.source}"]
             msgs << "Key fingerprint: #{key.fingerprint}" if key.fingerprint
             msgs
           end
