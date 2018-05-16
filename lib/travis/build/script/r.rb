@@ -93,8 +93,8 @@ module Travis
                 sh.cmd 'sudo apt-get install -y --no-install-recommends '\
                   'build-essential gcc g++ libblas-dev liblapack-dev '\
                   'libncurses5-dev libreadline-dev libjpeg-dev '\
-                  'libpng-dev zlib1g-dev libbz2-dev liblzma-dev cdbs qpdf texinfo '\
-                  'libmagick++-dev libssh2-1-dev '\
+                  'libpcre3-dev libpng-dev zlib1g-dev libbz2-dev liblzma-dev libicu-dev '\
+                  'cdbs qpdf texinfo libssh2-1-dev '\
                   "#{optional_apt_pkgs}", retry: true
 
                 r_filename = "R-#{r_version}-$(lsb_release -cs).xz"
