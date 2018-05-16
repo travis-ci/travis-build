@@ -29,6 +29,7 @@ module Travis
           # Bioconductor
           bioc: 'https://bioconductor.org/biocLite.R',
           bioc_required: false,
+          bioc_check: false,
           bioc_use_devel: false,
           disable_homebrew: false,
           r: 'release'
@@ -237,6 +238,9 @@ module Travis
               "#{config[:r_check_args]}"
             sh.cmd "R CMD check \"${PKG_TARBALL}\" #{config[:r_check_args]}; "\
               "CHECK_RET=$?", assert: false
+            if bioc_check
+                sh.cmd "R CMD BiocCheck \"${PKG_TARBALL}\""
+            end
           end
           export_rcheck_dir
 
@@ -404,6 +408,9 @@ module Travis
                   ');'\
                   'cat(append = TRUE, file = "~/.Rprofile.site", "options(repos = BiocInstaller::biocinstallRepos());")'
                 sh.cmd "Rscript -e '#{bioc_install_script}'", retry: true
+               if bioc_check
+                 sh.cmd "Rscript -e 'BiocInstaller::biocLite(\"BiocCheck\")'"
+               end
             end
           end
           @bioc_installed = true
@@ -546,7 +553,7 @@ module Travis
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true
-            'devel'
+            'release'
           when 'bioc-release'
             config[:bioc_required] = true
             config[:bioc_use_devel] = false
