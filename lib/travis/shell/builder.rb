@@ -81,9 +81,9 @@ module Travis
         raw "travis_terminate #{result}"
       end
 
-      def failure(message)
+      def failure(message = nil)
         export 'TRAVIS_CMD', 'no_script', echo: false
-        echo message unless message.empty?
+        echo message unless message.nil?
         raw 'travis_run_after_failure'
         raw 'set -e'
         raw 'false'
