@@ -72,7 +72,7 @@ describe Travis::Build::Script::Php, :sexp do
       let(:sexp) { sexp_find(sexp_filter(subject, [:if, "$(lsb_release -sc 2>/dev/null) != precise"])[0], [:then]) }
 
       it "terminates early" do
-        expect(sexp).to include_sexp [:raw, "travis_terminate 1", assert: true]
+        expect(sexp).to include_sexp [:failure]
       end
     end
   end
