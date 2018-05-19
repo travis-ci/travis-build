@@ -83,7 +83,7 @@ module Travis
 
       def failure(message = nil)
         export 'TRAVIS_CMD', 'no_script', echo: false
-        echo message unless message.nil?
+        echo message if message
         raw 'travis_run_after_failure'
         raw 'set -e'
         raw 'false'
