@@ -238,7 +238,8 @@ module Travis
               "#{config[:r_check_args]}"
             sh.cmd "R CMD check \"${PKG_TARBALL}\" #{config[:r_check_args]}; "\
               "CHECK_RET=$?", assert: false
-            if bioc_check
+            if config[:bioc_check]
+            sh.echo 'Checking with: R CMD BiocCheck "${PKG_TARBALL}" '
                 sh.cmd "R CMD BiocCheck \"${PKG_TARBALL}\""
             end
           end
@@ -408,7 +409,7 @@ module Travis
                   ');'\
                   'cat(append = TRUE, file = "~/.Rprofile.site", "options(repos = BiocInstaller::biocinstallRepos());")'
                 sh.cmd "Rscript -e '#{bioc_install_script}'", retry: true
-               if bioc_check
+               if config[:bioc_check]
                  sh.cmd "Rscript -e 'BiocInstaller::biocLite(\"BiocCheck\")'"
                end
             end
