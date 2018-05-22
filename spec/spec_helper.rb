@@ -1,3 +1,5 @@
+ENV['ENV'] = 'test'
+
 require 'simplecov'
 require 'fileutils'
 require 'sinatra/test_helpers'

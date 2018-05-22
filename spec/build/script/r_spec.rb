@@ -25,7 +25,7 @@ describe Travis::Build::Script::R, :sexp do
     data[:config][:r] = 'bioc-release'
     should include_sexp [:cmd, %r{source\(\"https://bioconductor.org/biocLite.R\"\)},
                          assert: true, echo: true, timing: true, retry: true]
-    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.4.4']]
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.5.0']]
   end
 
   it 'r_packages works with a single package set' do
@@ -53,7 +53,7 @@ describe Travis::Build::Script::R, :sexp do
   end
 
   it 'downloads and installs latest R' do
-    should include_sexp [:cmd, %r{^curl.*https://s3\.amazonaws\.com/rstudio-travis/R-3\.4\.4-\$\(lsb_release -cs\)\.xz},
+    should include_sexp [:cmd, %r{^curl.*https://s3\.amazonaws\.com/rstudio-travis/R-3\.5\.0-\$\(lsb_release -cs\)\.xz},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
@@ -78,7 +78,7 @@ describe Travis::Build::Script::R, :sexp do
   it 'downloads and installs R devel on OS X' do
     data[:config][:os] = 'osx'
     data[:config][:r] = 'devel'
-    should include_sexp [:cmd, %r{^curl.*r\.research\.att\.com/mavericks/R-devel/R-devel-mavericks-signed\.pkg},
+    should include_sexp [:cmd, %r{^curl.*r\.research\.att\.com/el-capitan/R-devel/R-devel-el-capitan-signed\.pkg},
                          assert: true, echo: true, retry: true, timing: true]
   end
   it 'downloads and installs gfortran libraries on OS X' do
@@ -116,14 +116,22 @@ describe Travis::Build::Script::R, :sexp do
   end
 
   it 'downloads pandoc and installs into /usr/bin/pandoc' do
-    data[:config][:pandoc_version] = '1.15.2'
-    should include_sexp [:cmd, %r{curl.*/tmp/pandoc-1\.15\.2-1-amd64\.deb https://github\.com/jgm/pandoc/releases/download/1\.15\.2/pandoc-1\.15\.2-1-amd64\.deb},
+    data[:config][:pandoc_version] = '2.2'
+    should include_sexp [:cmd, %r{curl.*/tmp/pandoc-2\.2-1-amd64\.deb https://github\.com/jgm/pandoc/releases/download/2\.2/pandoc-2\.2-1-amd64\.deb},
                          assert: true, echo: true, timing: true]
 
     should include_sexp [:cmd, %r{sudo dpkg -i /tmp/pandoc-},
                          assert: true, echo: true, timing: true]
   end
 
+  it 'downloads pandoc <= 1.19.2.1 on OS X' do
+    data[:config][:pandoc_version] = '1.19.2.1'
+    data[:config][:os] = 'osx'
+    
+    should include_sexp [:cmd, %r{curl.*/tmp/pandoc-1\.19\.2\.1-osx\.pkg https://github\.com/jgm/pandoc/releases/download/1\.19\.2\.1/pandoc-1\.19\.2\.1-osx\.pkg},
+                         assert: true, echo: true, timing: true]
+  end
+  
   it 'sets repos in ~/.Rprofile.site with defaults' do
     data[:config][:cran] = 'https://cloud.r-project.org'
     should include_sexp [:cmd, "echo 'options(repos = c(CRAN = \"https://cloud.r-project.org\"))' > ~/.Rprofile.site",
@@ -142,13 +150,7 @@ describe Travis::Build::Script::R, :sexp do
                          assert: true, echo: true, timing: true]
   end
 
-  it 'installs binary devtools if sudo: required' do
-    data[:config][:sudo] = 'required'
-    should include_sexp [:cmd, /sudo apt-get install.*r-cran-devtools/,
-                         assert: true, echo: true, timing: true, retry: true]
-  end
-
-  it 'installs source devtools if sudo: is missing' do
+  it 'installs source devtools' do
     should include_sexp [:cmd, /Rscript -e 'install\.packages\(c\(\"devtools\"\)/,
                          assert: true, echo: true, timing: true]
 
@@ -214,7 +216,7 @@ describe Travis::Build::Script::R, :sexp do
     }
     it {
       data[:config][:r] = 'release'
-      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.4.4")
+      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.5.0")
     }
     it {
       data[:config][:r] = 'oldrel'
