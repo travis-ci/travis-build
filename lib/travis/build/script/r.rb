@@ -542,7 +542,7 @@ module Travis
           when '3.2' then '3.2.5'
           when '3.3' then '3.3.3'
           when '3.4' then '3.4.4'
-          when '3.5' then '3.5'
+          when '3.5' then '3.5.0'
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true
