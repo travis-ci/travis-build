@@ -43,7 +43,7 @@ module Travis
               sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L --retry 7 '#{julia_url}' } \
                        '| tar -C ~/julia -x -z --strip-components=1 -f -'
             when 'osx'
-              sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L -o julia.dmg '#{julia_url}'}
+              sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L --retry 7 -o julia.dmg '#{julia_url}'}
               sh.cmd 'mkdir juliamnt'
               sh.cmd 'hdiutil mount -readonly -mountpoint juliamnt julia.dmg'
               sh.cmd 'cp -a juliamnt/*.app/Contents/Resources/julia ~/'
@@ -94,22 +94,22 @@ module Travis
               ext = 'linux-x86_64.tar.gz'
               nightlyext = 'linux64.tar.gz'
             when 'osx'
-              osarch = 'osx/x64'
-              ext = 'osx10.7+.dmg'
-              nightlyext = 'osx.dmg'
+              osarch = 'mac/x64'
+              ext = 'mac64.dmg'
+              nightlyext = ext
             end
-            case config[:julia].to_s
+            case julia_version = Array(config[:julia]).first.to_s
             when 'release'
               # CHANGEME on new minor releases (once or twice a year)
-              url = "s3.amazonaws.com/julialang/bin/#{osarch}/0.5/julia-0.5-latest-#{ext}"
+              url = "julialang-s3.julialang.org/bin/#{osarch}/0.6/julia-0.6-latest-#{ext}"
             when 'nightly'
-              url = "s3.amazonaws.com/julianightlies/bin/#{osarch}/julia-latest-#{nightlyext}"
+              url = "julialangnightlies-s3.julialang.org/bin/#{osarch}/julia-latest-#{nightlyext}"
             when /^(\d+\.\d+)\.\d+$/
-              url = "s3.amazonaws.com/julialang/bin/#{osarch}/#{$1}/julia-#{config[:julia]}-#{ext}"
+              url = "julialang-s3.julialang.org/bin/#{osarch}/#{$1}/julia-#{julia_version}-#{ext}"
             when /^(\d+\.\d+)$/
-              url = "s3.amazonaws.com/julialang/bin/#{osarch}/#{$1}/julia-#{$1}-latest-#{ext}"
+              url = "julialang-s3.julialang.org/bin/#{osarch}/#{$1}/julia-#{$1}-latest-#{ext}"
             else
-              sh.failure "Unknown Julia version: #{config[:julia]}"
+              sh.failure "Unknown Julia version: #{julia_version}"
             end
             "https://#{url}"
           end

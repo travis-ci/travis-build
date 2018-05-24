@@ -34,6 +34,8 @@ module Travis
 
         def export
           super
+          sh.echo "Disabling Homebrew auto update. If your Homebrew package requires Homebrew DB be up to date, please run \\`brew update\\` explicitly.", ansi: :yellow
+          sh.export 'HOMEBREW_NO_AUTO_UPDATE', '1', echo: true
           [:sdk, :scheme, :project, :workspace].each do |key|
             sh.export "TRAVIS_XCODE_#{key.upcase}", config[:"xcode_#{key}"].to_s.shellescape, echo: false
           end
@@ -94,6 +96,7 @@ module Travis
               # deprecate DEPRECATED_MISSING_WORKSPACE_OR_PROJECT
               sh.cmd "echo -e \"\\033[33;1mWARNING:\\033[33m Using Objective-C testing without specifying a scheme and either a workspace or a project is deprecated.\"", echo: false, timing: true
               sh.cmd "echo \"  Check out our documentation for more information: http://about.travis-ci.org/docs/user/languages/objective-c/\"", echo: false, timing: true
+              sh.failure
             end
           end
         end

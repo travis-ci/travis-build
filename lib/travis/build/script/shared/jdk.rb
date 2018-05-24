@@ -14,9 +14,12 @@ module Travis
 
         def setup
           super
-          sh.if '-f build.gradle' do
+
+          sh.if '-f build.gradle || -f build.gradle.kts' do
             sh.export 'TERM', 'dumb'
           end
+
+          sh.cmd 'mkdir -p ~/.gradle && echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties', echo: false, timing: false
         end
 
         def announce

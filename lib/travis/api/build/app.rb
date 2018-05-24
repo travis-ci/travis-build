@@ -97,7 +97,7 @@ module Travis
             'Travis-Build-Uptime' => "#{Time.now.utc - settings.start}s",
             'Travis-Build-Version' => Travis::Build.version
           )
-          status 204
+          status 200
         end
       end
     end

@@ -57,18 +57,18 @@ describe Travis::Build::Script::Elixir, :sexp do
 
         if otp_release_wanted == otp_release_required
           describe "wanted OTP release #{otp_release_wanted}" do
-            xit "is installed" do
+            it "is installed" do
               sexp = sexp_find(subject, [:if, "! -f #{Travis::Build::HOME_DIR}/otp/#{otp_release_wanted}/activate"], [:then])
-              expect(sexp).to include_sexp([:raw, "archive_url=https://s3.amazonaws.com/travis-otp-releases/ubuntu/$(lsb_release -rs)/erlang-#{otp_release_wanted}-x86_64.tar.bz2"])
-              expect(sexp).to include_sexp([:cmd, "wget $archive_url", assert: true, echo: true, timing: true])
+              expect(sexp).to include_sexp([:raw, "archive_url=https://s3.amazonaws.com/travis-otp-releases/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/erlang-#{otp_release_wanted}-nonroot.tar.bz2", assert: true])
+              expect(sexp).to include_sexp([:cmd, "wget -o $HOME/erlang.tar.bz2 ${archive_url}", assert: true, echo: true, timing: true])
             end
           end
         else
           describe "required OTP release #{otp_release_required}" do
-            xit "is installed" do
+            it "is installed" do
               sexp = sexp_find(subject, [:if, "! -f #{Travis::Build::HOME_DIR}/otp/#{otp_release_required}/activate"], [:then])
-              expect(sexp).to include_sexp([:raw, "archive_url=https://s3.amazonaws.com/travis-otp-releases/ubuntu/$(lsb_release -rs)/erlang-#{otp_release_required}-x86_64.tar.bz2"])
-              expect(sexp).to include_sexp([:cmd, "wget $archive_url", assert: true, echo: true, timing: true])
+              expect(sexp).to include_sexp([:raw, "archive_url=https://s3.amazonaws.com/travis-otp-releases/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/erlang-#{otp_release_required}-nonroot.tar.bz2", assert: true])
+              expect(sexp).to include_sexp([:cmd, "wget -o $HOME/erlang.tar.bz2 ${archive_url}", assert: true, echo: true, timing: true])
             end
           end
         end
@@ -77,13 +77,17 @@ describe Travis::Build::Script::Elixir, :sexp do
   end
 
   # requirement met
+  installs_required_otp_release(['1.6.0'], '20.0', '20.0')
+  installs_required_otp_release('1.6.0', '19.0', '19.0')
   installs_required_otp_release('1.2.0', '18.0', '18.0')
   installs_required_otp_release('1.1.0', '17.4', '17.4')
   installs_required_otp_release('1.1.0', '18.0', '18.0')
   installs_required_otp_release('1.0.5', '17.3', '17.3')
   # requirement not met
+  installs_required_otp_release(['1.6.0'], '18.0', '19.0')
   installs_required_otp_release('1.2.0', '17.3', '18.0')
   installs_required_otp_release('1.2.0-dev', '17.4', '18.0')
   installs_required_otp_release('1.0.5', '18.0', '17.4')
+  installs_required_otp_release('1.0.5', 'R16B03-1', '17.4')
 end
 

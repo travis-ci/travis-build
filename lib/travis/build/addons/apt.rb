@@ -6,12 +6,13 @@ module Travis
     class Addons
       class Apt < Base
         SUPER_USER_SAFE = true
-        SUPPORTED_OPERATING_SYSTEMS = %w(
-          linux
-        ).freeze
+        SUPPORTED_OPERATING_SYSTEMS = [
+          /^linux.*/
+        ].freeze
         SUPPORTED_DISTS = %w(
           precise
           trusty
+          xenial
         ).freeze
 
         class << self
@@ -34,7 +35,7 @@ module Travis
             end
             loaded
           rescue => e
-            warn e
+            warn e unless ENV['ENV'] == 'test'
             loaded
           end
 
@@ -48,7 +49,7 @@ module Travis
             end
             loaded
           rescue => e
-            warn e
+            warn e unless ENV['ENV'] == 'test'
             loaded
           end
 
@@ -70,8 +71,9 @@ module Travis
         end
 
         def before_prepare?
-          SUPPORTED_OPERATING_SYSTEMS.include?(data[:config][:os].to_s) &&
-            SUPPORTED_DISTS.include?(data[:config][:dist].to_s)
+          SUPPORTED_OPERATING_SYSTEMS.any? do |os_match|
+            data[:config][:os].to_s =~ os_match
+          end && SUPPORTED_DISTS.include?(data[:config][:dist].to_s)
         end
 
         def before_prepare
@@ -83,6 +85,28 @@ module Travis
 
         def skip_whitelist?
           Travis::Build.config.apt_whitelist_skip?
+        end
+
+        def before_configure?
+          config[:config] && config[:config][:retries]
+        end
+
+        def before_configure
+          sh.echo "Configuring default apt-get retries", ansi: :yellow
+          sh.raw <<~EOF
+          if [[ -d /var/lib/apt/lists && -n $(command -v apt-get) ]]; then
+            cat <<-EOS > 99-travis-build-retries
+          Acquire {
+            ForceIPv4 "1";
+            Retries "5";
+            https {
+              Timeout "30";
+            };
+          };
+          EOS
+            sudo mv 99-travis-build-retries /etc/apt/apt.conf.d
+          fi
+          EOF
         end
 
         private
@@ -120,9 +144,7 @@ module Travis
 
             unless disallowed.empty?
               sh.echo "Disallowing sources: #{disallowed.map { |source| Shellwords.escape(source) }.join(', ')}", ansi: :red
-              sh.echo 'If you require these sources, please review the source ' \
-                'approval process at: ' \
-                'https://github.com/travis-ci/apt-source-whitelist#source-approval-process'
+              sh.echo 'If you require these sources, please use `sudo: required` in your `.travis.yml` to manage APT sources.'
             end
 
             unless disallowed_while_sudo.empty?
@@ -185,10 +207,18 @@ module Travis
 
           def config_sources
             @config_sources ||= Array(config[:sources]).flatten.compact
+          rescue TypeError => e
+            if e.message =~ /no implicit conversion of Symbol into Integer/
+              raise Travis::Build::AptSourcesConfigError.new
+            end
           end
 
           def config_packages
             @config_packages ||= Array(config[:packages]).flatten.compact
+          rescue TypeError => e
+            if e.message =~ /no implicit conversion of Symbol into Integer/
+              raise Travis::Build::AptPackagesConfigError.new
+            end
           end
 
           def config_dist

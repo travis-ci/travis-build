@@ -24,7 +24,7 @@ describe Travis::Build::Addons::Rethinkdb, :sexp do
   end
 
   it { should include_sexp [:cmd, "service rethinkdb stop", sudo: true] }
-  it { should include_sexp [:cmd, "apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 #{Travis::Build::Addons::Rethinkdb::RETHINKDB_GPG_KEY}", sudo: true] }
+  it { should include_sexp [:cmd, "wget -qO- https://download.rethinkdb.com/apt/pubkey.gpg | sudo apt-key add -v -''", echo: true] }
   it { should include_sexp [:cmd, 'echo -e "\ndeb http://download.rethinkdb.com/apt $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list > /dev/null'] }
   it { should include_sexp [:cmd, "apt-get update -qq", sudo: true] }
   it { should include_sexp [:cmd, "apt-get install -y -o Dpkg::Options::='--force-confnew' rethinkdb=$package_version", sudo: true, echo: true, timing: true] }

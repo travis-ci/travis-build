@@ -102,15 +102,17 @@ module Travis
           end
 
           def run_rvm_use
-            sh.raw "rvm use $(rvm current >&/dev/null) >&/dev/null"
+            sh.raw "rvm use $(rvm current 2>/dev/null) >&/dev/null"
           end
 
           def install
             sh.export 'CASHER_DIR', '$HOME/.casher'
 
             sh.mkdir '$CASHER_DIR/bin', echo: false, recursive: true
-            sh.cmd "curl #{casher_url} #{debug_flags} -L -o #{BIN_PATH} -s --fail", retry: true, echo: 'Installing caching utilities'
-            sh.raw "[ $? -ne 0 ] && echo 'Failed to fetch casher from GitHub, disabling cache.' && echo > #{BIN_PATH}"
+            update_static_file('casher', BIN_PATH, casher_url, true)
+            sh.if "$? -ne 0" do
+              sh.echo 'Failed to fetch casher from GitHub, disabling cache.', ansi: :yellow
+            end
 
             sh.if "-f #{BIN_PATH}" do
               sh.chmod '+x', BIN_PATH, assert: false, echo: false
@@ -257,13 +259,41 @@ module Travis
               if branch = data.cache[:branch]
                 branch
               else
-                data.cache?(:edge) ? 'master' : 'production'
+                edge? ? 'master' : 'production'
               end
+            end
+
+            def edge?
+              data.cache?(:edge)
             end
 
             def debug_flags
               "-v -w '#{CURL_FORMAT}'" if data.cache[:debug]
             end
+
+            def app_host
+              @app_host ||= Travis::Build.config.app_host.to_s.strip.untaint
+            end
+
+            def update_static_file(name, location, remote_location, assert = false)
+              flags = "-sf #{debug_flags}"
+              cmd_opts = {retry: true, assert: false, echo: 'Installing caching utilities'}
+              if casher_branch == 'production'
+                static_file_location = "https://#{app_host}/files/#{name}".untaint
+                sh.cmd curl_cmd(flags, location, static_file_location), cmd_opts
+                sh.if "$? -ne 0" do
+                  cmd_opts[:echo] = "Installing caching utilities from the Travis CI server (#{static_file_location}) failed, failing over to using GitHub (#{remote_location})"
+                  sh.cmd curl_cmd(flags, location, remote_location), cmd_opts
+                end
+              else
+                sh.cmd curl_cmd(flags, location, (CASHER_URL % casher_branch)), cmd_opts
+              end
+            end
+
+            def curl_cmd(flags, location, remote_location)
+              "curl #{flags} -o #{location} #{remote_location}"
+            end
+
         end
       end
     end

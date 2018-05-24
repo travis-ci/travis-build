@@ -32,6 +32,11 @@ describe Travis::Build::Script::Ruby, :sexp do
       should include_sexp [:cmd, 'rvm use 2.0 --install --binary --fuzzy', assert: true, echo: true, timing: true]
     end
 
+    it 'sets the version from config :rvm (when given as an array)' do
+      data[:config][:rvm] = %w(2.0)
+      should include_sexp [:cmd, 'rvm use 2.0 --install --binary --fuzzy', assert: true, echo: true, timing: true]
+    end
+
     it 'sets up rvm from .ruby-version' do
       sexp = sexp_find(subject, [:if, '-f .ruby-version'], [:then])
       expect(sexp).to include_sexp [:cmd, 'rvm use $(< .ruby-version) --install --binary --fuzzy', assert: true, echo: true, timing: true]
@@ -138,6 +143,18 @@ describe Travis::Build::Script::Ruby, :sexp do
 
     it 'coerces version to 1.8.7-p371' do
       should include_sexp [:cmd, 'rvm use 1.8.7-p371 --install --binary --fuzzy', assert: true, echo: true, timing: true]
+    end
+  end
+
+  context 'when testing with 2.3' do
+    before :each do
+      data[:config][:rvm] = '2.3'
+    end
+
+    it 'ensures rvm alias is defined' do
+      sexp = sexp_find(subject, [:if, "-z $(rvm alias list | grep ^2\\\\.3)"], [:then])
+      store_example "rvm-alias"
+      expect(sexp).to include_sexp [:cmd, "rvm alias create 2.3 ruby-2.3.4", assert: true, echo: true, timing: true]
     end
   end
 

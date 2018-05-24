@@ -7,8 +7,14 @@ if [[ -s <%= home %>/.bash_profile ]] ; then
   source <%= home %>/.bash_profile
 fi
 
+echo "source $HOME/.travis/job_stages" >> <%= home %>/.bashrc
+
+mkdir -p $HOME/.travis
+
+cat <<'EOFUNC' >>$HOME/.travis/job_stages
 ANSI_RED="\033[31;1m"
 ANSI_GREEN="\033[32;1m"
+ANSI_YELLOW="\033[33;1m"
 ANSI_RESET="\033[0m"
 ANSI_CLEAR="\033[0K"
 
@@ -24,6 +30,9 @@ export USER
 
 TRAVIS_TEST_RESULT=
 TRAVIS_CMD=
+
+TRAVIS_TMPDIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'travis_tmp')
+pgrep -u $USER | grep -v -w $$ > $TRAVIS_TMPDIR/pids_before
 
 travis_cmd() {
   local assert output display retry timing cmd result secure
@@ -56,7 +65,11 @@ travis_cmd() {
     travis_retry eval "$cmd $secure"
     result=$?
   else
-    eval "$cmd $secure"
+    if [[ -n "$secure" ]]; then
+      eval "$cmd $secure" 2>/dev/null
+    else
+      eval "$cmd $secure"
+    fi
     result=$?
     if [[ -n $secure && $result -ne 0 ]]; then
       echo -e "${ANSI_RED}The previous command failed, possibly due to a malformed secure environment variable.${ANSI_CLEAR}
@@ -125,10 +138,14 @@ travis_internal_ruby() {
   bash_qsort_numeric "${rubies_array[@]}"
   rubies_array_sorted=( ${bash_qsort_numeric_ret[@]} )
   rubies_array_len="${#rubies_array_sorted[@]}"
-  i=$(( rubies_array_len - 1 ))
-  selected_ruby="${rubies_array_sorted[${i}]}"
-  selected_ruby="${selected_ruby##*_}"
-  echo "${selected_ruby:-default}"
+  if (( rubies_array_len <= 0 )); then
+    echo "default"
+  else
+    i=$(( rubies_array_len - 1 ))
+    selected_ruby="${rubies_array_sorted[${i}]}"
+    selected_ruby="${selected_ruby##*_}"
+    echo "${selected_ruby:-default}"
+  fi
 }
 
 travis_assert() {
@@ -151,6 +168,14 @@ travis_result() {
 }
 
 travis_terminate() {
+  set +e
+  # Restoring the file descriptors of redirect_io filter strategy
+  [[ "$TRAVIS_FILTERED" = redirect_io && -e /dev/fd/9 ]] \
+      && sync \
+      && command exec 1>&9 2>&9 9>&- \
+      && sync
+  pgrep -u $USER | grep -v -w $$ > $TRAVIS_TMPDIR/pids_after
+  kill $(awk 'NR==FNR{a[$1]++;next};!($1 in a)' $TRAVIS_TMPDIR/pids_{before,after}) &> /dev/null || true
   pkill -9 -P $$ &> /dev/null || true
   exit $1
 }
@@ -189,9 +214,7 @@ travis_retry() {
     [ $result -ne 0 ] && {
       echo -e "\n${ANSI_RED}The command \"$@\" failed. Retrying, $count of 3.${ANSI_RESET}\n" >&2
     }
-    "$@"
-    result=$?
-    [ $result -eq 0 ] && break
+    "$@" && { result=0 && break; } || result=$?
     count=$(($count + 1))
     sleep 1
   done
@@ -207,6 +230,23 @@ travis_fold() {
   local action=$1
   local name=$2
   echo -en "travis_fold:${action}:${name}\r${ANSI_CLEAR}"
+}
+
+travis_download() {
+  local src="${1}"
+  local dst="${2}"
+
+  if curl --version &>/dev/null; then
+    curl -fsSL --connect-timeout 5 "${src}" -o "${dst}" 2>/dev/null
+    return $?
+  fi
+
+  if wget --version &>/dev/null; then
+    wget --connect-timeout 5 -q "${src}" -O "${dst}" 2>/dev/null
+    return $?
+  fi
+
+  return 1
 }
 
 decrypt() {
@@ -238,10 +278,18 @@ bash_qsort_numeric() {
    bash_qsort_numeric_ret=( "${smaller[@]}" "$pivot" "${larger[@]}" )
 }
 
+EOFUNC
+
 <%# XXX Forcefully removing rabbitmq source until next build env update %>
 <%# See http://www.traviscistatus.com/incidents/6xtkpm1zglg3 %>
 if [[ -f /etc/apt/sources.list.d/rabbitmq-source.list ]] ; then
   sudo rm -f /etc/apt/sources.list.d/rabbitmq-source.list
+fi
+
+<%# XXX Forcefully removing neo4j source until we figure out a better way %>
+<%# See https://www.traviscistatus.com/incidents/fyskznm7wg2c %>
+if [[ -f /etc/apt/sources.list.d/neo4j.list ]] ; then
+  sudo rm -f /etc/apt/sources.list.d/neo4j.list
 fi
 
 mkdir -p <%= build_dir %>

@@ -58,7 +58,7 @@ module Travis
         end
 
         def version
-          config[:perl6].to_s
+          Array(config[:perl6]).first.to_s
         end
       end
     end
