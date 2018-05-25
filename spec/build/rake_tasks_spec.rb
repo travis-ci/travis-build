@@ -107,6 +107,31 @@ describe Travis::Build::RakeTasks do
           )
         ]
       end
+
+      stub.get('/go/+refs?format=JSON') do |*|
+        [
+          200,
+          { 'Content-Type' => 'application/json' },
+          <<-EOF.gsub(/^\s+> ?/, '')
+            > )]}'
+            > {
+            >   "HEAD": {
+            >     "value": "91d326e7341247dc3f4c391cc7eb7dd7163446aa",
+            >     "target": "refs/heads/master"
+            >   },
+            >   "refs/tags/go1.9.1": {
+            >     "value": "90205f0f872829e26cff6f2e19987a946de84f1e"
+            >   },
+            >   "refs/tags/go1.4.0": {
+            >     "value": "90205f0f872829e26cff6f2e19987a946de84f1e"
+            >   },
+            >   "refs/tags/go1.2.3": {
+            >     "value": "90205f0f872829e26cff6f2e19987a946de84f1e"
+            >   }
+            > }
+          EOF
+        ]
+      end
     end
   end
 

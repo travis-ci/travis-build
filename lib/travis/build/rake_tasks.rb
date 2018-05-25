@@ -260,6 +260,7 @@ module Travis
         path = top + 'tmp/go-versions-binary-linux'
         if data = latest_go_releases
           dest = Pathname.new(path)
+          dest.dirname.mkpath
           dest.write data.join("\n")
         else
           fetch_githubusercontent_file(
