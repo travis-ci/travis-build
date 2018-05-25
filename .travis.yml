@@ -38,6 +38,8 @@ jobs:
       dist: trusty
       env:
       script: ./script/docker-build-and-push
+      after_success:
+        - ./script/create-version-aliases-pr
       if: (NOT type IN (pull_request)) AND (branch = master)
 
 before_script:

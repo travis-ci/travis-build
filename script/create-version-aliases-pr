@@ -1,0 +1,51 @@
+#!/usr/bin/bash
+
+function set_up_git_credentials {
+  if [ -z "`git config --get --global credential.helper`" ]; then
+    notice "set up credential.helper"
+    git config credential.helper "store --file=.git/credentials"
+    echo "https://${GITHUB_OAUTH_TOKEN}:@github.com" > .git/credentials 2>/dev/null
+  fi
+  if [ -z "`git config --get --global user.email`" ]; then
+    notice "set up user.email"
+    git config --global user.email "contact@travis-ci.com"
+  fi
+  if [ -z "`git config --get --global user.name`" ]; then
+    notice "set up user.name"
+    git config --global user.name "Travis CI travis-build PR writer"
+  fi
+}
+
+DEFAULT_BRANCH=master
+BRANCH=version-aliases-update
+
+dirty=()
+
+for f in public/version-aliases/*.json; do
+  if ! git diff-index --quiet HEAD $f; then
+    dirty[${#dirty}]=$(basename $f)
+    git add $f
+  fi
+done
+
+if git diff-index --quiet --cached HEAD --; then
+  # git index is clean
+  exit
+fi
+
+set_up_git_credentials
+
+git checkout -b $BRANCH
+
+git commit -m "Add ${dirty[@]}\n\nBased on $TRAVIS_BUILD_URL"
+
+git push origin
+
+if [ $? -gt 0 ]; then
+  echo "failed to push commit"
+  exit 1
+fi
+
+curl -X POST -fsS -H "Content-Type: application/json" -H "Authorization: token ${GITHUB_OAUTH_TOKEN}" \
+  -d "{\"title\":\"Update public/version-aliases\",\"body\":\"Update ${dirty[@]}\",\"head\":\"${BRANCH}\",\"base\":\"${DEFAULT_BRANCH}\"}" \
+  https://api.github.com/repos/travis-ci/travis-build/
