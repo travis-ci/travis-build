@@ -6,6 +6,7 @@ module Travis
       class AptGetUpdate < Base
         def apply
           use_mirror if use_mirror?
+          update     if update?
         end
 
         def apply?
@@ -28,6 +29,13 @@ module Travis
             else
               !config[:update].is_a?(FalseClass) && !used?
             end
+          end
+
+          def update
+            sh.cmd <<-EOF
+              sudo rm -rf /var/lib/apt/lists/*
+              sudo apt-get update #{'-qq  >/dev/null 2>&1' unless debug?}
+            EOF
           end
 
           def used?
