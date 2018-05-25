@@ -78,6 +78,9 @@ module Travis
         update_glibc: ENV.fetch(
           'TRAVIS_BUILD_UPDATE_GLIBC',
           ENV.fetch('TRAVIS_UPDATE_GLIBC', ENV.fetch('UPDATE_GLIBC', ''))
+        ),
+        dump_backtrace: ENV.fetch(
+          'TRAVIS_BUILD_DUMP_BACKTRACE', ENV.fetch('DUMP_BACKTRACE', '')
         )
       )
 

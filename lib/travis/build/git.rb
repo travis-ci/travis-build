@@ -26,7 +26,9 @@ module Travis
 
       def checkout
         disable_interactive_auth
-        install_ssh_key
+        install_ssh_key if install_ssh_key?
+        write_netrc if write_netrc?
+        sh.newline
 
         if use_tarball?
           download_tarball
@@ -34,8 +36,6 @@ module Travis
           clone_or_fetch
           submodules
         end
-
-        rm_key
       end
 
       private
@@ -44,8 +44,20 @@ module Travis
           sh.export 'GIT_ASKPASS', 'echo', :echo => false
         end
 
+        def install_ssh_key?
+          data.ssh_key?
+        end
+
+        def write_netrc?
+          data.installation? && !data.custom_ssh_key? or data.prefer_https?
+        end
+
+        def write_netrc
+          Netrc.new(sh, data).apply
+        end
+
         def install_ssh_key
-          SshKey.new(sh, data).apply if data.ssh_key
+          SshKey.new(sh, data).apply
         end
 
         def download_tarball
@@ -58,10 +70,6 @@ module Travis
 
         def submodules
           Submodules.new(sh, data).apply if submodules?
-        end
-
-        def rm_key
-          sh.rm '~/.ssh/source_rsa', force: true, echo: false
         end
 
         def config

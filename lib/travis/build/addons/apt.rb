@@ -6,12 +6,13 @@ module Travis
     class Addons
       class Apt < Base
         SUPER_USER_SAFE = true
-        SUPPORTED_OPERATING_SYSTEMS = %w(
-          linux
-        ).freeze
+        SUPPORTED_OPERATING_SYSTEMS = [
+          /^linux.*/
+        ].freeze
         SUPPORTED_DISTS = %w(
           precise
           trusty
+          xenial
         ).freeze
 
         class << self
@@ -34,7 +35,7 @@ module Travis
             end
             loaded
           rescue => e
-            warn e
+            warn e unless ENV['ENV'] == 'test'
             loaded
           end
 
@@ -48,7 +49,7 @@ module Travis
             end
             loaded
           rescue => e
-            warn e
+            warn e unless ENV['ENV'] == 'test'
             loaded
           end
 
@@ -70,8 +71,9 @@ module Travis
         end
 
         def before_prepare?
-          SUPPORTED_OPERATING_SYSTEMS.include?(data[:config][:os].to_s) &&
-            SUPPORTED_DISTS.include?(data[:config][:dist].to_s)
+          SUPPORTED_OPERATING_SYSTEMS.any? do |os_match|
+            data[:config][:os].to_s =~ os_match
+          end && SUPPORTED_DISTS.include?(data[:config][:dist].to_s)
         end
 
         def before_prepare

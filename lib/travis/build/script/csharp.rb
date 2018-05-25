@@ -29,7 +29,7 @@ module Travis
         end
 
         MONO_VERSION_REGEXP   = /^(\d{1})\.(\d{1,2})\.\d{1,2}$/
-        DOTNET_VERSION_REGEXP = /^(\d{1})\.(\d{1,2})\.(\d{1,3})(-preview\d-\d{6})?$/
+        DOTNET_VERSION_REGEXP = /^(\d{1})\.(\d{1,2})\.(\d{1,3})(-(preview|rc)\d-\d{6})?$/
 
         def configure
           super

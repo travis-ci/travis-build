@@ -1,6 +1,8 @@
 PAYLOADS = {
   push: {
     'type' => 'test',
+    'enterprise' => 'false',
+    'prefer_https' => false,
     'config' => {
       'os' => 'linux',
       'env' => ['FOO=foo', 'SECURE BAR=bar']
@@ -8,7 +10,7 @@ PAYLOADS = {
     'repository' => {
       'github_id' => 42,
       'slug' => 'travis-ci/travis-ci',
-      'source_url' => 'git://github.com/travis-ci/travis-ci.git',
+      'source_host' => 'github.com',
       'default_branch' => 'master'
     },
     'build' => {
@@ -28,6 +30,8 @@ PAYLOADS = {
   },
   push_debug: {
     'type' => 'test',
+    'enterprise' => 'false',
+    'prefer_https' => false,
     'config' => {
       'os' => 'linux',
       'env' => ['FOO=foo', 'SECURE BAR=bar']
@@ -35,7 +39,7 @@ PAYLOADS = {
     'repository' => {
       'github_id' => 42,
       'slug' => 'travis-ci/travis-ci',
-      'source_url' => 'git://github.com/travis-ci/travis-ci.git',
+      'source_host' => 'github.com',
       'default_branch' => 'master'
     },
     'build' => {

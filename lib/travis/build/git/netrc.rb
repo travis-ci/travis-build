@@ -2,15 +2,7 @@ module Travis
   module Build
     class Git
       class Netrc < Struct.new(:sh, :data)
-        CUSTOM_KEYS = %w(repository_settings travis_yaml)
-
-        def write?
-          !custom_ssh_key? && data.prefer_https? && data.token
-        end
-
-        def write
-          sh.newline
-
+        def apply
           sh.fold 'git.netrc' do
             sh.echo "Using $HOME/.netrc to clone repository.", ansi: :yellow
             sh.newline
@@ -28,21 +20,10 @@ module Travis
 
           def netrc
             if data.installation?
-              "machine #{source_host_name}\\n  login travis-ci\\n  password #{data.token}\\n"
+              "machine #{data.source_host}\\n  login travis-ci\\n  password #{data.token}\\n"
             else
-              "machine #{source_host_name}\\n  login #{data.token}\\n"
+              "machine #{data.source_host}\\n  login #{data.token}\\n"
             end
-          end
-
-          def custom_ssh_key?
-            data.ssh_key? && CUSTOM_KEYS.include?(data.ssh_key[:source])
-          end
-
-          def source_host_name
-            # we will assume that the URL looks like one for git+ssh; e.g., git@github.com:travis-ci/travis-build.git
-            match = /[^@]+@(.*):/.match(data.source_url)
-            return match[1] if match
-            URI.parse(data.source_url).host
           end
       end
     end
