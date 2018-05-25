@@ -36,6 +36,28 @@ module Travis
         logger.info "Error: #{e.message}"
       end
 
+      def latest_go_releases
+        conn = build_faraday_conn(host: 'go.googlesource.com')
+        response = conn.get "go/+refs?format=JSON"
+
+        if response.success?
+          body = response.body # ")]}'\n{…}" as documented in https://gerrit-review.googlesource.com/Documentation/rest-api.html#output
+          body.gsub!(Regexp.new("^\\)\\]\\}'"),'')
+          JSON.parse(body).
+            keys.map {|k| x=k.dup; x.gsub! /refs\/tags\/go(\d+(\.\d+\.\d+))$/, '\1' }.
+            compact.group_by do |x|
+              x.match(/^\d+\.\d+/)[0] # Group by MAJOR.MINOR
+            end.reject do |k, v|
+              k == '1.0' || k == '1.1' # Skip these to avoid potential conflicts with 1.10.x
+            end.map do |k, v|
+              v.sort(&method(:semver_cmp)).last
+            end
+        else
+          logger.warn "Unable to get latest Go releases. Falling back to repo-defined data."
+          nil
+        end
+      end
+
       def latest_release_for(repo)
         conn = build_faraday_conn(host: 'api.github.com')
 
@@ -235,11 +257,17 @@ module Travis
       end
 
       def file_update_raw_go_versions
-        fetch_githubusercontent_file(
-          'travis-ci/gimme/master/.testdata/sample-binary-linux',
-          to: top + 'tmp/go-versions-binary-linux',
-          mode: 0o644
-        )
+        path = top + 'tmp/go-versions-binary-linux'
+        if data = latest_go_releases
+          dest = Pathname.new(path)
+          dest.write data.join("\n")
+        else
+          fetch_githubusercontent_file(
+            'travis-ci/gimme/master/.testdata/sample-binary-linux',
+            to: top + 'tmp/go-versions-binary-linux',
+            mode: 0o644
+          )
+        end
       end
 
       def file_update_go_versions
