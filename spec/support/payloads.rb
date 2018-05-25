@@ -3,7 +3,7 @@ PAYLOADS = {
     'type' => 'test',
     'enterprise' => 'false',
     'prefer_https' => false,
-    'host' => 'travis-ci.org',
+    'host' => 'travis-ci.com',
     'config' => {
       'os' => 'linux',
       'env' => ['FOO=foo', 'SECURE BAR=bar']
@@ -33,7 +33,7 @@ PAYLOADS = {
     'type' => 'test',
     'enterprise' => 'false',
     'prefer_https' => false,
-    'host' => 'travis-ci.org',
+    'host' => 'travis-ci.com',
     'config' => {
       'os' => 'linux',
       'env' => ['FOO=foo', 'SECURE BAR=bar']

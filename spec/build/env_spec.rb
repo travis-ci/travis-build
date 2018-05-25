@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Travis::Build::Env do
   let(:payload) do
     {
-      host: 'travis-ci.org',
+      host: 'travis-ci.com',
       pull_request: '100',
       config: { env: ['FOO=foo', 'SECURE BAR=bar'] },
       build: { id: '1', number: '1' },
@@ -107,8 +107,8 @@ describe Travis::Build::Env do
 
   describe '*_URL env vars' do
     it 'are set to correct value' do
-      expect(vars.find {|var| var.key == 'TRAVIS_BUILD_WEB_URL'}.value).to eq('https://travis-ci.org/travis-ci/travis-ci/builds/1')
-      expect(vars.find {|var| var.key == 'TRAVIS_JOB_WEB_URL'}.value).to eq('https://travis-ci.org/travis-ci/travis-ci/jobs/1')
+      expect(vars.find {|var| var.key == 'TRAVIS_BUILD_WEB_URL'}.value).to eq('https://travis-ci.com/travis-ci/travis-ci/builds/1')
+      expect(vars.find {|var| var.key == 'TRAVIS_JOB_WEB_URL'}.value).to eq('https://travis-ci.com/travis-ci/travis-ci/jobs/1')
     end
   end
 end
