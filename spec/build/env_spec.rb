@@ -3,6 +3,7 @@ require 'spec_helper'
 describe Travis::Build::Env do
   let(:payload) do
     {
+      host: 'travis-ci.org',
       pull_request: '100',
       config: { env: ['FOO=foo', 'SECURE BAR=bar'] },
       build: { id: '1', number: '1' },
@@ -22,7 +23,7 @@ describe Travis::Build::Env do
 
   it 'includes travis env vars' do
     travis_vars = vars.select { |v| v.key =~ /^TRAVIS_/ }
-    expect(travis_vars.length).to eq(23)
+    expect(travis_vars.length).to eq(25)
   end
 
   describe 'config env vars' do
@@ -101,6 +102,13 @@ describe Travis::Build::Env do
     it 'escapes the repository slug' do
       payload[:repository][:slug] = 'travis-ci/travis-ci ci'
       expect(vars.find {|var| var.key == 'TRAVIS_BUILD_DIR'}.value).to eq('$HOME/build/travis-ci/travis-ci\ ci')
+    end
+  end
+
+  describe '*_URL env vars' do
+    it 'are set to correct value' do
+      expect(vars.find {|var| var.key == 'TRAVIS_BUILD_WEB_URL'}.value).to eq('https://travis-ci.org/travis-ci/travis-ci/builds/1')
+      expect(vars.find {|var| var.key == 'TRAVIS_JOB_WEB_URL'}.value).to eq('https://travis-ci.org/travis-ci/travis-ci/jobs/1')
     end
   end
 end
