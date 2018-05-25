@@ -37,7 +37,7 @@ set_up_git_credentials
 
 git checkout -b $BRANCH
 
-git commit -m "Add ${dirty[@]}\n\nBased on $TRAVIS_BUILD_URL"
+git commit -m "Add ${dirty[@]}\n\nBased on https://travis-ci.org/${TRAVIS_REPO_SLUG}/builds/${TRAVIS_BUILD_ID}"
 
 git push origin
 
