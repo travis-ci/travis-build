@@ -71,7 +71,9 @@ module Travis
             sh.if '-a .git/shallow' do
               sh.cmd 'git fetch --unshallow'
             end
-            sh.cmd "julia --color=yes -e 'Pkg.clone(pwd())'"
+            sh.if '-f Project.toml' do
+              sh.cmd 'julia --color=yes -e "if VERSION < v\"0.7-\"; Pkg.clone(pwd()); end"'
+            end
             sh.cmd 'julia --color=yes -e "Pkg.build(\"${JL_PKG}\")"'
             sh.if '-f test/runtests.jl' do
               sh.cmd 'julia --check-bounds=yes --color=yes ' \
