@@ -134,8 +134,7 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
 
     describe 'if no settings are specified' do
       it 'prints a warning' do
-        subject
-        # should include_deprecation_sexp(/without specifying a scheme and either a workspace or a project/)
+        expect(sexp).to include_sexp [:cmd, "echo -e \"\\033[33;1mWARNING:\\033[33m Using Objective-C testing without specifying a scheme and either a workspace or a project is deprecated.\"", timing: true]
       end
     end
   end
