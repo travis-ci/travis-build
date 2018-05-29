@@ -240,7 +240,7 @@ module Travis
               "CHECK_RET=$?", assert: false
             if config[:bioc_check]
             sh.echo 'Checking with: BiocCheck( "${PKG_TARBALL}" ) '
-                sh.cmd 'Rscript -e "BiocCheck(\"${PKG_TARBALL}\")"'
+                sh.cmd 'Rscript -e "BiocCheck::BiocCheck(\"${PKG_TARBALL}\")"'
             end
           end
           export_rcheck_dir
