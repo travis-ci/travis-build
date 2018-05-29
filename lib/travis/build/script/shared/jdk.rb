@@ -10,7 +10,7 @@ module Travis
               sh.if "-f install-jdk.sh" do
                 sh.export "JAVA_HOME", "$HOME/#{jdk}"
                 sh.if "-d #{cache_dir}" do
-                  sh.warn "#{cache_dir} is not cached. To save on external bandwidth, consider caching #{cache_dir} with"
+                  warn "#{cache_dir} is not cached. To save on external bandwidth, consider caching #{cache_dir} with"
                   sh.echo "    cache:"
                   sh.echo "      directories:"
                   sh.echo "        - #{cache_dir}"
