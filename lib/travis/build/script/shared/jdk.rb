@@ -9,7 +9,14 @@ module Travis
               download_install_jdk
               sh.if "-f install-jdk.sh" do
                 sh.export "JAVA_HOME", "$HOME/#{jdk}"
-                sh.cmd "bash install-jdk.sh #{install_jdk_args config[:jdk]} --target $JAVA_HOME", echo: true, assert: true
+                sh.if "-d #{cache_dir}" do
+                  sh.warn "#{cache_dir} is not cached. To save on external bandwidth, consider caching #{cache_dir} with"
+                  sh.echo "    cache:"
+                  sh.echo "      directories:"
+                  sh.echo "        - #{cache_dir}"
+                  sh.echo "in .travi.yml"
+                end
+                sh.cmd "bash install-jdk.sh #{install_jdk_args config[:jdk]} --target $JAVA_HOME --workspace #{cache_dir}", echo: true, assert: true
                 sh.export "PATH", "$JAVA_HOME/bin:$PATH"
                 sh.raw 'set +e', echo: false
               end
@@ -85,6 +92,10 @@ module Travis
               'oraclejdk11'  => '-F 11 -L BCL',
             }
             args_for.fetch(jdk, '')
+          end
+
+          def cache_dir
+            "$HOME/.cache/install-jdk"
           end
       end
     end
