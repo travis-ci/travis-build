@@ -71,12 +71,7 @@ module Travis
             sh.if '-a .git/shallow' do
               sh.cmd 'git fetch --unshallow'
             end
-            # It would be nice to combine conditionals here
-            sh.if '! -f Project.toml' do
-              sh.if '! -f JuliaProject.toml' do
-                sh.cmd 'julia --color=yes -e "if VERSION < v\"0.7-\"; Pkg.clone(pwd()); end"'
-              end
-            end
+            sh.cmd 'julia --color=yes -e "if VERSION < v\"0.7-\" && !isfile(\"Project.toml\") && !isfile(\"JuliaProject.toml\"); Pkg.clone(pwd()); end"'
             sh.cmd 'julia --color=yes -e "Pkg.build(\"${JL_PKG}\")"'
             sh.if '-f test/runtests.jl' do
               sh.cmd 'julia --check-bounds=yes --color=yes ' \
