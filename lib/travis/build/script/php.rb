@@ -25,7 +25,7 @@ module Travis
               sh.echo "PHP #{version} is supported only on Precise.", ansi: :red
               sh.echo "See https://docs.travis-ci.com/user/reference/trusty#PHP-images on how to test PHP 5.3 on Precise.", ansi: :red
               sh.echo "Terminating.", ansi: :red
-              sh.raw "travis_terminate 1"
+              sh.failure
             end
           end
 
