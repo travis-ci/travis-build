@@ -40,7 +40,7 @@ shared_examples_for 'a jdk build sexp' do
     end
   end
 
-  context "jdk is set to oraclejdk10" do
+  context "jdk is set to oraclejdk11" do
     before :each do
       data[:config][:jdk] = 'oraclejdk11'
     end
