@@ -10,15 +10,6 @@ module Travis
 
               sh.if "-f install-jdk.sh" do
                 sh.export "JAVA_HOME", "$HOME/#{jdk}"
-                sh.if "! -d #{cache_dir}" do
-                  sh.echo ""
-                  sh.echo "${ANSI_YELLOW}#{cache_dir} is not cached. To save on external bandwidth, consider caching #{cache_dir} with${ANSI_RESET}"
-                  sh.echo "    cache:"
-                  sh.echo "      directories:"
-                  sh.echo "        - #{cache_dir}"
-                  sh.echo "in .travi.yml\n"
-                  sh.echo ""
-                end
                 sh.cmd "bash install-jdk.sh #{install_jdk_args config[:jdk]} --target $JAVA_HOME --workspace #{cache_dir}", echo: true, assert: true
                 sh.export "PATH", "$JAVA_HOME/bin:$PATH"
                 sh.raw 'set +e', echo: false
