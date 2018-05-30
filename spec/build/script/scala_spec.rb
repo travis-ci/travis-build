@@ -7,10 +7,6 @@ describe Travis::Build::Script::Scala, :sexp do
   let(:sbt_sha) { '4ad1b8a325f75c1a66f3fd100635da5eb28d9c91'}
   let(:sbt_url) { "https://raw.githubusercontent.com/paulp/sbt-extras/#{sbt_sha}/sbt"}
 
-  before do
-    Travis::Build.config.app_host = 'build.travis-ci.org'
-  end
-
   subject      { script.sexp }
   it           { store_example }
 
