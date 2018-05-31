@@ -180,7 +180,6 @@ DEPENDENCIES
   faraday
   faraday_middleware
   jemalloc!
-  jwt
   metriks (= 0.9.9.6)
   metriks-librato_metrics!
   mocha (~> 0.10.0)
