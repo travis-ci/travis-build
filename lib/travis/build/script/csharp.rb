@@ -29,7 +29,7 @@ module Travis
         end
 
         MONO_VERSION_REGEXP   = /^(\d{1})\.(\d{1,2})\.\d{1,2}$/
-        DOTNET_VERSION_REGEXP = /^(?<major>\d{1})\.(?<minor>\d{1,2})(\.(?<patch>\d{1,3}))?(?<prerelease>-(preview|rc)\d-\d{6})?$/
+        DOTNET_VERSION_REGEXP = /^(?<major>\d{1})\.(?<minor>\d{1,2})(\.(?<patch>\d{1,3}))?(?<prerelease>-[\w-]+)?$/
 
         def configure
           super
@@ -237,7 +237,6 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
 
         def dotnet_package_version
           return config_dotnet unless is_dotnet_after_2_1_300? # before 2.1.300, the package ID contains the full version
-
           version = DOTNET_VERSION_REGEXP.match(config_dotnet)
           return config_dotnet unless version[:patch] # if only major.minor is provided
 
@@ -338,17 +337,8 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
         # Starting in 2.1.300, the package ID changed from dotnet-sdk-(major.minor.patch) to dotnet-sdk-(major.minor)
         def is_dotnet_after_2_1_300?
           return false unless is_dotnet_version_valid?
-
-          version = DOTNET_VERSION_REGEXP.match(config_dotnet)
-          return true if version[:major].to_i > 2
-          return false if version[:major].to_i < 2
-
-          return true if version[:minor].to_i > 1
-          return false if version[:minor].to_i < 1
-
-          return true if !version[:patch]
-          return true if version[:patch].to_i > 300
-          version[:patch].to_i == 300 && !version[:prerelease]
+          return true if config_dotnet == '2.1' # Special case - treat '2.1' as >= 2.1.300
+          Gem::Version.new(config_dotnet) >= Gem::Version.new('2.1.300')
         end
       end
     end

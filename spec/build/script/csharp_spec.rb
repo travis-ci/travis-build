@@ -47,19 +47,24 @@ describe Travis::Build::Script::Csharp, :sexp do
       should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-sdk-2.0.0', timing: true, assert: true]
     end
 
-    it "installs dotnet 2.1.300-rc1-008673" do
-      data[:config][:dotnet] = '2.1.300-rc1-008673'
-      should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-sdk-2.1.300-rc1-008673', timing: true, assert: true]
-    end
-
     it "installs dotnet 2.1 latest" do
       data[:config][:dotnet] = '2.1'
       should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-sdk-2.1', timing: true, assert: true]
     end
 
+    it "installs dotnet 2.1.300-rc1-008673" do
+      data[:config][:dotnet] = '2.1.300-rc1-008673'
+      should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-sdk-2.1.300-rc1-008673', timing: true, assert: true]
+    end
+
     it "installs dotnet 2.1.300" do
       data[:config][:dotnet] = '2.1.300'
       should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-sdk-2.1=2.1.300*', timing: true, assert: true]
+    end
+
+    it "installs dotnet 2.1.301-preview1-12345" do
+      data[:config][:dotnet] = '2.1.301-preview1-12345'
+      should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-sdk-2.1=2.1.301-preview1-12345*', timing: true, assert: true]
     end
 
     it "installs dotnet 2.1.200" do
