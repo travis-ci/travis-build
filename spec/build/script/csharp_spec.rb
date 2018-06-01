@@ -47,9 +47,29 @@ describe Travis::Build::Script::Csharp, :sexp do
       should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-sdk-2.0.0', timing: true, assert: true]
     end
 
+    it "installs dotnet 2.1 latest" do
+      data[:config][:dotnet] = '2.1'
+      should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-sdk-2.1', timing: true, assert: true]
+    end
+
     it "installs dotnet 2.1.300-rc1-008673" do
       data[:config][:dotnet] = '2.1.300-rc1-008673'
       should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-sdk-2.1.300-rc1-008673', timing: true, assert: true]
+    end
+
+    it "installs dotnet 2.1.300" do
+      data[:config][:dotnet] = '2.1.300'
+      should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-sdk-2.1=2.1.300*', timing: true, assert: true]
+    end
+
+    it "installs dotnet 2.1.301-preview1-12345" do
+      data[:config][:dotnet] = '2.1.301-preview1-12345'
+      should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-sdk-2.1=2.1.301-preview1-12345*', timing: true, assert: true]
+    end
+
+    it "installs dotnet 2.1.200" do
+      data[:config][:dotnet] = '2.1.200'
+      should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-sdk-2.1.200', timing: true, assert: true]
     end
   end
 
@@ -70,8 +90,8 @@ describe Travis::Build::Script::Csharp, :sexp do
     end
 
     it 'throws a error with an invalid .NET Core version as float' do
-      data[:config][:dotnet] = 2.0
-      should include_sexp [:echo, "\"2.0\" is either an invalid version of \"dotnet\" or unsupported on this operating system.\nView valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/csharp/"]
+      data[:config][:dotnet] = 2
+      should include_sexp [:echo, "\"2\" is either an invalid version of \"dotnet\" or unsupported on this operating system.\nView valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/csharp/"]
     end
 
     it 'throws a error with an invalid version' do
