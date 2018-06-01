@@ -29,7 +29,7 @@ module Travis
         end
 
         MONO_VERSION_REGEXP   = /^(\d{1})\.(\d{1,2})\.\d{1,2}$/
-        DOTNET_VERSION_REGEXP = /^(\d{1})\.(\d{1,2})\.(\d{1,3})(-(preview|rc)\d-\d{6})?$/
+        DOTNET_VERSION_REGEXP = /^(?<major>\d{1})\.(?<minor>\d{1,2})(\.(?<patch>\d{1,3}))?(?<prerelease>-[\w-]+)?$/
 
         def configure
           super
@@ -149,7 +149,7 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
                 sh.failure "The version of this operating system is not supported by .NET Core. View valid versions at https://docs.travis-ci.com/user/languages/csharp/"
               end
               sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
-              sh.cmd "sudo apt-get install -qq dotnet-#{dotnet_package_prefix}-#{config_dotnet}", timing: true, assert: true
+              sh.cmd "sudo apt-get install -qq dotnet-#{dotnet_package_prefix}-#{dotnet_package_version}", timing: true, assert: true
             when 'osx'
               min_osx_minor = 11
               min_osx_minor = 12 if is_dotnet_after_2_0?
@@ -235,8 +235,16 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
           return is_dotnet_after_2_0? ? "sdk" : "dev"
         end
 
+        def dotnet_package_version
+          return config_dotnet unless is_dotnet_after_2_1_300? # before 2.1.300, the package ID contains the full version
+          version = DOTNET_VERSION_REGEXP.match(config_dotnet)
+          return config_dotnet unless version[:patch] # if only major.minor is provided
+
+          "#{version[:major]}.#{version[:minor]}=#{config_dotnet}*" # if fully-qualified version is specified
+        end
+
         def mono_build_cmd
-          is_mono_after_5_0 ? "msbuild" : "xbuild" 
+          is_mono_after_5_0 ? "msbuild" : "xbuild"
         end
 
         def is_mono_version_valid?
@@ -321,9 +329,16 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
         def is_dotnet_after_2_0?
           return false unless is_dotnet_version_valid?
 
-          return false if DOTNET_VERSION_REGEXP.match(config_dotnet)[1].to_i < 2
+          return false if DOTNET_VERSION_REGEXP.match(config_dotnet)[:major].to_i < 2
 
           true
+        end
+
+        # Starting in 2.1.300, the package ID changed from dotnet-sdk-(major.minor.patch) to dotnet-sdk-(major.minor)
+        def is_dotnet_after_2_1_300?
+          return false unless is_dotnet_version_valid?
+          return true if config_dotnet == '2.1' # Special case - treat '2.1' as >= 2.1.300
+          Gem::Version.new(config_dotnet) >= Gem::Version.new('2.1.300')
         end
       end
     end
