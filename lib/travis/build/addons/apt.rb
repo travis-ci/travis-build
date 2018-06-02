@@ -131,7 +131,7 @@ module Travis
                       'key_url' => src[:key_url]
                     }
                   else
-                    sh.echo "`sourceline` key missing:", ansi: :yellow
+                    sh.echo "'sourceline' key missing:", ansi: :yellow
                     sh.echo Shellwords.escape(src.inspect)
                   end
                 else
