@@ -1,6 +1,6 @@
 # Maintained by:
 # Jim Hester     @jimhester       james.hester@rstudio.com
-# Craig Citro    @craigcitro      craigcitro@google.com
+# Jeroen Ooms    @jeroen          jeroen@berkeley.edu
 #
 module Travis
   module Build
@@ -36,8 +36,7 @@ module Travis
         }
 
         def initialize(data)
-          # TODO(craigcitro): Is there a way to avoid explicitly
-          # naming arguments here?
+          # TODO: Is there a way to avoid explicitly naming arguments here?
           super
           @devtools_installed = false
           @bioc_installed = false
@@ -60,7 +59,7 @@ module Travis
           sh.echo 'R for Travis-CI is not officially supported, '\
                   'but is community maintained.', ansi: :green
           sh.echo 'Please file any issues at https://github.com/travis-ci/travis-ci/issues'
-          sh.echo 'and mention @craigcitro and @jimhester in the issue'
+          sh.echo 'and mention @jeroen and @jimhester in the issue'
 
           sh.fold 'R-install' do
             sh.with_options({ assert: true,  echo: true,  timing: true  }) do
@@ -446,8 +445,7 @@ module Travis
           when 'osx'
             # We use basictex due to disk space constraints.
             mactex = 'BasicTeX.pkg'
-            # TODO(craigcitro): Confirm that this will route us to the
-            # nearest mirror.
+            # TODO: Confirm that this will route us to the nearest mirror.
             sh.cmd "curl -fLo \"/tmp/#{mactex}\" --retry 3 http://mirror.ctan.org/systems/mac/mactex/"\
                    "#{mactex}"
 
