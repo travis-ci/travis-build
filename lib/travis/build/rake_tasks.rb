@@ -238,43 +238,6 @@ module Travis
         )
       end
 
-      def file_update_raw_go_versions
-        fetch_githubusercontent_file(
-          'travis-ci/gimme/master/.testdata/sample-binary-linux',
-          to: top + 'tmp/go-versions-binary-linux',
-          mode: 0o644
-        )
-      end
-
-      def file_update_go_versions
-        raw = (top + 'tmp/go-versions-binary-linux').read
-                                                    .split(/\n/)
-                                                    .reject do |line|
-          line.strip.empty? || line.strip.start_with?('#')
-        end
-
-        raw.sort!(&method(:semver_cmp))
-
-        out = {}
-        raw.each do |full_version|
-          out.merge!(
-            expand_semver_aliases(full_version, alias_major_minor: false)
-          )
-        end
-
-        raise StandardError, 'no go versions parsed' if out.empty?
-
-        out.merge!(
-          '1.2' => '1.2.2',
-          'go1' => 'go1'
-        )
-
-        dest = top + 'public/version-aliases/go.json'
-        dest.dirname.mkpath
-        dest.write(JSON.pretty_generate(out))
-        dest.chmod(0o644)
-      end
-
       def file_update_raw_ghc_versions
         fetch_githubusercontent_file(
           '~ghc',
@@ -351,16 +314,6 @@ module Travis
       desc 'update rustup'
       file('public/files/rustup-init.sh') { file_update_rustup }
 
-      desc 'update raw go versions'
-      file 'tmp/go-versions-binary-linux' do
-        file_update_raw_go_versions
-      end
-
-      desc 'update go versions'
-      file 'public/version-aliases/go.json' => 'tmp/go-versions-binary-linux' do
-        file_update_go_versions
-      end
-
       desc 'update raw ghc versions'
       file('tmp/ghc-versions.html') { file_update_raw_ghc_versions }
 
@@ -399,8 +352,7 @@ module Travis
 
       desc 'update version aliases'
       multitask update_version_aliases: Rake::FileList[
-        'public/version-aliases/ghc.json',
-        'public/version-aliases/go.json'
+        'public/version-aliases/ghc.json'
       ]
 
       desc 'update static files'
