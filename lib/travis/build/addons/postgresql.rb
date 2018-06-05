@@ -11,14 +11,23 @@ module Travis
         DEFAULT_FALLBACK_PORT = 5433
 
         def after_prepare
+          return if not data.is_linux?
           sh.fold 'postgresql' do
             sh.export 'PATH', "/usr/lib/postgresql/#{version}/bin:$PATH", echo: false
             sh.echo "Starting PostgreSQL v#{version}", ansi: :yellow
-            sh.cmd 'service postgresql stop', assert: false, sudo: true, echo: true, timing: true
+
+            if data.is_precise? || data.is_trusty?
+              stop_command = "service postgresql stop"
+              start_command = "service postgresql start"
+            else
+              stop_command = "systemctl stop postgresql"
+              start_command = "systemctl start postgresql@${version}-main"
+            end
+            sh.cmd stop_command, assert: false, sudo: true, echo: true, timing: true
             sh.if "-d /var/ramfs && ! -d /var/ramfs/postgresql/#{version}", echo: false do
               sh.cmd "cp -rp /var/lib/postgresql/#{version} /var/ramfs/postgresql/#{version}", sudo: true, assert: false, echo: false, timing: false
             end
-            sh.cmd "service postgresql start #{version}", assert: false, sudo: true, echo: true, timing: true
+            sh.cmd start_command, assert: false, sudo: true, echo: true, timing: true
             [DEFAULT_PORT, DEFAULT_FALLBACK_PORT].each do |pgport|
               sh.cmd "sudo -u postgres createuser -s -p #{pgport} travis &>/dev/null", assert: false, echo: true, timing: true
               sh.cmd "sudo -u postgres createdb -O travis -p #{pgport} travis &>/dev/null", assert: false, echo: true, timing: true

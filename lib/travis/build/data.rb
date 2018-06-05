@@ -222,15 +222,15 @@ module Travis
       end
 
       def is_xenial?
-        is_linux? && data[:config][:os] == 'xenial'
+        is_linux? && data[:config][:dist] == 'xenial'
       end
 
       def is_trusty?
-        is_linux? && data[:config][:os] == 'trusty'
+        is_linux? && data[:config][:dist] == 'trusty'
       end
 
       def is_precise?
-        is_linux? && data[:config][:os] == 'precise'
+        is_linux? && data[:config][:dist] == 'precise'
       end
     end
   end
