@@ -194,8 +194,8 @@ describe Travis::Build::Script::R, :sexp do
 
     it 'does BiocCheck if requested' do
       data[:config][:bioc_check] = true
-      should include_sexp [:cmd, /.*BiocCheck.*/,
-                           assert: true, echo: true, timing: true]
+      should include_sexp [:cmd, /.*BiocCheck::BiocCheck.*/,
+                           echo: true, timing: true]
     end
 
     it 'does install bioc with bioc_packages' do
