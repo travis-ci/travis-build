@@ -196,6 +196,7 @@ describe Travis::Build::Script::R, :sexp do
       data[:config][:bioc_check] = true
       should include_sexp [:cmd, /.*BiocCheck.*/,
                            assert: true, echo: true, timing: true]
+    end
 
     it 'does install bioc with bioc_packages' do
       data[:config][:bioc_packages] = ['GenomicFeatures']

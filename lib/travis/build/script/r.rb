@@ -244,7 +244,7 @@ module Travis
             # BiocCheck the package
             sh.fold 'Bioc-check' do
               sh.echo 'Checking with: BiocCheck( "${PKG_TARBALL}" ) '
-                  sh.cmd 'Rscript -e "BiocCheck::BiocCheck(\"${PKG_TARBALL}\")"'
+              sh.cmd 'Rscript -e "BiocCheck::BiocCheck(\"${PKG_TARBALL}\")"'
             end
           end
 
