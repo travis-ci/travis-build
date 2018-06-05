@@ -216,6 +216,22 @@ module Travis
       def installation_token
         GithubApps.new(installation_id).access_token
       end
+
+      def is_linux?
+        data[:config][:os] == 'linux'
+      end
+
+      def is_xenial?
+        is_linux? && data[:config][:os] == 'xenial'
+      end
+
+      def is_trusty?
+        is_linux? && data[:config][:os] == 'trusty'
+      end
+
+      def is_precise?
+        is_linux? && data[:config][:os] == 'precise'
+      end
     end
   end
 end
