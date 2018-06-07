@@ -11,17 +11,20 @@ module Travis
         DEFAULT_FALLBACK_PORT = 5433
 
         def after_prepare
-          return if not data.is_linux?
+          if not data.is_linux?
+            sh.echo "Addon PostgreSQL is not supported on #{data[:config][:os]}", ansi: :red
+            return
+          end
           sh.fold 'postgresql' do
             sh.export 'PATH', "/usr/lib/postgresql/#{version}/bin:$PATH", echo: false
             sh.echo "Starting PostgreSQL v#{version}", ansi: :yellow
 
             if data.is_precise? || data.is_trusty?
               stop_command = "service postgresql stop"
-              start_command = "service postgresql start"
+              start_command = "service postgresql start #{version}"
             else
               stop_command = "systemctl stop postgresql"
-              start_command = "systemctl start postgresql@${version}-main"
+              start_command = "systemctl start postgresql@#{version}-main"
             end
             sh.cmd stop_command, assert: false, sudo: true, echo: true, timing: true
             sh.if "-d /var/ramfs && ! -d /var/ramfs/postgresql/#{version}", echo: false do
