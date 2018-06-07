@@ -46,6 +46,7 @@ before_script:
 script:
   - bundle exec rake spec
   - ./script/validate-bash-syntax
+  - ln -s $(pwd) ~/.travis/travis-build && gem install bundler && bundle install --gemfile Gemfile && bundler binstubs travis && ./bin/travis compile --no-interactive && test -e build.sh
 
 after_success: bundle exec codeclimate-test-reporter
 
