@@ -13,9 +13,9 @@ module Travis
       STAGES = [
         Stage.new(:builtin,     :setup_filter,   :always),
         Stage.new(:builtin,     :configure,      :always),
-        Stage.new(:builtin,     :checkout,       :always),
         Stage.new(:builtin,     :prepare,        :always),
         Stage.new(:builtin,     :disable_sudo,   :always),
+        Stage.new(:builtin,     :checkout,       :always),
         Stage.new(:builtin,     :export,         :always),
         Stage.new(:builtin,     :setup,          :always),
         Stage.new(:builtin,     :setup_casher,   :always),

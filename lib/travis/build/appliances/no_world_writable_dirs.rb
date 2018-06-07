@@ -7,7 +7,7 @@ module Travis
         def apply
           sh.cmd <<-EOF
 for dir in $(echo $PATH | tr : " "); do
-  test -d $dir && sudo chmod -vv o-w $dir | grep changed
+  test -d $dir && sudo chmod o-w $dir | grep changed
 done
           EOF
         end

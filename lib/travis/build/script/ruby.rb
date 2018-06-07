@@ -14,8 +14,10 @@ module Travis
         include Bundler, RVM, Jdk
 
         def announce
-          super
-          sh.cmd 'gem --version'
+          sh.fold 'ruby.versions' do
+            super
+            sh.cmd 'gem --version'
+          end
         end
 
         def script
