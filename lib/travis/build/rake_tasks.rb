@@ -43,7 +43,7 @@ module Travis
           releases_url = "repos/#{repo}/releases"
           logger.info "Fetching releases from #{conn.url_prefix.to_s}#{releases_url}"
           req.url releases_url
-          oauth_token = ENV['GITHUB_OAUTH_TOKEN']
+          oauth_token = ENV.fetch('GITHUB_OAUTH_TOKEN', ENV.fetch('no_scope_token', 'notset'))
           if oauth_token && !oauth_token.empty? && oauth_token != 'notset'
             logger.info "Adding 'Authorization' header for api.github.com request"
             req.headers['Authorization'] = "token #{oauth_token}"
