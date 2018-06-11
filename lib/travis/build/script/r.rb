@@ -1,6 +1,6 @@
 # Maintained by:
 # Jim Hester     @jimhester       james.hester@rstudio.com
-# Craig Citro    @craigcitro      craigcitro@google.com
+# Jeroen Ooms    @jeroen          jeroen@berkeley.edu
 #
 module Travis
   module Build
@@ -35,8 +35,7 @@ module Travis
         }
 
         def initialize(data)
-          # TODO(craigcitro): Is there a way to avoid explicitly
-          # naming arguments here?
+          # TODO: Is there a way to avoid explicitly naming arguments here?
           super
           @devtools_installed = false
           @bioc_installed = false
@@ -59,7 +58,7 @@ module Travis
           sh.echo 'R for Travis-CI is not officially supported, '\
                   'but is community maintained.', ansi: :green
           sh.echo 'Please file any issues at https://github.com/travis-ci/travis-ci/issues'
-          sh.echo 'and mention @craigcitro and @jimhester in the issue'
+          sh.echo 'and mention @jeroen and @jimhester in the issue'
 
           sh.fold 'R-install' do
             sh.with_options({ assert: true,  echo: true,  timing: true  }) do
@@ -443,8 +442,7 @@ module Travis
           when 'osx'
             # We use basictex due to disk space constraints.
             mactex = 'BasicTeX.pkg'
-            # TODO(craigcitro): Confirm that this will route us to the
-            # nearest mirror.
+            # TODO: Confirm that this will route us to the nearest mirror.
             sh.cmd "curl -fLo \"/tmp/#{mactex}\" --retry 3 http://mirror.ctan.org/systems/mac/mactex/"\
                    "#{mactex}"
 
@@ -541,13 +539,13 @@ module Travis
         def normalized_r_version(v=Array(config[:r]).first.to_s)
           case v
           when 'release' then '3.5.0'
-          when 'oldrel' then '3.3.3'
+          when 'oldrel' then '3.4.4'
           when '3.0' then '3.0.3'
           when '3.1' then '3.1.3'
           when '3.2' then '3.2.5'
           when '3.3' then '3.3.3'
           when '3.4' then '3.4.4'
-          when '3.5' then '3.5'
+          when '3.5' then '3.5.0'
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true
