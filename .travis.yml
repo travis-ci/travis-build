@@ -38,7 +38,7 @@ jobs:
       dist: trusty
       env:
       script: ./script/docker-build-and-push
-      if: (NOT type IN (pull_request)) AND (branch = master)
+      if: NOT type IN (pull_request) AND branch = master
 
 before_script:
   - bundle exec rake clean assets:precompile
