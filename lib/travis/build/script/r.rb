@@ -72,14 +72,19 @@ module Travis
                 sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com '\
                   '--recv-keys E084DAB9'
 
-                # Add marutter's c2d4u repository.
+                # Add marutter's c2d4u plus ppa dependencies as listed on launchpad
                 if r_version_less_than('3.5.0')
                   sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter"'
                   sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u"'
                 else
                   sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter3.5"'
                   sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u3.5"'
+                  sh.cmd 'sudo add-apt-repository -y "ppa:ubuntugis/ppa"'
+                  sh.cmd 'sudo add-apt-repository -y "ppa:opencpu/jq"'
                 end
+
+                # Both c2d4u and c2d4u3.5 depend on this ppa for ffmpeg
+                sh.cmd 'sudo add-apt-repository -y "ppa:kirillshkrogalev/ffmpeg-next"'
 
                 # Update after adding all repositories. Retry several
                 # times to work around flaky connection to Launchpad PPAs.
