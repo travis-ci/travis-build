@@ -232,6 +232,14 @@ module Travis
       def is_precise?
         is_linux? && data[:config][:dist] == 'precise'
       end
+
+      def has_upstart?
+        is_precise? || is_trusty?
+      end
+
+      def has_systemd?
+        is_linux? && !has_upstart?
+      end
     end
   end
 end
