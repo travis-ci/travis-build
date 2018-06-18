@@ -146,7 +146,11 @@ module Travis
       end
 
       def source_https_url
-        "https://#{source_host}/#{slug}.git"
+        if "https://#{source_host}/#{slug}.git" == data[:repository][:source_url]
+          data[:repository][:source_url]
+        else
+          "https://#{source_host}/#{slug}.git"
+        end
       end
 
       def slug
