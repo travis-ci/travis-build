@@ -146,7 +146,11 @@ module Travis
       end
 
       def source_https_url
-        "https://#{source_host}/#{slug}.git"
+        if "https://#{source_host}/#{slug}.git" == data[:repository][:source_url]
+          data[:repository][:source_url]
+        else
+          "https://github.com/#{slug}.git"
+        end
       end
 
       def slug
@@ -170,7 +174,7 @@ module Travis
       end
 
       def branch
-        job[:branch] || ''
+        job[:branch] || 'master'
       end
 
       def tag
