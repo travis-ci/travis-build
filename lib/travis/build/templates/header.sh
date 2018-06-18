@@ -311,6 +311,34 @@ bash_qsort_numeric() {
    bash_qsort_numeric_ret=( "${smaller[@]}" "$pivot" "${larger[@]}" )
 }
 
+travis_is_linux() {
+  command -v lsb_release >/dev/null 2>&1
+}
+
+travis_is_ubuntu() {
+  travis_is_linux \
+  && [[ "$(lsb_release -si)" = "Ubuntu" ]]
+}
+
+travis_is_precise() {
+  travis_is_ubuntu \
+  && [[ "$(lsb_release -cs)" = precise ]]
+}
+
+travis_is_trusty() {
+  travis_is_ubuntu \
+  && [[ "$(lsb_release -cs)" = trusty ]]
+}
+
+travis_is_xenial() {
+  travis_is_ubuntu \
+  && [[ "$(lsb_release -cs)" = xenial ]]
+}
+
+travis_has_systemd() {
+  command -v systemctl >/dev/null 2>&1
+}
+
 EOFUNC
 
 <%# XXX Forcefully removing rabbitmq source until next build env update %>
