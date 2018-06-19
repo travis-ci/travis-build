@@ -240,7 +240,7 @@ module Travis
           def stop_postgresql
             sh.echo "PostgreSQL package is detected. Stopping postgresql service. See https://github.com/travis-ci/travis-ci/issues/5737 for more information.", ansi: :yellow
             command = <<~ENDOFBASH
-              if travis_has_systemd; then
+              if [[ "$TRAVIS_INIT" = systemd ]]; then
                 sudo systemctl stop postgresql
               else
                 sudo service postgresql stop
