@@ -14,9 +14,9 @@ module Travis
           sh.if '"$TRAVIS_OS_NAME" != linux' do
             sh.echo "Addon PostgreSQL is not supported on #{data[:config][:os]}", ansi: :red
           end
-          sh.else
+          sh.else do
             sh.fold 'postgresql' do
-              echo "Starting PostgreSQL v#{version}", ansi: :yellow
+              sh.echo "Starting PostgreSQL v#{version}", ansi: :yellow
               sh.export 'PATH', "/usr/lib/postgresql/#{version}/bin:$PATH", echo: false
               stop_postgres
               setup_ramfs
