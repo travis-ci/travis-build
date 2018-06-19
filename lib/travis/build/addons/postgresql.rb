@@ -33,7 +33,7 @@ module Travis
           end
 
           def stop_postgres
-            sh.if '"$TRAVIS_INIT" = systemd' do
+            sh.if '"$TRAVIS_INIT" == systemd' do
               sh.cmd 'systemctl stop postgresql', assert: false, sudo: true, echo: true, timing: true
             end
             sh.else do
@@ -42,7 +42,7 @@ module Travis
           end
 
           def start_postgres
-            sh.if '"$TRAVIS_INIT" = systemd' do
+            sh.if '"$TRAVIS_INIT" == systemd' do
               sh.cmd "systemctl start postgresql@#{version}-main", assert: false, sudo: true, echo: true, timing: true
             end
             sh.else do

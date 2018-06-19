@@ -32,12 +32,15 @@ case $(uname | tr '[A-Z]' '[a-z]') in
   linux)
     export TRAVIS_OS_NAME=linux
     ;;
-  *)
+  darwin)
     export TRAVIS_OS_NAME=osx
+    ;;
+  *)
+    export TRAVIS_OS_NAME=notset
     ;;
 esac
 
-if [[ "$TRAVIS_OS_NAME" = linux ]]; then
+if [[ "$TRAVIS_OS_NAME" == linux ]]; then
   export TRAVIS_DIST="$(lsb_release -sc)"
   if command -v systemctl >/dev/null 2>&1; then
     export TRAVIS_INIT=systemd
