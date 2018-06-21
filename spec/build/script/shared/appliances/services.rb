@@ -12,6 +12,7 @@ shared_examples_for 'starts services' do
     describe 'Postgresql' do
       let(:services) { [:Postgresql] }
       it { should include_sexp [:cmd, 'sudo service postgresql start', echo: true, timing: true] }
+      it { should include_sexp [:cmd, 'sudo systemctl start postgresql@9.6-main', echo: true, timing: true] }
     end
 
     describe 'redis' do
@@ -21,13 +22,13 @@ shared_examples_for 'starts services' do
 
     describe 'mongodb' do
       let(:services) { [:mongodb] }
-      it "starts appropriate service based on lsb_release value" do
-        expect(sexp_find(subject, [:if, "$(lsb_release -cs) != 'precise'"]))
+      it "starts appropriate service based on $TRAVIS_DIST value" do
+        expect(sexp_find(subject, [:if, '"$TRAVIS_DIST" == precise']))
           .to include_sexp(
             [:cmd, 'sudo service mongod start', echo: true, timing: true]
           )
         expect(
-          sexp_find(subject, [:if, "$(lsb_release -cs) != 'precise'"], [:else])
+          sexp_find(subject, [:if, '"$TRAVIS_DIST" == precise'], [:else])
         ).to include_sexp(
           [:cmd, 'sudo service mongodb start', echo: true, timing: true]
         )
