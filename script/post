@@ -1,0 +1,17 @@
+#!/bin/bash
+
+payload="$1"
+
+[[ -z "$payload" || ! -f "$payload" ]] \
+  && echo "Missing or invalid payload" \
+  && exit 1
+
+GIT_ROOT="$(git rev-parse --show-toplevel)"
+[[ -f "$GIT_ROOT"/.example.env ]] \
+  && source <(grep TRAVIS_BUILD_APP_HOST= "$GIT_ROOT"/.example.env)
+: ${TRAVIS_BUILD_APP_HOST:-localhost:8080}
+
+curl -sSl -XPOST \
+  -d @"$payload" \
+  --header "Content-Type: application/json" \
+  "$TRAVIS_BUILD_APP_HOST"/script
