@@ -19,7 +19,7 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   it 'sets TRAVIS_GO_VERSION' do
-    should include_sexp [:export, ['TRAVIS_GO_VERSION', '1.9']]
+    should include_sexp [:export, ['TRAVIS_GO_VERSION', defaults[:go]]]
   end
 
   it 'conditionally sets GOMAXPROCS to 2' do
@@ -27,7 +27,7 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   it 'sets the default go version if not :go config given' do
-    should include_sexp [:cmd, 'GIMME_OUTPUT="$(gimme 1.9 | tee -a $HOME/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, %{GIMME_OUTPUT="$(gimme #{defaults[:go]} | tee -a $HOME/.bashrc)" && eval "$GIMME_OUTPUT"}, assert: true, echo: true, timing: true]
   end
 
   it 'sets the go version from config :go' do
@@ -108,7 +108,7 @@ describe Travis::Build::Script::Go, :sexp do
     end
   end
 
-  %w(1 1.2 1.2.2 1.3 1.5 1.6 tip).each do |recent_go_version|
+  %w(1.3 1.5 1.6 1.9 1.10.x master).each do |recent_go_version|
     describe "if no Makefile exists on #{recent_go_version}" do
       it 'installs with go get -t' do
         data[:config][:go] = recent_go_version
