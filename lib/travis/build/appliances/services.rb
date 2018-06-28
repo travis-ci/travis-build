@@ -47,6 +47,7 @@ module Travis
               until (( i++ >= $timeout )) || mysql <<<'select 1;' >&/dev/null; do sleep 1; done
               if (( i > $timeout )); then
                 echo -e "${ANSI_RED}MySQL did not start within ${timeout} seconds${ANSI_RESET}"
+                sudo sh -c 'tail -n 1000 /var/log/mysql/*'
               fi
               unset -f travis_mysql_ping
             }
