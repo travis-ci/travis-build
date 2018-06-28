@@ -60,7 +60,7 @@ View valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csh
                 sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
                 sh.cmd 'sudo apt-get install -qq mono-complete mono-vbnc fsharp', timing: true, assert: true
               else
-                sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF', assert: true
+                sh.cmd 'sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF', assert: true
 
                 if is_mono_after_5_0
                   # new Mono repo layout
@@ -135,7 +135,7 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
 
             case config_os
             when 'linux'
-              sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys BE1229CF', assert: true
+              sh.cmd 'sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys BE1229CF', assert: true
               sh.if '$(lsb_release -cs) = trusty' do
                 sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-trusty-prod trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true
               end
