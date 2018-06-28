@@ -9,6 +9,10 @@ module Travis
       extend Hashr::Env
       self.env_namespace = 'travis_build'
 
+      def go_version_aliases_hash
+        @go_version_aliases_hash ||= version_aliases_hash('go')
+      end
+
       def ghc_version_aliases_hash
         @ghc_version_aliases_hash ||= version_aliases_hash('ghc')
       end
