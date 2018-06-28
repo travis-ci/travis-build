@@ -12,6 +12,60 @@ module Travis
           go: Travis::Build.config.go_version.untaint
         }
 
+        class Version
+          include Comparable
+
+          def initialize(version)
+            @version = version
+          end
+
+          def <=>(other)
+            return unless Version === other
+            return 0 if @version == other._version
+
+            lhsegments = _segments
+            rhsegments = other._segments
+
+            lhsize = lhsegments.size
+            rhsize = rhsegments.size
+            limit  = (lhsize > rhsize ? lhsize : rhsize) - 1
+
+            i = 0
+
+            lhsd = 0
+            rhsd = 0
+            while i <= limit
+              lhs = lhsegments[i] || lhsd
+              rhs = rhsegments[i] || rhsd
+              i += 1
+
+              if lhs == rhs
+                lhsd = Numeric === lhs ? 0 : 'x'
+                rhsd = Numeric === rhs ? 0 : 'x'
+                next
+              end
+              return  1 if String  === lhs && Numeric === rhs
+              return -1 if Numeric === lhs && String  === rhs
+
+              return lhs <=> rhs
+            end
+
+            return 0
+          end
+
+          protected
+
+          def _version
+            @version
+          end
+
+          def _segments
+            @segments ||= @version.scan(/[0-9]+|x/).map do |s|
+              /^\d+$/ =~ s ? s.to_i : s
+            end.freeze
+          end
+        end
+
         def export
           super
           sh.export 'TRAVIS_GO_VERSION', go_version, echo: false
@@ -71,7 +125,7 @@ module Travis
               sh.export 'GOPATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace:$GOPATH', retry: false
               sh.export 'PATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace/bin:$PATH', retry: false
 
-              if go_version != 'go1' && comparable_go_version >= Gem::Version.new('1.1')
+              if go_version != 'go1' && comparable_go_version >= Version.new('1.1')
                 sh.if '! -d Godeps/_workspace/src' do
                   fetch_godep
                   sh.cmd 'godep restore', retry: true, timing: true, assert: true, echo: true
@@ -109,10 +163,10 @@ module Travis
 
           # see https://golang.org/doc/go1.6#go_command
           def uses_15_vendoring?
-            if (go_version == 'go1' || (go_version != 'tip' && comparable_go_version < Gem::Version.new('1.5')))
+            if (go_version == 'go1' || (go_version != 'tip' && comparable_go_version < Version.new('1.5')))
               return '2 -eq 5'
             end
-            (comparable_go_version < Gem::Version.new('1.6') && go_version != 'tip') ? '$GO15VENDOREXPERIMENT == 1' : '$GO15VENDOREXPERIMENT != 0'
+            (comparable_go_version < Version.new('1.6') && go_version != 'tip') ? '$GO15VENDOREXPERIMENT == 1' : '$GO15VENDOREXPERIMENT != 0'
           end
 
           def gobuild_args
@@ -134,14 +188,14 @@ module Travis
           end
 
           def comparable_go_version
-            if !go_version[/^[0-9]/] # if we don't have a semver version that Gem::Version can read
-              return Gem::Version.new('0.0.1') # return a consistent result
+            if !go_version[/^[0-9]/]
+              return Version.new('0.0.1') # return a consistent result
             end
-            Gem::Version.new(go_version)
+            Version.new(go_version)
           end
 
           def go_get_cmd
-            if go_version == 'go1' || (go_version[/^[0-9]/] && comparable_go_version <= Gem::Version.new('1.2'))
+            if go_version == 'go1' || (go_version[/^[0-9]/] && comparable_go_version <= Version.new('1.2'))
               'go get'
             else
               'go get -t'

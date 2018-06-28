@@ -101,7 +101,7 @@ describe Travis::Build::Script::Go, :sexp do
     end
   end
 
-  %w(1.3 1.5 1.6 1.9 1.10.x master).each do |recent_go_version|
+  %w(1.3 1.5 1.6 1.9 1.10.x 1.x master).each do |recent_go_version|
     describe "if no Makefile exists on #{recent_go_version}" do
       it 'installs with go get -t' do
         data[:config][:go] = recent_go_version
@@ -130,7 +130,7 @@ describe Travis::Build::Script::Go, :sexp do
     end
   end
 
-  %w(1.6 tip).each do |go_version|
+  %w(1.6 1.x tip).each do |go_version|
     describe "when using version (#{go_version}) with proper versioning support" do
       let(:sexp) { sexp_find(sexp_filter(subject, [:if, '$GO15VENDOREXPERIMENT != 0'])[0], [:then]) }
       it 'tests with vendoring support with `$GO15VENDOREXPERIMENT != 0`' do
@@ -152,6 +152,36 @@ describe Travis::Build::Script::Go, :sexp do
 
       it 'runs make' do
         expect(sexp).to include_sexp [:cmd, 'make', echo: true, timing: true]
+      end
+    end
+  end
+
+  describe 'compare go version' do
+    let(:version) { described_class::Version }
+
+    [
+      ['1.2', '1.2'],
+      ['1.2.2', '1.2.2'],
+      ['1.9', '1.9.0'],
+      ['1.x', '1.x.x'],
+    ].each do |lhs, rhs|
+      it "shuld be #{lhs} == #{rhs}" do
+        expect(version.new(lhs) == version.new(rhs)).to be_truthy
+      end
+    end
+
+    [
+      ['1.2', '1.2.2'],
+      ['1.2.2', '1.2.x'],
+      ['1.9.x', '1.10'],
+      ['1.10.x', '1.x'],
+    ].each do |lhs, rhs|
+      it "shuld be #{lhs} < #{rhs}" do
+        expect(version.new(lhs) < version.new(rhs)).to be_truthy
+      end
+
+      it "shuld be #{rhs} > #{lhs}" do
+        expect(version.new(rhs) > version.new(lhs)).to be_truthy
       end
     end
   end
