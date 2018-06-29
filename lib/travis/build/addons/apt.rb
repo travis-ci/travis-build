@@ -185,10 +185,10 @@ module Travis
               end
 
               sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
-              sh.cmd "sudo -E apt-get -yq update &>> ~/apt-get-update.log", echo: true, timing: true
+              sh.cmd "sudo -E apt-get -yq update &>> ~/apt-get-update.log", echo: true, timing: true, retry: true
               command = 'sudo -E apt-get -yq --no-install-suggests --no-install-recommends ' \
                 "--force-yes install #{whitelisted.join(' ')}"
-              sh.cmd command, echo: true, timing: true
+              sh.cmd command, echo: true, timing: true, retry: true
               sh.raw "result=$?"
               sh.if '$result -ne 0' do
                 sh.fold 'apt-get.diagnostics' do
