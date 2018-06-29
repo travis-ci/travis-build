@@ -93,7 +93,7 @@ MESSAGE
 
           sh.fold 'dart_install' do
             sh.echo 'Installing Dart', ansi: :yellow
-            sh.cmd "curl --connect-timeout 15 --retry 5 #{archive_url}/sdk/dartsdk-#{os}-x64-release.zip > $HOME/dartsdk.zip"
+            sh.cmd "curl --connect-timeout 15 --retry 5 --retry-connrefused #{archive_url}/sdk/dartsdk-#{os}-x64-release.zip > $HOME/dartsdk.zip"
             sh.cmd "unzip $HOME/dartsdk.zip -d $HOME > /dev/null"
             sh.cmd "rm $HOME/dartsdk.zip"
             sh.cmd 'export DART_SDK="$HOME/dart-sdk"'
