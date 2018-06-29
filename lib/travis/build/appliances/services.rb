@@ -29,7 +29,12 @@ module Travis
                   send(service_apply_method)
                   next
                 end
-                sh.cmd "sudo service #{name.shellescape} start", assert: false, echo: true, timing: true
+                sh.if '"$TRAVIS_INIT" == upstart' do
+                  sh.cmd "sudo service #{name.shellescape} start", assert: false, echo: true, timing: true
+                end
+                sh.elif '"$TRAVIS_INIT" == systemd' do
+                  sh.cmd "sudo systemctl start #{name.shellescape}", assert: false, echo: true, timing: true
+                end
               end
               sh.raw 'sleep 3'
             end
@@ -44,8 +49,11 @@ module Travis
           sh.if '"$TRAVIS_DIST" == precise' do
             sh.cmd 'sudo service mongod start', echo: true, timing: true
           end
-          sh.else do
+          sh.elif '"$TRAVIS_INIT" == upstart' do
             sh.cmd 'sudo service mongodb start', echo: true, timing: true
+          end
+          sh.elif '"$TRAVIS_INIT" == systemd' do
+            sh.cmd 'sudo systemctl start mongodb', echo: true, timing: true
           end
         end
 
@@ -60,16 +68,19 @@ module Travis
               unset -f travis_mysql_ping
             }
           BASH
-          sh.cmd 'sudo service mysql start', assert: false, echo: true, timing: true
+          sh.if '"$TRAVIS_INIT" == upstart' do
+            sh.cmd 'sudo service mysql start', assert: false, echo: true, timing: true
+          end
+          sh.elif '"$TRAVIS_INIT" == systemd' do
+            sh.cmd 'sudo systemctl start mysql', assert: false, echo: true, timing: true
+          end
           sh.cmd 'travis_mysql_ping'
         end
 
         def apply_postgresql
           return if data[:config]&.[](:addons)&.[](:postgresql)
-          sh.fold 'postgresql' do
-            sh.raw(template('postgresql.sh', version: nil), echo: false, timing: false)
-            sh.cmd 'travis_setup_postgresql', echo: true, timing: true
-          end
+          sh.raw(template('postgresql.sh', version: nil), echo: false, timing: false)
+          sh.cmd 'travis_setup_postgresql', echo: true, timing: true
         end
 
         private

@@ -18,7 +18,7 @@ describe Travis::Build::Addons::Postgresql, :sexp do
       'sudo -u postgres createuser -s -p "$port" travis',
       'sudo -u postgres createdb -O travis -p "$port" travis',
       'export PATH="/usr/lib/postgresql${version}/bin:$PATH"',
-      'cp -rp "/var/lib/postgresql/$version" "/var/ramfs/postgresql/$version"'
+      'cp -rp \"/var/lib/postgresql/$version\" \"/var/ramfs/postgresql/$version\"'
     ] }
   end
 

@@ -17,6 +17,7 @@ shared_examples_for 'starts services' do
     describe 'redis' do
       let(:services) { [:redis] }
       it { should include_sexp [:cmd, 'sudo service redis-server start', echo: true, timing: true] }
+      it { should include_sexp [:cmd, 'sudo systemctl start redis-server', echo: true, timing: true] }
     end
 
     describe 'mongodb' do
@@ -27,10 +28,35 @@ shared_examples_for 'starts services' do
             [:cmd, 'sudo service mongod start', echo: true, timing: true]
           )
         expect(
-          sexp_find(subject, [:if, '"$TRAVIS_DIST" == precise'], [:else])
+          sexp_find(subject, [:if, '"$TRAVIS_DIST" == precise'], [:elif])
         ).to include_sexp(
           [:cmd, 'sudo service mongodb start', echo: true, timing: true]
         )
+      end
+
+      it "starts service based on init system" do
+        expect(sexp_find(subject, [:elif, '"$TRAVIS_INIT" == upstart']))
+          .to include_sexp(
+            [:cmd, 'sudo service mongodb start', echo: true, timing: true]
+          )
+        expect(sexp_find(subject, [:elif, '"$TRAVIS_INIT" == systemd']))
+          .to include_sexp(
+            [:cmd, 'sudo systemctl start mongodb', echo: true, timing: true]
+          )
+      end
+    end
+
+    describe 'travis_daemon' do
+      let(:services) { [:travis_daemon] }
+      it "adheres to init system" do
+        expect(sexp_find(subject, [:if, '"$TRAVIS_INIT" == upstart']))
+          .to include_sexp(
+            [:cmd, 'sudo service travis_daemon start', echo: true, timing: true]
+          )
+        expect(sexp_find(subject, [:elif, '"$TRAVIS_INIT" == systemd']))
+          .to include_sexp(
+            [:cmd, 'sudo systemctl start travis_daemon', echo: true, timing: true]
+          )
       end
     end
 
