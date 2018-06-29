@@ -12,16 +12,15 @@ describe Travis::Build::Addons::Postgresql, :sexp do
   it { store_example }
 
   it_behaves_like 'compiled script' do
-    let(:cmds) { ['service postgresql start 9.3'] }
+    let(:code) { [
+      'service postgresql start $version',
+      'systemctl start postgresql@${version}-main',
+      'sudo -u postgres createuser -s -p "$port" travis',
+      'sudo -u postgres createdb -O travis -p "$port" travis',
+      'export PATH="/usr/lib/postgresql${version}/bin:$PATH"',
+      'cp -rp "/var/lib/postgresql/$version" "/var/ramfs/postgresql/$version"'
+    ] }
   end
 
-  it { should include_sexp [:export, ['PATH', '/usr/lib/postgresql/9.3/bin:$PATH']] }
-  it { should include_sexp [:echo, 'Starting PostgreSQL v9.3', ansi: :yellow] }
-  it { should include_sexp [:cmd, 'service postgresql stop', sudo: true, echo: true, timing: true] }
-  it { should include_sexp [:cmd, 'cp -rp /var/lib/postgresql/9.3 /var/ramfs/postgresql/9.3', sudo: true] }
-  it { should include_sexp [:cmd, 'service postgresql start 9.3', sudo: true, echo: true, timing: true] }
-  it { should include_sexp [:cmd, "sudo -u postgres createuser -s -p #{described_class::DEFAULT_PORT} travis &>/dev/null", echo: true, timing: true] }
-  it { should include_sexp [:cmd, "sudo -u postgres createuser -s -p #{described_class::DEFAULT_FALLBACK_PORT} travis &>/dev/null", echo: true, timing: true] }
-  it { should include_sexp [:cmd, "sudo -u postgres createdb -O travis -p #{described_class::DEFAULT_PORT} travis &>/dev/null", echo: true, timing: true] }
-  it { should include_sexp [:cmd, "sudo -u postgres createdb -O travis -p #{described_class::DEFAULT_FALLBACK_PORT} travis &>/dev/null", echo: true, timing: true] }
+  it { should include_sexp [:cmd, 'travis_setup_postgresql', echo: true, timing: true] }
 end

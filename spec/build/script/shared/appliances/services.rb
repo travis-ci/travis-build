@@ -5,14 +5,13 @@ shared_examples_for 'starts services' do
     let(:services) { [:postgresql] }
 
     describe 'postgresql' do
-      it { should include_sexp [:cmd, 'sudo service postgresql start', echo: true, timing: true] }
+      it { should include_sexp [:cmd, 'travis_setup_postgresql', echo: true, timing: true] }
       it { store_example 'service postgresql' if data[:config][:language] == :ruby }
     end
 
     describe 'Postgresql' do
       let(:services) { [:Postgresql] }
-      it { should include_sexp [:cmd, 'sudo service postgresql start', echo: true, timing: true] }
-      it { should include_sexp [:cmd, 'sudo systemctl start postgresql@9.6-main', echo: true, timing: true] }
+      it { should include_sexp [:cmd, 'travis_setup_postgresql', echo: true, timing: true] }
     end
 
     describe 'redis' do

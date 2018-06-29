@@ -5,6 +5,9 @@ module Travis
   module Build
     module Appliances
       class Services < Base
+
+        include Template
+
         SERVICES = {
           'hbase'        => 'hbase-master', # for HBase status, see travis-ci/travis-cookbooks#40. MK.
           'memcache'     => 'memcached',
@@ -12,6 +15,7 @@ module Travis
           'rabbitmq'     => 'rabbitmq-server',
           'redis'        => 'redis-server'
         }
+        TEMPLATES_PATH = File.expand_path('../../templates', __FILE__)
 
         def apply
           sh.if '"$TRAVIS_OS_NAME" != "linux"' do
@@ -62,11 +66,9 @@ module Travis
 
         def apply_postgresql
           return if data[:config]&.[](:addons)&.[](:postgresql)
-          sh.if '"$TRAVIS_INIT" == upstart' do
-            sh.cmd 'sudo service postgresql start', assert: false, echo: true, timing: true
-          end
-          sh.elif '"$TRAVIS_INIT" == systemd && "$TRAVIS_DIST" == xenial' do
-            sh.cmd 'sudo systemctl start postgresql@9.6-main', assert: false, echo: true, timing: true
+          sh.fold 'postgresql' do
+            sh.raw(template('postgresql.sh', version: nil), echo: false, timing: false)
+            sh.cmd 'travis_setup_postgresql', echo: true, timing: true
           end
         end
 
