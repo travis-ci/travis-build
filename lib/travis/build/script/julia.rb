@@ -20,6 +20,7 @@ module Travis
 
           sh.export 'TRAVIS_JULIA_VERSION', config[:julia].to_s.shellescape,
             echo: false
+          sh.export 'JULIA_PROJECT', "@."
         end
 
         def setup
