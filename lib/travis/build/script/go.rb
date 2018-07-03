@@ -81,7 +81,7 @@ module Travis
           end
 
           sh.if uses_make do
-            sh.cmd 'true', retry: true, fold: 'install' # TODO instead negate the condition
+            sh.echo 'Makefile detected', retry: true, fold: 'install' # TODO instead negate the condition
           end
           sh.else do
             sh.cmd "#{go_get_cmd} #{gobuild_args} ./...", retry: true, fold: 'install'
