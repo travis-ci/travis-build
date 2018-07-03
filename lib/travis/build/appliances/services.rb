@@ -53,7 +53,7 @@ module Travis
             sh.cmd 'sudo service mongodb start', echo: true, timing: true
           end
           sh.elif '"$TRAVIS_INIT" == systemd' do
-            sh.cmd 'sudo systemctl start mongodb', echo: true, timing: true
+            sh.cmd 'sudo systemctl start mongod', echo: true, timing: true
           end
         end
 
