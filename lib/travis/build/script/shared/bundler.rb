@@ -59,6 +59,9 @@ module Travis
               sh.cmd bundler_install, fold: "install.bundler", retry: true
             end
           end
+          sh.else do
+            sh.echo 'No Gemfile found, skipping bundle install'
+          end
         end
 
         def prepare_cache
