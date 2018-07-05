@@ -47,10 +47,10 @@ module Travis
 
         def apply_mongodb
           sh.if '"$TRAVIS_DIST" == precise' do
-            sh.cmd 'sudo service mongod start', echo: true, timing: true
+            sh.cmd 'sudo service mongodb start', echo: true, timing: true
           end
           sh.elif '"$TRAVIS_INIT" == upstart' do
-            sh.cmd 'sudo service mongodb start', echo: true, timing: true
+            sh.cmd 'sudo service mongod start', echo: true, timing: true
           end
           sh.elif '"$TRAVIS_INIT" == systemd' do
             sh.cmd 'sudo systemctl start mongod', echo: true, timing: true
