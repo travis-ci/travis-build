@@ -63,6 +63,23 @@ describe Travis::Build::Script::Ruby, :sexp do
     end
   end
 
+  describe 'tests for existence of Gemfile if it was provided by the user' do
+    before do
+      data[:config][:gemfile] = 'Gemfile.ci'
+    end
+
+    it 'tests for presence of gemfile' do
+      sexp = sexp_find(subject, [:if, '-f Gemfile.ci'], [:then])
+      expect(sexp).to include_sexp [:echo, 'Using Gemfile.ci']
+    end
+
+    it 'fails when gemfile not present' do
+      sexp = sexp_find(subject, [:if, '-f Gemfile.ci'], [:else])
+      expect(sexp).to include_sexp [:echo, "Gemfile.ci not found, cannot continue"]
+      expect(sexp).to include_sexp [:raw, "travis_run_after_failure", { assert: true }]
+    end
+  end
+
   it 'sets BUNDLE_GEMFILE if a gemfile exists' do
     sexp = sexp_find(subject, [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}"], [:then])
     expect(sexp).to include_sexp [:export, ['BUNDLE_GEMFILE', '$PWD/Gemfile'], echo: true]

@@ -11,6 +11,15 @@ module Travis
         def setup
           super
 
+          if user_provided_gemfile
+            sh.if user_provided_gemfile? do
+              sh.echo "Using #{user_provided_gemfile}"
+            end
+            sh.else do
+              sh.failure "#{user_provided_gemfile} not found, cannot continue"
+            end
+          end
+
           sh.if gemfile? do
             sh.export 'BUNDLE_GEMFILE', "$PWD/#{config[:gemfile]}"
           end
@@ -73,6 +82,14 @@ module Travis
         end
 
         private
+
+          def user_provided_gemfile
+            raw_data[:config] && raw_data[:config][:gemfile]
+          end
+
+          def user_provided_gemfile?
+            "-f #{user_provided_gemfile}"
+          end
 
           def gemfile?
             "-f ${BUNDLE_GEMFILE:-#{config[:gemfile]}}"
