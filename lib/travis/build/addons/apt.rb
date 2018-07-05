@@ -187,7 +187,8 @@ module Travis
               sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
               sh.cmd "sudo -E apt-get -yq update &>> ~/apt-get-update.log", echo: true, timing: true
               command = 'sudo -E apt-get -yq --no-install-suggests --no-install-recommends ' \
-                "--force-yes install #{whitelisted.join(' ')}"
+                "--allow-downgrades --allow-remove-essential --allow-change-held-packages " \
+                "install #{whitelisted.join(' ')}"
               sh.cmd command, echo: true, timing: true
               sh.raw "result=$?"
               sh.if '$result -ne 0' do
