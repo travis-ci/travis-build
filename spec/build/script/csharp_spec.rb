@@ -14,22 +14,22 @@ describe Travis::Build::Script::Csharp, :sexp do
 
   describe 'configure' do
     it 'sets up package repository for mono' do
-      should include_sexp [:cmd, 'sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF', assert: true]
+      should include_sexp [:cmd, 'sudo mv /tmp/mono.gpg /etc/apt/trusted.gpg.d/', assert: true]
       should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu stable-trusty main' > /etc/apt/sources.list.d/mono-official.list\"", assert: true]
       should include_sexp [:cmd, 'sudo apt-get update -qq', timing: true, assert: true]
     end
 
     it 'sets up package repository for dotnet 1.1.5' do
       data[:config][:dotnet] = '1.1.5'
-      should include_sexp [:cmd, 'sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys BE1229CF', assert: true]
-      should include_sexp [:cmd, "sudo sh -c \"echo 'deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-trusty-prod trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true]
+      should include_sexp [:cmd, 'sudo mv /tmp/dotnet.gpg /etc/apt/trusted.gpg.d/', assert: true]
+      should include_sexp [:cmd, "sudo sh -c \"echo 'deb [arch=amd64] https://packages.microsoft.com/ubuntu/14.04/prod trusty main' > /etc/apt/sources.list.d/dotnet-official.list\"", assert: true]
       should include_sexp [:cmd, 'sudo apt-get update -qq', timing: true, assert: true]
     end
 
     it 'sets up package repository for dotnet 2.0.0 and above' do
       data[:config][:dotnet] = '2.0.0'
-      should include_sexp [:cmd, 'sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys BE1229CF', assert: true]
-      should include_sexp [:cmd, "sudo sh -c \"echo 'deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-trusty-prod trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true]
+      should include_sexp [:cmd, 'sudo mv /tmp/dotnet.gpg /etc/apt/trusted.gpg.d/', assert: true]
+      should include_sexp [:cmd, "sudo sh -c \"echo 'deb [arch=amd64] https://packages.microsoft.com/ubuntu/14.04/prod trusty main' > /etc/apt/sources.list.d/dotnet-official.list\"", assert: true]
       should include_sexp [:cmd, 'sudo apt-get update -qq', timing: true, assert: true]
     end
 
