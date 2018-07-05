@@ -32,11 +32,14 @@ module Travis
         end
 
         def apply_mongodb
-          sh.if "$(lsb_release -cs) != 'precise'" do
+          sh.if "$(lsb_release -cs) = 'precise'" do
+            sh.cmd 'sudo service mongodb start', assert: false, echo: true, timing: true
+          end
+          sh.elif "$(lsb_release -cs) = 'trusty'" do
             sh.cmd 'sudo service mongod start', assert: false, echo: true, timing: true
           end
           sh.else do
-            sh.cmd 'sudo service mongodb start', assert: false, echo: true, timing: true
+            sh.cmd 'sudo systemctl start mongodb.service', assert: false, echo: true, timing: true
           end
         end
 
