@@ -57,11 +57,12 @@ module Travis
       include Module.new { Stages::STAGES.map(&:name).flatten.each { |stage| define_method(stage) {} } }
       include Appliances, DirectoryCache, Deprecation, Template
 
-      attr_reader :sh, :data, :options, :validator, :addons, :stages
+      attr_reader :sh, :raw_data, :data, :options, :validator, :addons, :stages
       attr_accessor :setup_cache_has_run_for
 
       def initialize(data)
-        @data = Data.new({ config: self.class.defaults }.deep_merge(data.deep_symbolize_keys))
+        @raw_data = data.deep_symbolize_keys
+        @data = Data.new({ config: self.class.defaults }.deep_merge(self.raw_data))
         @options = {}
 
         @sh = Shell::Builder.new
