@@ -19,7 +19,7 @@ describe Travis::Build::Addons::AptPackages, :sexp do
   end
 
   def apt_get_install_command(*packages)
-    "sudo -E apt-get -yq --no-install-suggests --no-install-recommends --allow-downgrades --allow-remove-essential --allow-change-held-packages install #{packages.join(' ')}"
+    "sudo -E apt-get -yq --no-install-suggests --no-install-recommends $TRAVIS_APT_OPTS install #{packages.join(' ')}"
   end
 
   context 'with multiple whitelisted packages' do
