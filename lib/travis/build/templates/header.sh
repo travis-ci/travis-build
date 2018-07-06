@@ -49,6 +49,8 @@ if [[ "$TRAVIS_OS_NAME" == linux ]]; then
   fi
 fi
 
+export TRAVIS_ARCH="$(uname -m)" # x86_64 or ppc64le
+
 TRAVIS_TEST_RESULT=
 TRAVIS_CMD=
 

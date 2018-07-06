@@ -55,8 +55,11 @@ module Travis
           sh.elif '"$TRAVIS_INIT" == upstart' do
             sh.cmd 'sudo service mongod start', echo: true, timing: true
           end
-          sh.elif '"$TRAVIS_INIT" == systemd' do
+          sh.elif '"$TRAVIS_INIT" == systemd && "$TRAVIS_ARCH" == x86_64' do
             sh.cmd 'sudo systemctl start mongod', echo: true, timing: true
+          end
+          sh.elif '"$TRAVIS_INIT" == systemd && "$TRAVIS_ARCH" == ppc64le' do
+            sh.cmd 'sudo systemctl start mongodb', echo: true, timing: true
           end
         end
 

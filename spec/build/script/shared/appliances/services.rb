@@ -39,9 +39,13 @@ shared_examples_for 'starts services' do
           .to include_sexp(
             [:cmd, 'sudo service mongod start', echo: true, timing: true]
           )
-        expect(sexp_find(subject, [:elif, '"$TRAVIS_INIT" == systemd']))
+        expect(sexp_find(subject, [:elif, '"$TRAVIS_INIT" == systemd && "$TRAVIS_ARCH" == x86_64']))
           .to include_sexp(
             [:cmd, 'sudo systemctl start mongod', echo: true, timing: true]
+          )
+        expect(sexp_find(subject, [:elif, '"$TRAVIS_INIT" == systemd && "$TRAVIS_ARCH" == ppc64le']))
+          .to include_sexp(
+            [:cmd, 'sudo systemctl start mongodb', echo: true, timing: true]
           )
       end
     end
