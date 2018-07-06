@@ -13,7 +13,10 @@ module Travis
           'memcache'     => 'memcached',
           'neo4j-server' => 'neo4j',
           'rabbitmq'     => 'rabbitmq-server',
-          'redis'        => 'redis-server'
+          'redis'        => 'redis-server',
+          'postgres'     => 'postgresql',
+          'mongo'        => 'mongodb',
+          'mongod'       => 'mongodb'
         }
         TEMPLATES_PATH = File.expand_path('../../templates', __FILE__)
 
