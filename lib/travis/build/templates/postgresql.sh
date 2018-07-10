@@ -21,7 +21,7 @@ travis_setup_postgresql() {
   fi
 
   echo -e "${ANSI_YELLOW}Starting PostgreSQL v${version}${ANSI_CLEAR}"
-  export PATH="/usr/lib/postgresql${version}/bin:$PATH"
+  export PATH="/usr/lib/postgresql/${version}/bin:$PATH"
 
   if [[ "$TRAVIS_INIT" == upstart ]]; then
     start_cmd="sudo service postgresql start $version"
