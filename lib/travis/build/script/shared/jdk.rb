@@ -15,7 +15,9 @@ module Travis
                 sh.raw 'set +e', echo: false
               end
             else
-              sh.cmd "jdk_switcher use #{config[:jdk]}", assert: true, echo: true, timing: false if uses_jdk?
+              sh.if '"$(command -v jdk_switcher &>/dev/null; echo $?)" == 0' do
+                sh.cmd "jdk_switcher use #{config[:jdk]}", assert: true, echo: true, timing: false
+              end
             end
           end
         end
