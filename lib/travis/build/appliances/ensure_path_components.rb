@@ -12,7 +12,7 @@ module Travis
         def apply
           COMPONENTS.each do |pc|
             sh.cmd <<~EOF
-              [[ -n $pc && ! :$PATH: =~ :#{pc}: ]] && export PATH="$PATH:$pc"
+              [[ -n "#{pc}" && ! :$PATH: =~ :#{pc}: ]] && export PATH="$PATH:#{pc}"
             EOF
           end
         end
