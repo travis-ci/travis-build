@@ -129,6 +129,15 @@ module Travis
         sh.nodes.insert(options[:pos] || -1, node)
       end
 
+      def trace(name, options = {}, &block)
+        yield unless options[:trace]
+
+        args = merge_options(name)
+        block = with_node(&block) if block
+        node = Shell::Ast::Trace.new(*args, &block)
+        sh.nodes.insert(options[:pos] || -1, node)
+      end
+
       def if(*args, &block)
         block = with_node(&block) if block
         args = merge_options(args)

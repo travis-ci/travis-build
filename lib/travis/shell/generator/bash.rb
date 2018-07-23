@@ -115,6 +115,15 @@ module Travis
           end
         end
 
+        def handle_trace(name, cmds, options = {})
+          with_margin do
+            lines = ["travis_span_start #{name}"]
+            lines << handle(cmds)
+            lines << "travis_span_finish #{name}"
+            lines
+          end
+        end
+
         def handle_if(condition, *branches)
           options = branches.last.is_a?(Hash) ? branches.pop : {}
           with_margin do

@@ -76,7 +76,7 @@ travis_cmd() {
   done
 
   if [[ -n "$trace" ]]; then
-    travis_span_start
+    travis_span_start "$cmd"
   fi
 
   if [[ -n "$timing" ]]; then
@@ -138,7 +138,7 @@ travis_time_finish() {
 
 travis_span_start() {
   travis_span_id=$(printf %08x $(( RANDOM * RANDOM )))
-  travis_span_name=$1
+  travis_span_name="$1"
   travis_span_start_time=$(travis_nanoseconds)
 }
 

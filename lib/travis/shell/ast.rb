@@ -64,6 +64,19 @@ module Travis
         end
       end
 
+      class Trace < Cmds
+        attr_reader :trace
+
+        def initialize(trace, *args, &block)
+          @trace = trace
+          super(*args, &block)
+        end
+
+        def to_sexp
+          [:trace, trace, super]
+        end
+      end
+
       class Conditional < Cmds
         attr_reader :condition
 

@@ -47,7 +47,11 @@ module Travis
     module Appliances
       def apply(name)
         app = appliance(name)
-        app.apply if app.apply?
+        if app.apply?
+          sh.fold name do
+            app.apply
+          end
+        end
       end
 
       def appliance(name)
