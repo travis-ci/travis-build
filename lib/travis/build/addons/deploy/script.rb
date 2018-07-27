@@ -70,7 +70,7 @@ module Travis
 
               sh.else do
                 warning_message_unless(repo_condition, "this repo's name does not match one specified in .travis.yml's deploy.on.repo: #{on[:repo]}")
-                warning_message_unless(branch_condition, "this branch is not permitted")
+                warning_message_unless(branch_condition, "this branch is not permitted: #{data.branch}")
                 warning_message_unless(runtime_conditions, "this is not on the required runtime")
                 warning_message_unless(custom_conditions, "a custom condition was not met")
                 warning_message_unless(tags_condition, "this is not a tagged commit")

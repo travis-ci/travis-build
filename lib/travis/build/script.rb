@@ -58,11 +58,12 @@ module Travis
       include Module.new { Stages::STAGES.map(&:name).flatten.each { |stage| define_method(stage) {} } }
       include Appliances, DirectoryCache, Deprecation, Template
 
-      attr_reader :sh, :data, :options, :validator, :addons, :stages
+      attr_reader :sh, :raw_data, :data, :options, :validator, :addons, :stages
       attr_accessor :setup_cache_has_run_for
 
       def initialize(data)
-        @data = Data.new({ config: self.class.defaults }.deep_merge(data.deep_symbolize_keys))
+        @raw_data = data.deep_symbolize_keys
+        @data = Data.new({ config: self.class.defaults }.deep_merge(self.raw_data))
         @options = {}
 
         @sh = Shell::Builder.new
@@ -77,6 +78,11 @@ module Travis
         raise to
       rescue Exception => e
         event = Travis::Build.config.sentry_dsn.empty? ? nil : Raven.capture_exception(e)
+
+        unless Travis::Build.config.dump_backtrace.empty?
+          Travis::Build.logger.error(e)
+          Travis::Build.logger.error(e.backtrace)
+        end
 
         show_compile_error_msg(e, event)
       end
@@ -160,6 +166,7 @@ module Travis
         end
 
         def configure
+          apply :set_x
           apply :show_system_info
           apply :rm_riak_source
           apply :fix_rwky_redis

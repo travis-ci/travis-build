@@ -7,6 +7,8 @@ module Travis
         YARN_REQUIRED_NODE_VERSION = '4'
 
         NPM_QUIET_TREE_VERSION = '5'
+        
+        NPM_CI_CMD_VERSION = '5.8.0'
 
         def export
           super
@@ -190,7 +192,7 @@ module Travis
           end
 
           def npm_strict_ssl?
-            !node_0_6? && !node_0_8?
+            !node_0_6? && !node_0_8? && !node_0_9?
           end
 
           def node_0_6?
@@ -199,6 +201,10 @@ module Travis
 
           def node_0_8?
             (config[:node_js] || '').to_s.split('.')[0..1] == %w(0 8)
+          end
+
+          def node_0_9?
+            (config[:node_js] || '').to_s.split('.')[0..1] == %w(0 9)
           end
 
           def use_npm_cache?
@@ -218,7 +224,12 @@ module Travis
 
           def npm_install(args)
             sh.fold "install.npm" do
-              sh.cmd "npm install #{args}", retry: true
+              sh.if "$(vers2int `npm -v`) -ge $(vers2int #{NPM_CI_CMD_VERSION}) && (-f npm-shrinkwrap.json || -f package-lock.json)" do
+                sh.cmd "npm ci #{args}", retry: true
+              end
+              sh.else do
+                sh.cmd "npm install #{args}", retry: true
+              end
               sh.if "$(vers2int `npm -v`) -gt $(vers2int #{NPM_QUIET_TREE_VERSION})" do
                 sh.cmd "npm ls", echo: true, assert: false
               end

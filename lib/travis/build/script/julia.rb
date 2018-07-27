@@ -20,6 +20,7 @@ module Travis
 
           sh.export 'TRAVIS_JULIA_VERSION', config[:julia].to_s.shellescape,
             echo: false
+          sh.export 'JULIA_PROJECT', "@."
         end
 
         def setup
@@ -71,7 +72,7 @@ module Travis
             sh.if '-a .git/shallow' do
               sh.cmd 'git fetch --unshallow'
             end
-            sh.cmd "julia --color=yes -e 'Pkg.clone(pwd())'"
+            sh.cmd 'julia --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\" || (!isfile(\"Project.toml\") && !isfile(\"JuliaProject.toml\")); Pkg.clone(pwd()); end"'
             sh.cmd 'julia --color=yes -e "Pkg.build(\"${JL_PKG}\")"'
             sh.if '-f test/runtests.jl' do
               sh.cmd 'julia --check-bounds=yes --color=yes ' \
