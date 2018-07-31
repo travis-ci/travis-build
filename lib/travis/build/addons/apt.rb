@@ -185,7 +185,7 @@ module Travis
               end
 
               sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
-              sh.cmd "sudo -E apt-get -yq update &>> ~/apt-get-update.log", echo: true, timing: true
+              sh.cmd "sudo -E apt-get -yq update >> ~/apt-get-update.log", echo: true, timing: true
               apt_opt_cmd = <<~APT_OPTS_RETRIEVAL
               TRAVIS_APT_OPTS="$(
                 apt-get --version | awk '
