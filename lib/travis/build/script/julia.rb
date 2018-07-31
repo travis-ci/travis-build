@@ -32,8 +32,8 @@ module Travis
             ansi: :green
           sh.echo '  https://github.com/travis-ci/travis-ci/issues' \
             '/new?labels=julia', ansi: :green
-          sh.echo 'and mention \`@tkelman\`, \`@ninjin\`, \`@staticfloat\`' \
-            ' and \`@simonbyrne\` in the issue', ansi: :green
+          sh.echo 'and mention \`@travis-ci/julia-maintainers\`' \
+            'in the issue', ansi: :green
 
           sh.fold 'Julia-install' do
             sh.echo 'Installing Julia', ansi: :yellow
