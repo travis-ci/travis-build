@@ -1,4 +1,5 @@
 require 'travis/build/addons/base'
+require 'net/http'
 
 module Travis
   module Build
@@ -9,10 +10,14 @@ module Travis
         BROWSERSTACK_HOME = '$HOME/.browserstack'
         BROWSERSTACK_BIN_FILE = 'BrowserStackLocal'
         BROWSERSTACK_BIN_URL = 'https://www.browserstack.com/browserstack-local'
-        ENV_USER = 'BROWSERSTACK_USER'
+        ENV_USER = 'BROWSERSTACK_USERNAME'
         ENV_KEY = 'BROWSERSTACK_ACCESS_KEY'
         ENV_LOCAL = 'BROWSERSTACK_LOCAL'
         ENV_LOCAL_IDENTIFIER = 'BROWSERSTACK_LOCAL_IDENTIFIER'
+        ENV_APP_ID = 'BROWSERSTACK_APP_ID'
+        ENV_CUSTOM_ID = 'BROWSERSTACK_CUSTOM_ID'
+        ENV_SHAREABLE_ID = 'BROWSERSTACK_SHAREABLE_ID'
+        BROWSERSTACK_APP_AUTOMATE_URL = 'https://api-cloud.browserstack.com/app-automate/upload'
 
         def before_before_script
           browserstack_key = access_key.to_s
@@ -47,6 +52,12 @@ module Travis
             sh.export ENV_USER, browserstack_user + "-travis", echo: true unless browserstack_user.empty?
             sh.export ENV_KEY, browserstack_key, echo: false
             sh.export ENV_LOCAL, 'true', echo: true
+          end
+
+          if app_path && !app_path.empty?
+            if !upload_app()
+              raise "app upload failure"
+            end
           end
         end
 
@@ -159,8 +170,43 @@ module Travis
           def proxy_pass
             config[:proxy_pass] || config[:proxyPass]
           end
-        end
 
+          def custom_id
+            config[:custom_id] || config[:customId]
+          end
+
+          def app_path
+            config[:app_path] || config[:appPath]
+          end
+
+          def export_app_variables()
+            sh.export(ENV_APP_ID, response['app_url'], echo: true)
+            sh.export(ENV_CUSTOM_ID, response['custom_id'], echo: false) \
+              if response['custom_id'] && !response['custom_id'].empty?
+            sh.export(ENV_SHAREABLE_ID, response['shareable_id'], echo: false) \
+              if response['shareable_id'] && !response['shareable_id'].empty?
+            return true
+          end
+
+          def upload_app()
+            if !File.exist?(app_path)
+              return false
+            else
+              if custom_id && !custom_id.empty?
+                response = `curl --retry 3 --retry-connrefused --retry-delay 2 \
+                  -u "#{username}:#{access_key}" -X POST #{BROWSERSTACK_APP_AUTOMATE_URL} -F \
+                  "file=@/#{app_path}" -F \'data={"custom_id": "#{custom_id}"}\'`
+              else
+                response = `curl --retry 3 --retry-connrefused --retry-delay 2\
+                  -u "#{username}:#{access_key}" -X POST #{BROWSERSTACK_APP_AUTOMATE_URL} -F \
+                  "file=@/#{app_path}"`
+              end
+              response = JSON.parse(response)
+              return false if !response['app_url'] || response['app_url'].empty?
+              export_app_variables()
+            end
+          end
+      end
     end
   end
 end
