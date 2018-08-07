@@ -67,19 +67,23 @@ module Travis
           set_jl_pkg
           sh.echo 'Package name determined from repository url to be ${JL_PKG}',
             ansi: :green
-          # Check if the repository is a Julia package.
+          # Check if the repository is using new Pkg
           sh.if "-f Project.toml || -f JuliaProject.toml" do
             sh.if '-a .git/shallow' do
               sh.cmd 'git fetch --unshallow'
             end
+            # build
             sh.cmd 'julia --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; Pkg.clone(pwd()); Pkg.build(\"${JL_PKG}\"); else using Pkg; Pkg.build(); end"'
+            # run tests
             sh.cmd 'julia --check-bounds=yes --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; Pkg.test(\"${JL_PKG}\", coverage=true); else using Pkg; Pkg.test(coverage=true); end"'
           end
           sh.else do
             sh.if '-a .git/shallow' do
               sh.cmd 'git fetch --unshallow'
             end
+            # build
             sh.cmd 'julia --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; Pkg.clone(pwd()); Pkg.build(\"${JL_PKG}\")"'
+            # run tests
             sh.cmd 'julia --check-bounds=yes --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; Pkg.test(\"${JL_PKG}\", coverage=true)"'
           end
         end
@@ -114,6 +118,7 @@ module Travis
           end
 
           def set_jl_pkg
+            # Extract the package name from the git repository
             # Regular expression from: julia:base/pkg/entry.jl
             shurl = "git remote -v | head -n 1 | cut -f 2 | cut -f 1 -d ' '"
             m = /(?:^|[\/\\\\])(\w+?)(?:\.jl)?(?:\.git)?$/.match(shurl)
