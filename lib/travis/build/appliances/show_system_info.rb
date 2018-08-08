@@ -37,10 +37,17 @@ module Travis
             sh.if "-f #{info_file}" do
               sh.cmd "cat #{info_file}"
             end
+            sh.if "-f #{secondary_info_file}" do
+              sh.cmd "cat #{secondary_info_file}"
+            end
           end
 
           def info_file
             '/usr/share/travis/system_info'
+          end
+
+          def secondary_info_file
+            '/usr/local/travis/system_info'
           end
       end
     end
