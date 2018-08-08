@@ -64,7 +64,12 @@ module Travis
 
         def script
           sh.echo 'Executing the default test script', ansi: :green
-          set_jl_pkg
+
+          # Extract the package name from the repository slug (org/pkgname.jl)
+          m = /(\w+)\/(\w+)(?:\.jl)?(?:\.git)?$/.match('${TRAVIS_REPO_SLUG}')
+          if m != nil
+            sh.export 'JL_PKG', m[1]
+          end
           sh.echo 'Package name determined from repository url to be ${JL_PKG}',
             ansi: :green
           # Check if the repository is using new Pkg
@@ -115,16 +120,6 @@ module Travis
               sh.failure "Unknown Julia version: #{julia_version}"
             end
             "https://#{url}"
-          end
-
-          def set_jl_pkg
-            # Extract the package name from the git repository
-            # Regular expression from: julia:base/pkg/entry.jl
-            shurl = "git remote -v | head -n 1 | cut -f 2 | cut -f 1 -d ' '"
-            m = /(?:^|[\/\\\\])(\w+?)(?:\.jl)?(?:\.git)?$/.match(shurl)
-            if m != nil
-              sh.export 'JL_PKG', m[1], echo: false
-            end
           end
       end
     end
