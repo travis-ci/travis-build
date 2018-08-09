@@ -58,31 +58,38 @@ module Travis
         def announce
           super
 
-          sh.cmd "julia -e 'versioninfo()'"
+          sh.cmd 'julia --color=yes -e "VERSION >= v\"0.7.0-DEV.3630\" && using InteractiveUtils; versioninfo()"'
           sh.echo ''
         end
 
         def script
           sh.echo 'Executing the default test script', ansi: :green
-          set_jl_pkg
+
+          # Extract the package name from the repository slug (org/pkgname.jl)
+          m = /(\w+?)\/(\w+?)(?:\.jl)?$/.match(data[:repository][:slug])
+          if m != nil
+            sh.export 'JL_PKG', m[2]
+          end
           sh.echo 'Package name determined from repository url to be ${JL_PKG}',
             ansi: :green
-          # Check if the repository is a Julia package.
-          sh.if "-f src/${JL_PKG}.jl" do
+          # Check if the repository is using new Pkg
+          sh.if "-f Project.toml || -f JuliaProject.toml" do
             sh.if '-a .git/shallow' do
               sh.cmd 'git fetch --unshallow'
             end
-            sh.cmd 'julia --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\" || (!isfile(\"Project.toml\") && !isfile(\"JuliaProject.toml\")); Pkg.clone(pwd()); end"'
-            sh.cmd 'julia --color=yes -e "Pkg.build(\"${JL_PKG}\")"'
-            sh.if '-f test/runtests.jl' do
-              sh.cmd 'julia --check-bounds=yes --color=yes ' \
-                '-e "Pkg.test(\"${JL_PKG}\", coverage=true)"'
-            end
+            # build
+            sh.cmd 'julia --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; Pkg.clone(pwd()); Pkg.build(\"${JL_PKG}\"); else using Pkg; Pkg.build(); end"'
+            # run tests
+            sh.cmd 'julia --check-bounds=yes --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; Pkg.test(\"${JL_PKG}\", coverage=true); else using Pkg; Pkg.test(coverage=true); end"'
           end
           sh.else do
-            sh.echo '\`src/${JL_PKG}.jl\` not found, repository is not a '\
-              'valid Julia package so the default test script is empty',
-              ansi: :yellow
+            sh.if '-a .git/shallow' do
+              sh.cmd 'git fetch --unshallow'
+            end
+            # build
+            sh.cmd 'julia --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; Pkg.clone(pwd()); Pkg.build(\"${JL_PKG}\")"'
+            # run tests
+            sh.cmd 'julia --check-bounds=yes --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; Pkg.test(\"${JL_PKG}\", coverage=true)"'
           end
         end
 
@@ -113,15 +120,6 @@ module Travis
               sh.failure "Unknown Julia version: #{julia_version}"
             end
             "https://#{url}"
-          end
-
-          def set_jl_pkg
-            # Regular expression from: julia:base/pkg/entry.jl
-            urlregex = 'r"(?:^|[/\\\\])(\w+?)(?:\.jl)?(?:\.git)?$"'
-            jlcode = "println(match(#{urlregex}, readchomp(STDIN)).captures[1])"
-            shurl = "git remote -v | head -n 1 | cut -f 2 | cut -f 1 -d ' '"
-            sh.export 'JL_PKG', "$(#{shurl} | julia -e '#{jlcode}')",
-              echo: false
           end
       end
     end
