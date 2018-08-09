@@ -66,9 +66,9 @@ module Travis
           sh.echo 'Executing the default test script', ansi: :green
 
           # Extract the package name from the repository slug (org/pkgname.jl)
-          m = /(\w+)\/(\w+)(?:\.jl)?(?:\.git)?$/.match('${TRAVIS_REPO_SLUG}')
+          m = /(\w+?)\/(\w+?)(?:\.jl)?$/.match(ENV['TRAVIS_REPO_SLUG'])
           if m != nil
-            sh.export 'JL_PKG', m[1]
+            sh.export 'JL_PKG', m[2]
           end
           sh.echo 'Package name determined from repository url to be ${JL_PKG}',
             ansi: :green
