@@ -11,10 +11,6 @@ module Travis
   module Build
     class Script
       class Julia < Script
-        DEFAULTS = {
-          julia: 'release',
-        }
-
         def export
           super
 
@@ -108,8 +104,7 @@ module Travis
             end
             case julia_version = Array(config[:julia]).first.to_s
             when 'release'
-              # CHANGEME on new minor releases (once or twice a year)
-              url = "julialang-s3.julialang.org/bin/#{osarch}/0.6/julia-0.6-latest-#{ext}"
+              sh.failure "'release' is no longer a valid julia version specifier in .travis.yml"
             when 'nightly'
               url = "julialangnightlies-s3.julialang.org/bin/#{osarch}/julia-latest-#{nightlyext}"
             when /^(\d+\.\d+)\.\d+$/
