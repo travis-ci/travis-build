@@ -104,14 +104,25 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
     end
 
     describe 'if workspace and scheme is given' do
+      let(:branch) { sexp_find(sexp, [:else]) }
+
       before(:each) do
         data[:config][:xcode_workspace] = 'YourWorkspace.xcworkspace'
         data[:config][:xcode_scheme] = 'YourScheme'
       end
 
       it 'runs xcodebuild and xcpretty' do
-        branch = sexp_find(sexp, [:else])
         expect(branch).to include_sexp [:cmd, 'set -o pipefail && xcodebuild -workspace YourWorkspace.xcworkspace -scheme YourScheme build test | xcpretty', echo: true, timing: true]
+      end
+
+      it 'runs xctool for the xcode6.4 image' do
+        data[:config][:osx_image] = 'xcode6.4'
+        expect(branch).to include_sexp [:cmd, 'xctool -workspace YourWorkspace.xcworkspace -scheme YourScheme build test', echo: true, timing: true]
+      end
+
+      it 'runs xctool for the xcode7.3 image' do
+        data[:config][:osx_image] = 'xcode7.3'
+        expect(branch).to include_sexp [:cmd, 'xctool -workspace YourWorkspace.xcworkspace -scheme YourScheme build test', echo: true, timing: true]
       end
     end
 

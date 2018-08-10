@@ -90,7 +90,11 @@ module Travis
 
           sh.else do
             if config[:xcode_scheme] && (config[:xcode_project] || config[:xcode_workspace])
-              sh.cmd "set -o pipefail && xcodebuild #{xcodebuild_args} build test | xcpretty"
+              if use_xctool?
+                sh.cmd "xctool #{xcodebuild_args} build test"
+              else
+                sh.cmd "set -o pipefail && xcodebuild #{xcodebuild_args} build test | xcpretty"
+              end
             else
               # deprecate DEPRECATED_MISSING_WORKSPACE_OR_PROJECT
               sh.cmd "echo -e \"\\033[33;1mWARNING:\\033[33m Using Objective-C testing without specifying a scheme and either a workspace or a project is deprecated.\"", echo: false, timing: true
@@ -118,6 +122,10 @@ module Travis
             condition = '-f Rakefile && "$(cat Rakefile)" =~ require\ [\\"\\\']motion/project'
             condition << ' && -f Gemfile' if options.delete(:with_bundler)
             condition
+          end
+
+          def use_xctool?
+            %w[xcode6.4 xcode7.3].include? config[:osx_image]
           end
 
           def xcodebuild_args
