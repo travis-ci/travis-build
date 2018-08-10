@@ -11,6 +11,10 @@ module Travis
   module Build
     class Script
       class Julia < Script
+        DEFAULTS = {
+          julia: '1',
+        }
+
         def export
           super
 
@@ -111,6 +115,9 @@ module Travis
               url = "julialang-s3.julialang.org/bin/#{osarch}/#{$1}/julia-#{julia_version}-#{ext}"
             when /^(\d+\.\d+)$/
               url = "julialang-s3.julialang.org/bin/#{osarch}/#{$1}/julia-#{$1}-latest-#{ext}"
+            when '1'
+              # TODO: create a permalink to latest 1.y.z
+              url = "julialang-s3.julialang.org/bin/#{osarch}/1.0/julia-1.0-latest-#{ext}"
             else
               sh.failure "Unknown Julia version: #{julia_version}"
             end
