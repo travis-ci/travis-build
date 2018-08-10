@@ -108,7 +108,8 @@ module Travis
             end
             case julia_version = Array(config[:julia]).first.to_s
             when 'release'
-              sh.failure "'release' is no longer a valid julia version specifier in .travis.yml"
+              sh.failure "'release' is no longer a valid julia version specifier in .travis.yml," \
+                "please use '1' instead."
             when 'nightly'
               url = "julialangnightlies-s3.julialang.org/bin/#{osarch}/julia-latest-#{nightlyext}"
             when /^(\d+\.\d+)\.\d+$/
