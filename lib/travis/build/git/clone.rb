@@ -41,7 +41,7 @@ module Travis
           end
 
           def fetch_ref
-            sh.cmd "git fetch origin +#{data.ref}:", assert: true, retry: true
+            sh.cmd "git fetch origin +#{data.ref}:#{fetch_args}", assert: true, retry: true
           end
 
           def fetch_ref?
