@@ -69,6 +69,16 @@ describe Travis::Build::Git::Clone, :sexp do
 
     it { should include_sexp fetch }
     it { should include_sexp reset }
+
+    context 'when git.quiet is true' do
+      before :each do
+        payload[:config][:git].merge!({ quiet: true })
+      end
+
+      let(:quiet_fetch)     { [:cmd, 'git -C travis-ci/travis-ci fetch origin --quiet', assert: true, echo: true, retry: true, timing: true] }
+
+      it { should include_sexp quiet_fetch }
+    end
   end
 
   let(:cd)            { [:cd,  'travis-ci/travis-ci', echo: true] }

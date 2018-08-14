@@ -35,7 +35,7 @@ module Travis
               end
             end
             sh.else do
-              sh.cmd "git -C #{dir} fetch origin", assert: true, retry: true
+              sh.cmd "git -C #{dir} fetch origin#{fetch_args}", assert: true, retry: true
               sh.cmd "git -C #{dir} reset --hard", assert: true, timing: false
             end
           end
@@ -67,6 +67,12 @@ module Travis
 
           def pull_args
             args = depth_flag
+            args << " --quiet" if quiet?
+            args
+          end
+
+          def fetch_args
+            args = ""
             args << " --quiet" if quiet?
             args
           end
