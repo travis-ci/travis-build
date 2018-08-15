@@ -11,7 +11,7 @@ module Travis
         def with_stage(name = nil, &block)
           @stage = name
           options = STAGE_DEFAULT_OPTIONS[name] || {}
-          options[:trace] = true if config[:debug_trace]
+          options[:trace] = true if config[:trace]
 
           sh.with_options(options || {}, &block)
         end
