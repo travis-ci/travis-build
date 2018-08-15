@@ -21,10 +21,6 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
       expect(fold).to include_sexp [:cmd, 'xcodebuild -version -sdk', echo: true]
     end
 
-    it 'announces xcodebuild -version -sdk' do
-      expect(fold).to include_sexp [:cmd, 'xctool -version', echo: true]
-    end
-
     it 'announces RubyMotion version if project is a RubyMotion project' do
       sexp = sexp_find(subject, [:if, is_ruby_motion], [:then])
       expect(sexp).to include_sexp [:cmd, 'motion --version', echo: true]
@@ -62,6 +58,11 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
     it 'sets TRAVIS_XCODE_WORKSPACE' do
       data[:config][:xcode_workspace] = 'MyWorkspace.xcworkspace'
       should include_sexp [:export, ['TRAVIS_XCODE_WORKSPACE', 'MyWorkspace.xcworkspace']]
+    end
+
+    it 'sets TRAVIS_XCODE_DESTINATION' do
+      data[:config][:xcode_destination] = 'platform=iOS Simulator,name=iPhone X'
+      should include_sexp [:export, ['TRAVIS_XCODE_DESTINATION', 'platform\=iOS\ Simulator,name\=iPhone\ X']]
     end
   end
 
@@ -103,13 +104,24 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
     end
 
     describe 'if workspace and scheme is given' do
+      let(:branch) { sexp_find(sexp, [:else]) }
+
       before(:each) do
         data[:config][:xcode_workspace] = 'YourWorkspace.xcworkspace'
         data[:config][:xcode_scheme] = 'YourScheme'
       end
 
-      it 'runs xctool' do
-        branch = sexp_find(sexp, [:else])
+      it 'runs xcodebuild and xcpretty' do
+        expect(branch).to include_sexp [:cmd, 'set -o pipefail && xcodebuild -workspace YourWorkspace.xcworkspace -scheme YourScheme build test | xcpretty', echo: true, timing: true]
+      end
+
+      it 'runs xctool for the xcode6.4 image' do
+        data[:config][:osx_image] = 'xcode6.4'
+        expect(branch).to include_sexp [:cmd, 'xctool -workspace YourWorkspace.xcworkspace -scheme YourScheme build test', echo: true, timing: true]
+      end
+
+      it 'runs xctool for the xcode7.3 image' do
+        data[:config][:osx_image] = 'xcode7.3'
         expect(branch).to include_sexp [:cmd, 'xctool -workspace YourWorkspace.xcworkspace -scheme YourScheme build test', echo: true, timing: true]
       end
     end
@@ -122,13 +134,18 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
         data[:config][:xcode_scheme] = 'YourScheme'
       end
 
-      it 'runs xctool' do
-        expect(branch).to include_sexp [:cmd, 'xctool -project YourProject.xcodeproj -scheme YourScheme build test', echo: true, timing: true]
+      it 'runs xcodebuild and xcpretty' do
+        expect(branch).to include_sexp [:cmd, 'set -o pipefail && xcodebuild -project YourProject.xcodeproj -scheme YourScheme build test | xcpretty', echo: true, timing: true]
       end
 
-      it 'passes an SDK version to xctool' do
+      it 'passes an SDK version to xcodebuild' do
         data[:config][:xcode_sdk] = '7.0'
-        expect(branch).to include_sexp [:cmd, 'xctool -project YourProject.xcodeproj -scheme YourScheme -sdk 7.0 build test', echo: true, timing: true]
+        expect(branch).to include_sexp [:cmd, 'set -o pipefail && xcodebuild -project YourProject.xcodeproj -scheme YourScheme -sdk 7.0 build test | xcpretty', echo: true, timing: true]
+      end
+
+      it 'passes a destination to xcodebuild' do
+        data[:config][:xcode_destination] = 'platform=iOS Simulator,name=iPhone X'
+        expect(branch).to include_sexp [:cmd, 'set -o pipefail && xcodebuild -project YourProject.xcodeproj -scheme YourScheme -destination platform\=iOS\ Simulator,name\=iPhone\ X build test | xcpretty', echo: true, timing: true]
       end
     end
 
