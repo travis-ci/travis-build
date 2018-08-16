@@ -142,6 +142,30 @@ module Travis
           lines
         end
 
+        def handle_trace_root(body, options = {})
+          span_id = root_span_id
+
+          start_span = {
+            id: span_id,
+            parent_id: nil,
+            name: 'root',
+            start_time: '__TRAVIS_TIMESTAMP__'
+          }
+
+          end_span = {
+            id: span_id,
+            end_time: '__TRAVIS_TIMESTAMP__',
+            status: '__TRAVIS_STATUS__'
+          }
+
+          lines = ["travis_trace_span #{escape(start_span.to_json)}"]
+          with_span(span_id) do
+            lines << handle(body)
+          end
+          lines << "travis_trace_span #{escape(end_span.to_json)}"
+          lines
+        end
+
         def handle_if(condition, *branches)
           options = branches.last.is_a?(Hash) ? branches.pop : {}
           with_margin do

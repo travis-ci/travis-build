@@ -8,7 +8,10 @@ module Travis
       def initialize(nodes)
         @nodes = nodes
         @level = 0
-        @trace = []
+        @trace = [
+          # root span id
+          Digest::SHA1.hexdigest(rand.to_s)
+        ]
       end
 
       def generate(ignore_taint = false)
@@ -72,6 +75,10 @@ module Travis
 
         def parent_span_id
           @trace.last
+        end
+
+        def root_span_id
+          @trace.first
         end
     end
   end

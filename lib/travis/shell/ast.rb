@@ -80,6 +80,16 @@ module Travis
         end
       end
 
+      class TraceRoot < Cmds
+        def initialize(*args, &block)
+          super(*args, &block)
+        end
+
+        def to_sexp
+          [:trace_root, super]
+        end
+      end
+
       class Conditional < Cmds
         attr_reader :condition
 

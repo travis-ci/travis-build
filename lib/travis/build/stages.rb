@@ -86,8 +86,7 @@ module Travis
 
         sh.raw "source $HOME/.travis/job_stages"
 
-        # TODO: this is the root span, pre-allocate and pass as parent_id
-        sh.trace(:root) {
+        sh.trace_root {
           STAGES.each do |stage|
             case stage.run_in_debug
             when :always

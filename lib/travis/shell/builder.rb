@@ -142,6 +142,16 @@ module Travis
         sh.nodes << node
       end
 
+      def trace_root(*args, &block)
+        unless @trace_enabled
+          return yield
+        end
+        args = merge_options(args)
+        block = with_node(&block) if block
+        node = Shell::Ast::TraceRoot.new(*args, &block)
+        sh.nodes << node
+      end
+
       def if(*args, &block)
         block = with_node(&block) if block
         args = merge_options(args)
