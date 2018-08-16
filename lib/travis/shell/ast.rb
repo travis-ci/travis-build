@@ -65,15 +65,18 @@ module Travis
       end
 
       class Trace < Cmds
-        attr_reader :body
+        attr_reader :name
 
-        def initialize(body, *args, &block)
-          @body = body
+        def initialize(name, *args, &block)
+          @name = name
           super(*args, &block)
         end
 
         def to_sexp
-          [:trace, body, super]
+          body = super
+          # short circuit, do not trace empty spans
+          return body if body == [:cmds, []]
+          [:trace, name, body]
         end
       end
 

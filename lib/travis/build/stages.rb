@@ -86,16 +86,19 @@ module Travis
 
         sh.raw "source $HOME/.travis/job_stages"
 
-        STAGES.each do |stage|
-          case stage.run_in_debug
-          when :always
-            sh.raw "travis_run_#{stage.name}"
-          when true
-            sh.raw "travis_run_#{stage.name}" if debug_build?
-          when false
-            sh.raw "travis_run_#{stage.name}" unless debug_build?
+        # TODO: this is the root span, pre-allocate and pass as parent_id
+        sh.trace(:root) {
+          STAGES.each do |stage|
+            case stage.run_in_debug
+            when :always
+              sh.raw "travis_run_#{stage.name}"
+            when true
+              sh.raw "travis_run_#{stage.name}" if debug_build?
+            when false
+              sh.raw "travis_run_#{stage.name}" unless debug_build?
+            end
           end
-        end
+        }
       end
 
       def define_header_stage
