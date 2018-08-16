@@ -65,15 +65,15 @@ module Travis
       end
 
       class Trace < Cmds
-        attr_reader :trace
+        attr_reader :body
 
-        def initialize(trace, *args, &block)
-          @trace = trace
+        def initialize(body, *args, &block)
+          @body = body
           super(*args, &block)
         end
 
         def to_sexp
-          [:trace, trace, super]
+          [:trace, body, super]
         end
       end
 

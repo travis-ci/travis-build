@@ -30,7 +30,9 @@ module Travis
 
       def node(type, data = nil, *args)
         args = merge_options(args)
-        if fold = args.last.delete(:fold)
+        if trace = args.last.delete(:trace)
+          trace(trace) { node(type, data, *args) }
+        elsif fold = args.last.delete(:fold)
           fold(fold) { node(type, data, *args) }
         else
           pos = args.last.delete(:pos)
@@ -129,12 +131,10 @@ module Travis
         sh.nodes.insert(options[:pos] || -1, node)
       end
 
-      def trace(name, options = {}, &block)
-        yield unless options[:trace]
-
-        args = merge_options(name)
+      def trace(cmds, *args, &block)
         block = with_node(&block) if block
-        node = Shell::Ast::Trace.new(*args, &block)
+        args = merge_options(args)
+        node = Shell::Ast::Trace.new(cmds, *args, &block)
         sh.nodes.insert(options[:pos] || -1, node)
       end
 

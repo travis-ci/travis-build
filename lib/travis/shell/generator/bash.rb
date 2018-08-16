@@ -1,5 +1,6 @@
 require 'core_ext/hash/compact'
 require 'travis/shell/generator'
+require 'json'
 
 module Travis
   module Shell
@@ -115,11 +116,32 @@ module Travis
           end
         end
 
-        def handle_trace(name, cmds, options = {})
+        # format roughly based on the stackdriver trace api
+        #   https://cloud.google.com/trace/docs/reference/v2/rest/v2/projects.traces/batchWrite
+        def handle_trace(body, options = {})
+          # TODO pass name as an arg
+          span_id = Digest::SHA1.hexdigest(rand.to_s)
+          name = ''
+
+          start_span = {
+            id: span_id,
+            parent_id: parent_span_id,
+            name: name,
+            start_time: '__TRAVIS_TIMESTAMP__'
+          }
+
+          end_span = {
+            id: span_id,
+            end_time: '__TRAVIS_TIMESTAMP__',
+            status: '__TRAVIS_STATUS__'
+          }
+
           with_margin do
-            lines = ["travis_span_start #{name}"]
-            lines << handle(cmds)
-            lines << "travis_span_finish #{name}"
+            lines = ["travis_trace_span #{escape(start_span.to_json)}"]
+            with_span(span_id) do
+              lines << handle(body)
+            end
+            lines << "travis_trace_span #{escape(end_span.to_json)}"
             lines
           end
         end

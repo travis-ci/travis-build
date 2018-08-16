@@ -56,7 +56,7 @@ TRAVIS_TMPDIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'travis_tmp')
 pgrep -u $USER | grep -v -w $$ > $TRAVIS_TMPDIR/pids_before
 
 travis_cmd() {
-  local assert output display retry timing trace cmd result secure
+  local assert output display retry timing cmd result secure
 
   cmd=$1
   TRAVIS_CMD=$cmd
@@ -69,15 +69,10 @@ travis_cmd() {
       --display) display=$2;  shift 2;;
       --retry)   retry=true;  shift ;;
       --timing)  timing=true; shift ;;
-      --trace)   trace=true;  shift ;;
       --secure)  secure=" 2>/dev/null"; shift ;;
       *) break ;;
     esac
   done
-
-  if [[ -n "$trace" ]]; then
-    travis_span_start "$cmd"
-  fi
 
   if [[ -n "$timing" ]]; then
     travis_time_start
@@ -108,10 +103,6 @@ ${ANSI_RED}For more information, see https://docs.travis-ci.com/user/encryption-
     travis_time_finish
   fi
 
-  if [[ -n "$trace" ]]; then
-    travis_span_finish
-  fi
-
   if [[ -n "$assert" ]]; then
     travis_assert $result
   fi
@@ -133,23 +124,13 @@ travis_time_finish() {
   return $result
 }
 
-# loosely modeled after zipkin
-# https://zipkin.io/pages/data_model.html
-
-travis_span_start() {
-  travis_span_id=$(printf %08x $(( RANDOM * RANDOM )))
-  travis_span_name="$1"
-  travis_span_start_time=$(travis_nanoseconds)
-}
-
-travis_span_finish() {
+travis_trace_span() {
   local result=$?
-  travis_span_end_time=$(travis_nanoseconds)
-  local duration=$(($travis_span_end_time-$travis_span_start_time))
-  printf '{"id":"%s","name":"%s","timestamp":%s,"duration":%s}\n' \
-    "$travis_span_id" "$travis_span_name" "$travis_span_start_time" "$duration" \
-    >> /tmp/build.trace
-  return $result
+  local template="$1"
+  local timestamp=$(travis_nanoseconds)
+  template="${template/__TRAVIS_TIMESTAMP__/$timestamp}"
+  template="${template/__TRAVIS_STATUS__/$result}"
+  echo "$template" >> /tmp/build.trace
 }
 
 travis_nanoseconds() {

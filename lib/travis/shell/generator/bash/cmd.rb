@@ -34,7 +34,6 @@ module Travis
               opts << "--display #{escape(options[:echo])}" if options[:echo].is_a?(String)
               opts << '--retry'  if options[:retry]
               opts << '--timing' if options[:timing]
-              opts << '--trace'  if options[:trace]
               opts << '--secure' if options[:secure]
               opts.join(' ')
             end
