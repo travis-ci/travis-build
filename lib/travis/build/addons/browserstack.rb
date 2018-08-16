@@ -193,12 +193,12 @@ module Travis
               return false
             else
               if custom_id && !custom_id.empty?
-                response = `curl --retry 3 --retry-connrefused --retry-delay 2 \
-                  -u "#{username}:#{access_key}" -X POST #{BROWSERSTACK_APP_AUTOMATE_URL} -F \
+                response = `curl -u "#{username}:#{access_key}" -X POST \
+                  #{BROWSERSTACK_APP_AUTOMATE_URL} -F \
                   "file=@/#{app_path}" -F \'data={"custom_id": "#{custom_id}"}\'`
               else
-                response = `curl --retry 3 --retry-connrefused --retry-delay 2\
-                  -u "#{username}:#{access_key}" -X POST #{BROWSERSTACK_APP_AUTOMATE_URL} -F \
+                response = `curl -u "#{username}:#{access_key}" -X POST \
+                  #{BROWSERSTACK_APP_AUTOMATE_URL} -F \
                   "file=@/#{app_path}"`
               end
               response = JSON.parse(response)
