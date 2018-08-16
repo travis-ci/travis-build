@@ -2,24 +2,23 @@ module Travis
   module Build
     class Script
       module Jdk
+
+        include Template
+
+        #TEMPLATES_PATH = File.expand_path('../../templates', __FILE__)
+
+        INSTALL_PATHS = [
+          '/usr/lib/jvm/',
+          '/usr/local/lib/jvm/'
+        ]
+
         def configure
           super
-          if uses_jdk?
-            if use_install_jdk?(config[:jdk])
-              download_install_jdk
+          return unless uses_jdk?
 
-              sh.if "-f install-jdk.sh" do
-                sh.export "JAVA_HOME", "${TRAVIS_HOME}/#{jdk}"
-                sh.cmd "bash install-jdk.sh #{install_jdk_args config[:jdk]} --target $JAVA_HOME --workspace #{cache_dir}", echo: true, assert: true
-                sh.export "PATH", "$JAVA_HOME/bin:$PATH"
-                sh.raw 'set +e', echo: false
-              end
-            else
-              sh.if '"$(command -v jdk_switcher &>/dev/null; echo $?)" == 0' do
-                sh.cmd "jdk_switcher use #{config[:jdk]}", assert: true, echo: true, timing: false
-              end
-            end
-          end
+          #jdk = config[:jdk]
+          
+          sh.raw(install_jdk, echo: true, timing: true, fold: 'install_jdk')
         end
 
         def export
@@ -34,7 +33,10 @@ module Travis
             sh.export 'TERM', 'dumb'
           end
 
-          sh.cmd 'mkdir -p ~/.gradle && echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties', echo: false, timing: false
+          sh.if '"$TRAVIS_DIST" == precise || "$TRAVIS_DIST" == trusty' do
+            sh.echo "Disabling Gradle daemon", ansi: :yellow
+            sh.cmd 'mkdir -p ~/.gradle && echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties', echo: true, timing: false
+          end
 
           correct_maven_repo
         end
@@ -66,28 +68,29 @@ module Travis
             config[:jdk].gsub(/\s/,'')
           end
 
-          def use_install_jdk?(jdk)
-            ! install_jdk_args(jdk).empty?
+          def install_jdk
+            template('jdk.sh',
+                     jdk: jdk,
+                     jdk_glob: jdk_glob(jdk),
+                     app_host: app_host,
+                     args: install_jdk_args,
+                     cache_dir: cache_dir)
           end
 
-          def download_install_jdk
-            return if app_host.empty?
-            sh.cmd "curl -sf -O https://#{app_host}/files/install-jdk.sh"
+          def jdk_glob(jdk)
+            "{#{paths.join(',')}}/#{jdk}*"
           end
 
           def install_jdk_args(jdk)
-            args_for = {
-              # OpenJDK
-              'openjdk-ea'   => '-L GPL',
-              'openjdk9'     => '-F 9  -L GPL',
-              'openjdk10'    => '-F 10 -L GPL',
-              'openjdk11'    => '-F 11 -L GPL',
-              # OracleJDK
-              'oraclejdk-ea' => '-L BCL',
-              'oraclejdk10'  => '-F 10 -L BCL',
-              'oraclejdk11'  => '-F 11 -L BCL',
-            }
-            args_for.fetch(jdk, '')
+            m = jdk.match(/(?<vendor>[a-z]+)-?(?<version>.+)?/)
+            if m[:vendor].start_with? 'oracle'
+              license = 'BCL'
+            elsif m[:vendor].start_with? 'openjdk'
+              license = 'GPL'
+            else
+              puts 'Houston is calling'
+            end
+            "--feature #{m[:version]} --license #{license}"
           end
 
           def cache_dir
