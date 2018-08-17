@@ -73,10 +73,7 @@ module Travis
         end
 
         def to_sexp
-          body = super
-          # short circuit, do not trace empty spans
-          return body if body == [:cmds, []]
-          [:trace, name, body]
+          [:trace, name, nodes.map(&:to_sexp)]
         end
       end
 
@@ -86,7 +83,7 @@ module Travis
         end
 
         def to_sexp
-          [:trace_root, super]
+          [:trace_root, nodes.map(&:to_sexp)]
         end
       end
 
