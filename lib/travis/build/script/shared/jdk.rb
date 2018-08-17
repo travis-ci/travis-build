@@ -5,20 +5,15 @@ module Travis
 
         include Template
 
-        #TEMPLATES_PATH = File.expand_path('../../templates', __FILE__)
-
-        INSTALL_PATHS = [
-          '/usr/lib/jvm/',
-          '/usr/local/lib/jvm/'
-        ]
-
         def configure
           super
           return unless uses_jdk?
 
-          #jdk = config[:jdk]
+          jdk = config[:jdk].gsub(/\s/,'')
+
+          return if jdk == 'default'
           
-          sh.raw(install_jdk, echo: true, timing: true, fold: 'install_jdk')
+          sh.raw(install_jdk(jdk), echo: true, timing: true, fold: 'install_jdk')
         end
 
         def export
@@ -64,17 +59,17 @@ module Travis
             !!config[:jdk]
           end
 
-          def jdk
-            config[:jdk].gsub(/\s/,'')
-          end
-
-          def install_jdk
+          def install_jdk(jdk)
             template('jdk.sh',
                      jdk: jdk,
                      jdk_glob: jdk_glob(jdk),
                      app_host: app_host,
-                     args: install_jdk_args,
+                     args: install_jdk_args(jdk),
                      cache_dir: cache_dir)
+          end
+
+          def paths
+            [ '/usr/lib/jvm', '/usr/local/lib/jvm' ]
           end
 
           def jdk_glob(jdk)
@@ -88,7 +83,7 @@ module Travis
             elsif m[:vendor].start_with? 'openjdk'
               license = 'GPL'
             else
-              puts 'Houston is calling'
+              return false
             end
             "--feature #{m[:version]} --license #{license}"
           end
