@@ -122,7 +122,9 @@ module Travis
         type = :builtin if fallback?(type, name)
         type = :skip    if skip?(type, name)
         stage = self.class.const_get(type.to_s.camelize).new(script, name)
-        stage.run
+        sh.trace(name) {
+          stage.run
+        }
       end
 
       def debug_build?

@@ -12,9 +12,7 @@ module Travis
           @stage = name
           options = STAGE_DEFAULT_OPTIONS[name] || {}
 
-          sh.trace(@stage) {
-            sh.with_options(options || {}, &block)
-          }
+          sh.with_options(options || {}, &block)
         end
 
         def run_addon_stage(name)
