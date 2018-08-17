@@ -120,11 +120,12 @@ module Travis
         #   https://cloud.google.com/trace/docs/reference/v2/rest/v2/projects.traces/batchWrite
         def handle_trace(name, body, options = {})
           span_id = Digest::SHA1.hexdigest(rand.to_s)
+          name = name.to_s.lines.first.gsub(/\s<<.*/, '')
 
           start_span = {
             id: span_id,
             parent_id: parent_span_id,
-            name: name.to_s,
+            name: name,
             start_time: '__TRAVIS_TIMESTAMP__'
           }
 
