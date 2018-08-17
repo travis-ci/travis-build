@@ -83,10 +83,6 @@ module Travis
           Travis::Build.logger.error(e.backtrace)
         end
 
-        if ENV['RACK_ENV'] == 'development'
-          raise e
-        end
-
         show_compile_error_msg(e, event)
       end
 
