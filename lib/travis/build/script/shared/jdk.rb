@@ -12,7 +12,7 @@ module Travis
           jdk = config[:jdk].gsub(/\s/,'')
 
           return if jdk == 'default'
-          
+
           sh.raw(install_jdk(jdk), echo: true, timing: true, fold: 'install_jdk')
         end
 
