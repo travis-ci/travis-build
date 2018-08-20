@@ -1,5 +1,6 @@
 require 'core_ext/hash/compact'
 require 'travis/shell/generator'
+require 'json'
 
 module Travis
   module Shell
@@ -113,6 +114,61 @@ module Travis
             lines << "travis_fold end #{name}"
             lines
           end
+        end
+
+        # format roughly based on the stackdriver trace api
+        #   https://cloud.google.com/trace/docs/reference/v2/rest/v2/projects.traces/batchWrite
+        def handle_trace(name, body, options = {})
+          span_id = Digest::SHA1.hexdigest(rand.to_s)
+          name = name.to_s.lines.first.gsub(/<<.*/, '...')
+
+          start_span = {
+            id: span_id,
+            parent_id: parent_span_id,
+            name: name,
+            start_time: '__TRAVIS_TIMESTAMP__'
+          }
+
+          end_span = {
+            id: span_id,
+            end_time: '__TRAVIS_TIMESTAMP__',
+            status: '__TRAVIS_STATUS__'
+          }
+
+          lines = ["travis_trace_span #{escape(start_span.to_json)}"]
+          with_span(span_id) do
+            body.each do |node|
+              lines << handle(node)
+            end
+          end
+          lines << "travis_trace_span #{escape(end_span.to_json)}"
+          lines
+        end
+
+        def handle_trace_root(body, options = {})
+          span_id = root_span_id
+
+          start_span = {
+            id: span_id,
+            parent_id: nil,
+            name: 'root',
+            start_time: '__TRAVIS_TIMESTAMP__'
+          }
+
+          end_span = {
+            id: span_id,
+            end_time: '__TRAVIS_TIMESTAMP__',
+            status: '__TRAVIS_STATUS__'
+          }
+
+          lines = ["travis_trace_span #{escape(start_span.to_json)}"]
+          with_span(span_id) do
+            body.each do |node|
+              lines << handle(node)
+            end
+          end
+          lines << "travis_trace_span #{escape(end_span.to_json)}"
+          lines
         end
 
         def handle_if(condition, *branches)
