@@ -232,22 +232,22 @@ describe Travis::Shell::Generator::Bash, :include_node_helpers do
 
   describe :trace do
     it 'generates a trace' do
-      @sexp = [:trace, 'foo', [:cmd, 'foo']]
+      @sexp = [:trace, 'foo', [[:cmd, 'foo']]]
       expect(code).to match(/^travis_trace_span \\{[^\}]+\\}\nfoo\ntravis_trace_span \\{[^\}]+\\}$/)
     end
 
     it 'with multiple traces' do
       @sexp = [:cmds, [
-        [:trace, 'foo', [:cmd, 'foo']],
-        [:trace, 'bar', [:cmd, 'bar']],
+        [:trace, 'foo', [[:cmd, 'foo']]],
+        [:trace, 'bar', [[:cmd, 'bar']]],
       ]]
       expect(code).to match(/^travis_trace_span \\{[^\}]+\\}\n  foo\n  travis_trace_span \\{[^\}]+\\}\n  travis_trace_span \\{[^\}]+\\}\n  bar\n  travis_trace_span \\{[^\}]+\\}$/)
     end
 
     it 'with nested traces' do
-      @sexp = [:trace, 'root', [:cmds, [
+      @sexp = [:trace, 'root', [[:cmds, [
         [:trace, 'foo', [:cmd, 'foo']],
-      ]]]
+      ]]]]
       expect(code).to match(/^travis_trace_span \\{[^\}]+\\}\n  travis_trace_span \\{[^\}]+\\}\n  foo\n  travis_trace_span \\{[^\}]+\\}\ntravis_trace_span \\{[^\}]+\\}$/)
     end
   end
