@@ -8,7 +8,9 @@ module Travis
   module Build
     class Script
       class Nix < Script
-        DEFAULTS = {}
+        DEFAULTS = {
+          nix: '2.0.4'
+        }
 
         def export
           super
@@ -40,8 +42,10 @@ module Travis
         def setup
           super
 
+          version = config[:nix]
+
           sh.fold 'nix.install' do
-            sh.cmd "wget --retry-connrefused --waitretry=1 -O /tmp/nix-install https://nixos.org/nix/install"
+            sh.cmd "wget --retry-connrefused --waitretry=1 -O /tmp/nix-install https://nixos.org/releases/nix/nix-#{version}/install"
             sh.cmd "yes | sh /tmp/nix-install"
 
             if config[:os] == 'linux'
