@@ -1,7 +1,8 @@
 # Maintained by
-#  - Domen Kožar   @domenkozar   <domen@dev.si>
-#  - Rok Garbas    @garbas       <rok@garbas.si>
-#  - Matthew Bauer @matthewbauer <mjbauer95@gmail.com>
+#  - Domen Kožar        @domenkozar   <domen@dev.si>
+#  - Rok Garbas         @garbas       <rok@garbas.si>
+#  - Matthew Bauer      @matthewbauer <mjbauer95@gmail.com>
+#  - Graham Christensen @grahamc      <graham@grahamc.com>
 
 module Travis
   module Build
@@ -57,7 +58,7 @@ module Travis
           super
 
           sh.echo 'Nix support for Travis CI is community maintained.', ansi: :green
-          sh.echo 'Please open any issues at https://github.com/travis-ci/travis-ci/issues/new and cc @domenkozar @garbas @matthewbauer', ansi: :green
+          sh.echo 'Please open any issues at https://github.com/travis-ci/travis-ci/issues/new and cc @domenkozar @garbas @matthewbauer @grahamc', ansi: :green
 
           sh.cmd "nix-env --version"
         end
