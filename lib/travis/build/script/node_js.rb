@@ -95,10 +95,16 @@ module Travis
               directory_cache.add '$HOME/.cache/yarn'
             end
           end
+          if data.cache?(:npm)
+            sh.fold 'cache.npm' do
+              sh.echo ''
+              directory_cache.add '$HOME/.npm'
+            end
+          end
         end
 
         def use_directory_cache?
-          super || data.cache?(:yarn)
+          super || data.cache?(:yarn) || data.cache?(:npm)
         end
 
         private
