@@ -178,10 +178,12 @@ module Travis
           end
 
           def app_path
-            config[:app_path] || config[:appPath]
+            path = config[:app_path] || config[:appPath]
+            return ENV['TRAVIS_BUILD_DIR'] + path if path && !path.empty?
+            return path
           end
 
-          def export_app_variables()
+          def export_app_variables(response)
             sh.export(ENV_APP_ID, response['app_url'], echo: true)
             sh.export(ENV_CUSTOM_ID, response['custom_id'], echo: false) \
               if response['custom_id'] && !response['custom_id'].empty?
@@ -197,15 +199,15 @@ module Travis
               if custom_id && !custom_id.empty?
                 response = `curl -u "#{username}:#{access_key}" -X POST \
                   #{BROWSERSTACK_APP_AUTOMATE_URL} -F \
-                  "file=@/#{app_path}" -F \'data={"custom_id": "#{custom_id}"}\'`
+                  "file=@#{app_path}" -F \'data={"custom_id": "#{custom_id}"}\'`
               else
                 response = `curl -u "#{username}:#{access_key}" -X POST \
                   #{BROWSERSTACK_APP_AUTOMATE_URL} -F \
-                  "file=@/#{app_path}"`
+                  "file=@#{app_path}"`
               end
               response = JSON.parse(response)
               return false if !response['app_url'] || response['app_url'].empty?
-              export_app_variables()
+              export_app_variables(response)
             end
           end
       end
