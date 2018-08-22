@@ -10,7 +10,8 @@ module Travis
         BROWSERSTACK_HOME = '$HOME/.browserstack'
         BROWSERSTACK_BIN_FILE = 'BrowserStackLocal'
         BROWSERSTACK_BIN_URL = 'https://www.browserstack.com/browserstack-local'
-        ENV_USER = 'BROWSERSTACK_USERNAME'
+        ENV_USER = 'BROWSERSTACK_USER'
+        ENV_USERNAME = 'BROWSERSTACK_USERNAME'
         ENV_KEY = 'BROWSERSTACK_ACCESS_KEY'
         ENV_LOCAL = 'BROWSERSTACK_LOCAL'
         ENV_LOCAL_IDENTIFIER = 'BROWSERSTACK_LOCAL_IDENTIFIER'
@@ -50,6 +51,7 @@ module Travis
             sh.cmd "#{build_start_command(browserstack_key)}"
             browserstack_user = username.to_s
             sh.export ENV_USER, browserstack_user + "-travis", echo: true unless browserstack_user.empty?
+            sh.export ENV_USERNAME, browserstack_user + "-travis", echo: true unless browserstack_user.empty?
             sh.export ENV_KEY, browserstack_key, echo: false
             sh.export ENV_LOCAL, 'true', echo: true
           end
