@@ -43,8 +43,11 @@ travis_setup_java() {
   jdkpath="$(travis_find_jdk_path)"
   echo debug: "${jdkpath%/*}/.${jdkpath##*/}.jinfo" $([[ -f "${jdkpath%/*}/.${jdkpath##*/}.jinfo" ]] && echo exists || echo does not exist)
   if [[ -z "$jdkpath" ]]; then
+    echo 'debug: empty jdkpath'
     travis_install_jdk <%= jdk %>
-  elif [[ -f "${jdkpath%/*}/.${jdkpath##*/}.jinfo" ]] && declare -f jdk_switcher; then
+  elif compgen -G "${jdkpath%/*}/<%= jinfo_file %>" &>/dev/null \
+      && declare -f jdk_switcher &>/dev/null; then
+    echo 'debug: .jinfo file found'
     travis_cmd 'jdk_switcher use <%= jdk %>' --echo --assert
     travis_remove_from_path "$JAVA_HOME/bin"
     unset JAVA_HOME
@@ -52,6 +55,7 @@ travis_setup_java() {
       sed -i '/export \(PATH\|JAVA_HOME\)=/d' ~/.bash_profile.d/travis_jdk.bash
     fi
   else
+    echo 'debug: adjusting JAVA_HOME and PATH'
     export JAVA_HOME="$jdkpath"
     export PATH="$JAVA_HOME/bin:$PATH"
     if [[ -f ~/.bash_profile.d/travis_jdk.bash ]]; then

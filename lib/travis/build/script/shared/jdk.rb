@@ -63,29 +63,52 @@ module Travis
             template('jdk.sh',
                      jdk: jdk,
                      jdk_glob: jdk_glob(jdk),
+                     jinfo_file: jinfo_file(jdk),
                      app_host: app_host,
                      args: install_jdk_args(jdk),
                      cache_dir: cache_dir)
           end
 
-          def paths
-            [ '/usr/lib/jvm', '/usr/local/lib/jvm' ]
+          def jdk_glob(jdk)
+            vendor, version = jdk_info(jdk)
+            if vendor == 'openjdk'
+              apt_glob = "/usr/lib/jvm/java-1.#{version}.*openjdk*"
+            elsif vendor == 'oracle'
+              apt_glob = "/usr*/lib/jvm/java-#{version}-oracle"
+            end
+            installjdk_glob = "/usr*/local/lib/jvm/#{jdk}"
+            "#{apt_glob} #{installjdk_glob}"
           end
 
-          def jdk_glob(jdk)
-            "{#{paths.join(',')}}/#{jdk}*"
+          def jdk_info(jdk)
+            m = jdk.match(/(?<vendor>[a-z]+)-?(?<version>.+)?/)
+            if m[:vendor]. start_with? 'oracle'
+              vendor = 'oracle'
+            elsif m[:vendor].start_with? 'openjdk'
+              vendor = 'openjdk'
+            end
+            [ vendor, m[:version] ]
+          end
+
+          def jinfo_file(jdk)
+            vendor, version = jdk_info(jdk)
+            if vendor == 'oracle'
+              ".java-#{version}-#{vendor}.jinfo"
+            elsif vendor == 'openjdk'
+                ".java-1.#{version}.*-#{vendor}-*.jinfo"
+            end
           end
 
           def install_jdk_args(jdk)
-            m = jdk.match(/(?<vendor>[a-z]+)-?(?<version>.+)?/)
-            if m[:vendor].start_with? 'oracle'
+            vendor, version = jdk_info(jdk)
+            if vendor == 'oracle'
               license = 'BCL'
-            elsif m[:vendor].start_with? 'openjdk'
+            elsif vendor == 'openjdk'
               license = 'GPL'
             else
               return false
             end
-            "--feature #{m[:version]} --license #{license}"
+            "--feature #{version} --license #{license}"
           end
 
           def cache_dir
