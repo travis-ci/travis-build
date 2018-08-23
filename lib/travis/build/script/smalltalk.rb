@@ -1,31 +1,32 @@
-# Copyright (c) 2015-2016 Software Architecture Group (Hasso Plattner Institute)
-# Copyright (c) 2015-2016 Fabio Niephaus, Google Inc.
+# Copyright (c) 2015-2017 Software Architecture Group (Hasso Plattner Institute)
+# Copyright (c) 2015-2017 Fabio Niephaus, Google Inc.
 
 module Travis
   module Build
     class Script
       class Smalltalk < Script
         DEFAULTS = {}
+        DEFAULT_REPOSITORY = 'hpi-swa/smalltalkCI'
+        DEFAULT_BRANCH = 'master'
         HOSTS_FILE = '/etc/hosts'
         TEMP_HOSTS_FILE = '/tmp/hosts'
         SYSCTL_FILE = '/etc/sysctl.conf'
         TEMP_SYSCTL_FILE = '/tmp/sysctl.conf'
-        DEFAULT_DEPS = 'libc6:i386 libuuid1:i386 libfreetype6:i386 libssl1.0.0:i386'
-        PHARO_DEPS = DEFAULT_DEPS + ' libcairo2:i386'
+        DEFAULT_32BIT_DEPS = 'libc6:i386 libuuid1:i386 libfreetype6:i386 libssl1.0.0:i386'
+        PHARO_32BIT_DEPS = "#{DEFAULT_32BIT_DEPS} libcairo2:i386"
+        X64_REGEXP = /^[a-zA-Z]*64\-/
 
         def configure
           super
 
           if is_squeak? or is_etoys?
-            install_dependencies(DEFAULT_DEPS)
+            install_dependencies(DEFAULT_32BIT_DEPS)
           elsif is_pharo? or is_moose?
-            install_dependencies(PHARO_DEPS)
+            install_dependencies(PHARO_32BIT_DEPS)
           elsif is_gemstone?
-
             sh.fold 'gemstone_prepare_dependencies' do
               sh.echo 'Preparing build for GemStone', ansi: :yellow
               gemstone_configure_hosts
-
               case config[:os]
               when 'linux'
                 gemstone_prepare_linux_shared_memory
@@ -33,67 +34,75 @@ module Travis
               when 'osx'
                 gemstone_prepare_osx_shared_memory
               end
-
               gemstone_prepare_netldi
               gemstone_prepare_directories
             end
-
           end
         end
 
         def export
           super
-          sh.export 'TRAVIS_SMALLTALK_VERSION', smalltalk_version, echo: false
           sh.export 'TRAVIS_SMALLTALK_CONFIG', smalltalk_config, echo: false
+          sh.export 'TRAVIS_SMALLTALK_VERSION', smalltalk_version, echo: false
+          sh.export 'TRAVIS_SMALLTALK_VM', smalltalk_vm, echo: false
         end
 
         def setup
           super
 
-          sh.echo 'Smalltalk for Travis-CI is not officially supported, ' \
-            'but is community maintained.', ansi: :green
+          sh.echo 'Smalltalk for Travis CI is not officially supported, ' \
+            'but is community-maintained.', ansi: :green
           sh.echo 'Please file any issues using the following link', ansi: :green
           sh.echo '  https://github.com/hpi-swa/smalltalkCI/issues', ansi: :green
 
-          sh.cmd "pushd $HOME > /dev/null", echo: false
+          sh.cmd 'pushd $HOME > /dev/null', echo: false
           sh.fold 'download_smalltalkci' do
             sh.echo 'Downloading and extracting smalltalkCI', ansi: :yellow
-            sh.cmd "wget -q -O smalltalkCI.zip https://github.com/" + smalltalk_ci_repo + "/archive/" + smalltalk_ci_branch + ".zip"
-            sh.cmd "unzip -q -o smalltalkCI.zip"
-            sh.cmd "pushd smalltalkCI-* > /dev/null", echo: false
-            sh.cmd "source env_vars"
-            sh.cmd "popd > /dev/null; popd > /dev/null", echo: false
+            sh.cmd "wget -q -O smalltalkCI.zip #{download_url}"
+            sh.cmd 'unzip -q -o smalltalkCI.zip'
+            sh.cmd 'pushd smalltalkCI-* > /dev/null', echo: false
+            sh.cmd 'source env_vars'
+            sh.cmd 'export PATH="$(pwd)/bin:$PATH"'
+            sh.cmd 'popd > /dev/null; popd > /dev/null', echo: false
           end
         end
 
         def script
           super
 
-          sh.cmd "$SMALLTALK_CI_HOME/run.sh"
+          sh.cmd "smalltalkci"
         end
 
         private
 
           def smalltalk_ci_repo
-            config.fetch(:smalltalk_edge, {}).fetch(:source, "hpi-swa/smalltalkCI")
+            config.fetch(:smalltalk_edge, {}).fetch(:source, DEFAULT_REPOSITORY)
           end
 
           def smalltalk_ci_branch
-            config.fetch(:smalltalk_edge, {}).fetch(:branch, "master")
-          end
-
-          def smalltalk_version
-            config[:smalltalk].to_s
+            config.fetch(:smalltalk_edge, {}).fetch(:branch, DEFAULT_BRANCH)
           end
 
           def smalltalk_config
             config[:smalltalk_config].to_s
           end
 
+          def smalltalk_version
+            Array(config[:smalltalk]).first.to_s
+          end
+
+          def smalltalk_vm
+            config[:smalltalk_vm].to_s
+          end
+
+          def download_url
+            "https://github.com/#{smalltalk_ci_repo}/archive/#{smalltalk_ci_branch}.zip"
+          end
+
           def is_squeak?
             is_platform?('squeak')
           end
-          
+
           def is_etoys?
             is_platform?('etoys')
           end
@@ -111,20 +120,28 @@ module Travis
           end
 
           def is_platform?(name)
-            config[:smalltalk].to_s.downcase.start_with?(name)
+            smalltalk_version.downcase.start_with?(name)
           end
 
-          def install_dependencies(deps)
-            return if config[:os] != 'linux'
+          def is_linux?
+            config[:os] == 'linux'
+          end
+
+          def is_64bit?
+            smalltalk_version =~ X64_REGEXP || smalltalk_vm =~ X64_REGEXP
+          end
+
+          def install_dependencies(deps_32bit)
+            return if !is_linux? || is_64bit?
             sh.fold 'install_packages' do
               sh.echo 'Installing dependencies', ansi: :yellow
 
-              sh.if '$(lsb_release -cs) != precise' do
+              sh.if '$(uname -m) != ppc64le && $(lsb_release -cs) != precise' do
                 sh.cmd 'sudo dpkg --add-architecture i386'
               end
 
               sh.cmd 'sudo apt-get update -qq', retry: true
-              sh.cmd 'sudo apt-get install -y --no-install-recommends ' + deps, retry: true
+              sh.cmd "sudo apt-get install -y --no-install-recommends #{deps_32bit}", retry: true
             end
           end
 
@@ -199,7 +216,7 @@ module Travis
               sh.cmd 'sudo ln -f -s /lib/i386-linux-gnu/libpam.so.0 /lib/libpam.so.0'
               sh.cmd 'sudo ln -f -s /usr/lib/i386-lin-gnu/libstdc++.so.6 /usr/lib/i386-linux-gnu/libstdc++.so'
             end
-            sh.if '$(lsb_release -cs) = trusty' do
+            sh.if '$(uname -m) != ppc64le && $(lsb_release -cs) = trusty' do
               sh.cmd 'sudo dpkg --add-architecture i386'
               gemstone_install_linux_dependencies
               sh.cmd 'sudo ln -f -s /usr/lib/i386-lin-gnu/libstdc++.so.6 /usr/lib/i386-linux-gnu/libstdc++.so'

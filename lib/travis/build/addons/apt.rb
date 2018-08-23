@@ -6,12 +6,13 @@ module Travis
     class Addons
       class Apt < Base
         SUPER_USER_SAFE = true
-        SUPPORTED_OPERATING_SYSTEMS = %w(
-          linux
-        ).freeze
+        SUPPORTED_OPERATING_SYSTEMS = [
+          /^linux.*/
+        ].freeze
         SUPPORTED_DISTS = %w(
           precise
           trusty
+          xenial
         ).freeze
 
         class << self
@@ -34,7 +35,7 @@ module Travis
             end
             loaded
           rescue => e
-            warn e
+            warn e unless ENV['ENV'] == 'test'
             loaded
           end
 
@@ -48,7 +49,7 @@ module Travis
             end
             loaded
           rescue => e
-            warn e
+            warn e unless ENV['ENV'] == 'test'
             loaded
           end
 
@@ -70,8 +71,9 @@ module Travis
         end
 
         def before_prepare?
-          SUPPORTED_OPERATING_SYSTEMS.include?(data[:config][:os].to_s) &&
-            SUPPORTED_DISTS.include?(data[:config][:dist].to_s)
+          SUPPORTED_OPERATING_SYSTEMS.any? do |os_match|
+            data[:config][:os].to_s =~ os_match
+          end && SUPPORTED_DISTS.include?(data[:config][:dist].to_s)
         end
 
         def before_prepare
@@ -83,6 +85,28 @@ module Travis
 
         def skip_whitelist?
           Travis::Build.config.apt_whitelist_skip?
+        end
+
+        def before_configure?
+          config[:config] && config[:config][:retries]
+        end
+
+        def before_configure
+          sh.echo "Configuring default apt-get retries", ansi: :yellow
+          sh.raw <<~EOF
+          if [[ -d /var/lib/apt/lists && -n $(command -v apt-get) ]]; then
+            cat <<-EOS > 99-travis-build-retries
+          Acquire {
+            ForceIPv4 "1";
+            Retries "5";
+            https {
+              Timeout "30";
+            };
+          };
+          EOS
+            sudo mv 99-travis-build-retries /etc/apt/apt.conf.d
+          fi
+          EOF
         end
 
         private
@@ -107,7 +131,7 @@ module Travis
                       'key_url' => src[:key_url]
                     }
                   else
-                    sh.echo "`sourceline` key missing:", ansi: :yellow
+                    sh.echo "'sourceline' key missing:", ansi: :yellow
                     sh.echo Shellwords.escape(src.inspect)
                   end
                 else
@@ -162,9 +186,25 @@ module Travis
 
               sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
               sh.cmd "sudo -E apt-get -yq update &>> ~/apt-get-update.log", echo: true, timing: true
+              apt_opt_cmd = <<~APT_OPTS_RETRIEVAL
+              TRAVIS_APT_OPTS="$(
+                apt-get --version | awk '
+                  $1 == "apt" {
+                    split($2, apt, ".")
+                    if ((apt[1]==1 && apt[2]>2) || apt[1]>1) {
+                      print "--allow-downgrades --allow-remove-essential --allow-change-held-packages"
+                    }
+                    else {print "--force-yes"}
+                    exit
+                  }
+                '
+              )"
+              APT_OPTS_RETRIEVAL
+              sh.raw apt_opt_cmd
               command = 'sudo -E apt-get -yq --no-install-suggests --no-install-recommends ' \
-                "--force-yes install #{whitelisted.join(' ')}"
+                "$TRAVIS_APT_OPTS install #{whitelisted.join(' ')}"
               sh.cmd command, echo: true, timing: true
+
               sh.raw "result=$?"
               sh.if '$result -ne 0' do
                 sh.fold 'apt-get.diagnostics' do
@@ -173,6 +213,7 @@ module Travis
                 end
                 sh.raw "TRAVIS_CMD='#{command}'"
                 sh.raw "travis_assert $result"
+                sh.raw 'unset TRAVIS_APT_OPTS'
               end
             end
           end
@@ -183,10 +224,18 @@ module Travis
 
           def config_sources
             @config_sources ||= Array(config[:sources]).flatten.compact
+          rescue TypeError => e
+            if e.message =~ /no implicit conversion of Symbol into Integer/
+              raise Travis::Build::AptSourcesConfigError.new
+            end
           end
 
           def config_packages
             @config_packages ||= Array(config[:packages]).flatten.compact
+          rescue TypeError => e
+            if e.message =~ /no implicit conversion of Symbol into Integer/
+              raise Travis::Build::AptPackagesConfigError.new
+            end
           end
 
           def config_dist
@@ -207,7 +256,14 @@ module Travis
 
           def stop_postgresql
             sh.echo "PostgreSQL package is detected. Stopping postgresql service. See https://github.com/travis-ci/travis-ci/issues/5737 for more information.", ansi: :yellow
-            sh.cmd "sudo service postgresql stop", echo: true
+            command = <<~ENDOFBASH
+              if [[ "$TRAVIS_INIT" == systemd ]]; then
+                sudo systemctl stop postgresql
+              else
+                sudo service postgresql stop
+              fi
+            ENDOFBASH
+            sh.cmd command, echo: true
           end
       end
     end

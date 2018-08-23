@@ -40,8 +40,52 @@ describe Travis::Build::Script::Php, :sexp do
     xit { should include_sexp [:cmd, 'curl -s -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /', timing: true] }
   end
 
+  context 'with php nightly' do
+    describe 'writes ~/.pearrc if necessary' do
+      before { data[:config][:php] = 'nightly' }
+      it { should include_sexp [:echo, 'Writing $HOME/.pearrc', ansi: :yellow] }
+    end
+  end
+
+  context 'with unrecognized php version' do
+    describe 'writes ~/.pearrc if necessary' do
+      before { data[:config][:php] = 'foobar' }
+      it { should include_sexp [:echo, 'Writing $HOME/.pearrc', ansi: :yellow] }
+    end
+  end
+
+  context 'with php 5.4' do
+    describe 'writes ~/.pearrc if necessary' do
+      before { data[:config][:php] = '5.4' }
+      it { should include_sexp [:echo, 'Writing $HOME/.pearrc', ansi: :yellow] }
+    end
+  end
+
+  context 'with php 5.3' do
+    before { data[:config][:php] = '5.3' }
+    after { store_example "5.3" }
+    describe 'does not write ~/.pearrc' do
+      it { should_not include_sexp [:echo, 'Writing $HOME/.pearrc', ansi: :yellow] }
+    end
+
+    describe 'when running on non-Precise image' do
+      let(:sexp) { sexp_find(sexp_filter(subject, [:if, "$(lsb_release -sc 2>/dev/null) != precise"])[0], [:then]) }
+
+      it "terminates early" do
+        # These are the last commands of sh.failure
+        expect(sexp).to include_sexp [:raw, "set -e", assert: true]
+        expect(sexp).to include_sexp [:raw, "false", assert: true]
+      end
+    end
+  end
+
   describe 'installs php 7' do
     before { data[:config][:php] = '7' }
+    it { should include_sexp [:cmd, 'ln -s ~/.phpenv/versions/7.0 ~/.phpenv/versions/7', assert: true, timing: true] }
+  end
+
+  context 'when php version is given as array' do
+    before { data[:config][:php] = %w(7) }
     it { should include_sexp [:cmd, 'ln -s ~/.phpenv/versions/7.0 ~/.phpenv/versions/7', assert: true, timing: true] }
   end
 
@@ -65,17 +109,17 @@ describe Travis::Build::Script::Php, :sexp do
     before { data[:config][:php] = 'hhvm-3.12' }
     it { should include_sexp [:cmd, 'sudo apt-get update -qq'] }
     it { should include_sexp [:cmd, 'sudo apt-get install -y hhvm', timing: true, assert: true, echo: true] }
-    it { should include_sexp [:raw, "echo \"deb http://dl.hhvm.com/ubuntu $(lsb_release -sc)-lts-3.12 main\" | sudo tee -a /etc/apt/sources.list >&/dev/null"] }
+    it { should include_sexp [:raw, "echo \"deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc)-lts-3.12 main\" | sudo tee -a /etc/apt/sources.list >&/dev/null"] }
   end
 
   describe 'when desired PHP version is not found' do
     let(:version) { '7.0.0beta2' }
     let(:data) { payload_for(:push, :php, config: { php: version }) }
-    let(:sexp) { sexp_find(subject, [:if, "$? -ne 0"], [:then]) }
+    let(:sexp) { sexp_find(sexp_filter(subject, [:if, "$? -ne 0"])[1], [:then]) }
 
-    xit 'installs PHP version on demand' do
-      expect(sexp).to include_sexp [:raw, "archive_url=https://s3.amazonaws.com/travis-php-archives/php-#{version}-archive.tar.bz2"]
-      expect(sexp).to include_sexp [:cmd, "curl -s -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /", timing: true]
+    it 'installs PHP version on demand' do
+      expect(sexp).to include_sexp [:raw, "archive_url=https://s3.amazonaws.com/travis-php-archives/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/php-#{version}.tar.bz2", assert: true]
+      expect(sexp).to include_sexp [:cmd, "curl -s -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /", echo: true, timing: true]
     end
   end
 

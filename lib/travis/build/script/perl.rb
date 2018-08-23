@@ -57,7 +57,7 @@ module Travis
         }
 
         def version
-          version = config[:perl].to_s
+          version = Array(config[:perl]).first.to_s
           VERSIONS[version] || version
         end
 

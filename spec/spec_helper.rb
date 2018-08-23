@@ -1,3 +1,5 @@
+ENV['ENV'] = 'test'
+
 require 'simplecov'
 require 'fileutils'
 require 'sinatra/test_helpers'
@@ -12,6 +14,7 @@ integration_enabled = ENV['INTEGRATION_SPECS'] == '1'
 ENV['TOP'] = `git rev-parse --show-toplevel`.strip if integration_enabled
 
 RSpec.configure do |c|
+  c.include SpecHelpers::Logger
   c.include SpecHelpers::Payload
   c.include SpecHelpers::Node, :include_node_helpers
   c.include SpecHelpers::Sexp, :sexp

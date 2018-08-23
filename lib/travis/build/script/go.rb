@@ -7,14 +7,10 @@ module Travis
         DEFAULTS = {
           gobuild_args: '-v',
           gimme_config: {
-            url: Travis::Build.config.gimme.url.untaint,
-            force_reinstall: Travis::Build.config.gimme.force_reinstall == '1'
+            url: Travis::Build.config.gimme.url.untaint
           },
           go: Travis::Build.config.go_version.untaint
         }
-        GO_VERSION_ALIASES = Travis::Build.config.go_version_aliases_hash.merge(
-          'default' => DEFAULTS[:go]
-        ).freeze
 
         def export
           super
@@ -27,10 +23,7 @@ module Travis
         def prepare
           super
           ensure_gvm_wiped
-          gimme_not_found = "! -x '#{HOME_DIR}/bin/gimme' && ! -x '/usr/local/bin/gimme'"
-          force_reinstall = "#{!!gimme_config[:force_reinstall]} = true"
-
-          sh.if "(#{gimme_not_found}) || #{force_reinstall}" do
+          sh.if "! -x '#{HOME_DIR}/bin/gimme'" do
             update_gimme
           end
         end
@@ -43,7 +36,7 @@ module Travis
         end
 
         def setup
-          sh.cmd %Q'GIMME_OUTPUT=$(gimme #{go_version}) && eval "$GIMME_OUTPUT"'
+          sh.cmd %Q'GIMME_OUTPUT="$(gimme #{go_version} | tee -a $HOME/.bashrc)" && eval "$GIMME_OUTPUT"'
 
           # NOTE: $GOPATH is a plural ":"-separated var a la $PATH.  We export
           # only a single path here, but users who want to treat $GOPATH as
@@ -88,7 +81,7 @@ module Travis
           end
 
           sh.if uses_make do
-            sh.cmd 'true', retry: true, fold: 'install' # TODO instead negate the condition
+            sh.echo 'Makefile detected', retry: true, fold: 'install' # TODO instead negate the condition
           end
           sh.else do
             sh.cmd "#{go_get_cmd} #{gobuild_args} ./...", retry: true, fold: 'install'
@@ -135,9 +128,9 @@ module Travis
           end
 
           def normalized_go_version
-            v = config[:go].to_s
+            v = Array(config[:go]).first.to_s
             return v if v == 'go1'
-            GO_VERSION_ALIASES.fetch(v.sub(/^go/, ''), v).sub(/^go/, '')
+            v.sub(/^go/, '')
           end
 
           def comparable_go_version
@@ -148,7 +141,11 @@ module Travis
           end
 
           def go_get_cmd
-            if go_version == 'go1' || (go_version !~ /tip|master/ && comparable_go_version <= Gem::Version.new('1.2'))
+            if go_version == 'go1' ||
+              (go_version[/^[0-9]/] &&
+                go_version != '1.x' &&
+                comparable_go_version <= Gem::Version.new('1.2'))
+            then
               'go get'
             else
               'go get -t'
@@ -174,7 +171,7 @@ module Travis
 
           def gimme_url
             cleaned = URI.parse(gimme_config[:url]).to_s.untaint
-            return cleaned if cleaned =~ %r{^https://raw\.githubusercontent\.com/meatballhat/gimme}
+            return cleaned if cleaned =~ %r{^https://raw\.githubusercontent\.com/travis-ci/gimme}
             DEFAULTS[:gimme_config][:url]
           rescue URI::InvalidURIError => e
             warn e
@@ -205,7 +202,7 @@ module Travis
 
             sh.mkdir "$HOME/gopath/bin", echo: false, recursive: true
 
-            sh.if "$TRAVIS_OS_NAME = macx" do
+            sh.if "$TRAVIS_OS_NAME = osx" do
               sh.cmd "curl -sL -o #{godep} https://#{app_host}/files/godep_darwin_amd64", echo: false
             end
             sh.elif "$TRAVIS_OS_NAME = linux" do

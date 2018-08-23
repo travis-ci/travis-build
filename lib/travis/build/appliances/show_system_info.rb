@@ -24,6 +24,7 @@ module Travis
             end
             sh.echo "Build id: #{Shellwords.escape(data.build[:id])}"
             sh.echo "Job id: #{Shellwords.escape(data.job[:id])}"
+            sh.echo "Runtime kernel version: $(uname -r)"
           end
 
           def show_travis_build_version
@@ -36,10 +37,17 @@ module Travis
             sh.if "-f #{info_file}" do
               sh.cmd "cat #{info_file}"
             end
+            sh.if "-f #{secondary_info_file}" do
+              sh.cmd "cat #{secondary_info_file}"
+            end
           end
 
           def info_file
             '/usr/share/travis/system_info'
+          end
+
+          def secondary_info_file
+            '/usr/local/travis/system_info'
           end
       end
     end

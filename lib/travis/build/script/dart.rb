@@ -71,6 +71,9 @@ MESSAGE
         def export
           super
 
+          sh.export 'TRAVIS_DART_TEST', (!!task[:test]).to_s, echo: false
+          sh.export 'TRAVIS_DART_ANALYZE', (!!task[:dartanalyzer]).to_s, echo: false
+          sh.export 'TRAVIS_DART_FORMAT', (!!task[:dartfmt]).to_s, echo: false
           sh.export 'TRAVIS_DART_VERSION', task[:dart], echo: false
         end
 
@@ -90,7 +93,7 @@ MESSAGE
 
           sh.fold 'dart_install' do
             sh.echo 'Installing Dart', ansi: :yellow
-            sh.cmd "curl #{archive_url}/sdk/dartsdk-#{os}-x64-release.zip > $HOME/dartsdk.zip"
+            sh.cmd "curl --connect-timeout 15 --retry 5 #{archive_url}/sdk/dartsdk-#{os}-x64-release.zip > $HOME/dartsdk.zip"
             sh.cmd "unzip $HOME/dartsdk.zip -d $HOME > /dev/null"
             sh.cmd "rm $HOME/dartsdk.zip"
             sh.cmd 'export DART_SDK="$HOME/dart-sdk"'
@@ -227,20 +230,34 @@ MESSAGE
           def dartfmt
             args = task[:dartfmt]
 
-            if args.is_a?(String)
-              sh.echo "dartfmt arguments aren't supported.", ansi: :red
-            end
-
-            sh.if package_installed?('dart_style'), raw: true do
-              sh.raw 'function dartfmt() { pub run dart_style:format "$@"; }'
+            # If specified `-dartfmt: sdk` and there is a dependency on `dart_style` we
+            # will use the SDK version of dart_style to run formatting checks instead of
+            # the custom pinned version.
+            if args != 'sdk'
+              if !args.nil?
+                sh.echo "dartfmt only supports 'sdk' as an optional argument value.", ansi: :red
+              end
+              sh.if package_direct_dependency?('dart_style'), raw: true do
+                sh.echo 'Using the provided dart_style package to run format instead of the SDK.'
+                sh.echo "You may specify '- dartfmt: sdk' in order to use the SDK version instead"
+                sh.raw 'function dartfmt() { pub run dart_style:format "$@"; }'
+              end
             end
 
             sh.cmd 'unformatted=`dartfmt -n .`'
+            # If `dartfmt` fails for some reason
+            sh.if '$? -ne 0' do
+              sh.failure ""
+            end
             sh.if '! -z "$unformatted"' do
               sh.echo "Files are unformatted:", ansi: :red
               sh.echo "$unformatted"
               sh.failure ""
             end
+          end
+
+          def package_direct_dependency?(package)
+            "[[ -f pubspec.yaml ]] && (pub deps | grep -q \"^[|']-- #{package} \")"
           end
 
           def package_installed?(package)

@@ -98,10 +98,10 @@ describe Travis::Api::Build::App, :include_sinatra_helpers do
     /uptime
   ).each do |path|
     describe "GET #{path}" do
-      it 'responds 204' do
+      it 'responds 200' do
         header('Authorization', 'token the-token')
         response = get path
-        expect(response.status).to eq(204)
+        expect(response.status).to eq(200)
       end
     end
   end
