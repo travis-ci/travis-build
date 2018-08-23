@@ -65,7 +65,9 @@ module Travis
         @data = Data.new({ config: self.class.defaults }.deep_merge(self.raw_data))
         @options = {}
 
-        @sh = Shell::Builder.new
+        tracing_enabled = data[:trace]
+
+        @sh = Shell::Builder.new(tracing_enabled)
         @addons = Addons.new(self, sh, self.data, config)
         @stages = Stages.new(self, sh, config)
         @setup_cache_has_run_for = {}
