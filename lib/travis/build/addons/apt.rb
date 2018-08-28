@@ -157,7 +157,7 @@ module Travis
                 if sourceline.start_with?('ppa:')
                   sh.cmd "sudo -E apt-add-repository -y #{sourceline.inspect}", echo: true, assert: true, timing: true
                 else
-                  sh.cmd "curl -sSL #{safelisted_source_key_url(source['alias'])} | sudo -E apt-key add -", echo: true, assert: true, timing: true
+                  sh.cmd "curl -sSL #{safelisted_source_key_url(source['alias']).untaint} | sudo -E apt-key add -", echo: true, assert: true, timing: true
                   # Avoid adding deb-src lines to work around https://bugs.launchpad.net/ubuntu/+source/software-properties/+bug/987264
                   sh.cmd "echo #{sourceline.inspect} | sudo tee -a /etc/apt/sources.list >/dev/null", echo: true, assert: true, timing: true
                 end
@@ -256,8 +256,8 @@ module Travis
             format(
               Travis::Build.config.apt_source_safelist_key_url_template,
               source_alias: source_alias,
-              app_host: Travis.config.app_host
-            ).untaint
+              app_host: Travis::Build.config.app_host.to_s.strip
+            )
           end
 
           def stop_postgresql
