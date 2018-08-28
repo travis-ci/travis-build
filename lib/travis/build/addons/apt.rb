@@ -191,7 +191,7 @@ module Travis
                 apt-get --version | awk '
                   $1 == "apt" {
                     split($2, apt, ".")
-                    if ((apt[1]==1 && apt[2]>2) || apt[1]>1) {
+                    if ((apt[1]==1 && apt[2]>=2) || apt[1]>1) {
                       print "--allow-downgrades --allow-remove-essential --allow-change-held-packages"
                     }
                     else {print "--force-yes"}
