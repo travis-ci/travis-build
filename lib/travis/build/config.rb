@@ -28,7 +28,7 @@ module Travis
         },
         apt_source_safelist_key_url_template: ENV.fetch(
           'TRAVIS_BUILD_APT_SOURCE_SAFELIST_KEY_URL_TEMPLATE',
-          'https://raw.githubusercontent.com/travis-ci/apt-source-safelist/master/keys/%{source_alias}.asc'
+          'https://%{app_host}/files/gpg/%{source_alias}.asc'
         ),
         apt_safelist_skip: ENV.fetch('TRAVIS_BUILD_APT_SAFELIST_SKIP', '') == 'true',
         cabal_default: ENV.fetch('TRAVIS_BUILD_CABAL_DEFAULT', '2.0'),

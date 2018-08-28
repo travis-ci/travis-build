@@ -255,8 +255,9 @@ module Travis
           def safelisted_source_key_url(source_alias)
             format(
               Travis::Build.config.apt_source_safelist_key_url_template,
-              source_alias: source_alias
-            )
+              source_alias: source_alias,
+              app_host: Travis.config.app_host
+            ).untaint
           end
 
           def stop_postgresql
