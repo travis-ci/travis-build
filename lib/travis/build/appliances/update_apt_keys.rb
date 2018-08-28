@@ -5,12 +5,23 @@ module Travis
     module Appliances
       class UpdateAptKeys < Base
         def apply
-          command = <<-EOF
-          if command -v apt-get &>/dev/null && [[ -d /var/lib/apt/lists ]]; then
-            LANG=C apt-key list | awk -F'[ /]+' '/expired:/{printf "apt-key adv --recv-keys --keyserver keys.gnupg.net %s\\n", $3}' | sudo sh &>/dev/null
-          fi
-          EOF
-          sh.cmd command, echo: false
+          sh.if '"$TRAVIS_OS_NAME" == linux' do
+            command = <<~KEYUPDATE
+            apt-key adv --list-public-keys --with-fingerprint --with-colons \
+              | awk -F: '
+                $1=="pub" && $2=="e" { state="expired"}
+                $1=="fpr" && state == "expired" {
+                  out = sprintf("%s %s", out, $(NF -1))
+                  state="valid"
+                }
+                END {
+                  if (length(out)>0)
+                    printf "sudo apt-key adv --recv-keys --keyserver keys.gnupg.net %s", out
+                }
+              ' | sh
+            KEYUPDATE
+            sh.cmd command # , echo: false
+          end
         end
       end
     end
