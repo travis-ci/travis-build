@@ -4,6 +4,7 @@ require 'pathname'
 
 require 'faraday'
 require 'faraday_middleware'
+require 'minitar'
 require 'rake'
 require 'rubygems'
 
@@ -43,7 +44,7 @@ module Travis
           releases_url = "repos/#{repo}/releases"
           logger.info "Fetching releases from #{conn.url_prefix.to_s}#{releases_url}"
           req.url releases_url
-          oauth_token = ENV['GITHUB_OAUTH_TOKEN']
+          oauth_token = ENV.fetch('GITHUB_OAUTH_TOKEN', ENV.fetch('no_scope_token', 'notset'))
           if oauth_token && !oauth_token.empty? && oauth_token != 'notset'
             logger.info "Adding 'Authorization' header for api.github.com request"
             req.headers['Authorization'] = "token #{oauth_token}"
@@ -215,6 +216,10 @@ module Travis
         fetch_githubusercontent_file 'paulp/sbt-extras/master/sbt'
       end
 
+      def file_update_install_jdk_sh
+        fetch_githubusercontent_file 'sormuras/bach/master/install-jdk.sh'
+      end
+
       def file_update_tmate
         latest_release = latest_release_for('tmate-io/tmate')
         logger.info "Latest tmate release is #{latest_release}"
@@ -232,43 +237,6 @@ module Travis
         fetch_githubusercontent_file(
           '', host: 'sh.rustup.rs', to: 'rustup-init.sh'
         )
-      end
-
-      def file_update_raw_go_versions
-        fetch_githubusercontent_file(
-          'travis-ci/gimme/master/.testdata/sample-binary-linux',
-          to: top + 'tmp/go-versions-binary-linux',
-          mode: 0o644
-        )
-      end
-
-      def file_update_go_versions
-        raw = (top + 'tmp/go-versions-binary-linux').read
-                                                    .split(/\n/)
-                                                    .reject do |line|
-          line.strip.empty? || line.strip.start_with?('#')
-        end
-
-        raw.sort!(&method(:semver_cmp))
-
-        out = {}
-        raw.each do |full_version|
-          out.merge!(
-            expand_semver_aliases(full_version, alias_major_minor: false)
-          )
-        end
-
-        raise StandardError, 'no go versions parsed' if out.empty?
-
-        out.merge!(
-          '1.2' => '1.2.2',
-          'go1' => 'go1'
-        )
-
-        dest = top + 'public/version-aliases/go.json'
-        dest.dirname.mkpath
-        dest.write(JSON.pretty_generate(out))
-        dest.chmod(0o644)
       end
 
       def file_update_raw_ghc_versions
@@ -307,6 +275,7 @@ module Travis
         clean
         update_sc
         update_godep
+        update_gpg_public_keys
         update_static_files
         update_version_aliases
         ls_public_files
@@ -336,6 +305,9 @@ module Travis
       desc 'update sbt'
       file('public/files/sbt') { file_update_sbt }
 
+      desc 'update install-jdk.sh'
+      file('public/files/install-jdk.sh') { file_update_install_jdk_sh }
+
       desc 'update tmate'
       file 'public/files/tmate-static-linux-amd64.tar.gz' do
         file_update_tmate
@@ -343,16 +315,6 @@ module Travis
 
       desc 'update rustup'
       file('public/files/rustup-init.sh') { file_update_rustup }
-
-      desc 'update raw go versions'
-      file 'tmp/go-versions-binary-linux' do
-        file_update_raw_go_versions
-      end
-
-      desc 'update go versions'
-      file 'public/version-aliases/go.json' => 'tmp/go-versions-binary-linux' do
-        file_update_go_versions
-      end
 
       desc 'update raw ghc versions'
       file('tmp/ghc-versions.html') { file_update_raw_ghc_versions }
@@ -392,8 +354,7 @@ module Travis
 
       desc 'update version aliases'
       multitask update_version_aliases: Rake::FileList[
-        'public/version-aliases/ghc.json',
-        'public/version-aliases/go.json'
+        'public/version-aliases/ghc.json'
       ]
 
       desc 'update static files'
@@ -407,10 +368,36 @@ module Travis
         'public/files/nvm.sh',
         'public/files/rustup-init.sh',
         'public/files/sbt',
+        'public/files/install-jdk.sh',
         'public/files/sc-linux.tar.gz',
         'public/files/sc-osx.zip',
         'public/files/tmate-static-linux-amd64.tar.gz'
       ]
+
+      desc 'update gpg public keys'
+      task :update_gpg_public_keys do
+        repo_tarball_url = URI(ENV.fetch(
+          'TRAVIS_BUILD_APT_SOURCE_SAFELIST_REPO_TARBALL',
+          'https://codeload.github.com/travis-ci/apt-source-safelist/tar.gz/master'
+        ))
+
+        conn = build_faraday_conn(host: repo_tarball_url.hostname)
+        response = conn.get(repo_tarball_url)
+
+        dest_dir = Pathname.new(File.join(top, 'public/files/gpg'))
+        dest_dir.mkpath
+        path_parts = repo_tarball_url.path.split('/').map(&:strip)
+
+        Minitar.unpack(
+          Zlib::GzipReader.new(StringIO.new(response.body)),
+          File.join(top, 'tmp')
+        )
+
+        glob_src = "tmp/#{path_parts[2]}-#{path_parts.last}/keys/*.asc"
+        Dir.glob(File.join(top, glob_src)) do |src|
+          FileUtils.cp(src, dest_dir, verbose: true)
+        end
+      end
 
       desc 'show contents in public/files'
       task 'ls_public_files' do

@@ -22,6 +22,7 @@ gem 'travis-support', git: 'https://github.com/travis-ci/travis-support'
 
 gem 'faraday'
 gem 'faraday_middleware'
+gem 'minitar'
 
 group :development do
   gem 'rerun'

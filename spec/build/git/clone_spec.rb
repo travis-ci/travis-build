@@ -69,6 +69,16 @@ describe Travis::Build::Git::Clone, :sexp do
 
     it { should include_sexp fetch }
     it { should include_sexp reset }
+
+    context 'when git.quiet is true' do
+      before :each do
+        payload[:config][:git].merge!({ quiet: true })
+      end
+
+      let(:quiet_fetch)     { [:cmd, 'git -C travis-ci/travis-ci fetch origin --quiet', assert: true, echo: true, retry: true, timing: true] }
+
+      it { should include_sexp quiet_fetch }
+    end
   end
 
   let(:cd)            { [:cd,  'travis-ci/travis-ci', echo: true] }
@@ -82,6 +92,16 @@ describe Travis::Build::Git::Clone, :sexp do
   describe 'with a ref given' do
     before { payload[:job][:ref] = 'refs/pull/118/merge' }
     it { should include_sexp fetch_ref }
+
+    context 'when git.quiet is true' do
+      before :each do
+        payload[:config][:git].merge!({ quiet: true })
+      end
+
+      let(:quiet_fetch_ref) { [:cmd, %r(git fetch origin \+[\w/]+: --quiet), assert: true, echo: true, retry: true, timing: true] }
+
+      it { should include_sexp quiet_fetch_ref }
+    end
   end
 
   describe 'with a tag given' do

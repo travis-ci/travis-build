@@ -22,7 +22,7 @@ describe Travis::Build::Env do
 
   it 'includes travis env vars' do
     travis_vars = vars.select { |v| v.key =~ /^TRAVIS_/ }
-    expect(travis_vars.length).to eq(23)
+    expect(travis_vars.length).to eq(22)
   end
 
   describe 'config env vars' do

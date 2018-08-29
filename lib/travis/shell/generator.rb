@@ -3,11 +3,15 @@ module Travis
     class Generator
       TaintedOutput = Class.new(StandardError)
 
-      attr_reader :nodes, :level
+      attr_reader :nodes, :level, :trace
 
       def initialize(nodes)
         @nodes = nodes
         @level = 0
+        @trace = [
+          # root span id
+          Digest::SHA1.hexdigest(rand.to_s)
+        ]
       end
 
       def generate(ignore_taint = false)
@@ -60,6 +64,21 @@ module Travis
           code << yield
           code << '' if level == 0
           code
+        end
+
+        def with_span(span_id)
+          @trace << span_id
+          lines = yield
+          @trace.pop
+          lines
+        end
+
+        def parent_span_id
+          @trace.last
+        end
+
+        def root_span_id
+          @trace.first
         end
     end
   end

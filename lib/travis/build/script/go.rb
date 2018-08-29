@@ -11,9 +11,6 @@ module Travis
           },
           go: Travis::Build.config.go_version.untaint
         }
-        GO_VERSION_ALIASES = Travis::Build.config.go_version_aliases_hash.merge(
-          'default' => DEFAULTS[:go]
-        ).freeze
 
         def export
           super
@@ -84,7 +81,7 @@ module Travis
           end
 
           sh.if uses_make do
-            sh.cmd 'true', retry: true, fold: 'install' # TODO instead negate the condition
+            sh.echo 'Makefile detected', retry: true, fold: 'install' # TODO instead negate the condition
           end
           sh.else do
             sh.cmd "#{go_get_cmd} #{gobuild_args} ./...", retry: true, fold: 'install'
@@ -133,7 +130,7 @@ module Travis
           def normalized_go_version
             v = Array(config[:go]).first.to_s
             return v if v == 'go1'
-            GO_VERSION_ALIASES.fetch(v.sub(/^go/, ''), v).sub(/^go/, '')
+            v.sub(/^go/, '')
           end
 
           def comparable_go_version
@@ -144,7 +141,11 @@ module Travis
           end
 
           def go_get_cmd
-            if go_version == 'go1' || (go_version[/^[0-9]/] && comparable_go_version <= Gem::Version.new('1.2'))
+            if go_version == 'go1' ||
+              (go_version[/^[0-9]/] &&
+                go_version != '1.x' &&
+                comparable_go_version <= Gem::Version.new('1.2'))
+            then
               'go get'
             else
               'go get -t'
