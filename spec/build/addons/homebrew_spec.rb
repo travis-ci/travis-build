@@ -81,6 +81,35 @@ cask 'google-chrome'
     end
   end
 
+  context 'with taps' do
+    before do
+      addon.before_prepare
+    end
+
+    it { should_not include_sexp [:cmd, 'brew update', echo: true, timing: true] }
+
+    context 'with multiple taps' do
+      let(:brew_config) { { taps: ['homebrew/cask-versions', 'heroku/brew'] } }
+      let(:brewfile) { <<~BREWFILE }
+tap 'homebrew/cask-versions'
+tap 'heroku/brew'
+      BREWFILE
+
+      it { should include_sexp [:file, ['~/.Brewfile', brewfile]] }
+      it { should include_sexp [:cmd, 'brew bundle --global', echo: true, timing: true] }
+    end
+
+    context 'with a single tap' do
+      let(:brew_config) { { taps: 'heroku/brew' } }
+      let(:brewfile) { <<~BREWFILE }
+tap 'heroku/brew'
+      BREWFILE
+
+      it { should include_sexp [:file, ['~/.Brewfile', brewfile]] }
+      it { should include_sexp [:cmd, 'brew bundle --global', echo: true, timing: true] }
+    end
+  end
+
   context 'when updating packages first' do
     before do
       addon.before_prepare

@@ -45,8 +45,15 @@ module Travis
           @config_casks ||= Array(config[:casks]).flatten.compact
         end
 
+        def config_taps
+          @config_taps ||= Array(config[:taps]).flatten.compact
+        end
+
         def brewfile_contents
           brewfile = StringIO.new
+          config_taps.each do |tap|
+            brewfile.puts "tap '#{tap}'"
+          end
           config_packages.each do |package|
             brewfile.puts "brew '#{package}'"
           end
