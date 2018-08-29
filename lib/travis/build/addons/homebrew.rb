@@ -5,13 +5,13 @@ module Travis
   module Build
     class Addons
       class Homebrew < Base
-        SUPPORTED_OPERATING_SYSTEMS = [
-          /^osx.*/
+        SUPPORTED_OPERATING_SYSTEMS = %w[
+          osx
         ].freeze
 
         def before_prepare?
           SUPPORTED_OPERATING_SYSTEMS.any? do |os_match|
-            data[:config][:os].to_s =~ os_match
+            data[:config][:os].to_s == os_match
           end
         end
 
