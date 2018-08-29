@@ -124,6 +124,15 @@ travis_time_finish() {
   return $result
 }
 
+travis_trace_span() {
+  local result=$?
+  local template="$1"
+  local timestamp=$(travis_nanoseconds)
+  template="${template/__TRAVIS_TIMESTAMP__/$timestamp}"
+  template="${template/__TRAVIS_STATUS__/$result}"
+  echo "$template" >> /tmp/build.trace
+}
+
 travis_nanoseconds() {
   local cmd="date"
   local format="+%s%N"
@@ -348,4 +357,3 @@ fi
 
 mkdir -p <%= build_dir %>
 cd       <%= build_dir %>
-
