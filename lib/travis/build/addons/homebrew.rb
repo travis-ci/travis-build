@@ -18,7 +18,7 @@ module Travis
         def before_prepare
           sh.fold('brew') do
             update_homebrew if update_homebrew?
-            install_homebrew_packages unless config_packages.empty?
+            install_homebrew_packages
           end
         end
 
@@ -41,10 +41,17 @@ module Travis
           @config_packages ||= Array(config[:packages]).flatten.compact
         end
 
+        def config_casks
+          @config_casks ||= Array(config[:casks]).flatten.compact
+        end
+
         def brewfile_contents
           brewfile = StringIO.new
           config_packages.each do |package|
             brewfile.puts "brew '#{package}'"
+          end
+          config_casks.each do |cask|
+            brewfile.puts "cask '#{cask}'"
           end
           brewfile.string
         end

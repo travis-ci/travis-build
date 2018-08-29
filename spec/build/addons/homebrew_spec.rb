@@ -52,6 +52,35 @@ brew 'imagemagick'
     end
   end
 
+  context 'with casks' do
+    before do
+      addon.before_prepare
+    end
+
+    it { should_not include_sexp [:cmd, 'brew update', echo: true, timing: true] }
+
+    context 'with multiple casks' do
+      let(:brew_config) { { casks: ['google-chrome', 'firefox'] } }
+      let(:brewfile) { <<~BREWFILE }
+cask 'google-chrome'
+cask 'firefox'
+      BREWFILE
+
+      it { should include_sexp [:file, ['~/.Brewfile', brewfile]] }
+      it { should include_sexp [:cmd, 'brew bundle --global', echo: true, timing: true] }
+    end
+
+    context 'with a single cask' do
+      let(:brew_config) { { casks: 'google-chrome' } }
+      let(:brewfile) { <<~BREWFILE }
+cask 'google-chrome'
+      BREWFILE
+
+      it { should include_sexp [:file, ['~/.Brewfile', brewfile]] }
+      it { should include_sexp [:cmd, 'brew bundle --global', echo: true, timing: true] }
+    end
+  end
+
   context 'when updating packages first' do
     before do
       addon.before_prepare
