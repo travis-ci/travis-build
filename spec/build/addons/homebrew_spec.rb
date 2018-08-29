@@ -119,4 +119,54 @@ tap 'heroku/brew'
 
     it { should include_sexp [:cmd, 'brew update', echo: true, timing: true] }
   end
+
+  context 'when providing a custom Brewfile' do
+    before do
+      addon.before_prepare
+    end
+
+    context 'when using the default location' do
+      let(:brew_config) { { brewfile: true } }
+
+      it { should include_sexp [:cmd, 'brew bundle', echo: true, timing: true] }
+      it { should_not include_sexp [:cmd, 'brew bundle --global', echo: true, timing: true] }
+    end
+
+    context 'when using a custom Brewfile path' do
+      let(:brew_config) { { brewfile: 'My Brewfile' } }
+
+      it { should include_sexp [:cmd, 'brew bundle --file=My\ Brewfile', echo: true, timing: true] }
+      it { should_not include_sexp [:cmd, 'brew bundle --global', echo: true, timing: true] }
+    end
+  end
+
+  context 'when using all features' do
+    before do
+      addon.before_prepare
+    end
+
+    let(:brew_config) do
+      {
+        taps: %w[homebrew/cask-versions heroku/brew],
+        casks: %w[google-chrome java8],
+        packages: %w[imagemagick jq heroku],
+        update: true,
+        brewfile: true
+      }
+    end
+    let(:brewfile) { <<~BREWFILE }
+tap 'homebrew/cask-versions'
+tap 'heroku/brew'
+brew 'imagemagick'
+brew 'jq'
+brew 'heroku'
+cask 'google-chrome'
+cask 'java8'
+    BREWFILE
+
+    it { should include_sexp [:cmd, 'brew update', echo: true, timing: true] }
+    it { should include_sexp [:file, ['~/.Brewfile', brewfile]] }
+    it { should include_sexp [:cmd, 'brew bundle --global', echo: true, timing: true] }
+    it { should include_sexp [:cmd, 'brew bundle', echo: true, timing: true] }
+  end
 end

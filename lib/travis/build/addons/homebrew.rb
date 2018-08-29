@@ -49,6 +49,10 @@ module Travis
           @config_taps ||= Array(config[:taps]).flatten.compact
         end
 
+        def create_brewfile?
+          !(config_taps.empty? && config_casks.empty? && config_packages.empty?)
+        end
+
         def brewfile_contents
           brewfile = StringIO.new
           config_taps.each do |tap|
@@ -63,10 +67,29 @@ module Travis
           brewfile.string
         end
 
+        def user_brewfile?
+          config[:brewfile]
+        end
+
+        def bundle_arguments
+          if config[:brewfile] == true
+            ''
+          else
+            " --file=#{Shellwords.escape(config[:brewfile])}"
+          end
+        end
+
         def install_homebrew_packages
           sh.echo "Installing Homebrew Packages", ansi: :yellow
-          sh.file '~/.Brewfile', brewfile_contents
-          sh.cmd 'brew bundle --global', echo: true, timing: true
+
+          if user_brewfile?
+            sh.cmd "brew bundle#{bundle_arguments}", echo: true, timing: true
+          end
+
+          if create_brewfile?
+            sh.file '~/.Brewfile', brewfile_contents
+            sh.cmd 'brew bundle --global', echo: true, timing: true
+          end
         end
       end
     end
