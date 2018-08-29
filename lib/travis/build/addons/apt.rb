@@ -112,7 +112,7 @@ module Travis
         private
 
           def add_apt_sources
-            sh.echo "Adding APT Sources (BETA)", ansi: :yellow
+            sh.echo "Adding APT Sources", ansi: :yellow
 
             safelisted = []
             disallowed = []
@@ -169,7 +169,7 @@ module Travis
           end
 
           def add_apt_packages
-            sh.echo "Installing APT Packages (BETA)", ansi: :yellow
+            sh.echo "Installing APT Packages", ansi: :yellow
 
             safelisted, disallowed = config_packages.partition { |pkg| package_safelisted?(package_safelists[config_dist] || [], pkg) }
 
@@ -187,6 +187,7 @@ module Travis
 
               sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
               sh.cmd "sudo -E apt-get -yq update &>> ~/apt-get-update.log", echo: true, timing: true
+              # NOTE: set `--allow-.+` options if apt version is >= 1.2 or > 1
               apt_opt_cmd = <<~APT_OPTS_RETRIEVAL
               TRAVIS_APT_OPTS="$(
                 apt-get --version | awk '
@@ -214,7 +215,6 @@ module Travis
                 end
                 sh.raw "TRAVIS_CMD='#{command}'"
                 sh.raw "travis_assert $result"
-                sh.raw 'unset TRAVIS_APT_OPTS'
               end
             end
           end
