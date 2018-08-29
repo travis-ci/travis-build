@@ -253,10 +253,7 @@ module Travis
           end
 
           def safelisted_source_key_url(source)
-            if source['key_url'] && skip_safelist?
-              return source['key_url'].to_s.untaint
-            end
-
+            return source['key_url'] if source['key_url'] && skip_safelist?
             format(
               Travis::Build.config.apt_source_safelist_key_url_template,
               source_alias: source['alias'] || 'travis-security',
