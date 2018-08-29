@@ -205,6 +205,7 @@ module Travis
           apply :redefine_curl
           apply :nonblock_pipe
           apply :apt_get_update
+          apply :deprecate_xcode_64
         end
 
         def setup_filter
