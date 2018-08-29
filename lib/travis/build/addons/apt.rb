@@ -112,7 +112,7 @@ module Travis
         private
 
           def add_apt_sources
-            sh.echo "Adding APT Sources (BETA)", ansi: :yellow
+            sh.echo "Adding APT Sources (BET", ansi: :yellow
 
             safelisted = []
             disallowed = []
@@ -166,7 +166,7 @@ module Travis
           end
 
           def add_apt_packages
-            sh.echo "Installing APT Packages (BETA)", ansi: :yellow
+            sh.echo "Installing APT Packages", ansi: :yellow
 
             safelisted, disallowed = config_packages.partition { |pkg| package_safelisted?(package_safelists[config_dist] || [], pkg) }
 
