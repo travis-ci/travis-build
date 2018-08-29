@@ -119,7 +119,8 @@ module Travis
         # format roughly based on the stackdriver trace api
         #   https://cloud.google.com/trace/docs/reference/v2/rest/v2/projects.traces/batchWrite
         def handle_trace(name, body, options = {})
-          span_id = Digest::SHA1.hexdigest(rand.to_s)
+          span_id = rand 1..MAX_SPAN_ID
+          span_id = span_id.to_s(16).rjust(16, "0")
           name = name.to_s.lines.first.gsub(/<<.*/, '...')
 
           start_span = {
