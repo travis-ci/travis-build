@@ -71,7 +71,7 @@ module Travis
                   "\"deb #{repos[:CRAN]}/bin/linux/ubuntu "\
                   "$(lsb_release -cs)/\""
                 sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com '\
-                  '--recv-keys E084DAB9'
+                  '--recv-keys 0x51716619e084dab9'
 
                 # Add marutter's c2d4u plus ppa dependencies as listed on launchpad
                 if r_version_less_than('3.5.0')
