@@ -9,7 +9,7 @@ module Travis
             command = <<~KEYUPDATE
             apt-key adv --list-public-keys --with-fingerprint --with-colons |
               awk -F: '
-                  $1=="pub" && $2=="e" { state="expired" }
+                  $1=="pub" && $2~/^[er]$/ { state="expired" }
                   $1=="fpr" && state == "expired" {
                     out = sprintf("%s %s", out, $(NF -1))
                     state="valid"
