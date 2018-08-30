@@ -34,7 +34,7 @@ describe Travis::Build::Addons::AptPackages, :sexp do
     it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true] }
   end
 
-  context 'with multiple packages, some safelisted' do
+  context 'with multiple packages, some safelisted on unrestricted box' do
     let(:config) { ['git', 'curl', 'darkcoin'] }
     let(:paranoid) { false }
 

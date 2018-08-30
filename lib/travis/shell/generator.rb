@@ -4,13 +4,14 @@ module Travis
       TaintedOutput = Class.new(StandardError)
 
       attr_reader :nodes, :level, :trace
+      MAX_SPAN_ID = 0xffffffffffffffff
 
       def initialize(nodes)
         @nodes = nodes
         @level = 0
         @trace = [
           # root span id
-          Digest::SHA1.hexdigest(rand.to_s)
+          rand(1..MAX_SPAN_ID).to_s(16).rjust(16, "0")
         ]
       end
 
