@@ -7,19 +7,19 @@ module Travis
         def apply
           sh.if '"$TRAVIS_OS_NAME" == linux' do
             command = <<~KEYUPDATE
-            apt-key adv --list-public-keys --with-fingerprint --with-colons \\
-              | awk -F: '
-                  $1=="pub" && $2=="e" { state="expired"}
+            apt-key adv --list-public-keys --with-fingerprint --with-colons |
+              awk -F: '
+                  $1=="pub" && $2=="e" { state="expired" }
                   $1=="fpr" && state == "expired" {
                     out = sprintf("%s %s", out, $(NF -1))
                     state="valid"
                   }
                   END {
                     if (length(out)>0)
-                      printf "sudo apt-key adv --recv-keys --keyserver keys.gnupg.net %s", out
+                      printf "sudo apt-key adv --recv-keys --keyserver ha.pool.sks-keyservers.net %s", out
                   }
-                ' \\
-              | sh &>/dev/null
+                ' |
+              bash &>/dev/null
             KEYUPDATE
             sh.cmd command, echo: false
           end
