@@ -33,6 +33,16 @@ module Travis
         def setup
           super
 
+          sh.echo 'Elm for Travis-CI is not officially supported, ' \
+          'but is community maintained.', ansi: :green
+          sh.echo 'Please file any issues using the following link',
+            ansi: :green
+          sh.echo '  https://github.com/travis-ci/travis-ci/issues' \
+            '/new?labels=community:elm', ansi: :green
+          sh.echo 'and mention \`@avh4\`, \`@lukewestby\`, \`@stoeffel\` and \`@rtfeldman\`' \
+            ' in the issue', ansi: :green
+
+
           sh.if '! -d sysconfcpus/bin' do
             install_sysconfcpus
           end
