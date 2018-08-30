@@ -20,7 +20,7 @@ module Travis
                 }
               ' | sh
             KEYUPDATE
-            sh.cmd command # , echo: false
+            sh.cmd command, echo: true
           end
         end
       end
