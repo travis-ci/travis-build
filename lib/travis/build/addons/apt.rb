@@ -123,10 +123,13 @@ module Travis
 
               if source.respond_to?(:[]) && source['sourceline']
                 safelisted << source.clone
-              elsif !(data.disable_sudo?) || skip_safelist?
+              elsif !data.disable_sudo? || skip_safelist?
                 if src.respond_to?(:has_key?)
                   if src.has_key?(:sourceline)
-                    safelisted << { 'sourceline' => src[:sourceline] }
+                    safelisted << {
+                      'sourceline' => src[:sourceline],
+                      'key_url' => src[:key_url]
+                    }
                   else
                     sh.echo "'sourceline' key missing:", ansi: :yellow
                     sh.echo Shellwords.escape(src.inspect)
@@ -254,7 +257,9 @@ module Travis
 
           def safelisted_source_key_url(source)
             tmpl = Travis::Build.config.apt_source_safelist_key_url_template
-            tmpl = source['key_url'] if source['key_url'] && skip_safelist?
+            if source['key_url'] && (!data.disable_sudo? || skip_safelist?)
+              tmpl = source['key_url']
+            end
             format(
               tmpl.to_s,
               source_alias: source['alias'] || 'travis-security',
