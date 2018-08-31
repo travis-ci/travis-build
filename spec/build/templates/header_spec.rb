@@ -1,6 +1,6 @@
 describe 'header.sh', integration: true do
   let(:top) { Pathname.new(ENV.fetch('TOP')) }
-  let(:header_sh) { top.join('./lib/travis/build/templates/header.sh') }
+  let(:header_template) { top.join('./lib/travis/build/templates/header.erb.bash') }
   let(:build_dir) { Dir.mktmpdir(%w(travis-build- -header-spec)) }
 
   after :each do
@@ -13,12 +13,12 @@ describe 'header.sh', integration: true do
       root: build_dir,
       home: build_dir,
       internal_ruby_regex: Travis::Build.config.internal_ruby_regex.untaint
-    ).render(header_sh)
+    ).render(header_template)
   end
 
   let :bash_body do
     script = ["source $HOME/.travis/job_stages", "export"]
-    header_sh.read.split("\n").grep(/^[a-z][a-z_]+\(\) \{/).each do |func|
+    header_template.read.split("\n").grep(/^[a-z][a-z_]+\(\) \{/).each do |func|
       script << "type #{func.match(/^(.+)\(\) \{/)[1]}"
     end
     script.join("\n")

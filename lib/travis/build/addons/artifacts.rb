@@ -19,7 +19,7 @@ module Travis
         end
 
         def after_header
-          sh.raw template('artifacts.sh')
+          sh.raw template('artifacts')
         end
 
         def after_after_script

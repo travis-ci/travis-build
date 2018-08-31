@@ -1,13 +1,13 @@
 : "${TRAVIS_GHC_DEFAULT:=<%= default_ghc %>}"
-: "${TRAVIS_GHC_ROOT:=<%= root %>/usr/local/ghc}"
-if [[ ! -d "${TRAVIS_GHC_ROOT}" && -d '<%= root %>/opt/ghc' ]]; then
-  TRAVIS_GHC_ROOT='<%= root %>/opt/ghc'
+: "${TRAVIS_GHC_ROOT:=${TRAVIS_BUILD_ROOT}/usr/local/ghc}"
+if [[ ! -d "${TRAVIS_GHC_ROOT}" && -d "${TRAVIS_BUILD_ROOT}/opt/ghc" ]]; then
+  TRAVIS_GHC_ROOT="${TRAVIS_BUILD_ROOT}/opt/ghc"
 fi
 
 export TRAVIS_GHC_DEFAULT
 export TRAVIS_GHC_ROOT
 
-function travis_ghc_find() {
+travis_ghc_find() {
   local search="${1}"
   local v
   if [[ ! "${search}" ]]; then
@@ -31,7 +31,7 @@ function travis_ghc_find() {
   return 1
 }
 
-function travis_ghc_install() {
+travis_ghc_install() {
   local ghc_version="${1}"
   local cabal_version="${2}"
   if [[ ! "${ghc_version}" ]]; then

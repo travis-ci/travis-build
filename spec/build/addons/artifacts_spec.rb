@@ -21,7 +21,7 @@ describe Travis::Build::Addons::Artifacts, :sexp do
   end
 
   it 'adds the artifacts install function' do
-    should include_sexp [:raw, addon.template('artifacts.sh')]
+    should include_sexp [:raw, addon.template('artifacts')]
   end
 
   it 'installs the artifacts tool' do

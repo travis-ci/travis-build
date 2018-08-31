@@ -1,5 +1,6 @@
-mkdir ~/bin
-cat > ~/bin/xcodebuild <<EOF
+mkdir "${TRAVIS_BUILD_HOME}/bin"
+
+cat >"${TRAVIS_BUILD_HOME}/bin/xcodebuild" <<'XCODEBUILD_STUB'
 #!/usr/bin/env perl
 
 my $status = 1;
@@ -15,7 +16,8 @@ while (my $line = readline($fh)) {
 close $fh;
 
 exit $status;
-EOF
-chmod +x ~/bin/xcodebuild
+XCODEBUILD_STUB
 
-export PATH="$HOME/bin:$PATH"
+chmod +x "${TRAVIS_BUILD_HOME}/bin/xcodebuild"
+
+export PATH="${TRAVIS_BUILD_HOME}/bin:${PATH}"

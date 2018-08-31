@@ -14,7 +14,7 @@ module Travis
           super
           sh.raw(
             template(
-              'haskell.sh',
+              'haskell',
               default_ghc: DEFAULTS[:ghc],
               default_cabal: DEFAULTS[:cabal],
               root: '/'

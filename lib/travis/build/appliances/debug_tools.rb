@@ -33,12 +33,12 @@ module Travis
               end
             end
 
-            sh.file "travis_debug.sh", template('travis_debug.sh')
+            sh.file "travis_debug.sh", template('travis_debug')
             sh.chmod '+x', "travis_debug.sh", echo: false
 
             sh.mkdir "#{HOME_DIR}/.ssh", echo: false, recursive: true
             sh.cmd "cat /dev/zero | ssh-keygen -q -f #{HOME_DIR}/.ssh/tmate -N '' &> /dev/null", echo: false
-            sh.file "#{HOME_DIR}/.tmate.conf", template("tmate.conf", identity: "#{HOME_DIR}/.ssh/tmate")
+            sh.file "#{HOME_DIR}/.tmate.conf", template("tmate.conf.erb", identity: "#{HOME_DIR}/.ssh/tmate")
 
             sh.export 'PATH', "${PATH}:#{install_dir}", echo: false
 

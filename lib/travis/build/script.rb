@@ -153,14 +153,14 @@ module Travis
 
         def run
           stages.run if apply :validate
-          sh.raw template('footer.sh')
+          sh.raw template('footer')
           # apply :deprecations
         end
 
         def header
           sh.raw(
             template(
-              'header.sh',
+              'header',
               build_dir: BUILD_DIR,
               app_host: app_host,
               internal_ruby_regex: Travis::Build.config.internal_ruby_regex.untaint,
