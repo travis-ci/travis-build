@@ -13,8 +13,8 @@ describe Travis::Build::Script, :sexp do
     expect { code }.to raise_error(Travis::Shell::Generator::TaintedOutput)
   end
 
-  it 'uses $HOME/build as a working directory' do
-    expect(code).to match %r(cd +\$HOME/build)
+  it 'uses ${TRAVIS_BUILD_HOME}/build as a working directory' do
+    expect(code).to match %r(cd +"\${TRAVIS_BUILD_HOME}/build")
   end
 
   it 'applies resolv.conf fix' do

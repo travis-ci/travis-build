@@ -1,3 +1,4 @@
+#!/bin/bash
 export TRAVIS_BUILD_ROOT="<%= root %>"
 export TRAVIS_BUILD_HOME="<%= home %>"
 export TRAVIS_BUILD_DIR="<%= build_dir %>"
