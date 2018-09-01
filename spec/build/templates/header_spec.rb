@@ -61,7 +61,8 @@ describe 'header.sh', integration: true do
     TERM: 'xterm',
     USER: 'travis',
     TRAVIS_OS_NAME: 'linux|osx',
-    TRAVIS_DIST: 'precise|trusty|xenial'
+    TRAVIS_DIST: 'precise|trusty|xenial',
+    TRAVIS_ARCH: 'x86_64|ppc64le'
   }.each do |env_var, val|
     it "exports #{env_var}" do
       expect(bash_output).to match(/^declare -x #{env_var}="#{val}"$/)
