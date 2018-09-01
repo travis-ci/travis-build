@@ -144,7 +144,7 @@ module Travis
             if go_version == 'go1' ||
               (go_version[/^[0-9]/] &&
                 go_version != '1.x' &&
-                comparable_go_version <= Gem::Version.new('1.2'))
+                comparable_go_version < Gem::Version.new('1.2'))
             then
               'go get'
             else
