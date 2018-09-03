@@ -427,6 +427,19 @@ module Travis
         sh "shfmt -f #{top}/lib | grep -v 'sauce_connect.sh$' | xargs shellcheck"
       end
 
+      desc 'assert there are no changes in the git working copy'
+      task :assert_clean do
+        Dir.chdir(top) do
+          sh 'git diff --exit-code'
+          sh 'git diff --cached --exit-code'
+        end
+      end
+
+      desc 'validate bash syntax of all examples'
+      task :validate_examples do
+        sh "#{top}/script/validate-bash-syntax"
+      end
+
       task ensure_shfmt: :frontload_path do
 			  next if system(%{shfmt -version 2>/dev/null | grep v2.5.1 &>/dev/null})
         dest = Pathname.new(File.expand_path('~/bin/shfmt'))
@@ -457,6 +470,8 @@ module Travis
           #{ENV['PATH']}
         ].join(':')
       end
+
+      task default: %i[spec shfmt assert_clean shellcheck validate_examples]
     end
   end
 end

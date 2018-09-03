@@ -41,15 +41,7 @@ jobs:
       if: NOT type IN (pull_request) AND branch = master
 
 before_script:
-  - bundle exec rake clean assets:precompile
-
-script:
-  - bundle exec rake spec
-  - bundle exec rake shfmt
-  - git diff --exit-code
-  - git diff --cached --exit-code
-  - bundle exec rake shellcheck
-  - ./script/validate-bash-syntax
+- bundle exec rake clean assets:precompile
 
 after_success: bundle exec codeclimate-test-reporter
 
