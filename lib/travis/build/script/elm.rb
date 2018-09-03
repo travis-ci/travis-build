@@ -82,6 +82,22 @@ module Travis
             config[:elm_version].to_s
           end
 
+          def elm_version_number(index)
+            elm_version.split(".")[index]
+          end
+
+          def elm_major_version
+            elm_version_number 0
+          end
+
+          def elm_minor_version
+            elm_version_number 1
+          end
+
+          def elm_patch_version
+            elm_version_number 2
+          end
+
           def elm_test_version
             config[:elm_test_version].to_s
           end
