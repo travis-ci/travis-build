@@ -112,7 +112,7 @@ module Travis
         private
 
           def add_apt_sources
-            sh.echo "Adding APT Sources (BETA)", ansi: :yellow
+            sh.echo "Adding APT Sources", ansi: :yellow
 
             safelisted = []
             disallowed = []
@@ -160,7 +160,7 @@ module Travis
                 if sourceline.start_with?('ppa:')
                   sh.cmd "sudo -E apt-add-repository -y #{sourceline.inspect}", echo: true, assert: true, timing: true
                 else
-                  sh.cmd "curl -sSL #{safelisted_source_key_url(source).untaint} | sudo -E apt-key add -", echo: true, assert: true, timing: true
+                  sh.cmd "curl -sSL \"#{safelisted_source_key_url(source).untaint}\" | sudo -E apt-key add -", echo: true, assert: true, timing: true
                   # Avoid adding deb-src lines to work around https://bugs.launchpad.net/ubuntu/+source/software-properties/+bug/987264
                   sh.cmd "echo #{sourceline.inspect} | sudo tee -a /etc/apt/sources.list >/dev/null", echo: true, assert: true, timing: true
                 end
@@ -169,7 +169,7 @@ module Travis
           end
 
           def add_apt_packages
-            sh.echo "Installing APT Packages (BETA)", ansi: :yellow
+            sh.echo "Installing APT Packages", ansi: :yellow
 
             safelisted, disallowed = config_packages.partition { |pkg| package_safelisted?(package_safelists[config_dist] || [], pkg) }
 
@@ -187,6 +187,7 @@ module Travis
 
               sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
               sh.cmd "sudo -E apt-get -yq update &>> ~/apt-get-update.log", echo: true, timing: true
+              # NOTE: set `--allow-.+` options if apt version is >= 1.2 or 2.x+
               apt_opt_cmd = <<~APT_OPTS_RETRIEVAL
               TRAVIS_APT_OPTS="$(
                 apt-get --version | awk '
@@ -214,7 +215,6 @@ module Travis
                 end
                 sh.raw "TRAVIS_CMD='#{command}'"
                 sh.raw "travis_assert $result"
-                sh.raw 'unset TRAVIS_APT_OPTS'
               end
             end
           end

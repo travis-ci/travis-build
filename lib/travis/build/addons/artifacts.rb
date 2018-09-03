@@ -31,7 +31,7 @@ module Travis
         private
 
           def run
-            sh.echo 'Uploading Artifacts (BETA)', ansi: :yellow
+            sh.echo 'Uploading Artifacts', ansi: :yellow
             sh.fold 'artifacts.setup' do
               install
               export
