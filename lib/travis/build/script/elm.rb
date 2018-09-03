@@ -6,8 +6,8 @@ module Travis
         DEFAULT_NODE_VERSION = '6.10.0'
 
         DEFAULTS = {
-          elm_version: '0.18.0',
-          elm_test_version: '0.18.12'
+          elm: '0.18.0',
+          elm_test: '0.18.12'
         }
 
         ELM_TEST_REQUIRED_NODE_VERSION = '4.0.0'
@@ -87,7 +87,7 @@ module Travis
         private
 
           def elm_version
-            config[:elm_version].to_s
+            config[:elm].to_s
           end
 
           def elm_version_number(index)
@@ -107,7 +107,7 @@ module Travis
           end
 
           def elm_test_version
-            config[:elm_test_version].to_s
+            config[:elm_test].to_s
           end
 
           def install_elm
