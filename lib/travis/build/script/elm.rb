@@ -60,6 +60,9 @@ module Travis
         def setup_cache
           if data.cache?(:elm)
             sh.fold 'cache.elm' do
+              # Cache the ~/.elm directory.
+              directory_cache.add '$HOME/.cache/elm', '$HOME/.elm'
+
               directory_cache.add '$HOME/.cache/elm-stuff', 'elm-stuff'
 
               # some put their tests in ./test and others use ./tests
