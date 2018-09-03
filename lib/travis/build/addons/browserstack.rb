@@ -1,5 +1,6 @@
 require 'travis/build/addons/base'
 require 'net/http'
+require 'json'
 
 module Travis
   module Build
@@ -209,11 +210,11 @@ module Travis
               return false
             else
               if custom_id && !custom_id.empty?
-                response = `curl -u "#{username}:#{access_key}" -X POST \
+                response = `curl -u "#{username}:#{browserstack_key}" -X POST \
                   #{BROWSERSTACK_APP_AUTOMATE_URL} -F \
                   "file=@#{app_path}" -F \'data={"custom_id": "#{custom_id}"}\'`
               else
-                response = `curl -u "#{username}:#{access_key}" -X POST \
+                response = `curl -u "#{username}:#{browserstack_key}" -X POST \
                   #{BROWSERSTACK_APP_AUTOMATE_URL} -F \
                   "file=@#{app_path}"`
               end
