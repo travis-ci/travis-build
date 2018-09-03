@@ -41,7 +41,7 @@ describe Travis::Build::Script, :sexp do
     should include_sexp [:cmd, /casher push/, :*]
   end
 
-  describe 'does not exlode' do
+  describe 'does not explode' do
     it 'on script being true' do
       payload[:config][:script] = true
       expect { subject }.to_not raise_error
@@ -92,6 +92,7 @@ describe Travis::Build::Script, :sexp do
 
   context 'apt-get update' do
     context 'with APT_GET_UPDATE_OPT_IN not enabled' do
+      before { ENV.delete('APT_GET_UPDATE_OPT_IN') }
       context 'with running on osx' do
         before { payload[:config][:os] = 'osx' }
         before { payload[:config].delete(:apt) }

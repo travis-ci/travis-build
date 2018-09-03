@@ -32,7 +32,7 @@ module Travis
           end
 
           def update
-            sh.cmd <<-EOF
+            sh.cmd <<~EOF
               sudo rm -rf /var/lib/apt/lists/*
               sudo apt-get update #{'-qq  >/dev/null 2>&1' unless debug?}
             EOF

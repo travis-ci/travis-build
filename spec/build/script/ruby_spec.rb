@@ -63,6 +63,23 @@ describe Travis::Build::Script::Ruby, :sexp do
     end
   end
 
+  describe 'tests for existence of Gemfile if it was provided by the user' do
+    before do
+      data[:config][:gemfile] = 'Gemfile.ci'
+    end
+
+    it 'tests for presence of gemfile' do
+      sexp = sexp_find(subject, [:if, '-f Gemfile.ci'], [:then])
+      expect(sexp).to include_sexp [:echo, 'Using Gemfile.ci']
+    end
+
+    it 'fails when gemfile not present' do
+      sexp = sexp_find(subject, [:if, '-f Gemfile.ci'], [:else])
+      expect(sexp).to include_sexp [:echo, "Gemfile.ci not found, cannot continue"]
+      expect(sexp).to include_sexp [:raw, "travis_run_after_failure", { assert: true }]
+    end
+  end
+
   it 'sets BUNDLE_GEMFILE if a gemfile exists' do
     sexp = sexp_find(subject, [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}"], [:then])
     expect(sexp).to include_sexp [:export, ['BUNDLE_GEMFILE', '$PWD/Gemfile'], echo: true]
@@ -94,6 +111,11 @@ describe Travis::Build::Script::Ruby, :sexp do
     it "runs bundle install if a Gemfile exists" do
       sexp = sexp_find(sexp_filter(subject, [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}"])[2], [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}.lock"], [:else])
       should include_sexp [:cmd, 'bundle install --jobs=3 --retry=3', assert: true, echo: true, timing: true, retry: true]
+    end
+
+    it "echo message if Gemfile does not exist" do
+      sexp = sexp_find(sexp_filter(subject, [:if, "-f ${BUNDLE_GEMFILE:-Gemfile}"])[1].last, [:else])
+      should include_sexp [:echo, 'No Gemfile found, skipping bundle install']
     end
   end
 

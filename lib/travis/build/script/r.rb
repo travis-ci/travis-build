@@ -1,6 +1,6 @@
 # Maintained by:
 # Jim Hester     @jimhester       james.hester@rstudio.com
-# Craig Citro    @craigcitro      craigcitro@google.com
+# Jeroen Ooms    @jeroen          jeroen@berkeley.edu
 #
 module Travis
   module Build
@@ -29,14 +29,14 @@ module Travis
           # Bioconductor
           bioc: 'https://bioconductor.org/biocLite.R',
           bioc_required: false,
+          bioc_check: false,
           bioc_use_devel: false,
           disable_homebrew: false,
           r: 'release'
         }
 
         def initialize(data)
-          # TODO(craigcitro): Is there a way to avoid explicitly
-          # naming arguments here?
+          # TODO: Is there a way to avoid explicitly naming arguments here?
           super
           @devtools_installed = false
           @bioc_installed = false
@@ -59,7 +59,7 @@ module Travis
           sh.echo 'R for Travis-CI is not officially supported, '\
                   'but is community maintained.', ansi: :green
           sh.echo 'Please file any issues at https://github.com/travis-ci/travis-ci/issues'
-          sh.echo 'and mention @craigcitro and @jimhester in the issue'
+          sh.echo 'and mention @jeroen and @jimhester in the issue'
 
           sh.fold 'R-install' do
             sh.with_options({ assert: true,  echo: true,  timing: true  }) do
@@ -73,14 +73,19 @@ module Travis
                 sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com '\
                   '--recv-keys E084DAB9'
 
-                # Add marutter's c2d4u repository.
+                # Add marutter's c2d4u plus ppa dependencies as listed on launchpad
                 if r_version_less_than('3.5.0')
                   sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter"'
                   sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u"'
                 else
                   sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter3.5"'
                   sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u3.5"'
+                  sh.cmd 'sudo add-apt-repository -y "ppa:ubuntugis/ppa"'
+                  sh.cmd 'sudo add-apt-repository -y "ppa:opencpu/jq"'
                 end
+
+                # Both c2d4u and c2d4u3.5 depend on this ppa for ffmpeg
+                sh.cmd 'sudo add-apt-repository -y "ppa:kirillshkrogalev/ffmpeg-next"'
 
                 # Update after adding all repositories. Retry several
                 # times to work around flaky connection to Launchpad PPAs.
@@ -239,6 +244,14 @@ module Travis
               "CHECK_RET=$?", assert: false
           end
           export_rcheck_dir
+
+          if config[:bioc_check]
+            # BiocCheck the package
+            sh.fold 'Bioc-check' do
+              sh.echo 'Checking with: BiocCheck( "${PKG_TARBALL}" ) '
+              sh.cmd 'Rscript -e "BiocCheck::BiocCheck(\"${PKG_TARBALL}\", \'quit-with-status\'=TRUE)"'
+            end
+          end
 
           if @devtools_installed
             # Output check summary
@@ -404,6 +417,9 @@ module Travis
                   ');'\
                   'cat(append = TRUE, file = "~/.Rprofile.site", "options(repos = BiocInstaller::biocinstallRepos());")'
                 sh.cmd "Rscript -e '#{bioc_install_script}'", retry: true
+               if config[:bioc_check]
+                 sh.cmd "Rscript -e 'BiocInstaller::biocLite(\"BiocCheck\")'"
+               end
             end
           end
           @bioc_installed = true
@@ -438,8 +454,7 @@ module Travis
           when 'osx'
             # We use basictex due to disk space constraints.
             mactex = 'BasicTeX.pkg'
-            # TODO(craigcitro): Confirm that this will route us to the
-            # nearest mirror.
+            # TODO: Confirm that this will route us to the nearest mirror.
             sh.cmd "curl -fLo \"/tmp/#{mactex}\" --retry 3 http://mirror.ctan.org/systems/mac/mactex/"\
                    "#{mactex}"
 
@@ -536,17 +551,17 @@ module Travis
         def normalized_r_version(v=Array(config[:r]).first.to_s)
           case v
           when 'release' then '3.5.0'
-          when 'oldrel' then '3.3.3'
+          when 'oldrel' then '3.4.4'
           when '3.0' then '3.0.3'
           when '3.1' then '3.1.3'
           when '3.2' then '3.2.5'
           when '3.3' then '3.3.3'
           when '3.4' then '3.4.4'
-          when '3.5' then '3.5'
+          when '3.5' then '3.5.0'
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true
-            'devel'
+            normalized_r_version('release')
           when 'bioc-release'
             config[:bioc_required] = true
             config[:bioc_use_devel] = false

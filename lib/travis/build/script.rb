@@ -57,14 +57,17 @@ module Travis
       include Module.new { Stages::STAGES.map(&:name).flatten.each { |stage| define_method(stage) {} } }
       include Appliances, DirectoryCache, Deprecation, Template
 
-      attr_reader :sh, :data, :options, :validator, :addons, :stages
+      attr_reader :sh, :raw_data, :data, :options, :validator, :addons, :stages
       attr_accessor :setup_cache_has_run_for
 
       def initialize(data)
-        @data = Data.new({ config: self.class.defaults }.deep_merge(data.deep_symbolize_keys))
+        @raw_data = data.deep_symbolize_keys
+        @data = Data.new({ config: self.class.defaults }.deep_merge(self.raw_data))
         @options = {}
 
-        @sh = Shell::Builder.new
+        tracing_enabled = data[:trace]
+
+        @sh = Shell::Builder.new(tracing_enabled)
         @addons = Addons.new(self, sh, self.data, config)
         @stages = Stages.new(self, sh, config)
         @setup_cache_has_run_for = {}
@@ -80,6 +83,10 @@ module Travis
         unless Travis::Build.config.dump_backtrace.empty?
           Travis::Build.logger.error(e)
           Travis::Build.logger.error(e.backtrace)
+        end
+
+        if ENV['RACK_ENV'] == 'development'
+          raise e
         end
 
         show_compile_error_msg(e, event)
@@ -198,6 +205,7 @@ module Travis
           apply :redefine_curl
           apply :nonblock_pipe
           apply :apt_get_update
+          apply :deprecate_xcode_64
         end
 
         def setup_filter

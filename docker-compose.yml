@@ -5,5 +5,7 @@ services:
       context: .
       args:
       - GITHUB_OAUTH_TOKEN
+    environment:
+    - RACK_ENV=production
     ports:
     - 4000:4000

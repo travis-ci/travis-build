@@ -83,7 +83,7 @@ describe Travis::Build::Script::R, :sexp do
   end
   it 'downloads and installs gfortran libraries on OS X' do
     data[:config][:os] = 'osx'
-    data[:config][:r] = 'oldrel'
+    data[:config][:r] = '3.3'
     data[:config][:fortran] = true
     should include_sexp [:cmd, %r{^curl.*#{Regexp.escape('/tmp/gfortran.tar.bz2 http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2')}},
                          assert: true, echo: true, retry: true, timing: true]
@@ -192,6 +192,12 @@ describe Travis::Build::Script::R, :sexp do
                            assert: true, echo: true, retry: true, timing: true]
     end
 
+    it 'does BiocCheck if requested' do
+      data[:config][:bioc_check] = true
+      should include_sexp [:cmd, /.*BiocCheck::BiocCheck.*/,
+                           echo: true, timing: true]
+    end
+
     it 'does install bioc with bioc_packages' do
       data[:config][:bioc_packages] = ['GenomicFeatures']
       should include_sexp [:cmd, /.*biocLite.*/,
@@ -220,7 +226,7 @@ describe Travis::Build::Script::R, :sexp do
     }
     it {
       data[:config][:r] = 'oldrel'
-      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.3.3")
+      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.4.4")
     }
     it {
       data[:config][:r] = '3.1'
