@@ -1,3 +1,5 @@
+#!/bin/bash
+# shellcheck disable=SC1117
 export ANSI_RED="\033[31;1m"
 export ANSI_GREEN="\033[32;1m"
 export ANSI_YELLOW="\033[33;1m"
@@ -14,16 +16,16 @@ export SHELL
 export TERM
 export USER
 
-case $(uname | tr '[A-Z]' '[a-z]') in
-  linux)
-    export TRAVIS_OS_NAME=linux
-    ;;
-  darwin)
-    export TRAVIS_OS_NAME=osx
-    ;;
-  *)
-    export TRAVIS_OS_NAME=notset
-    ;;
+case $(uname | tr '[:upper:]' '[:lower:]') in
+linux)
+  export TRAVIS_OS_NAME=linux
+  ;;
+darwin)
+  export TRAVIS_OS_NAME=osx
+  ;;
+*)
+  export TRAVIS_OS_NAME=notset
+  ;;
 esac
 
 export TRAVIS_DIST=notset
@@ -35,7 +37,8 @@ fi
 export TRAVIS_ARCH
 
 if [[ "${TRAVIS_OS_NAME}" == linux ]]; then
-  export TRAVIS_DIST="$(lsb_release -sc 2>/dev/null || echo notset)"
+  TRAVIS_DIST="$(lsb_release -sc 2>/dev/null || echo notset)"
+  export TRAVIS_DIST
   if command -v systemctl >/dev/null 2>&1; then
     export TRAVIS_INIT=systemd
   else
@@ -60,13 +63,31 @@ travis_cmd() {
 
   while true; do
     case "${1}" in
-      --assert)  assert=true; shift ;;
-      --echo)    output=true; shift ;;
-      --display) display="${2}";  shift 2;;
-      --retry)   retry=true;  shift ;;
-      --timing)  timing=true; shift ;;
-      --secure)  secure=" 2>/dev/null"; shift ;;
-      *) break ;;
+    --assert)
+      assert=true
+      shift
+      ;;
+    --echo)
+      output=true
+      shift
+      ;;
+    --display)
+      display="${2}"
+      shift 2
+      ;;
+    --retry)
+      retry=true
+      shift
+      ;;
+    --timing)
+      timing=true
+      shift
+      ;;
+    --secure)
+      secure=" 2>/dev/null"
+      shift
+      ;;
+    *) break ;;
     esac
   done
 
@@ -107,7 +128,7 @@ ${ANSI_RED}For more information, see https://docs.travis-ci.com/user/encryption-
 }
 
 travis_time_start() {
-  TRAVIS_TIMER_ID="$(printf %08x $(( RANDOM * RANDOM )))"
+  TRAVIS_TIMER_ID="$(printf %08x $((RANDOM * RANDOM)))"
   TRAVIS_TIMER_START_TIME="$(travis_nanoseconds)"
   export TRAVIS_TIMER_ID TRAVIS_TIMER_START_TIME
   echo -en "travis_time:start:$TRAVIS_TIMER_ID\r${ANSI_CLEAR}"
@@ -118,7 +139,7 @@ travis_time_finish() {
   local travis_timer_end_time
   travis_timer_end_time="$(travis_nanoseconds)"
   local duration
-  duration="$((${travis_timer_end_time}-${TRAVIS_TIMER_START_TIME}))"
+  duration="$((travis_timer_end_time - TRAVIS_TIMER_START_TIME))"
   echo -en "\ntravis_time:end:${TRAVIS_TIMER_ID}:start=${TRAVIS_TIMER_START_TIME},finish=${travis_timer_end_time},duration=${duration}\r${ANSI_CLEAR}"
   return "${result}"
 }
@@ -130,18 +151,16 @@ travis_trace_span() {
   timestamp="$(travis_nanoseconds)"
   template="${template/__TRAVIS_TIMESTAMP__/${timestamp}}"
   template="${template/__TRAVIS_STATUS__/${result}}"
-  echo "${template}" >> /tmp/build.trace
+  echo "${template}" >>/tmp/build.trace
 }
 
 travis_nanoseconds() {
   local cmd='date'
   local format='+%s%N'
 
-  if hash gdate > /dev/null 2>&1; then
-    <%# use gdate if available %>
+  if hash gdate >/dev/null 2>&1; then
     cmd='gdate'
   elif [[ "${TRAVIS_OS_NAME}" == osx ]]; then
-    <%# fallback to second precision on darwin (does not support %N) %>
     format='+%s000000000'
   fi
 
@@ -150,27 +169,28 @@ travis_nanoseconds() {
 
 travis_internal_ruby() {
   if ! type rvm &>/dev/null; then
+    # shellcheck source=/dev/null
     source "${TRAVIS_BUILD_HOME}/.rvm/scripts/rvm" &>/dev/null
   fi
   local i selected_ruby rubies_array rubies_array_sorted rubies_array_len
-  rubies_array=( $(
-    rvm list strings \
-      | while read -r v; do
-          if [[ ! "${v}" =~ ${TRAVIS_BUILD_INTERNAL_RUBY_REGEX} ]]; then
-            continue
-          fi
-          v="${v//ruby-/}"
-          v="${v%%-*}"
-          echo "$(travis_vers2int "${v}")_${v}"
-        done
-  ) )
+  read -r -a rubies_array <<<"$(
+    rvm list strings |
+      while read -r v; do
+        if [[ ! "${v}" =~ ${TRAVIS_BUILD_INTERNAL_RUBY_REGEX} ]]; then
+          continue
+        fi
+        v="${v//ruby-/}"
+        v="${v%%-*}"
+        echo "$(travis_vers2int "${v}")_${v}"
+      done
+  )"
   travis_bash_qsort_numeric "${rubies_array[@]}"
-  rubies_array_sorted=( "${travis_bash_qsort_numeric_ret[@]}" )
+  rubies_array_sorted=("${travis_bash_qsort_numeric_ret[@]}")
   rubies_array_len="${#rubies_array_sorted[@]}"
-  if (( rubies_array_len <= 0 )); then
+  if ((rubies_array_len <= 0)); then
     echo 'default'
   else
-    i=$(( rubies_array_len - 1 ))
+    i=$((rubies_array_len - 1))
     selected_ruby="${rubies_array_sorted[${i}]}"
     selected_ruby="${selected_ruby##*_}"
     echo "${selected_ruby:-default}"
@@ -187,7 +207,7 @@ travis_assert() {
 
 travis_result() {
   local result="${1}"
-  export TRAVIS_TEST_RESULT=$(( ${TRAVIS_TEST_RESULT:-0} | $((${result} != 0)) ))
+  export TRAVIS_TEST_RESULT=$((${TRAVIS_TEST_RESULT:-0} | $((result != 0))))
 
   if [[ "${result}" -eq 0 ]]; then
     echo -e "\n${ANSI_GREEN}The command \"${TRAVIS_CMD}\" exited with ${result}.${ANSI_RESET}"
@@ -198,14 +218,14 @@ travis_result() {
 
 travis_terminate() {
   set +e
-  <%# Restoring the file descriptors of redirect_io filter strategy %>
-  [[ "${TRAVIS_FILTERED}" = redirect_io && -e /dev/fd/9 ]] &&
+  [[ "${TRAVIS_FILTERED}" == redirect_io && -e /dev/fd/9 ]] &&
     sync &&
     command exec 1>&9 2>&9 9>&- &&
     sync
   pgrep -u "${USER}" | grep -v -w "${$}" >"${TRAVIS_TMPDIR}/pids_after"
-  kill $(awk 'NR==FNR{a[$1]++;next};!($1 in a)' $TRAVIS_TMPDIR/pids_{before,after}) &> /dev/null || true
-  pkill -9 -P "${$}" &> /dev/null || true
+  awk 'NR==FNR{a[$1]++;next};!($1 in a)' "${TRAVIS_TMPDIR}"/pids_{before,after} |
+    xargs kill &>/dev/null || true
+  pkill -9 -P "${$}" &>/dev/null || true
   exit "${1}"
 }
 
@@ -213,14 +233,12 @@ travis_wait() {
   local timeout="${1}"
 
   if [[ "${timeout}" =~ ^[0-9]+$ ]]; then
-    <%# looks like an integer, so we assume it's a timeout %>
     shift
   else
-    <%# default value %>
     timeout=20
   fi
 
-  local cmd="${@}"
+  local cmd=("${@}")
   local log_file="travis_wait_${$}.log"
 
   "${cmd[@]}" &>"${log_file}" &
@@ -237,9 +255,9 @@ travis_wait() {
   }
 
   if [[ "${result}" -eq 0 ]]; then
-    echo -e "\n${ANSI_GREEN}The command ${cmd} exited with ${result}.${ANSI_RESET}"
+    echo -e "\n${ANSI_GREEN}The command ${cmd[*]} exited with ${result}.${ANSI_RESET}"
   else
-    echo -e "\n${ANSI_RED}The command ${cmd} exited with ${result}.${ANSI_RESET}"
+    echo -e "\n${ANSI_RED}The command ${cmd[*]} exited with ${result}.${ANSI_RESET}"
   fi
 
   echo -e "\n${ANSI_GREEN}Log:${ANSI_RESET}\n"
@@ -249,23 +267,21 @@ travis_wait() {
 }
 
 travis_jigger() {
-  <%# helper method for travis_wait() %>
   local cmd_pid="${1}"
   shift
-  local timeout="${1}" <%# in minutes %>
+  local timeout="${1}"
   shift
   local count=0
 
-  <%# clear the line %>
   echo -e "\n"
 
   while [[ "${count}" -lt "${timeout}" ]]; do
     count="$((count + 1))"
-    echo -ne "Still running (${count} of ${timeout}): ${@}\r"
+    echo -ne "Still running (${count} of ${timeout}): ${*}\r"
     sleep 60
   done
 
-  echo -e "\n${ANSI_RED}Timeout (${timeout} minutes) reached. Terminating \"${@}\"${ANSI_RESET}\n"
+  echo -e "\n${ANSI_RED}Timeout (${timeout} minutes) reached. Terminating \"${*}\"${ANSI_RESET}\n"
   kill -9 "${cmd_pid}"
 }
 
@@ -274,7 +290,7 @@ travis_retry() {
   local count=1
   while [[ "${count}" -le 3 ]]; do
     [[ "${result}" -ne 0 ]] && {
-      echo -e "\n${ANSI_RED}The command \"${@}\" failed. Retrying, ${count} of 3.${ANSI_RESET}\n" >&2
+      echo -e "\n${ANSI_RED}The command \"${*}\" failed. Retrying, ${count} of 3.${ANSI_RESET}\n" >&2
     }
     "${@}" && { result=0 && break; } || result="${?}"
     count="$((count + 1))"
@@ -282,7 +298,7 @@ travis_retry() {
   done
 
   [[ "${count}" -gt 3 ]] && {
-    echo -e "\n${ANSI_RED}The command \"${@}\" failed 3 times.${ANSI_RESET}\n" >&2
+    echo -e "\n${ANSI_RED}The command \"${*}\" failed 3 times.${ANSI_RESET}\n" >&2
   }
 
   return "${result}"
@@ -318,26 +334,27 @@ decrypt() {
 }
 
 travis_vers2int() {
-  printf '1%03d%03d%03d%03d' $(echo "${1}" | tr '.' ' ')
+  local args
+  read -r -a args <<<"$(echo "${1}" | tr '.' ' ')"
+  printf '1%03d%03d%03d%03d' "${args[@]}"
 }
 
-<%# based on http://stackoverflow.com/a/30576368 by gniourf_gniourf :heart_eyes_cat: %>
 travis_bash_qsort_numeric() {
   local pivot i smaller=() larger=()
   travis_bash_qsort_numeric_ret=()
-  (($#==0)) && return 0
+  (($# == 0)) && return 0
   pivot="${1}"
   shift
   for i; do
     if [[ "${i%%_*}" -lt "${pivot%%_*}" ]]; then
-      smaller+=( "${i}" )
+      smaller+=("${i}")
     else
-      larger+=( "${i}" )
+      larger+=("${i}")
     fi
   done
   travis_bash_qsort_numeric "${smaller[@]}"
-  smaller=( "${travis_bash_qsort_numeric_ret[@]}" )
+  smaller=("${travis_bash_qsort_numeric_ret[@]}")
   travis_bash_qsort_numeric "${larger[@]}"
-  larger=( "${travis_bash_qsort_numeric_ret[@]}" )
-  travis_bash_qsort_numeric_ret=( "${smaller[@]}" "${pivot}" "${larger[@]}" )
+  larger=("${travis_bash_qsort_numeric_ret[@]}")
+  travis_bash_qsort_numeric_ret=("${smaller[@]}" "${pivot}" "${larger[@]}")
 }

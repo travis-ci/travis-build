@@ -11,6 +11,17 @@ require 'rubygems'
 module Travis
   module Build
     module RakeTasks
+      SHELLCHECK_URL = File.join(
+        'https://www.googleapis.com',
+        '/download/storage/v1/b/shellcheck/o',
+        'shellcheck-v0.5.0.linux.x86_64.tar.xz?alt=media'
+      )
+      SHFMT_URL = File.join(
+        'https://github.com',
+        'mvdan/sh/releases/download/v2.5.1',
+        'shfmt_v2.5.1_linux_amd64'
+      )
+
       def fetch_githubusercontent_file(from, host: 'raw.githubusercontent.com',
                                        to: nil, mode: 0o755)
         conn = build_faraday_conn(host: host)
@@ -77,7 +88,7 @@ module Travis
         dest = top + 'lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh'
         app_host = ENV.fetch('TRAVIS_BUILD_APP_HOST', '')
         dest.dirname.mkpath
-        dest.write(ERB.new((top + "#{dest}.erb").read).result(binding))
+        dest.write(ERB.new((top + "#{dest.parent}/sauce_connect.erb.bash").read).result(binding))
         dest.chmod(0o644)
       end
 
@@ -168,7 +179,6 @@ module Travis
 
       def task_clean
         rm_rf(top + 'public/files')
-        rm_rf(top + 'tmp/go-versions-binary-linux')
         rm_rf(top + 'tmp/ghc-versions.html')
       end
 
@@ -325,7 +335,10 @@ module Travis
       end
 
       desc 'update sauce_connect.sh'
-      file 'lib/travis/build/addons/sauce_connect/sauce_connect.sh' do
+      file 'lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh' =>
+           'lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh.erb'
+
+      file 'lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh.erb' do
         file_update_sauce_connect
       end
 
@@ -341,7 +354,7 @@ module Travis
 
       desc 'update sc'
       multitask update_sc: Rake::FileList[
-        'lib/travis/build/addons/sauce_connect/sauce_connect.sh',
+        'lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh',
         'public/files/sc-linux.tar.gz',
         'public/files/sc-osx.zip'
       ]
@@ -359,7 +372,7 @@ module Travis
 
       desc 'update static files'
       multitask update_static_files: Rake::FileList[
-        'lib/travis/build/addons/sauce_connect/sauce_connect.sh',
+        'lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh',
         'public/files/casher',
         'public/files/gimme',
         'public/files/godep_darwin_amd64',
@@ -402,6 +415,47 @@ module Travis
       desc 'show contents in public/files'
       task 'ls_public_files' do
         Rake::FileList['public/files/*'].each { |f| puts f }
+      end
+
+      desc 'run shfmt'
+      task shfmt: %i[ensure_shfmt lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh] do
+        sh "shfmt -f #{top}/lib | grep -v 'sauce_connect.sh$' | xargs shfmt -i 2 -w"
+      end
+
+      desc 'run shellcheck'
+      task shellcheck: %i[ensure_shellcheck lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh] do
+        sh "shfmt -f #{top}/lib | grep -v 'sauce_connect.sh$' | xargs shellcheck"
+      end
+
+      task ensure_shfmt: :frontload_path do
+			  next if system(%{shfmt -version 2>/dev/null | grep v2.5.1 &>/dev/null})
+        dest = Pathname.new(File.expand_path('~/bin/shfmt'))
+        dest.parent.mkpath
+        dest.write(build_faraday_conn(host: nil).get(SHFMT_URL).body)
+        dest.chmod(0o755)
+        sh 'shfmt -version'
+      end
+
+      task ensure_shellcheck: :frontload_path do
+        next if system(%{
+          shellcheck --version 2>/dev/null | awk '/^version:/ { print $2 }' |
+            grep 0.5.0 &>/dev/null
+        })
+        dest = Pathname.new(File.expand_path('~/bin'))
+        dest.mkpath
+        tmp_dest = Pathname.new(Dir.tmpdir).join('shellcheck.tar.xz')
+        tmp_dest.write(build_faraday_conn(host: nil).get(SHELLCHECK_URL).body)
+        sh %{tar -C "#{dest}" --strip-components=1 --exclude="*.txt" -xf "#{tmp_dest}"}
+        sh 'shellcheck --version'
+      end
+
+      task :frontload_path do
+        next if ENV['RAKE_NO_FRONTLOAD_PATH'] == '1'
+        ENV['PATH'] = %W[
+          #{File.expand_path('~/bin')}
+          #{File.expand_path('~/go/bin')}
+          #{ENV['PATH']}
+        ].join(':')
       end
     end
   end

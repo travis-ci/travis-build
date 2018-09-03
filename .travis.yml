@@ -45,6 +45,10 @@ before_script:
 
 script:
   - bundle exec rake spec
+  - bundle exec rake shfmt
+  - git diff --exit-code
+  - git diff --cached --exit-code
+  - bundle exec rake shellcheck
   - ./script/validate-bash-syntax
 
 after_success: bundle exec codeclimate-test-reporter

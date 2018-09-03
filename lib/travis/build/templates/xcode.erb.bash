@@ -1,3 +1,5 @@
+#!/bin/bash
+
 mkdir "${TRAVIS_BUILD_HOME}/bin"
 
 cat >"${TRAVIS_BUILD_HOME}/bin/xcodebuild" <<'XCODEBUILD_STUB'

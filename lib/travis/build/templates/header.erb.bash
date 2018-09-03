@@ -5,10 +5,12 @@ export TRAVIS_BUILD_DIR="<%= build_dir %>"
 export TRAVIS_BUILD_INTERNAL_RUBY_REGEX="<%= internal_ruby_regex %>"
 
 if [[ -s "${TRAVIS_BUILD_ROOT}/etc/profile" ]]; then
+  # shellcheck source=/dev/null
   source "${TRAVIS_BUILD_ROOT}/etc/profile"
 fi
 
-if [[ -s "${TRAVIS_BUILD_HOME}/.bash_profile" ]] ; then
+if [[ -s "${TRAVIS_BUILD_HOME}/.bash_profile" ]]; then
+  # shellcheck source=/dev/null
   source "${TRAVIS_BUILD_HOME}/.bash_profile"
 fi
 
@@ -20,7 +22,7 @@ cat >>"${TRAVIS_BUILD_HOME}/.travis/job_stages" <<'TRAVIS_JOB_STAGES_HEADER'
 <%= partial 'stages_header' %>
 TRAVIS_JOB_STAGES_HEADER
 
-<%= partial 'temporary_hacks' %>
+# <%= partial 'temporary_hacks' %>
 
 mkdir -p "${TRAVIS_BUILD_DIR}"
-cd "${TRAVIS_BUILD_DIR}"
+cd "${TRAVIS_BUILD_DIR}" || exit 86
