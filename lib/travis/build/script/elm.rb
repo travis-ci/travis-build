@@ -6,8 +6,8 @@ module Travis
         DEFAULT_NODE_VERSION = '8.9.1'
 
         DEFAULTS = {
-          elm: '0.18.0',
-          elm_test: '0.18.12'
+          elm: '0.19.0',
+          elm_test: '0.19.0'
         }
 
         ELM_TEST_REQUIRED_NODE_VERSION = '4.0.0'
