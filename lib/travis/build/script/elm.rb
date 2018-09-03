@@ -107,9 +107,14 @@ module Travis
             sh.cmd "elm-use #{elm_version}", retry: true
 
             convert_binary_to_sysconfcpus 'elm'
-            convert_binary_to_sysconfcpus 'elm-make'
-            convert_binary_to_sysconfcpus 'elm-package'
-            convert_binary_to_sysconfcpus 'elm-format'
+
+            # Beginning with Elm 0.19, there's one `elm` binary and that's it.
+            # In that case, there won't be any files to convert here!
+            if elm_major_version == 0 && elm_minor_version <= 18
+              convert_binary_to_sysconfcpus 'elm-make'
+              convert_binary_to_sysconfcpus 'elm-package'
+              convert_binary_to_sysconfcpus 'elm-format'
+            end
           end
 
           def install_elm_test
