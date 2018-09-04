@@ -5,6 +5,7 @@ module Travis
     module Template
       class Template < OpenStruct
         def render(name, basedir: nil)
+          name = name.to_s
           name = "#{name}.erb.bash" if name.count('.').zero?
           name = File.expand_path(name, basedir) unless basedir.nil?
           @filename = name
