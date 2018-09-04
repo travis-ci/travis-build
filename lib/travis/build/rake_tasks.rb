@@ -297,6 +297,18 @@ module Travis
         dest.chmod(0o644)
       end
 
+      def frontload_path
+        return if ENV['RAKE_NO_FRONTLOAD_PATH'] == '1'
+        return if @frontload_path
+        tmpbin.mkpath
+
+        ENV['PATH'] = %W[
+          #{tmpbin}
+          #{ENV['PATH']}
+        ].join(':')
+        @frontload_path = true
+      end
+
       extend self
       extend Rake::DSL
 
@@ -438,11 +450,13 @@ module Travis
 
       desc 'run shfmt'
       task shfmt: %i[ensure_shfmt lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh] do
+        frontload_path
         sh "shfmt -f #{top}/lib #{top}/script | grep -v 'sauce_connect.sh$' | xargs shfmt -i 2 -w"
       end
 
       desc 'run shellcheck'
       task shellcheck: %i[ensure_shellcheck lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh] do
+        frontload_path
         sh "shfmt -f #{top}/lib #{top}/script | grep -v 'sauce_connect.sh$' | xargs shellcheck"
       end
 
@@ -459,7 +473,8 @@ module Travis
         sh "#{top}/script/validate-bash-syntax"
       end
 
-      task ensure_shfmt: :frontload_path do
+      task :ensure_shfmt do
+        frontload_path
 			  next if system(%{shfmt -version 2>/dev/null | grep v2.5.1 &>/dev/null})
         dest = tmpbin.join('shfmt')
         dest.parent.mkpath
@@ -472,7 +487,8 @@ module Travis
         sh 'shfmt -version'
       end
 
-      task ensure_shellcheck: :frontload_path do
+      task :ensure_shellcheck do
+        frontload_path
         fail 'please `brew install shellcheck`' if uname == 'darwin'
         next if system(%{
           shellcheck --version 2>/dev/null | awk '/^version:/ { print $2 }' |
@@ -482,16 +498,6 @@ module Travis
         tmp_dest.write(build_faraday_conn(host: nil).get(SHELLCHECK_URL).body)
         sh %{tar -C "#{tmpbin}" --strip-components=1 --exclude="*.txt" -xf "#{tmp_dest}"}
         sh 'shellcheck --version'
-      end
-
-      task :frontload_path do
-        next if ENV['RAKE_NO_FRONTLOAD_PATH'] == '1'
-        tmpbin.mkpath
-
-        ENV['PATH'] = %W[
-          #{tmpbin}
-          #{ENV['PATH']}
-        ].join(':')
       end
 
       task default: %i[spec shfmt assert_clean shellcheck validate_examples]
