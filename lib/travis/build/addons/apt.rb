@@ -14,7 +14,6 @@ module Travis
           trusty
           xenial
         ).freeze
-        TEMPLATES_PATH = File.expand_path('./apt/templates', __dir__)
 
         class << self
           def package_safelists

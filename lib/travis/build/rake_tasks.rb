@@ -19,7 +19,7 @@ module Travis
       SHFMT_URL = File.join(
         'https://github.com',
         'mvdan/sh/releases/download/v2.5.1',
-        'shfmt_v2.5.1_linux_amd64'
+        'shfmt_v2.5.1_%{uname}_%{arch}'
       )
 
       def fetch_githubusercontent_file(from, host: 'raw.githubusercontent.com',
@@ -171,6 +171,25 @@ module Travis
         @top ||= Pathname.new(
           File.expand_path('../../../../', __FILE__)
         )
+      end
+
+      def uname
+        @uname ||= case RUBY_PLATFORM
+                   when /linux/ then 'linux'
+                   when /darwin/ then 'darwin'
+                   else RUBY_PLATFORM.split('-').last
+                   end
+      end
+
+      def arch
+        @arch ||= case RUBY_PLATFORM
+                  when /x86_64/ then 'amd64'
+                  else RUBY_PLATFORM.split('-').first
+                  end
+      end
+
+      def tmpbin
+        top.join('tmp/bin')
       end
 
       def semver_cmp(a, b)
@@ -442,31 +461,35 @@ module Travis
 
       task ensure_shfmt: :frontload_path do
 			  next if system(%{shfmt -version 2>/dev/null | grep v2.5.1 &>/dev/null})
-        dest = Pathname.new(File.expand_path('~/bin/shfmt'))
+        dest = tmpbin.join('shfmt')
         dest.parent.mkpath
-        dest.write(build_faraday_conn(host: nil).get(SHFMT_URL).body)
+        dest.write(
+          build_faraday_conn(host: nil).get(
+            format(SHFMT_URL, uname: uname, arch: arch)
+          ).body
+        )
         dest.chmod(0o755)
         sh 'shfmt -version'
       end
 
       task ensure_shellcheck: :frontload_path do
+        fail 'please `brew install shellcheck`' if uname == 'darwin'
         next if system(%{
           shellcheck --version 2>/dev/null | awk '/^version:/ { print $2 }' |
             grep 0.5.0 &>/dev/null
         })
-        dest = Pathname.new(File.expand_path('~/bin'))
-        dest.mkpath
         tmp_dest = Pathname.new(Dir.tmpdir).join('shellcheck.tar.xz')
         tmp_dest.write(build_faraday_conn(host: nil).get(SHELLCHECK_URL).body)
-        sh %{tar -C "#{dest}" --strip-components=1 --exclude="*.txt" -xf "#{tmp_dest}"}
+        sh %{tar -C "#{tmpbin}" --strip-components=1 --exclude="*.txt" -xf "#{tmp_dest}"}
         sh 'shellcheck --version'
       end
 
       task :frontload_path do
         next if ENV['RAKE_NO_FRONTLOAD_PATH'] == '1'
+        tmpbin.mkpath
+
         ENV['PATH'] = %W[
-          #{File.expand_path('~/bin')}
-          #{File.expand_path('~/go/bin')}
+          #{tmpbin}
           #{ENV['PATH']}
         ].join(':')
       end
