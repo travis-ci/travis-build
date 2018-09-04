@@ -11,15 +11,17 @@ require 'rubygems'
 module Travis
   module Build
     module RakeTasks
+      SHELLCHECK_VERSION = 'v0.5.0'
       SHELLCHECK_URL = File.join(
         'https://www.googleapis.com',
         '/download/storage/v1/b/shellcheck/o',
-        'shellcheck-v0.5.0.linux.x86_64.tar.xz?alt=media'
+        "shellcheck-#{SHELLCHECK_VERSION}.linux.x86_64.tar.xz?alt=media"
       )
+      SHFMT_VERSION = 'v2.5.1'
       SHFMT_URL = File.join(
         'https://github.com',
-        'mvdan/sh/releases/download/v2.5.1',
-        'shfmt_v2.5.1_%{uname}_%{arch}'
+        "mvdan/sh/releases/download/#{SHFMT_VERSION}",
+        "shfmt_#{SHFMT_VERSION}_%{uname}_%{arch}"
       )
 
       def fetch_githubusercontent_file(from, host: 'raw.githubusercontent.com',
@@ -190,6 +192,19 @@ module Travis
 
       def tmpbin
         top.join('tmp/bin')
+      end
+
+      def has_shfmt?
+        ENV['PATH'] = tmpbin_path
+        `shfmt -version 2>/dev/null`.strip == SHFMT_VERSION
+      end
+
+      def has_shellcheck?
+        ENV['PATH'] = tmpbin_path
+        vers = `shellcheck --version 2>/dev/null`.strip
+        vers.split(/\n/)
+            .find { |s| s.start_with?('version:') }
+            .split.last == SHELLCHECK_VERSION.sub(/^v/, '')
       end
 
       def semver_cmp(a, b)
@@ -469,10 +484,8 @@ module Travis
       end
 
       task :ensure_shfmt do
-			  next if system(
-          { 'PATH' => tmpbin_path },
-          %{shfmt -version 2>/dev/null | grep v2.5.1 &>/dev/null}
-        )
+        next if has_shfmt?
+        tmpbin.mkpath
         dest = tmpbin.join('shfmt')
         dest.parent.mkpath
         dest.write(
@@ -487,13 +500,8 @@ module Travis
 
       task :ensure_shellcheck do
         fail 'please `brew install shellcheck`' if uname == 'darwin'
-        next if system(
-          { 'PATH' => tmpbin_path },
-          %{
-            shellcheck --version 2>/dev/null | awk '/^version:/ { print $2 }' |
-            grep 0.5.0 &>/dev/null
-          }
-        )
+        next if has_shellcheck?
+        tmpbin.mkpath
         tmp_dest = Pathname.new(Dir.tmpdir).join('shellcheck.tar.xz')
         tmp_dest.write(build_faraday_conn(host: nil).get(SHELLCHECK_URL).body)
         sh %{tar -C "#{tmpbin}" --strip-components=1 --exclude="*.txt" -xf "#{tmp_dest}"}
