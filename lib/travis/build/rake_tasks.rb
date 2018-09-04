@@ -297,16 +297,11 @@ module Travis
         dest.chmod(0o644)
       end
 
-      def frontload_path
-        return if ENV['RAKE_NO_FRONTLOAD_PATH'] == '1'
-        return if @frontload_path
-        tmpbin.mkpath
-
-        ENV['PATH'] = %W[
+      def tmpbin_path
+        @tmpbin_path ||= %W[
           #{tmpbin}
           #{ENV['PATH']}
         ].join(':')
-        @frontload_path = true
       end
 
       extend self
@@ -450,13 +445,13 @@ module Travis
 
       desc 'run shfmt'
       task shfmt: %i[ensure_shfmt lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh] do
-        frontload_path
+        ENV['PATH'] = tmpbin_path
         sh "shfmt -f #{top}/lib #{top}/script | grep -v 'sauce_connect.sh$' | xargs shfmt -i 2 -w"
       end
 
       desc 'run shellcheck'
       task shellcheck: %i[ensure_shellcheck lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh] do
-        frontload_path
+        ENV['PATH'] = tmpbin_path
         sh "shfmt -f #{top}/lib #{top}/script | grep -v 'sauce_connect.sh$' | xargs shellcheck"
       end
 
@@ -474,8 +469,10 @@ module Travis
       end
 
       task :ensure_shfmt do
-        frontload_path
-			  next if system(%{shfmt -version 2>/dev/null | grep v2.5.1 &>/dev/null})
+			  next if system(
+          { 'PATH' => tmpbin_path },
+          %{shfmt -version 2>/dev/null | grep v2.5.1 &>/dev/null}
+        )
         dest = tmpbin.join('shfmt')
         dest.parent.mkpath
         dest.write(
@@ -484,19 +481,23 @@ module Travis
           ).body
         )
         dest.chmod(0o755)
+        ENV['PATH'] = tmpbin_path
         sh 'shfmt -version'
       end
 
       task :ensure_shellcheck do
-        frontload_path
         fail 'please `brew install shellcheck`' if uname == 'darwin'
-        next if system(%{
-          shellcheck --version 2>/dev/null | awk '/^version:/ { print $2 }' |
+        next if system(
+          { 'PATH' => tmpbin_path },
+          %{
+            shellcheck --version 2>/dev/null | awk '/^version:/ { print $2 }' |
             grep 0.5.0 &>/dev/null
-        })
+          }
+        )
         tmp_dest = Pathname.new(Dir.tmpdir).join('shellcheck.tar.xz')
         tmp_dest.write(build_faraday_conn(host: nil).get(SHELLCHECK_URL).body)
         sh %{tar -C "#{tmpbin}" --strip-components=1 --exclude="*.txt" -xf "#{tmp_dest}"}
+        ENV['PATH'] = tmpbin_path
         sh 'shellcheck --version'
       end
 
