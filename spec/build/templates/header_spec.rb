@@ -17,8 +17,8 @@ describe 'header.sh', integration: true do
   end
 
   let :bash_body do
-    script = ["source $HOME/.travis/job_stages", "export"]
-    header_template.read.split("\n").grep(/^[a-z][a-z_]+\(\) \{/).each do |func|
+    script = ["source ${TRAVIS_BUILD_HOME}/.travis/job_stages", "export"]
+    header_rendered.split("\n").grep(/^[a-z][a-z_]+\(\) \{/).each do |func|
       script << "type #{func.match(/^(.+)\(\) \{/)[1]}"
     end
     script.join("\n")
@@ -27,7 +27,7 @@ describe 'header.sh', integration: true do
   let :bash_output do
     IO.popen(
       [
-        'env', '-i', "HOME=#{build_dir}",
+        'env', '-i', "TRAVIS_BUILD_HOME=#{build_dir}",
         'bash', '-c', header_rendered + bash_body, err: %i(child out)
       ]
     ).read
@@ -72,19 +72,19 @@ describe 'header.sh', integration: true do
     let(:rubies) { [] }
 
     let :bash_body do
-      <<-EOF.gsub(/^\s+> ?/, '')
-        > source $HOME/.travis/job_stages
-        > rvm() {
-        >   if [[ $1 != list && $2 != strings ]]; then
-        >     return
-        >   fi
-        >   cat <<EORVM
-        > #{rubies.join("\n")}
-        > EORVM
-        > }
-        >
-        > echo $(travis_internal_ruby)
-      EOF
+      <<~BASH
+        source ${TRAVIS_BUILD_HOME}/.travis/job_stages
+        rvm() {
+          if [[ $1 != list && $2 != strings ]]; then
+            return
+          fi
+          cat <<EORVM
+        #{rubies.join("\n")}
+        EORVM
+        }
+
+        travis_internal_ruby
+      BASH
     end
 
     context 'with a typical selection of preinstalled rubies' do
