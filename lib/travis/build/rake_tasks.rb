@@ -438,12 +438,12 @@ module Travis
 
       desc 'run shfmt'
       task shfmt: %i[ensure_shfmt lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh] do
-        sh "shfmt -f #{top}/lib | grep -v 'sauce_connect.sh$' | xargs shfmt -i 2 -w"
+        sh "shfmt -f #{top}/lib #{top}/script | grep -v 'sauce_connect.sh$' | xargs shfmt -i 2 -w"
       end
 
       desc 'run shellcheck'
       task shellcheck: %i[ensure_shellcheck lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh] do
-        sh "shfmt -f #{top}/lib | grep -v 'sauce_connect.sh$' | xargs shellcheck"
+        sh "shfmt -f #{top}/lib #{top}/script | grep -v 'sauce_connect.sh$' | xargs shellcheck"
       end
 
       desc 'assert there are no changes in the git working copy'
