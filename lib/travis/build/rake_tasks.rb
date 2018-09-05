@@ -76,30 +76,29 @@ module Travis
         end
       end
 
-      def sc_data
+      def file_update_sc_data
         conn = build_faraday_conn(host: 'saucelabs.com')
         response = conn.get('versions.json')
-
         fail 'Could not fetch sc metadata' unless response.success?
-        JSON.parse(response.body)
+
+        dest = top + 'tmp/sc_data.json'
+        dest.dirname.mkpath
+        dest.write(response.body)
+        dest.chmod(0o644)
       end
 
-      def file_update_sauce_connect
-        require 'erb'
-
-        dest = top + 'lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh'
-        app_host = ENV.fetch('TRAVIS_BUILD_APP_HOST', '')
-        dest.dirname.mkpath
-        dest.write(ERB.new((top + "#{dest.parent}/sauce_connect.erb.bash").read).result(binding))
-        dest.chmod(0o644)
+      def sc_data
+        @sc_data ||= JSON.parse(top.join('tmp/sc_data.json').read)
       end
 
       def file_update_sc(platform)
         require 'digest/sha1'
 
+        sc_config = sc_data['Sauce Connect']
+
         ext = platform == 'linux' ? 'tar.gz' : 'zip'
 
-        download_url = URI.parse(sc_data['Sauce Connect'][platform]['download_url'])
+        download_url = URI.parse(sc_config[platform]['download_url'])
 
         conn = build_faraday_conn(
           scheme: download_url.scheme,
@@ -113,7 +112,7 @@ module Travis
 
         archive_content = response.body
 
-        expected_checksum = sc_data['Sauce Connect'][platform]['sha1']
+        expected_checksum = sc_config[platform]['sha1']
         received_checksum = Digest::SHA1.hexdigest(archive_content)
 
         unless received_checksum == expected_checksum
@@ -213,6 +212,7 @@ module Travis
 
       def task_clean
         rm_rf(top + 'public/files')
+        rm_rf(top + 'tmp/sc_data.json')
         rm_rf(top + 'tmp/ghc-versions.html')
       end
 
@@ -375,27 +375,22 @@ module Travis
         file_update_ghc_versions
       end
 
-      desc 'update sauce_connect.sh'
-      file 'lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh' =>
-           'lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh.erb'
-
-      file 'lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh.erb' do
-        file_update_sauce_connect
-      end
+      desc 'update sauce connect data'
+      file('tmp/sc_data.json') { file_update_sc_data }
 
       desc 'update sc-linux'
-      file 'public/files/sc-linux.tar.gz' do
+      file 'public/files/sc-linux.tar.gz' => 'tmp/sc_data.json' do
         file_update_sc('linux')
       end
 
       desc 'update sc-mac'
-      file 'public/files/sc-osx.zip' do
+      file 'public/files/sc-osx.zip' => 'tmp/sc_data.json' do
         file_update_sc('osx')
       end
 
       desc 'update sc'
       multitask update_sc: Rake::FileList[
-        'lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh',
+        'tmp/sc_data.json',
         'public/files/sc-linux.tar.gz',
         'public/files/sc-osx.zip'
       ]
@@ -413,16 +408,16 @@ module Travis
 
       desc 'update static files'
       multitask update_static_files: Rake::FileList[
-        'lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh',
+        'tmp/sc_data.json',
         'public/files/casher',
         'public/files/gimme',
         'public/files/godep_darwin_amd64',
         'public/files/godep_linux_amd64',
+        'public/files/install-jdk.sh',
         'public/files/nvm-exec',
         'public/files/nvm.sh',
         'public/files/rustup-init.sh',
         'public/files/sbt',
-        'public/files/install-jdk.sh',
         'public/files/sc-linux.tar.gz',
         'public/files/sc-osx.zip',
         'public/files/tmate-static-linux-amd64.tar.gz'
@@ -459,15 +454,15 @@ module Travis
       end
 
       desc 'run shfmt'
-      task shfmt: %i[ensure_shfmt lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh] do
+      task shfmt: :ensure_shfmt do
         ENV['PATH'] = tmpbin_path
-        sh "shfmt -f #{top}/lib #{top}/script | grep -v 'sauce_connect.sh$' | xargs shfmt -i 2 -w"
+        sh "shfmt -f #{top}/lib #{top}/script | xargs shfmt -i 2 -w"
       end
 
       desc 'run shellcheck'
-      task shellcheck: %i[ensure_shellcheck lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh] do
+      task shellcheck: %i[ensure_shellcheck] do
         ENV['PATH'] = tmpbin_path
-        sh "shfmt -f #{top}/lib #{top}/script | grep -v 'sauce_connect.sh$' | xargs shellcheck"
+        sh "shfmt -f #{top}/lib #{top}/script | xargs shellcheck"
       end
 
       desc 'assert there are no changes in the git working copy'

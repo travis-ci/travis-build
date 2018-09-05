@@ -1,4 +1,5 @@
 #!/bin/bash
+
 for troublesome_source in \
   rabbitmq-source.list \
   neo4j.list; do

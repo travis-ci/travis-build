@@ -13,6 +13,12 @@ module Travis
         @ghc_version_aliases_hash ||= version_aliases_hash('ghc')
       end
 
+      def sc_data
+        @sc_data ||= JSON.parse(
+          Travis::Build.top.join('tmp/sc_data.json').read.untaint
+        )
+      end
+
       define(
         api_token: ENV.fetch(
           'TRAVIS_BUILD_API_TOKEN', ENV.fetch('API_TOKEN', '')

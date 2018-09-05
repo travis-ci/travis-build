@@ -1,40 +1,49 @@
-describe 'header.sh', integration: true do
+describe 'script header', integration: true do
   let(:top) { Pathname.new(ENV.fetch('TOP')) }
-  let(:header_template) { top.join('./lib/travis/build/templates/header.erb.bash') }
   let(:build_dir) { Dir.mktmpdir(%w(travis-build- -header-spec)) }
+  let(:data) { { config: { language: 'ruby' }, slug: 'example/test' } }
+  let(:script) { Travis::Build::Script.new(data) }
+
+  let(:pre_header) do
+    <<~PRE_HEADER
+      #!/bin/bash
+      sudo() { :; }
+      lsb_release() { echo xenial; }
+    PRE_HEADER
+  end
+
+  let :rendered do
+    Travis::Shell.generate(script.send(:sh).to_sexp, false)
+  end
+
+  let :bash_body do
+    script = %w[export]
+    rendered.split("\n").grep(/^[a-z][a-z_]+\(\) \{/).each do |func|
+      script << "type #{func.match(/^(.+)\(\) \{/)[1]}"
+    end
+    "\n" + script.join("\n")
+  end
+
+  let :bash_output do
+    IO.popen(
+      ['env', '-i', 'bash', '-c', rendered + bash_body, err: %i(child out)]
+    ).read
+  end
+
+  before do
+    script.send(:sh).raw(pre_header)
+    script.instance_variable_set(:@root, build_dir)
+    script.instance_variable_set(:@home_dir, build_dir)
+    script.instance_variable_set(:@build_dir, build_dir)
+    script.send(:header)
+  end
 
   after :each do
     FileUtils.rm_rf(build_dir)
   end
 
-  let :header_rendered do
-    Travis::Build::Template::Template.new(
-      build_dir: build_dir,
-      root: build_dir,
-      home: build_dir,
-      internal_ruby_regex: Travis::Build.config.internal_ruby_regex.untaint
-    ).render(header_template)
-  end
-
-  let :bash_body do
-    script = ["source ${TRAVIS_BUILD_HOME}/.travis/job_stages", "export"]
-    header_rendered.split("\n").grep(/^[a-z][a-z_]+\(\) \{/).each do |func|
-      script << "type #{func.match(/^(.+)\(\) \{/)[1]}"
-    end
-    script.join("\n")
-  end
-
-  let :bash_output do
-    IO.popen(
-      [
-        'env', '-i', "TRAVIS_BUILD_HOME=#{build_dir}",
-        'bash', '-c', header_rendered + bash_body, err: %i(child out)
-      ]
-    ).read
-  end
-
   it 'can render' do
-    expect(header_rendered).to_not be_empty
+    expect(rendered).to_not be_empty
   end
 
   %w(
@@ -73,7 +82,7 @@ describe 'header.sh', integration: true do
 
     let :bash_body do
       <<~BASH
-        source ${TRAVIS_BUILD_HOME}/.travis/job_stages
+
         rvm() {
           if [[ $1 != list && $2 != strings ]]; then
             return

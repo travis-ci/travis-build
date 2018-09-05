@@ -7,7 +7,11 @@ describe Travis::Build::Addons::Postgresql, :sexp do
   let(:sh)     { Travis::Shell::Builder.new }
   let(:addon)  { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
   subject      { sh.to_sexp }
-  before       { addon.after_prepare }
+
+  before do
+    script.stubs(bash_function: '# (bash function here)')
+    addon.after_prepare
+  end
 
   it { store_example }
 
@@ -22,5 +26,5 @@ describe Travis::Build::Addons::Postgresql, :sexp do
     ] }
   end
 
-  it { should include_sexp [:cmd, "travis_setup_postgresql #{config}", echo: true, timing: true] }
+  it { should include_sexp [:cmd, ['travis_setup_postgresql', config], echo: true, timing: true] }
 end

@@ -1,12 +1,7 @@
 #!/bin/bash
-export TRAVIS_SAUCE_CONNECT_PID=unset
-export TRAVIS_SAUCE_CONNECT_LINUX_DOWNLOAD_URL="<%= sc_data['Sauce Connect']['linux']['download_url'] %>"
-export TRAVIS_SAUCE_CONNECT_OSX_DOWNLOAD_URL="<%= sc_data['Sauce Connect']['osx']['download_url'] %>"
-export TRAVIS_SAUCE_CONNECT_VERSION="<%= sc_data['Sauce Connect']['version'] %>"
-export TRAVIS_SAUCE_CONNECT_APP_HOST="<%= app_host %>"
 
 travis_start_sauce_connect() {
-  if [ -z "${SAUCE_USERNAME}" ] || [ -z "${SAUCE_ACCESS_KEY}" ]; then
+  if [[ ! "${SAUCE_USERNAME}" || ! "${SAUCE_ACCESS_KEY}" ]]; then
     echo "This script runs only when Sauce credentials are present"
     echo "Please set SAUCE_USERNAME and SAUCE_ACCESS_KEY env variables"
     echo "export SAUCE_USERNAME=ur-username"
@@ -90,28 +85,4 @@ travis_start_sauce_connect() {
   popd || true
 
   return "${_result}"
-}
-
-travis_stop_sauce_connect() {
-  if [[ "${TRAVIS_SAUCE_CONNECT_PID}" == unset ]]; then
-    echo 'No running Sauce Connect tunnel found'
-    return 1
-  fi
-
-  kill "${TRAVIS_SAUCE_CONNECT_PID}"
-
-  for i in 0 1 2 3 4 5 6 7 8 9; do
-    if kill -0 "${TRAVIS_SAUCE_CONNECT_PID}" &>/dev/null; then
-      echo "Waiting for graceful Sauce Connect shutdown ($((i + 1))/10)"
-      sleep 1
-    else
-      echo 'Sauce Connect shutdown complete'
-      return 0
-    fi
-  done
-
-  if kill -0 "${TRAVIS_SAUCE_CONNECT_PID}" &>/dev/null; then
-    echo 'Forcefully terminating Sauce Connect'
-    kill -9 "${TRAVIS_SAUCE_CONNECT_PID}" &>/dev/null || true
-  fi
 }
