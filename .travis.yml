@@ -7,7 +7,7 @@ dist: trusty
 
 sudo: false
 
-rvm: 2.3.4
+rvm: 2.5.1
 
 env:
   global:
@@ -23,8 +23,8 @@ stages:
 
 jobs:
   allow_failures:
-    - script: ./script/docker-build-and-push
-    - script: "bundle exec rake update_static_files"
+  - script: ./script/docker-build-and-push
+  - script: "bundle exec rake update_static_files"
   include:
     - stage: "test"
       sudo: required
@@ -41,11 +41,12 @@ jobs:
       if: NOT type IN (pull_request) AND branch = master
 
 before_script:
-  - bundle exec rake clean assets:precompile
+- gem install bundler
+- bundle exec rake clean assets:precompile
 
 script:
-  - bundle exec rake spec
-  - ./script/validate-bash-syntax
+- bundle exec rake spec
+- ./script/validate-bash-syntax
 
 after_success: bundle exec codeclimate-test-reporter
 

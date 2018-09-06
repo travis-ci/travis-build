@@ -24,7 +24,7 @@ module Travis
 
           def add_ssh_known_hosts
             sh.fold 'ssh_known_hosts.0' do
-              sh.echo "Adding ssh known hosts (BETA)", ansi: :yellow
+              sh.echo "Adding ssh known hosts", ansi: :yellow
               config.each do |host|
                 begin
                   host_uri = URI("ssh://#{host}")

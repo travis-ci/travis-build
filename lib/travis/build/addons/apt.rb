@@ -16,21 +16,21 @@ module Travis
         ).freeze
 
         class << self
-          def package_whitelists
-            @package_whitelists ||= load_package_whitelists
+          def package_safelists
+            @package_safelists ||= load_package_safelists
           end
 
-          def source_whitelists
-            @source_whitelists ||= load_source_whitelists
+          def source_safelists
+            @source_safelists ||= load_source_safelists
           end
 
           private
 
-          def load_package_whitelists(dists = SUPPORTED_DISTS)
+          def load_package_safelists(dists = SUPPORTED_DISTS)
             require 'faraday'
             loaded = { unset: [] }.merge(Hash[dists.map { |dist| [dist.to_sym, []] }])
             dists.each do |dist|
-              response = fetch_package_whitelist(dist)
+              response = fetch_package_safelist(dist)
               loaded[dist.to_sym] = response.split.map(&:strip).sort.uniq
             end
             loaded
@@ -39,11 +39,11 @@ module Travis
             loaded
           end
 
-          def load_source_whitelists(dists = SUPPORTED_DISTS)
+          def load_source_safelists(dists = SUPPORTED_DISTS)
             require 'faraday'
             loaded = { unset: {} }.merge(Hash[dists.map { |dist| [dist.to_sym, {}] }])
             dists.each do |dist|
-              response = fetch_source_whitelist(dist)
+              response = fetch_source_safelist(dist)
               entries = JSON.parse(response)
               loaded[dist.to_sym] = Hash[entries.reject { |e| !e.key?('alias') }.map { |e| [e.fetch('alias'), e] }]
             end
@@ -53,20 +53,20 @@ module Travis
             loaded
           end
 
-          def fetch_package_whitelist(dist)
-            Faraday.get(package_whitelist_url(dist)).body.to_s
+          def fetch_package_safelist(dist)
+            Faraday.get(package_safelist_url(dist)).body.to_s
           end
 
-          def fetch_source_whitelist(dist)
-            Faraday.get(source_whitelist_url(dist)).body.to_s
+          def fetch_source_safelist(dist)
+            Faraday.get(source_safelist_url(dist)).body.to_s
           end
 
-          def package_whitelist_url(dist)
-            Travis::Build.config.apt_package_whitelist[dist.downcase].to_s
+          def package_safelist_url(dist)
+            Travis::Build.config.apt_package_safelist[dist.downcase].to_s
           end
 
-          def source_whitelist_url(dist)
-            Travis::Build.config.apt_source_whitelist[dist.downcase].to_s
+          def source_safelist_url(dist)
+            Travis::Build.config.apt_source_safelist[dist.downcase].to_s
           end
         end
 
@@ -83,8 +83,8 @@ module Travis
           end
         end
 
-        def skip_whitelist?
-          Travis::Build.config.apt_whitelist_skip?
+        def skip_safelist?
+          Travis::Build.config.apt_safelist_skip?
         end
 
         def before_configure?
@@ -112,21 +112,21 @@ module Travis
         private
 
           def add_apt_sources
-            sh.echo "Adding APT Sources (BETA)", ansi: :yellow
+            sh.echo "Adding APT Sources", ansi: :yellow
 
-            whitelisted = []
+            safelisted = []
             disallowed = []
             disallowed_while_sudo = []
 
             config_sources.each do |src|
-              source = source_whitelists[config_dist][src]
+              source = source_safelists[config_dist][src]
 
               if source.respond_to?(:[]) && source['sourceline']
-                whitelisted << source.clone
-              elsif !(data.disable_sudo?) || skip_whitelist?
+                safelisted << source.clone
+              elsif !data.disable_sudo? || skip_safelist?
                 if src.respond_to?(:has_key?)
                   if src.has_key?(:sourceline)
-                    whitelisted << {
+                    safelisted << {
                       'sourceline' => src[:sourceline],
                       'key_url' => src[:key_url]
                     }
@@ -153,45 +153,47 @@ module Travis
                 "https://docs.travis-ci.com/user/installing-dependencies#Installing-Packages-with-the-APT-Addon"
             end
 
-            unless whitelisted.empty?
+            unless safelisted.empty?
               sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
-              whitelisted.each do |source|
-                sh.cmd "curl -sSL #{source['key_url'].untaint.inspect} | sudo -E apt-key add -", echo: true, assert: true, timing: true if source['key_url']
-                if source['sourceline'].start_with? 'ppa:'
-                  sh.cmd "sudo -E apt-add-repository -y #{source['sourceline'].untaint.inspect}", echo: true, assert: true, timing: true
+              safelisted.each do |source|
+                sourceline = source['sourceline'].untaint
+                if sourceline.start_with?('ppa:')
+                  sh.cmd "sudo -E apt-add-repository -y #{sourceline.inspect}", echo: true, assert: true, timing: true
                 else
+                  sh.cmd "curl -sSL \"#{safelisted_source_key_url(source).untaint}\" | sudo -E apt-key add -", echo: true, assert: true, timing: true
                   # Avoid adding deb-src lines to work around https://bugs.launchpad.net/ubuntu/+source/software-properties/+bug/987264
-                  sh.cmd "echo #{source['sourceline'].untaint.inspect} | sudo tee -a /etc/apt/sources.list > /dev/null", echo: true, assert: true, timing: true
+                  sh.cmd "echo #{sourceline.inspect} | sudo tee -a /etc/apt/sources.list >/dev/null", echo: true, assert: true, timing: true
                 end
               end
             end
           end
 
           def add_apt_packages
-            sh.echo "Installing APT Packages (BETA)", ansi: :yellow
+            sh.echo "Installing APT Packages", ansi: :yellow
 
-            whitelisted, disallowed = config_packages.partition { |pkg| package_whitelisted?(package_whitelists[config_dist] || [], pkg) }
+            safelisted, disallowed = config_packages.partition { |pkg| package_safelisted?(package_safelists[config_dist] || [], pkg) }
 
             unless disallowed.empty?
               sh.echo "Disallowing packages: #{disallowed.map { |package| Shellwords.escape(package) }.join(', ')}", ansi: :red
               sh.echo 'If you require these packages, please review the package ' \
                 'approval process at: ' \
-                'https://github.com/travis-ci/apt-package-whitelist#package-approval-process'
+                'https://github.com/travis-ci/apt-package-safelist#package-approval-process'
             end
 
-            unless whitelisted.empty?
-              if whitelisted.any? {|pkg| pkg =~ /^postgresql/}
+            unless safelisted.empty?
+              if safelisted.any? {|pkg| pkg =~ /^postgresql/}
                 stop_postgresql
               end
 
               sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
               sh.cmd "sudo -E apt-get -yq update &>> ~/apt-get-update.log", echo: true, timing: true
+              # NOTE: set `--allow-.+` options if apt version is >= 1.2 or 2.x+
               apt_opt_cmd = <<~APT_OPTS_RETRIEVAL
               TRAVIS_APT_OPTS="$(
                 apt-get --version | awk '
                   $1 == "apt" {
                     split($2, apt, ".")
-                    if ((apt[1]==1 && apt[2]>2) || apt[1]>1) {
+                    if ((apt[1]==1 && apt[2]>=2) || apt[1]>1) {
                       print "--allow-downgrades --allow-remove-essential --allow-change-held-packages"
                     }
                     else {print "--force-yes"}
@@ -202,7 +204,7 @@ module Travis
               APT_OPTS_RETRIEVAL
               sh.raw apt_opt_cmd
               command = 'sudo -E apt-get -yq --no-install-suggests --no-install-recommends ' \
-                "$TRAVIS_APT_OPTS install #{whitelisted.join(' ')}"
+                "$TRAVIS_APT_OPTS install #{safelisted.join(' ')}"
               sh.cmd command, echo: true, timing: true
 
               sh.raw "result=$?"
@@ -213,7 +215,6 @@ module Travis
                 end
                 sh.raw "TRAVIS_CMD='#{command}'"
                 sh.raw "travis_assert $result"
-                sh.raw 'unset TRAVIS_APT_OPTS'
               end
             end
           end
@@ -242,16 +243,28 @@ module Travis
             (data.config[:dist] || :unset).to_sym
           end
 
-          def package_whitelisted?(list, pkg)
-            list.include?(pkg) || !data.disable_sudo? || skip_whitelist?
+          def package_safelisted?(list, pkg)
+            list.include?(pkg) || !data.disable_sudo? || skip_safelist?
           end
 
-          def package_whitelists
-            ::Travis::Build::Addons::Apt.package_whitelists
+          def package_safelists
+            ::Travis::Build::Addons::Apt.package_safelists
           end
 
-          def source_whitelists
-            ::Travis::Build::Addons::Apt.source_whitelists
+          def source_safelists
+            ::Travis::Build::Addons::Apt.source_safelists
+          end
+
+          def safelisted_source_key_url(source)
+            tmpl = Travis::Build.config.apt_source_safelist_key_url_template
+            if source['key_url'] && (!data.disable_sudo? || skip_safelist?)
+              tmpl = source['key_url']
+            end
+            format(
+              tmpl.to_s,
+              source_alias: source['alias'] || 'travis-security',
+              app_host: Travis::Build.config.app_host.to_s.strip
+            )
           end
 
           def stop_postgresql

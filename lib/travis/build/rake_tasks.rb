@@ -4,6 +4,7 @@ require 'pathname'
 
 require 'faraday'
 require 'faraday_middleware'
+require 'minitar'
 require 'rake'
 require 'rubygems'
 
@@ -274,6 +275,7 @@ module Travis
         clean
         update_sc
         update_godep
+        update_gpg_public_keys
         update_static_files
         update_version_aliases
         ls_public_files
@@ -371,6 +373,31 @@ module Travis
         'public/files/sc-osx.zip',
         'public/files/tmate-static-linux-amd64.tar.gz'
       ]
+
+      desc 'update gpg public keys'
+      task :update_gpg_public_keys do
+        repo_tarball_url = URI(ENV.fetch(
+          'TRAVIS_BUILD_APT_SOURCE_SAFELIST_REPO_TARBALL',
+          'https://codeload.github.com/travis-ci/apt-source-safelist/tar.gz/master'
+        ))
+
+        conn = build_faraday_conn(host: repo_tarball_url.hostname)
+        response = conn.get(repo_tarball_url)
+
+        dest_dir = Pathname.new(File.join(top, 'public/files/gpg'))
+        dest_dir.mkpath
+        path_parts = repo_tarball_url.path.split('/').map(&:strip)
+
+        Minitar.unpack(
+          Zlib::GzipReader.new(StringIO.new(response.body)),
+          File.join(top, 'tmp')
+        )
+
+        glob_src = "tmp/#{path_parts[2]}-#{path_parts.last}/keys/*.asc"
+        Dir.glob(File.join(top, glob_src)) do |src|
+          FileUtils.cp(src, dest_dir, verbose: true)
+        end
+      end
 
       desc 'show contents in public/files'
       task 'ls_public_files' do
