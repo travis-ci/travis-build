@@ -206,6 +206,7 @@ module Travis
           sh.raw 'travis_preamble'
 
           sh.file '${TRAVIS_BUILD_HOME}/.travis/job_stages',
+                  "# travis_.+ functions:\n" +
                   TRAVIS_FUNCTIONS.map { |f| bash(f) }.join("\n")
 
           sh.raw 'source ${TRAVIS_BUILD_HOME}/.travis/job_stages'

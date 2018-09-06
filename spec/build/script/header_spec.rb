@@ -18,8 +18,8 @@ describe 'script header', integration: true do
 
   let :bash_body do
     script = %w[export]
-    rendered.split("\n").grep(/^[a-z][a-z_]+\(\) \{/).each do |func|
-      script << "type #{func.match(/^(.+)\(\) \{/)[1]}"
+    rendered.split("\n").grep(/^'[a-z][a-z_]+\\\(\\\)\\ \\{'/).each do |func|
+      script << "type #{func.match(/^'(.+)\\\(\\\)\\ \\{'/)[1]}"
     end
     "\n" + script.join("\n")
   end
