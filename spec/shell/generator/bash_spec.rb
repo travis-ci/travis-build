@@ -146,17 +146,17 @@ describe Travis::Shell::Generator::Bash, :include_node_helpers do
   describe :file do
     it 'generates command to store content to a file' do
       @sexp = [:file, ['foo', 'bar']]
-      expect(code).to match(/^cat <<'TRAVIS_BUILD_FILE_[a-f0-9]+' > foo/)
+      expect(code).to match(/^echo bar > foo/)
     end
 
     it 'appends to the file if :append is given' do
       @sexp = [:file, ['foo', 'bar'], append: true]
-      expect(code).to match(/^cat <<'TRAVIS_BUILD_FILE_[a-f0-9]+' >> foo/)
+      expect(code).to match(/^echo bar >> foo/)
     end
 
     it 'base64 decodes the content if :decode is given' do
       @sexp = [:file, ['./foo', 'Zm9vCg=='], decode: true]
-      expect(code).to match(/^cat <<'TRAVIS_BUILD_FILE_[a-f0-9]+' | base64 --decode > foo/)
+      expect(code).to match(/^echo Zm9vCg\\=\\= | base64 --decode > foo/)
     end
   end
 

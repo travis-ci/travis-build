@@ -51,12 +51,10 @@ module Travis
 
         def handle_file(data, options = {})
           path, content = *data
-          heredoc_id = "TRAVIS_BUILD_FILE_#{Digest::SHA1.hexdigest(path + content)}"
-          cmd = ['cat', "<<'#{heredoc_id}'"]
+          cmd = ['echo', escape(content)]
           cmd << '| base64 --decode' if options.delete(:decode)
           cmd << (options.delete(:append) ? '>>' : '>')
           cmd << path
-          cmd << ["\n#{content}\n#{heredoc_id}"]
           handle_cmd(cmd.join(' '), options)
         end
 
