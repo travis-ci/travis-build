@@ -18,7 +18,7 @@ module Travis
         end
 
         def after_header
-          sh.raw bash_function('travis_artifacts_install')
+          sh.raw bash('travis_artifacts_install')
         end
 
         def after_after_script

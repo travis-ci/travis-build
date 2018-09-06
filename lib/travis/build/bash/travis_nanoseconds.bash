@@ -1,5 +1,3 @@
-#!/bin/bash
-
 travis_nanoseconds() {
   local cmd='date'
   local format='+%s%N'

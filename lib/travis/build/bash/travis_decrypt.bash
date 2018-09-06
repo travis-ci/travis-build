@@ -1,5 +1,3 @@
-#!/bin/bash
-
 travis_decrypt() {
   echo "${1}" |
     base64 -d |

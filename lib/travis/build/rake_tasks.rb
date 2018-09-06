@@ -456,13 +456,15 @@ module Travis
       desc 'run shfmt'
       task shfmt: :ensure_shfmt do
         ENV['PATH'] = tmpbin_path
-        sh "shfmt -f #{top}/lib #{top}/script | xargs shfmt -i 2 -w"
+        sh "shfmt -i 2 -w #{top}/lib/travis/build/bash/*.bash"
+        sh "shfmt -i 2 -w $(git grep -lE '^#!.+bash' #{top}/script)"
       end
 
       desc 'run shellcheck'
       task shellcheck: %i[ensure_shellcheck] do
         ENV['PATH'] = tmpbin_path
-        sh "shfmt -f #{top}/lib #{top}/script | xargs shellcheck"
+        sh "shellcheck -s bash #{top}/lib/travis/build/bash/*.bash"
+        sh "shellcheck -s bash $(git grep -lE '^#!.+bash' #{top}/script)"
       end
 
       desc 'assert there are no changes in the git working copy'

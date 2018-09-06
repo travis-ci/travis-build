@@ -1,5 +1,3 @@
-#!/bin/bash
-
 travis_ghc_find() {
   local search="${1}"
   local v

@@ -1,5 +1,3 @@
-#!/bin/bash
-
 travis_preamble() {
   if [[ -s "${TRAVIS_BUILD_ROOT}/etc/profile" ]]; then
     # shellcheck source=/dev/null

@@ -1,5 +1,3 @@
-#!/bin/bash
-
 travis_time_start() {
   TRAVIS_TIMER_ID="$(printf %08x $((RANDOM * RANDOM)))"
   TRAVIS_TIMER_START_TIME="$(travis_nanoseconds)"

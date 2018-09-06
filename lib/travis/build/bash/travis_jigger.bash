@@ -1,5 +1,3 @@
-#!/bin/bash
-
 travis_jigger() {
   local cmd_pid="${1}"
   shift

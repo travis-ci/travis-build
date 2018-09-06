@@ -1,5 +1,3 @@
-#!/bin/bash
-
 travis_ghc_install() {
   local ghc_version="${1}"
   local cabal_version="${2}"

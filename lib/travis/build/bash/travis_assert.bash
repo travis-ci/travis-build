@@ -1,5 +1,3 @@
-#!/bin/bash
-
 travis_assert() {
   local result="${1:-${?}}"
   if [[ "${result}" -ne 0 ]]; then

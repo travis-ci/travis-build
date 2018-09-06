@@ -1,5 +1,3 @@
-#!/bin/bash
-
 travis_trace_span() {
   local result="${?}"
   local template="${1}"

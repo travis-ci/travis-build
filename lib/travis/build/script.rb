@@ -47,19 +47,21 @@ module Travis
     class Script
       DEFAULTS = {}
 
-      JOB_STAGES_FUNCTIONS = %w[
+      TRAVIS_FUNCTIONS = %w[
         travis_assert
         travis_bash_qsort_numeric
         travis_cmd
         travis_decrypt
         travis_download
         travis_fold
+        travis_footer
         travis_internal_ruby
         travis_jigger
         travis_nanoseconds
         travis_result
         travis_retry
         travis_setup_env
+        travis_temporary_hacks
         travis_terminate
         travis_time_finish
         travis_time_start
@@ -67,7 +69,7 @@ module Travis
         travis_vers2int
         travis_wait
       ].freeze
-      private_constant :JOB_STAGES_FUNCTIONS
+      private_constant :TRAVIS_FUNCTIONS
 
       class << self
         def defaults
@@ -75,8 +77,14 @@ module Travis
         end
       end
 
-      include Module.new { Stages::STAGES.map(&:name).flatten.each { |stage| define_method(stage) {} } }
-      include Appliances, DirectoryCache, Deprecation, BashFunctions, BashScripts
+      include Module.new do
+        Travis::Build::Stages::STAGES.map(&:name).flatten.each do |stage|
+          define_method(stage) {}
+        end
+      end
+
+      include Travis::Build::Appliances, Travis::Build::Script::DirectoryCache
+      include Travis::Build::Deprecation, Travis::Build::Bash
 
       attr_reader :sh, :raw_data, :data, :options, :validator, :addons, :stages
       attr_reader :root, :home_dir, :build_dir
@@ -179,7 +187,7 @@ module Travis
 
         def run
           stages.run if apply :validate
-          sh.raw bash_script('footer')
+          sh.raw 'travis_footer'
           # apply :deprecations
         end
 
@@ -194,16 +202,15 @@ module Travis
           sh.export 'TRAVIS_BUILD_APP_HOST', app_host,
                     echo: false, assert: false
 
-          sh.raw bash_function('travis_preamble')
+          sh.raw bash('travis_preamble')
           sh.raw 'travis_preamble'
 
           sh.file '${TRAVIS_BUILD_HOME}/.travis/job_stages',
-                  JOB_STAGES_FUNCTIONS.map { |f| bash_function(f) }.join("\n")
+                  TRAVIS_FUNCTIONS.map { |f| bash(f) }.join("\n")
 
           sh.raw 'source ${TRAVIS_BUILD_HOME}/.travis/job_stages'
           sh.raw 'travis_setup_env'
-
-          sh.raw bash_script('temporary_hacks')
+          sh.raw 'travis_temporary_hacks'
         end
 
         def configure

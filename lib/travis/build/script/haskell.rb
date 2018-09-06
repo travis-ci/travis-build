@@ -17,8 +17,8 @@ module Travis
           sh.if '! -d "${TRAVIS_GHC_ROOT}" && -d "${TRAVIS_BUILD_ROOT}/opt/ghc"' do
             sh.export 'TRAVIS_GHC_ROOT', '${TRAVIS_BUILD_ROOT}/opt/ghc', echo: false
           end
-          sh.raw bash_function('travis_ghc_find')
-          sh.raw bash_function('travis_ghc_install')
+          sh.raw bash('travis_ghc_find')
+          sh.raw bash('travis_ghc_install')
 
           # Automatic installation of exact versions *only*.
           if version =~ /^(\d+\.\d+\.\d+|head)$/ && cabal_version =~ /^(\d+\.\d+|head)$/

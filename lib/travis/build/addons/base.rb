@@ -8,7 +8,7 @@ module Travis
         attr_reader :script, :sh, :data, :config
 
         extend Forwardable
-        def_delegators :script, :bash_function, :bash_script
+        def_delegators :script, :bash
 
         def initialize(script, sh, data, config)
           @script = script

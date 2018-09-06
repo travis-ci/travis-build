@@ -9,7 +9,7 @@ describe Travis::Build::Addons::Postgresql, :sexp do
   subject      { sh.to_sexp }
 
   before do
-    script.stubs(bash_function: '# (bash function here)')
+    script.stubs(bash: '# (bash here)')
     addon.after_prepare
   end
 

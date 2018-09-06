@@ -1,4 +1,3 @@
-#!/bin/bash
 # shellcheck disable=SC1117
 
 travis_setup_env() {

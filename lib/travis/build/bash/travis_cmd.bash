@@ -1,5 +1,3 @@
-#!/bin/bash
-
 travis_cmd() {
   local assert output display retry timing cmd result secure
 

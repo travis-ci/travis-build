@@ -1,5 +1,3 @@
-#!/bin/bash
-
 travis_vers2int() {
   local args
   read -r -a args <<<"$(echo "${1}" | tr '.' ' ')"

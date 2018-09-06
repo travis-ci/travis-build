@@ -1,5 +1,3 @@
-#!/bin/bash
-
 travis_bash_qsort_numeric() {
   local pivot i smaller=() larger=()
   travis_bash_qsort_numeric_ret=()

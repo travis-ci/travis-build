@@ -1,5 +1,3 @@
-#!/bin/bash
-
 travis_fold() {
   local action="${1}"
   local name="${2}"

@@ -1,5 +1,3 @@
-#!/bin/bash
-
 travis_wait() {
   local timeout="${1}"
 

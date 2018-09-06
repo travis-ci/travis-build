@@ -10,8 +10,7 @@ describe Travis::Build::Addons::Artifacts, :sexp do
   subject      { sh.to_sexp }
 
   before :each do
-    script.stubs(bash_function: '# (bash function here)')
-    script.stubs(bash_script: '# (bash script here)')
+    script.stubs(bash: '# (bash here)')
     addon.validator.stubs(valid?: true)
     addon.after_header
     addon.after_after_script
@@ -23,7 +22,7 @@ describe Travis::Build::Addons::Artifacts, :sexp do
   end
 
   it 'adds the artifacts install function' do
-    should include_sexp [:raw, addon.bash_function('travis_artifacts_install')]
+    should include_sexp [:raw, addon.bash('travis_artifacts_install')]
   end
 
   it 'installs the artifacts tool' do

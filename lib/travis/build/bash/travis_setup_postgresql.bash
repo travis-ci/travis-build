@@ -1,5 +1,3 @@
-#!/bin/bash
-
 travis_setup_postgresql() {
   local port start_cmd stop_cmd
   local version="${1}"

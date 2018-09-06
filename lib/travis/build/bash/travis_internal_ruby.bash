@@ -1,5 +1,3 @@
-#!/bin/bash
-
 travis_internal_ruby() {
   if ! type rvm &>/dev/null; then
     # shellcheck source=/dev/null

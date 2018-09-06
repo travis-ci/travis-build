@@ -33,7 +33,7 @@ module Travis
               end
             end
 
-            sh.file "travis_debug.sh", bash_script('travis_debug')
+            sh.file "travis_debug.sh", bash('travis_debug', encode: true), decode: true
             sh.chmod '+x', "travis_debug.sh", echo: false
 
             sh.mkdir "#{HOME_DIR}/.ssh", echo: false, recursive: true

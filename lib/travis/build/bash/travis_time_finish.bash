@@ -1,5 +1,3 @@
-#!/bin/bash
-
 travis_time_finish() {
   local result="${?}"
   local travis_timer_end_time

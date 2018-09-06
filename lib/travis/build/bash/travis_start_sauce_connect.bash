@@ -1,5 +1,3 @@
-#!/bin/bash
-
 travis_start_sauce_connect() {
   if [[ ! "${SAUCE_USERNAME}" || ! "${SAUCE_ACCESS_KEY}" ]]; then
     echo "This script runs only when Sauce credentials are present"

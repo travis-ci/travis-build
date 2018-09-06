@@ -75,7 +75,7 @@ module Travis
 
         def apply_postgresql
           return if data[:config]&.[](:addons)&.[](:postgresql)
-          sh.raw bash_function('travis_setup_postgresql'), echo: false, timing: false
+          sh.raw bash('travis_setup_postgresql'), echo: false, timing: false
           sh.cmd 'travis_setup_postgresql', echo: true, timing: true
         end
 

@@ -1,5 +1,3 @@
-#!/bin/bash
-
 travis_result() {
   local result="${1}"
   export TRAVIS_TEST_RESULT=$((${TRAVIS_TEST_RESULT:-0} | $((result != 0))))

@@ -1,5 +1,3 @@
-#!/bin/bash
-
 travis_terminate() {
   set +e
   [[ "${TRAVIS_FILTERED}" == redirect_io && -e /dev/fd/9 ]] &&

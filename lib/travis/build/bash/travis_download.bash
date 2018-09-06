@@ -1,5 +1,3 @@
-#!/bin/bash
-
 travis_download() {
   local src="${1}"
   local dst="${2}"
