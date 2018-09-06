@@ -29,7 +29,7 @@ module Travis
         end
 
         def update_homebrew?
-          config[:update]
+          config[:update].to_s.downcase == 'true'
         end
 
         def update_homebrew
@@ -71,7 +71,7 @@ module Travis
           config[:brewfile]
         end
 
-        def bundle_arguments
+        def brew_bundle_args
           if config[:brewfile] == true
             ''
           else
@@ -83,7 +83,7 @@ module Travis
           sh.echo "Installing Homebrew Packages", ansi: :yellow
 
           if user_brewfile?
-            sh.cmd "brew bundle#{bundle_arguments}", echo: true, timing: true
+            sh.cmd "brew bundle#{brew_bundle_args}", echo: true, timing: true
           end
 
           if create_brewfile?
