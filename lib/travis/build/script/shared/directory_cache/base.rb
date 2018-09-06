@@ -106,7 +106,7 @@ module Travis
           end
 
           def install
-            sh.export 'CASHER_DIR', '$HOME/.casher'
+            sh.export 'CASHER_DIR', '${TRAVIS_BUILD_HOME}/.casher'
 
             sh.mkdir '$CASHER_DIR/bin', echo: false, recursive: true
             update_static_file('casher', BIN_PATH, casher_url, true)

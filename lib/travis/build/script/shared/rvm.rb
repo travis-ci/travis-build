@@ -111,7 +111,7 @@ module Travis
               if ruby_version.start_with? 'ree'
                 sh.if "! $(rvm list | grep ree)" do
                   sh.echo "Installing REE from source. This may take a few minutes.", ansi: :yellow
-                  sh.cmd "sed -i 's|^\\(ree_1.8.7_url\\)=.*$|\\1=https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/rubyenterpriseedition|' $HOME/.rvm/config/db"
+                  sh.cmd "sed -i 's|^\\(ree_1.8.7_url\\)=.*$|\\1=https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/rubyenterpriseedition|' ${TRAVIS_BUILD_HOME}/.rvm/config/db"
                   sh.cmd "rvm use #{ruby_version} --install --fuzzy"
                 end
                 sh.else do

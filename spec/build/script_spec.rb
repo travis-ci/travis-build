@@ -30,7 +30,7 @@ describe Travis::Build::Script, :sexp do
   end
 
   it 'disables sudo' do
-    should include_sexp [:cmd, %r(rm -f /etc/sudoers.d/travis)]
+    should include_sexp [:cmd, 'travis_disable_sudo']
   end
 
   it 'runs casher fetch' do

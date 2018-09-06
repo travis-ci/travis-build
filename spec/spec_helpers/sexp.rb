@@ -2,6 +2,8 @@ require 'fileutils'
 
 module SpecHelpers
   module Sexp
+    include Travis::Build::Bash
+
     def sexp_fold(fold, sexp)
       [:fold, fold, [:cmds, [sexp]]]
     end
@@ -56,7 +58,9 @@ module SpecHelpers
       end
 
       FileUtils.mkdir_p('examples') unless File.directory?('examples')
-      File.open("examples/#{type}-#{name}.sh.txt", 'w+') { |f| f.write(code) }
+      File.open("examples/#{type}-#{name}.sh.txt", 'w+') do |f|
+        f.write(code)
+      end
     end
   end
 end

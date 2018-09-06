@@ -9,8 +9,8 @@ module Travis
         }
 
         CLEANUPS = [
-          { directory: '$HOME/.ivy2', glob: "ivydata-*.properties"},
-          { directory: '$HOME/.sbt',  glob: "*.lock"}
+          { directory: '${TRAVIS_BUILD_HOME}/.ivy2', glob: "ivydata-*.properties"},
+          { directory: '${TRAVIS_BUILD_HOME}/.sbt',  glob: "*.lock"}
         ]
 
         def setup

@@ -26,5 +26,5 @@ describe Travis::Build::Addons::Postgresql, :sexp do
     ] }
   end
 
-  it { should include_sexp [:cmd, ['travis_setup_postgresql', config], echo: true, timing: true] }
+  it { should include_sexp [:cmd, "travis_setup_postgresql #{config}", echo: true, timing: true] }
 end

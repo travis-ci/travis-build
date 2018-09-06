@@ -5,7 +5,7 @@ module Travis
     autoload :Config, 'travis/build/config'
     autoload :Bash, 'travis/build/bash'
 
-    HOME_DIR  = '$HOME'
+    HOME_DIR  = '${HOME}'
     BUILD_DIR = File.join(HOME_DIR, 'build')
 
     def config

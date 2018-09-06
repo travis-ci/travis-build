@@ -3,3 +3,7 @@ travis_decrypt() {
     base64 -d |
     openssl rsautl -decrypt -inkey "${TRAVIS_BUILD_HOME}/.ssh/id_rsa.repo"
 }
+
+decrypt() {
+  travis_decrypt "${@}"
+}

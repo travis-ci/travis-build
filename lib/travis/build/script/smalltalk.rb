@@ -55,7 +55,7 @@ module Travis
           sh.echo 'Please file any issues using the following link', ansi: :green
           sh.echo '  https://github.com/hpi-swa/smalltalkCI/issues', ansi: :green
 
-          sh.cmd 'pushd $HOME > /dev/null', echo: false
+          sh.cmd 'pushd ${TRAVIS_BUILD_HOME} > /dev/null', echo: false
           sh.fold 'download_smalltalkci' do
             sh.echo 'Downloading and extracting smalltalkCI', ansi: :yellow
             sh.cmd "wget -q -O smalltalkCI.zip #{download_url}"

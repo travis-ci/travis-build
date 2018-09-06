@@ -14,7 +14,7 @@ module Travis
           sh.else do
             sh.fold 'postgresql' do
               sh.raw bash('travis_setup_postgresql'), echo: false, timing: false
-              sh.cmd ['travis_setup_postgresql', version], echo: true, timing: true
+              sh.cmd "travis_setup_postgresql #{version}", echo: true, timing: true
             end
           end
         end

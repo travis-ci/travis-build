@@ -54,6 +54,7 @@ travis_setup_env() {
   export TRAVIS_TMPDIR
 
   if command -v pgrep &>/dev/null; then
-    pgrep -u "${USER}" | grep -v -w $$ >"${TRAVIS_TMPDIR}/pids_before"
+    pgrep -u "${USER}" 2>/dev/null |
+      grep -v -w "${$}" >"${TRAVIS_TMPDIR}/pids_before"
   fi
 }

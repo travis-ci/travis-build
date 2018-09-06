@@ -94,13 +94,15 @@ describe Travis::Build::Env do
   end
 
   describe 'TRAVIS_BUILD_DIR' do
-    it 'does not escape $HOME' do
-      expect(vars.find {|var| var.key == 'TRAVIS_BUILD_DIR'}.value).to eq('$HOME/build/travis-ci/travis-ci')
+    it "does not escape #{Travis::Build::BUILD_DIR}" do
+      expect(vars.find {|var| var.key == 'TRAVIS_BUILD_DIR'}.value).
+        to eq("#{Travis::Build::BUILD_DIR}/travis-ci/travis-ci")
     end
 
     it 'escapes the repository slug' do
       payload[:repository][:slug] = 'travis-ci/travis-ci ci'
-      expect(vars.find {|var| var.key == 'TRAVIS_BUILD_DIR'}.value).to eq('$HOME/build/travis-ci/travis-ci\ ci')
+      expect(vars.find {|var| var.key == 'TRAVIS_BUILD_DIR'}.value).
+        to eq("#{Travis::Build::BUILD_DIR}/travis-ci/travis-ci\\ ci")
     end
   end
 end
