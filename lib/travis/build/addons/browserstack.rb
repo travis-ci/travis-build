@@ -33,9 +33,7 @@ module Travis
           end
 
           if app_path && !app_path.empty?
-            if !upload_app()
-              raise "app upload failure"
-            end
+            upload_app()
           end
         end
 
@@ -192,35 +190,26 @@ module Travis
 
           def app_path
             path = config[:app_path] || config[:appPath]
-            return ENV['TRAVIS_BUILD_DIR'] + path if path && !path.empty?
+            return File.join('$TRAVIS_BUILD_DIR', path) if path && !path.empty?
             return path
           end
 
-          def export_app_variables(response)
-            sh.export(ENV_APP_ID, response['app_url'], echo: true)
-            sh.export(ENV_CUSTOM_ID, response['custom_id'], echo: false) \
-              if response['custom_id'] && !response['custom_id'].empty?
-            sh.export(ENV_SHAREABLE_ID, response['shareable_id'], echo: false) \
-              if response['shareable_id'] && !response['shareable_id'].empty?
-            return true
-          end
-
           def upload_app()
-            if !File.exist?(app_path)
-              return false
-            else
-              if custom_id && !custom_id.empty?
-                response = `curl -u "#{username}:#{browserstack_key}" -X POST \
-                  #{BROWSERSTACK_APP_AUTOMATE_URL} -F \
-                  "file=@#{app_path}" -F \'data={"custom_id": "#{custom_id}"}\'`
-              else
-                response = `curl -u "#{username}:#{browserstack_key}" -X POST \
-                  #{BROWSERSTACK_APP_AUTOMATE_URL} -F \
-                  "file=@#{app_path}"`
+            upload_command = "curl -u \"#{username}:#{browserstack_key}\" -X POST #{BROWSERSTACK_APP_AUTOMATE_URL} -F \"file=@#{app_path}\""
+            if custom_id && !custom_id.empty?
+              upload_command += " -F 'data={\"custom_id\": \"#{custom_id}\"}'"
+            end
+            sh.fold "browserstack app upload" do
+              sh.if "-e #{app_path}" do
+                sh.cmd "#{upload_command} | tee $TRAVIS_BUILD_DIR/app_upload_out"
+                sh.export(ENV_APP_ID, "`cat $TRAVIS_BUILD_DIR/app_upload_out | jq .app_url | sed -e 's/^\"//' -e 's/\"$//'`")
+                sh.export(ENV_CUSTOM_ID, "`cat $TRAVIS_BUILD_DIR/app_upload_out | jq .custom_id | sed -e 's/^\"//' -e 's/\"$//'`")
+                sh.export(ENV_SHAREABLE_ID, "`cat $TRAVIS_BUILD_DIR/app_upload_out | jq .shareable_id | sed -e 's/^\"//' -e 's/\"$//'`")
+                sh.cmd("rm $TRAVIS_BUILD_DIR/app_upload_out")
               end
-              response = JSON.parse(response)
-              return false if !response['app_url'] || response['app_url'].empty?
-              export_app_variables(response)
+              sh.else do
+                sh.echo("App file not found")
+              end
             end
           end
       end
