@@ -21,6 +21,7 @@ describe Travis::Build::Addons::Apt, :sexp do
   before :each do
     described_class.instance_variable_set(:@package_safelists, nil)
     described_class.instance_variable_set(:@source_safelists, nil)
+    script.stubs(:bash).returns('')
     addon.stubs(:skip_safelist?).returns(safelist_skip)
   end
 
@@ -117,7 +118,7 @@ describe Travis::Build::Addons::Apt, :sexp do
     end
 
     def apt_get_install_command(*packages)
-      "sudo -E apt-get -yq --no-install-suggests --no-install-recommends $TRAVIS_APT_OPTS install #{packages.join(' ')}"
+      "sudo -E apt-get -yq --no-install-suggests --no-install-recommends $(travis_apt_get_options) install #{packages.join(' ')}"
     end
 
     context 'with multiple safelisted packages' do
@@ -207,7 +208,7 @@ describe Travis::Build::Addons::Apt, :sexp do
     end
 
     def apt_sources_append_command(sourceline)
-      "echo #{sourceline.inspect} | sudo tee -a /etc/apt/sources.list >/dev/null"
+      "echo #{sourceline.inspect} | sudo tee -a ${TRAVIS_BUILD_ROOT}/etc/apt/sources.list >/dev/null"
     end
 
     context 'with multiple safelisted sources' do

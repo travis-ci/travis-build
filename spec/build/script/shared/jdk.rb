@@ -50,7 +50,7 @@ shared_examples_for 'a jdk build sexp' do
     it { store_example "oraclejdk11" }
 
     it "downloads install-jdk.sh" do
-      should include_sexp( [:export, ["JAVA_HOME", "$HOME/oraclejdk11"], echo: true] )
+      should include_sexp( [:export, ["JAVA_HOME", "${TRAVIS_BUILD_HOME}/oraclejdk11"], echo: true] )
       should include_sexp( [:cmd, "curl -sf -O https://build.travis-ci.org/files/install-jdk.sh"])
     end
   end

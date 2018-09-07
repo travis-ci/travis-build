@@ -12,6 +12,5 @@ rspec.log
 coverage/
 .*env
 /public/files/
-/lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh
 .rake_tasks
 examples/*.sh

@@ -111,8 +111,8 @@ module Travis
                 r_url = "https://s3.amazonaws.com/rstudio-travis/#{r_filename}"
                 sh.cmd "curl -fLo /tmp/#{r_filename} #{r_url}", retry: true
                 sh.cmd "tar xJf /tmp/#{r_filename} -C ~"
-                sh.export 'PATH', "$HOME/R-bin/bin:$PATH", echo: false
-                sh.export 'LD_LIBRARY_PATH', "$HOME/R-bin/lib:$LD_LIBRARY_PATH", echo: false
+                sh.export 'PATH', "${TRAVIS_BUILD_HOME}/R-bin/bin:$PATH", echo: false
+                sh.export 'LD_LIBRARY_PATH', "${TRAVIS_BUILD_HOME}/R-bin/lib:$LD_LIBRARY_PATH", echo: false
                 sh.rm "/tmp/#{r_filename}"
 
                 sh.cmd "sudo mkdir -p /usr/local/lib/R/site-library $R_LIBS_USER"
@@ -449,7 +449,7 @@ module Travis
             texlive_url = 'https://github.com/jimhester/ubuntu-bin/releases/download/latest/texlive.tar.gz'
             sh.cmd "curl -fLo /tmp/#{texlive_filename} #{texlive_url}"
             sh.cmd "tar xzf /tmp/#{texlive_filename} -C ~"
-            sh.export 'PATH', "/$HOME/texlive/bin/x86_64-linux:$PATH"
+            sh.export 'PATH', "${TRAVIS_BUILD_HOME}/texlive/bin/x86_64-linux:$PATH"
             sh.cmd 'tlmgr update --self', assert: false
           when 'osx'
             # We use basictex due to disk space constraints.

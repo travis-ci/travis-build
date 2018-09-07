@@ -6,7 +6,7 @@ module Travis
       class Browserstack < Base
         # mark safe for use on containers
         SUPER_USER_SAFE = true
-        BROWSERSTACK_HOME = '$HOME/.browserstack'
+        BROWSERSTACK_HOME = '${TRAVIS_BUILD_HOME}/.browserstack'
         BROWSERSTACK_BIN_FILE = 'BrowserStackLocal'
         BROWSERSTACK_BIN_URL = 'https://www.browserstack.com/browserstack-local'
         ENV_USER = 'BROWSERSTACK_USER'

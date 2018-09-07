@@ -6,14 +6,14 @@ main() {
   local top
   top="$(git rev-parse --show-toplevel)"
   local fake_homedir="${top}/tmp/validate-bash-syntax-homedir"
+  local fake_root="${top}/tmp/validate-bash-syntax-root"
 
   cd "${top}"
-  mkdir -p "${fake_homedir}"
+  mkdir -p "${fake_homedir}/.travis" "${fake_root}"
   export HOME="${fake_homedir}"
 
-  mkdir -p "${HOME}/.travis"
   for f in examples/*.sh.txt; do
-    echo >"${HOME}/.travis/job_stages"
+    echo >"${fake_homedir}/.travis/job_stages"
     echo "checking bash syntax ${f}"
     bash -n "${f}" || e=$((e + 1))
     if [[ "${f}" == examples/addon* ]]; then
@@ -21,11 +21,19 @@ main() {
     fi
     echo "checking bash syntax for stage functions in ${f}"
     sed -e '1,/START_FUNCS/ d' "${f}" | sed -e '/END_FUNCS/,$ d' >"${f%*.txt}"
-    rm -f "${HOME}/.travis/job_stages"
+    rm -rf "${fake_homedir}/.travis" "${fake_root}"
+    mkdir -p "${fake_homedir}/.travis" "${fake_root}"
     bash -c "
-      source ${f%*.txt};
-      if [[ -f ${HOME}/.travis/job_stages ]]; then
-        source ${HOME}/.travis/job_stages;
+      export TRAVIS_BUILD_ROOT=${fake_root}
+      export TRAVIS_BUILD_HOME=${fake_homedir}
+      export TRAVIS_BUILD_DIR=${fake_homedir}/build
+
+      $(cat "${top}/lib/travis/build/bash/travis_setup_env.bash")
+      travis_setup_env
+
+      source ${f%*.txt}
+      if [[ -f ${fake_homedir}/.travis/job_stages ]]; then
+        source ${fake_homedir}/.travis/job_stages
       fi
     " || e=$((e + 1))
   done
@@ -39,7 +47,7 @@ main() {
   mkdir -p "${HOME}/.travis"
   for f in examples/*-integration-*.sh.txt; do
     echo >"${HOME}/.travis/job_stages"
-    sed -i '/^source $HOME\/\.travis\/job_stages/,$d' "${f}"
+    sed -i '/^source ${TRAVIS_BUILD_HOME}\/\.travis\/job_stages/,$d' "${f}"
     bash --norc -c "
       source ${f} &&
         source ${HOME}/.travis/job_stages || exit 1

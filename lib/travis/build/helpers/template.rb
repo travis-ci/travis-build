@@ -6,20 +6,8 @@ module Travis
       class Template < OpenStruct
         def render(name, basedir: nil)
           name = name.to_s
-          name = "#{name}.erb.bash" if name.count('.').zero?
           name = File.expand_path(name, basedir) unless basedir.nil?
-          @filename = name
           ERB.new(File.read(name)).result(binding)
-        end
-
-        attr_reader :filename
-
-        def dirname
-          File.dirname(filename)
-        end
-
-        def partial(name)
-          Template.new.render(name, basedir: dirname)
         end
       end
 

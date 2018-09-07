@@ -14,11 +14,11 @@ module Travis
               version = select_apt_version
               return unless version
 
-              sh.cmd %Q(curl -sSL '#{version[:key][:url]}' > "$HOME/crystal_repository_key.asc")
-              sh.if %Q("$(gpg --with-fingerprint "$HOME/crystal_repository_key.asc" | grep "Key fingerprint" | cut -d "=" -f2 | tr -d " ")" != "#{version[:key][:fingerprint]}") do
+              sh.cmd %Q(curl -sSL '#{version[:key][:url]}' > "${TRAVIS_BUILD_HOME}/crystal_repository_key.asc")
+              sh.if %Q("$(gpg --with-fingerprint "${TRAVIS_BUILD_HOME}/crystal_repository_key.asc" | grep "Key fingerprint" | cut -d "=" -f2 | tr -d " ")" != "#{version[:key][:fingerprint]}") do
                 sh.failure "The repository key needed to install Crystal did not have the expected fingerprint. Your build was aborted."
               end
-              sh.cmd %q(sudo sh -c "apt-key add '$HOME/crystal_repository_key.asc'")
+              sh.cmd %q(sudo sh -c "apt-key add '${TRAVIS_BUILD_HOME}/crystal_repository_key.asc'")
 
               sh.cmd %Q(sudo sh -c 'echo "deb #{version[:url]} crystal main" > /etc/apt/sources.list.d/crystal-nightly.list')
               sh.cmd %q(sudo sh -c 'apt-get update')

@@ -1,5 +1,3 @@
-#!/bin/bash
-
 travis_artifacts_install() {
   local source="https://s3.amazonaws.com/travis-ci-gmbh/artifacts/stable/build/${TRAVIS_OS_NAME}/${TRAVIS_ARCH}/artifacts"
   local target="${TRAVIS_BUILD_HOME}/bin/artifacts"

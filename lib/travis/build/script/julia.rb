@@ -51,7 +51,7 @@ module Travis
             else
               sh.failure "Operating system not supported: #{config[:os]}"
             end
-            sh.cmd 'export PATH="${PATH}:${HOME}/julia/bin"'
+            sh.cmd 'export PATH="${PATH}:${TRAVIS_BUILD_HOME}/julia/bin"'
           end
         end
 

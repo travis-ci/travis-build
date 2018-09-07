@@ -45,8 +45,31 @@ require 'travis/build/script/shared/directory_cache'
 module Travis
   module Build
     class Script
-      TEMPLATES_PATH = File.expand_path('../templates', __FILE__)
       DEFAULTS = {}
+
+      TRAVIS_FUNCTIONS = %w[
+        travis_assert
+        travis_bash_qsort_numeric
+        travis_cmd
+        travis_decrypt
+        travis_download
+        travis_fold
+        travis_footer
+        travis_internal_ruby
+        travis_jigger
+        travis_nanoseconds
+        travis_result
+        travis_retry
+        travis_setup_env
+        travis_temporary_hacks
+        travis_terminate
+        travis_time_finish
+        travis_time_start
+        travis_trace_span
+        travis_vers2int
+        travis_wait
+      ].freeze
+      private_constant :TRAVIS_FUNCTIONS
 
       class << self
         def defaults
@@ -54,10 +77,17 @@ module Travis
         end
       end
 
-      include Module.new { Stages::STAGES.map(&:name).flatten.each { |stage| define_method(stage) {} } }
-      include Appliances, DirectoryCache, Deprecation, Template
+      include Module.new do
+        Travis::Build::Stages::STAGES.map(&:name).flatten.each do |stage|
+          define_method(stage) {}
+        end
+      end
+
+      include Travis::Build::Appliances, Travis::Build::Script::DirectoryCache
+      include Travis::Build::Deprecation, Travis::Build::Bash
 
       attr_reader :sh, :raw_data, :data, :options, :validator, :addons, :stages
+      attr_reader :root, :home_dir, :build_dir
       attr_accessor :setup_cache_has_run_for
 
       def initialize(data)
@@ -66,6 +96,10 @@ module Travis
         @options = {}
 
         tracing_enabled = data[:trace]
+
+        @root = '/'
+        @home_dir = HOME_DIR
+        @build_dir = BUILD_DIR
 
         @sh = Shell::Builder.new(tracing_enabled)
         @addons = Addons.new(self, sh, self.data, config)
@@ -153,21 +187,31 @@ module Travis
 
         def run
           stages.run if apply :validate
-          sh.raw template('footer')
+          sh.raw 'travis_footer'
           # apply :deprecations
         end
 
         def header
-          sh.raw(
-            template(
-              'header',
-              build_dir: BUILD_DIR,
-              app_host: app_host,
-              internal_ruby_regex: Travis::Build.config.internal_ruby_regex.untaint,
-              root: '/',
-              home: HOME_DIR
-            ), pos: 0
-          )
+          sh.raw '#!/bin/bash'
+          sh.export 'TRAVIS_BUILD_ROOT', root, echo: false, assert: false
+          sh.export 'TRAVIS_BUILD_HOME', home_dir, echo: false, assert: false
+          sh.export 'TRAVIS_BUILD_DIR', build_dir, echo: false, assert: false
+          sh.export 'TRAVIS_BUILD_INTERNAL_RUBY_REGEX',
+                    Travis::Build.config.internal_ruby_regex.untaint.inspect,
+                    echo: false, assert: false
+          sh.export 'TRAVIS_BUILD_APP_HOST', app_host,
+                    echo: false, assert: false
+
+          sh.raw bash('travis_preamble')
+          sh.raw 'travis_preamble'
+
+          sh.file '${TRAVIS_BUILD_HOME}/.travis/job_stages',
+                  "# travis_.+ functions:\n" +
+                  TRAVIS_FUNCTIONS.map { |f| bash(f) }.join("\n")
+
+          sh.raw 'source ${TRAVIS_BUILD_HOME}/.travis/job_stages'
+          sh.raw 'travis_setup_env'
+          sh.raw 'travis_temporary_hacks'
         end
 
         def configure

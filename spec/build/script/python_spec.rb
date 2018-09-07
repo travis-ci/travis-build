@@ -104,8 +104,8 @@ describe Travis::Build::Script::Python, :sexp do
       expect(branch).to include_sexp [:echo, described_class::REQUIREMENTS_MISSING] #, ansi: :red
     end
 
-    it 'adds $HOME/.cache/pip to directory cache' do
-      should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add $HOME/.cache/pip', timing: true]
+    it 'adds ${TRAVIS_BUILD_HOME}/.cache/pip to directory cache' do
+      should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add ${TRAVIS_BUILD_HOME}/.cache/pip', timing: true]
     end
   end
 
