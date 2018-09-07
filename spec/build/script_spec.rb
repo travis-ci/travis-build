@@ -93,13 +93,6 @@ describe Travis::Build::Script, :sexp do
   context 'apt-get update' do
     context 'with APT_GET_UPDATE_OPT_IN not enabled' do
       before { ENV.delete('APT_GET_UPDATE_OPT_IN') }
-      context 'with running on osx' do
-        before { payload[:config][:os] = 'osx' }
-        before { payload[:config].delete(:apt) }
-        after { payload[:config][:os] = 'linux' }
-        it { expect(code).to_not include 'sudo apt-get update' }
-        it { expect(code).to_not include 'Running apt-get by default has been disabled' }
-      end
 
       context 'with config[:apt][:update] not given' do
         before { payload[:config].delete(:apt) }
@@ -142,7 +135,7 @@ describe Travis::Build::Script, :sexp do
     context 'with APT_GET_UPDATE_OPT_IN enabled' do
       before { ENV['APT_GET_UPDATE_OPT_IN'] = 'true' }
       after { ENV.delete('APT_GET_UPDATE_OPT_IN') }
-      
+
       context 'with running on osx' do
         before { payload[:config][:os] = 'osx' }
         after { payload[:config][:os] = 'linux' }

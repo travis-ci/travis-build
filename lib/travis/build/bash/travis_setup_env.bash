@@ -53,6 +53,12 @@ travis_setup_env() {
   TRAVIS_TMPDIR="$(mktemp -d 2>/dev/null || mktemp -d -t 'travis_tmp')"
   export TRAVIS_TMPDIR
 
+  TRAVIS_INFRA=unknown
+  if [[ ! "${TRAVIS_DISABLE_INFRA_DETECTION}" ]]; then
+    TRAVIS_INFRA="$(travis_whereami | awk -F= '/^infra/ { print $2 }')"
+  fi
+  export TRAVIS_INFRA
+
   if command -v pgrep &>/dev/null; then
     pgrep -u "${USER}" 2>/dev/null |
       grep -v -w "${$}" >"${TRAVIS_TMPDIR}/pids_before"

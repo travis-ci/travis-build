@@ -68,6 +68,7 @@ module Travis
         travis_trace_span
         travis_vers2int
         travis_wait
+        travis_whereami
       ].freeze
       private_constant :TRAVIS_FUNCTIONS
 

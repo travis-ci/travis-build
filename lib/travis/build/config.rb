@@ -24,6 +24,24 @@ module Travis
           'TRAVIS_BUILD_API_TOKEN', ENV.fetch('API_TOKEN', '')
         ),
         app_host: ENV.fetch('TRAVIS_BUILD_APP_HOST', ''),
+        apt_mirrors: {
+          ec2: ENV.fetch(
+            'TRAVIS_BUILD_APT_MIRRORS_EC2',
+            'http://us-east-1.ec2.archive.ubuntu.com/ubuntu/'
+          ),
+          gce: ENV.fetch(
+            'TRAVIS_BUILD_APT_MIRRORS_GCE',
+            'http://us-central1.gce.archive.ubuntu.com/ubuntu/'
+          ),
+          packet: ENV.fetch(
+            'TRAVIS_BUILD_APT_MIRRORS_PACKET',
+            'http://archive.ubuntu.com/ubuntu/'
+          ),
+          unknown: ENV.fetch(
+            'TRAVIS_BUILD_APT_MIRRORS_UNKNOWN',
+            'http://archive.ubuntu.com/ubuntu/'
+          )
+        },
         apt_package_safelist: {
           precise: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_PRECISE', ''),
           trusty: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_TRUSTY', '')
