@@ -48,6 +48,7 @@ module Travis
       DEFAULTS = {}
 
       TRAVIS_FUNCTIONS = %w[
+        travis_apt_get_update
         travis_assert
         travis_bash_qsort_numeric
         travis_cmd

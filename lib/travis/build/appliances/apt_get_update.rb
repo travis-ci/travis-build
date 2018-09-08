@@ -24,7 +24,6 @@ module Travis
           end
 
           def update
-            sh.raw bash('travis_apt_get_update')
             sh.cmd "travis_apt_get_update #{debug? ? 'debug' : ''}", retry: true
           end
 

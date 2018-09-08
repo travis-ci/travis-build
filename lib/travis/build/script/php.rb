@@ -151,7 +151,7 @@ module Travis
               end
 
               sh.cmd 'sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xB4112585D386EB94'
-              sh.cmd 'sudo apt-get update -qq'
+              sh.cmd 'travis_apt_get_update'
               sh.cmd "sudo apt-get install -y hhvm", timing: true, echo: true, assert: true
             end
           end
@@ -159,7 +159,7 @@ module Travis
 
         def install_hhvm_nightly
           sh.echo 'Installing HHVM nightly', ansi: :yellow
-          sh.cmd 'sudo apt-get update -qq'
+          sh.cmd 'travis_apt_get_update'
           sh.cmd 'sudo apt-get install hhvm-nightly -y 2>&1 >/dev/null'
           sh.cmd 'test -d ${TRAVIS_BUILD_HOME}/.phpenv/versions/hhvm-nightly || cp -r ${TRAVIS_BUILD_HOME}/.phpenv/versions/hhvm{,-nightly}', echo: false
         end

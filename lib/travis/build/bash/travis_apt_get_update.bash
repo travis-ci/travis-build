@@ -3,11 +3,13 @@ travis_apt_get_update() {
     return
   fi
 
-  local opts='-qq &>/dev/null'
+  local logdest="${TRAVIS_BUILD_HOME}/apt-get-update.log"
+  local opts='-yq'
   if [[ "${1}" == debug ]]; then
     opts=''
+    logdest='/dev/stderr'
   fi
 
   sudo rm -rf "${TRAVIS_BUILD_ROOT}/var/lib/apt/lists/"*
-  sudo apt-get update ${opts}
+  sudo apt-get update ${opts} 2>&1 | tee -a "${logdest}" &>/dev/null
 }
