@@ -4,7 +4,9 @@ travis_munge_apt_sources() {
   fi
 
   local src="${TRAVIS_BUILD_ROOT}/etc/apt/sources.list"
+  src="${src//\/\//\/}"
   local tmp_dest="${TRAVIS_TMPDIR}/etc-apt-sources.list"
+  tmp_dest="${tmp_dest//\/\//\/}"
 
   if [[ ! -f "${src}" ]]; then
     return
