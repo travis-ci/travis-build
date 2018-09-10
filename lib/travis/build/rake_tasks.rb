@@ -476,8 +476,9 @@ module Travis
       end
 
       desc 'validate bash syntax of all examples'
-      task :validate_examples do
-        sh "#{top}/script/validate-bash-syntax"
+      task :assert_examples do
+        ENV['PATH'] = tmpbin_path
+        sh "#{top}/script/assert-examples"
       end
 
       task :ensure_shfmt do
@@ -506,7 +507,7 @@ module Travis
         sh 'shellcheck --version'
       end
 
-      task default: %i[spec shfmt assert_clean shellcheck validate_examples]
+      task default: %i[spec shfmt assert_clean shellcheck assert_examples]
     end
   end
 end
