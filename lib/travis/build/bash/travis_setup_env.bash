@@ -7,6 +7,8 @@ travis_setup_env() {
   export ANSI_RESET="\033[0m"
   export ANSI_CLEAR="\033[0K"
 
+  export DEBIAN_FRONTEND=noninteractive
+
   if [ "${TERM}" = dumb ]; then
     unset TERM
   fi

@@ -153,7 +153,6 @@ module Travis
             end
 
             unless safelisted.empty?
-              sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
               safelisted.each do |source|
                 sourceline = source['sourceline'].untaint
                 if sourceline.start_with?('ppa:')
@@ -184,7 +183,6 @@ module Travis
                 stop_postgresql
               end
 
-              sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
               sh.cmd 'travis_apt_get_update', retry: true, echo: true, timing: true
               sh.raw bash('travis_apt_get_options')
               command = 'sudo -E apt-get -yq --no-install-suggests --no-install-recommends ' \

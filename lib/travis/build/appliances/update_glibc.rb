@@ -10,9 +10,9 @@ module Travis
 
         def apply
           return unless data.disable_sudo?
-          sh.if "-n $(command -v lsb_release) && $(lsb_release -cs) = 'precise'" do
+          sh.if '${TRAVIS_OS_NAME} == linux && ${TRAVIS_DIST} == precise' do
             sh.fold "fix.CVE-2015-7547" do
-              sh.export 'DEBIAN_FRONTEND', 'noninteractive'
+              sh.echo 'Forcing update of libc6', ansi: :yellow
               sh.cmd 'travis_apt_get_update'
               sh.if '${TRAVIS_OS_NAME} != darwin' do
                 sh.cmd 'sudo -E apt-get -yq --no-install-suggests --no-install-recommends --force-yes install libc6'
