@@ -16,6 +16,7 @@ travis_munge_apt_sources() {
   fi
 
   if [[ ! "${mirror}" ]]; then
+    echo -e "${ANSI_YELLOW}No APT mirror found; skipping source munging.${ANSI_RESET}"
     return
   fi
 

@@ -27,7 +27,6 @@ main() {
       export TRAVIS_BUILD_ROOT=${fake_root}
       export TRAVIS_BUILD_HOME=${fake_homedir}
       export TRAVIS_BUILD_DIR=${fake_homedir}/build
-      export TRAVIS_DISABLE_INFRA_DETECTION=1
 
       $(cat "${top}/lib/travis/build/bash/travis_setup_env.bash")
       travis_setup_env

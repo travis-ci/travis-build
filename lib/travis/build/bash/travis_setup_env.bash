@@ -56,7 +56,7 @@ travis_setup_env() {
   export TRAVIS_TMPDIR
 
   TRAVIS_INFRA=unknown
-  if [[ ! "${TRAVIS_DISABLE_INFRA_DETECTION}" ]]; then
+  if [[ "${TRAVIS_ENABLE_INFRA_DETECTION}" ]]; then
     TRAVIS_INFRA="$(travis_whereami | awk -F= '/^infra/ { print $2 }')"
   fi
   export TRAVIS_INFRA
