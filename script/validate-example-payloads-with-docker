@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -ev
-
+: ${GITHUB_OAUTH_TOKEN:=$no_scope_token}
 docker-compose up -d
 
 sleep 10

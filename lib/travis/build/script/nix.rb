@@ -1,13 +1,16 @@
 # Maintained by
-#  - Domen Kožar   @domenkozar   <domen@dev.si>
-#  - Rok Garbas    @garbas       <rok@garbas.si>
-#  - Matthew Bauer @matthewbauer <mjbauer95@gmail.com>
+#  - Domen Kožar        @domenkozar   <domen@dev.si>
+#  - Rok Garbas         @garbas       <rok@garbas.si>
+#  - Matthew Bauer      @matthewbauer <mjbauer95@gmail.com>
+#  - Graham Christensen @grahamc      <graham@grahamc.com>
 
 module Travis
   module Build
     class Script
       class Nix < Script
-        DEFAULTS = {}
+        DEFAULTS = {
+          nix: '2.0.4'
+        }
 
         def export
           super
@@ -39,8 +42,10 @@ module Travis
         def setup
           super
 
+          version = config[:nix]
+
           sh.fold 'nix.install' do
-            sh.cmd "wget --retry-connrefused --waitretry=1 -O /tmp/nix-install https://nixos.org/nix/install"
+            sh.cmd "wget --retry-connrefused --waitretry=1 -O /tmp/nix-install https://nixos.org/releases/nix/nix-#{version}/install"
             sh.cmd "yes | sh /tmp/nix-install"
 
             if config[:os] == 'linux'
@@ -57,7 +62,7 @@ module Travis
           super
 
           sh.echo 'Nix support for Travis CI is community maintained.', ansi: :green
-          sh.echo 'Please open any issues at https://github.com/travis-ci/travis-ci/issues/new and cc @domenkozar @garbas @matthewbauer', ansi: :green
+          sh.echo 'Please open any issues at https://github.com/travis-ci/travis-ci/issues/new and cc @domenkozar @garbas @matthewbauer @grahamc', ansi: :green
 
           sh.cmd "nix-env --version"
         end

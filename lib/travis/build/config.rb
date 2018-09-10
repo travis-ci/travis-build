@@ -18,17 +18,21 @@ module Travis
           'TRAVIS_BUILD_API_TOKEN', ENV.fetch('API_TOKEN', '')
         ),
         app_host: ENV.fetch('TRAVIS_BUILD_APP_HOST', ''),
-        apt_package_whitelist: {
-          precise: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_WHITELIST_PRECISE', ''),
-          trusty: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_WHITELIST_TRUSTY', '')
+        apt_package_safelist: {
+          precise: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_PRECISE', ''),
+          trusty: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_TRUSTY', '')
         },
-        apt_source_whitelist: {
-          precise: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_WHITELIST_PRECISE', ''),
-          trusty: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_WHITELIST_TRUSTY', '')
+        apt_source_safelist: {
+          precise: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_SAFELIST_PRECISE', ''),
+          trusty: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_SAFELIST_TRUSTY', '')
         },
-        apt_whitelist_skip: ENV.fetch('TRAVIS_BUILD_APT_WHITELIST_SKIP', ''),
+        apt_source_safelist_key_url_template: ENV.fetch(
+          'TRAVIS_BUILD_APT_SOURCE_SAFELIST_KEY_URL_TEMPLATE',
+          'https://%{app_host}/files/gpg/%{source_alias}.asc'
+        ),
+        apt_safelist_skip: ENV.fetch('TRAVIS_BUILD_APT_SAFELIST_SKIP', '') == 'true',
         cabal_default: ENV.fetch('TRAVIS_BUILD_CABAL_DEFAULT', '2.0'),
-        auth_disabled: ENV.fetch('TRAVIS_BUILD_AUTH_DISABLED', ''),
+        auth_disabled: ENV.fetch('TRAVIS_BUILD_AUTH_DISABLED', '') == 'true',
         enable_debug_tools: ENV.fetch(
           'TRAVIS_BUILD_ENABLE_DEBUG_TOOLS',
           ENV.fetch('TRAVIS_ENABLE_DEBUG_TOOLS', '')

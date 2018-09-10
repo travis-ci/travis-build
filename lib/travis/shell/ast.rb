@@ -64,6 +64,29 @@ module Travis
         end
       end
 
+      class Trace < Cmds
+        attr_reader :name
+
+        def initialize(name, *args, &block)
+          @name = name
+          super(*args, &block)
+        end
+
+        def to_sexp
+          [:trace, name, nodes.map(&:to_sexp)]
+        end
+      end
+
+      class TraceRoot < Cmds
+        def initialize(*args, &block)
+          super(*args, &block)
+        end
+
+        def to_sexp
+          [:trace_root, nodes.map(&:to_sexp)]
+        end
+      end
+
       class Conditional < Cmds
         attr_reader :condition
 
