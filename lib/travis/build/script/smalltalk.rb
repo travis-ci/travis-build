@@ -140,7 +140,7 @@ module Travis
                 sh.cmd 'sudo dpkg --add-architecture i386'
               end
 
-              sh.cmd 'sudo apt-get update -qq', retry: true
+              sh.cmd 'travis_apt_get_update', retry: true
               sh.cmd "sudo apt-get install -y --no-install-recommends #{deps_32bit}", retry: true
             end
           end
@@ -227,7 +227,7 @@ module Travis
             sh.fold 'gemstone_dependencies' do
               sh.echo 'Installing GemStone dependencies', ansi: :yellow
 
-              sh.cmd 'sudo apt-get update -qq', retry: true
+              sh.cmd 'travis_apt_get_update', retry: true
               sh.cmd 'sudo apt-get install -y --no-install-recommends ' +
                      'libpam0g:i386 libssl1.0.0:i386 gcc-multilib ' +
                      'libstdc++6:i386 libfreetype6:i386 pstack ' +

@@ -16,7 +16,7 @@ travis_ghc_install() {
     echo -e "\\n${ANSI_GREEN}Adding ppa:hvr/ghc.${ANSI_RESET}" >&2
     sudo apt-add-repository -y ppa:hvr/ghc
   fi
-  sudo apt-get update -yqq
+  travis_apt_get_update
   if sudo apt-get install -yq "ghc-${ghc_version}"; then
     echo -e "\\n${ANSI_GREEN}Successfully installed 'ghc-${ghc_version}'.${ANSI_RESET}" >&2
   else

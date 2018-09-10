@@ -48,6 +48,7 @@ module Travis
       DEFAULTS = {}
 
       TRAVIS_FUNCTIONS = %w[
+        travis_apt_get_update
         travis_assert
         travis_bash_qsort_numeric
         travis_cmd
@@ -68,6 +69,7 @@ module Travis
         travis_trace_span
         travis_vers2int
         travis_wait
+        travis_whereami
       ].freeze
       private_constant :TRAVIS_FUNCTIONS
 

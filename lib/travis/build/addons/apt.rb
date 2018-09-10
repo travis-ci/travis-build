@@ -153,7 +153,6 @@ module Travis
             end
 
             unless safelisted.empty?
-              sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
               safelisted.each do |source|
                 sourceline = source['sourceline'].untaint
                 if sourceline.start_with?('ppa:')
@@ -184,8 +183,7 @@ module Travis
                 stop_postgresql
               end
 
-              sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
-              sh.cmd "sudo -E apt-get -yq update &>> ~/apt-get-update.log", echo: true, timing: true
+              sh.cmd 'travis_apt_get_update', retry: true, echo: true, timing: true
               sh.raw bash('travis_apt_get_options')
               command = 'sudo -E apt-get -yq --no-install-suggests --no-install-recommends ' \
                 "$(travis_apt_get_options) install #{safelisted.join(' ')}"
@@ -195,7 +193,7 @@ module Travis
               sh.if '$result -ne 0' do
                 sh.fold 'apt-get.diagnostics' do
                   sh.echo "apt-get install failed", ansi: :red
-                  sh.cmd 'cat ~/apt-get-update.log', echo: true
+                  sh.cmd 'cat ${TRAVIS_BUILD_HOME}/apt-get-update.log', echo: true
                 end
                 sh.raw "TRAVIS_CMD='#{command}'"
                 sh.raw "travis_assert $result"

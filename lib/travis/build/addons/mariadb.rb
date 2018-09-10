@@ -22,7 +22,7 @@ module Travis
               sh.cmd "apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 #{MARIADB_GPG_KEY_NEW}", sudo: true
             end
             sh.cmd 'add-apt-repository "deb http://%p/mariadb/repo/%p/ubuntu $(lsb_release -cs) main"' % [MARIADB_MIRROR, mariadb_version], sudo: true
-            sh.cmd "apt-get update -qq", assert: false, sudo: true
+            sh.cmd 'travis_apt_get_update', retry: true, echo: true
             sh.cmd "PACKAGES='mariadb-server mariadb-server-#{mariadb_version}'", echo: true
             sh.cmd "if [[ $(lsb_release -cs) = 'precise' ]]; then PACKAGES=\"${PACKAGES} libmariadbclient-dev\"; fi", echo: true
             sh.cmd "apt-get install -y -o Dpkg::Options::='--force-confnew' $PACKAGES", sudo: true, echo: true, timing: true

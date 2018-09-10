@@ -89,7 +89,7 @@ module Travis
 
                 # Update after adding all repositories. Retry several
                 # times to work around flaky connection to Launchpad PPAs.
-                sh.cmd 'sudo apt-get update -qq', retry: true
+                sh.cmd 'travis_apt_get_update', retry: true
 
                 # Install precompiled R
                 # Install only the dependencies for an R development environment except for
