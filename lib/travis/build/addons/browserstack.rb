@@ -202,9 +202,9 @@ module Travis
             sh.fold "browserstack app upload" do
               sh.if "-e #{app_path}" do
                 sh.cmd "#{upload_command} | tee $TRAVIS_BUILD_DIR/app_upload_out"
-                sh.export(ENV_APP_ID, "`cat $TRAVIS_BUILD_DIR/app_upload_out | jq .app_url | sed -e 's/^\"//' -e 's/\"$//'`")
-                sh.export(ENV_CUSTOM_ID, "`cat $TRAVIS_BUILD_DIR/app_upload_out | jq .custom_id | sed -e 's/^\"//' -e 's/\"$//'`")
-                sh.export(ENV_SHAREABLE_ID, "`cat $TRAVIS_BUILD_DIR/app_upload_out | jq .shareable_id | sed -e 's/^\"//' -e 's/\"$//'`")
+                sh.export(ENV_APP_ID, "`cat $TRAVIS_BUILD_DIR/app_upload_out | jq -r .app_url`")
+                sh.export(ENV_CUSTOM_ID, "`cat $TRAVIS_BUILD_DIR/app_upload_out | jq -r .custom_id`")
+                sh.export(ENV_SHAREABLE_ID, "`cat $TRAVIS_BUILD_DIR/app_upload_out | jq -r .shareable_id`")
                 sh.cmd("rm $TRAVIS_BUILD_DIR/app_upload_out")
               end
               sh.else do
