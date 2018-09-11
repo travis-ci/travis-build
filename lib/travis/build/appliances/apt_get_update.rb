@@ -5,23 +5,15 @@ module Travis
     module Appliances
       class AptGetUpdate < Base
         def apply
-          use_mirror if use_mirror?
-          update     if update?
+          use_mirror
+          update if update?
         end
 
         def apply?
-          is_linux?
+          true
         end
 
         private
-
-          def is_linux?
-            data[:config][:os] == 'linux'
-          end
-
-          def disabled?
-            ENV['APT_GET_UPDATE_OPT_IN'] && !update?
-          end
 
           def update?
             if ENV['APT_GET_UPDATE_OPT_IN']
@@ -32,10 +24,7 @@ module Travis
           end
 
           def update
-            sh.cmd <<~EOF
-              sudo rm -rf /var/lib/apt/lists/*
-              sudo apt-get update #{'-qq  >/dev/null 2>&1' unless debug?}
-            EOF
+            sh.cmd "travis_apt_get_update #{debug? ? 'debug' : ''}", retry: true
           end
 
           def used?
@@ -46,16 +35,17 @@ module Travis
             end
           end
 
-          def use_mirror?
-            !!mirror && rollout?(:apt_get_mirror_ubuntu, uid: repo_id, owner: repo_owner)
-          end
-
           def use_mirror
-            sh.cmd "sudo sed -i -e 's|http://.*\.ubuntu\.com/ubuntu/|#{mirror.dup.untaint}|' /etc/apt/sources.list"
+            define_mirrors_by_infrastructure
+            sh.raw bash('travis_munge_apt_sources')
+            sh.cmd 'travis_munge_apt_sources'
           end
 
-          def mirror
-            ENV['APT_GET_MIRROR_UBUNTU']
+          def define_mirrors_by_infrastructure
+            sh.raw 'declare -A TRAVIS_APT_MIRRORS_BY_INFRASTRUCTURE'
+            mirrors.each do |infra, url|
+              sh.raw %{TRAVIS_APT_MIRRORS_BY_INFRASTRUCTURE[#{infra}]="#{url}"}
+            end
           end
 
           def debug?
@@ -80,6 +70,10 @@ module Travis
 
           def config
             apt_config || {}
+          end
+
+          def mirrors
+            (Travis::Build.config[:apt_mirrors] || {}).to_hash
           end
 
           def apt_config

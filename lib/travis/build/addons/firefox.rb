@@ -54,7 +54,7 @@ module Travis
           end
 
           def install_dir
-            "#{HOME_DIR}/firefox-#{version}"
+            "${TRAVIS_HOME}/firefox-#{version}"
           end
 
           def filename(ext = 'bz2')

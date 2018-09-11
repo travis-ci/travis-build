@@ -15,11 +15,12 @@ describe Travis::Build::Addons::AptPackages, :sexp do
     described_class.instance_variable_set(:@source_safelists, nil)
     addon.stubs(:skip_safelist?).returns(safelist_skip)
     addon.stubs(:package_safelists).returns(package_safelists)
+    script.stubs(:bash).returns('')
     addon.before_prepare
   end
 
   def apt_get_install_command(*packages)
-    "sudo -E apt-get -yq --no-install-suggests --no-install-recommends $TRAVIS_APT_OPTS install #{packages.join(' ')}"
+    "sudo -E apt-get -yq --no-install-suggests --no-install-recommends $(travis_apt_get_options) install #{packages.join(' ')}"
   end
 
   context 'with multiple safelisted packages' do

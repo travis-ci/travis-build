@@ -1,10 +1,11 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Ruby, :sexp do
-  let(:data)   { payload_for(:push, :ruby) }
+  let(:data) { payload_for(:push, :ruby) }
   let(:script) { described_class.new(data) }
-  subject      { script.sexp }
-  it           { store_example }
+  subject { script.sexp }
+  it { store_example }
+  it { store_example(integration: true) }
 
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=ruby'] }
@@ -15,6 +16,7 @@ describe Travis::Build::Script::Ruby, :sexp do
 
   describe 'using a jdk' do
     before { data[:config][:jdk] = 'openjdk7' }
+
     it_behaves_like 'a jdk build sexp'
   end
 
@@ -175,7 +177,7 @@ describe Travis::Build::Script::Ruby, :sexp do
 
     it 'ensures rvm alias is defined' do
       sexp = sexp_find(subject, [:if, "-z $(rvm alias list | grep ^2\\\\.3)"], [:then])
-      store_example "rvm-alias"
+      store_example(name: 'rvm-alias')
       expect(sexp).to include_sexp [:cmd, "rvm alias create 2.3 ruby-2.3.7", assert: true, echo: true, timing: true]
     end
   end

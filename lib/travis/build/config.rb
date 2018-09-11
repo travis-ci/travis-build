@@ -13,11 +13,35 @@ module Travis
         @ghc_version_aliases_hash ||= version_aliases_hash('ghc')
       end
 
+      def sc_data
+        @sc_data ||= JSON.parse(
+          Travis::Build.top.join('tmp/sc_data.json').read.untaint
+        )
+      end
+
       define(
         api_token: ENV.fetch(
           'TRAVIS_BUILD_API_TOKEN', ENV.fetch('API_TOKEN', '')
         ),
-        app_host: ENV.fetch('TRAVIS_BUILD_APP_HOST', ''),
+        app_host: ENV.fetch('TRAVIS_APP_HOST', ''),
+        apt_mirrors: {
+          ec2: ENV.fetch(
+            'TRAVIS_BUILD_APT_MIRRORS_EC2',
+            'http://us-east-1.ec2.archive.ubuntu.com/ubuntu/'
+          ),
+          gce: ENV.fetch(
+            'TRAVIS_BUILD_APT_MIRRORS_GCE',
+            'http://us-central1.gce.archive.ubuntu.com/ubuntu/'
+          ),
+          packet: ENV.fetch(
+            'TRAVIS_BUILD_APT_MIRRORS_PACKET',
+            'http://archive.ubuntu.com/ubuntu/'
+          ),
+          unknown: ENV.fetch(
+            'TRAVIS_BUILD_APT_MIRRORS_UNKNOWN',
+            'http://archive.ubuntu.com/ubuntu/'
+          )
+        },
         apt_package_safelist: {
           precise: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_PRECISE', ''),
           trusty: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_TRUSTY', '')
@@ -31,12 +55,15 @@ module Travis
           'https://%{app_host}/files/gpg/%{source_alias}.asc'
         ),
         apt_safelist_skip: ENV.fetch('TRAVIS_BUILD_APT_SAFELIST_SKIP', '') == 'true',
-        cabal_default: ENV.fetch('TRAVIS_BUILD_CABAL_DEFAULT', '2.0'),
         auth_disabled: ENV.fetch('TRAVIS_BUILD_AUTH_DISABLED', '') == 'true',
+        cabal_default: ENV.fetch('TRAVIS_BUILD_CABAL_DEFAULT', '2.0'),
         enable_debug_tools: ENV.fetch(
           'TRAVIS_BUILD_ENABLE_DEBUG_TOOLS',
           ENV.fetch('TRAVIS_ENABLE_DEBUG_TOOLS', '')
         ),
+        enable_infra_detection: ENV.fetch(
+          'TRAVIS_BUILD_ENABLE_INFRA_DETECTION', ''
+        ) == 'true',
         etc_hosts_pinning: ENV.fetch(
           'TRAVIS_BUILD_ETC_HOSTS_PINNING', ENV.fetch('ETC_HOSTS_PINNING', '')
         ),

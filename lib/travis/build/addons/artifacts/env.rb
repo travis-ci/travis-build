@@ -47,7 +47,7 @@ module Travis
                 [to_key(key), to_value(value)]
               end
 
-              Hash[*(['PATH', '$HOME/bin:$PATH'] + ret_arr).flatten]
+              Hash[*(['PATH', '${TRAVIS_HOME}/bin:$PATH'] + ret_arr).flatten]
             end
 
             def target_paths

@@ -1,17 +1,24 @@
 #!/bin/bash
+set -o errexit
 
-set -ev
-: ${GITHUB_OAUTH_TOKEN:=$no_scope_token}
-docker-compose up -d
+main() {
+  : "${GITHUB_OAUTH_TOKEN:=${no_scope_token}}"
 
-sleep 10
+  local top
+  top="$(git rev-parse --show-toplevel)"
+  cd "${top}"
 
-docker ps -a
+  docker-compose up -d
+  sleep 10
+  docker ps -a
+  docker logs travisbuild_web_1
 
-docker logs travisbuild_web_1
+  local e=0
+  for f in example_payloads/*.json; do
+    echo "${f##*/}"
+    curl -sf -X POST -d "@${f}" localhost:4000/script >/dev/null || e=$((e + 1))
+  done
+  test "${e}" -eq 0
+}
 
-e=0;
-for f in example_payloads/*.json; do echo ${f##*/};
-  curl -sf -X POST -d @$f localhost:4000/script >/dev/null || let e=$e+1;
-done;
-test $e -eq 0
+main "${@}"

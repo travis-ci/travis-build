@@ -42,14 +42,14 @@ module Travis
                   ' in the issue', ansi: :green
 
           sh.fold('neko-install') do
-            neko_path = '${HOME}/neko'
+            neko_path = '${TRAVIS_HOME}/neko'
 
             sh.echo 'Installing Neko', ansi: :yellow
 
             # Install dependencies
             case config[:os]
             when 'linux'
-              sh.cmd 'sudo apt-get update -qq', retry: true
+              sh.cmd 'travis_apt_get_update', retry: true
               sh.cmd 'sudo apt-get install libgc1c2 -qq', retry: true # required by neko
             when 'osx'
               # pass
@@ -78,7 +78,7 @@ module Travis
           end
 
           sh.fold('haxe-install') do
-            haxe_path = '${HOME}/haxe'
+            haxe_path = '${TRAVIS_HOME}/haxe'
 
             sh.echo 'Installing Haxe', ansi: :yellow
             sh.cmd %Q{mkdir -p #{haxe_path}}
