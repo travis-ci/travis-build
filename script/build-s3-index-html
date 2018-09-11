@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+
+require 'erb'
+require 'pathname'
+
+def main
+  top = Pathname.new(File.expand_path('../', __dir__))
+  filenames = top.join('examples').glob('*.bash.txt')
+  filenames.sort!
+  filenames.map! { |f| f.to_s.sub(/.+examples\//, '') }
+
+  outfile = top.join('examples/index.html')
+  outfile.write(ERB.new(DATA.read).result(binding))
+
+  $stderr.puts("#{File.basename($PROGRAM_NAME)}: wrote #{outfile}")
+  0
+end
+
+exit(main) if $PROGRAM_NAME == __FILE__
+
+__END__
+<html>
+  <head>
+    <style>
+      body {
+        font-family: "Helvetica Neue", Helvetica, "Liberation Sans", Calibri, Arial, sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Travis CI build script examples</h1>
+    <ul>
+      <% filenames.each do |filename| %>
+        <li><a href="<%= filename %>"><%= filename %></a></li>
+      <% end %>
+    </ul>
+  </body>
+</html>

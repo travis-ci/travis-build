@@ -3,93 +3,129 @@ set -o errexit
 
 main() {
   local e=0
-  local top logdest
+  local top
   top="$(git rev-parse --show-toplevel)"
   local fake_homedir="${top}/tmp/assert-examples-homedir"
   local fake_root="${top}/tmp/assert-examples-root"
   local examples_dir="${1:-${top}/examples}"
   local build_logs_dir="${top}/tmp/assert-examples-build-logs"
-  local shfmt_exe="${SHFMT_EXE:-shfmt}"
 
   cd "${top}"
-  mkdir -p "${fake_homedir}/.travis" "${fake_root}" "${build_logs_dir}"
-  export HOME="${fake_homedir}"
+  mkdir -p \
+    "${fake_homedir}/.travis" \
+    "${fake_root}" \
+    "${build_logs_dir}" \
+    "${examples_dir}"
+  #export HOME="${fake_homedir}"
 
   for f in $(__list_build_examples "${examples_dir}"); do
     echo >"${fake_homedir}/.travis/job_stages"
-    echo "checking syntax of ${f}"
-    "${shfmt_exe}" "${f}" &>/dev/null || e=$((e + 1))
-    echo "checking evaluation of ${f}"
-    sed -e '1,/START_FUNCS/ d' "${f}" | sed -e '/END_FUNCS/,$ d' >"${f%*.txt}"
-    rm -rf "${fake_homedir}/.travis" "${fake_root}"
-    mkdir -p "${fake_homedir}/.travis" "${fake_root}"
-    bash -c "
-      export TRAVIS_BUILD_ROOT=${fake_root}
-      export TRAVIS_BUILD_HOME=${fake_homedir}
-      export TRAVIS_BUILD_DIR=${fake_homedir}/build
-
-      $(cat "${top}/lib/travis/build/bash/travis_setup_env.bash")
-      travis_setup_env
-
-      source ${f%*.txt}
-      if [[ -f ${fake_homedir}/.travis/job_stages ]]; then
-        source ${fake_homedir}/.travis/job_stages
-      fi
-    " || e=$((e + 1))
+    __check_syntax "${f}" || e=$((e + 1))
+    __check_evaluation "${f}" "${top}" "${fake_homedir}" "${fake_root}" ||
+      e=$((e + 1))
   done
-  test "${e}" -eq 0
+
+  [[ "${e}" -eq 0 ]]
 
   if [[ "${INTEGRATION_SPECS}" != '1' ]]; then
-    echo 'Integration specs disabled' >&2
+    log 'Integration specs disabled'
     exit 0
   fi
 
   if ! docker version --format '{{""}}' &>/dev/null; then
-    echo 'ERROR: no docker client found' >&2
+    log 'ERROR: no docker client found'
     exit 1
   fi
 
   local docker_image="${TRAVIS_BUILD_ASSERT_EXAMPLES_DOCKER_IMAGE}"
   if [[ ! "${docker_image}" ]]; then
-    docker_image="$(
-      curl -sSL https://raw.githubusercontent.com/travis-ci/terraform-config/master/aws-production-2/generated-language-mapping.json |
-        jq -r '.default'
-    )"
+    docker_image="$(curl -sSL https://git.io/fAwln | jq -r '.default')"
   fi
 
   chmod 0777 "${build_logs_dir}"
 
   e=0
   for f in $(__list_build_examples "${examples_dir}"); do
-    if ! grep -q '^# TRAVIS-BUILD INTEGRATION EXAMPLE MAGIC COMMENT' "${f}"; then
-      echo "skipping execution of ${f}"
-      continue
-    fi
-
-    logdest="${build_logs_dir}/$(basename "${f}").log"
-    rm -f "${logdest}"
-    cid="$(
-      docker run -d \
-        -v "${examples_dir}:/examples" \
-        "${docker_image}" /sbin/init
-    )"
-    echo "checking execution of ${f}"
-    docker exec --user travis "${cid}" \
-      bash -c "
-        echo >/var/tmp/build.log &&
-          cp -v /examples/$(basename "${f}") ~/build.sh &&
-          bash ~/build.sh &>/var/tmp/build.log
-      " || e=$((e + 1))
-    docker cp "${cid}:/var/tmp/build.log" "${logdest}"
-    docker rm -f "${cid}"
+    __check_execution \
+      "${f}" "${build_logs_dir}" "${examples_dir}" "${docker_image}" ||
+      e=$((e + 1))
   done
-  test "${e}" -eq 0
+
+  [[ "${e}" -eq 0 ]]
+}
+
+log() {
+  printf "assert-examples: %s\\n" "${*}" >&2
 }
 
 __list_build_examples() {
-  find "${1}" -name 'build*.sh.txt' | while read -r f; do
+  find "${1}" -name 'build*.bash.txt' | while read -r f; do
     echo "${f}"
   done
+}
+
+__check_syntax() {
+  local f="${1}"
+  log "checking syntax of ${f}"
+  "${SHFMT_EXE:-shfmt}" "${f}" &>/dev/null
+}
+
+__check_evaluation() {
+  local f="${1}"
+  local top="${2}"
+  local fake_homedir="${3}"
+  local fake_root="${4}"
+  local stages_dest
+  stages_dest="${top}/tmp/$(basename "${f%*.bash.txt}.stages.bash")"
+
+  log "checking evaluation of ${f}"
+  sed -e '1,/START_FUNCS/ d' "${f}" |
+    sed -e '/END_FUNCS/,$ d' >"${stages_dest}"
+  rm -rf "${fake_homedir}/.travis" "${fake_root}"
+  mkdir -p "${fake_homedir}/.travis" "${fake_root}"
+  bash -c "
+    export TRAVIS_BUILD_ROOT=${fake_root}
+    export TRAVIS_BUILD_HOME=${fake_homedir}
+    export TRAVIS_BUILD_DIR=${fake_homedir}/build
+
+    $(cat "${top}/lib/travis/build/bash/travis_setup_env.bash")
+    travis_setup_env
+
+    source ${stages_dest}
+    if [[ -f ${fake_homedir}/.travis/job_stages ]]; then
+      source ${fake_homedir}/.travis/job_stages
+    fi
+  "
+}
+
+__check_execution() {
+  local f="${1}"
+  local build_logs_dir="${2}"
+  local examples_dir="${3}"
+  local docker_image="${4}"
+  local logdest cid
+
+  if ! grep -q '^# TRAVIS-BUILD INTEGRATION EXAMPLE MAGIC COMMENT' "${f}"; then
+    log "skipping execution of ${f}"
+    return
+  fi
+
+  logdest="${build_logs_dir}/$(basename "${f}").log"
+  rm -f "${logdest}"
+  cid="$(
+    docker run -d \
+      -v "${examples_dir}:/examples" \
+      "${docker_image}" /sbin/init
+  )"
+  log "checking execution of ${f}"
+  docker exec --user travis "${cid}" \
+    bash -c "
+      echo >/var/tmp/build.log &&
+        cp -v /examples/$(basename "${f}") ~/build.sh &&
+        bash ~/build.sh &>/var/tmp/build.log
+    " || e=$((e + 1))
+  docker cp "${cid}:/var/tmp/build.log" "${logdest}"
+  docker rm -f "${cid}"
 }
 
 main "${@}"

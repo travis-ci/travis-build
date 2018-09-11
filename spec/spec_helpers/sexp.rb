@@ -58,7 +58,7 @@ module SpecHelpers
       end
 
       FileUtils.mkdir_p('examples') unless File.directory?('examples')
-      File.open("examples/#{type}-#{name}.sh.txt", 'w+') do |f|
+      File.open("examples/#{type}-#{name}.bash.txt", 'w+') do |f|
         f.write(code)
       end
     end
