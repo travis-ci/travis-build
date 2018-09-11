@@ -3,7 +3,7 @@ set -o errexit
 set -o pipefail
 
 main() {
-  local e=0
+  local e=0 ran=0
   local top
   top="$(git rev-parse --show-toplevel)"
   local fake_homedir="${top}/tmp/assert-examples-homedir"
@@ -24,8 +24,10 @@ main() {
     __check_syntax "${f}" || e=$((e + 1))
     __check_evaluation "${f}" "${top}" "${fake_homedir}" "${fake_root}" ||
       e=$((e + 1))
+    ran=$((ran + 1))
   done
 
+  [[ "${ran}" -gt 0 ]]
   [[ "${e}" -eq 0 ]]
 
   if [[ "${INTEGRATION_SPECS}" != '1' ]]; then
@@ -45,13 +47,16 @@ main() {
 
   chmod 0777 "${build_logs_dir}"
 
+  ran=0
   e=0
   for f in $(__list_build_examples "${examples_dir}"); do
     __check_execution \
       "${f}" "${build_logs_dir}" "${examples_dir}" "${docker_image}" ||
       e=$((e + 1))
+    ran=$((ran + 1))
   done
 
+  [[ "${ran}" -gt 0 ]]
   [[ "${e}" -eq 0 ]]
 }
 
@@ -89,6 +94,7 @@ __check_evaluation() {
     export TRAVIS_HOME=${fake_homedir}
     export TRAVIS_BUILD_DIR=${fake_homedir}/build
 
+    $(cat "${top}/lib/travis/build/bash/travis_whereami.bash")
     $(cat "${top}/lib/travis/build/bash/travis_setup_env.bash")
     travis_setup_env
 
