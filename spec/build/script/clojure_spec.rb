@@ -16,7 +16,7 @@ describe Travis::Build::Script::Clojure, :sexp do
   it_behaves_like 'announces java versions'
 
   describe 'if no lein config given' do
-    it { store_example 'no lein config' }
+    it { store_example(name: 'no lein config') }
 
     it 'announces lein version' do
       should include_sexp [:cmd, 'lein version', echo: true]
@@ -32,7 +32,7 @@ describe Travis::Build::Script::Clojure, :sexp do
   end
 
   describe 'if lein: lein2 given' do
-    it { store_example 'lein2 config' }
+    it { store_example(name: 'lein2 config') }
 
     before(:each) { data[:config][:lein] = 'lein2' }
 

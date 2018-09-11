@@ -6,7 +6,7 @@ shared_examples_for 'starts services' do
 
     describe 'postgresql' do
       it { should include_sexp [:cmd, 'travis_setup_postgresql', echo: true, timing: true] }
-      it { store_example 'service postgresql' if data[:config][:language] == :ruby }
+      it { store_example(name: 'service postgresql') if data[:config][:language] == :ruby }
     end
 
     describe 'Postgresql' do

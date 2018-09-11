@@ -23,7 +23,7 @@ module Travis
         def prepare
           super
           ensure_gvm_wiped
-          sh.if "! -x '#{HOME_DIR}/bin/gimme'" do
+          sh.if "! -x ${TRAVIS_HOME}/bin/gimme" do
             update_gimme
           end
         end
@@ -36,20 +36,20 @@ module Travis
         end
 
         def setup
-          sh.cmd %Q'GIMME_OUTPUT="$(gimme #{go_version} | tee -a $HOME/.bashrc)" && eval "$GIMME_OUTPUT"'
+          sh.cmd %Q'GIMME_OUTPUT="$(gimme #{go_version} | tee -a ${TRAVIS_HOME}/.bashrc)" && eval "$GIMME_OUTPUT"'
 
           # NOTE: $GOPATH is a plural ":"-separated var a la $PATH.  We export
           # only a single path here, but users who want to treat $GOPATH as
           # singular *should* probably use "${GOPATH%%:*}" to take the first
           # entry.
-          sh.export 'GOPATH', "#{HOME_DIR}/gopath", echo: true
-          sh.export 'PATH', "#{HOME_DIR}/gopath/bin:$PATH", echo: true
+          sh.export 'GOPATH', "${TRAVIS_HOME}/gopath", echo: true
+          sh.export 'PATH', "${TRAVIS_HOME}/gopath/bin:$PATH", echo: true
 
-          sh.mkdir "#{HOME_DIR}/gopath/src/#{go_import_path}", recursive: true, assert: false, timing: false
-          sh.cmd "rsync -az ${TRAVIS_BUILD_DIR}/ #{HOME_DIR}/gopath/src/#{go_import_path}/", assert: false, timing: false
+          sh.mkdir "${TRAVIS_HOME}/gopath/src/#{go_import_path}", recursive: true, assert: false, timing: false
+          sh.cmd "rsync -az ${TRAVIS_BUILD_DIR}/ ${TRAVIS_HOME}/gopath/src/#{go_import_path}/", assert: false, timing: false
 
-          sh.export "TRAVIS_BUILD_DIR", "#{HOME_DIR}/gopath/src/#{go_import_path}"
-          sh.cd "#{HOME_DIR}/gopath/src/#{go_import_path}", assert: true
+          sh.export "TRAVIS_BUILD_DIR", "${TRAVIS_HOME}/gopath/src/#{go_import_path}"
+          sh.cd "${TRAVIS_HOME}/gopath/src/#{go_import_path}", assert: true
 
           # Defer setting up cache until we have changed directories, so that
           # cache.directories can be properly resolved relative to the directory
@@ -154,15 +154,15 @@ module Travis
 
           def ensure_gvm_wiped
             sh.cmd 'unset gvm', echo: false
-            sh.if "-d #{HOME_DIR}/.gvm" do
-              sh.mv "#{HOME_DIR}/.gvm", "#{HOME_DIR}/.gvm.disabled", echo: false
+            sh.if "-d ${TRAVIS_HOME}/.gvm" do
+              sh.mv "${TRAVIS_HOME}/.gvm", "${TRAVIS_HOME}/.gvm.disabled", echo: false
             end
           end
 
           def install_gimme
             sh.echo "Installing gimme from #{gimme_url.inspect}", ansi: :yellow
-            sh.mkdir "#{HOME_DIR}/bin", echo: false, recursive: true
-            sh.cmd "curl -sL -o #{HOME_DIR}/bin/gimme '#{gimme_url}'", echo: false
+            sh.mkdir "${TRAVIS_HOME}/bin", echo: false, recursive: true
+            sh.cmd "curl -sL -o ${TRAVIS_HOME}/bin/gimme '#{gimme_url}'", echo: false
           end
 
           def gimme_config
@@ -185,22 +185,22 @@ module Travis
 
             sh.echo "Updating gimme", ansi: :yellow
 
-            sh.mkdir "#{HOME_DIR}/bin", echo: false, recursive: true
-            sh.cmd "curl -sf -o $HOME/bin/gimme https://#{app_host}/files/gimme", echo: false
+            sh.mkdir "${TRAVIS_HOME}/bin", echo: false, recursive: true
+            sh.cmd "curl -sf -o ${TRAVIS_HOME}/bin/gimme https://#{app_host}/files/gimme", echo: false
             sh.if "$? -ne 0" do
               install_gimme
             end
 
-            sh.cmd "chmod +x #{HOME_DIR}/bin/gimme", echo: false
-            sh.export 'PATH', "#{HOME_DIR}/bin:$PATH", retry: false, echo: false
+            sh.cmd "chmod +x ${TRAVIS_HOME}/bin/gimme", echo: false
+            sh.export 'PATH', "${TRAVIS_HOME}/bin:$PATH", retry: false, echo: false
             # install bootstrap version so that tip/master/whatever can be used immediately
             sh.cmd %Q'gimme #{DEFAULTS[:go]} &>/dev/null'
           end
 
           def fetch_godep
-            godep = "$HOME/gopath/bin/godep"
+            godep = "${TRAVIS_HOME}/gopath/bin/godep"
 
-            sh.mkdir "$HOME/gopath/bin", echo: false, recursive: true
+            sh.mkdir "${TRAVIS_HOME}/gopath/bin", echo: false, recursive: true
 
             sh.if "$TRAVIS_OS_NAME = osx" do
               sh.cmd "curl -sL -o #{godep} https://#{app_host}/files/godep_darwin_amd64", echo: false
