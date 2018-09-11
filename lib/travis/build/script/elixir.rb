@@ -6,8 +6,8 @@ module Travis
           elixir: '1.0.2',
           otp_release: '17.4'
         }
-        KIEX_ELIXIR_HOME = '${TRAVIS_BUILD_HOME}/.kiex/elixirs/'
-        KIEX_MIX_HOME    = '${TRAVIS_BUILD_HOME}/.kiex/mix/'
+        KIEX_ELIXIR_HOME = '${TRAVIS_HOME}/.kiex/elixirs/'
+        KIEX_MIX_HOME    = '${TRAVIS_HOME}/.kiex/mix/'
 
         def export
           super
@@ -27,7 +27,7 @@ module Travis
 
           sh.fold "elixir" do
             archive = elixir_archive_name(elixir_version, otp_release)
-            sh.if "! -f ${TRAVIS_BUILD_HOME}/.kiex/elixirs/elixir-#{elixir_version}.env" do
+            sh.if "! -f ${TRAVIS_HOME}/.kiex/elixirs/elixir-#{elixir_version}.env" do
               sh.echo "Installing Elixir #{elixir_version}"
               sh.cmd "wget #{archive}", assert: true, timing: true
               sh.cmd "unzip -d #{KIEX_ELIXIR_HOME}/elixir-#{elixir_version} v#{elixir_version}*.zip 2>&1 > /dev/null", echo: false

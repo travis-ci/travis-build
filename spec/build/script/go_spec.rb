@@ -15,7 +15,7 @@ describe Travis::Build::Script::Go, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'sets GOPATH' do
-    should include_sexp [:export, ['GOPATH', '${TRAVIS_BUILD_HOME}/gopath'], echo: true]
+    should include_sexp [:export, ['GOPATH', '${TRAVIS_HOME}/gopath'], echo: true]
   end
 
   it 'sets TRAVIS_GO_VERSION' do
@@ -27,19 +27,19 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   it 'sets the default go version if not :go config given' do
-    should include_sexp [:cmd, %{GIMME_OUTPUT="$(gimme #{defaults[:go]} | tee -a ${TRAVIS_BUILD_HOME}/.bashrc)" && eval "$GIMME_OUTPUT"}, assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, %{GIMME_OUTPUT="$(gimme #{defaults[:go]} | tee -a ${TRAVIS_HOME}/.bashrc)" && eval "$GIMME_OUTPUT"}, assert: true, echo: true, timing: true]
   end
 
   it 'sets the go version from config :go' do
     data[:config][:go] = 'go1.2'
-    should include_sexp [:cmd, 'GIMME_OUTPUT="$(gimme 1.2 | tee -a ${TRAVIS_BUILD_HOME}/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'GIMME_OUTPUT="$(gimme 1.2 | tee -a ${TRAVIS_HOME}/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
   end
 
   shared_examples 'gopath fix' do
-    it { should include_sexp [:mkdir, "${TRAVIS_BUILD_HOME}/gopath/src/#{host}/#{data[:repository][:slug]}", echo: true, recursive: true] }
-    it { should include_sexp [:cmd, "rsync -az ${TRAVIS_BUILD_DIR}/ ${TRAVIS_BUILD_HOME}/gopath/src/#{host}/#{data[:repository][:slug]}/", echo: true] }
-    it { should include_sexp [:export, ['TRAVIS_BUILD_DIR', "${TRAVIS_BUILD_HOME}/gopath/src/#{host}/#{data[:repository][:slug]}"], echo: true] }
-    it { should include_sexp [:cd, "${TRAVIS_BUILD_HOME}/gopath/src/#{host}/#{data[:repository][:slug]}", assert: true, echo: true] }
+    it { should include_sexp [:mkdir, "${TRAVIS_HOME}/gopath/src/#{host}/#{data[:repository][:slug]}", echo: true, recursive: true] }
+    it { should include_sexp [:cmd, "rsync -az ${TRAVIS_BUILD_DIR}/ ${TRAVIS_HOME}/gopath/src/#{host}/#{data[:repository][:slug]}/", echo: true] }
+    it { should include_sexp [:export, ['TRAVIS_BUILD_DIR', "${TRAVIS_HOME}/gopath/src/#{host}/#{data[:repository][:slug]}"], echo: true] }
+    it { should include_sexp [:cd, "${TRAVIS_HOME}/gopath/src/#{host}/#{data[:repository][:slug]}", assert: true, echo: true] }
   end
 
   describe 'with github.com' do
@@ -56,19 +56,19 @@ describe Travis::Build::Script::Go, :sexp do
 
   it 'installs the go version' do
     data[:config][:go] = 'go1.1'
-    should include_sexp [:cmd, 'GIMME_OUTPUT="$(gimme 1.1 | tee -a ${TRAVIS_BUILD_HOME}/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'GIMME_OUTPUT="$(gimme 1.1 | tee -a ${TRAVIS_HOME}/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
   end
 
   context "when go version is an array" do
     it "installs the first version specified" do
       data[:config][:go] = ['1.6']
-      should include_sexp [:cmd, 'GIMME_OUTPUT="$(gimme 1.6 | tee -a ${TRAVIS_BUILD_HOME}/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
+      should include_sexp [:cmd, 'GIMME_OUTPUT="$(gimme 1.6 | tee -a ${TRAVIS_HOME}/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
     end
   end
 
   it 'passes through arbitrary tag versions' do
     data[:config][:go] = 'release9000'
-    should include_sexp [:cmd, 'GIMME_OUTPUT="$(gimme release9000 | tee -a ${TRAVIS_BUILD_HOME}/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'GIMME_OUTPUT="$(gimme release9000 | tee -a ${TRAVIS_HOME}/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
   end
 
   it 'announces go version' do
@@ -84,7 +84,7 @@ describe Travis::Build::Script::Go, :sexp do
     'https://gist.githubusercontent.com/meatballhat/e2baf03f7ffae8047ccd/raw/f6d89b63eadb5faeeeed5b1bcd63c3fb60df3900/breakout.sh'
   ].each do |url|
     it "ignores invalid gimme_config.url #{url}" do
-      should include_sexp [:cmd, "curl -sL -o ${TRAVIS_BUILD_HOME}/bin/gimme '#{defaults[:gimme_config][:url]}'"]
+      should include_sexp [:cmd, "curl -sL -o ${TRAVIS_HOME}/bin/gimme '#{defaults[:gimme_config][:url]}'"]
     end
   end
 

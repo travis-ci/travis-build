@@ -93,7 +93,7 @@ module Travis
 
         def before_configure
           sh.echo "Configuring default apt-get retries", ansi: :yellow
-          sh.if '-d ${TRAVIS_BUILD_ROOT}/var/lib/apt/lists && -n $(command -v apt-get)' do
+          sh.if '-d ${TRAVIS_ROOT}/var/lib/apt/lists && -n $(command -v apt-get)' do
             tmp_dest = '${TRAVIS_TMPDIR}/99-travis-build-retries'
             sh.file tmp_dest, <<~APT_CONF
               Acquire {
@@ -104,7 +104,7 @@ module Travis
                 };
               };
             APT_CONF
-            sh.cmd "sudo mv #{tmp_dest} ${TRAVIS_BUILD_ROOT}/etc/apt/apt.conf.d"
+            sh.cmd "sudo mv #{tmp_dest} ${TRAVIS_ROOT}/etc/apt/apt.conf.d"
           end
         end
 
@@ -160,7 +160,7 @@ module Travis
                 else
                   sh.cmd "curl -sSL \"#{safelisted_source_key_url(source).untaint}\" | sudo -E apt-key add -", echo: true, assert: true, timing: true
                   # Avoid adding deb-src lines to work around https://bugs.launchpad.net/ubuntu/+source/software-properties/+bug/987264
-                  sh.cmd "echo #{sourceline.inspect} | sudo tee -a ${TRAVIS_BUILD_ROOT}/etc/apt/sources.list >/dev/null", echo: true, assert: true, timing: true
+                  sh.cmd "echo #{sourceline.inspect} | sudo tee -a ${TRAVIS_ROOT}/etc/apt/sources.list >/dev/null", echo: true, assert: true, timing: true
                 end
               end
             end
@@ -193,7 +193,7 @@ module Travis
               sh.if '$result -ne 0' do
                 sh.fold 'apt-get.diagnostics' do
                   sh.echo "apt-get install failed", ansi: :red
-                  sh.cmd 'cat ${TRAVIS_BUILD_HOME}/apt-get-update.log', echo: true
+                  sh.cmd 'cat ${TRAVIS_HOME}/apt-get-update.log', echo: true
                 end
                 sh.raw "TRAVIS_CMD='#{command}'"
                 sh.raw "travis_assert $result"

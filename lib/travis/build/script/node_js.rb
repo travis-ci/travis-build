@@ -92,7 +92,7 @@ module Travis
           if data.cache?(:yarn)
             sh.fold 'cache.yarn' do
               sh.echo ''
-              directory_cache.add '${TRAVIS_BUILD_HOME}/.cache/yarn'
+              directory_cache.add '${TRAVIS_HOME}/.cache/yarn'
             end
           end
         end
@@ -163,7 +163,7 @@ module Travis
           def update_nvm
             return if app_host.empty?
             sh.echo "Updating nvm", ansi: :yellow, timing: false
-            nvm_dir = "${TRAVIS_BUILD_HOME}/.nvm"
+            nvm_dir = "${TRAVIS_HOME}/.nvm"
             sh.raw "mkdir -p #{nvm_dir}"
             sh.raw "curl -s -o #{nvm_dir}/nvm.sh   https://#{app_host}/files/nvm.sh".untaint,   assert: false
             sh.raw "curl -s -o #{nvm_dir}/nvm-exec https://#{app_host}/files/nvm-exec".untaint, assert: false
@@ -172,7 +172,7 @@ module Travis
           end
 
           def npm_disable_prefix
-            sh.if "$(command -v sw_vers) && -f ${TRAVIS_BUILD_HOME}/.npmrc" do
+            sh.if "$(command -v sw_vers) && -f ${TRAVIS_HOME}/.npmrc" do
               sh.cmd "npm config delete prefix"
             end
           end
@@ -252,7 +252,7 @@ module Travis
                     sh.echo   "Installing yarn", ansi: :green
                     sh.cmd    "curl -o- -L https://yarnpkg.com/install.sh | bash", echo: true, timing: true
                     sh.echo   "Setting up \\$PATH", ansi: :green
-                    sh.export "PATH", "${TRAVIS_BUILD_HOME}/.yarn/bin:$PATH"
+                    sh.export "PATH", "${TRAVIS_HOME}/.yarn/bin:$PATH"
                   end
                 end
               end

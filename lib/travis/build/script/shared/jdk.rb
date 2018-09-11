@@ -9,7 +9,7 @@ module Travis
               download_install_jdk
 
               sh.if "-f install-jdk.sh" do
-                sh.export "JAVA_HOME", "${TRAVIS_BUILD_HOME}/#{jdk}"
+                sh.export "JAVA_HOME", "${TRAVIS_HOME}/#{jdk}"
                 sh.cmd "bash install-jdk.sh #{install_jdk_args config[:jdk]} --target $JAVA_HOME --workspace #{cache_dir}", echo: true, assert: true
                 sh.export "PATH", "$JAVA_HOME/bin:$PATH"
                 sh.raw 'set +e', echo: false
@@ -91,7 +91,7 @@ module Travis
           end
 
           def cache_dir
-            "${TRAVIS_BUILD_HOME}/.cache/install-jdk"
+            "${TRAVIS_HOME}/.cache/install-jdk"
           end
       end
     end

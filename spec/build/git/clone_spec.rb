@@ -11,7 +11,7 @@ describe Travis::Build::Git::Clone, :sexp do
   let(:branch) { payload[:job][:branch] || 'master' }
 
   let(:oauth_token) { 'abcdef01234' }
-  let(:netrc)  { /echo -e "machine #{host}\\n  login #{oauth_token}\\n" > \${TRAVIS_BUILD_HOME}\/\.netrc/ }
+  let(:netrc)  { /echo -e "machine #{host}\\n  login #{oauth_token}\\n" > \${TRAVIS_HOME}\/\.netrc/ }
   let(:host)   { 'github.com' }
 
   before :each do

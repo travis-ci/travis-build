@@ -23,7 +23,7 @@ module Travis
         api_token: ENV.fetch(
           'TRAVIS_BUILD_API_TOKEN', ENV.fetch('API_TOKEN', '')
         ),
-        app_host: ENV.fetch('TRAVIS_BUILD_APP_HOST', ''),
+        app_host: ENV.fetch('TRAVIS_APP_HOST', ''),
         apt_mirrors: {
           ec2: ENV.fetch(
             'TRAVIS_BUILD_APT_MIRRORS_EC2',
@@ -55,12 +55,15 @@ module Travis
           'https://%{app_host}/files/gpg/%{source_alias}.asc'
         ),
         apt_safelist_skip: ENV.fetch('TRAVIS_BUILD_APT_SAFELIST_SKIP', '') == 'true',
-        cabal_default: ENV.fetch('TRAVIS_BUILD_CABAL_DEFAULT', '2.0'),
         auth_disabled: ENV.fetch('TRAVIS_BUILD_AUTH_DISABLED', '') == 'true',
+        cabal_default: ENV.fetch('TRAVIS_BUILD_CABAL_DEFAULT', '2.0'),
         enable_debug_tools: ENV.fetch(
           'TRAVIS_BUILD_ENABLE_DEBUG_TOOLS',
           ENV.fetch('TRAVIS_ENABLE_DEBUG_TOOLS', '')
         ),
+        enable_infra_detection: ENV.fetch(
+          'TRAVIS_BUILD_ENABLE_INFRA_DETECTION', ''
+        ) == 'true',
         etc_hosts_pinning: ENV.fetch(
           'TRAVIS_BUILD_ETC_HOSTS_PINNING', ENV.fetch('ETC_HOSTS_PINNING', '')
         ),

@@ -1,7 +1,7 @@
 travis_internal_ruby() {
   if ! type rvm &>/dev/null; then
     # shellcheck source=/dev/null
-    source "${TRAVIS_BUILD_HOME}/.rvm/scripts/rvm" &>/dev/null
+    source "${TRAVIS_HOME}/.rvm/scripts/rvm" &>/dev/null
   fi
   local i selected_ruby rubies_array_sorted rubies_array_len
   local rubies_array=()
@@ -10,7 +10,7 @@ travis_internal_ruby() {
   done < <(
     rvm list strings |
       while read -r v; do
-        if [[ ! "${v}" =~ ${TRAVIS_BUILD_INTERNAL_RUBY_REGEX} ]]; then
+        if [[ ! "${v}" =~ ${TRAVIS_INTERNAL_RUBY_REGEX} ]]; then
           continue
         fi
         v="${v//ruby-/}"

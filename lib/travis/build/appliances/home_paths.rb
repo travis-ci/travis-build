@@ -9,7 +9,7 @@ module Travis
           # container-based infrastructure.
           sh.cmd <<~BASH
             # apply :home_paths
-            for path_entry in ${TRAVIS_BUILD_HOME}/.local/bin ${TRAVIS_BUILD_HOME}/bin ; do
+            for path_entry in ${TRAVIS_HOME}/.local/bin ${TRAVIS_HOME}/bin ; do
               if [[ ${PATH%%:*} != ${path_entry} ]] ; then
                 export PATH="${path_entry}:$PATH"
               fi

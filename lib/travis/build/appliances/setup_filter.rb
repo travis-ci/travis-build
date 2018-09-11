@@ -49,7 +49,7 @@ module Travis
               export TRAVIS_FILTERED=pty
               %{curl}
               %{exports}
-              exec ruby ~/filter.rb "/usr/bin/env TERM=xterm /bin/bash --login ${TRAVIS_BUILD_HOME}/build.sh" %{args}
+              exec ruby ~/filter.rb "/usr/bin/env TERM=xterm /bin/bash --login ${TRAVIS_HOME}/build.sh" %{args}
             fi
           ),
           redirect_io: %(

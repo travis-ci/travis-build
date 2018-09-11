@@ -16,8 +16,8 @@ describe Travis::Build::Addons::Artifacts::Env do
 
   subject      { described_class.new(Travis::Build::Data.new(data), config) }
 
-  it 'prefixes $PATH with ${TRAVIS_BUILD_HOME}/bin' do
-    expect(subject.env['PATH']).to eql('${TRAVIS_BUILD_HOME}/bin:$PATH')
+  it 'prefixes $PATH with ${TRAVIS_HOME}/bin' do
+    expect(subject.env['PATH']).to eql('${TRAVIS_HOME}/bin:$PATH')
   end
 
   it 'replaces "-" with "_" in keys prior to merge' do

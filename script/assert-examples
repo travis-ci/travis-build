@@ -85,8 +85,8 @@ __check_evaluation() {
   rm -rf "${fake_homedir}/.travis" "${fake_root}"
   mkdir -p "${fake_homedir}/.travis" "${fake_root}"
   bash -c "
-    export TRAVIS_BUILD_ROOT=${fake_root}
-    export TRAVIS_BUILD_HOME=${fake_homedir}
+    export TRAVIS_ROOT=${fake_root}
+    export TRAVIS_HOME=${fake_homedir}
     export TRAVIS_BUILD_DIR=${fake_homedir}/build
 
     $(cat "${top}/lib/travis/build/bash/travis_setup_env.bash")

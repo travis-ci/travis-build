@@ -7,10 +7,10 @@ travis_disable_sudo() {
     chmod 4755 ${fake_sudo_dest}
     chown root:root ${fake_sudo_dest}
     mv ${fake_sudo_dest} ${real_sudo}
-    find ${TRAVIS_BUILD_ROOT} \\( -perm -4000 -o -perm -2000 \\) \\
+    find ${TRAVIS_ROOT} \\( -perm -4000 -o -perm -2000 \\) \\
       -a ! -name sudo \\
       -exec chmod a-s {} \\; 2>/dev/null &&
-      sed -e 's/^%.*//' -i.bak ${TRAVIS_BUILD_ROOT}/etc/sudoers &&
-      rm -f ${TRAVIS_BUILD_ROOT}/etc/sudoers.d/travis
+      sed -e 's/^%.*//' -i.bak ${TRAVIS_ROOT}/etc/sudoers &&
+      rm -f ${TRAVIS_ROOT}/etc/sudoers.d/travis
   "
 }

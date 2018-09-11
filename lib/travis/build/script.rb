@@ -195,22 +195,26 @@ module Travis
 
         def header
           sh.raw '#!/bin/bash'
-          sh.export 'TRAVIS_BUILD_ROOT', root, echo: false, assert: false
-          sh.export 'TRAVIS_BUILD_HOME', home_dir, echo: false, assert: false
+          sh.export 'TRAVIS_ROOT', root, echo: false, assert: false
+          sh.export 'TRAVIS_HOME', home_dir, echo: false, assert: false
           sh.export 'TRAVIS_BUILD_DIR', build_dir, echo: false, assert: false
-          sh.export 'TRAVIS_BUILD_INTERNAL_RUBY_REGEX', internal_ruby_regex_esc,
+          sh.export 'TRAVIS_INTERNAL_RUBY_REGEX', internal_ruby_regex_esc,
                     echo: false, assert: false
-          sh.export 'TRAVIS_BUILD_APP_HOST', app_host,
+          sh.export 'TRAVIS_APP_HOST', app_host,
                     echo: false, assert: false
+          if Travis::Build.config.enable_infra_detection?
+            sh.export 'TRAVIS_ENABLE_INFRA_DETECTION', 'true',
+                      echo: false, assert: false
+          end
 
           sh.raw bash('travis_preamble')
           sh.raw 'travis_preamble'
 
-          sh.file '${TRAVIS_BUILD_HOME}/.travis/job_stages',
+          sh.file '${TRAVIS_HOME}/.travis/job_stages',
                   "# travis_.+ functions:\n" +
                   TRAVIS_FUNCTIONS.map { |f| bash(f) }.join("\n")
 
-          sh.raw 'source ${TRAVIS_BUILD_HOME}/.travis/job_stages'
+          sh.raw 'source ${TRAVIS_HOME}/.travis/job_stages'
           sh.raw 'travis_setup_env'
           sh.raw 'travis_temporary_hacks'
         end

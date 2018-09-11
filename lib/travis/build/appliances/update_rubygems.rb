@@ -6,7 +6,7 @@ module Travis
       class UpdateRubygems < Base
         RUBYGEMS_BASELINE_VERSION='2.6.13'
         def apply
-          sh.file '${TRAVIS_BUILD_HOME}/.rvm/hooks/after_use', <<~RVMHOOK
+          sh.file '${TRAVIS_HOME}/.rvm/hooks/after_use', <<~RVMHOOK
             #!/bin/bash
             gem --help &>/dev/null || return 0
 
@@ -21,7 +21,7 @@ module Travis
             fi
           RVMHOOK
 
-          sh.cmd 'chmod +x ${TRAVIS_BUILD_HOME}/.rvm/hooks/after_use'
+          sh.cmd 'chmod +x ${TRAVIS_HOME}/.rvm/hooks/after_use'
         end
       end
     end

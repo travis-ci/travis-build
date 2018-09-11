@@ -93,20 +93,20 @@ MESSAGE
 
           sh.fold 'dart_install' do
             sh.echo 'Installing Dart', ansi: :yellow
-            sh.cmd "curl --connect-timeout 15 --retry 5 #{archive_url}/sdk/dartsdk-#{os}-x64-release.zip > ${TRAVIS_BUILD_HOME}/dartsdk.zip"
-            sh.cmd "unzip ${TRAVIS_BUILD_HOME}/dartsdk.zip -d ${TRAVIS_BUILD_HOME} > /dev/null"
-            sh.cmd "rm ${TRAVIS_BUILD_HOME}/dartsdk.zip"
-            sh.cmd 'export DART_SDK="${TRAVIS_BUILD_HOME}/dart-sdk"'
+            sh.cmd "curl --connect-timeout 15 --retry 5 #{archive_url}/sdk/dartsdk-#{os}-x64-release.zip > ${TRAVIS_HOME}/dartsdk.zip"
+            sh.cmd "unzip ${TRAVIS_HOME}/dartsdk.zip -d ${TRAVIS_HOME} > /dev/null"
+            sh.cmd "rm ${TRAVIS_HOME}/dartsdk.zip"
+            sh.cmd 'export DART_SDK="${TRAVIS_HOME}/dart-sdk"'
             sh.cmd 'export PATH="$DART_SDK/bin:$PATH"'
-            sh.cmd 'export PATH="${TRAVIS_BUILD_HOME}/.pub-cache/bin:$PATH"'
+            sh.cmd 'export PATH="${TRAVIS_HOME}/.pub-cache/bin:$PATH"'
           end
 
           if task[:install_dartium]
             sh.fold 'dartium_install' do
               sh.echo 'Installing Dartium', anis: :yellow
 
-              sh.cmd "mkdir ${TRAVIS_BUILD_HOME}/dartium"
-              sh.cmd "cd ${TRAVIS_BUILD_HOME}/dartium"
+              sh.cmd "mkdir ${TRAVIS_HOME}/dartium"
+              sh.cmd "cd ${TRAVIS_HOME}/dartium"
               sh.cmd "curl #{archive_url}/dartium/dartium-#{os}-x64-release.zip > dartium.zip"
               sh.cmd "unzip dartium.zip > /dev/null"
               sh.cmd "rm dartium.zip"
@@ -133,8 +133,8 @@ MESSAGE
               sh.echo 'Installing Content Shell', ansi: :yellow
 
               # Download and install Content Shell
-              sh.cmd "mkdir ${TRAVIS_BUILD_HOME}/content_shell"
-              sh.cmd "cd ${TRAVIS_BUILD_HOME}/content_shell"
+              sh.cmd "mkdir ${TRAVIS_HOME}/content_shell"
+              sh.cmd "cd ${TRAVIS_HOME}/content_shell"
               sh.cmd "curl #{archive_url}/dartium/content_shell-linux-x64-release.zip > content_shell.zip"
               sh.cmd "unzip content_shell.zip > /dev/null"
               sh.cmd "rm content_shell.zip"

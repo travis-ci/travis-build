@@ -208,7 +208,7 @@ describe Travis::Build::Addons::Apt, :sexp do
     end
 
     def apt_sources_append_command(sourceline)
-      "echo #{sourceline.inspect} | sudo tee -a ${TRAVIS_BUILD_ROOT}/etc/apt/sources.list >/dev/null"
+      "echo #{sourceline.inspect} | sudo tee -a ${TRAVIS_ROOT}/etc/apt/sources.list >/dev/null"
     end
 
     context 'with multiple safelisted sources' do

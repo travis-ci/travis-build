@@ -3,7 +3,7 @@ travis_munge_apt_sources() {
     return
   fi
 
-  local src="${TRAVIS_BUILD_ROOT}/etc/apt/sources.list"
+  local src="${TRAVIS_ROOT}/etc/apt/sources.list"
   src="${src//\/\//\/}"
   local tmp_dest="${TRAVIS_TMPDIR}/etc-apt-sources.list"
   tmp_dest="${tmp_dest//\/\//\/}"

@@ -36,9 +36,9 @@ module Travis
             sh.file "travis_debug.sh", bash('travis_debug', encode: true), decode: true
             sh.chmod '+x', "travis_debug.sh", echo: false
 
-            sh.mkdir "${TRAVIS_BUILD_HOME}/.ssh", echo: false, recursive: true
-            sh.cmd "cat /dev/zero | ssh-keygen -q -f ${TRAVIS_BUILD_HOME}/.ssh/tmate -N '' &> /dev/null", echo: false
-            sh.file "${TRAVIS_BUILD_HOME}/.tmate.conf", template("tmate.conf.erb", identity: "${TRAVIS_BUILD_HOME}/.ssh/tmate")
+            sh.mkdir "${TRAVIS_HOME}/.ssh", echo: false, recursive: true
+            sh.cmd "cat /dev/zero | ssh-keygen -q -f ${TRAVIS_HOME}/.ssh/tmate -N '' &> /dev/null", echo: false
+            sh.file "${TRAVIS_HOME}/.tmate.conf", template("tmate.conf.erb", identity: "${TRAVIS_HOME}/.ssh/tmate")
 
             sh.export 'PATH', "${PATH}:#{install_dir}", echo: false
 
@@ -62,7 +62,7 @@ module Travis
 
         private
           def install_dir
-            "${TRAVIS_BUILD_HOME}/.debug"
+            "${TRAVIS_HOME}/.debug"
           end
 
           # XXX the following does not apply to OSX

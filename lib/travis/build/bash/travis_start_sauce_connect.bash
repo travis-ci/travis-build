@@ -27,7 +27,7 @@ travis_start_sauce_connect() {
   esac
 
   sc_readyfile="sauce-connect-ready-${RANDOM}"
-  sc_logfile="${TRAVIS_BUILD_HOME}/sauce-connect.log"
+  sc_logfile="${TRAVIS_HOME}/sauce-connect.log"
   if [ ! -z "${TRAVIS_JOB_NUMBER}" ]; then
     sc_tunnel_id_arg="-i ${TRAVIS_JOB_NUMBER}"
   fi
