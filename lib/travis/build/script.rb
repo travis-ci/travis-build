@@ -198,8 +198,7 @@ module Travis
           sh.export 'TRAVIS_BUILD_ROOT', root, echo: false, assert: false
           sh.export 'TRAVIS_BUILD_HOME', home_dir, echo: false, assert: false
           sh.export 'TRAVIS_BUILD_DIR', build_dir, echo: false, assert: false
-          sh.export 'TRAVIS_BUILD_INTERNAL_RUBY_REGEX',
-                    Travis::Build.config.internal_ruby_regex.untaint.inspect,
+          sh.export 'TRAVIS_BUILD_INTERNAL_RUBY_REGEX', internal_ruby_regex_esc,
                     echo: false, assert: false
           sh.export 'TRAVIS_BUILD_APP_HOST', app_host,
                     echo: false, assert: false
@@ -214,6 +213,12 @@ module Travis
           sh.raw 'source ${TRAVIS_BUILD_HOME}/.travis/job_stages'
           sh.raw 'travis_setup_env'
           sh.raw 'travis_temporary_hacks'
+        end
+
+        def internal_ruby_regex_esc
+          @internal_ruby_regex_esc ||= Shellwords.escape(
+            Travis::Build.config.internal_ruby_regex.dup
+          )
         end
 
         def configure
