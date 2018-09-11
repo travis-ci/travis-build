@@ -39,7 +39,9 @@ jobs:
 before_install: gem install bundler
 before_script: bundle exec rake clean assets:precompile
 after_success: bundle exec codeclimate-test-reporter
-before_deploy: ./script/build-s3-index-html
+before_deploy:
+- sudo pip install -U -I Pygments
+- ./script/build-s3-index-html
 
 deploy:
   provider: s3
