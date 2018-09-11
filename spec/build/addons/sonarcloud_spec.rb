@@ -45,7 +45,7 @@ describe Travis::Build::Addons::Sonarcloud, :sexp do
 
     it { should_not include_sexp [:export, ['SONAR_GITHUB_TOKEN', 'mytoken' ]] }
     it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS',
-      "\"{ \\\"sonar.pullrequest.key\\\" : \\\"123\\\", \\\"sonar.pullrequest.branch\\\" : \\\"master\\\", \\\"sonar.pullrequest.base\\\" : \\\"master\\\", \\\"sonar.pullrequest.provider\\\" : \\\"GitHub\\\", \\\"sonar.pullrequest.github.repository\\\" : \\\"travis-ci/travis-ci\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
+      "\"{ \\\"sonar.pullrequest.key\\\" : \\\"123\\\", \\\"sonar.pullrequest.branch\\\" : \\\"master\\\", \\\"sonar.pullrequest.base\\\" : \\\"master\\\", \\\"sonar.pullrequest.provider\\\" : \\\"GitHub\\\", \\\"sonar.pullrequest.github.repository\\\" : \\\"#{data[:repository][:slug]}\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
   end
   
   describe 'new pull request to long branch' do
@@ -53,7 +53,7 @@ describe Travis::Build::Addons::Sonarcloud, :sexp do
 
     it { should_not include_sexp [:export, ['SONAR_GITHUB_TOKEN', 'mytoken' ]] }
     it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS',
-      "\"{ \\\"sonar.pullrequest.key\\\" : \\\"123\\\", \\\"sonar.pullrequest.branch\\\" : \\\"branch1\\\", \\\"sonar.pullrequest.base\\\" : \\\"master\\\", \\\"sonar.pullrequest.provider\\\" : \\\"GitHub\\\", \\\"sonar.pullrequest.github.repository\\\" : \\\"travis-ci/travis-ci\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
+      "\"{ \\\"sonar.pullrequest.key\\\" : \\\"123\\\", \\\"sonar.pullrequest.branch\\\" : \\\"branch1\\\", \\\"sonar.pullrequest.base\\\" : \\\"master\\\", \\\"sonar.pullrequest.provider\\\" : \\\"GitHub\\\", \\\"sonar.pullrequest.github.repository\\\" : \\\"#{data[:repository][:slug]}\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
   end
 
   describe 'deprecated pull request analysis' do
@@ -62,7 +62,7 @@ describe Travis::Build::Addons::Sonarcloud, :sexp do
 
     it { should include_sexp [:export, ['SONAR_GITHUB_TOKEN', 'mytoken' ]] }
     it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS',
-      "\"{ \\\"sonar.analysis.mode\\\" : \\\"preview\\\", \\\"sonar.github.repository\\\" : \\\"travis-ci/travis-ci\\\", \\\"sonar.github.pullRequest\\\" : \\\"123\\\", \\\"sonar.github.oauth\\\" : \\\"$SONAR_GITHUB_TOKEN\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
+      "\"{ \\\"sonar.analysis.mode\\\" : \\\"preview\\\", \\\"sonar.github.repository\\\" : \\\"#{data[:repository][:slug]}\\\", \\\"sonar.github.pullRequest\\\" : \\\"123\\\", \\\"sonar.github.oauth\\\" : \\\"$SONAR_GITHUB_TOKEN\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
   end
 
   describe 'deprecated pull request analysis with env var from settings' do
@@ -72,7 +72,7 @@ describe Travis::Build::Addons::Sonarcloud, :sexp do
     # it's already set in the env
     it { should_not include_sexp [:export, ['SONAR_GITHUB_TOKEN', 'mytoken' ]] }
     it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS',
-      "\"{ \\\"sonar.analysis.mode\\\" : \\\"preview\\\", \\\"sonar.github.repository\\\" : \\\"travis-ci/travis-ci\\\", \\\"sonar.github.pullRequest\\\" : \\\"123\\\", \\\"sonar.github.oauth\\\" : \\\"$SONAR_GITHUB_TOKEN\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
+      "\"{ \\\"sonar.analysis.mode\\\" : \\\"preview\\\", \\\"sonar.github.repository\\\" : \\\"#{data[:repository][:slug]}\\\", \\\"sonar.github.pullRequest\\\" : \\\"123\\\", \\\"sonar.github.oauth\\\" : \\\"$SONAR_GITHUB_TOKEN\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
   end
 
   describe 'deprecated pull request analysis with env var from yml' do
@@ -82,7 +82,7 @@ describe Travis::Build::Addons::Sonarcloud, :sexp do
     # it's already set in the env
     it { should_not include_sexp [:export, ['SONAR_GITHUB_TOKEN', 'mytoken' ]] }
     it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS',
-      "\"{ \\\"sonar.analysis.mode\\\" : \\\"preview\\\", \\\"sonar.github.repository\\\" : \\\"travis-ci/travis-ci\\\", \\\"sonar.github.pullRequest\\\" : \\\"123\\\", \\\"sonar.github.oauth\\\" : \\\"$SONAR_GITHUB_TOKEN\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
+      "\"{ \\\"sonar.analysis.mode\\\" : \\\"preview\\\", \\\"sonar.github.repository\\\" : \\\"#{data[:repository][:slug]}\\\", \\\"sonar.github.pullRequest\\\" : \\\"123\\\", \\\"sonar.github.oauth\\\" : \\\"$SONAR_GITHUB_TOKEN\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
   end
 
   describe 'add organization' do

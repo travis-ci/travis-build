@@ -2,7 +2,7 @@ require 'fileutils'
 
 module SpecHelpers
   module Sexp
-    include Travis::Build::Bash
+    INTEGRATION_MAGIC_COMMENT = "\n\n# TRAVIS-BUILD INTEGRATION EXAMPLE MAGIC COMMENT\n"
 
     def sexp_fold(fold, sexp)
       [:fold, fold, [:cmds, [sexp]]]
@@ -45,9 +45,9 @@ module SpecHelpers
       lft.is_a?(String) && rgt.is_a?(Regexp) ? lft =~ rgt : sexp == part
     end
 
-    def store_example(name = nil)
+    def store_example(name: nil, integration: false)
       const_name = described_class.name.split('::').last.gsub(/([A-Z]+)/,'_\1').gsub(/^_/, '').downcase
-      name = [const_name, name].compact.join('-').gsub(' ', '_')
+      name = [const_name, name, integration ? 'integration' : nil].compact.join('-').gsub(' ', '_')
 
       if described_class < Travis::Build::Script
         type = :build
@@ -59,6 +59,7 @@ module SpecHelpers
 
       FileUtils.mkdir_p('examples') unless File.directory?('examples')
       File.open("examples/#{type}-#{name}.bash.txt", 'w+') do |f|
+        code += INTEGRATION_MAGIC_COMMENT if integration
         f.write(code)
       end
     end

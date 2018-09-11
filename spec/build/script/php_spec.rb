@@ -63,7 +63,7 @@ describe Travis::Build::Script::Php, :sexp do
 
   context 'with php 5.3' do
     before { data[:config][:php] = '5.3' }
-    after { store_example "5.3" }
+    after { store_example(name: '5.3') }
     describe 'does not write ~/.pearrc' do
       it { should_not include_sexp [:echo, 'Writing ${TRAVIS_BUILD_HOME}/.pearrc', ansi: :yellow] }
     end
@@ -102,7 +102,7 @@ describe Travis::Build::Script::Php, :sexp do
     before { data[:config][:php] = 'hhvm-nightly' }
     it { should include_sexp [:cmd, 'travis_apt_get_update'] }
     it { should include_sexp [:cmd, 'sudo apt-get install hhvm-nightly -y 2>&1 >/dev/null'] }
-    it { store_example "hhvm-nightly" }
+    it { store_example(name: 'hhvm-nightly') }
   end
 
   describe 'installs specific hhvm version' do

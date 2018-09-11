@@ -6,7 +6,7 @@ describe Travis::Build::Env do
       pull_request: '100',
       config: { env: ['FOO=foo', 'SECURE BAR=bar'] },
       build: { id: '1', number: '1' },
-      job: { id: '1', number: '1.1', branch: 'foo-(dev)', commit: '313f61b', commit_range: '313f61b..313f61a', commit_message: 'the commit message', os: 'linux' },
+      job: { id: '1', number: '1.1', branch: 'foo-(dev)', commit: '03148a8', commit_range: '03148a8..f9da1fd', commit_message: 'the commit message', os: 'linux' },
       repository: { slug: 'travis-ci/travis-ci' },
       env_vars: [
         { name: 'BAM', value: 'bam', public: true },
@@ -96,7 +96,7 @@ describe Travis::Build::Env do
   describe 'TRAVIS_BUILD_DIR' do
     it "does not escape #{Travis::Build::BUILD_DIR}" do
       expect(vars.find {|var| var.key == 'TRAVIS_BUILD_DIR'}.value).
-        to eq("#{Travis::Build::BUILD_DIR}/travis-ci/travis-ci")
+        to eq("#{Travis::Build::BUILD_DIR}/#{payload[:repository][:slug]}")
     end
 
     it 'escapes the repository slug' do

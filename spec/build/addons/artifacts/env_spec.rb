@@ -45,7 +45,7 @@ describe Travis::Build::Addons::Artifacts::Env do
   end
 
   it 'defaults :target_paths to' do
-    expect(subject.env['ARTIFACTS_TARGET_PATHS']).to eql('travis-ci/travis-ci/1/1.1')
+    expect(subject.env['ARTIFACTS_TARGET_PATHS']).to eql("#{data[:repository][:slug]}/1/1.1")
   end
 
   it 'forces concurrency to 5' do

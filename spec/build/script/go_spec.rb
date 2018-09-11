@@ -36,10 +36,10 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   shared_examples 'gopath fix' do
-    it { should include_sexp [:mkdir, "${TRAVIS_BUILD_HOME}/gopath/src/#{host}/travis-ci/travis-ci", echo: true, recursive: true] }
-    it { should include_sexp [:cmd, "rsync -az ${TRAVIS_BUILD_DIR}/ ${TRAVIS_BUILD_HOME}/gopath/src/#{host}/travis-ci/travis-ci/", echo: true] }
-    it { should include_sexp [:export, ['TRAVIS_BUILD_DIR', "${TRAVIS_BUILD_HOME}/gopath/src/#{host}/travis-ci/travis-ci"], echo: true] }
-    it { should include_sexp [:cd, "${TRAVIS_BUILD_HOME}/gopath/src/#{host}/travis-ci/travis-ci", assert: true, echo: true] }
+    it { should include_sexp [:mkdir, "${TRAVIS_BUILD_HOME}/gopath/src/#{host}/#{data[:repository][:slug]}", echo: true, recursive: true] }
+    it { should include_sexp [:cmd, "rsync -az ${TRAVIS_BUILD_DIR}/ ${TRAVIS_BUILD_HOME}/gopath/src/#{host}/#{data[:repository][:slug]}/", echo: true] }
+    it { should include_sexp [:export, ['TRAVIS_BUILD_DIR', "${TRAVIS_BUILD_HOME}/gopath/src/#{host}/#{data[:repository][:slug]}"], echo: true] }
+    it { should include_sexp [:cd, "${TRAVIS_BUILD_HOME}/gopath/src/#{host}/#{data[:repository][:slug]}", assert: true, echo: true] }
   end
 
   describe 'with github.com' do

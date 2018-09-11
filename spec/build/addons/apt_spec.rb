@@ -124,7 +124,7 @@ describe Travis::Build::Addons::Apt, :sexp do
     context 'with multiple safelisted packages' do
       let(:apt_config) { { packages: ['git', 'curl'] } }
 
-      it { store_example("safelisted")}
+      it { store_example(name: 'safelisted') }
 
       it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true] }
     end
@@ -267,7 +267,7 @@ describe Travis::Build::Addons::Apt, :sexp do
     let(:apt_config) { { config: { retries: true } } }
     before { addon.before_configure }
 
-    it { store_example "retries" }
+    it { store_example(name: 'retries') }
 
     it { should include_sexp [:echo, "Configuring default apt-get retries", ansi: :yellow] }
   end

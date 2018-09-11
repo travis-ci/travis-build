@@ -48,7 +48,9 @@ describe Travis::Build::Script, :sexp do
     end
 
     it 'if s3_options are tainted' do
-      payload['cache_options']['s3']['access_key_id'].taint
+      access_key_id = payload['cache_options']['s3']['access_key_id'].dup
+      access_key_id.taint
+      payload['cache_options']['s3']['access_key_id'] = access_key_id
       expect { code }.to_not raise_error
     end
   end

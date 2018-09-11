@@ -36,8 +36,8 @@ describe Travis::Build::Git, :sexp do
   end
 
   shared_examples 'clones via' do |protocol|
-    let(:ssh)   { 'git@github.com:travis-ci/travis-ci.git' }
-    let(:https) { 'https://github.com/travis-ci/travis-ci.git' }
+    let(:ssh)   { "git@github.com:#{payload[:repository][:slug]}.git" }
+    let(:https) { "https://github.com/#{payload[:repository][:slug]}.git" }
     let(:cmd)   { [:cmd, /git clone.* #{send(protocol)}/] }
 
     it 'clones via ssh' do

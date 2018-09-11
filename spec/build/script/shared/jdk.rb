@@ -47,7 +47,7 @@ shared_examples_for 'a jdk build sexp' do
       data[:config][:jdk] = 'oraclejdk11'
     end
 
-    it { store_example "oraclejdk11" }
+    it { store_example(name: 'oraclejdk11') }
 
     it "downloads install-jdk.sh" do
       should include_sexp( [:export, ["JAVA_HOME", "${TRAVIS_BUILD_HOME}/oraclejdk11"], echo: true] )

@@ -39,6 +39,15 @@ jobs:
 before_install: gem install bundler
 before_script: bundle exec rake clean assets:precompile
 after_success: bundle exec codeclimate-test-reporter
+after_failure: |
+  for f in tmp/assert-examples-build-logs/*; do
+    if [[ ! -s "${f}" ]]; then
+      continue;
+    fi
+    echo "---> ${f}:";
+    cat "${f}";
+  done
+
 before_deploy:
 - sudo pip install -U -I Pygments
 - ./script/build-s3-index-html

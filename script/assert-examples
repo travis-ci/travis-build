@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -o errexit
+set -o pipefail
 
 main() {
   local e=0
@@ -11,12 +12,12 @@ main() {
   local build_logs_dir="${top}/tmp/assert-examples-build-logs"
 
   cd "${top}"
+  rm -rf "${build_logs_dir}"
   mkdir -p \
     "${fake_homedir}/.travis" \
     "${fake_root}" \
     "${build_logs_dir}" \
     "${examples_dir}"
-  #export HOME="${fake_homedir}"
 
   for f in $(__list_build_examples "${examples_dir}"); do
     echo >"${fake_homedir}/.travis/job_stages"
@@ -118,14 +119,32 @@ __check_execution() {
       "${docker_image}" /sbin/init
   )"
   log "checking execution of ${f}"
-  docker exec --user travis "${cid}" \
+  if docker exec --user travis "${cid}" \
     bash -c "
       echo >/var/tmp/build.log &&
-        cp -v /examples/$(basename "${f}") ~/build.sh &&
-        bash ~/build.sh &>/var/tmp/build.log
-    " || e=$((e + 1))
-  docker cp "${cid}:/var/tmp/build.log" "${logdest}"
-  docker rm -f "${cid}"
+        cp /examples/$(basename "${f}") ~/build.sh &&
+        bash ~/build.sh 2>&1 | tee /var/tmp/build.log" | __logdots; then
+    docker cp "${cid}:/var/tmp/build.log" "${logdest}"
+    docker rm -f "${cid}" &>/dev/null
+  else
+    log "ERROR: execution failed for ${f} (see log: ${logdest})"
+    e=$((e + 1))
+  fi
+}
+
+__logdots() {
+  local start_time loop_time
+  start_time="$(date +%s)"
+  echo -n .
+  while read -r _; do
+    loop_time="$(date +%s)"
+    if [[ $((loop_time - start_time)) -lt 5 ]]; then
+      continue
+    fi
+    echo -n .
+    sleep 1
+  done
+  echo
 }
 
 main "${@}"
