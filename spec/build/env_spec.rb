@@ -4,13 +4,13 @@ describe Travis::Build::Env do
   let(:payload) do
     {
       pull_request: '100',
-      config: { env: ['FOO=foo', 'SECURE BAR=bar'] },
+      config: { env: ['FOO=foo', 'SECURE BAR=bar\\'] },
       build: { id: '1', number: '1' },
       job: { id: '1', number: '1.1', branch: 'foo-(dev)', commit: '03148a8', commit_range: '03148a8..f9da1fd', commit_message: 'the commit message', os: 'linux' },
       repository: { slug: 'travis-ci/travis-ci' },
       env_vars: [
         { name: 'BAM', value: 'bam', public: true },
-        { name: 'BAZ', value: 'baz', public: false },
+        { name: 'BAZ', value: 'baz\\', public: false },
       ]
     }
   end
@@ -34,6 +34,10 @@ describe Travis::Build::Env do
 
     describe 'for secure env jobs' do
       before { payload[:job][:secure_env_enabled] = true }
+
+      it 'escapes values' do
+        expect(vars.last.value).to eq("bar\\\\")
+      end
 
       it 'includes secure vars' do
         expect(keys).to include('BAR')
@@ -66,6 +70,10 @@ describe Travis::Build::Env do
 
     describe 'for secure env jobs' do
       before { payload[:job][:secure_env_enabled] = true }
+
+      it 'escapes values' do
+        expect(vars.last.value).to eq("baz\\\\")
+      end
 
       it 'includes secure vars' do
         expect(keys).to include('BAZ')
