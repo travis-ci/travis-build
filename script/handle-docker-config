@@ -17,13 +17,15 @@ main() {
     exit 0
   fi
 
+  log 'resolving key and iv'
   local key iv
   key="$(eval "echo \${encrypted_${DOCKER_CONF_TARBALL_ENC_VAR}_key}")"
   iv="$(eval "echo \${encrypted_${DOCKER_CONF_TARBALL_ENC_VAR}_iv}")"
 
+  log "decrypting & expanding ${tbz_enc}"
   openssl aes-256-cbc -K "${key}" -iv "${iv}" \
-    -in "${tbz_enc}" -out "${top}/.docker.tar.bz2" -d
-  tar -C "${top}" -xvf "${top}/.docker.tar.bz2"
+    -in "${tbz_enc}" -out "${top}/.docker.tar.bz2" -d >&2
+  tar -C "${top}" -xf "${top}/.docker.tar.bz2" >&2
 
   echo "export DOCKER_CERT_PATH='${top}/.docker';"
   echo "export DOCKER_TLS_VERIFY=1;"
