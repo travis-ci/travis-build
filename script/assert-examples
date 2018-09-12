@@ -37,7 +37,7 @@ main() {
 
   eval "$("${top}/script/handle-docker-config")"
 
-  if ! docker version; then
+  if ! docker version &>/dev/null; then
     log 'ERROR: no docker client found'
     exit 1
   fi
