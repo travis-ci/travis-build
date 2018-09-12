@@ -9,6 +9,9 @@ env:
   global:
   - COVERAGE=1
   - RUBYOPT=-W0
+  - DOCKER_CONF_TARBALL_ENC_VAR=0cf1aca2b5f8
+  - DOCKER_HOST_IP=35.239.84.117
+  - DOCKER_HOST=staging-1-dockerd-org.gce-us-central1.travisci.net:2376
   matrix:
   - INTEGRATION_SPECS=0
   - INTEGRATION_SPECS=1
@@ -22,28 +25,15 @@ jobs:
   - script: ./script/docker-build-and-push
   include:
   - stage: test
-    sudo: required
-    dist: trusty
     env:
     script: ./script/validate-example-payloads-with-docker
   - stage: ':ship: it to Quay.io'
-    sudo: required
-    dist: trusty
     env:
     script: ./script/docker-build-and-push
     if: NOT type IN (pull_request) AND branch = master
 
-before_install: gem install bundler
 before_script: bundle exec rake clean assets:precompile
 after_success: bundle exec codeclimate-test-reporter
-after_failure: |
-  for f in tmp/assert-examples-build-logs/*; do
-    if [[ ! -s "${f}" ]]; then
-      continue;
-    fi
-    echo "---> ${f}:";
-    cat "${f}";
-  done
 
 before_deploy:
 - sudo pip install -U -I Pygments

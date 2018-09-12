@@ -35,6 +35,8 @@ main() {
     exit 0
   fi
 
+  __handle_docker_config "${top}"
+
   if ! docker version --format '{{""}}' &>/dev/null; then
     log 'ERROR: no docker client found'
     exit 1
@@ -119,38 +121,53 @@ __check_execution() {
 
   logdest="${build_logs_dir}/$(basename "${f}").log"
   rm -f "${logdest}"
-  cid="$(
-    docker run -d \
-      -v "${examples_dir}:/examples" \
-      "${docker_image}" /sbin/init
-  )"
+  cid="$(docker run -d "${docker_image}" /sbin/init)"
   log "checking execution of ${f}"
-  if docker exec --user travis "${cid}" \
+
+  trap "docker rm -f \"${cid}\" &>/dev/null" EXIT QUIT INT
+
+  docker exec --user travis "${cid}" sudo mkdir -p /examples
+  docker cp "${f}" "${cid}:/examples/$(basename "${f}")"
+  docker exec --user travis "${cid}" \
     bash -c "
       echo >/var/tmp/build.log &&
         cp /examples/$(basename "${f}") ~/build.sh &&
-        bash ~/build.sh 2>&1 | tee /var/tmp/build.log" | __logdots; then
-    docker cp "${cid}:/var/tmp/build.log" "${logdest}"
-    docker rm -f "${cid}" &>/dev/null
-  else
-    log "ERROR: execution failed for ${f} (see log: ${logdest})"
-    e=$((e + 1))
-  fi
+        bash ~/build.sh 2>&1 | tee /var/tmp/build.log
+    " &>"${logdest}"
 }
 
-__logdots() {
-  local start_time loop_time
-  start_time="$(date +%s)"
-  echo -n .
-  while read -r _; do
-    loop_time="$(date +%s)"
-    if [[ $((loop_time - start_time)) -lt 5 ]]; then
-      continue
+__handle_docker_config() {
+  local top="${1}"
+  if [[ ! "${DOCKER_CONF_TARBALL_ENC_VAR}" ]]; then
+    return
+  fi
+
+  if [[ ! -f "${top}/.docker.tar.bz2.enc" ]]; then
+    return
+  fi
+
+  local key iv
+  key="$(eval "echo \${encrypted_${DOCKER_CONF_TARBALL_ENC_VAR}_key}")"
+  iv="$(eval "echo \${encrypted_${DOCKER_CONF_TARBALL_ENC_VAR}_iv}")"
+
+  pushd "${top}" &>/dev/null
+
+  openssl aes-256-cbc -K "${key}" -iv "${iv}" \
+    -in .docker.tar.bz2.enc -out .docker.tar.bz2 -d
+  tar -xvf .docker.tar.bz2
+
+  export DOCKER_CERT_PATH="${top}/.docker"
+  export DOCKER_TLS_VERIFY=1
+  export DOCKER_TLS=1
+
+  if [[ "${DOCKER_HOST_IP}" && "${DOCKER_HOST}" ]]; then
+    local hostrec="${DOCKER_HOST_IP} ${DOCKER_HOST%%:*}"
+    if ! grep -q "^${hostrec}" /etc/hosts; then
+      echo "${hostrec}" | sudo tee -a /etc/hosts &>/dev/null
     fi
-    echo -n .
-    sleep 1
-  done
-  echo
+  fi
+
+  popd &>/dev/null
 }
 
 main "${@}"
