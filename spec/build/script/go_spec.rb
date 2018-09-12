@@ -101,7 +101,7 @@ describe Travis::Build::Script::Go, :sexp do
     end
   end
 
-  %w(1.3 1.5 1.6 1.9 1.10.x 1.x master).each do |recent_go_version|
+  %w(1.2 1.3 1.5 1.6 1.9 1.10.x 1.x master).each do |recent_go_version|
     describe "if no Makefile exists on #{recent_go_version}" do
       it 'installs with go get -t' do
         data[:config][:go] = recent_go_version
