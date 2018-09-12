@@ -37,7 +37,7 @@ main() {
 
   __handle_docker_config "${top}"
 
-  if ! docker version --format '{{""}}' &>/dev/null; then
+  if ! docker version; then
     log 'ERROR: no docker client found'
     exit 1
   fi
