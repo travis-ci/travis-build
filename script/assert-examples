@@ -164,7 +164,7 @@ __handle_docker_config() {
   if [[ "${DOCKER_HOST_IP}" && "${DOCKER_HOST}" ]]; then
     local hostrec="${DOCKER_HOST_IP} ${DOCKER_HOST%%:*}"
     if ! grep -q "^${hostrec}" /etc/hosts; then
-      echo "${hostrec}" | sudo tee -a /etc/hosts &>/dev/null
+      echo "${hostrec}" | sudo tee -a /etc/hosts
     fi
   fi
 
