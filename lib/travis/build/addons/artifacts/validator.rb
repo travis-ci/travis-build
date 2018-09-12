@@ -29,11 +29,15 @@ module Travis
             end
 
             def validate_push_request
-              error :pull_request if pull_request?
+              error :pull_request if pull_request? and not upload_pull_request?
             end
 
             def validate_branch
               error :branch_disabled, data.branch unless branch_runnable?
+            end
+
+            def upload_pull_request?
+              config[:upload_pull_request]
             end
 
             def pull_request?

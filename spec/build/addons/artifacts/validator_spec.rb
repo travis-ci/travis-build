@@ -16,6 +16,12 @@ describe Travis::Build::Addons::Artifacts::Validator do
       expect(subject).not_to be_valid
     end
 
+    it 'returns true for a pull request if upload_pull_request is enabled' do
+      config[:upload_pull_request] = true
+      data.stubs(:pull_request).returns '123'
+      expect(subject).to be_valid
+    end
+
     it 'adds an error message about pull requests being rejected' do
       data.stubs(:pull_request).returns '123'
       expect(errors).to eql([described_class::MSGS[:pull_request]])
