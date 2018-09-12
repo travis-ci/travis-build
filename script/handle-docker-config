@@ -35,8 +35,8 @@ main() {
     log "found \${DOCKER_HOST_IP} and \${DOCKER_HOST}"
     local hostrec="${DOCKER_HOST_IP} ${DOCKER_HOST%%:*}"
     if ! grep -q "^${hostrec}" /etc/hosts; then
-      log "adding host record ${hostrec}"
-      echo "${hostrec}" | sudo tee -a /etc/hosts &>/dev/null
+      log "adding host record '${hostrec}'"
+      printf '\n\n%s\n' "${hostrec}" | sudo tee -a /etc/hosts &>/dev/null
     fi
   fi
 }
