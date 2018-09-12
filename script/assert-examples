@@ -124,6 +124,7 @@ __check_execution() {
   cid="$(docker run -d "${docker_image}" /sbin/init)"
   log "checking execution of ${f}"
 
+  # shellcheck disable=SC2064
   trap "docker rm -f \"${cid}\" &>/dev/null" EXIT QUIT INT
 
   docker exec --user travis "${cid}" sudo mkdir -p /examples
