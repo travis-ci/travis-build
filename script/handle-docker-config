@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -o errexit
+
+main() {
+  local top
+  top="$(git rev-parse --show-toplevel)"
+
+  if [[ ! "${DOCKER_CONF_TARBALL_ENC_VAR}" ]]; then
+    log "missing \${DOCKER_CONF_TARBALL_ENC_VAR}"
+    exit 0
+  fi
+
+  local tbz_enc="${top}/.docker.tar.bz2.enc"
+
+  if [[ ! -f "${tbz_enc}" ]]; then
+    log "missing ${tbz_enc}"
+    exit 0
+  fi
+
+  local key iv
+  key="$(eval "echo \${encrypted_${DOCKER_CONF_TARBALL_ENC_VAR}_key}")"
+  iv="$(eval "echo \${encrypted_${DOCKER_CONF_TARBALL_ENC_VAR}_iv}")"
+
+  openssl aes-256-cbc -K "${key}" -iv "${iv}" \
+    -in "${tbz_enc}" -out "${top}/.docker.tar.bz2" -d
+  tar -C "${top}" -xvf "${top}/.docker.tar.bz2"
+
+  echo "export DOCKER_CERT_PATH='${top}/.docker';"
+  echo "export DOCKER_TLS_VERIFY=1;"
+  echo "export DOCKER_TLS=1;"
+
+  if [[ "${DOCKER_HOST_IP}" && "${DOCKER_HOST}" ]]; then
+    log "found \${DOCKER_HOST_IP} and \${DOCKER_HOST}"
+    local hostrec="${DOCKER_HOST_IP} ${DOCKER_HOST%%:*}"
+    if ! grep -q "^${hostrec}" /etc/hosts; then
+      log "adding host record ${hostrec}"
+      echo "${hostrec}" | sudo tee -a /etc/hosts &>/dev/null
+    fi
+  fi
+}
+
+log() {
+  printf "handle-docker-config: %s\\n" "${*}" >&2
+}
+
+main "${@}"

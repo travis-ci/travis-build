@@ -35,7 +35,7 @@ main() {
     exit 0
   fi
 
-  __handle_docker_config "${top}"
+  eval "$("${top}/script/handle-docker-config")"
 
   if ! docker version; then
     log 'ERROR: no docker client found'
@@ -135,40 +135,6 @@ __check_execution() {
         cp /examples/$(basename "${f}") ~/build.sh &&
         bash ~/build.sh 2>&1 | tee /var/tmp/build.log
     " &>"${logdest}"
-}
-
-__handle_docker_config() {
-  local top="${1}"
-  if [[ ! "${DOCKER_CONF_TARBALL_ENC_VAR}" ]]; then
-    return
-  fi
-
-  if [[ ! -f "${top}/.docker.tar.bz2.enc" ]]; then
-    return
-  fi
-
-  local key iv
-  key="$(eval "echo \${encrypted_${DOCKER_CONF_TARBALL_ENC_VAR}_key}")"
-  iv="$(eval "echo \${encrypted_${DOCKER_CONF_TARBALL_ENC_VAR}_iv}")"
-
-  pushd "${top}" &>/dev/null
-
-  openssl aes-256-cbc -K "${key}" -iv "${iv}" \
-    -in .docker.tar.bz2.enc -out .docker.tar.bz2 -d
-  tar -xvf .docker.tar.bz2
-
-  export DOCKER_CERT_PATH="${top}/.docker"
-  export DOCKER_TLS_VERIFY=1
-  export DOCKER_TLS=1
-
-  if [[ "${DOCKER_HOST_IP}" && "${DOCKER_HOST}" ]]; then
-    local hostrec="${DOCKER_HOST_IP} ${DOCKER_HOST%%:*}"
-    if ! grep -q "^${hostrec}" /etc/hosts; then
-      echo "${hostrec}" | sudo tee -a /etc/hosts
-    fi
-  fi
-
-  popd &>/dev/null
 }
 
 main "${@}"
