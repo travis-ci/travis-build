@@ -211,6 +211,7 @@ module Travis
       end
 
       def task_clean
+        rm_rf(top + 'examples')
         rm_rf(top + 'public/files')
         rm_rf(top + 'tmp/sc_data.json')
         rm_rf(top + 'tmp/ghc-versions.html')
