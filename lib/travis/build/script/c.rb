@@ -8,6 +8,7 @@ module Travis
 
         def export
           super
+          sh.export 'TRAVIS_COMPILER', compiler
           sh.export 'CC', compiler
           if data.cache?(:ccache)
             sh.export 'PATH', "/usr/lib/ccache:$PATH"
