@@ -3,17 +3,24 @@
 # Alexander Köplinger @akoeplinger     alex.koeplinger@outlook.com
 # Nicholas Terry      @nterry          nick.i.terry@gmail.com
 
+require_relative 'shared/dotnet'
+
 module Travis
   module Build
     class Script
       class Csharp < Script
+        include Dotnet
+
         DEFAULTS = {
           mono: 'latest',
           dotnet: 'none'
         }
 
         def config_dotnet
-          config[:dotnet].to_s
+          dotnet_version = config[:dotnet].to_s
+          if dotnet_version == 'latest'
+            return get_dotnet_core_sdk_version_latest()
+          end
         end
 
         def config_mono
