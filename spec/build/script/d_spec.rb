@@ -6,14 +6,14 @@ describe Travis::Build::Script::D, :sexp do
   subject      { script.sexp }
   it           { store_example }
 
-  after(:all) do
-    #store_example
-  end
-
   it_behaves_like 'a build script sexp'
 
   it 'downloads and runs the installer script' do
-    should include_sexp [:cmd, %r{curl.*https://dlang\.org/install\.sh},
+    should include_sexp [:cmd, %r{https://dlang\.org/install\.sh},
+                         assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, %r{https://nightlies\.dlang\.org/install\.sh},
+                         assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, %r{https://github\.com/dlang/installer/raw/stable/script/install\.sh},
                          assert: true, echo: true, timing: true]
     should include_sexp [:cmd, %r{source.*bash.*install\.sh.*--activate},
                          assert: true, echo: true, timing: true]

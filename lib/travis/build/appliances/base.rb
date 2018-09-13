@@ -6,7 +6,7 @@ module Travis
       class Base < Struct.new(:script)
         extend Forwardable
 
-        def_delegators :script, :sh, :data, :config
+        def_delegators :script, :sh, :data, :config, :app_host, :bash
 
         def apply?
           true

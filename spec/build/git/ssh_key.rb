@@ -28,6 +28,15 @@ describe Travis::Build::Git::SshKey, :sexp do
     it { should include_sexp [:echo, ['Installing an SSH key', "Key fingerprint: #{fingerprint}"]] }
   end
 
+  context 'when prefer_https? is set' do
+    before :each do
+      payload[:repository][:source_url] = "https://github.com/#{payload[:repository][:slug]}.git"
+      payload[:config][:source_key] = Base64.encode64(source_key)
+    end
+
+    it { should_not include_sexp [:echo, ['Installing an SSH key', "Key fingerprint: #{fingerprint}"]] }
+  end
+
   describe 'was not given' do
     it { should_not include_sexp add_source_key }
     it { should_not include_sexp chmod_id_rsa }

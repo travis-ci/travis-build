@@ -7,7 +7,6 @@ module Travis
     class Addons
       class Artifacts < Base
         SUPER_USER_SAFE = true
-        TEMPLATES_PATH = File.expand_path('templates', __FILE__.sub('.rb', ''))
 
         attr_reader :env, :options, :validator
 
@@ -19,7 +18,7 @@ module Travis
         end
 
         def after_header
-          sh.raw template('artifacts.sh')
+          sh.raw bash('travis_artifacts_install')
         end
 
         def after_after_script
@@ -31,22 +30,25 @@ module Travis
         private
 
           def run
-            sh.echo 'Uploading Artifacts (BETA)', ansi: :yellow
+            sh.echo 'Uploading Artifacts', ansi: :yellow
             sh.fold 'artifacts.setup' do
               install
               export
             end
-            # Disabled until we have better experience around download links
-            # See https://github.com/travis-ci/travis-build/commit/bf2164
-            # sh.fold 'artifacts.upload' do
-              upload
-            # end
+            upload
             sh.echo 'Done uploading artifacts', ansi: :yellow
           end
 
           def export
             env.each do |key, value|
-              sh.export key, value.inspect, echo: key == 'ARTIFACTS_PATHS'
+              if env.force?(key)
+                sh.export(key, value.inspect, echo: false)
+                next
+              end
+
+              sh.if(%(-z "${#{key}}")) do
+                sh.export key, value.inspect, echo: key == 'ARTIFACTS_PATHS'
+              end
             end
           end
 

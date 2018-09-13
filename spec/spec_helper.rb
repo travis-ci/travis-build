@@ -1,5 +1,4 @@
-require "codeclimate-test-reporter"
-CodeClimate::TestReporter.start
+ENV['ENV'] = 'test'
 
 require 'simplecov'
 require 'fileutils'
@@ -15,11 +14,11 @@ integration_enabled = ENV['INTEGRATION_SPECS'] == '1'
 ENV['TOP'] = `git rev-parse --show-toplevel`.strip if integration_enabled
 
 RSpec.configure do |c|
+  c.include SpecHelpers::Logger
   c.include SpecHelpers::Payload
   c.include SpecHelpers::Node, :include_node_helpers
   c.include SpecHelpers::Sexp, :sexp
   c.include SpecHelpers::Shell, :script
-  c.include SpecHelpers::StoreExample, :sexp
   c.include Sinatra::TestHelpers, :include_sinatra_helpers
 
   c.mock_with :mocha

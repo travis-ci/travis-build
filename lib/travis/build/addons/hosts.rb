@@ -13,6 +13,7 @@ module Travis
           sh.fold 'hosts.before' do
             sh.echo ""
             sh.cmd "cat #{HOSTS_FILE}"
+            sh.echo ""
           end
           sh.fold 'hosts' do
             sh.cmd "sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 #{hosts}/' #{HOSTS_FILE} > #{TEMP_HOSTS_FILE}"
@@ -21,6 +22,7 @@ module Travis
           sh.fold 'hosts.after' do
             sh.echo ""
             sh.cmd "cat #{HOSTS_FILE}"
+            sh.echo ""
           end
         end
 

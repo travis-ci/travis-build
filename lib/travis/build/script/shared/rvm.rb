@@ -14,9 +14,15 @@ module Travis
           rvm_remote_server_verify_downloads3=1
         )
 
+        RVM_VERSION_ALIASES = {
+          '2.3' => '2.3.7',
+          '2.4' => '2.4.4',
+          '2.5' => '2.5.1'
+        }
+
         def export
           super
-          sh.export 'TRAVIS_RUBY_VERSION', config[:rvm], echo: false if rvm?
+          sh.export 'TRAVIS_RUBY_VERSION', version, echo: false if rvm?
         end
 
         def setup
@@ -37,7 +43,7 @@ module Travis
         private
 
           def version
-            config[:rvm].to_s
+            Array(config[:rvm]).first.to_s
           end
 
           def rvm?
@@ -45,11 +51,15 @@ module Travis
           end
 
           def ruby_version
-            config[:rvm].to_s.gsub(/-(1[89]|2[01])mode$/, '-d\1')
+            vers = version.gsub(/-(1[89]|2[01])mode$/, '-d\1')
+            force_187_p371 vers
           end
 
           def setup_rvm
             write_default_gems
+            if without_teeny?(version)
+              setup_rvm_aliases
+            end
             sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false, timing: false)
             sh.file '$rvm_path/user/db', CONFIG.join("\n")
             send rvm_strategy
@@ -98,7 +108,18 @@ module Travis
           def use_ruby_version
             skip_deps_install if rbx?
             sh.fold('rvm') do
-              sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy"
+              if ruby_version.start_with? 'ree'
+                sh.if "! $(rvm list | grep ree)" do
+                  sh.echo "Installing REE from source. This may take a few minutes.", ansi: :yellow
+                  sh.cmd "sed -i 's|^\\(ree_1.8.7_url\\)=.*$|\\1=https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/rubyenterpriseedition|' ${TRAVIS_HOME}/.rvm/config/db"
+                  sh.cmd "rvm use #{ruby_version} --install --fuzzy"
+                end
+                sh.else do
+                  sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy"
+                end
+              else
+                sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy"
+              end
             end
           end
 
@@ -113,6 +134,24 @@ module Travis
           def write_default_gems
             sh.mkdir '$rvm_path/gemsets', recursive: true, echo: false
             sh.cmd 'echo -e "gem-wrappers\nrubygems-bundler\nbundler\nrake\nrvm\n" > $rvm_path/gemsets/global.gems', echo: false, timing: false
+            sh.cmd 'echo -e "jruby-openssl\njruby-launcher\ngem-wrappers\nrubygems-bundler\nbundler\nrake\nrvm\n" > $rvm_path/gemsets/jruby/global.gems', echo: false, timing: false
+          end
+
+          def force_187_p371(version)
+            version.gsub(/^1\.8\.7.*$/, '1.8.7-p371')
+          end
+
+          def setup_rvm_aliases
+            RVM_VERSION_ALIASES.select {|k,v| k == version}.each do |alias_version, real_version|
+              grep_str = alias_version.gsub('.', '\\\\\\.')
+              sh.if "-z $(rvm alias list | grep ^#{grep_str})" do
+                sh.cmd "rvm alias create #{alias_version} ruby-#{real_version}", echo: true, assert: true
+              end
+            end
+          end
+
+          def without_teeny?(version)
+            version =~ /\A(\d+)(\.\d+)\z/
           end
       end
     end

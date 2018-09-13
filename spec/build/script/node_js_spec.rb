@@ -26,7 +26,7 @@ describe Travis::Build::Script::NodeJs, :sexp do
       end
 
       context 'when nvm install fails' do
-        let(:sexp_if)      { sexp_filter(subject, [:if, '$? -ne 0'], [:then]) }
+        let(:sexp_if)      { sexp_filter(subject, [:if, '$? -ne 0'])[1] }
 
         it 'tries to use locally available version' do
           expect(sexp_if).to include_sexp [:cmd, 'nvm use 0.9', echo: true]
@@ -130,10 +130,10 @@ describe Travis::Build::Script::NodeJs, :sexp do
     end
   end
 
-  describe 'node 0.6.x' do
+  describe 'strict-ssl' do
     # let(:npm_set_strict_ssl) { [:cmd, 'npm conf set strict-ssl false', assert: true, echo: true] }
     let(:npm_set_strict_ssl) { [:cmd, 'npm conf set strict-ssl false', assert: true, echo: true, timing: true] }
-    ['0.6', '0.6.1', '0.6.99'].each do |version|
+    ['0.6', '0.6.1', '0.6.99', '0.8', '0.8.1', '0.8.99', '0.9', '0.9.1', '0.9.99'].each do |version|
       it "sets strict-ssl to false for node #{version}" do
         data[:config][:node_js] = version
         should include_sexp npm_set_strict_ssl
