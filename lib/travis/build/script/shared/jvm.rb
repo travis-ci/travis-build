@@ -9,8 +9,8 @@ module Travis
         }
 
         CLEANUPS = [
-          { directory: '$HOME/.ivy2', glob: "ivydata-*.properties"},
-          { directory: '$HOME/.sbt',  glob: "*.lock"}
+          { directory: '${TRAVIS_HOME}/.ivy2', glob: "ivydata-*.properties"},
+          { directory: '${TRAVIS_HOME}/.sbt',  glob: "*.lock"}
         ]
 
         def setup
@@ -18,7 +18,6 @@ module Travis
           CLEANUPS.each do |find_arg|
             sh.raw "find #{find_arg[:directory]} -name #{find_arg[:glob]} -delete 2>/dev/null"
           end
-          sh.export 'PATH', '$JAVA_HOME/bin:$PATH'
         end
 
         def install

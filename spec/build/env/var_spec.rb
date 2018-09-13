@@ -119,7 +119,7 @@ describe Travis::Build::Env::Var do
     end
 
     it 'some stuff, followed by "" with a space inside' do
-      expect(parse('KERNEL=a"$(find \"$HOME\" {} \;)" BAR="bar bar"')).to eq([['KERNEL', 'a"$(find \\"$HOME\\" {} \\;)"'], ['BAR', '"bar bar"']])
+      expect(parse('KERNEL=a"$(find \"${TRAVIS_HOME}\" {} \;)" BAR="bar bar"')).to eq([['KERNEL', 'a"$(find \\"${TRAVIS_HOME}\\" {} \\;)"'], ['BAR', '"bar bar"']])
     end
 
     it 'handle space after the initial $ in ()' do

@@ -1,14 +1,16 @@
 shared_examples_for 'show system info' do
   let(:sexp) { sexp_find(subject, [:fold, 'system_info']) }
 
-  let(:echo_notice)   { [:echo, "Build system information", ansi: :yellow] }
-  let(:echo_language) { [:echo, /Build language/] }
-  let(:echo_group)    { [:echo, 'Build group: dev'] }
-  let(:echo_dist)     { [:echo, 'Build dist: trusty'] }
-  let(:echo_build_id) { [:echo, /Build id: \d+/] }
-  let(:echo_job_id)   { [:echo, /Job id: \d+/] }
-  let(:path)          { '/usr/share/travis/system_info' }
-  let(:system_info)   { [:cmd, "cat #{path}"] }
+  let(:echo_notice)    { [:echo, "Build system information", ansi: :yellow] }
+  let(:echo_language)  { [:echo, /Build language/] }
+  let(:echo_group)     { [:echo, 'Build group: dev'] }
+  let(:echo_dist)      { [:echo, 'Build dist: trusty'] }
+  let(:echo_build_id)  { [:echo, /Build id: \d+/] }
+  let(:echo_job_id)    { [:echo, /Job id: \d+/] }
+  let(:path)           { '/usr/share/travis/system_info' }
+  let(:system_info)    { [:cmd, "cat #{path}"] }
+  let(:secondary_path) { '/usr/local/travis/system_info' }
+  let(:secondary_info) { [:cmd, "cat #{secondary_path}"] }
 
   it 'displays a header message' do
     expect(sexp).to include_sexp echo_notice
@@ -47,5 +49,10 @@ shared_examples_for 'show system info' do
   it 'runs command if the system info file exists' do
     branch = sexp_find(sexp, [:if, "-f #{path}"], [:then])
     expect(branch).to include_sexp system_info
+  end
+
+  it 'runs secondary command if the secondary system info file exists' do
+    branch = sexp_find(sexp, [:if, "-f #{secondary_path}"], [:then])
+    expect(branch).to include_sexp secondary_info
   end
 end

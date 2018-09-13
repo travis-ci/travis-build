@@ -1,40 +1,49 @@
-describe 'header.sh', integration: true do
+describe 'script header', integration: true do
   let(:top) { Pathname.new(ENV.fetch('TOP')) }
-  let(:header_sh) { top.join('./lib/travis/build/templates/header.sh') }
   let(:build_dir) { Dir.mktmpdir(%w(travis-build- -header-spec)) }
+  let(:data) { { config: { language: 'ruby' }, slug: 'example/test' } }
+  let(:script) { Travis::Build::Script.new(data) }
+
+  let(:pre_header) do
+    <<~PRE_HEADER
+      #!/bin/bash
+      sudo() { :; }
+      lsb_release() { echo xenial; }
+    PRE_HEADER
+  end
+
+  let :rendered do
+    Travis::Shell.generate(script.send(:sh).to_sexp, false)
+  end
+
+  let :bash_body do
+    script = %w[export]
+    rendered.split("\n").grep(/^'[a-z][a-z_]+\\\(\\\)\\ \\{'/).each do |func|
+      script << "type #{func.match(/^'(.+)\\\(\\\)\\ \\{'/)[1]}"
+    end
+    "\n" + script.join("\n")
+  end
+
+  let :bash_output do
+    IO.popen(
+      ['env', '-i', 'bash', '-c', rendered + bash_body, err: %i(child out)]
+    ).read
+  end
+
+  before do
+    script.send(:sh).raw(pre_header)
+    script.instance_variable_set(:@root, build_dir)
+    script.instance_variable_set(:@home_dir, build_dir)
+    script.instance_variable_set(:@build_dir, build_dir)
+    script.send(:header)
+  end
 
   after :each do
     FileUtils.rm_rf(build_dir)
   end
 
-  let :header_rendered do
-    Travis::Build::Template::Template.new(
-      build_dir: build_dir,
-      root: build_dir,
-      home: build_dir,
-      internal_ruby_regex: Travis::Build.config.internal_ruby_regex.untaint
-    ).render(header_sh)
-  end
-
-  let :bash_body do
-    script = ["source $HOME/.travis/job_stages", "export"]
-    header_sh.read.split("\n").grep(/^[a-z][a-z_]+\(\) \{/).each do |func|
-      script << "type #{func.match(/^(.+)\(\) \{/)[1]}"
-    end
-    script.join("\n")
-  end
-
-  let :bash_output do
-    IO.popen(
-      [
-        'env', '-i', "HOME=#{build_dir}",
-        'bash', '-c', header_rendered + bash_body, err: %i(child out)
-      ]
-    ).read
-  end
-
   it 'can render' do
-    expect(header_rendered).to_not be_empty
+    expect(rendered).to_not be_empty
   end
 
   %w(
@@ -59,7 +68,9 @@ describe 'header.sh', integration: true do
   {
     SHELL: /.+/, # nonempty
     TERM: 'xterm',
-    USER: 'travis'
+    USER: 'travis',
+    TRAVIS_OS_NAME: 'linux|osx',
+    TRAVIS_DIST: 'precise|trusty|xenial'
   }.each do |env_var, val|
     it "exports #{env_var}" do
       expect(bash_output).to match(/^declare -x #{env_var}="#{val}"$/)
@@ -70,19 +81,19 @@ describe 'header.sh', integration: true do
     let(:rubies) { [] }
 
     let :bash_body do
-      <<-EOF.gsub(/^\s+> ?/, '')
-        > source $HOME/.travis/job_stages
-        > rvm() {
-        >   if [[ $1 != list && $2 != strings ]]; then
-        >     return
-        >   fi
-        >   cat <<EORVM
-        > #{rubies.join("\n")}
-        > EORVM
-        > }
-        >
-        > echo $(travis_internal_ruby)
-      EOF
+      <<~BASH
+
+        rvm() {
+          if [[ $1 != list && $2 != strings ]]; then
+            return
+          fi
+          cat <<EORVM
+        #{rubies.join("\n")}
+        EORVM
+        }
+
+        travis_internal_ruby
+      BASH
     end
 
     context 'with a typical selection of preinstalled rubies' do

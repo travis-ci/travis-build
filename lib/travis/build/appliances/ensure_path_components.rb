@@ -6,15 +6,13 @@ module Travis
       class EnsurePathComponents < Base
 
         COMPONENTS = [
-          '$(yarn global bin | grep /)'
+          '$(yarn global bin 2>/dev/null | grep /)'
         ]
 
         def apply
           COMPONENTS.each do |pc|
-            sh.cmd <<-EOF
-pc=#{pc}
-if [[ -n $pc && ! :$PATH: =~ :$pc: ]]; then export PATH=$PATH:$pc; fi
-unset pc
+            sh.cmd <<~EOF
+              [[ -n "#{pc}" && ! :$PATH: =~ :#{pc}: ]] && export PATH="$PATH:#{pc}"
             EOF
           end
         end
