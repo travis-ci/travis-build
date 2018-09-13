@@ -6,10 +6,6 @@ describe Travis::Build::Script::D, :sexp do
   subject      { script.sexp }
   it           { store_example }
 
-  after(:all) do
-    #store_example
-  end
-
   it_behaves_like 'a build script sexp'
 
   it 'downloads and runs the installer script' do

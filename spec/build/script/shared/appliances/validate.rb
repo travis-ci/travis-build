@@ -14,7 +14,7 @@ shared_examples_for 'validates config' do
     it { should include_sexp fetch_error }
     it { should include_sexp terminate }
     it { should_not include_sexp run_script }
-    it { store_example 'config server error' if data[:config][:language] == :ruby }
+    it { store_example(name: 'config server error') if data[:config][:language] == :ruby }
   end
 
   describe 'not found' do
@@ -22,6 +22,6 @@ shared_examples_for 'validates config' do
     it { should include_sexp missing_config }
     it { should_not include_sexp terminate }
     it { should include_sexp run_script }
-    it { store_example 'config not found' if data[:config][:language] == :ruby }
+    it { store_example(name: 'config not found') if data[:config][:language] == :ruby }
   end
 end
