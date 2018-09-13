@@ -62,7 +62,7 @@ module Travis
           end
 
           def activate_file
-            "#{HOME_DIR}/otp/#{otp_release}/activate"
+            "${TRAVIS_HOME}/otp/#{otp_release}/activate"
           end
 
           def archive_name(release)
@@ -74,12 +74,12 @@ module Travis
             sh.echo "#{release} is not installed. Downloading and installing pre-build binary.", ansi: :yellow
 
             sh.echo "Downloading archive: ${archive_url}", ansi: :yellow
-            sh.cmd "wget -o $HOME/erlang.tar.bz2 ${archive_url}"
+            sh.cmd "wget -o ${TRAVIS_HOME}/erlang.tar.bz2 ${archive_url}"
             sh.cmd "mkdir -p ~/otp && tar -xf #{archive_name(release)} -C ~/otp/", echo: true
             sh.cmd "mkdir -p ~/.kerl", echo: true
             sh.cmd "echo '#{release},#{release}' >> ~/.kerl/otp_builds", echo: true
-            sh.cmd "echo '#{release} #{HOME_DIR}/otp/#{release}' >> ~/.kerl/otp_builds", echo: true
-            sh.raw "rm -f $HOME/erlang.tar.bz2"
+            sh.cmd "echo '#{release} ${TRAVIS_HOME}/otp/#{release}' >> ~/.kerl/otp_builds", echo: true
+            sh.raw "rm -f ${TRAVIS_HOME}/erlang.tar.bz2"
           end
       end
     end

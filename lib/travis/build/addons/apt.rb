@@ -93,20 +93,19 @@ module Travis
 
         def before_configure
           sh.echo "Configuring default apt-get retries", ansi: :yellow
-          sh.raw <<~EOF
-          if [[ -d /var/lib/apt/lists && -n $(command -v apt-get) ]]; then
-            cat <<-EOS > 99-travis-build-retries
-          Acquire {
-            ForceIPv4 "1";
-            Retries "5";
-            https {
-              Timeout "30";
-            };
-          };
-          EOS
-            sudo mv 99-travis-build-retries /etc/apt/apt.conf.d
-          fi
-          EOF
+          sh.if '-d ${TRAVIS_ROOT}/var/lib/apt/lists && -n $(command -v apt-get)' do
+            tmp_dest = '${TRAVIS_TMPDIR}/99-travis-build-retries'
+            sh.file tmp_dest, <<~APT_CONF
+              Acquire {
+                ForceIPv4 "1";
+                Retries "5";
+                https {
+                  Timeout "30";
+                };
+              };
+            APT_CONF
+            sh.cmd "sudo mv #{tmp_dest} ${TRAVIS_ROOT}/etc/apt/apt.conf.d"
+          end
         end
 
         private
@@ -154,7 +153,6 @@ module Travis
             end
 
             unless safelisted.empty?
-              sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
               safelisted.each do |source|
                 sourceline = source['sourceline'].untaint
                 if sourceline.start_with?('ppa:')
@@ -162,7 +160,7 @@ module Travis
                 else
                   sh.cmd "curl -sSL \"#{safelisted_source_key_url(source).untaint}\" | sudo -E apt-key add -", echo: true, assert: true, timing: true
                   # Avoid adding deb-src lines to work around https://bugs.launchpad.net/ubuntu/+source/software-properties/+bug/987264
-                  sh.cmd "echo #{sourceline.inspect} | sudo tee -a /etc/apt/sources.list >/dev/null", echo: true, assert: true, timing: true
+                  sh.cmd "echo #{sourceline.inspect} | sudo tee -a ${TRAVIS_ROOT}/etc/apt/sources.list >/dev/null", echo: true, assert: true, timing: true
                 end
               end
             end
@@ -185,33 +183,17 @@ module Travis
                 stop_postgresql
               end
 
-              sh.export 'DEBIAN_FRONTEND', 'noninteractive', echo: true
-              sh.cmd "sudo -E apt-get -yq update &>> ~/apt-get-update.log", echo: true, timing: true
-              # NOTE: set `--allow-.+` options if apt version is >= 1.2 or 2.x+
-              apt_opt_cmd = <<~APT_OPTS_RETRIEVAL
-              TRAVIS_APT_OPTS="$(
-                apt-get --version | awk '
-                  $1 == "apt" {
-                    split($2, apt, ".")
-                    if ((apt[1]==1 && apt[2]>=2) || apt[1]>1) {
-                      print "--allow-downgrades --allow-remove-essential --allow-change-held-packages"
-                    }
-                    else {print "--force-yes"}
-                    exit
-                  }
-                '
-              )"
-              APT_OPTS_RETRIEVAL
-              sh.raw apt_opt_cmd
+              sh.cmd 'travis_apt_get_update', retry: true, echo: true, timing: true
+              sh.raw bash('travis_apt_get_options')
               command = 'sudo -E apt-get -yq --no-install-suggests --no-install-recommends ' \
-                "$TRAVIS_APT_OPTS install #{safelisted.join(' ')}"
+                "$(travis_apt_get_options) install #{safelisted.join(' ')}"
               sh.cmd command, echo: true, timing: true
 
               sh.raw "result=$?"
               sh.if '$result -ne 0' do
                 sh.fold 'apt-get.diagnostics' do
                   sh.echo "apt-get install failed", ansi: :red
-                  sh.cmd 'cat ~/apt-get-update.log', echo: true
+                  sh.cmd 'cat ${TRAVIS_HOME}/apt-get-update.log', echo: true
                 end
                 sh.raw "TRAVIS_CMD='#{command}'"
                 sh.raw "travis_assert $result"
@@ -269,14 +251,12 @@ module Travis
 
           def stop_postgresql
             sh.echo "PostgreSQL package is detected. Stopping postgresql service. See https://github.com/travis-ci/travis-ci/issues/5737 for more information.", ansi: :yellow
-            command = <<~ENDOFBASH
-              if [[ "$TRAVIS_INIT" == systemd ]]; then
-                sudo systemctl stop postgresql
-              else
-                sudo service postgresql stop
-              fi
-            ENDOFBASH
-            sh.cmd command, echo: true
+            sh.if '"${TRAVIS_INIT}" == systemd' do
+              sh.cmd 'sudo systemctl stop postgresql', echo: true
+            end
+            sh.else do
+              sh.cmd 'sudo service postgresql stop', echo: true
+            end
           end
       end
     end

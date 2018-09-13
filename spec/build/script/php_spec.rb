@@ -43,29 +43,29 @@ describe Travis::Build::Script::Php, :sexp do
   context 'with php nightly' do
     describe 'writes ~/.pearrc if necessary' do
       before { data[:config][:php] = 'nightly' }
-      it { should include_sexp [:echo, 'Writing $HOME/.pearrc', ansi: :yellow] }
+      it { should include_sexp [:echo, 'Writing ${TRAVIS_HOME}/.pearrc', ansi: :yellow] }
     end
   end
 
   context 'with unrecognized php version' do
     describe 'writes ~/.pearrc if necessary' do
       before { data[:config][:php] = 'foobar' }
-      it { should include_sexp [:echo, 'Writing $HOME/.pearrc', ansi: :yellow] }
+      it { should include_sexp [:echo, 'Writing ${TRAVIS_HOME}/.pearrc', ansi: :yellow] }
     end
   end
 
   context 'with php 5.4' do
     describe 'writes ~/.pearrc if necessary' do
       before { data[:config][:php] = '5.4' }
-      it { should include_sexp [:echo, 'Writing $HOME/.pearrc', ansi: :yellow] }
+      it { should include_sexp [:echo, 'Writing ${TRAVIS_HOME}/.pearrc', ansi: :yellow] }
     end
   end
 
   context 'with php 5.3' do
     before { data[:config][:php] = '5.3' }
-    after { store_example "5.3" }
+    after { store_example(name: '5.3') }
     describe 'does not write ~/.pearrc' do
-      it { should_not include_sexp [:echo, 'Writing $HOME/.pearrc', ansi: :yellow] }
+      it { should_not include_sexp [:echo, 'Writing ${TRAVIS_HOME}/.pearrc', ansi: :yellow] }
     end
 
     describe 'when running on non-Precise image' do
@@ -100,14 +100,14 @@ describe Travis::Build::Script::Php, :sexp do
 
   describe 'installs hhvm-nightly' do
     before { data[:config][:php] = 'hhvm-nightly' }
-    it { should include_sexp [:cmd, 'sudo apt-get update -qq'] }
+    it { should include_sexp [:cmd, 'travis_apt_get_update'] }
     it { should include_sexp [:cmd, 'sudo apt-get install hhvm-nightly -y 2>&1 >/dev/null'] }
-    it { store_example "hhvm-nightly" }
+    it { store_example(name: 'hhvm-nightly') }
   end
 
   describe 'installs specific hhvm version' do
     before { data[:config][:php] = 'hhvm-3.12' }
-    it { should include_sexp [:cmd, 'sudo apt-get update -qq'] }
+    it { should include_sexp [:cmd, 'travis_apt_get_update'] }
     it { should include_sexp [:cmd, 'sudo apt-get install -y hhvm', timing: true, assert: true, echo: true] }
     it { should include_sexp [:raw, "echo \"deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc)-lts-3.12 main\" | sudo tee -a /etc/apt/sources.list >&/dev/null"] }
   end

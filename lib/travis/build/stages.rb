@@ -84,7 +84,7 @@ module Travis
 
         sh.raw "# END_FUNCS"
 
-        sh.raw "source $HOME/.travis/job_stages"
+        sh.raw "source ${TRAVIS_HOME}/.travis/job_stages"
 
         sh.trace_root {
           STAGES.each do |stage|
@@ -110,7 +110,7 @@ module Travis
       end
 
       def define_stage(type, name)
-        sh.raw "cat <<'EOFUNC_#{name.upcase}' >>$HOME/.travis/job_stages"
+        sh.raw "cat <<'EOFUNC_#{name.upcase}' >>${TRAVIS_HOME}/.travis/job_stages"
         sh.raw "function travis_run_#{name}() {"
         commands = run_stage(type, name)
         close = (commands.nil? || commands.empty?) ? ":\n}" : "}"
