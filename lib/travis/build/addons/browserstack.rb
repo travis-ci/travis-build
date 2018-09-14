@@ -180,6 +180,7 @@ module Travis
             sh.cmd "#{build_start_command(browserstack_key)}"
             browserstack_user = username.to_s
             sh.export ENV_USER, browserstack_user + "-travis", echo: true unless browserstack_user.empty?
+            sh.export ENV_USERNAME, browserstack_user + "-travis", echo: true unless browserstack_user.empty?
             sh.export ENV_KEY, browserstack_key, echo: false
             sh.export ENV_LOCAL, 'true', echo: true
           end
