@@ -13,10 +13,8 @@ module Travis
         def configure
           super
           sh.export 'TRAVIS_GHC_DEFAULT', DEFAULTS[:ghc], echo: false
-          sh.export 'TRAVIS_GHC_ROOT', '/'
-          sh.if '! -d "${TRAVIS_GHC_ROOT}" && -d "${TRAVIS_ROOT}/opt/ghc"' do
-            sh.export 'TRAVIS_GHC_ROOT', '${TRAVIS_ROOT}/opt/ghc', echo: false
-          end
+          sh.raw bash('travis_ghc_setup_env')
+          sh.raw 'travis_ghc_setup_env'
           sh.raw bash('travis_ghc_find')
           sh.raw bash('travis_ghc_install')
 
