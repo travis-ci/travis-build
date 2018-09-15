@@ -26,12 +26,15 @@ main() {
   log 'fetching client config'
   curl -fsSL -o "${tbz_enc}" "${DOCKER_CLIENT_CONFIG_URL}"
 
-  log "decrypting & expanding ${tbz_enc}"
+  log "decrypting ${tbz_enc}"
   openssl aes-256-cbc \
+    -d \
     -K "${DOCKER_CLIENT_CONFIG_ENC_KEY}" \
     -iv "${DOCKER_CLIENT_CONFIG_ENC_IV}" \
     -in "${tbz_enc}" \
-    -out "${top}/tmp/docker.tar.bz2" -d >&2
+    -out "${top}/tmp/docker.tar.bz2" >&2
+
+  log "expanding ${top}/tmp/docker.tar.bz2"
   mkdir -p "${top}/.docker"
   tar -C "${top}/.docker" --strip-components=1 \
     -xf "${top}/tmp/docker.tar.bz2" >&2
