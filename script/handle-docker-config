@@ -23,7 +23,7 @@ main() {
   local tbz_enc="${top}/tmp/docker.tar.bz2.enc"
   mkdir -p "${top}/tmp"
 
-  log 'fetching client config'
+  log "fetching client config ${DOCKER_CLIENT_CONFIG_URL}"
   curl -fsSL -o "${tbz_enc}" "${DOCKER_CLIENT_CONFIG_URL}"
 
   log "decrypting ${tbz_enc}"
