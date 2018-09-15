@@ -5,40 +5,40 @@ main() {
   local top
   top="$(git rev-parse --show-toplevel)"
 
-  if [[ ! "${DOCKER_CONF_TARBALL_ENC_VAR}" ]]; then
-    log "missing \${DOCKER_CONF_TARBALL_ENC_VAR}"
+  [[ "${DOCKER_CLIENT_CONFIG_ENC_KEY}" ]] || {
+    log "missing \${DOCKER_CLIENT_CONFIG_ENC_KEY}"
     exit 0
-  fi
+  }
 
-  local tbz_enc="${top}/.docker.tar.bz2.enc"
-
-  if [[ ! -f "${tbz_enc}" ]]; then
-    log "missing ${tbz_enc}"
+  [[ "${DOCKER_CLIENT_CONFIG_ENC_IV}" ]] || {
+    log "missing \${DOCKER_CLIENT_CONFIG_ENC_IV}"
     exit 0
-  fi
+  }
 
-  log 'resolving key and iv'
-  local key iv
-  key="$(eval "echo \${encrypted_${DOCKER_CONF_TARBALL_ENC_VAR}_key}")"
-  iv="$(eval "echo \${encrypted_${DOCKER_CONF_TARBALL_ENC_VAR}_iv}")"
+  [[ "${DOCKER_CLIENT_CONFIG_URL}" ]] || {
+    log "missing \${DOCKER_CLIENT_CONFIG_URL}"
+    exit 0
+  }
+
+  local tbz_enc="${top}/tmp/docker.tar.bz2.enc"
+  mkdir -p "${top}/tmp"
+
+  log 'fetching client config'
+  curl -fsSL -o "${tbz_enc}" "${DOCKER_CLIENT_CONFIG_URL}"
 
   log "decrypting & expanding ${tbz_enc}"
-  openssl aes-256-cbc -K "${key}" -iv "${iv}" \
-    -in "${tbz_enc}" -out "${top}/.docker.tar.bz2" -d >&2
-  tar -C "${top}" -xf "${top}/.docker.tar.bz2" >&2
+  openssl aes-256-cbc \
+    -K "${DOCKER_CLIENT_CONFIG_ENC_KEY}" \
+    -iv "${DOCKER_CLIENT_CONFIG_ENC_IV}" \
+    -in "${tbz_enc}" \
+    -out "${top}/tmp/docker.tar.bz2" -d >&2
+  mkdir -p "${top}/.docker"
+  tar -C "${top}/.docker" --strip-components=1 \
+    -xf "${top}/tmp/docker.tar.bz2" >&2
 
   echo "export DOCKER_CERT_PATH='${top}/.docker';"
   echo "export DOCKER_TLS_VERIFY=1;"
   echo "export DOCKER_TLS=1;"
-
-  if [[ "${DOCKER_HOST_IP}" && "${DOCKER_HOST}" ]]; then
-    log "found \${DOCKER_HOST_IP} and \${DOCKER_HOST}"
-    local hostrec="${DOCKER_HOST_IP} ${DOCKER_HOST%%:*}"
-    if ! grep -q "^${hostrec}" /etc/hosts; then
-      log "adding host record '${hostrec}'"
-      printf '\n\n%s\n' "${hostrec}" | sudo tee -a /etc/hosts &>/dev/null
-    fi
-  fi
 }
 
 log() {
