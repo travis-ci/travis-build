@@ -21,7 +21,7 @@ module Travis
               sh.cmd %q(sudo sh -c "apt-key add '${TRAVIS_HOME}/crystal_repository_key.asc'")
 
               sh.cmd %Q(sudo sh -c 'echo "deb #{version[:url]} crystal main" > /etc/apt/sources.list.d/crystal-nightly.list')
-              sh.cmd %q(travis_apt_get_update)
+              sh.cmd 'travis_apt_get_update'
               sh.cmd %Q(sudo apt-get install -y #{version[:package]} libgmp-dev)
             when 'osx'
               if config[:crystal] && config[:crystal] != "latest"
