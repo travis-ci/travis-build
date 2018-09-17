@@ -22,7 +22,7 @@ module Travis
           def export(group)
             announce(group) if group.announce?
             group.vars.each do |var|
-              sh.export(var.key, var.value, echo: var.echo?, secure: var.secure?)
+              sh.export(var.key, var.value, echo: var.echo?, secure: var.secure?, readonly: var.builtin?)
             end
           end
 
