@@ -35,7 +35,9 @@ main() {
     exit 0
   fi
 
-  if ! docker version --format '{{""}}' &>/dev/null; then
+  eval "$("${top}/script/handle-docker-config")"
+
+  if ! docker version &>/dev/null; then
     log 'ERROR: no docker client found'
     exit 1
   fi
@@ -119,38 +121,20 @@ __check_execution() {
 
   logdest="${build_logs_dir}/$(basename "${f}").log"
   rm -f "${logdest}"
-  cid="$(
-    docker run -d \
-      -v "${examples_dir}:/examples" \
-      "${docker_image}" /sbin/init
-  )"
+  cid="$(docker run -d "${docker_image}" /sbin/init)"
   log "checking execution of ${f}"
-  if docker exec --user travis "${cid}" \
+
+  # shellcheck disable=SC2064
+  trap "docker rm -f \"${cid}\" &>/dev/null" EXIT QUIT INT
+
+  docker exec --user travis "${cid}" sudo mkdir -p /examples
+  docker cp "${f}" "${cid}:/examples/$(basename "${f}")"
+  docker exec --user travis "${cid}" \
     bash -c "
       echo >/var/tmp/build.log &&
         cp /examples/$(basename "${f}") ~/build.sh &&
-        bash ~/build.sh 2>&1 | tee /var/tmp/build.log" | __logdots; then
-    docker cp "${cid}:/var/tmp/build.log" "${logdest}"
-    docker rm -f "${cid}" &>/dev/null
-  else
-    log "ERROR: execution failed for ${f} (see log: ${logdest})"
-    e=$((e + 1))
-  fi
-}
-
-__logdots() {
-  local start_time loop_time
-  start_time="$(date +%s)"
-  echo -n .
-  while read -r _; do
-    loop_time="$(date +%s)"
-    if [[ $((loop_time - start_time)) -lt 5 ]]; then
-      continue
-    fi
-    echo -n .
-    sleep 1
-  done
-  echo
+        bash ~/build.sh 2>&1 | tee /var/tmp/build.log
+    " &>"${logdest}"
 }
 
 main "${@}"
