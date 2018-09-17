@@ -2,29 +2,29 @@ shared_examples_for 'a script with travis env vars sexp' do
   it 'sets TRAVIS_* env vars', focus: true do
     data[:config][:env].delete_if { |var| var =~ /SECURE / }
 
-    should include_sexp [:export, ['TRAVIS_PULL_REQUEST',    'false']]
-    should include_sexp [:export, ['TRAVIS_SECURE_ENV_VARS', 'false']]
-    should include_sexp [:export, ['TRAVIS_BUILD_ID',        '1']]
-    should include_sexp [:export, ['TRAVIS_BUILD_NUMBER',    '1']]
-    should include_sexp [:export, ['TRAVIS_JOB_ID',          '1']]
-    should include_sexp [:export, ['TRAVIS_JOB_NUMBER',      '1.1']]
-    should include_sexp [:export, ['TRAVIS_BRANCH',          'master']]
-    should include_sexp [:export, ['TRAVIS_COMMIT',          data[:job][:commit]]]
-    should include_sexp [:export, ['TRAVIS_COMMIT_MESSAGE',  '$(git log --format=%B -n 1 | head -c 32768)']]
-    should include_sexp [:export, ['TRAVIS_COMMIT_RANGE',    data[:job][:commit_range]]]
-    should include_sexp [:export, ['TRAVIS_REPO_SLUG',       data[:repository][:slug]]]
-    should include_sexp [:export, ['TRAVIS_LANGUAGE',        data[:config][:language].to_s]]
-    should include_sexp [:export, ['TRAVIS_SUDO',            'true']]
+    should include_sexp [:export, ['TRAVIS_PULL_REQUEST',    'false'], readonly: true]
+    should include_sexp [:export, ['TRAVIS_SECURE_ENV_VARS', 'false'], readonly: true]
+    should include_sexp [:export, ['TRAVIS_BUILD_ID',        '1'], readonly: true]
+    should include_sexp [:export, ['TRAVIS_BUILD_NUMBER',    '1'], readonly: true]
+    should include_sexp [:export, ['TRAVIS_JOB_ID',          '1'], readonly: true]
+    should include_sexp [:export, ['TRAVIS_JOB_NUMBER',      '1.1'], readonly: true]
+    should include_sexp [:export, ['TRAVIS_BRANCH',          'master'], readonly: true]
+    should include_sexp [:export, ['TRAVIS_COMMIT',          data[:job][:commit]], readonly: true]
+    should include_sexp [:export, ['TRAVIS_COMMIT_MESSAGE',  '$(git log --format=%B -n 1 | head -c 32768)'], readonly: true]
+    should include_sexp [:export, ['TRAVIS_COMMIT_RANGE',    data[:job][:commit_range]], readonly: true]
+    should include_sexp [:export, ['TRAVIS_REPO_SLUG',       data[:repository][:slug]], readonly: true]
+    should include_sexp [:export, ['TRAVIS_LANGUAGE',        data[:config][:language].to_s], readonly: true]
+    should include_sexp [:export, ['TRAVIS_SUDO',            'true'], readonly: true]
 
     unless described_class == Travis::Build::Script::Go
-      should include_sexp [:export, ['TRAVIS_BUILD_DIR', "#{Travis::Build::BUILD_DIR}/#{data[:repository][:slug]}"]]
+      should include_sexp [:export, ['TRAVIS_BUILD_DIR', "#{Travis::Build::BUILD_DIR}/#{data[:repository][:slug]}"], readonly: true]
     end
   end
 
   it 'sets TRAVIS_PULL_REQUEST to the given number when running a pull_request' do
     data[:job][:pull_request] = 1
     data[:job][:secure_env_enabled] = false
-    should include_sexp [:export, ['TRAVIS_PULL_REQUEST', '1']]
+    should include_sexp [:export, ['TRAVIS_PULL_REQUEST', '1'], readonly: true]
   end
 
   it 'sets both global and regular env vars' do
@@ -68,7 +68,7 @@ end
 shared_examples_for 'a script with env vars sexp' do
   it 'sets TRAVIS_SECURE_ENV_VARS to true when using secure env vars' do
     data[:config][env_type] = 'SECURE BAR=bar'
-    should include_sexp [:export, ['TRAVIS_SECURE_ENV_VARS', 'true']]
+    should include_sexp [:export, ['TRAVIS_SECURE_ENV_VARS', 'true'], readonly: true]
   end
 
   it 'sets a given :env var' do
