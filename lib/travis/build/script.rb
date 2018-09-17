@@ -195,16 +195,16 @@ module Travis
 
         def header
           sh.raw '#!/bin/bash'
-          sh.export 'TRAVIS_ROOT', root, echo: false, assert: false
-          sh.export 'TRAVIS_HOME', home_dir, echo: false, assert: false
-          sh.export 'TRAVIS_BUILD_DIR', build_dir, echo: false, assert: false
+          sh.export 'TRAVIS_ROOT', root, echo: false, assert: false, readonly: true
+          sh.export 'TRAVIS_HOME', home_dir, echo: false, assert: false, readonly: true
+          sh.export 'TRAVIS_BUILD_DIR', build_dir, echo: false, assert: false, readonly: true
           sh.export 'TRAVIS_INTERNAL_RUBY_REGEX', internal_ruby_regex_esc,
-                    echo: false, assert: false
+                    echo: false, assert: false, readonly: true
           sh.export 'TRAVIS_APP_HOST', app_host,
-                    echo: false, assert: false
+                    echo: false, assert: false, readonly: true
           if Travis::Build.config.enable_infra_detection?
             sh.export 'TRAVIS_ENABLE_INFRA_DETECTION', 'true',
-                      echo: false, assert: false
+                      echo: false, assert: false, readonly: true
           end
 
           sh.raw bash('travis_preamble')
