@@ -24,7 +24,7 @@ module Travis
 
         def export
           super
-          sh.export 'TRAVIS_JDK_VERSION', config[:jdk], echo: false if uses_jdk?
+          sh.export 'TRAVIS_JDK_VERSION', config[:jdk], echo: false, readonly: true if uses_jdk?
         end
 
         def setup

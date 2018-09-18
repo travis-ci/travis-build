@@ -22,7 +22,7 @@ module Travis
 
         def export
           super
-          sh.export 'TRAVIS_RUBY_VERSION', version, echo: false if rvm?
+          sh.export 'TRAVIS_RUBY_VERSION', version, echo: false, readonly: true if rvm?
         end
 
         def setup

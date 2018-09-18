@@ -16,7 +16,7 @@ describe Travis::Build::Addons::Mariadb, :sexp do
   end
 
   it 'sets TRAVIS_MARIADB_VERSION' do
-    should include_sexp [:export,  ['TRAVIS_MARIADB_VERSION', '10.0']]
+    should include_sexp [:export,  ['TRAVIS_MARIADB_VERSION', '10.0'], readonly: true]
   end
 
   it { should include_sexp [:cmd, "service mysql stop", sudo: true] }

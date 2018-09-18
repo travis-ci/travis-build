@@ -15,7 +15,7 @@ describe Travis::Build::Script::NodeJs, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'sets TRAVIS_NODE_VERSION' do
-    should include_sexp [:export, ['TRAVIS_NODE_VERSION', '0.10']]
+    should include_sexp [:export, ['TRAVIS_NODE_VERSION', '0.10'], readonly: true]
   end
 
   describe 'nvm install' do
@@ -53,7 +53,7 @@ describe Travis::Build::Script::NodeJs, :sexp do
         end
 
         it 'sets TRAVIS_NODE_VERSION form .nvmrc' do
-          expect(sexp).to include_sexp [:export, ['TRAVIS_NODE_VERSION', '$(< .nvmrc)']]
+          expect(sexp).to include_sexp [:export, ['TRAVIS_NODE_VERSION', '$(< .nvmrc)'], readonly: true]
         end
       end
 
@@ -65,7 +65,7 @@ describe Travis::Build::Script::NodeJs, :sexp do
         end
 
         it 'sets TRAVIS_NODE_VERSION to 0.10' do
-          expect(sexp).to include_sexp [:export, ['TRAVIS_NODE_VERSION', '0.10']]
+          expect(sexp).to include_sexp [:export, ['TRAVIS_NODE_VERSION', '0.10'], readonly: true]
         end
       end
     end

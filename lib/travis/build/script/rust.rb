@@ -12,7 +12,7 @@ module Travis
         def export
           super
 
-          sh.export 'TRAVIS_RUST_VERSION', config[:rust].to_s.shellescape, echo: false
+          sh.export 'TRAVIS_RUST_VERSION', config[:rust].to_s.shellescape, echo: false, readonly: true
         end
 
         def setup_cache

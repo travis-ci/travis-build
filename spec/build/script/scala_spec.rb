@@ -20,7 +20,7 @@ describe Travis::Build::Script::Scala, :sexp do
   it_behaves_like 'announces java versions'
 
   it 'sets TRAVIS_SCALA_VERSION' do
-    should include_sexp [:export, ['TRAVIS_SCALA_VERSION', '2.10.4']]
+    should include_sexp [:export, ['TRAVIS_SCALA_VERSION', '2.10.4'], readonly: true]
   end
 
   it 'announces Scala 2.10.4' do
@@ -30,7 +30,7 @@ describe Travis::Build::Script::Scala, :sexp do
   context "when scala version is given as an array" do
     before { data[:config][:scala] = %w( 2.12.1 )}
     it "exports TRAVIS_SCALA_VERSION given as the first value" do
-      should include_sexp [:export, ['TRAVIS_SCALA_VERSION', '2.12.1']]
+      should include_sexp [:export, ['TRAVIS_SCALA_VERSION', '2.12.1'], readonly: true]
     end
   end
 

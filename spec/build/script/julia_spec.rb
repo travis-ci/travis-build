@@ -11,7 +11,7 @@ describe Travis::Build::Script::Julia, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'sets TRAVIS_JULIA_VERSION' do
-    should include_sexp [:export, ['TRAVIS_JULIA_VERSION', 'release']]
+    should include_sexp [:export, ['TRAVIS_JULIA_VERSION', 'release'], readonly: true]
   end
 
   it 'downloads and installs Julia' do

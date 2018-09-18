@@ -196,6 +196,7 @@ module Travis
 
         def header
           sh.raw '#!/bin/bash'
+          sh.cmd 'declare -a _RO', echo: false, assert: false
           sh.export 'TRAVIS_ROOT', root, echo: false, assert: false, readonly: true
           sh.export 'TRAVIS_HOME', home_dir, echo: false, assert: false, readonly: true
           sh.export 'TRAVIS_BUILD_DIR', build_dir, echo: false, assert: false, readonly: true

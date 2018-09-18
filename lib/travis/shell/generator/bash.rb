@@ -35,10 +35,11 @@ module Travis
 
         def handle_export(data, options = {})
           key, value, options = handle_secure_vars(*data, options)
+          cmd = "export #{key}=#{value}"
           if options.delete(:readonly)
-            handle_raw("_TRAVIS_READONLY_VARS+=(#{key})")
+            cmd += "; _RO+=(#{key})"
           end
-          handle_cmd("export #{key}=#{value}", options)
+          handle_cmd(cmd, options)
         end
         alias handle_set handle_export
 

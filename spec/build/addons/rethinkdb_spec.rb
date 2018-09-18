@@ -16,11 +16,11 @@ describe Travis::Build::Addons::Rethinkdb, :sexp do
   end
 
   it 'sets TRAVIS_RETHINKDB_VERSION' do
-    should include_sexp [:export,  ['TRAVIS_RETHINKDB_VERSION', '2.3.4']]
+    should include_sexp [:export,  ['TRAVIS_RETHINKDB_VERSION', '2.3.4'], readonly: true]
   end
 
   it 'sets TRAVIS_RETHINKDB_PACKAGE_VERSION' do
-    should include_sexp [:export,  ['TRAVIS_RETHINKDB_PACKAGE_VERSION', '$package_version']]
+    should include_sexp [:export,  ['TRAVIS_RETHINKDB_PACKAGE_VERSION', '$package_version'], readonly: true]
   end
 
   it { should include_sexp [:cmd, "service rethinkdb stop", sudo: true] }

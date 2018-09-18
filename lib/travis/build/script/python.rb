@@ -14,7 +14,7 @@ module Travis
 
         def export
           super
-          sh.export 'TRAVIS_PYTHON_VERSION', version, echo: false
+          sh.export 'TRAVIS_PYTHON_VERSION', version, echo: false, readonly: true
         end
 
         def configure

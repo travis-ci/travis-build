@@ -11,7 +11,7 @@ module Travis
 
         def export
           super
-          sh.export 'TRAVIS_ELIXIR_VERSION', elixir_version, echo: false
+          sh.export 'TRAVIS_ELIXIR_VERSION', elixir_version, echo: false, readonly: true
         end
 
         def setup

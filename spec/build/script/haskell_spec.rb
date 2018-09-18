@@ -19,7 +19,7 @@ describe Travis::Build::Script::Haskell, :sexp do
 
   it 'exports TRAVIS_HASKELL_VERSION variable' do
     data[:config][:ghc] = 'default'
-    should include_sexp [:export, ['TRAVIS_HASKELL_VERSION', "$(travis_ghc_find '#{described_class::DEFAULTS[:ghc]}')"], echo: true]
+    should include_sexp [:export, ['TRAVIS_HASKELL_VERSION', "$(travis_ghc_find '#{described_class::DEFAULTS[:ghc]}')"], echo: true, readonly: true]
   end
 
   it 'runs cabal update' do
@@ -60,7 +60,7 @@ describe Travis::Build::Script::Haskell, :sexp do
       it 'installs ghc version when not present' do
         should include_sexp [:echo, %(Updating ghc-#{ghc_config[:ghc]} and cabal-#{ghc_config[:cabal]}), ansi: :yellow]
         should include_sexp [:raw, %(travis_ghc_install '#{ghc_config[:ghc]}' '#{ghc_config[:cabal]}')]
-        should include_sexp [:export, ['TRAVIS_HASKELL_VERSION', %($(travis_ghc_find '#{ghc_config[:ghc]}'))], echo: true]
+        should include_sexp [:export, ['TRAVIS_HASKELL_VERSION', %($(travis_ghc_find '#{ghc_config[:ghc]}'))], echo: true, readonly: true]
       end
     end
   end
@@ -74,7 +74,7 @@ describe Travis::Build::Script::Haskell, :sexp do
     end
 
     it 'uses the resolved version' do
-      should include_sexp [:export, ['TRAVIS_HASKELL_VERSION', %($(travis_ghc_find '8.0.9'))], echo: true]
+      should include_sexp [:export, ['TRAVIS_HASKELL_VERSION', %($(travis_ghc_find '8.0.9'))], echo: true, readonly: true]
     end
   end
 end

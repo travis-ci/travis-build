@@ -42,9 +42,9 @@ module Travis
 
         def export
           super
-          sh.export 'TRAVIS_SMALLTALK_CONFIG', smalltalk_config, echo: false
-          sh.export 'TRAVIS_SMALLTALK_VERSION', smalltalk_version, echo: false
-          sh.export 'TRAVIS_SMALLTALK_VM', smalltalk_vm, echo: false
+          sh.export 'TRAVIS_SMALLTALK_CONFIG', smalltalk_config, echo: false, readonly: true
+          sh.export 'TRAVIS_SMALLTALK_VERSION', smalltalk_version, echo: false, readonly: true
+          sh.export 'TRAVIS_SMALLTALK_VM', smalltalk_vm, echo: false, readonly: true
         end
 
         def setup
