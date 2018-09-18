@@ -58,6 +58,7 @@ module Travis
         travis_footer
         travis_internal_ruby
         travis_jigger
+        travis_lock_down_env
         travis_nanoseconds
         travis_result
         travis_retry
@@ -279,6 +280,7 @@ module Travis
         def prepare
           apply :services
           apply :fix_ps4 # TODO if this is to fix an rvm issue (as the specs say) then should this go to Rvm instead?
+          sh.raw 'travis_lock_down_env'
         end
 
         def disable_sudo

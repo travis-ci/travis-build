@@ -65,4 +65,6 @@ travis_setup_env() {
     pgrep -u "${USER}" 2>/dev/null |
       grep -v -w "${$}" >"${TRAVIS_TMPDIR}/pids_before"
   fi
+
+  declare -a _TRAVIS_READONLY_VARS
 }

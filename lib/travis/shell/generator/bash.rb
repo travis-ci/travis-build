@@ -36,10 +36,9 @@ module Travis
         def handle_export(data, options = {})
           key, value, options = handle_secure_vars(*data, options)
           if options.delete(:readonly)
-            handle_cmd("declare -rx #{key}=#{value}", options)
-          else
-            handle_cmd("export #{key}=#{value}", options)
+            handle_raw("_TRAVIS_READONLY_VARS+=(#{key})")
           end
+          handle_cmd("export #{key}=#{value}", options)
         end
         alias handle_set handle_export
 
