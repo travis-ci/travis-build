@@ -36,9 +36,11 @@ module Travis
           end
 
           def use_mirror
-            define_mirrors_by_infrastructure
-            sh.raw bash('travis_munge_apt_sources')
-            sh.cmd 'travis_munge_apt_sources'
+            sh.if '${TRAVIS_OS_NAME} == linux' do
+              define_mirrors_by_infrastructure
+              sh.raw bash('travis_munge_apt_sources')
+              sh.cmd 'travis_munge_apt_sources'
+            end
           end
 
           def define_mirrors_by_infrastructure
