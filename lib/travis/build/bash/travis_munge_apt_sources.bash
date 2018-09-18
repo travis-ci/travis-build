@@ -12,10 +12,12 @@ travis_munge_apt_sources() {
     return
   fi
 
-  local mirror="${TRAVIS_APT_MIRRORS_BY_INFRASTRUCTURE[${TRAVIS_INFRA}]}"
-  if [[ ! "${mirror}" ]]; then
-    mirror="${TRAVIS_APT_MIRRORS_BY_INFRASTRUCTURE[unknown]}"
-  fi
+  local mirror
+  for entry in "${_TRAVIS_APT_MIRRORS_BY_INFRASTRUCTURE[@]}"; do
+    if [[ "${entry%%::*}" == "${TRAVIS_INFRA}" ]]; then
+      mirror="${entry##*::}"
+    fi
+  done
 
   if [[ ! "${mirror}" ]]; then
     echo -e "${ANSI_YELLOW}No APT mirror found; not updating ${src}.${ANSI_RESET}"
