@@ -63,7 +63,7 @@ module Travis
         private
 
           def version
-            config[:scala].to_s
+            Array(config[:scala]).first.to_s
           end
 
           def sbt_args
@@ -86,6 +86,7 @@ module Travis
               sh.cmd "curl -sf -o sbt.tmp #{SBT_URL}", assert: true
             end
             sh.raw "sed -e '/addSbt \\(warn\\|info\\)/d' sbt.tmp | sudo tee #{SBT_PATH} > /dev/null && rm -f sbt.tmp"
+            sh.chmod "+x", SBT_PATH, sudo: true
           end
       end
     end

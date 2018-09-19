@@ -19,12 +19,13 @@ describe Travis::Build::Script::Erlang, :sexp do
 
   describe 'setup' do
     it 'activates otp' do
-      should include_sexp [:cmd, 'source $HOME/otp/R14B04/activate', assert: true, echo: true, timing: true]
+      should include_sexp [:cmd, 'source ${TRAVIS_HOME}/otp/R14B04/activate', assert: true, echo: true, timing: true]
     end
 
-    xit 'downloads OTP archive on demand when the desired release is not pre-installed' do
-      branch = sexp_find(subject, [:if, '! -f $HOME/otp/R14B04/activate'])
-      expect(branch).to include_sexp [:cmd, 'wget https://s3.amazonaws.com/travis-otp-releases/ubuntu/$(lsb_release -rs)/erlang-R14B04-x86_64.tar.bz2', assert: true, echo: true, timing: true]
+    it 'downloads OTP archive on demand when the desired release is not pre-installed' do
+      branch = sexp_find(subject, [:if, '! -f ${TRAVIS_HOME}/otp/R14B04/activate'])
+      expect(branch).to include_sexp [:raw, 'archive_url=https://s3.amazonaws.com/travis-otp-releases/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/erlang-R14B04-nonroot.tar.bz2', assert: true]
+      expect(branch).to include_sexp [:cmd, 'wget -o ${TRAVIS_HOME}/erlang.tar.bz2 ${archive_url}', assert: true, echo: true, timing: true]
     end
   end
 
@@ -36,9 +37,10 @@ describe Travis::Build::Script::Erlang, :sexp do
       expect(branch).to include_sexp [:cmd, './rebar get-deps', assert: true, echo: true, retry: true, timing: true]
     end
 
-    it 'runs `rebar get-deps` if rebar config exists, but ./rebar does not' do
+    it 'runs appropriate rebar command if rebar config exists, but ./rebar does not and rebar3 is not found' do
       branch = sexp_find(sexp, [:elif, '(-f rebar.config || -f Rebar.config)'])
-      expect(branch).to include_sexp [:cmd, 'rebar get-deps', assert: true, echo: true, retry: true, timing: true]
+      rebar_branch = sexp_find(branch, [:if, '-z $(command -v rebar3)'])
+      expect(rebar_branch).to  include_sexp [:cmd, 'rebar get-deps', assert: true, echo: true, retry: true, timing: true]
     end
   end
 
@@ -51,13 +53,16 @@ describe Travis::Build::Script::Erlang, :sexp do
       expect(branch).to include_sexp [:cmd, './rebar compile && ./rebar skip_deps=true eunit', echo: true, timing: true]
     end
 
-    it 'runs `rebar compile && rebar skip_deps=true eunit` if rebar config exists, but ./rebar does not' do
+    it 'runs appropriate rebar/rebar3 command if rebar config exists, but ./rebar does not' do
       branch = sexp_find(sexp, [:elif, '(-f rebar.config || -f Rebar.config)'])
-      expect(branch).to include_sexp [:cmd, 'rebar compile && rebar skip_deps=true eunit', echo: true, timing: true]
+      rebar3_branch = sexp_find(branch, [:if, '-n $(command -v rebar3)'])
+      rebar_branch  = sexp_find(branch, [:else])
+      expect(rebar3_branch).to include_sexp [:cmd, 'rebar3 eunit', echo: true, timing: true]
+      expect(rebar_branch).to  include_sexp [:cmd, 'rebar compile && rebar skip_deps=true eunit',  echo: true, timing: true]
     end
 
     it 'runs `make test` if rebar config does not exist' do
-      branch = sexp_find(sexp, [:else])
+      branch = sexp_filter(sexp, [:else])[1] # the first 'else' occurs in sh.if "command -v rebar3"
       expect(branch).to include_sexp [:cmd, "make test", echo: true, timing: true]
     end
   end

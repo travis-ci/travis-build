@@ -16,15 +16,16 @@ module Travis
   module Build
     class Script
       class Haxe < Script
+
         DEFAULTS = {
-          haxe: '3.4.2',
-          neko: '2.1.0'
+          haxe: 'stable',
+          neko: '2.2.0'
         }
 
         def export
           super
 
-          sh.export 'TRAVIS_HAXE_VERSION', config[:haxe].to_s, echo: false
+          sh.export 'TRAVIS_HAXE_VERSION', haxe_version, echo: false
           sh.export 'TRAVIS_NEKO_VERSION', config[:neko].to_s, echo: false
         end
 
@@ -41,14 +42,14 @@ module Travis
                   ' in the issue', ansi: :green
 
           sh.fold('neko-install') do
-            neko_path = '${HOME}/neko'
+            neko_path = '${TRAVIS_HOME}/neko'
 
             sh.echo 'Installing Neko', ansi: :yellow
 
             # Install dependencies
             case config[:os]
             when 'linux'
-              sh.cmd 'sudo apt-get update -qq', retry: true
+              sh.cmd 'travis_apt_get_update', retry: true
               sh.cmd 'sudo apt-get install libgc1c2 -qq', retry: true # required by neko
             when 'osx'
               # pass
@@ -77,7 +78,7 @@ module Travis
           end
 
           sh.fold('haxe-install') do
-            haxe_path = '${HOME}/haxe'
+            haxe_path = '${TRAVIS_HOME}/haxe'
 
             sh.echo 'Installing Haxe', ansi: :yellow
             sh.cmd %Q{mkdir -p #{haxe_path}}
@@ -124,6 +125,35 @@ module Travis
 
         private
 
+          def haxe_stable
+            require 'faraday'
+
+            def haxeorg_stable
+              versions = JSON.parse(Faraday.get("https://haxe.org/website-content/downloads/versions.json").body.to_s)
+              versions['current']
+            rescue
+              nil
+            end
+
+            def github_stable
+              versions = JSON.parse(Faraday.get("https://api.github.com/repos/HaxeFoundation/haxe/releases/latest").body.to_s)
+              versions['name']
+            rescue
+              nil
+            end
+
+            haxeorg_stable || github_stable || "3.4.4"
+          end
+
+          def haxe_version
+            case config[:haxe]
+            when 'stable'
+              haxe_stable
+            else
+              Array(config[:haxe]).first.to_s
+            end
+          end
+
           def neko_url
             case config[:os]
             when 'linux'
@@ -131,12 +161,13 @@ module Travis
             when 'osx'
               os = 'osx64'
             end
-            version = config[:neko]
-            "http://nekovm.org/_media/neko-#{version}-#{os}.tar.gz"
+            version = Array(config[:neko]).first
+            "https://github.com/HaxeFoundation/neko/releases/download/v#{version.to_s.gsub(".", "-")}/neko-#{version}-#{os}.tar.gz"
           end
 
           def haxe_url
-            case config[:haxe]
+            haxe_ver = haxe_version
+            case haxe_ver
             when 'development'
               os = case config[:os]
               when 'linux'
@@ -152,8 +183,7 @@ module Travis
               when 'osx'
                 'osx'
               end
-              version = config[:haxe].to_s
-              "http://haxe.org/website-content/downloads/#{version}/downloads/haxe-#{version}-#{os}.tar.gz"
+              "https://haxe.org/website-content/downloads/#{haxe_ver}/downloads/haxe-#{haxe_ver}-#{os}.tar.gz"
             end
           end
 

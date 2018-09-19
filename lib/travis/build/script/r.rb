@@ -1,6 +1,6 @@
 # Maintained by:
 # Jim Hester     @jimhester       james.hester@rstudio.com
-# Craig Citro    @craigcitro      craigcitro@google.com
+# Jeroen Ooms    @jeroen          jeroen@berkeley.edu
 #
 module Travis
   module Build
@@ -21,22 +21,22 @@ module Travis
           # Build/test options
           r_build_args: '',
           r_check_args: '--as-cran',
-          r_check_revdep: false,
           # Heavy dependencies
           pandoc: true,
           latex: true,
-          pandoc_version: '1.15.2',
+          fortran: true,
+          pandoc_version: '2.2',
           # Bioconductor
           bioc: 'https://bioconductor.org/biocLite.R',
           bioc_required: false,
+          bioc_check: false,
           bioc_use_devel: false,
           disable_homebrew: false,
           r: 'release'
         }
 
         def initialize(data)
-          # TODO(craigcitro): Is there a way to avoid explicitly
-          # naming arguments here?
+          # TODO: Is there a way to avoid explicitly naming arguments here?
           super
           @devtools_installed = false
           @bioc_installed = false
@@ -59,7 +59,7 @@ module Travis
           sh.echo 'R for Travis-CI is not officially supported, '\
                   'but is community maintained.', ansi: :green
           sh.echo 'Please file any issues at https://github.com/travis-ci/travis-ci/issues'
-          sh.echo 'and mention @craigcitro and @jimhester in the issue'
+          sh.echo 'and mention @jeroen and @jimhester in the issue'
 
           sh.fold 'R-install' do
             sh.with_options({ assert: true,  echo: true,  timing: true  }) do
@@ -73,13 +73,23 @@ module Travis
                 sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com '\
                   '--recv-keys E084DAB9'
 
-                # Add marutter's c2d4u repository.
-                sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter"'
-                sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u"'
+                # Add marutter's c2d4u plus ppa dependencies as listed on launchpad
+                if r_version_less_than('3.5.0')
+                  sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter"'
+                  sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u"'
+                else
+                  sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter3.5"'
+                  sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u3.5"'
+                  sh.cmd 'sudo add-apt-repository -y "ppa:ubuntugis/ppa"'
+                  sh.cmd 'sudo add-apt-repository -y "ppa:opencpu/jq"'
+                end
+
+                # Both c2d4u and c2d4u3.5 depend on this ppa for ffmpeg
+                sh.cmd 'sudo add-apt-repository -y "ppa:kirillshkrogalev/ffmpeg-next"'
 
                 # Update after adding all repositories. Retry several
                 # times to work around flaky connection to Launchpad PPAs.
-                sh.cmd 'sudo apt-get update -qq', retry: true
+                sh.cmd 'travis_apt_get_update', retry: true
 
                 # Install precompiled R
                 # Install only the dependencies for an R development environment except for
@@ -88,18 +98,21 @@ module Travis
                 # Dependencies queried with `apt-cache depends -i r-base-dev`.
                 # qpdf and texinfo are also needed for --as-cran # checks:
                 # https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
+                optional_apt_pkgs = ""
+                optional_apt_pkgs << "gfortran" if config[:fortran]
                 sh.cmd 'sudo apt-get install -y --no-install-recommends '\
-                  'build-essential gcc g++ gfortran libblas-dev liblapack-dev '\
+                  'build-essential gcc g++ libblas-dev liblapack-dev '\
                   'libncurses5-dev libreadline-dev libjpeg-dev '\
-                  'libpng-dev zlib1g-dev libbz2-dev liblzma-dev cdbs qpdf texinfo '\
-                  'libmagick++-dev libssh2-1-dev', retry: true
+                  'libpcre3-dev libpng-dev zlib1g-dev libbz2-dev liblzma-dev libicu-dev '\
+                  'cdbs qpdf texinfo libssh2-1-dev '\
+                  "#{optional_apt_pkgs}", retry: true
 
                 r_filename = "R-#{r_version}-$(lsb_release -cs).xz"
                 r_url = "https://s3.amazonaws.com/rstudio-travis/#{r_filename}"
                 sh.cmd "curl -fLo /tmp/#{r_filename} #{r_url}", retry: true
                 sh.cmd "tar xJf /tmp/#{r_filename} -C ~"
-                sh.export 'PATH', "$HOME/R-bin/bin:$PATH", echo: false
-                sh.export 'LD_LIBRARY_PATH', "$HOME/R-bin/lib:$LD_LIBRARY_PATH", echo: false
+                sh.export 'PATH', "${TRAVIS_HOME}/R-bin/bin:$PATH", echo: false
+                sh.export 'LD_LIBRARY_PATH', "${TRAVIS_HOME}/R-bin/lib:$LD_LIBRARY_PATH", echo: false
                 sh.rm "/tmp/#{r_filename}"
 
                 sh.cmd "sudo mkdir -p /usr/local/lib/R/site-library $R_LIBS_USER"
@@ -111,7 +124,7 @@ module Travis
 
                 # R-devel builds available at research.att.com
                 if r_version == 'devel'
-                  r_url = "https://r.research.att.com/mavericks/R-devel/R-devel-mavericks-signed.pkg"
+                  r_url = "https://r.research.att.com/el-capitan/R-devel/R-devel-el-capitan-signed.pkg"
 
                 # The latest release is the only one available in /bin/macosx
                 elsif r_version == r_latest
@@ -123,9 +136,11 @@ module Travis
                 elsif r_version == '3.2.5'
                   r_url = "#{repos[:CRAN]}/bin/macosx/old/R-3.2.4-revised.pkg"
 
-                # all other binaries are in /bin/macosx/old
-                else
+                # the old archive has moved after 3.4.0
+                elsif r_version_less_than('3.4.0')
                   r_url = "#{repos[:CRAN]}/bin/macosx/old/R-#{r_version}.pkg"
+                else
+                  r_url = "#{repos[:CRAN]}/bin/macosx/el-capitan/base/R-#{r_version}.pkg"
                 end
 
                 # Install from latest CRAN binary build for OS X
@@ -135,10 +150,7 @@ module Travis
                 sh.cmd 'sudo installer -pkg "/tmp/R.pkg" -target /'
                 sh.rm '/tmp/R.pkg'
 
-                # Install gfortran libraries the precompiled binaries are linked to
-                sh.cmd 'curl -fLo /tmp/gfortran.tar.bz2 http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2', retry: true
-                sh.cmd 'sudo tar fvxz /tmp/gfortran.tar.bz2 -C /'
-                sh.rm '/tmp/gfortran.tar.bz2'
+                setup_fortran_osx if config[:fortran]
 
               else
                 sh.failure "Operating system not supported: #{config[:os]}"
@@ -194,9 +206,12 @@ module Travis
             # Install dependencies for the package we're testing.
             install_deps
           end
-          sh.fold 'R-installed-versions' do
-            sh.echo 'Installed package versions', ansi: :yellow
-            sh.cmd 'Rscript -e \'devtools::session_info(installed.packages()[, "Package"])\''
+
+          if @devtools_installed
+            sh.fold 'R-installed-versions' do
+              sh.echo 'Installed package versions', ansi: :yellow
+              sh.cmd 'Rscript -e \'devtools::session_info(installed.packages()[, "Package"])\''
+            end
           end
         end
 
@@ -230,12 +245,22 @@ module Travis
           end
           export_rcheck_dir
 
-          # Output check summary
-          sh.cmd 'Rscript -e "message(devtools::check_failures(path = \"${RCHECK_DIR}\"))"', echo: false
+          if config[:bioc_check]
+            # BiocCheck the package
+            sh.fold 'Bioc-check' do
+              sh.echo 'Checking with: BiocCheck( "${PKG_TARBALL}" ) '
+              sh.cmd 'Rscript -e "BiocCheck::BiocCheck(\"${PKG_TARBALL}\", \'quit-with-status\'=TRUE)"'
+            end
+          end
+
+          if @devtools_installed
+            # Output check summary
+            sh.cmd 'Rscript -e "message(devtools::check_failures(path = \"${RCHECK_DIR}\"))"', echo: false
+          end
 
           # Build fails if R CMD check fails
           sh.if '$CHECK_RET -ne 0' do
-            dump_logs
+            dump_error_logs
             sh.failure 'R CMD check failed'
           end
 
@@ -243,23 +268,9 @@ module Travis
           if config[:warnings_are_errors]
             sh.cmd 'grep -q -R "WARNING" "${RCHECK_DIR}/00check.log"', echo: false, assert: false
             sh.if '$? -eq 0' do
-              dump_logs
+              dump_error_logs
               sh.failure "Found warnings, treating as errors (as requested)."
             end
-          end
-
-          # Check revdeps, if requested.
-          if config[:r_check_revdep]
-            sh.echo "Checking reverse dependencies"
-            revdep_script =
-              'library("devtools");' \
-              'res <- revdep_check();' \
-              'if (length(res) > 0) {' \
-              ' revdep_check_summary(res);' \
-              ' revdep_check_save_logs(res);' \
-              ' q(status = 1, save = "no");' \
-              '}'
-            sh.cmd "Rscript -e '#{revdep_script}'", assert: true
           end
 
         end
@@ -374,8 +385,7 @@ module Travis
           sh.export 'RCHECK_DIR', "$(expr \"$PKG_TARBALL\" : '\\(.*\\)_').Rcheck", echo: false
         end
 
-        def dump_logs
-          export_rcheck_dir
+        def dump_error_logs
           dump_log("fail")
           dump_log("log")
           dump_log("out")
@@ -407,6 +417,9 @@ module Travis
                   ');'\
                   'cat(append = TRUE, file = "~/.Rprofile.site", "options(repos = BiocInstaller::biocinstallRepos());")'
                 sh.cmd "Rscript -e '#{bioc_install_script}'", retry: true
+               if config[:bioc_check]
+                 sh.cmd "Rscript -e 'BiocInstaller::biocLite(\"BiocCheck\")'"
+               end
             end
           end
           @bioc_installed = true
@@ -416,11 +429,9 @@ module Travis
           unless @devtools_installed
             case config[:os]
             when 'linux'
-              if config[:sudo]
-                r_binary_install ['devtools']
-              else
+              # We can't use devtools binaries because R versions < 3.5 are not
+              # compatible with R versions >= 3.5
                 r_install ['devtools']
-              end
             else
               devtools_check = '!requireNamespace("devtools", quietly = TRUE)'
               devtools_install = 'install.packages("devtools")'
@@ -438,26 +449,25 @@ module Travis
             texlive_url = 'https://github.com/jimhester/ubuntu-bin/releases/download/latest/texlive.tar.gz'
             sh.cmd "curl -fLo /tmp/#{texlive_filename} #{texlive_url}"
             sh.cmd "tar xzf /tmp/#{texlive_filename} -C ~"
-            sh.export 'PATH', "/$HOME/texlive/bin/x86_64-linux:$PATH"
-            sh.cmd 'tlmgr update --self'
+            sh.export 'PATH', "${TRAVIS_HOME}/texlive/bin/x86_64-linux:$PATH"
+            sh.cmd 'tlmgr update --self', assert: false
           when 'osx'
             # We use basictex due to disk space constraints.
             mactex = 'BasicTeX.pkg'
-            # TODO(craigcitro): Confirm that this will route us to the
-            # nearest mirror.
-            sh.cmd 'wget http://mirror.ctan.org/systems/mac/mactex/'\
-                   "#{mactex} -O \"/tmp/#{mactex}\""
+            # TODO: Confirm that this will route us to the nearest mirror.
+            sh.cmd "curl -fLo \"/tmp/#{mactex}\" --retry 3 http://mirror.ctan.org/systems/mac/mactex/"\
+                   "#{mactex}"
 
             sh.echo 'Installing OS X binary package for MacTeX'
             sh.cmd "sudo installer -pkg \"/tmp/#{mactex}\" -target /"
             sh.rm "/tmp/#{mactex}"
             sh.export 'PATH', '/usr/texbin:/Library/TeX/texbin:$PATH'
 
-            sh.cmd 'sudo tlmgr update --self'
+            sh.cmd 'sudo tlmgr update --self', assert: false
 
             # Install common packages
             sh.cmd 'sudo tlmgr install inconsolata upquote '\
-              'courier courier-scaled helvetic'
+              'courier courier-scaled helvetic', assert: false
           end
         end
 
@@ -478,7 +488,15 @@ module Travis
             # Cleanup
             sh.rm "/tmp/#{pandoc_filename}"
           when 'osx'
-            pandoc_filename = "pandoc-#{config[:pandoc_version]}-osx.pkg"
+          
+            # Change OS name if requested version is less than 1.19.2.2
+            # Name change was introduced in v2.0 of pandoc.
+            # c.f. "Build Infrastructure Improvements" section of
+            # https://github.com/jgm/pandoc/releases/tag/2.0
+            # Lastly, the last binary for macOS before 2.0 is 1.19.2.1
+            os_short_name = version_check_less_than("#{config[:pandoc_version]}", "1.19.2.2") ? "macOS" : "osx"
+            
+            pandoc_filename = "pandoc-#{config[:pandoc_version]}-#{os_short_name}.pkg"
             pandoc_url = "https://github.com/jgm/pandoc/releases/download/#{config[:pandoc_version]}/"\
               "#{pandoc_filename}"
 
@@ -491,32 +509,59 @@ module Travis
           end
         end
 
+        # Install gfortran libraries the precompiled binaries are linked to
+        def setup_fortran_osx
+          return unless (config[:os] == 'osx')
+          if r_version_less_than('3.4')
+            sh.cmd 'curl -fLo /tmp/gfortran.tar.bz2 http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2', retry: true
+            sh.cmd 'sudo tar fvxz /tmp/gfortran.tar.bz2 -C /'
+            sh.rm '/tmp/gfortran.tar.bz2'
+          else
+            sh.cmd "curl -fLo /tmp/gfortran61.dmg http://coudert.name/software/gfortran-6.1-ElCapitan.dmg", retry: true
+            sh.cmd 'sudo hdiutil attach /tmp/gfortran61.dmg -mountpoint /Volumes/gfortran'
+            sh.cmd 'sudo installer -pkg "/Volumes/gfortran/gfortran-6.1-ElCapitan/gfortran.pkg" -target /'
+            sh.cmd 'sudo hdiutil detach /Volumes/gfortran'
+            sh.rm '/tmp/gfortran61.dmg'
+          end
+        end
+
         # Uninstalls the preinstalled homebrew
-        # See FAQ: https://github.com/Homebrew/brew/blob/master/share/doc/homebrew/FAQ.md
+        # See FAQ: https://docs.brew.sh/FAQ#how-do-i-uninstall-old-versions-of-a-formula
         def disable_homebrew
           return unless (config[:os] == 'osx')
           sh.cmd "curl -fsSOL https://raw.githubusercontent.com/Homebrew/install/master/uninstall"
           sh.cmd "sudo ruby uninstall --force"
           sh.cmd "rm uninstall"
         end
+        
+        # Abstract out version check
+        def version_check_less_than(version_str_new, version_str_old)
+            Gem::Version.new(version_str_old) < Gem::Version.new(version_str_new)
+        end
 
         def r_version
           @r_version ||= normalized_r_version
         end
 
-        def normalized_r_version(v=config[:r].to_s)
+        def r_version_less_than(str)
+          return if normalized_r_version == 'devel' # always false (devel is highest version)
+          version_check_less_than(str, normalized_r_version)
+        end
+
+        def normalized_r_version(v=Array(config[:r]).first.to_s)
           case v
-          when 'release' then '3.4.0'
-          when 'oldrel' then '3.3.3'
+          when 'release' then '3.5.0'
+          when 'oldrel' then '3.4.4'
           when '3.0' then '3.0.3'
           when '3.1' then '3.1.3'
           when '3.2' then '3.2.5'
           when '3.3' then '3.3.3'
-          when '3.4' then '3.4.0'
+          when '3.4' then '3.4.4'
+          when '3.5' then '3.5.0'
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true
-            'devel'
+            normalized_r_version('release')
           when 'bioc-release'
             config[:bioc_required] = true
             config[:bioc_use_devel] = false
@@ -541,7 +586,7 @@ module Travis
             v[:CRAN] = config[:cran]
           end
           # If the version is less than 3.2 we need to use http repositories
-          if r_version < '3.2'
+          if r_version_less_than('3.2')
             v.each {|_, url| url.sub!(/^https:/, "http:")}
             config[:bioc].sub!(/^https:/, "http:")
           end

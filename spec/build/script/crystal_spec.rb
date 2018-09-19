@@ -12,8 +12,8 @@ describe Travis::Build::Script::Crystal, :sexp do
     should include_sexp [:cmd, "crystal --version", echo: true]
   end
 
-  it "announces `crystal deps --version`" do
-    should include_sexp [:cmd, "crystal deps --version", echo: true]
+  it "announces `shards --version`" do
+    should include_sexp [:cmd, "shards --version", echo: true]
   end
 
   it "runs tests by default" do
@@ -23,18 +23,37 @@ describe Travis::Build::Script::Crystal, :sexp do
   end
 
   context "versions" do
-    it "installs latest released version by default" do
+    it "installs latest linux release by default" do
+      data[:config][:os] = "linux"
       should include_sexp [:cmd, "sudo apt-get install -y crystal libgmp-dev"]
     end
 
-    it "installs latest released version when explicitly asked for" do
+    it "installs latest macOS release by default" do
+      data[:config][:os] = "osx"
+      should include_sexp [:cmd, "brew install crystal-lang"]
+    end
+
+    it "installs latest linux release when explicitly asked for" do
+      data[:config][:os] = "linux"
       data[:config][:crystal] = "latest"
       should include_sexp [:cmd, "sudo apt-get install -y crystal libgmp-dev"]
     end
 
-    it "installs nightly when specified" do
+    it "installs linux nightly when specified" do
+      data[:config][:os] = "linux"
       data[:config][:crystal] = "nightly"
       should include_sexp [:cmd, "sudo apt-get install -y crystal-nightly libgmp-dev"]
+    end
+
+    it 'throws a error with a non-release version on macOS' do
+      data[:config][:os] = "osx"
+      data[:config][:crystal] = "nightly"
+      should include_sexp [:echo, "Specifying Crystal version is not yet supported by the macOS environment"]
+    end
+
+    it 'throws a error with an invalid OS' do
+      data[:config][:os] = "invalid"
+      should include_sexp [:echo, "Operating system not supported: \"invalid\""]
     end
 
     it 'throws a error with a invalid version' do
