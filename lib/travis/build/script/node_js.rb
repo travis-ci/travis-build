@@ -10,6 +10,10 @@ module Travis
         
         NPM_CI_CMD_VERSION = '5.8.0'
 
+        DEFAULTS = {
+          node_modules: true
+        }
+
         def export
           super
           if node_js_given_in_config?
@@ -19,7 +23,7 @@ module Travis
 
         def setup
           super
-          prepend_path './node_modules/.bin'
+          prepend_path './node_modules/.bin' if config[:node_modules]
           convert_legacy_nodejs_config
           update_nvm
           nvm_install
