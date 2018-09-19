@@ -38,7 +38,7 @@ brew 'jq'
       BREWFILE
 
       it { should include_sexp [:file, ['~/.Brewfile', brewfile]] }
-      it { should include_sexp [:cmd, 'brew bundle --global', echo: true, timing: true] }
+      it { should include_sexp [:cmd, 'brew bundle --verbose --global', echo: true, timing: true] }
     end
 
     context 'with a single package' do
@@ -48,7 +48,7 @@ brew 'imagemagick'
       BREWFILE
 
       it { should include_sexp [:file, ['~/.Brewfile', brewfile]] }
-      it { should include_sexp [:cmd, 'brew bundle --global', echo: true, timing: true] }
+      it { should include_sexp [:cmd, 'brew bundle --verbose --global', echo: true, timing: true] }
     end
   end
 
@@ -67,7 +67,7 @@ cask 'firefox'
       BREWFILE
 
       it { should include_sexp [:file, ['~/.Brewfile', brewfile]] }
-      it { should include_sexp [:cmd, 'brew bundle --global', echo: true, timing: true] }
+      it { should include_sexp [:cmd, 'brew bundle --verbose --global', echo: true, timing: true] }
     end
 
     context 'with a single cask' do
@@ -77,7 +77,7 @@ cask 'google-chrome'
       BREWFILE
 
       it { should include_sexp [:file, ['~/.Brewfile', brewfile]] }
-      it { should include_sexp [:cmd, 'brew bundle --global', echo: true, timing: true] }
+      it { should include_sexp [:cmd, 'brew bundle --verbose --global', echo: true, timing: true] }
     end
   end
 
@@ -96,7 +96,7 @@ tap 'heroku/brew'
       BREWFILE
 
       it { should include_sexp [:file, ['~/.Brewfile', brewfile]] }
-      it { should include_sexp [:cmd, 'brew bundle --global', echo: true, timing: true] }
+      it { should include_sexp [:cmd, 'brew bundle --verbose --global', echo: true, timing: true] }
     end
 
     context 'with a single tap' do
@@ -106,7 +106,7 @@ tap 'heroku/brew'
       BREWFILE
 
       it { should include_sexp [:file, ['~/.Brewfile', brewfile]] }
-      it { should include_sexp [:cmd, 'brew bundle --global', echo: true, timing: true] }
+      it { should include_sexp [:cmd, 'brew bundle --verbose --global', echo: true, timing: true] }
     end
   end
 
@@ -128,15 +128,15 @@ tap 'heroku/brew'
     context 'when using the default location' do
       let(:brew_config) { { brewfile: true } }
 
-      it { should include_sexp [:cmd, 'brew bundle', echo: true, timing: true] }
-      it { should_not include_sexp [:cmd, 'brew bundle --global', echo: true, timing: true] }
+      it { should include_sexp [:cmd, 'brew bundle --verbose', echo: true, timing: true] }
+      it { should_not include_sexp [:cmd, 'brew bundle --verbose --global', echo: true, timing: true] }
     end
 
     context 'when using a custom Brewfile path' do
       let(:brew_config) { { brewfile: 'My Brewfile' } }
 
-      it { should include_sexp [:cmd, 'brew bundle --file=My\ Brewfile', echo: true, timing: true] }
-      it { should_not include_sexp [:cmd, 'brew bundle --global', echo: true, timing: true] }
+      it { should include_sexp [:cmd, 'brew bundle --verbose --file=My\ Brewfile', echo: true, timing: true] }
+      it { should_not include_sexp [:cmd, 'brew bundle --verbose --global', echo: true, timing: true] }
     end
   end
 
@@ -166,7 +166,7 @@ cask 'java8'
 
     it { should include_sexp [:cmd, 'brew update', echo: true, timing: true] }
     it { should include_sexp [:file, ['~/.Brewfile', brewfile]] }
-    it { should include_sexp [:cmd, 'brew bundle --global', echo: true, timing: true] }
-    it { should include_sexp [:cmd, 'brew bundle', echo: true, timing: true] }
+    it { should include_sexp [:cmd, 'brew bundle --verbose --global', echo: true, timing: true] }
+    it { should include_sexp [:cmd, 'brew bundle --verbose', echo: true, timing: true] }
   end
 end
