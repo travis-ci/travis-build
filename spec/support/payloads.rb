@@ -91,5 +91,14 @@ PAYLOAD_LANGUAGE_OVERRIDES = {
       'commit' => '961e635',
       'commit_range' => 'd8f6456..961e635'
     }
+  },
+  python: {
+    'repository' => {
+      'slug' => 'travis-ci-examples/python-example'
+    },
+    'job' => {
+      'commit' => '637a1e8',
+      'commit_range' => '2777cf8..637a1e8'
+    }
   }
 }
