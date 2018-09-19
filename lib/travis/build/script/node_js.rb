@@ -6,6 +6,10 @@ module Travis
 
         YARN_REQUIRED_NODE_VERSION = '4'
 
+        NPM_QUIET_TREE_VERSION = '5'
+        
+        NPM_CI_CMD_VERSION = '5.8.0'
+
         def export
           super
           if node_js_given_in_config?
@@ -39,6 +43,10 @@ module Travis
           sh.cmd 'node --version'
           sh.cmd 'npm --version'
           sh.cmd 'nvm --version'
+          sh.if "-f yarn.lock" do
+             sh.cmd 'yarn --version'
+             sh.cmd 'hash -d yarn', echo: false
+          end
         end
 
         def install
@@ -59,7 +67,17 @@ module Travis
 
         def script
           sh.if '-f package.json' do
-            sh.cmd 'npm test'
+            sh.if "-f yarn.lock" do
+              sh.if yarn_req_not_met do
+                sh.cmd 'npm test'
+              end
+              sh.else do
+                sh.cmd 'yarn test'
+              end
+            end
+            sh.else do
+              sh.cmd 'npm test'
+            end
           end
           sh.else do
             sh.cmd 'make test'
@@ -74,7 +92,7 @@ module Travis
           if data.cache?(:yarn)
             sh.fold 'cache.yarn' do
               sh.echo ''
-              directory_cache.add '$HOME/.cache/yarn'
+              directory_cache.add '${TRAVIS_HOME}/.cache/yarn'
             end
           end
         end
@@ -145,15 +163,16 @@ module Travis
           def update_nvm
             return if app_host.empty?
             sh.echo "Updating nvm", ansi: :yellow, timing: false
-            nvm_dir = "$HOME/.nvm"
+            nvm_dir = "${TRAVIS_HOME}/.nvm"
             sh.raw "mkdir -p #{nvm_dir}"
             sh.raw "curl -s -o #{nvm_dir}/nvm.sh   https://#{app_host}/files/nvm.sh".untaint,   assert: false
             sh.raw "curl -s -o #{nvm_dir}/nvm-exec https://#{app_host}/files/nvm-exec".untaint, assert: false
+            sh.raw "chmod 0755 #{nvm_dir}/nvm.sh #{nvm_dir}/nvm-exec", assert: true
             sh.raw "source #{nvm_dir}/nvm.sh", assert: false
           end
 
           def npm_disable_prefix
-            sh.if "$(command -v sw_vers) && -f $HOME/.npmrc" do
+            sh.if "$(command -v sw_vers) && -f ${TRAVIS_HOME}/.npmrc" do
               sh.cmd "npm config delete prefix"
             end
           end
@@ -173,11 +192,19 @@ module Travis
           end
 
           def npm_strict_ssl?
-            !node_0_6?
+            !node_0_6? && !node_0_8? && !node_0_9?
           end
 
           def node_0_6?
             (config[:node_js] || '').to_s.split('.')[0..1] == %w(0 6)
+          end
+
+          def node_0_8?
+            (config[:node_js] || '').to_s.split('.')[0..1] == %w(0 8)
+          end
+
+          def node_0_9?
+            (config[:node_js] || '').to_s.split('.')[0..1] == %w(0 9)
           end
 
           def use_npm_cache?
@@ -196,7 +223,17 @@ module Travis
           end
 
           def npm_install(args)
-            sh.cmd "npm install #{args}", retry: true, fold: 'install'
+            sh.fold "install.npm" do
+              sh.if "$(travis_vers2int `npm -v`) -ge $(travis_vers2int #{NPM_CI_CMD_VERSION}) && (-f npm-shrinkwrap.json || -f package-lock.json)" do
+                sh.cmd "npm ci #{args}", retry: true
+              end
+              sh.else do
+                sh.cmd "npm install #{args}", retry: true
+              end
+              sh.if "$(travis_vers2int `npm -v`) -gt $(travis_vers2int #{NPM_QUIET_TREE_VERSION})" do
+                sh.cmd "npm ls", echo: true, assert: false
+              end
+            end
           end
 
           def install_yarn
@@ -215,7 +252,7 @@ module Travis
                     sh.echo   "Installing yarn", ansi: :green
                     sh.cmd    "curl -o- -L https://yarnpkg.com/install.sh | bash", echo: true, timing: true
                     sh.echo   "Setting up \\$PATH", ansi: :green
-                    sh.export "PATH", "$HOME/.yarn/bin:$PATH"
+                    sh.export "PATH", "${TRAVIS_HOME}/.yarn/bin:$PATH"
                   end
                 end
               end
@@ -229,7 +266,7 @@ module Travis
           end
 
           def yarn_req_not_met
-            "$(vers2int $(echo `node --version` | tr -d 'v')) -lt $(vers2int #{YARN_REQUIRED_NODE_VERSION})"
+            "$(travis_vers2int $(echo `node --version` | tr -d 'v')) -lt $(travis_vers2int #{YARN_REQUIRED_NODE_VERSION})"
           end
       end
     end

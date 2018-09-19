@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Travis::Build::Script, :sexp do
   let(:config)  { PAYLOADS[:worker_config] }
-  let(:payload) { payload_for(:push, :ruby, config: { cache: 'bundler'}).merge(config) }
+  let(:payload) { payload_for(:push, :ruby, config: { addons: {}, cache: 'bundler'}).merge(config) }
   let(:script)  { Travis::Build.script(payload) }
   let(:code)    { script.compile }
   subject       { script.sexp }
@@ -13,8 +13,8 @@ describe Travis::Build::Script, :sexp do
     expect { code }.to raise_error(Travis::Shell::Generator::TaintedOutput)
   end
 
-  it 'uses $HOME/build as a working directory' do
-    expect(code).to match %r(cd +\$HOME/build)
+  it 'uses ${TRAVIS_BUILD_DIR} as a working directory' do
+    expect(code).to match %r(cd +"\${TRAVIS_BUILD_DIR}")
   end
 
   it 'applies resolv.conf fix' do
@@ -30,7 +30,7 @@ describe Travis::Build::Script, :sexp do
   end
 
   it 'disables sudo' do
-    should include_sexp [:cmd, %r(rm -f /etc/sudoers.d/travis)]
+    should include_sexp [:cmd, 'travis_disable_sudo']
   end
 
   it 'runs casher fetch' do
@@ -41,14 +41,16 @@ describe Travis::Build::Script, :sexp do
     should include_sexp [:cmd, /casher push/, :*]
   end
 
-  describe 'does not exlode' do
+  describe 'does not explode' do
     it 'on script being true' do
       payload[:config][:script] = true
       expect { subject }.to_not raise_error
     end
 
     it 'if s3_options are tainted' do
-      payload['cache_options']['s3']['access_key_id'].taint
+      access_key_id = payload['cache_options']['s3']['access_key_id'].dup
+      access_key_id.taint
+      payload['cache_options']['s3']['access_key_id'] = access_key_id
       expect { code }.to_not raise_error
     end
   end
@@ -69,6 +71,14 @@ describe Travis::Build::Script, :sexp do
     end
   end
 
+  context 'when script phase is `["skip"]`' do
+    it 'execute `travis_run_script` function, and set the test result' do
+      payload[:config][:script] = ['skip']
+      should include_sexp [:raw, 'travis_run_install']
+      should include_sexp [:raw, 'travis_result 0'] # these functions are hard to test, extract an bash ast type :function?
+    end
+  end
+
   context 'when before_install phase is `["skip"]`' do
     it 'executes `travis_run_before_install` function' do
       payload[:config][:before_install] = ['skip']
@@ -80,5 +90,94 @@ describe Travis::Build::Script, :sexp do
   context 'when running a debug build' do
     let(:payload) { payload_for(:push_debug, :ruby, config: { cache: ['apt', 'bundler'] }).merge(config) }
     it_behaves_like 'a debug script'
+  end
+
+  context 'apt-get update' do
+    context 'with APT_GET_UPDATE_OPT_IN not enabled' do
+      before { ENV.delete('APT_GET_UPDATE_OPT_IN') }
+
+      context 'with config[:apt][:update] not given' do
+        before { payload[:config].delete(:apt) }
+        before { payload[:config][:os] = 'linux' }
+        it { expect(code).to include 'travis_apt_get_update' }
+        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
+      end
+
+      context 'with config[:apt][:update] not given and apt-get update used in before_install' do
+        before { payload[:config][:install] = ['apt-get -s install foo'] }
+        it { expect(code).to_not match(/\s*travis_apt_get_update$/) }
+        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
+      end
+
+      context 'with config[:apt][:update] being true' do
+        before { payload[:config][:apt] = { update: true } }
+        it { expect(code).to include 'travis_apt_get_update' }
+        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
+      end
+
+      context 'with config[:apt][:update] being false' do
+        before { payload[:config][:apt] = { update: false } }
+        it { expect(code).to_not match(/\s*travis_apt_get_update$/) }
+        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
+      end
+
+      context 'with config[:addons][:apt][:update] being true' do
+        before { payload[:config][:addons][:apt] = { update: true } }
+        it { expect(code).to_not match(/\s*travis_apt_get_update$/) }
+        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
+      end
+
+      context 'with config[:addons][:apt][:update] being false' do
+        before { payload[:config][:addons][:apt] = { update: false } }
+        it { expect(code).to_not match(/\s*travis_apt_get_update$/) }
+        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
+      end
+    end
+
+    context 'with APT_GET_UPDATE_OPT_IN enabled' do
+      before { ENV['APT_GET_UPDATE_OPT_IN'] = 'true' }
+      after { ENV.delete('APT_GET_UPDATE_OPT_IN') }
+
+      context 'with running on osx' do
+        before { payload[:config][:os] = 'osx' }
+        after { payload[:config][:os] = 'linux' }
+        it { expect(code).to_not match(/\s*travis_apt_get_update$/) }
+        it { expect(code).to_not include 'Running apt-get by default has been disabled' }
+      end
+
+      context 'with config[:apt][:update] not given' do
+        before { payload[:config].delete(:apt) }
+        it { expect(code).to_not match(/\s*travis_apt_get_update$/) }
+      end
+
+      context 'with config[:apt][:update] not given and apt-get update used in before_install' do
+        before { payload[:config][:install] = ['apt-get -s install foo'] }
+        it { code }
+        it { expect(code).to include 'travis_apt_get_update' }
+        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
+      end
+
+      context 'with config[:apt][:update] being true' do
+        before { payload[:config][:apt] = { update: true } }
+        it { expect(code).to include 'travis_apt_get_update' }
+        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
+      end
+
+      context 'with config[:apt][:update] being false' do
+        before { payload[:config][:apt] = { update: false } }
+        it { expect(code).to_not match(/\s*travis_apt_get_update$/) }
+      end
+
+      context 'with config[:addons][:apt][:update] being true' do
+        before { payload[:config][:addons][:apt] = { update: true } }
+        it { expect(code).to include 'travis_apt_get_update' }
+        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
+      end
+
+      context 'with config[:addons][:apt][:update] being false' do
+        before { payload[:config][:addons][:apt] = { update: false } }
+        it { expect(code).to_not match(/\s*travis_apt_get_update$/) }
+      end
+    end
   end
 end

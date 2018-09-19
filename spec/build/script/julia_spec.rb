@@ -19,7 +19,4 @@ describe Travis::Build::Script::Julia, :sexp do
       echo: true, timing: true]
   end
 
-  it "announces `julia -e 'versioninfo()'`" do
-    should include_sexp [:cmd, "julia -e 'versioninfo()'", echo: true]
-  end
 end

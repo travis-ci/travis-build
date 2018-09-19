@@ -10,7 +10,7 @@ describe Travis::Build::Addons::SshKnownHosts, :sexp do
   before       { addon.before_checkout }
 
   def add_host_cmd(host, port = nil)
-    "ssh-keyscan -t $TRAVIS_SSH_KEY_TYPES#{" -p #{port}" if port} -H #{host} 2>&1 | tee -a #{Travis::Build::HOME_DIR}/.ssh/known_hosts"
+    "ssh-keyscan -t $TRAVIS_SSH_KEY_TYPES#{" -p #{port}" if port} -H #{host} 2>&1 | tee -a ${TRAVIS_HOME}/.ssh/known_hosts"
   end
 
   context 'with multiple host config' do
