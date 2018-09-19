@@ -58,7 +58,6 @@ module Travis
         travis_footer
         travis_internal_ruby
         travis_jigger
-        travis_lock_down_env
         travis_nanoseconds
         travis_result
         travis_retry
@@ -72,7 +71,6 @@ module Travis
         travis_wait
         travis_whereami
       ].freeze
-      private_constant :TRAVIS_FUNCTIONS
 
       class << self
         def defaults
@@ -196,7 +194,7 @@ module Travis
 
         def header
           sh.raw '#!/bin/bash'
-          sh.cmd 'declare -a _RO', echo: false, assert: false
+          sh.cmd 'declare -xa _RO', echo: false, assert: false
           sh.export 'TRAVIS_ROOT', root, echo: false, assert: false, readonly: true
           sh.export 'TRAVIS_HOME', home_dir, echo: false, assert: false, readonly: true
           sh.export 'TRAVIS_BUILD_DIR', build_dir, echo: false, assert: false, readonly: true
@@ -281,7 +279,13 @@ module Travis
         def prepare
           apply :services
           apply :fix_ps4 # TODO if this is to fix an rvm issue (as the specs say) then should this go to Rvm instead?
-          sh.raw 'travis_lock_down_env'
+
+          # Declare all entries in _RO to be readonly and exported, then unset
+          # the _RO array to clean up.  This *must* be done at the top level and
+          # *not* within a function or `for` loop in order to have an effect on
+          # the execution environment.
+          sh.raw 'declare -rx "${_RO[@]}"'
+          sh.raw 'unset _RO'
         end
 
         def disable_sudo

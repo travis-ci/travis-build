@@ -20,20 +20,15 @@ travis_setup_env() {
   export USER
 
   case $(uname | tr '[:upper:]' '[:lower:]') in
-  linux*)
-    TRAVIS_OS_NAME=linux
-    ;;
-  darwin*)
-    TRAVIS_OS_NAME=osx
-    ;;
-  *)
-    TRAVIS_OS_NAME=notset
-    ;;
+  linux*) TRAVIS_OS_NAME=linux ;;
+  darwin*) TRAVIS_OS_NAME=osx ;;
+  *) TRAVIS_OS_NAME=notset ;;
   esac
+  export TRAVIS_OS_NAME; _RO+=(TRAVIS_OS_NAME)
 
-  TRAVIS_DIST=notset
-  TRAVIS_INIT=notset
-  TRAVIS_ARCH="$(uname -m)"
+  export TRAVIS_DIST=notset; _RO+=(TRAVIS_DIST)
+  export TRAVIS_INIT=notset; _RO+=(TRAVIS_INIT)
+  export TRAVIS_ARCH="$(uname -m)"; _RO+=(TRAVIS_ARCH)
   if [[ "${TRAVIS_ARCH}" == x86_64 ]]; then
     TRAVIS_ARCH='amd64'
   fi
@@ -51,8 +46,9 @@ travis_setup_env() {
   export TRAVIS_CMD=
 
   TRAVIS_TMPDIR="$(mktemp -d 2>/dev/null || mktemp -d -t 'travis_tmp')"
+  export TRAVIS_TMPDIR; _RO+=(TRAVIS_TMPDIR)
 
-  TRAVIS_INFRA=unknown
+  export TRAVIS_INFRA=unknown; _RO+=(TRAVIS_INFRA)
   if [[ "${TRAVIS_ENABLE_INFRA_DETECTION}" == true ]]; then
     TRAVIS_INFRA="$(travis_whereami | awk -F= '/^infra/ { print $2 }')"
   fi
@@ -61,7 +57,4 @@ travis_setup_env() {
     pgrep -u "${USER}" 2>/dev/null |
       grep -v -w "${$}" >"${TRAVIS_TMPDIR}/pids_before"
   fi
-
-  _RO+=(TRAVIS_ARCH TRAVIS_DIST TRAVIS_DIST TRAVIS_INFRA TRAVIS_INIT)
-  _RO+=(TRAVIS_OS_NAME TRAVIS_TMPDIR)
 }
