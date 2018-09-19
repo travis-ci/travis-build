@@ -6,6 +6,7 @@ describe Travis::Build::Script::NodeJs, :sexp do
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
   it           { store_example }
+  it           { store_example(integration: true) }
 
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=node_js'] }

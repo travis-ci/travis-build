@@ -5,6 +5,7 @@ describe Travis::Build::Script::Python, :sexp do
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
   it           { store_example }
+  it           { store_example(integration: true) }
 
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=python'] }
