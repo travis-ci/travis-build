@@ -18,12 +18,12 @@ describe Travis::Build::Addons::Chrome, :sexp do
     end
 
     it { should include_sexp [:echo, 'Installing Google Chrome stable', ansi: :yellow] }
-    it { should include_sexp [:export, ['CHROME_SOURCE_URL', "http://dl.google.com/dl/linux/direct/google-chrome-stable_current_amd64.deb"], echo: true] }
+    it { should include_sexp [:export, ['CHROME_SOURCE_URL', "https://dl.google.com/dl/linux/direct/google-chrome-stable_current_amd64.deb"], echo: true] }
   end
 
   context 'given a valid version "beta"' do
     let(:version) { 'beta' }
-    it { should include_sexp [:export, ['CHROME_SOURCE_URL', "http://dl.google.com/dl/linux/direct/google-chrome-beta_current_amd64.deb"], echo: true] }
+    it { should include_sexp [:export, ['CHROME_SOURCE_URL', "https://dl.google.com/dl/linux/direct/google-chrome-beta_current_amd64.deb"], echo: true] }
   end
 
   context 'given a invalid version string' do
@@ -34,7 +34,7 @@ describe Travis::Build::Addons::Chrome, :sexp do
     end
 
     it { should include_sexp [:echo, "Invalid version '20.0\\;\\ sudo\\ rm\\ -rf\\ /' given.", ansi: :red] }
-    it { should_not include_sexp [:export, ['CHROME_SOURCE_URL', "http://dl.google.com/dl/linux/direct/google-chrome-stable_current_amd64.deb"], echo: true] }
+    it { should_not include_sexp [:export, ['CHROME_SOURCE_URL', "https://dl.google.com/dl/linux/direct/google-chrome-stable_current_amd64.deb"], echo: true] }
   end
 end
 

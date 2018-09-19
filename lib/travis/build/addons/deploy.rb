@@ -19,14 +19,13 @@ module Travis
           # sh.if('$TRAVIS_TEST_RESULT = 0') do
           #   providers.map(&:deploy)
           # end
-          providers.map(&:deploy)
-        end
-
-        private
-
-          def providers
-            config.map { |config| Script.new(script, sh, data, config) }
+          last_deploy = nil
+          config.each_with_index do |config, id|
+            provider = Script.new(script, sh, data, config, id, last_deploy)
+            provider.deploy
+            last_deploy = config
           end
+        end
       end
     end
   end

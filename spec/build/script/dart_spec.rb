@@ -243,10 +243,18 @@ describe Travis::Build::Script::Dart, :sexp do
     describe 'with dartfmt' do
       before { data[:config][:dart_task] = 'dartfmt' }
 
-      describe 'when dart_style is installed' do
+      describe 'when dart_style is installed but dartfmt: sdk is not specified' do
         let(:sexp) { sexp_find(subject, [:elif, "[[ -f pubspec.yaml ]] && (pub deps | grep -q \"^[|']-- dart_style \")"]) }
         it "runs the installed version of dartfmt" do
           should include_sexp [:raw, 'function dartfmt() { pub run dart_style:format "$@"; }']
+        end
+      end
+
+      describe 'when dart_style is installed but darfmt: sdk is specified' do
+        before { data[:config][:dart_task] = {dartfmt: 'sdk'} }
+        let(:sexp) { sexp_find(subject, [:elif, "[[ -f pubspec.yaml ]] && (pub deps | grep -q \"^[|']-- dart_style \")"]) }
+        it "runs the SDK version of dartfmt" do
+          should match_sexp [:cmd, /dartfmt -n \./]
         end
       end
 

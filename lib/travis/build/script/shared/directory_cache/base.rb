@@ -102,11 +102,11 @@ module Travis
           end
 
           def run_rvm_use
-            sh.raw "rvm use $(rvm current >&/dev/null) >&/dev/null"
+            sh.raw "rvm use $(rvm current 2>/dev/null) >&/dev/null"
           end
 
           def install
-            sh.export 'CASHER_DIR', '$HOME/.casher'
+            sh.export 'CASHER_DIR', '${TRAVIS_HOME}/.casher'
 
             sh.mkdir '$CASHER_DIR/bin', echo: false, recursive: true
             update_static_file('casher', BIN_PATH, casher_url, true)

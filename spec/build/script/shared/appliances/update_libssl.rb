@@ -1,5 +1,5 @@
 shared_examples_for 'update libssl1.0.0' do
-  let(:update_libssl) { "apt-get install libssl1.0.0" }
+  let(:update_libssl) { "apt-get install ca-certificates libssl1.0.0" }
 
   context "when sudo is available" do
     it "does not update libssl1.0.0" do

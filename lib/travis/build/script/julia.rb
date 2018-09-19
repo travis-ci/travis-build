@@ -20,6 +20,7 @@ module Travis
 
           sh.export 'TRAVIS_JULIA_VERSION', config[:julia].to_s.shellescape,
             echo: false
+          sh.export 'JULIA_PROJECT', "@."
         end
 
         def setup
@@ -31,8 +32,8 @@ module Travis
             ansi: :green
           sh.echo '  https://github.com/travis-ci/travis-ci/issues' \
             '/new?labels=julia', ansi: :green
-          sh.echo 'and mention \`@tkelman\`, \`@ninjin\`, \`@staticfloat\`' \
-            ' and \`@simonbyrne\` in the issue', ansi: :green
+          sh.echo 'and mention \`@travis-ci/julia-maintainers\`' \
+            'in the issue', ansi: :green
 
           sh.fold 'Julia-install' do
             sh.echo 'Installing Julia', ansi: :yellow
@@ -50,38 +51,45 @@ module Travis
             else
               sh.failure "Operating system not supported: #{config[:os]}"
             end
-            sh.cmd 'export PATH="${PATH}:${HOME}/julia/bin"'
+            sh.cmd 'export PATH="${PATH}:${TRAVIS_HOME}/julia/bin"'
           end
         end
 
         def announce
           super
 
-          sh.cmd "julia -e 'versioninfo()'"
+          sh.cmd 'julia --color=yes -e "VERSION >= v\"0.7.0-DEV.3630\" && using InteractiveUtils; versioninfo()"'
           sh.echo ''
         end
 
         def script
           sh.echo 'Executing the default test script', ansi: :green
-          set_jl_pkg
+
+          # Extract the package name from the repository slug (org/pkgname.jl)
+          m = /(\w+?)\/(\w+?)(?:\.jl)?$/.match(data[:repository][:slug])
+          if m != nil
+            sh.export 'JL_PKG', m[2]
+          end
           sh.echo 'Package name determined from repository url to be ${JL_PKG}',
             ansi: :green
-          # Check if the repository is a Julia package.
-          sh.if "-f src/${JL_PKG}.jl" do
+          # Check if the repository is using new Pkg
+          sh.if "-f Project.toml || -f JuliaProject.toml" do
             sh.if '-a .git/shallow' do
               sh.cmd 'git fetch --unshallow'
             end
-            sh.cmd "julia --color=yes -e 'Pkg.clone(pwd())'"
-            sh.cmd 'julia --color=yes -e "Pkg.build(\"${JL_PKG}\")"'
-            sh.if '-f test/runtests.jl' do
-              sh.cmd 'julia --check-bounds=yes --color=yes ' \
-                '-e "Pkg.test(\"${JL_PKG}\", coverage=true)"'
-            end
+            # build
+            sh.cmd 'julia --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; Pkg.clone(pwd()); Pkg.build(\"${JL_PKG}\"); else using Pkg; Pkg.build(); end"'
+            # run tests
+            sh.cmd 'julia --check-bounds=yes --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; Pkg.test(\"${JL_PKG}\", coverage=true); else using Pkg; Pkg.test(coverage=true); end"'
           end
           sh.else do
-            sh.echo '\`src/${JL_PKG}.jl\` not found, repository is not a '\
-              'valid Julia package so the default test script is empty',
-              ansi: :yellow
+            sh.if '-a .git/shallow' do
+              sh.cmd 'git fetch --unshallow'
+            end
+            # build
+            sh.cmd 'julia --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; Pkg.clone(pwd()); Pkg.build(\"${JL_PKG}\")"'
+            # run tests
+            sh.cmd 'julia --check-bounds=yes --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; Pkg.test(\"${JL_PKG}\", coverage=true)"'
           end
         end
 
@@ -94,33 +102,24 @@ module Travis
               ext = 'linux-x86_64.tar.gz'
               nightlyext = 'linux64.tar.gz'
             when 'osx'
-              osarch = 'osx/x64'
-              ext = 'osx10.7+.dmg'
-              nightlyext = 'osx.dmg'
+              osarch = 'mac/x64'
+              ext = 'mac64.dmg'
+              nightlyext = ext
             end
-            case config[:julia].to_s
+            case julia_version = Array(config[:julia]).first.to_s
             when 'release'
               # CHANGEME on new minor releases (once or twice a year)
-              url = "julialang-s3.julialang.org/bin/#{osarch}/0.5/julia-0.5-latest-#{ext}"
+              url = "julialang-s3.julialang.org/bin/#{osarch}/0.6/julia-0.6-latest-#{ext}"
             when 'nightly'
               url = "julialangnightlies-s3.julialang.org/bin/#{osarch}/julia-latest-#{nightlyext}"
             when /^(\d+\.\d+)\.\d+$/
-              url = "julialang-s3.julialang.org/bin/#{osarch}/#{$1}/julia-#{config[:julia]}-#{ext}"
+              url = "julialang-s3.julialang.org/bin/#{osarch}/#{$1}/julia-#{julia_version}-#{ext}"
             when /^(\d+\.\d+)$/
               url = "julialang-s3.julialang.org/bin/#{osarch}/#{$1}/julia-#{$1}-latest-#{ext}"
             else
-              sh.failure "Unknown Julia version: #{config[:julia]}"
+              sh.failure "Unknown Julia version: #{julia_version}"
             end
             "https://#{url}"
-          end
-
-          def set_jl_pkg
-            # Regular expression from: julia:base/pkg/entry.jl
-            urlregex = 'r"(?:^|[/\\\\])(\w+?)(?:\.jl)?(?:\.git)?$"'
-            jlcode = "println(match(#{urlregex}, readchomp(STDIN)).captures[1])"
-            shurl = "git remote -v | head -n 1 | cut -f 2 | cut -f 1 -d ' '"
-            sh.export 'JL_PKG', "$(#{shurl} | julia -e '#{jlcode}')",
-              echo: false
           end
       end
     end
