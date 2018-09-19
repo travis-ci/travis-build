@@ -83,6 +83,15 @@ PAYLOADS = {
 }.freeze
 
 PAYLOAD_LANGUAGE_OVERRIDES = {
+  node_js: {
+    'repository' => {
+      'slug' => 'travis-ci-examples/node_js-example'
+    },
+    'job' => {
+      'commit' => 'e2c19ee',
+      'commit_range' => 'dcdfff5..e2c19ee'
+    }
+  },
   ruby: {
     'repository' => {
       'slug' => 'travis-ci-examples/ruby-example'
