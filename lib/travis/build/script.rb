@@ -279,13 +279,6 @@ module Travis
         def prepare
           apply :services
           apply :fix_ps4 # TODO if this is to fix an rvm issue (as the specs say) then should this go to Rvm instead?
-
-          # Declare all entries in _RO to be readonly and exported, then unset
-          # the _RO array to clean up.  This *must* be done at the top level and
-          # *not* within a function or `for` loop in order to have an effect on
-          # the execution environment.
-          sh.raw 'declare -rx "${_RO[@]}"'
-          sh.raw 'unset _RO'
         end
 
         def disable_sudo

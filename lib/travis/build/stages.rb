@@ -91,6 +91,14 @@ module Travis
             case stage.run_in_debug
             when :always
               sh.raw "travis_run_#{stage.name}"
+              if stage.name == :export
+                # Declare all entries in _RO to be readonly and exported, then unset the
+                # _RO array to clean up.  This *must* be done at the top level and *not*
+                # within a function or `for` loop in order to have an effect on the
+                # execution environment.
+                sh.raw 'declare -rx "${_RO[@]}"'
+                sh.raw 'unset _RO'
+              end
             when true
               sh.raw "travis_run_#{stage.name}" if debug_build?
             when false
