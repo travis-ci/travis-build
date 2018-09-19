@@ -31,6 +31,11 @@ describe Travis::Build::Script::Perl, :sexp do
     should include_sexp [:cmd, 'perlbrew use 5.20', echo: true, timing: true]
   end
 
+  it 'accepts an array and use the first value' do
+    data[:config][:perl] = %w( 5.22 )
+    should include_sexp [:cmd, 'perlbrew use 5.22', echo: true, timing: true]
+  end
+
   it 'announces perl --version' do
     should include_sexp [:cmd, 'perl --version', echo: true]
   end

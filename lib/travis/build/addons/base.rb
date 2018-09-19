@@ -1,12 +1,14 @@
+require 'forwardable'
 require 'travis/build/helpers/template'
 
 module Travis
   module Build
     class Addons
       class Base
-        include Template
-
         attr_reader :script, :sh, :data, :config
+
+        extend Forwardable
+        def_delegators :script, :bash
 
         def initialize(script, sh, data, config)
           @script = script

@@ -8,7 +8,7 @@ module Travis
       class SetupFilter < Base
         class Rollout < Struct.new(:data)
           def matches?
-            Travis::Rollout.matches?(:redirect_io, uid: repo_id, owner: owner_login)
+            Travis::Rollout.matches?(:redirect_io, uid: repo_id, owner: owner_login) && !blocklist.include?(owner_login)
           end
 
           def repo_id
@@ -21,6 +21,10 @@ module Travis
 
           def owner_login
             repo_slug.split('/').first
+          end
+
+          def blocklist
+            ENV["ROLLOUT_REDIRECT_IO_OWNERS_BLOCKLIST"].to_s.split(',')
           end
         end
 
@@ -45,7 +49,7 @@ module Travis
               export TRAVIS_FILTERED=pty
               %{curl}
               %{exports}
-              exec ruby ~/filter.rb "/usr/bin/env TERM=xterm /bin/bash --login $HOME/build.sh" %{args}
+              exec ruby ~/filter.rb "/usr/bin/env TERM=xterm /bin/bash --login ${TRAVIS_HOME}/build.sh" %{args}
             fi
           ),
           redirect_io: %(

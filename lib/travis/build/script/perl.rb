@@ -13,7 +13,7 @@ module Travis
 
         def configure
           super
-          sh.if "! -x $HOME/perl5/perlbrew/perls/#{version}/bin/perl" do
+          sh.if "! -x ${TRAVIS_HOME}/perl5/perlbrew/perls/#{version}/bin/perl" do
             sh.echo "#{version} is not installed; attempting download", ansi: :yellow
             install_perl_archive(version)
           end
@@ -57,7 +57,7 @@ module Travis
         }
 
         def version
-          version = config[:perl].to_s
+          version = Array(config[:perl]).first.to_s
           VERSIONS[version] || version
         end
 
