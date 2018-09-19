@@ -24,7 +24,7 @@ module Travis
 
           def add_ssh_known_hosts
             sh.fold 'ssh_known_hosts.0' do
-              sh.echo "Adding ssh known hosts (BETA)", ansi: :yellow
+              sh.echo "Adding ssh known hosts", ansi: :yellow
               config.each do |host|
                 begin
                   host_uri = URI("ssh://#{host}")
@@ -48,7 +48,7 @@ module Travis
                 ssh_keyscan_command = "ssh-keyscan -t $TRAVIS_SSH_KEY_TYPES"
                 ssh_keyscan_command << " -p #{Shellwords.escape(host_uri.port)}" if host_uri.port
                 ssh_keyscan_command << " -H #{Shellwords.escape(host_uri.host)}"
-                sh.cmd "#{ssh_keyscan_command} 2>&1 | tee -a #{Travis::Build::HOME_DIR}/.ssh/known_hosts", echo: true, timing: true
+                sh.cmd "#{ssh_keyscan_command} 2>&1 | tee -a ${TRAVIS_HOME}/.ssh/known_hosts", echo: true, timing: true
               end
             end
           end

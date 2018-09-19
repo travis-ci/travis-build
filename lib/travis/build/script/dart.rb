@@ -57,7 +57,7 @@ MESSAGE
               # Enable Multiverse Packages:
               sh.cmd "sudo sh -c 'echo \"deb http://gce_debian_mirror.storage.googleapis.com precise contrib non-free\" >> /etc/apt/sources.list'"
               sh.cmd "sudo sh -c 'echo \"deb http://gce_debian_mirror.storage.googleapis.com precise-updates contrib non-free\" >> /etc/apt/sources.list'"
-              sh.cmd "sudo sh -c 'apt-get update'"
+              sh.cmd 'travis_apt_get_update'
 
               # Pre-accepts MSFT Fonts EULA:
               sh.cmd "sudo sh -c 'echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections'"
@@ -71,6 +71,9 @@ MESSAGE
         def export
           super
 
+          sh.export 'TRAVIS_DART_TEST', (!!task[:test]).to_s, echo: false
+          sh.export 'TRAVIS_DART_ANALYZE', (!!task[:dartanalyzer]).to_s, echo: false
+          sh.export 'TRAVIS_DART_FORMAT', (!!task[:dartfmt]).to_s, echo: false
           sh.export 'TRAVIS_DART_VERSION', task[:dart], echo: false
         end
 
@@ -90,20 +93,20 @@ MESSAGE
 
           sh.fold 'dart_install' do
             sh.echo 'Installing Dart', ansi: :yellow
-            sh.cmd "curl #{archive_url}/sdk/dartsdk-#{os}-x64-release.zip > $HOME/dartsdk.zip"
-            sh.cmd "unzip $HOME/dartsdk.zip -d $HOME > /dev/null"
-            sh.cmd "rm $HOME/dartsdk.zip"
-            sh.cmd 'export DART_SDK="$HOME/dart-sdk"'
+            sh.cmd "curl --connect-timeout 15 --retry 5 #{archive_url}/sdk/dartsdk-#{os}-x64-release.zip > ${TRAVIS_HOME}/dartsdk.zip"
+            sh.cmd "unzip ${TRAVIS_HOME}/dartsdk.zip -d ${TRAVIS_HOME} > /dev/null"
+            sh.cmd "rm ${TRAVIS_HOME}/dartsdk.zip"
+            sh.cmd 'export DART_SDK="${TRAVIS_HOME}/dart-sdk"'
             sh.cmd 'export PATH="$DART_SDK/bin:$PATH"'
-            sh.cmd 'export PATH="$HOME/.pub-cache/bin:$PATH"'
+            sh.cmd 'export PATH="${TRAVIS_HOME}/.pub-cache/bin:$PATH"'
           end
 
           if task[:install_dartium]
             sh.fold 'dartium_install' do
               sh.echo 'Installing Dartium', anis: :yellow
 
-              sh.cmd "mkdir $HOME/dartium"
-              sh.cmd "cd $HOME/dartium"
+              sh.cmd "mkdir ${TRAVIS_HOME}/dartium"
+              sh.cmd "cd ${TRAVIS_HOME}/dartium"
               sh.cmd "curl #{archive_url}/dartium/dartium-#{os}-x64-release.zip > dartium.zip"
               sh.cmd "unzip dartium.zip > /dev/null"
               sh.cmd "rm dartium.zip"
@@ -130,8 +133,8 @@ MESSAGE
               sh.echo 'Installing Content Shell', ansi: :yellow
 
               # Download and install Content Shell
-              sh.cmd "mkdir $HOME/content_shell"
-              sh.cmd "cd $HOME/content_shell"
+              sh.cmd "mkdir ${TRAVIS_HOME}/content_shell"
+              sh.cmd "cd ${TRAVIS_HOME}/content_shell"
               sh.cmd "curl #{archive_url}/dartium/content_shell-linux-x64-release.zip > content_shell.zip"
               sh.cmd "unzip content_shell.zip > /dev/null"
               sh.cmd "rm content_shell.zip"
@@ -227,20 +230,34 @@ MESSAGE
           def dartfmt
             args = task[:dartfmt]
 
-            if args.is_a?(String)
-              sh.echo "dartfmt arguments aren't supported.", ansi: :red
-            end
-
-            sh.if package_installed?('dart_style'), raw: true do
-              sh.raw 'function dartfmt() { pub run dart_style:format "$@"; }'
+            # If specified `-dartfmt: sdk` and there is a dependency on `dart_style` we
+            # will use the SDK version of dart_style to run formatting checks instead of
+            # the custom pinned version.
+            if args != 'sdk'
+              if !args.nil?
+                sh.echo "dartfmt only supports 'sdk' as an optional argument value.", ansi: :red
+              end
+              sh.if package_direct_dependency?('dart_style'), raw: true do
+                sh.echo 'Using the provided dart_style package to run format instead of the SDK.'
+                sh.echo "You may specify '- dartfmt: sdk' in order to use the SDK version instead"
+                sh.raw 'function dartfmt() { pub run dart_style:format "$@"; }'
+              end
             end
 
             sh.cmd 'unformatted=`dartfmt -n .`'
+            # If `dartfmt` fails for some reason
+            sh.if '$? -ne 0' do
+              sh.failure ""
+            end
             sh.if '! -z "$unformatted"' do
               sh.echo "Files are unformatted:", ansi: :red
               sh.echo "$unformatted"
               sh.failure ""
             end
+          end
+
+          def package_direct_dependency?(package)
+            "[[ -f pubspec.yaml ]] && (pub deps | grep -q \"^[|']-- #{package} \")"
           end
 
           def package_installed?(package)

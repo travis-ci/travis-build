@@ -1,8 +1,11 @@
+require 'travis/support'
+
 module Travis
   module Build
     autoload :Config, 'travis/build/config'
+    autoload :Bash, 'travis/build/bash'
 
-    HOME_DIR  = '$HOME'
+    HOME_DIR  = '${HOME}'
     BUILD_DIR = File.join(HOME_DIR, 'build')
 
     def config
@@ -10,6 +13,14 @@ module Travis
     end
 
     module_function :config
+
+    def top
+      @top ||= Pathname.new(
+        `git rev-parse --show-toplevel 2>/dev/null`.strip
+      )
+    end
+
+    module_function :top
 
     class << self
       def version
@@ -36,13 +47,19 @@ module Travis
           Script::Cpp
         when 'objective-c', 'swift' then
           Script::ObjectiveC
-        when 'bash', 'sh', 'shell' then
+        when 'bash', 'sh', 'shell', 'minimal' then
           Script::Generic
         else
           name = lang.split('_').map { |w| w.capitalize }.join
           Script.const_get(name, false) rescue Script::Ruby
         end
       end
+
+      def logger
+        @logger ||= Travis::Logger.configure(Logger.new(STDOUT))
+      end
+
+      attr_writer :logger
     end
   end
 end

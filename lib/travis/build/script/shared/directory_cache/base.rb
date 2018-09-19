@@ -102,11 +102,11 @@ module Travis
           end
 
           def run_rvm_use
-            sh.raw "rvm use $(rvm current >&/dev/null) >&/dev/null"
+            sh.raw "rvm use $(rvm current 2>/dev/null) >&/dev/null"
           end
 
           def install
-            sh.export 'CASHER_DIR', '$HOME/.casher'
+            sh.export 'CASHER_DIR', '${TRAVIS_HOME}/.casher'
 
             sh.mkdir '$CASHER_DIR/bin', echo: false, recursive: true
             update_static_file('casher', BIN_PATH, casher_url, true)
@@ -292,10 +292,12 @@ module Travis
 
             def update_static_file(name, location, remote_location, assert = false)
               flags = "-sf #{debug_flags}"
-              cmd_opts = {retry: true, echo: 'Installing caching utilities'}
+              cmd_opts = {retry: true, assert: false, echo: 'Installing caching utilities'}
               if casher_branch == 'production'
-                sh.cmd curl_cmd(flags, location, "https://#{app_host}/files/#{name}".untaint), cmd_opts
+                static_file_location = "https://#{app_host}/files/#{name}".untaint
+                sh.cmd curl_cmd(flags, location, static_file_location), cmd_opts
                 sh.if "$? -ne 0" do
+                  cmd_opts[:echo] = "Installing caching utilities from the Travis CI server (#{static_file_location}) failed, failing over to using GitHub (#{remote_location})"
                   sh.cmd curl_cmd(flags, location, remote_location), cmd_opts
                 end
               else

@@ -34,6 +34,11 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
   let(:cache)         { described_class.new(sh, Travis::Build::Data.new(data), 'example', Time.at(10)) }
   let(:subject)       { sh.to_sexp }
 
+  before do
+    # Set an app_host so casher messages are right
+    Travis::Build.config.app_host = 'build.travis-ci.org'
+  end
+
   describe 'validate' do
     before { cache.valid? }
 
@@ -51,11 +56,12 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
     before { cache.install }
 
     let(:url) { "https://raw.githubusercontent.com/travis-ci/casher/#{branch}/bin/casher" }
-    let(:cmd) { [:cmd,  "curl -sf  -o $CASHER_DIR/bin/casher #{url}",retry: true, echo: 'Installing caching utilities'] }
+    let(:cmd) { [:cmd,  "curl -sf  -o $CASHER_DIR/bin/casher #{url}", retry: true, echo: 'Installing caching utilities'] }
 
     describe 'uses casher production in default mode' do
       let(:branch) { 'production' }
-      it { should include_sexp [:export, ['CASHER_DIR', '$HOME/.casher'], echo: true] }
+      let(:cmd) { [:cmd,  "curl -sf  -o $CASHER_DIR/bin/casher #{url}",retry: true, echo: "Installing caching utilities from the Travis CI server (https://#{Travis::Build.config.app_host}/files/casher) failed, failing over to using GitHub (#{url})"] }
+      it { should include_sexp [:export, ['CASHER_DIR', '${TRAVIS_HOME}/.casher'], echo: true] }
       it { should include_sexp [:mkdir, '$CASHER_DIR/bin', recursive: true] }
       it { should include_sexp cmd }
       it { should include_sexp [:echo, 'Failed to fetch casher from GitHub, disabling cache.', ansi: :yellow] }
