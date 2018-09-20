@@ -125,8 +125,12 @@ module Travis
           end
 
           def github?
-            host = data.source_host.downcase
-            host == 'github.com' || host.end_with?('.github.com')
+            if data.source_host != nil
+              host = data.source_host.downcase
+              host == 'github.com' || host.end_with?('.github.com')
+            else
+              host = 'github.com'
+            end
           end
       end
     end
