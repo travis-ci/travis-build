@@ -16,11 +16,13 @@ gem 'sentry-raven'
 gem 'sinatra', '~> 1.4'
 gem 'travis'
 gem 'travis-config'
+gem 'travis-github_apps', git: 'https://github.com/travis-ci/travis-github_apps'
 gem 'travis-rollout', git: 'https://github.com/travis-ci/travis-rollout', ref: 'sf-refactor'
 gem 'travis-support', git: 'https://github.com/travis-ci/travis-support'
 
 gem 'faraday'
 gem 'faraday_middleware'
+gem 'minitar'
 
 group :development do
   gem 'rerun'

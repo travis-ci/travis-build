@@ -10,7 +10,8 @@ data = {
   },
   repository: {
     slug: 'travis-ci/travis-support',
-    source_url: 'http://github.com/travis-ci/travis-support.git'
+    installation_id: 1,
+    source_url: 'https://github.com/travis-ci/travis-support.git'
   },
   source: {
     id: 1,

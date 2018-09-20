@@ -5,11 +5,7 @@ module Travis
     module Appliances
       class NoIpv6Localhost < Base
         def apply
-          sh.raw %(sudo sed -e 's/^\\([0-9a-f:]\\+\\) localhost/\\1/' -i'.bak' /etc/hosts)
-        end
-
-        def apply?
-          super && !data.disable_sudo?
+          sh.raw %(sed -e 's/^\\([0-9a-f:]\\+\\s\\)localhost/\\1/' /etc/hosts > /tmp/hosts.tmp && cat /tmp/hosts.tmp | sudo tee /etc/hosts > /dev/null 2>&1)
         end
       end
     end

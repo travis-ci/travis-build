@@ -13,9 +13,9 @@ module Travis
       STAGES = [
         Stage.new(:builtin,     :setup_filter,   :always),
         Stage.new(:builtin,     :configure,      :always),
-        Stage.new(:builtin,     :checkout,       :always),
         Stage.new(:builtin,     :prepare,        :always),
         Stage.new(:builtin,     :disable_sudo,   :always),
+        Stage.new(:builtin,     :checkout,       :always),
         Stage.new(:builtin,     :export,         :always),
         Stage.new(:builtin,     :setup,          :always),
         Stage.new(:builtin,     :setup_casher,   :always),
@@ -76,22 +76,28 @@ module Travis
       def run
         define_header_stage
 
+        sh.raw "# START_FUNCS"
+
         STAGES.each do |stage|
           define_stage(stage.type, stage.name)
         end
 
-        sh.raw "source $HOME/.travis/job_stages"
+        sh.raw "# END_FUNCS"
 
-        STAGES.each do |stage|
-          case stage.run_in_debug
-          when :always
-            sh.raw "travis_run_#{stage.name}"
-          when true
-            sh.raw "travis_run_#{stage.name}" if debug_build?
-          when false
-            sh.raw "travis_run_#{stage.name}" unless debug_build?
+        sh.raw "source ${TRAVIS_HOME}/.travis/job_stages"
+
+        sh.trace_root {
+          STAGES.each do |stage|
+            case stage.run_in_debug
+            when :always
+              sh.raw "travis_run_#{stage.name}"
+            when true
+              sh.raw "travis_run_#{stage.name}" if debug_build?
+            when false
+              sh.raw "travis_run_#{stage.name}" unless debug_build?
+            end
           end
-        end
+        }
       end
 
       def define_header_stage
@@ -104,7 +110,7 @@ module Travis
       end
 
       def define_stage(type, name)
-        sh.raw "cat <<'EOFUNC_#{name.upcase}' >>$HOME/.travis/job_stages"
+        sh.raw "cat <<'EOFUNC_#{name.upcase}' >>${TRAVIS_HOME}/.travis/job_stages"
         sh.raw "function travis_run_#{name}() {"
         commands = run_stage(type, name)
         close = (commands.nil? || commands.empty?) ? ":\n}" : "}"
@@ -116,7 +122,9 @@ module Travis
         type = :builtin if fallback?(type, name)
         type = :skip    if skip?(type, name)
         stage = self.class.const_get(type.to_s.camelize).new(script, name)
-        stage.run
+        sh.trace(name) {
+          stage.run
+        }
       end
 
       def debug_build?
@@ -124,7 +132,7 @@ module Travis
       end
 
       def skip?(type, name)
-        type != :builtin && SKIP_KEYWORDS.any? { |word| config[name] == word }
+        type != :builtin && SKIP_KEYWORDS.any? { |word| Array(config[name]) == Array(word) }
       end
     end
   end

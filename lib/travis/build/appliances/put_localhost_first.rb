@@ -6,7 +6,7 @@ module Travis
       class PutLocalhostFirst < Base
         def apply
           # gather names mapped to 127.0.0.1
-          sh.raw %q(grep '^127\.0\.0\.1' /etc/hosts | sed -e 's/^127\.0\.0\.1 \\(.*\\)/\1/g' | sed -e 's/localhost \\(.*\\)/\1/g' | tr "\n" " " > /tmp/hosts_127_0_0_1)
+          sh.raw %q(grep '^127\.0\.0\.1' /etc/hosts | sed -e 's/^127\.0\.0\.1\\s\\{1,\\}\\(.*\\)/\1/g' | sed -e 's/localhost \\(.*\\)/\1/g' | tr "\n" " " > /tmp/hosts_127_0_0_1)
           # remove lines with 127.0.0.1
           sh.raw %q(sed '/^127\.0\.0\.1/d' /etc/hosts > /tmp/hosts_sans_127_0_0_1)
           # reconstruct /etc/hosts

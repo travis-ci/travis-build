@@ -54,7 +54,7 @@ describe Travis::Build::Script::Haskell, :sexp do
       end
 
       it 'checks for existing installation' do
-        should include_sexp [:raw, %(if [[ !(travis_ghc_find '#{ghc_config[:ghc]}' &>/dev/null) || $(cabal --numeric-version 2>/dev/null) != #{ghc_config[:cabal]}* ]]; then)]
+        should include_sexp [:raw, %(if [[ ! $(travis_ghc_find #{ghc_config[:ghc]} &>/dev/null) || $(cabal --numeric-version 2>/dev/null) != #{ghc_config[:cabal]}* ]]; then)]
       end
 
       it 'installs ghc version when not present' do
@@ -67,10 +67,9 @@ describe Travis::Build::Script::Haskell, :sexp do
 
   context 'when valid alias ghc version is given' do
     before do
-      described_class.const_set(
-        :GHC_VERSION_ALIASES,
-        described_class::GHC_VERSION_ALIASES.dup.merge('rad' => '8.0.9')
-      )
+      aliases = described_class::GHC_VERSION_ALIASES.dup.merge('rad' => '8.0.9')
+      described_class.send(:remove_const, :GHC_VERSION_ALIASES)
+      described_class.const_set(:GHC_VERSION_ALIASES, aliases)
       data[:config][:ghc] = 'rad'
     end
 

@@ -14,16 +14,26 @@ module Travis
         }
 
         def apply
-          sh.fold 'services' do
-            services.each do |name|
-              service_apply_method = "apply_#{name}"
-              if respond_to?(service_apply_method)
-                send(service_apply_method)
-                next
+          sh.if '"$TRAVIS_OS_NAME" != "linux"' do
+            sh.echo 'Services are not supported on "$TRAVIS_OS_NAME"', ansi: :red
+          end
+          sh.else do
+            sh.fold 'services' do
+              services.each do |name|
+                service_apply_method = "apply_#{name}"
+                if respond_to?(service_apply_method)
+                  send(service_apply_method)
+                  next
+                end
+                sh.if '"$TRAVIS_INIT" == upstart' do
+                  sh.cmd "sudo service #{name.shellescape} start", assert: false, echo: true, timing: true
+                end
+                sh.elif '"$TRAVIS_INIT" == systemd' do
+                  sh.cmd "sudo systemctl start #{name.shellescape}", assert: false, echo: true, timing: true
+                end
               end
-              sh.cmd "sudo service #{name.shellescape} start", assert: false, echo: true, timing: true
+              sh.raw 'sleep 3'
             end
-            sh.raw 'sleep 3'
           end
         end
 
@@ -32,11 +42,14 @@ module Travis
         end
 
         def apply_mongodb
-          sh.if "$(lsb_release -cs) != 'precise'" do
-            sh.cmd 'sudo service mongod start', assert: false, echo: true, timing: true
+          sh.if '"$TRAVIS_DIST" == precise' do
+            sh.cmd 'sudo service mongodb start', echo: true, timing: true
           end
-          sh.else do
-            sh.cmd 'sudo service mongodb start', assert: false, echo: true, timing: true
+          sh.elif '"$TRAVIS_INIT" == upstart' do
+            sh.cmd 'sudo service mongod start', echo: true, timing: true
+          end
+          sh.elif '"$TRAVIS_INIT" == systemd' do
+            sh.cmd 'sudo systemctl start mongod', echo: true, timing: true
           end
         end
 
@@ -51,8 +64,19 @@ module Travis
               unset -f travis_mysql_ping
             }
           BASH
-          sh.cmd 'sudo service mysql start', assert: false, echo: true, timing: true
-          sh.cmd 'travis_mysql_ping', assert: false, echo: false, timing: false
+          sh.if '"$TRAVIS_INIT" == upstart' do
+            sh.cmd 'sudo service mysql start', assert: false, echo: true, timing: true
+          end
+          sh.elif '"$TRAVIS_INIT" == systemd' do
+            sh.cmd 'sudo systemctl start mysql', assert: false, echo: true, timing: true
+          end
+          sh.cmd 'travis_mysql_ping'
+        end
+
+        def apply_postgresql
+          return if data[:config]&.[](:addons)&.[](:postgresql)
+          sh.raw bash('travis_setup_postgresql'), echo: false, timing: false
+          sh.cmd 'travis_setup_postgresql', echo: true, timing: true
         end
 
         private

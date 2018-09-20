@@ -49,11 +49,11 @@ module Travis
           end
 
           def update_lein(version)
-            sh.if "! -f $HOME/.lein/self-installs/home/travis/.lein/leiningen-#{version}-standalone.jar" do
+            sh.if "! -f ${TRAVIS_HOME}/.lein/self-installs/home/travis/.lein/leiningen-#{version}-standalone.jar" do
               sh.fold "leiningen.update" do
                 sh.echo "Updating leiningen to #{version}", ansi: :yellow
                 sh.cmd "env LEIN_ROOT=true curl -L -o /usr/local/bin/lein https://raw.githubusercontent.com/technomancy/leiningen/#{version}/bin/lein", echo: true, assert: true, sudo: true
-                sh.cmd "rm -rf $HOME/.lein", echo: false
+                sh.cmd "rm -rf ${TRAVIS_HOME}/.lein", echo: false
                 sh.cmd "lein self-install", echo: true, assert: true
               end
             end
