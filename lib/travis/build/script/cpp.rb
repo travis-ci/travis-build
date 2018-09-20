@@ -8,6 +8,7 @@ module Travis
 
         def export
           super
+          sh.export 'TRAVIS_COMPILER', compiler
           sh.export 'CXX', cxx
           sh.export 'CC', cc # some projects also need to compile some C, e.g. Rubinius. MK.
           if data.cache?(:ccache)

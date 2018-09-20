@@ -1,11 +1,5 @@
 shared_examples_for 'update libc6' do
-  let(:command) { [:cmd, <<-EOF
-if [ ! $(uname|grep Darwin) ]; then
-  sudo -E apt-get -yq update 2>&1 >> ~/apt-get-update.log
-  sudo -E apt-get -yq --no-install-suggests --no-install-recommends --force-yes install libc6
-fi
-  EOF
-  ]}
+  let(:command) { [:echo, 'Forcing update of libc6', ansi: :yellow] }
 
   context "when update_glibc is unset" do
     it 'updates libc6' do
@@ -24,7 +18,8 @@ fi
   end
 
   context "when update_glibc is unset" do
-    let(:sxep) { sexp_find(subject, [:if, "-n $(command -v lsb_release) && $(lsb_release -cs) = 'precise'"]) }
+    let(:sexp) { sexp_find(subject, [:if, '${TRAVIS_OS_NAME} == linux && ${TRAVIS_DIST} == precise']) }
+
     before :each do
       Travis::Build.config.update_glibc = '1'
       data[:paranoid] = true
