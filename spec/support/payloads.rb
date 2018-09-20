@@ -83,6 +83,15 @@ PAYLOADS = {
 }.freeze
 
 PAYLOAD_LANGUAGE_OVERRIDES = {
+  node_js: {
+    'repository' => {
+      'slug' => 'travis-ci-examples/node_js-example'
+    },
+    'job' => {
+      'commit' => 'e2c19ee',
+      'commit_range' => 'dcdfff5..e2c19ee'
+    }
+  },
   ruby: {
     'repository' => {
       'slug' => 'travis-ci-examples/ruby-example'
@@ -90,6 +99,15 @@ PAYLOAD_LANGUAGE_OVERRIDES = {
     'job' => {
       'commit' => '961e635',
       'commit_range' => 'd8f6456..961e635'
+    }
+  },
+  python: {
+    'repository' => {
+      'slug' => 'travis-ci-examples/python-example'
+    },
+    'job' => {
+      'commit' => '637a1e8',
+      'commit_range' => '2777cf8..637a1e8'
     }
   }
 }

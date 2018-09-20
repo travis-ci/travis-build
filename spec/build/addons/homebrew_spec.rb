@@ -11,7 +11,7 @@ describe Travis::Build::Addons::Homebrew, :sexp do
     let(:data) { payload_for(:push, :ruby, config: { os: 'linux' }) }
 
     it 'will not run' do
-      expect(addon.before_prepare?).to eql false
+      expect(addon.before_install?).to eql false
     end
   end
 
@@ -19,13 +19,13 @@ describe Travis::Build::Addons::Homebrew, :sexp do
     let(:data) { payload_for(:push, :ruby, config: { os: 'osx' }) }
 
     it 'will run' do
-      expect(addon.before_prepare?).to eql true
+      expect(addon.before_install?).to eql true
     end
   end
 
   context 'with packages' do
     before do
-      addon.before_prepare
+      addon.before_install
     end
 
     it { should_not include_sexp [:cmd, 'brew update', echo: true, timing: true] }
@@ -54,7 +54,7 @@ brew 'imagemagick'
 
   context 'with casks' do
     before do
-      addon.before_prepare
+      addon.before_install
     end
 
     it { should_not include_sexp [:cmd, 'brew update', echo: true, timing: true] }
@@ -83,7 +83,7 @@ cask 'google-chrome'
 
   context 'with taps' do
     before do
-      addon.before_prepare
+      addon.before_install
     end
 
     it { should_not include_sexp [:cmd, 'brew update', echo: true, timing: true] }
@@ -112,7 +112,7 @@ tap 'heroku/brew'
 
   context 'when updating packages first' do
     before do
-      addon.before_prepare
+      addon.before_install
     end
 
     let(:brew_config) { { update: true } }
@@ -122,7 +122,7 @@ tap 'heroku/brew'
 
   context 'when providing a custom Brewfile' do
     before do
-      addon.before_prepare
+      addon.before_install
     end
 
     context 'when using the default location' do
@@ -142,7 +142,7 @@ tap 'heroku/brew'
 
   context 'when using all features' do
     before do
-      addon.before_prepare
+      addon.before_install
     end
 
     let(:brew_config) do
