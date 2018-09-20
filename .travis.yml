@@ -22,28 +22,15 @@ jobs:
   - script: ./script/docker-build-and-push
   include:
   - stage: test
-    sudo: required
-    dist: trusty
     env:
     script: ./script/validate-example-payloads-with-docker
   - stage: ':ship: it to Quay.io'
-    sudo: required
-    dist: trusty
     env:
     script: ./script/docker-build-and-push
     if: NOT type IN (pull_request) AND branch = master
 
-before_install: gem install bundler
 before_script: bundle exec rake clean assets:precompile
 after_success: bundle exec codeclimate-test-reporter
-after_failure: |
-  for f in tmp/assert-examples-build-logs/*; do
-    if [[ ! -s "${f}" ]]; then
-      continue;
-    fi
-    echo "---> ${f}:";
-    cat "${f}";
-  done
 
 before_deploy:
 - sudo pip install -U -I Pygments

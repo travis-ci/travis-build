@@ -20,10 +20,10 @@ travis_setup_env() {
   export USER
 
   case $(uname | tr '[:upper:]' '[:lower:]') in
-  linux)
+  linux*)
     export TRAVIS_OS_NAME=linux
     ;;
-  darwin)
+  darwin*)
     export TRAVIS_OS_NAME=osx
     ;;
   *)

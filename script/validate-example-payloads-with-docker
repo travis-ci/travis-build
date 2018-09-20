@@ -8,17 +8,23 @@ main() {
   top="$(git rev-parse --show-toplevel)"
   cd "${top}"
 
+  unset DOCKER_CERT_PATH
+  unset DOCKER_HOST
+  unset DOCKER_TLS
+  unset DOCKER_TLS_VERIFY
+
   docker-compose up -d
   sleep 10
   docker ps -a
-  docker logs travisbuild_web_1
+  docker logs travisbuild_web_1 2>/dev/null ||
+    docker logs travis-build_web_1
 
   local e=0
   for f in example_payloads/*.json; do
     echo "${f##*/}"
     curl -sf -X POST -d "@${f}" localhost:4000/script >/dev/null || e=$((e + 1))
   done
-  test "${e}" -eq 0
+  [[ "${e}" -eq 0 ]]
 }
 
 main "${@}"

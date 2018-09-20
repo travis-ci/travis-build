@@ -9,13 +9,13 @@ module Travis
           osx
         ].freeze
 
-        def before_prepare?
+        def before_install?
           SUPPORTED_OPERATING_SYSTEMS.any? do |os_match|
             data[:config][:os].to_s == os_match
           end
         end
 
-        def before_prepare
+        def before_install
           sh.fold('brew') do
             update_homebrew if update_homebrew?
             install_homebrew_packages
