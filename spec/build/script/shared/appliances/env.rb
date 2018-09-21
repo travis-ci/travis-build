@@ -92,6 +92,10 @@ shared_examples_for 'a script with env vars sexp' do
     should include_sexp [:export, ['BRANCH', '$TRAVIS_BRANCH'], echo: true]
   end
 
+  it 'exports and echoes default values' do
+    should include_sexp [:export, ['CFLAGS', '-w'], echo: true]
+  end
+
   # TODO this is wrong. it only sets UNQUOTED=first
   # it 'sets the exact value of a given :env var, even if definition is unquoted' do
   #   data[:config][env_type] = 'UNQUOTED=first second third ... OTHER=ok'
