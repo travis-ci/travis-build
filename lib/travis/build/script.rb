@@ -261,6 +261,7 @@ module Travis
           apply :nonblock_pipe
           apply :apt_get_update
           apply :deprecate_xcode_64
+          apply :update_heroku
         end
 
         def setup_filter
