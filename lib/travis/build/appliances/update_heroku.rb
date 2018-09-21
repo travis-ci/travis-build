@@ -1,7 +1,7 @@
 require 'travis/build/appliances/base'
 
 module Travis
-  module Build                                                       
+  module Build
     module Appliances
       class UpdateHeroku < Base
         def apply
@@ -23,8 +23,8 @@ module Travis
               sh.cmd 'heroku version'
             end
           end
-        end           
+        end
       end
-    end               
-  end                          
-end   
+    end
+  end
+end
