@@ -8,7 +8,6 @@ cache:
 env:
   global:
   - COVERAGE=1
-  - RUBYOPT=-W0
   matrix:
   - INTEGRATION_SPECS=0
   - INTEGRATION_SPECS=1
