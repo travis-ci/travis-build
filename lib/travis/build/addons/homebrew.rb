@@ -83,12 +83,12 @@ module Travis
           sh.echo "Installing Homebrew Packages", ansi: :yellow
 
           if user_brewfile?
-            sh.cmd "brew bundle#{brew_bundle_args}", echo: true, timing: true
+            sh.cmd "brew bundle --verbose#{brew_bundle_args}", echo: true, timing: true
           end
 
           if create_brewfile?
             sh.file '~/.Brewfile', brewfile_contents
-            sh.cmd 'brew bundle --global', echo: true, timing: true
+            sh.cmd 'brew bundle --verbose --global', echo: true, timing: true
           end
         end
       end
