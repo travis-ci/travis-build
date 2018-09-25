@@ -88,7 +88,7 @@ GEM
       hitimes (~> 1.1)
     minitar (0.6.1)
     minitest (5.10.1)
-    mocha (0.10.5)
+    mocha (1.7.0)
       metaclass (~> 0.0.1)
     multi_json (1.12.1)
     multipart-post (2.0.0)
@@ -185,7 +185,7 @@ DEPENDENCIES
   metriks (= 0.9.9.6)
   metriks-librato_metrics!
   minitar
-  mocha (~> 0.10.0)
+  mocha
   pry
   puma
   rack-ssl (~> 1.4)
@@ -203,4 +203,4 @@ DEPENDENCIES
   travis-support!
 
 BUNDLED WITH
-   1.16.1
+   1.16.4

@@ -30,7 +30,7 @@ end
 
 group :test do
   gem 'codeclimate-test-reporter', require: nil
-  gem 'mocha', '~> 0.10.0'
+  gem 'mocha'
   gem 'pry'
   gem 'rspec', '~> 3.0'
   gem 'simplecov', require: false

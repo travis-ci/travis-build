@@ -22,11 +22,11 @@ module Travis
           end
         end
 
-        private
-
         def config
           @config ||= Hash(super)
         end
+
+        private
 
         def update_homebrew?
           config[:update].to_s.downcase == 'true'

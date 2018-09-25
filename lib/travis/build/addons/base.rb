@@ -19,7 +19,7 @@ module Travis
 
         def normalize_config(config)
           case config
-          when Fixnum, Float, String, Array, Hash
+          when Integer, Float, String, Array, Hash
             config
           else
             {}
