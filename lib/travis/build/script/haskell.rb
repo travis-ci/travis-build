@@ -12,14 +12,12 @@ module Travis
 
         def configure
           super
-          sh.raw(
-            template(
-              'haskell.sh',
-              default_ghc: DEFAULTS[:ghc],
-              default_cabal: DEFAULTS[:cabal],
-              root: '/'
-            )
-          )
+          sh.export 'TRAVIS_GHC_DEFAULT', DEFAULTS[:ghc], echo: false
+          sh.raw bash('travis_ghc_setup_env')
+          sh.raw 'travis_ghc_setup_env'
+          sh.raw bash('travis_ghc_find')
+          sh.raw bash('travis_ghc_install')
+
           # Automatic installation of exact versions *only*.
           if version =~ /^(\d+\.\d+\.\d+|head)$/ && cabal_version =~ /^(\d+\.\d+|head)$/
             sh.raw "if [[ ! $(travis_ghc_find #{version} &>/dev/null) || $(cabal --numeric-version 2>/dev/null) != #{cabal_version}* ]]; then"
@@ -69,12 +67,12 @@ module Travis
         end
 
         def version
-          v = config[:ghc].to_s
+          v = Array(config[:ghc]).first.to_s
           GHC_VERSION_ALIASES.fetch(v, v)
         end
 
         def cabal_version
-          config[:cabal].to_s
+          Array(config[:cabal]).first.to_s
         end
       end
     end

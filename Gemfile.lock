@@ -12,9 +12,18 @@ GIT
     jemalloc (1.4.5)
 
 GIT
+  remote: https://github.com/travis-ci/travis-github_apps
+  revision: b8f41e53ae51e7633a9e5cfa61525068064b3402
+  specs:
+    travis-github_apps (0.2.0)
+      activesupport (>= 3.2)
+      faraday
+      jwt
+      redis
+
+GIT
   remote: https://github.com/travis-ci/travis-rollout
-  revision: 643477fb44ea35d483ed24cc89ced459719c6e6c
-  ref: sf-refactor
+  revision: c79c6d0c76da98ed50b9a3edb30399d7aba8a7e2
   specs:
     travis-rollout (0.0.1)
 
@@ -50,7 +59,7 @@ GEM
       multipart-post (>= 1.2, < 3)
     faraday_middleware (0.11.0.1)
       faraday (>= 0.7.4, < 1.0)
-    ffi (1.9.18)
+    ffi (1.9.25)
     gh (0.14.0)
       addressable
       backports
@@ -76,8 +85,9 @@ GEM
       atomic (~> 1.0)
       avl_tree (~> 1.1.2)
       hitimes (~> 1.1)
+    minitar (0.6.1)
     minitest (5.10.1)
-    mocha (0.10.5)
+    mocha (1.7.0)
       metaclass (~> 0.0.1)
     multi_json (1.12.1)
     multipart-post (2.0.0)
@@ -93,8 +103,8 @@ GEM
     pusher-client (0.6.2)
       json
       websocket (~> 1.0)
-    rack (1.6.5)
-    rack-protection (1.5.3)
+    rack (1.6.9)
+    rack-protection (1.5.5)
       rack
     rack-ssl (1.4.1)
       rack
@@ -104,6 +114,7 @@ GEM
     rb-fsevent (0.9.8)
     rb-inotify (0.9.8)
       ffi (>= 0.5.0)
+    redis (4.0.1)
     rerun (0.11.0)
       listen (~> 3.0)
     rspec (3.5.0)
@@ -140,7 +151,7 @@ GEM
       tilt (>= 1.3, < 3)
     slop (3.6.0)
     thread_safe (0.3.6)
-    tilt (2.0.7)
+    tilt (2.0.8)
     travis (1.8.8)
       backports
       faraday (~> 0.9)
@@ -172,7 +183,8 @@ DEPENDENCIES
   jwt
   metriks (= 0.9.9.6)
   metriks-librato_metrics!
-  mocha (~> 0.10.0)
+  minitar
+  mocha
   pry
   puma
   rack-ssl (~> 1.4)
@@ -185,8 +197,9 @@ DEPENDENCIES
   sinatra-contrib
   travis
   travis-config
+  travis-github_apps!
   travis-rollout!
   travis-support!
 
 BUNDLED WITH
-   1.15.4
+   1.16.4

@@ -20,9 +20,9 @@ describe Travis::Build::Addons::Mariadb, :sexp do
   end
 
   it { should include_sexp [:cmd, "service mysql stop", sudo: true] }
-  it { should include_sexp [:cmd, "apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 #{Travis::Build::Addons::Mariadb::MARIADB_GPG_KEY}", sudo: true] }
+  it { should include_sexp [:cmd, "apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 #{Travis::Build::Addons::Mariadb::MARIADB_GPG_KEY_OLD}", sudo: true] }
   it { should include_sexp [:cmd, 'add-apt-repository "deb http://%p/mariadb/repo/%p/ubuntu $(lsb_release -cs) main"' % [Travis::Build::Addons::Mariadb::MARIADB_MIRROR, config], sudo: true] }
-  it { should include_sexp [:cmd, "apt-get update -qq", sudo: true] }
+  it { should include_sexp [:cmd, 'travis_apt_get_update', retry: true, echo: true] }
   it { should include_sexp [:cmd, "PACKAGES='mariadb-server mariadb-server-10.0'", echo: true] }
   it { should include_sexp [:cmd, "apt-get install -y -o Dpkg::Options::='--force-confnew' $PACKAGES", sudo: true, echo: true, timing: true] }
   it { should include_sexp [:cmd, "service mysql start", sudo: true, echo: true, timing: true] }

@@ -5,7 +5,7 @@ module Travis
     class Stages
       class Skip < Base
         def run
-          sh.echo "Skipping the #{name} stage due to the configuration."
+          sh.echo "Skipping the #{name} step, as specified in the configuration."
           sh.raw 'travis_result 0' if script?
         end
       end

@@ -5,6 +5,7 @@ describe Travis::Build::Script::Python, :sexp do
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
   it           { store_example }
+  it           { store_example(integration: true) }
 
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=python'] }
@@ -26,31 +27,38 @@ describe Travis::Build::Script::Python, :sexp do
   it 'sets up the python version (pypy)' do
     data[:config][:python] = 'pypy'
     should include_sexp [:cmd,  'source ~/virtualenv/pypy/bin/activate', assert: true, echo: true, timing: true]
-    should include_sexp [:cmd,  "curl -s -o pypy.tar.bz2 ${archive_url}", assert: true]
+    should include_sexp [:cmd,  "curl -sSf -o pypy.tar.bz2 ${archive_url}", echo: true]
   end
 
   it 'sets up the python version (pypy-5.3.1)' do
     data[:config][:python] = 'pypy-5.3.1'
     should include_sexp [:cmd,  'source ~/virtualenv/pypy-5.3.1/bin/activate', assert: true, echo: true, timing: true]
-    should include_sexp [:cmd,  "curl -s -o pypy-5.3.1.tar.bz2 ${archive_url}", assert: true]
+    should include_sexp [:cmd,  "curl -sSf -o pypy-5.3.1.tar.bz2 ${archive_url}", echo: true]
     should include_sexp [:cmd,  "rm pypy-5.3.1.tar.bz2"]
   end
 
   it 'sets up the python version (pypy3.3-5.2-alpha1)' do
     data[:config][:python] = 'pypy3.3-5.2-alpha1'
     should include_sexp [:cmd,  'source ~/virtualenv/pypy3.3-5.2-alpha1/bin/activate', assert: true, echo: true, timing: true]
-    should include_sexp [:cmd,  "curl -s -o pypy3.3-5.2-alpha1.tar.bz2 ${archive_url}", assert: true]
+    should include_sexp [:cmd,  "curl -sSf -o pypy3.3-5.2-alpha1.tar.bz2 ${archive_url}", echo: true]
     should include_sexp [:cmd,  "rm pypy3.3-5.2-alpha1.tar.bz2"]
   end
 
   it 'sets up the python version (pypy3)' do
     data[:config][:python] = 'pypy3'
-    should include_sexp [:cmd,  "curl -s -o pypy3.tar.bz2 ${archive_url}", assert: true]
+    should include_sexp [:cmd,  "curl -sSf -o pypy3.tar.bz2 ${archive_url}", echo: true]
     should include_sexp [:cmd,  'source ~/virtualenv/pypy3/bin/activate', assert: true, echo: true, timing: true]
   end
 
   it 'sets up the python version (2.7)' do
     should include_sexp [:cmd,  'source ~/virtualenv/python2.7/bin/activate', assert: true, echo: true, timing: true]
+  end
+
+  context "when python version is given as an array" do
+    before { data[:config][:python] = %w(2.7) }
+    it 'sets up the python version (2.7)' do
+      should include_sexp [:cmd,  'source ~/virtualenv/python2.7/bin/activate', assert: true, echo: true, timing: true]
+    end
   end
 
   it 'sets up the python version nightly' do
@@ -97,8 +105,8 @@ describe Travis::Build::Script::Python, :sexp do
       expect(branch).to include_sexp [:echo, described_class::REQUIREMENTS_MISSING] #, ansi: :red
     end
 
-    it 'adds $HOME/.cache/pip to directory cache' do
-      should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add $HOME/.cache/pip', timing: true]
+    it 'adds ${TRAVIS_HOME}/.cache/pip to directory cache' do
+      should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add ${TRAVIS_HOME}/.cache/pip', timing: true]
     end
   end
 
