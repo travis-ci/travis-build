@@ -26,23 +26,20 @@ data = {
     pull_request: false
   },
   config: {
-    # rvm: 'ruby-head',
+    rvm: 'ruby-head',
     # jdk: 'jdk-foo',
-     language: 'generic',
-     os: 'windows',
+    # language: 'c',
     # services: ['redis'],
-    after_success: 'echo "after_success"',
-    after_failure: 'echo "after_failure"',
-    after_script: 'echo "after_script"',
+    # after_success: 'yo dawg',
+    # after_failure: 'yo kaputt',
+    # after_script: 'travis-artifacts upload shit',
     # script: 'bundle exec rspec'
-    script: 'echo $FOO'
   },
   timeouts: {
     # git_clone: 300
   },
   env_vars: [
-    { name: 'FOO', value: 'foo', public: true },
-    { name: 'BAR', value: 'bar', public: false }
+    { name: 'FOO', value: 'foo' }
   ]
 }
 
@@ -53,3 +50,4 @@ data = {
 script = Travis::Build.script(data)
 script = script.compile
 puts script
+
