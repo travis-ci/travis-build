@@ -112,7 +112,10 @@ __check_evaluation() {
 }
 
 __clean_up_containers() {
-  docker ps | awk '/ (hours|days)/ { print $NF }' | xargs docker rm -f
+  docker ps | awk '/ (hours|days)/ { print $NF }' |
+    while read -r cid; do
+      docker rm -f "${cid}"
+    done
 }
 
 __check_execution() {
