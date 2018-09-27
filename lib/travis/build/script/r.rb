@@ -70,8 +70,8 @@ module Travis
                 sh.cmd 'sudo add-apt-repository '\
                   "\"deb #{repos[:CRAN]}/bin/linux/ubuntu "\
                   "$(lsb_release -cs)/\""
-                sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com '\
-                  '--recv-keys E084DAB9'
+                sh.cmd 'apt-key adv --keyserver ha.pool.sks-keyservers.net '\
+                  '--recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9', sudo: true
 
                 # Add marutter's c2d4u plus ppa dependencies as listed on launchpad
                 if r_version_less_than('3.5.0')
@@ -550,7 +550,7 @@ module Travis
 
         def normalized_r_version(v=Array(config[:r]).first.to_s)
           case v
-          when 'release' then '3.5.0'
+          when 'release' then '3.5.1'
           when 'oldrel' then '3.4.4'
           when '3.0' then '3.0.3'
           when '3.1' then '3.1.3'

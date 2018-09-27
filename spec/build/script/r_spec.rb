@@ -25,7 +25,7 @@ describe Travis::Build::Script::R, :sexp do
     data[:config][:r] = 'bioc-release'
     should include_sexp [:cmd, %r{source\(\"https://bioconductor.org/biocLite.R\"\)},
                          assert: true, echo: true, timing: true, retry: true]
-    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.5.0'], readonly: true]
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.5.1'], readonly: true]
   end
 
   it 'r_packages works with a single package set' do
@@ -53,7 +53,7 @@ describe Travis::Build::Script::R, :sexp do
   end
 
   it 'downloads and installs latest R' do
-    should include_sexp [:cmd, %r{^curl.*https://s3\.amazonaws\.com/rstudio-travis/R-3\.5\.0-\$\(lsb_release -cs\)\.xz},
+    should include_sexp [:cmd, %r{^curl.*https://s3\.amazonaws\.com/rstudio-travis/R-3\.5\.1-\$\(lsb_release -cs\)\.xz},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
@@ -222,7 +222,7 @@ describe Travis::Build::Script::R, :sexp do
     }
     it {
       data[:config][:r] = 'release'
-      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.5.0")
+      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.5.1")
     }
     it {
       data[:config][:r] = 'oldrel'

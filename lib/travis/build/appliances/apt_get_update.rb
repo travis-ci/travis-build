@@ -13,6 +13,10 @@ module Travis
           true
         end
 
+        def config
+          apt_config || {}
+        end
+
         private
 
           def update?
@@ -70,10 +74,6 @@ module Travis
             repo_slug.split('/').first
           end
 
-          def config
-            apt_config || {}
-          end
-
           def mirrors
             (Travis::Build.config[:apt_mirrors] || {}).to_hash
           end
@@ -85,4 +85,3 @@ module Travis
     end
   end
 end
-

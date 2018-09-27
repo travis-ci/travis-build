@@ -47,6 +47,8 @@ main() {
     docker_image="$(curl -sSL https://git.io/fAwln | jq -r '.default')"
   fi
 
+  __clean_up_containers
+
   chmod 0777 "${build_logs_dir}"
 
   ran=0
@@ -57,6 +59,8 @@ main() {
       e=$((e + 1))
     ran=$((ran + 1))
   done
+
+  __clean_up_containers
 
   [[ "${ran}" -gt 0 ]]
   [[ "${e}" -eq 0 ]]
@@ -105,6 +109,13 @@ __check_evaluation() {
       source ${fake_homedir}/.travis/job_stages
     fi
   "
+}
+
+__clean_up_containers() {
+  docker ps | awk '/ (hours|days)/ { print $NF }' |
+    while read -r cid; do
+      docker rm -f "${cid}"
+    done
 }
 
 __check_execution() {

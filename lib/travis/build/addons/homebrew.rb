@@ -9,24 +9,24 @@ module Travis
           osx
         ].freeze
 
-        def before_install?
+        def before_before_install?
           SUPPORTED_OPERATING_SYSTEMS.any? do |os_match|
             data[:config][:os].to_s == os_match
           end
         end
 
-        def before_install
+        def before_before_install
           sh.fold('brew') do
             update_homebrew if update_homebrew?
             install_homebrew_packages
           end
         end
 
-        private
-
         def config
           @config ||= Hash(super)
         end
+
+        private
 
         def update_homebrew?
           config[:update].to_s.downcase == 'true'
@@ -83,12 +83,12 @@ module Travis
           sh.echo "Installing Homebrew Packages", ansi: :yellow
 
           if user_brewfile?
-            sh.cmd "brew bundle#{brew_bundle_args}", echo: true, timing: true
+            sh.cmd "brew bundle --verbose#{brew_bundle_args}", echo: true, timing: true
           end
 
           if create_brewfile?
             sh.file '~/.Brewfile', brewfile_contents
-            sh.cmd 'brew bundle --global', echo: true, timing: true
+            sh.cmd 'brew bundle --verbose --global', echo: true, timing: true
           end
         end
       end
