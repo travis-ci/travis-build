@@ -112,7 +112,8 @@ __check_evaluation() {
 }
 
 __clean_up_containers() {
-  docker ps | awk '/ (hours|days)/ { print $NF }' |
+  docker ps --no-trunc --format='{{.RunningFor}}:{{.ID}}' |
+    awk -F: '/ (hour|hours|day|days) / { print $2 }' |
     while read -r cid; do
       docker rm -f "${cid}"
     done
