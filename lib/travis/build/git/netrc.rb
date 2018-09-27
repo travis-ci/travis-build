@@ -4,16 +4,15 @@ module Travis
       class Netrc < Struct.new(:sh, :data)
         def apply
           sh.fold 'git.netrc' do
-            sh.echo "Using $HOME/.netrc to clone repository.", ansi: :yellow
+            sh.echo "Using ${TRAVIS_HOME}/.netrc to clone repository.", ansi: :yellow
             sh.newline
-            sh.raw "echo -e \"#{netrc}\" > $HOME/.netrc"
-            sh.raw "chmod 0600 $HOME/.netrc"
-            sh.raw 'cat $HOME/.netrc | sed \'s/\(login.\{12\}\).*/\1******************************/\' | sed \'s/\(passw.\{12\}\).*/\1******************************/\''
+            sh.raw "echo -e \"#{netrc}\" > ${TRAVIS_HOME}/.netrc"
+            sh.raw "chmod 0600 ${TRAVIS_HOME}/.netrc"
           end
         end
 
         def delete
-          sh.raw "rm -f $HOME/.netrc"
+          sh.raw "rm -f ${TRAVIS_HOME}/.netrc"
         end
 
         private

@@ -17,11 +17,12 @@ gem 'sinatra', '~> 1.4'
 gem 'travis'
 gem 'travis-config'
 gem 'travis-github_apps', git: 'https://github.com/travis-ci/travis-github_apps'
-gem 'travis-rollout', git: 'https://github.com/travis-ci/travis-rollout', ref: 'sf-refactor'
+gem 'travis-rollout', git: 'https://github.com/travis-ci/travis-rollout'
 gem 'travis-support', git: 'https://github.com/travis-ci/travis-support'
 
 gem 'faraday'
 gem 'faraday_middleware'
+gem 'minitar'
 
 group :development do
   gem 'rerun'
@@ -29,7 +30,7 @@ end
 
 group :test do
   gem 'codeclimate-test-reporter', require: nil
-  gem 'mocha', '~> 0.10.0'
+  gem 'mocha'
   gem 'pry'
   gem 'rspec', '~> 3.0'
   gem 'simplecov', require: false

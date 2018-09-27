@@ -13,7 +13,6 @@ describe Travis::Build::Addons::AptRetries, :sexp do
     let(:config) { 'true' }
 
     it { store_example }
-
     it { should include_sexp [:echo, "Configuring default apt-get retries", ansi: :yellow] }
   end
 end

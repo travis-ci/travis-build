@@ -13,7 +13,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-github_apps
-  revision: b589c48935a020084347e6206e96044e0c0ce6ac
+  revision: b8f41e53ae51e7633a9e5cfa61525068064b3402
   specs:
     travis-github_apps (0.2.0)
       activesupport (>= 3.2)
@@ -23,8 +23,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-rollout
-  revision: 643477fb44ea35d483ed24cc89ced459719c6e6c
-  ref: sf-refactor
+  revision: c79c6d0c76da98ed50b9a3edb30399d7aba8a7e2
   specs:
     travis-rollout (0.0.1)
 
@@ -60,7 +59,7 @@ GEM
       multipart-post (>= 1.2, < 3)
     faraday_middleware (0.11.0.1)
       faraday (>= 0.7.4, < 1.0)
-    ffi (1.9.18)
+    ffi (1.9.25)
     gh (0.14.0)
       addressable
       backports
@@ -86,8 +85,9 @@ GEM
       atomic (~> 1.0)
       avl_tree (~> 1.1.2)
       hitimes (~> 1.1)
+    minitar (0.6.1)
     minitest (5.10.1)
-    mocha (0.10.5)
+    mocha (1.7.0)
       metaclass (~> 0.0.1)
     multi_json (1.12.1)
     multipart-post (2.0.0)
@@ -183,7 +183,8 @@ DEPENDENCIES
   jwt
   metriks (= 0.9.9.6)
   metriks-librato_metrics!
-  mocha (~> 0.10.0)
+  minitar
+  mocha
   pry
   puma
   rack-ssl (~> 1.4)
@@ -201,4 +202,4 @@ DEPENDENCIES
   travis-support!
 
 BUNDLED WITH
-   1.15.4
+   1.16.4

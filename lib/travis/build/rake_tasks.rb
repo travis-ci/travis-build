@@ -4,12 +4,26 @@ require 'pathname'
 
 require 'faraday'
 require 'faraday_middleware'
+require 'minitar'
 require 'rake'
 require 'rubygems'
 
 module Travis
   module Build
     module RakeTasks
+      SHELLCHECK_VERSION = 'v0.5.0'
+      SHELLCHECK_URL = File.join(
+        'https://www.googleapis.com',
+        '/download/storage/v1/b/shellcheck/o',
+        "shellcheck-#{SHELLCHECK_VERSION}.linux.x86_64.tar.xz?alt=media"
+      )
+      SHFMT_VERSION = 'v2.5.1'
+      SHFMT_URL = File.join(
+        'https://github.com',
+        "mvdan/sh/releases/download/#{SHFMT_VERSION}",
+        "shfmt_#{SHFMT_VERSION}_%{uname}_%{arch}"
+      )
+
       def fetch_githubusercontent_file(from, host: 'raw.githubusercontent.com',
                                        to: nil, mode: 0o755)
         conn = build_faraday_conn(host: host)
@@ -43,7 +57,7 @@ module Travis
           releases_url = "repos/#{repo}/releases"
           logger.info "Fetching releases from #{conn.url_prefix.to_s}#{releases_url}"
           req.url releases_url
-          oauth_token = ENV['GITHUB_OAUTH_TOKEN']
+          oauth_token = ENV.fetch('GITHUB_OAUTH_TOKEN', ENV.fetch('no_scope_token', 'notset'))
           if oauth_token && !oauth_token.empty? && oauth_token != 'notset'
             logger.info "Adding 'Authorization' header for api.github.com request"
             req.headers['Authorization'] = "token #{oauth_token}"
@@ -62,30 +76,29 @@ module Travis
         end
       end
 
-      def sc_data
+      def file_update_sc_data
         conn = build_faraday_conn(host: 'saucelabs.com')
         response = conn.get('versions.json')
-
         fail 'Could not fetch sc metadata' unless response.success?
-        JSON.parse(response.body)
+
+        dest = top + 'tmp/sc_data.json'
+        dest.dirname.mkpath
+        dest.write(response.body)
+        dest.chmod(0o644)
       end
 
-      def file_update_sauce_connect
-        require 'erb'
-
-        dest = top + 'lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh'
-        app_host = ENV.fetch('TRAVIS_BUILD_APP_HOST', '')
-        dest.dirname.mkpath
-        dest.write(ERB.new((top + "#{dest}.erb").read).result(binding))
-        dest.chmod(0o644)
+      def sc_data
+        @sc_data ||= JSON.parse(top.join('tmp/sc_data.json').read)
       end
 
       def file_update_sc(platform)
         require 'digest/sha1'
 
+        sc_config = sc_data['Sauce Connect']
+
         ext = platform == 'linux' ? 'tar.gz' : 'zip'
 
-        download_url = URI.parse(sc_data['Sauce Connect'][platform]['download_url'])
+        download_url = URI.parse(sc_config[platform]['download_url'])
 
         conn = build_faraday_conn(
           scheme: download_url.scheme,
@@ -99,7 +112,7 @@ module Travis
 
         archive_content = response.body
 
-        expected_checksum = sc_data['Sauce Connect'][platform]['sha1']
+        expected_checksum = sc_config[platform]['sha1']
         received_checksum = Digest::SHA1.hexdigest(archive_content)
 
         unless received_checksum == expected_checksum
@@ -161,13 +174,46 @@ module Travis
         )
       end
 
+      def uname
+        @uname ||= case RUBY_PLATFORM
+                   when /linux/ then 'linux'
+                   when /darwin/ then 'darwin'
+                   else RUBY_PLATFORM.split('-').last
+                   end
+      end
+
+      def arch
+        @arch ||= case RUBY_PLATFORM
+                  when /x86_64/ then 'amd64'
+                  else RUBY_PLATFORM.split('-').first
+                  end
+      end
+
+      def tmpbin
+        top.join('tmp/bin')
+      end
+
+      def has_shfmt?
+        ENV['PATH'] = tmpbin_path
+        `shfmt -version 2>/dev/null`.strip == SHFMT_VERSION
+      end
+
+      def has_shellcheck?
+        ENV['PATH'] = tmpbin_path
+        vers = `shellcheck --version 2>/dev/null`.strip
+        vers.split(/\n/)
+            .find { |s| s.start_with?('version:') }
+            .split.last == SHELLCHECK_VERSION.sub(/^v/, '')
+      end
+
       def semver_cmp(a, b)
         Gem::Version.new(a.to_s) <=> Gem::Version.new(b.to_s)
       end
 
       def task_clean
+        rm_rf(top + 'examples')
         rm_rf(top + 'public/files')
-        rm_rf(top + 'tmp/go-versions-binary-linux')
+        rm_rf(top + 'tmp/sc_data.json')
         rm_rf(top + 'tmp/ghc-versions.html')
       end
 
@@ -215,6 +261,10 @@ module Travis
         fetch_githubusercontent_file 'paulp/sbt-extras/master/sbt'
       end
 
+      def file_update_install_jdk_sh
+        fetch_githubusercontent_file 'sormuras/bach/master/install-jdk.sh'
+      end
+
       def file_update_tmate
         latest_release = latest_release_for('tmate-io/tmate')
         logger.info "Latest tmate release is #{latest_release}"
@@ -232,43 +282,6 @@ module Travis
         fetch_githubusercontent_file(
           '', host: 'sh.rustup.rs', to: 'rustup-init.sh'
         )
-      end
-
-      def file_update_raw_go_versions
-        fetch_githubusercontent_file(
-          'travis-ci/gimme/master/.testdata/sample-binary-linux',
-          to: top + 'tmp/go-versions-binary-linux',
-          mode: 0o644
-        )
-      end
-
-      def file_update_go_versions
-        raw = (top + 'tmp/go-versions-binary-linux').read
-                                                    .split(/\n/)
-                                                    .reject do |line|
-          line.strip.empty? || line.strip.start_with?('#')
-        end
-
-        raw.sort!(&method(:semver_cmp))
-
-        out = {}
-        raw.each do |full_version|
-          out.merge!(
-            expand_semver_aliases(full_version, alias_major_minor: false)
-          )
-        end
-
-        raise StandardError, 'no go versions parsed' if out.empty?
-
-        out.merge!(
-          '1.2' => '1.2.2',
-          'go1' => 'go1'
-        )
-
-        dest = top + 'public/version-aliases/go.json'
-        dest.dirname.mkpath
-        dest.write(JSON.pretty_generate(out))
-        dest.chmod(0o644)
       end
 
       def file_update_raw_ghc_versions
@@ -300,6 +313,13 @@ module Travis
         dest.chmod(0o644)
       end
 
+      def tmpbin_path
+        @tmpbin_path ||= %W[
+          #{tmpbin}
+          #{ENV['PATH']}
+        ].join(':')
+      end
+
       extend self
       extend Rake::DSL
 
@@ -307,6 +327,7 @@ module Travis
         clean
         update_sc
         update_godep
+        update_gpg_public_keys
         update_static_files
         update_version_aliases
         ls_public_files
@@ -336,6 +357,9 @@ module Travis
       desc 'update sbt'
       file('public/files/sbt') { file_update_sbt }
 
+      desc 'update install-jdk.sh'
+      file('public/files/install-jdk.sh') { file_update_install_jdk_sh }
+
       desc 'update tmate'
       file 'public/files/tmate-static-linux-amd64.tar.gz' do
         file_update_tmate
@@ -343,16 +367,6 @@ module Travis
 
       desc 'update rustup'
       file('public/files/rustup-init.sh') { file_update_rustup }
-
-      desc 'update raw go versions'
-      file 'tmp/go-versions-binary-linux' do
-        file_update_raw_go_versions
-      end
-
-      desc 'update go versions'
-      file 'public/version-aliases/go.json' => 'tmp/go-versions-binary-linux' do
-        file_update_go_versions
-      end
 
       desc 'update raw ghc versions'
       file('tmp/ghc-versions.html') { file_update_raw_ghc_versions }
@@ -362,24 +376,22 @@ module Travis
         file_update_ghc_versions
       end
 
-      desc 'update sauce_connect.sh'
-      file 'lib/travis/build/addons/sauce_connect/sauce_connect.sh' do
-        file_update_sauce_connect
-      end
+      desc 'update sauce connect data'
+      file('tmp/sc_data.json') { file_update_sc_data }
 
       desc 'update sc-linux'
-      file 'public/files/sc-linux.tar.gz' do
+      file 'public/files/sc-linux.tar.gz' => 'tmp/sc_data.json' do
         file_update_sc('linux')
       end
 
       desc 'update sc-mac'
-      file 'public/files/sc-osx.zip' do
+      file 'public/files/sc-osx.zip' => 'tmp/sc_data.json' do
         file_update_sc('osx')
       end
 
       desc 'update sc'
       multitask update_sc: Rake::FileList[
-        'lib/travis/build/addons/sauce_connect/sauce_connect.sh',
+        'tmp/sc_data.json',
         'public/files/sc-linux.tar.gz',
         'public/files/sc-osx.zip'
       ]
@@ -392,17 +404,17 @@ module Travis
 
       desc 'update version aliases'
       multitask update_version_aliases: Rake::FileList[
-        'public/version-aliases/ghc.json',
-        'public/version-aliases/go.json'
+        'public/version-aliases/ghc.json'
       ]
 
       desc 'update static files'
       multitask update_static_files: Rake::FileList[
-        'lib/travis/build/addons/sauce_connect/sauce_connect.sh',
+        'tmp/sc_data.json',
         'public/files/casher',
         'public/files/gimme',
         'public/files/godep_darwin_amd64',
         'public/files/godep_linux_amd64',
+        'public/files/install-jdk.sh',
         'public/files/nvm-exec',
         'public/files/nvm.sh',
         'public/files/rustup-init.sh',
@@ -412,10 +424,91 @@ module Travis
         'public/files/tmate-static-linux-amd64.tar.gz'
       ]
 
+      desc 'update gpg public keys'
+      task :update_gpg_public_keys do
+        repo_tarball_url = URI(ENV.fetch(
+          'TRAVIS_BUILD_APT_SOURCE_SAFELIST_REPO_TARBALL',
+          'https://codeload.github.com/travis-ci/apt-source-safelist/tar.gz/master'
+        ))
+
+        conn = build_faraday_conn(host: repo_tarball_url.hostname)
+        response = conn.get(repo_tarball_url)
+
+        dest_dir = Pathname.new(File.join(top, 'public/files/gpg'))
+        dest_dir.mkpath
+        path_parts = repo_tarball_url.path.split('/').map(&:strip)
+
+        Minitar.unpack(
+          Zlib::GzipReader.new(StringIO.new(response.body)),
+          File.join(top, 'tmp')
+        )
+
+        glob_src = "tmp/#{path_parts[2]}-#{path_parts.last}/keys/*.asc"
+        Dir.glob(File.join(top, glob_src)) do |src|
+          FileUtils.cp(src, dest_dir, verbose: true)
+        end
+      end
+
       desc 'show contents in public/files'
       task 'ls_public_files' do
         Rake::FileList['public/files/*'].each { |f| puts f }
       end
+
+      desc 'run shfmt'
+      task shfmt: :ensure_shfmt do
+        ENV['PATH'] = tmpbin_path
+        sh "shfmt -i 2 -w #{top}/lib/travis/build/bash/*.bash"
+        sh "shfmt -i 2 -w $(git grep -lE '^#!.+bash' #{top}/script)"
+      end
+
+      desc 'run shellcheck'
+      task shellcheck: %i[ensure_shellcheck] do
+        ENV['PATH'] = tmpbin_path
+        sh "shellcheck -s bash #{top}/lib/travis/build/bash/*.bash"
+        sh "shellcheck -s bash $(git grep -lE '^#!.+bash' #{top}/script)"
+      end
+
+      desc 'assert there are no changes in the git working copy'
+      task :assert_clean do
+        Dir.chdir(top) do
+          sh 'git diff --exit-code'
+          sh 'git diff --cached --exit-code'
+        end
+      end
+
+      desc 'validate bash syntax of all examples'
+      task :assert_examples do
+        ENV['PATH'] = tmpbin_path
+        sh "#{top}/script/assert-examples"
+      end
+
+      task :ensure_shfmt do
+        next if has_shfmt?
+        tmpbin.mkpath
+        dest = tmpbin.join('shfmt')
+        dest.parent.mkpath
+        dest.write(
+          build_faraday_conn(host: nil).get(
+            format(SHFMT_URL, uname: uname, arch: arch)
+          ).body
+        )
+        dest.chmod(0o755)
+        ENV['PATH'] = tmpbin_path
+        sh 'shfmt -version'
+      end
+
+      task :ensure_shellcheck do
+        fail 'please `brew install shellcheck`' if uname == 'darwin'
+        next if has_shellcheck?
+        tmpbin.mkpath
+        tmp_dest = Pathname.new(Dir.tmpdir).join('shellcheck.tar.xz')
+        tmp_dest.write(build_faraday_conn(host: nil).get(SHELLCHECK_URL).body)
+        sh %{tar -C "#{tmpbin}" --strip-components=1 --exclude="*.txt" -xf "#{tmp_dest}"}
+        ENV['PATH'] = tmpbin_path
+        sh 'shellcheck --version'
+      end
+
+      task default: %i[spec shfmt assert_clean shellcheck assert_examples]
     end
   end
 end
