@@ -19,7 +19,7 @@ module Travis
           branch_disabled: 'this branch is not master or it does not match declared branches',
           no_secure_env: 'it is not running in a secure environment'
         }
-        
+
         def before_before_script
           @unfolded_warnings = []
           sh.fold 'sonarcloud.addon' do
@@ -184,7 +184,7 @@ SH
           def addon_hash
             Digest::MD5.hexdigest(File.read(__FILE__).gsub(/\s+/, ""))
           end
-          
+
           def default_branch?
             data.default_branch == data.branch
           end
