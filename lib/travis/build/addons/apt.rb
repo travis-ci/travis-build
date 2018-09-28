@@ -107,6 +107,10 @@ module Travis
             sh.cmd "sudo mv #{tmp_dest} ${TRAVIS_ROOT}/etc/apt/apt.conf.d"
           end
         end
+        
+        def config
+          @config ||= Hash(super)
+        end
 
         private
 
@@ -199,10 +203,6 @@ module Travis
                 sh.raw "travis_assert $result"
               end
             end
-          end
-
-          def config
-            @config ||= Hash(super)
           end
 
           def config_sources
