@@ -93,9 +93,29 @@ If you want to run travis-build locally on your machine (e.g. to interact with
 [worker](https://github.com/travis-ci/worker)), you can also run it as a docker
 container with docker-compose:
 
+First, build the image:
+
 ``` bash
-docker-compose up --build
+docker-compose build web
 ```
+
+Second, run the image:
+
+```bash
+docker-compose run web
+```
+
+You may wish to run with a different setup for local development.
+The following shows running `travis-build` in the `development`
+environment, forwarding the Docker image's port 4000 to the host's
+port 4000:
+
+```bash
+docker-compose run -e RACK_ENV=development -p 4000:4000 web
+```
+
+See [`docker-compose` documentation](https://docs.docker.com/compose/reference/run/)
+for more information.
 
 ## License & copyright information
 
