@@ -10,13 +10,23 @@ describe 'travis_retry', integration: true do
 
     script = "source /tmp/tbb/travis_retry.bash; #{command}"
 
-    truth = system(%W[
-      docker run
+    system(%W[
+      docker create
         --rm
         --name=#{container_name}
-        -v #{bash_dir}:/tmp/tbb bash:4
+        bash:4
         bash -c
       ].join(' ') + ' ' + Shellwords.escape(script),
+      %i[out err] => '/dev/null'
+    )
+
+    system(
+      "docker cp #{bash_dir} #{container_name}:/tmp/tbb",
+      %i[out err] => '/dev/null'
+    )
+
+    truth = system(
+      "docker start -i -a #{container_name}",
       out: out.fileno, err: err.fileno
     )
 
@@ -43,26 +53,17 @@ describe 'travis_retry', integration: true do
   end
 
   it 'reports retries' do
-    expect(
-      run_script(
-        'travis_retry cat /non/existent/file',
-      )[:err].read
-    ).to include('Retrying, ')
+    res = run_script('travis_retry cat /non/existent/file')
+    expect(res[:err].read).to include('Retrying, ')
   end
 
   it 'reports failure after 3 attempts' do
-    expect(
-      run_script(
-        'travis_retry cat /non/existent/file',
-      )[:err].read
-    ).to include('failed 3 times.')
+    res = run_script('travis_retry cat /non/existent/file')
+    expect(res[:err].read).to include('failed 3 times.')
   end
 
   it 'returns the exit code of the process that is retried' do
-    expect(
-      run_script(
-        'travis_retry some-nonexistent-command'
-      )[:exitstatus]
-    ).to eq 127
+    res = run_script('travis_retry some-nonexistent-command')
+    expect(res[:exitstatus]).to eq 127
   end
 end
