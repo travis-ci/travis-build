@@ -5,22 +5,20 @@ module Travis
     module Appliances
       class UpdateHeroku < Base
         def apply
-          sh.if '"$TRAVIS_DIST" == precise || "$TRAVIS_DIST" == trusty' do
+          sh.if '"$TRAVIS_DIST" == trusty && "$(which heroku)" =~ heroku' do
             sh.fold "update_heroku" do
               sh.echo "Updating Heroku", ansi: :yellow
-              shell = <<~EOF
+              shell = <<~UPDATE_HEROKU
               bash -c '
-                if which heroku &>/dev/null; then
-                  rm -rf /usr/local/heroku
-                  apt-get purge -y heroku-toolbelt heroku
-                  cd /usr/lib
-                  curl -sSL https://cli-assets.heroku.com/heroku-linux-x64.tar.xz | tar Jx
-                  ln -sf /usr/lib/heroku/bin/heroku /usr/bin/heroku
-                fi
+                rm -rf /usr/local/heroku
+                apt-get purge -y heroku-toolbelt heroku
+                cd /usr/lib
+                curl -sSL https://cli-assets.heroku.com/heroku-linux-x64.tar.xz | tar Jx
+                ln -sf /usr/lib/heroku/bin/heroku /usr/bin/heroku
               '
-              EOF
-              sh.cmd shell, echo: false, sudo: true
-              sh.cmd 'heroku version'
+              UPDATE_HEROKU
+              sh.cmd shell, sudo: true, echo: false
+              sh.cmd 'heroku version', echo: true
             end
           end
         end
