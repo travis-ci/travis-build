@@ -47,7 +47,7 @@ describe Travis::Build::Addons::Sonarcloud, :sexp do
     it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS',
       "\"{ \\\"sonar.pullrequest.key\\\" : \\\"123\\\", \\\"sonar.pullrequest.branch\\\" : \\\"master\\\", \\\"sonar.pullrequest.base\\\" : \\\"master\\\", \\\"sonar.pullrequest.provider\\\" : \\\"GitHub\\\", \\\"sonar.pullrequest.github.repository\\\" : \\\"#{data[:repository][:slug]}\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
   end
-  
+
   describe 'new pull request to long branch' do
     let(:job) { super().merge( {:pull_request => '123', :pull_request_head_branch => 'branch1' })}
 
@@ -98,18 +98,18 @@ describe Travis::Build::Addons::Sonarcloud, :sexp do
 
     it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS', "\"{ \\\"sonar.branch\\\" : \\\"branch1\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
   end
-  
+
   describe 'new branch analysis' do
     let(:job)    { { :branch => 'branch1' } }
 
     it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS', "\"{ \\\"sonar.branch.name\\\" : \\\"branch1\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
   end
-  
+
   describe 'dont define branch if default branch' do
     let(:job)    { { :branch => 'branch1' } }
-    let(:data)   { 
+    let(:data)   {
       super()[:repository][:default_branch] = 'branch1'
-      super()       
+      super()
     }
 
     it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS', "\"{ \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }

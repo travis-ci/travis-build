@@ -7,7 +7,7 @@ module Travis
         YARN_REQUIRED_NODE_VERSION = '4'
 
         NPM_QUIET_TREE_VERSION = '5'
-        
+
         NPM_CI_CMD_VERSION = '5.8.0'
 
         def export
