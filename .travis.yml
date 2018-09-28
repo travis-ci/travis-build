@@ -8,7 +8,6 @@ cache:
 env:
   global:
   - COVERAGE=1
-  - RUBYOPT=-W0
   matrix:
   - INTEGRATION_SPECS=0
   - INTEGRATION_SPECS=1
@@ -45,7 +44,6 @@ deploy:
   bucket: travis-build-examples
   local_dir: examples
   skip_cleanup: true
-  endpoint: travis-build-examples.s3-website-us-east-1.amazonaws.com
   region: us-east-1
   on:
     branch: master

@@ -168,11 +168,19 @@ module Travis
         ! data.debug_options.empty?
       end
 
-      private
+      def config
+        data.config
+      end
 
-        def config
-          data.config
-        end
+      def app_host
+        @app_host ||= Travis::Build.config.app_host.to_s.strip.untaint
+      end
+
+      def debug_enabled?
+        Travis::Build.config.enable_debug_tools == '1'
+      end
+      
+      private
 
         def debug
           if debug_build_via_api?
@@ -329,14 +337,6 @@ module Travis
 
         def debug_quiet?
           debug_build_via_api? && data.debug_options[:quiet]
-        end
-
-        def debug_enabled?
-          Travis::Build.config.enable_debug_tools == '1'
-        end
-
-        def app_host
-          @app_host ||= Travis::Build.config.app_host.to_s.strip.untaint
         end
 
         def error_message_ary(exception, event)
