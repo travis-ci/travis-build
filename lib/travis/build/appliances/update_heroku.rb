@@ -11,7 +11,7 @@ module Travis
               shell = <<~UPDATE_HEROKU
               bash -c '
                 rm -rf /usr/local/heroku
-                apt-get purge -y heroku-toolbelt heroku
+                apt-get purge -y heroku-toolbelt heroku &>/dev/null
                 cd /usr/lib
                 curl -sSL https://cli-assets.heroku.com/heroku-linux-x64.tar.xz | tar Jx
                 ln -sf /usr/lib/heroku/bin/heroku /usr/bin/heroku
