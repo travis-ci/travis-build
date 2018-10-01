@@ -12,7 +12,13 @@ module Travis
         def export
           super
 
-          sh.export 'TRAVIS_RUST_VERSION', config[:rust].to_s.shellescape, echo: false
+          sh.if '-f rust-toolchain' do
+            sh.echo "Setting Rust version from rust-toolchain: `cat rust-toolchain`", ansi: :yellow
+            sh.export 'TRAVIS_RUST_VERSION', "`cat rust-toolchain`", echo: false
+          end
+          sh.else do
+            sh.export 'TRAVIS_RUST_VERSION', config[:rust].to_s.shellescape, echo: false
+          end
         end
 
         def setup_cache
