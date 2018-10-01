@@ -23,6 +23,7 @@ nameserver 208.67.220.220
         end
 
         def apply?
+          return unless super
           if data.key?(:fix_resolv_conf)
             data[:fix_resolv_conf]
           else
