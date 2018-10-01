@@ -12,7 +12,7 @@ module Travis
         end
 
         def apply?
-          !Travis::Build.config.etc_hosts_pinning.strip.empty?
+          super && !Travis::Build.config.etc_hosts_pinning.strip.empty?
         end
       end
     end
