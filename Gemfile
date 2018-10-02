@@ -12,6 +12,7 @@ gem 'jwt'
 gem 'metriks', '0.9.9.6'
 gem 'metriks-librato_metrics', git: 'https://github.com/eric/metriks-librato_metrics'
 gem 'minitar'
+gem 'parallel_tests', group: %i[development test]
 gem 'puma'
 gem 'rack-ssl', '~> 1.4'
 gem 'rake'

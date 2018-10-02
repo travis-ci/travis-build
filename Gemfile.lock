@@ -94,6 +94,9 @@ GEM
     net-http-persistent (3.0.0)
       connection_pool (~> 2.2)
     net-http-pipeline (1.0.1)
+    parallel (1.12.1)
+    parallel_tests (2.23.0)
+      parallel
     pry (0.10.4)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
@@ -185,6 +188,7 @@ DEPENDENCIES
   metriks-librato_metrics!
   minitar
   mocha
+  parallel_tests
   pry
   puma
   rack-ssl (~> 1.4)
