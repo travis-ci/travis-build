@@ -508,7 +508,7 @@ module Travis
         sh 'shellcheck --version'
       end
 
-      task default: %i[spec shfmt assert_clean shellcheck assert_examples]
+      task default: %i[parallel:spec shfmt assert_clean shellcheck assert_examples]
     end
   end
 end
