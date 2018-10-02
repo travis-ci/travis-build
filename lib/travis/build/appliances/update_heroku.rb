@@ -5,7 +5,7 @@ module Travis
     module Appliances
       class UpdateHeroku < Base
         def apply
-          sh.if '"$TRAVIS_DIST" == trusty && "$(which heroku)" =~ heroku' do
+          sh.if '("$TRAVIS_DIST" != precise || "$TRAVIS_OS_NAME" == linux) && "$(which heroku)" =~ heroku' do
             update_heroku = <<~UPDATE_HEROKU
             bash -c '
               cd /usr/lib
