@@ -203,7 +203,10 @@ describe 'examples', example: true do
           expect($?.exitstatus).to be_zero,
             "expected script exec in container #{cid}, got #{$?.exitstatus}"
 
-          expect(logdest.read).to match(/^Done\. Your build exited with 0\./)
+          log_minus_header = logdest.read.sub(
+            /.*Network availability confirmed\./m, ''
+          )
+          expect(log_minus_header).to match(/^Done\. Your build exited with 0\./)
         end
       end
     end
