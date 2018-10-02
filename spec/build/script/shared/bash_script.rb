@@ -1,11 +1,11 @@
 require 'spec_helpers/bash_script'
 
 shared_examples_for 'a bash script' do
-  include SpecHelpers::BashScript::RSpecContext
+  include SpecHelpers::BashScript
 
-  let :example_file do
-    if respond_to?(:example_path)
-      return example_path
+  let :bash_script_file do
+    if respond_to?(:bash_script_path)
+      return bash_script_path
     end
 
     Pathname.new('nonexistent')
@@ -32,20 +32,20 @@ shared_examples_for 'a bash script' do
   end
 
   it 'has valid syntax', example: true do
-    expect(shfmt(example_file.to_s)).to be true
+    expect(shfmt(bash_script_file.to_s)).to be true
   end
 
   it 'can be evaluated', example: true do
     stages_dest = stages_dir.join(
-      "#{example_file.basename('.bash.txt')}.stages.bash"
+      "#{bash_script_file.basename('.bash.txt')}.stages.bash"
     )
 
     stages_dest.write(
-      example_file.read.match(/.*START_FUNCS(.*)END_FUNCS.*/m)[1]
+      bash_script_file.read.match(/.*START_FUNCS(.*)END_FUNCS.*/m)[1]
     )
 
-    homedir = fake_homedir.join("#{example_file.basename}/home")
-    root = fake_root.join("#{example_file.basename}/root")
+    homedir = fake_homedir.join("#{bash_script_file.basename}/home")
+    root = fake_root.join("#{bash_script_file.basename}/root")
     dot_travis = homedir.join('.travis')
 
     [homedir, dot_travis, root].each do |p|
@@ -53,13 +53,15 @@ shared_examples_for 'a bash script' do
       p.mkpath
     end
 
+    bash_dir = SpecHelpers.top.join('lib/travis/build/bash')
+
     script = <<~BASH
       export TRAVIS_ROOT=#{root}
       export TRAVIS_HOME=#{homedir}
       export TRAVIS_BUILD_DIR=#{homedir}/build
 
-      #{top.join('lib/travis/build/bash/travis_whereami.bash').read}
-      #{top.join('lib/travis/build/bash/travis_setup_env.bash').read}
+      #{bash_dir.join('travis_whereami.bash').read}
+      #{bash_dir.join('travis_setup_env.bash').read}
       travis_setup_env
 
       source #{stages_dest}
@@ -78,12 +80,12 @@ shared_examples_for 'a bash script' do
   end
 
   describe "full docker container execution", example: true, integration: true do
-    let(:logdest) { build_logs_dir.join("#{example_file.basename}.log") }
+    let(:logdest) { build_logs_dir.join("#{bash_script_file.basename}.log") }
     let(:cid) { docker_run }
     let :script do
       <<~BASH
         echo >/var/tmp/build.log &&
-          cp /examples/#{example_file.basename} ~/build.sh &&
+          cp /examples/#{bash_script_file.basename} ~/build.sh &&
           export TRAVIS_FILTERED=pty &&
           bash ~/build.sh 2>&1 | tee /var/tmp/build.log
       BASH
@@ -93,9 +95,9 @@ shared_examples_for 'a bash script' do
       logdest.unlink if logdest.exist?
     end
 
-    it 'is successful' do
-      unless integration?(example_file.read)
-        skip('not available for integration checks')
+    it 'runs and passes' do
+      unless integration_example?(bash_script_file.read)
+        skip('not an integration example')
       end
 
       system(
@@ -108,7 +110,7 @@ shared_examples_for 'a bash script' do
 
       system(
         'docker', 'cp',
-        example_file.to_s, "#{cid}:/examples/#{example_file.basename}"
+        bash_script_file.to_s, "#{cid}:/examples/#{bash_script_file.basename}"
       )
       expect($?.exitstatus).to be_zero,
         "expected example copy to container #{cid}, got #{$?.exitstatus}"

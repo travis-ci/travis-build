@@ -9,7 +9,7 @@ describe Travis::Build::Script::NodeJs, :sexp do
   it           { store_example(integration: true) }
 
   it_behaves_like 'a bash script', integration: true do
-    let(:example_file) { example_path(integration: true) }
+    let(:bash_script_file) { bash_script_path(integration: true) }
   end
 
   it_behaves_like 'a bash script'
