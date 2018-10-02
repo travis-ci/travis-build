@@ -159,7 +159,8 @@ module Travis
               Errno::ETIMEDOUT,
               Timeout::Error,
               Faraday::ClientError
-            ]
+            ],
+            retry_statuses: 400..600
           f.adapter Faraday.default_adapter
         end
       end
