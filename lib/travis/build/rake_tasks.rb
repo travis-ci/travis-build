@@ -477,10 +477,10 @@ module Travis
         end
       end
 
-      desc 'validate bash syntax of all examples'
+      desc 'assert validity of all examples'
       task :assert_examples do
         ENV['PATH'] = tmpbin_path
-        sh "#{top}/script/assert-examples"
+        sh "rspec -fdoc --tag example:true #{top}/spec/examples_spec.rb"
       end
 
       task :ensure_shfmt do

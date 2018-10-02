@@ -25,4 +25,5 @@ RSpec.configure do |c|
   # c.backtrace_clean_patterns.clear
 
   c.filter_run_excluding(integration: true) unless integration_enabled
+  c.filter_run_excluding(example: true)
 end
