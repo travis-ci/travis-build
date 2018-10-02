@@ -6,6 +6,7 @@ describe Travis::Build::Script::R, :sexp do
   subject       { script.sexp }
   it            { store_example }
 
+  it_behaves_like 'a bash script'
   it_behaves_like 'a build script sexp'
 
   it 'normalizes bioc-devel correctly' do

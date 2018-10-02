@@ -7,6 +7,12 @@ describe Travis::Build::Script::Ruby, :sexp do
   it { store_example }
   it { store_example(integration: true) }
 
+  it_behaves_like 'a bash script', integration: true do
+    let(:example_file) { example_path(integration: true) }
+  end
+
+  it_behaves_like 'a bash script'
+
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=ruby'] }
     let(:cmds) { ['bundle install', 'bundle exec rake'] }

@@ -8,6 +8,12 @@ describe Travis::Build::Script::NodeJs, :sexp do
   it           { store_example }
   it           { store_example(integration: true) }
 
+  it_behaves_like 'a bash script', integration: true do
+    let(:example_file) { example_path(integration: true) }
+  end
+
+  it_behaves_like 'a bash script'
+
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=node_js'] }
     let(:cmds) { ['npm test'] }

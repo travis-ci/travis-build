@@ -46,22 +46,48 @@ module SpecHelpers
     end
 
     def store_example(name: nil, integration: false)
-      const_name = described_class.name.split('::').last.gsub(/([A-Z]+)/,'_\1').gsub(/^_/, '').downcase
-      name = [const_name, name, integration ? 'integration' : nil].compact.join('-').gsub(' ', '_')
-
       if described_class < Travis::Build::Script
-        type = :build
         code = script.compile
       else
-        type = :addon
         code = Travis::Shell.generate(subject)
       end
 
-      FileUtils.mkdir_p('examples') unless File.directory?('examples')
-      File.open("examples/#{type}-#{name}.bash.txt", 'w+') do |f|
+      top.join('examples').mkpath
+
+      example_path(name: name, integration: integration).open('w+') do |f|
         code += INTEGRATION_MAGIC_COMMENT if integration
         f.write(code)
       end
+    end
+
+    def top
+      @top ||= Pathname.new(`git rev-parse --show-toplevel`.strip)
+    end
+
+    def example_path(name: nil, integration: false)
+      const_name = described_class
+        .name
+        .split('::')
+        .last
+        .gsub(/([A-Z]+)/,'_\1')
+        .gsub(/^_/, '')
+        .downcase
+
+      name_suffix = [
+        const_name,
+        name,
+        integration ? 'integration' : nil
+      ].compact
+        .join('-')
+        .gsub(' ', '_')
+
+      if described_class < Travis::Build::Script
+        type = :build
+      else
+        type = :addon
+      end
+
+      top.join("examples/#{type}-#{name_suffix}.bash.txt")
     end
   end
 end
