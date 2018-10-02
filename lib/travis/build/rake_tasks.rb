@@ -480,7 +480,7 @@ module Travis
       desc 'assert validity of all examples'
       task :assert_examples do
         ENV['PATH'] = tmpbin_path
-        sh "parallel_rspec -- -fdoc --tag example:true -- #{top}/spec"
+        sh "parallel_rspec -- --tag example:true -- #{top}/spec"
       end
 
       task :ensure_shfmt do

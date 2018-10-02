@@ -1,7 +1,7 @@
-require 'spec_helpers/example'
+require 'spec_helpers/bash_script'
 
 shared_examples_for 'a bash script' do
-  include SpecHelpers::Examples::RSpecContext
+  include SpecHelpers::BashScript::RSpecContext
 
   let :example_file do
     if respond_to?(:example_path)
@@ -9,6 +9,10 @@ shared_examples_for 'a bash script' do
     end
 
     Pathname.new('nonexistent')
+  end
+
+  before :all do
+    clean_up_containers
   end
 
   before do

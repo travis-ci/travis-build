@@ -1,7 +1,7 @@
 require 'pathname'
 
 module SpecHelpers
-  module Examples
+  module BashScript
     module RSpecContext
       def top
         @top ||= Pathname.new(`git rev-parse --show-toplevel`.strip)
@@ -46,9 +46,13 @@ module SpecHelpers
         end
       end
 
-      def clean_up_containers(running_for: / (hour|hours|day|days) /)
+      def clean_up_containers(running_for: / (minutes|hour|hours|day|days) /)
         docker_ps_records.each do |rec|
-          next unless rec.fetch('running_for') =~ running_for
+          rf = rec.fetch('running_for')
+          next unless rf =~ running_for
+          rf_parts = rf.split
+          next if rf_parts[1] == 'minutes' && Integer(rf_parts.first) < 5
+
           system(
             'docker', 'rm', '-f', rec['id'],
             %i[out err] => '/dev/null'
