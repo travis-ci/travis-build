@@ -33,8 +33,12 @@ module SpecHelpers
     end
 
     def docker_ps_records
-      fmt = '{"running_for":{{json .RunningFor}},"id":{{json .ID}}}'
-      `docker ps --no-trunc --format='#{fmt}'`.split("\n").map do |line|
+      ps_args = [
+        '--filter=label=travis-build',
+        '--no-trunc',
+        %{--format='{"running_for":{{json .RunningFor}},"id":{{json .ID}}}'}
+      ]
+      `docker ps #{ps_args.join(' ')}`.split("\n").map do |line|
         JSON.parse(line)
       end
     end
@@ -58,7 +62,7 @@ module SpecHelpers
     end
 
     def docker_run
-      cid = `docker run -d #{docker_image} /sbin/init`.strip
+      cid = `docker run -l travis-build -d #{docker_image} /sbin/init`.strip
       fail 'could not start docker container' unless $?.exitstatus.zero?
       known_containers << cid
       cid
