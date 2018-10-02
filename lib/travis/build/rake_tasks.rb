@@ -159,7 +159,8 @@ module Travis
               Errno::ETIMEDOUT,
               Timeout::Error,
               Faraday::ClientError
-            ]
+            ],
+            retry_statuses: 400..600
           f.adapter Faraday.default_adapter
         end
       end
@@ -508,7 +509,7 @@ module Travis
         sh 'shellcheck --version'
       end
 
-      task default: %i[spec shfmt assert_clean shellcheck assert_examples]
+      task default: %i[parallel:spec shfmt assert_clean shellcheck assert_examples]
     end
   end
 end
