@@ -1,5 +1,4 @@
 describe 'script header', integration: true do
-  let(:top) { Pathname.new(ENV.fetch('TOP')) }
   let(:build_dir) { Dir.mktmpdir(%w(travis-build- -header-spec)) }
   let(:data) { { config: { language: 'ruby' }, slug: 'example/test' } }
   let(:script) { Travis::Build::Script.new(data) }
