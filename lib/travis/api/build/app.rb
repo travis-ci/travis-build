@@ -1,13 +1,14 @@
 require 'json'
+require 'metriks'
+require 'pp'
 require 'rack/ssl'
 require 'rbtrace'
 require 'sinatra/base'
-require 'metriks'
-require 'pp'
 
 require 'travis/build'
-require 'travis/api/build/sentry'
+
 require 'travis/api/build/metriks'
+require 'travis/api/build/sentry'
 
 module Travis
   module Api
