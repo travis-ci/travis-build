@@ -29,7 +29,7 @@ jobs:
     if: NOT type IN (pull_request) AND branch = master
 
 before_script:
-- if [[ "${INTEGRATION_SPECS}" == 1 ]]; then eval "$(script/handle-docker-config)"; fi
+- eval "$(script/handle-docker-config)"
 - bundle exec rake clean assets:precompile
 
 script:
