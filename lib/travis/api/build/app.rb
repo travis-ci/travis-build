@@ -1,5 +1,6 @@
 require 'json'
 require 'rack/ssl'
+require 'rbtrace'
 require 'sinatra/base'
 require 'metriks'
 require 'pp'

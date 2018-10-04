@@ -1,5 +1,3 @@
-require 'rbtrace'
-
 require 'travis/support'
 
 module Travis
