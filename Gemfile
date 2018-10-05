@@ -2,37 +2,37 @@ source 'https://rubygems.org'
 
 ruby File.read(File.expand_path('../.ruby-version', __FILE__)).strip if ENV.key?('DYNO')
 
-gem 'activesupport', '~> 4.0'
-gem 'addressable', '~> 2.3'
+gem 'activesupport', '4.2.10'
+gem 'addressable', '2.5.1'
 gem 'coder'
 gem 'faraday'
-gem 'faraday_middleware'
+gem 'faraday_middleware', '0.11.0.1'
 gem 'jemalloc', git: 'https://github.com/joshk/jemalloc-rb'
 gem 'jwt', '~> 1.5'
 gem 'metriks', '0.9.9.6'
 gem 'metriks-librato_metrics', git: 'https://github.com/eric/metriks-librato_metrics'
 gem 'minitar'
 gem 'parallel_tests', group: %i[development test]
-gem 'puma'
+gem 'puma', '3.8.2'
 gem 'rack-ssl', '~> 1.4'
-gem 'rake'
-gem 'sentry-raven'
+gem 'rake', '12.0.0'
+gem 'sentry-raven', '2.7.2'
 gem 'sinatra', '~> 1.4'
-gem 'travis'
-gem 'travis-config'
+gem 'travis', '1.8.8'
+gem 'travis-config', '1.0.13'
 gem 'travis-github_apps', git: 'https://github.com/travis-ci/travis-github_apps'
 gem 'travis-rollout', git: 'https://github.com/travis-ci/travis-rollout'
 gem 'travis-support', git: 'https://github.com/travis-ci/travis-support'
 
 group :development do
-  gem 'rerun'
+  gem 'rerun', '0.11.0'
 end
 
 group :test do
   gem 'codeclimate-test-reporter', require: nil
   gem 'mocha'
-  gem 'pry'
-  gem 'rspec', '~> 3.0'
+  gem 'pry', '0.10.4'
+  gem 'rspec', '3.5.0'
   gem 'simplecov', require: false
   gem 'sinatra-contrib'
 end
