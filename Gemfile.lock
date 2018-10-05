@@ -186,7 +186,7 @@ GEM
       launchy (~> 2.1)
       pusher-client (~> 0.4)
       typhoeus (~> 0.6, >= 0.6.8)
-    travis-config (1.0.13)
+    travis-config (1.1.0)
       hashr (~> 2.0.0)
     typhoeus (0.8.0)
       ethon (>= 0.8.0)
@@ -225,7 +225,7 @@ DEPENDENCIES
   sinatra (~> 1.4)
   sinatra-contrib
   travis
-  travis-config (= 1.0.13)
+  travis-config (= 1.1.0)
   travis-github_apps!
   travis-rollout!
   travis-support!
