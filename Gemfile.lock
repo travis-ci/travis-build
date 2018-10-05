@@ -12,6 +12,14 @@ GIT
     jemalloc (1.4.5)
 
 GIT
+  remote: https://github.com/travis-ci/travis-config
+  revision: a64596623f8f8ee70838a4dc4d7803906a049733
+  ref: a645966
+  specs:
+    travis-config (1.0.13)
+      hashr (~> 2.0.0)
+
+GIT
   remote: https://github.com/travis-ci/travis-github_apps
   revision: b8f41e53ae51e7633a9e5cfa61525068064b3402
   specs:
@@ -186,8 +194,6 @@ GEM
       launchy (~> 2.1)
       pusher-client (~> 0.4)
       typhoeus (~> 0.6, >= 0.6.8)
-    travis-config (1.1.0)
-      hashr (~> 2.0.0)
     typhoeus (0.8.0)
       ethon (>= 0.8.0)
     tzinfo (1.2.5)
@@ -225,7 +231,7 @@ DEPENDENCIES
   sinatra (~> 1.4)
   sinatra-contrib
   travis
-  travis-config (= 1.1.0)
+  travis-config!
   travis-github_apps!
   travis-rollout!
   travis-support!
