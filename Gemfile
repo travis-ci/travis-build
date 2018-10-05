@@ -18,8 +18,8 @@ gem 'rack-ssl', '~> 1.4'
 gem 'rake'
 gem 'sentry-raven'
 gem 'sinatra', '~> 1.4'
-gem 'travis'
-gem 'travis-config'
+gem 'travis', '1.8.8'
+gem 'travis-config', '1.0.13'
 gem 'travis-github_apps', git: 'https://github.com/travis-ci/travis-github_apps'
 gem 'travis-rollout', git: 'https://github.com/travis-ci/travis-rollout'
 gem 'travis-support', git: 'https://github.com/travis-ci/travis-support'
@@ -31,8 +31,8 @@ end
 group :test do
   gem 'codeclimate-test-reporter', require: nil
   gem 'mocha'
-  gem 'pry', '0.10.4'
-  gem 'rspec', '3.5.0'
+  gem 'pry'
+  gem 'rspec'
   gem 'simplecov', require: false
   gem 'sinatra-contrib'
 end
