@@ -10,7 +10,7 @@ end
 
 gem 'activesupport', '~> 4.0'
 gem 'addressable', '~> 2.3'
-gem 'codeclimate-test-reporter', require: nil, group: %i[development test]
+gem 'codeclimate-test-reporter', require: false, group: %i[development test]
 gem 'coder'
 gem 'faraday'
 gem 'faraday_middleware'
@@ -19,16 +19,16 @@ gem 'jwt', '~> 1.5'
 gem 'metriks', '0.9.9.6'
 gem 'metriks-librato_metrics', git: gh('eric/metriks-librato_metrics')
 gem 'minitar'
-gem 'mocha', group: :test
-gem 'parallel_tests', group: %i[development test]
-gem 'pry', group: :test
+gem 'mocha', require: false, group: %i[development test]
+gem 'parallel_tests', require: false, group: %i[development test]
+gem 'pry', require: false, group: %i[development test]
 gem 'puma'
 gem 'rack-ssl', '~> 1.4'
 gem 'rake'
 gem 'rbtrace'
-gem 'rerun', group: :development
+gem 'rerun', require: false, group: :development
 gem 'rspec', '~> 3.0', group: %i[development test]
-gem 'rubocop', group: %i[development test]
+gem 'rubocop', require: false, group: %i[development test]
 gem 'sentry-raven'
 gem 'simplecov', require: false, group: %i[development test]
 gem 'sinatra', '~> 1.4'

@@ -2,7 +2,7 @@ require 'json'
 require 'metriks'
 require 'pp'
 require 'rack/ssl'
-require 'rbtrace'
+require 'rbtrace' if ENV['RBTRACE_ENABLED']
 require 'sinatra/base'
 
 require 'travis/build'
