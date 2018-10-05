@@ -6,7 +6,7 @@ module Travis
           sh.fold 'git.netrc' do
             sh.echo "Using ${TRAVIS_HOME}/.netrc to clone repository.", ansi: :yellow
             sh.newline
-            sh.raw "echo -e \"#{netrc}\" > ${TRAVIS_HOME}/.netrc"
+            sh.raw "echo -e \"#{netrc_content}\" > ${TRAVIS_HOME}/.netrc"
             sh.raw "chmod 0600 ${TRAVIS_HOME}/.netrc"
           end
         end
@@ -17,7 +17,7 @@ module Travis
 
         private
 
-          def netrc
+          def netrc_content
             if data.installation?
               "machine #{data.source_host}\\n  login travis-ci\\n  password #{data.token}\\n"
             else
