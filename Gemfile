@@ -18,14 +18,14 @@ gem 'rack-ssl', '~> 1.4'
 gem 'rake'
 gem 'sentry-raven'
 gem 'sinatra', '~> 1.4'
-gem 'travis', '1.8.8'
-gem 'travis-config', '1.0.13'
+gem 'travis'
+gem 'travis-config'
 gem 'travis-github_apps', git: 'https://github.com/travis-ci/travis-github_apps'
 gem 'travis-rollout', git: 'https://github.com/travis-ci/travis-rollout'
 gem 'travis-support', git: 'https://github.com/travis-ci/travis-support'
 
 group :development do
-  gem 'rerun', '0.11.0'
+  gem 'rerun'
 end
 
 group :test do
