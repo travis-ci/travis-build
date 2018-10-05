@@ -8,7 +8,7 @@ module Travis
         }.freeze
         GHC_VERSION_ALIASES = Travis::Build.config.ghc_version_aliases_hash.merge(
           'default' => DEFAULTS[:ghc]
-        ).freeze
+        ).untaint.freeze
 
         def configure
           super

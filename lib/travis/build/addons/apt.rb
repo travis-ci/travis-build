@@ -238,14 +238,14 @@ module Travis
           end
 
           def safelisted_source_key_url(source)
-            tmpl = Travis::Build.config.apt_source_safelist_key_url_template
+            tmpl = Travis::Build.config.apt_source_safelist_key_url_template.to_s.untaint
             if source['key_url'] && (!data.disable_sudo? || skip_safelist?)
               tmpl = source['key_url']
             end
             format(
               tmpl.to_s,
               source_alias: source['alias'] || 'travis-security',
-              app_host: Travis::Build.config.app_host.to_s.strip
+              app_host: Travis::Build.config.app_host.to_s.untaint.strip
             )
           end
 
