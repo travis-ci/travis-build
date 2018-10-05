@@ -7,7 +7,7 @@ module Travis
             sh.echo messages
           end
 
-          sh.mkdir '~/.ssh', recursive: true
+          sh.mkdir '~/.ssh', recursive: true, echo: false
           sh.file '~/.ssh/id_rsa', key.value
           sh.chmod 600, '~/.ssh/id_rsa', echo: false
           sh.raw 'eval `ssh-agent` &> /dev/null'
