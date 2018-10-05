@@ -10,8 +10,8 @@ module Travis
           sh.mkdir '~/.ssh', recursive: true, echo: false
           sh.file '~/.ssh/id_rsa', key.value
           sh.chmod 600, '~/.ssh/id_rsa', echo: false
-          sh.cmd 'eval `ssh-agent`', assert: true
-          sh.cmd 'ssh-add ~/.ssh/id_rsa', assert: true
+          sh.raw 'eval `ssh-agent` &> /dev/null'
+          sh.raw 'ssh-add ~/.ssh/id_rsa &> /dev/null'
 
           # BatchMode - If set to 'yes', passphrase/password querying will be disabled.
           # TODO ... how to solve StrictHostKeyChecking correctly? deploy a known_hosts file?
