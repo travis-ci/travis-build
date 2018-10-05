@@ -9,7 +9,7 @@ module Travis
     BUILD_DIR = File.join(HOME_DIR, 'build')
 
     def config
-      @config ||= ::Travis::Build::Config.load
+      @config ||= ::Travis::Build::Config.load(:files, :keychain, :heroku, :docker)
     end
 
     module_function :config
