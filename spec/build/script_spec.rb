@@ -93,44 +93,40 @@ describe Travis::Build::Script, :sexp do
   end
 
   context 'apt-get update' do
+    let(:appliance_apt_cmd) { /^travis_cmd travis_apt_get_update --retry/ }
+
     context 'with APT_GET_UPDATE_OPT_IN not enabled' do
       before { ENV.delete('APT_GET_UPDATE_OPT_IN') }
 
       context 'with config[:apt][:update] not given' do
         before { payload[:config].delete(:apt) }
         before { payload[:config][:os] = 'linux' }
-        it { expect(code).to include 'travis_apt_get_update' }
-        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
+        it { expect(code).to match appliance_apt_cmd }
       end
 
       context 'with config[:apt][:update] not given and apt-get update used in before_install' do
         before { payload[:config][:install] = ['apt-get -s install foo'] }
-        it { expect(code).to_not match(/\s*travis_apt_get_update$/) }
-        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
+        it { expect(code).to_not match appliance_apt_cmd }
       end
 
       context 'with config[:apt][:update] being true' do
         before { payload[:config][:apt] = { update: true } }
-        it { expect(code).to include 'travis_apt_get_update' }
-        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
+        it { expect(code).to match appliance_apt_cmd }
       end
 
       context 'with config[:apt][:update] being false' do
         before { payload[:config][:apt] = { update: false } }
-        it { expect(code).to_not match(/\s*travis_apt_get_update$/) }
-        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
+        it { expect(code).to_not match appliance_apt_cmd }
       end
 
       context 'with config[:addons][:apt][:update] being true' do
         before { payload[:config][:addons][:apt] = { update: true } }
-        it { expect(code).to_not match(/\s*travis_apt_get_update$/) }
-        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
+        it { expect(code).to match appliance_apt_cmd }
       end
 
       context 'with config[:addons][:apt][:update] being false' do
         before { payload[:config][:addons][:apt] = { update: false } }
-        it { expect(code).to_not match(/\s*travis_apt_get_update$/) }
-        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
+        it { expect(code).to_not match appliance_apt_cmd }
       end
     end
 
@@ -141,42 +137,38 @@ describe Travis::Build::Script, :sexp do
       context 'with running on osx' do
         before { payload[:config][:os] = 'osx' }
         after { payload[:config][:os] = 'linux' }
-        it { expect(code).to_not match(/\s*travis_apt_get_update$/) }
-        it { expect(code).to_not include 'Running apt-get by default has been disabled' }
+        it { expect(code).to_not match appliance_apt_cmd }
       end
 
       context 'with config[:apt][:update] not given' do
         before { payload[:config].delete(:apt) }
-        it { expect(code).to_not match(/\s*travis_apt_get_update$/) }
+        it { expect(code).to_not match appliance_apt_cmd }
       end
 
       context 'with config[:apt][:update] not given and apt-get update used in before_install' do
         before { payload[:config][:install] = ['apt-get -s install foo'] }
         it { code }
-        it { expect(code).to include 'travis_apt_get_update' }
-        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
+        it { expect(code).to match appliance_apt_cmd }
       end
 
       context 'with config[:apt][:update] being true' do
         before { payload[:config][:apt] = { update: true } }
-        it { expect(code).to include 'travis_apt_get_update' }
-        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
+        it { expect(code).to match appliance_apt_cmd }
       end
 
       context 'with config[:apt][:update] being false' do
         before { payload[:config][:apt] = { update: false } }
-        it { expect(code).to_not match(/\s*travis_apt_get_update$/) }
+        it { expect(code).to_not match appliance_apt_cmd }
       end
 
       context 'with config[:addons][:apt][:update] being true' do
         before { payload[:config][:addons][:apt] = { update: true } }
-        it { expect(code).to include 'travis_apt_get_update' }
-        it { expect(code).to_not include 'Running apt-get update by default has been disabled' }
+        it { expect(code).to match appliance_apt_cmd }
       end
 
       context 'with config[:addons][:apt][:update] being false' do
         before { payload[:config][:addons][:apt] = { update: false } }
-        it { expect(code).to_not match(/\s*travis_apt_get_update$/) }
+        it { expect(code).to_not match appliance_apt_cmd }
       end
     end
   end
