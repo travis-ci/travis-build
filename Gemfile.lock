@@ -13,8 +13,8 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-config
-  revision: 9d5d076c2a00b20fc244b67e6a0b35e05f8fcd1c
-  ref: 9d5d076
+  revision: f004384eff17ab1b1f2e467b437edc8a2a52da9e
+  ref: f004384
   specs:
     travis-config (1.0.13)
       hashr (~> 2.0.0)
