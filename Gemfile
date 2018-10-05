@@ -34,7 +34,7 @@ gem 'simplecov', require: false, group: %i[development test]
 gem 'sinatra', '~> 1.4'
 gem 'sinatra-contrib'
 gem 'travis'
-gem 'travis-config', git: gh('travis-ci/travis-config'), ref: 'de0a69d'
+gem 'travis-config', git: gh('travis-ci/travis-config'), ref: '9d5d076'
 gem 'travis-github_apps', git: gh('travis-ci/travis-github_apps')
 gem 'travis-rollout', git: gh('travis-ci/travis-rollout')
 gem 'travis-support', git: gh('travis-ci/travis-support')
