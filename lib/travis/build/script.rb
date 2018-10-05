@@ -51,7 +51,6 @@ module Travis
         travis_apt_get_update
         travis_assert
         travis_bash_qsort_numeric
-        travis_cleanup
         travis_cmd
         travis_decrypt
         travis_download
@@ -179,7 +178,7 @@ module Travis
       def debug_enabled?
         Travis::Build.config.enable_debug_tools == '1'
       end
-
+      
       private
 
         def debug
@@ -198,7 +197,6 @@ module Travis
 
         def run
           stages.run if apply :validate
-          sh.raw 'travis_cleanup'
           sh.raw 'travis_footer'
           # apply :deprecations
         end
