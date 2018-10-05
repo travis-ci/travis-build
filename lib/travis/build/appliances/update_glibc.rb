@@ -5,7 +5,7 @@ module Travis
     module Appliances
       class UpdateGlibc < Base
         def apply?
-          super && !Travis::Build.config.update_glibc.empty?
+          super && Travis::Build.config.update_glibc?
         end
 
         def apply
