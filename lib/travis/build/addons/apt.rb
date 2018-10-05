@@ -245,8 +245,8 @@ module Travis
             format(
               tmpl.to_s,
               source_alias: source['alias'] || 'travis-security',
-              app_host: Travis::Build.config.app_host.to_s.untaint.strip
-            )
+              app_host: Travis::Build.config.app_host.to_s.strip
+            ).untaint
           end
 
           def stop_postgresql
