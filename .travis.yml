@@ -41,6 +41,8 @@ script:
 
 after_success: bundle exec codeclimate-test-reporter
 
+after_failure: bundle exec rake dump_examples_logs
+
 before_deploy:
 - sudo pip install -U -I Pygments
 - ./script/build-s3-index-html
