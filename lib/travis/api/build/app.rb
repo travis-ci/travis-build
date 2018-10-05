@@ -41,7 +41,7 @@ module Travis
 
           def api_tokens
             @api_tokens ||=
-              Travis::Build.config.api_token.to_s.untaint.split(',').map(&:strip)
+              Travis::Build.config.api_token.to_s.dup.untaint.split(',').map(&:strip)
           end
         end
 
