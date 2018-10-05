@@ -17,9 +17,9 @@ module Travis
 
           def netrc_content
             if data.installation?
-              "machine #{data.source_host}\\n  login travis-ci\\n  password #{data.token}\\n"
+              "machine #{data.source_host}\n  login travis-ci\n  password #{data.token}\n"
             else
-              "machine #{data.source_host}\\n  login #{data.token}\\n"
+              "machine #{data.source_host}\n  login #{data.token}\n"
             end
           end
 
