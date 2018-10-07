@@ -12,7 +12,7 @@ module Travis
 
           end
 
-          def update_nvm
+          def update
             sh.echo "Updating nvm", ansi: :yellow, timing: false
             nvm_dir = "${TRAVIS_HOME}/.nvm"
             sh.raw "mkdir -p #{nvm_dir}"
