@@ -42,7 +42,7 @@ module Travis
               install_version '$(< .nvmrc)'
             end
             sh.else do
-              install_version default_version
+              install_version Travis::Build::Script::NodeJs::DEFAULT_VERSION
             end
           end
 

@@ -111,18 +111,6 @@ module Travis
           end
         end
 
-        def default_version
-          DEFAULT_VERSION
-        end
-
-        def yarn_required_node_version
-          YARN_REQUIRED_NODE_VERSION
-        end
-
-        def npm_ci_cmd_version
-          NPM_CI_CMD_VERSION
-        end
-
         def node_js_given_in_config?
           !!config[:node_js]
         end
@@ -210,7 +198,7 @@ module Travis
             sh.if "-f yarn.lock" do
               sh.if yarn_req_not_met do
                 sh.echo "Node.js version $(node --version) does not meet requirement for yarn." \
-                  " Please use Node.js #{yarn_required_node_version} or later.", ansi: :red
+                  " Please use Node.js #{YARN_REQUIRED_NODE_VERSION} or later.", ansi: :red
                 npm_install config[:npm_args]
               end
               sh.else do
@@ -236,7 +224,7 @@ module Travis
           end
 
           def yarn_req_not_met
-            "$(travis_vers2int $(echo `node --version` | tr -d 'v')) -lt $(travis_vers2int #{yarn_required_node_version})"
+            "$(travis_vers2int $(echo `node --version` | tr -d 'v')) -lt $(travis_vers2int #{YARN_REQUIRED_NODE_VERSION})"
           end
 
           def is_win?
