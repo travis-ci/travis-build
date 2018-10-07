@@ -1,3 +1,5 @@
+require 'travis/build/script/node_js/manager'
+
 module Travis
   module Build
     class Script
@@ -17,10 +19,13 @@ module Travis
 
         def setup
           super
+
+          setup_os
+
           prepend_path './node_modules/.bin'
           convert_legacy_nodejs_config
-          update_nvm
-          nvm_install
+          version_manager.update unless app_host.empty?
+          version_manager.install
           npm_disable_prefix
           npm_disable_spinner
           npm_disable_progress
@@ -40,7 +45,7 @@ module Travis
           end
           sh.cmd 'node --version'
           sh.cmd 'npm --version'
-          sh.cmd 'nvm --version'
+          version_manager.show_version
           sh.if "-f yarn.lock" do
              sh.cmd 'yarn --version'
              sh.cmd 'hash -d yarn', echo: false
@@ -99,7 +104,37 @@ module Travis
           super || data.cache?(:yarn)
         end
 
+        def version
+          @version ||= begin
+            version = Array(config[:node_js]).first
+            version == 0.1 ? '0.10' : version.to_s
+          end
+        end
+
+        def default_version
+          DEFAULT_VERSION
+        end
+
+        def yarn_required_node_version
+          YARN_REQUIRED_NODE_VERSION
+        end
+
+        def npm_ci_cmd_version
+          NPM_CI_CMD_VERSION
+        end
+
+        def node_js_given_in_config?
+          !!config[:node_js]
+        end
+
         private
+          def version_manager
+            @version_manager ||= if is_win?
+              Travis::Build::NodeJs::Manager.nvs(self)
+            else
+              Travis::Build::NodeJs::Manager.nvm(self)
+            end
+          end
 
           def convert_legacy_nodejs_config
             # TODO deprecate :nodejs
@@ -107,66 +142,6 @@ module Travis
             if config[:nodejs] && !config[:node_js]
               config[:node_js] = config[:nodejs]
             end
-          end
-
-          def node_js_given_in_config?
-            !!config[:node_js]
-          end
-
-          def version
-            @version ||= begin
-              version = Array(config[:node_js]).first
-              version == 0.1 ? '0.10' : version.to_s
-            end
-          end
-
-          def nvm_install
-            if node_js_given_in_config?
-              use_nvm_version
-            else
-              use_nvm_default
-            end
-          end
-
-          def use_nvm_default
-            sh.if '-f .nvmrc' do
-              sh.echo "Using nodejs version from .nvmrc", ansi: :yellow
-              install_version '$(< .nvmrc)'
-            end
-            sh.else do
-              install_version DEFAULT_VERSION
-            end
-          end
-
-          def use_nvm_version
-            install_version version
-          end
-
-          def install_version(ver)
-            sh.fold "nvm.install" do
-              sh.cmd "nvm install #{ver}", assert: false, timing: true
-              sh.if '$? -ne 0' do
-                sh.echo "Failed to install #{ver}. Remote repository may not be reachable.", ansi: :red
-                sh.echo "Using locally available version #{ver}, if applicable."
-                sh.cmd "nvm use #{ver}", assert: false, timing: false
-                sh.if '$? -ne 0' do
-                  sh.echo "Unable to use #{ver}", ansi: :red
-                  sh.cmd "false", assert: true, echo: false, timing: false
-                end
-              end
-              sh.export 'TRAVIS_NODE_VERSION', ver, echo: false
-            end
-          end
-
-          def update_nvm
-            return if app_host.empty?
-            sh.echo "Updating nvm", ansi: :yellow, timing: false
-            nvm_dir = "${TRAVIS_HOME}/.nvm"
-            sh.raw "mkdir -p #{nvm_dir}"
-            sh.raw "curl -s -o #{nvm_dir}/nvm.sh   https://#{app_host}/files/nvm.sh".untaint,   assert: false
-            sh.raw "curl -s -o #{nvm_dir}/nvm-exec https://#{app_host}/files/nvm-exec".untaint, assert: false
-            sh.raw "chmod 0755 #{nvm_dir}/nvm.sh #{nvm_dir}/nvm-exec", assert: true
-            sh.raw "source #{nvm_dir}/nvm.sh", assert: false
           end
 
           def npm_disable_prefix
@@ -235,7 +210,7 @@ module Travis
             sh.if "-f yarn.lock" do
               sh.if yarn_req_not_met do
                 sh.echo "Node.js version $(node --version) does not meet requirement for yarn." \
-                  " Please use Node.js #{YARN_REQUIRED_NODE_VERSION} or later.", ansi: :red
+                  " Please use Node.js #{yarn_required_node_version} or later.", ansi: :red
                 npm_install config[:npm_args]
               end
               sh.else do
@@ -261,7 +236,19 @@ module Travis
           end
 
           def yarn_req_not_met
-            "$(travis_vers2int $(echo `node --version` | tr -d 'v')) -lt $(travis_vers2int #{YARN_REQUIRED_NODE_VERSION})"
+            "$(travis_vers2int $(echo `node --version` | tr -d 'v')) -lt $(travis_vers2int #{yarn_required_node_version})"
+          end
+
+          def is_win?
+            config[:os].downcase.strip == 'windows'
+          end
+
+          def setup_os
+            if is_win?
+              sh.export 'NVS_HOME', '$ProgramData/nvs', echo: false
+              sh.cmd 'git clone --single-branch -b joshk-msys_nt https://github.com/joshk/nvs $NVS_HOME'
+              sh.cmd 'source $NVS_HOME/nvs.sh'
+            end
           end
       end
     end
