@@ -9,6 +9,14 @@ module Travis
 
           end
 
+          def setup
+
+          end
+
+          def update
+
+          end
+
           def install
             install_version version
             use_version version
