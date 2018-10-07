@@ -94,7 +94,7 @@ module Travis
 
           def setup_casher
             fold 'Setting up build cache' do
-              run_rvm_use
+              run_rvm_use unless ENV['TRAVIS_OS_NAME'] == "windows"
               install
               fetch
               add(directories) if data.cache?(:directories)
@@ -181,8 +181,12 @@ module Travis
             def run(command, args, options = {})
               sh.with_errexit_off do
                 sh.if "-f #{BIN_PATH}" do
-                  sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
-                  sh.cmd "rvm $(travis_internal_ruby) --fuzzy do #{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
+                  if ENV['TRAVIS_OS_NAME'] == "windows"
+                    sh.cmd "#{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
+                  else
+                    sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
+                    sh.cmd "rvm $(travis_internal_ruby) --fuzzy do #{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
+                  end
                 end
               end
             end
