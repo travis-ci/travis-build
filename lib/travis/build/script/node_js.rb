@@ -20,6 +20,8 @@ module Travis
         def setup
           super
 
+          sh.newline
+          sh.newline
           sh.fold "#{version_manager.name}.setup" do
             setup_os
 
@@ -236,8 +238,6 @@ module Travis
 
           def setup_os
             if is_win?
-              sh.newline
-              sh.newline
               sh.echo "Using NVS for managing Node.js versions on Windows (BETA)", ansi: :yellow
               sh.export 'NVS_HOME', '$ProgramData/nvs', echo: false
               sh.cmd 'git clone --single-branch -b joshk-msys_nt https://github.com/joshk/nvs $NVS_HOME'
