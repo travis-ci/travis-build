@@ -6,6 +6,7 @@ describe Travis::Build::Script::R, :sexp do
   subject       { script.sexp }
   it            { store_example }
 
+  it_behaves_like 'a bash script'
   it_behaves_like 'a build script sexp'
 
   it 'normalizes bioc-devel correctly' do
@@ -127,11 +128,11 @@ describe Travis::Build::Script::R, :sexp do
   it 'downloads pandoc <= 1.19.2.1 on OS X' do
     data[:config][:pandoc_version] = '1.19.2.1'
     data[:config][:os] = 'osx'
-    
+
     should include_sexp [:cmd, %r{curl.*/tmp/pandoc-1\.19\.2\.1-osx\.pkg https://github\.com/jgm/pandoc/releases/download/1\.19\.2\.1/pandoc-1\.19\.2\.1-osx\.pkg},
                          assert: true, echo: true, timing: true]
   end
-  
+
   it 'sets repos in ~/.Rprofile.site with defaults' do
     data[:config][:cran] = 'https://cloud.r-project.org'
     should include_sexp [:cmd, "echo 'options(repos = c(CRAN = \"https://cloud.r-project.org\"))' > ~/.Rprofile.site",

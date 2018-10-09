@@ -22,6 +22,7 @@ travis_setup_env() {
   case $(uname | tr '[:upper:]' '[:lower:]') in
   linux*) TRAVIS_OS_NAME=linux ;;
   darwin*) TRAVIS_OS_NAME=osx ;;
+  msys*) TRAVIS_OS_NAME=windows ;;
   *) TRAVIS_OS_NAME=notset ;;
   esac
   export TRAVIS_OS_NAME
@@ -51,6 +52,7 @@ travis_setup_env() {
   export TRAVIS_CMD=
 
   TRAVIS_TMPDIR="$(mktemp -d 2>/dev/null || mktemp -d -t 'travis_tmp')"
+  mkdir -p "${TRAVIS_TMPDIR}"
   export TRAVIS_TMPDIR
   _RO+=(TRAVIS_TMPDIR)
 

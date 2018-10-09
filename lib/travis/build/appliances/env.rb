@@ -17,6 +17,10 @@ module Travis
           sh.newline if env.announce?
         end
 
+        def apply?
+          true
+        end
+
         private
 
           def export(group)

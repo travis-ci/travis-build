@@ -1,6 +1,7 @@
 require 'json'
 require 'logger'
 require 'pathname'
+require 'date'
 
 require 'faraday'
 require 'faraday_middleware'
@@ -159,7 +160,8 @@ module Travis
               Errno::ETIMEDOUT,
               Timeout::Error,
               Faraday::ClientError
-            ]
+            ],
+            retry_statuses: 400..600
           f.adapter Faraday.default_adapter
         end
       end
@@ -476,10 +478,14 @@ module Travis
         end
       end
 
-      desc 'validate bash syntax of all examples'
-      task :assert_examples do
+      desc 'assert validity of all examples'
+      task :assert_examples, [:parallel] do |t, args|
         ENV['PATH'] = tmpbin_path
-        sh "#{top}/script/assert-examples"
+        if !args[:parallel].nil?
+          sh "parallel_rspec -- --tag example:true -- #{top}/spec"
+        else
+          sh "rspec --tag example:true #{top}/spec"
+        end
       end
 
       task :ensure_shfmt do

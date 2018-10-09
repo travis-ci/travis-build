@@ -28,7 +28,17 @@ jobs:
     script: ./script/docker-build-and-push
     if: NOT type IN (pull_request) AND branch = master
 
-before_script: bundle exec rake clean assets:precompile
+before_script:
+- if [[ "${INTEGRATION_SPECS}" == 1 ]]; then eval "$(script/handle-docker-config)"; fi
+- bundle exec rake clean assets:precompile
+
+script:
+- bundle exec rake parallel:spec
+- bundle exec rake shfmt
+- bundle exec rake assert_clean
+- bundle exec rake shellcheck
+- bundle exec rake assert_examples[parallel]
+
 after_success: bundle exec codeclimate-test-reporter
 
 before_deploy:

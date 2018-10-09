@@ -6,8 +6,6 @@ module Travis
 
         YARN_REQUIRED_NODE_VERSION = '4'
 
-        NPM_QUIET_TREE_VERSION = '5'
-        
         NPM_CI_CMD_VERSION = '5.8.0'
 
         def export
@@ -229,9 +227,6 @@ module Travis
               end
               sh.else do
                 sh.cmd "npm install #{args}", retry: true
-              end
-              sh.if "$(travis_vers2int `npm -v`) -gt $(travis_vers2int #{NPM_QUIET_TREE_VERSION})" do
-                sh.cmd "npm ls", echo: true, assert: false
               end
             end
           end

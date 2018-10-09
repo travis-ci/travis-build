@@ -142,7 +142,7 @@ module Travis
               nil
             end
 
-            haxeorg_stable || github_stable || "3.4.4"
+            haxeorg_stable || github_stable || "3.4.7"
           end
 
           def haxe_version
@@ -175,7 +175,7 @@ module Travis
               when 'osx'
                 'mac'
               end
-              "http://hxbuilds.s3-website-us-east-1.amazonaws.com/builds/haxe/#{os}/haxe_latest.tar.gz"
+              "https://build.haxe.org/builds/haxe/#{os}/haxe_latest.tar.gz"
             else
               os = case config[:os]
               when 'linux'

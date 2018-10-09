@@ -7,6 +7,8 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
   subject      { script.sexp }
   it           { store_example }
 
+  it_behaves_like 'a bash script'
+
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=objective_c'] }
     let(:cmds) { ['bundle exec rake spec'] }
