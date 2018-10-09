@@ -11,10 +11,10 @@ module Travis
         def directory_cache
           @directory_cache ||= begin
             cache = cache_class.new(sh, data, cache_slug, Time.now)
-            if config[:os].to_s.downcase.strip == 'windows'
-              sh.echo "Caching is not supported on #{config[:os].to_s.capitalize}"
+            if !cache.valid? || !use_directory_cache?
               cache = Noop.new(sh, data, cache_slug)
-            elsif !cache.valid? || !use_directory_cache?
+            elsif config[:os].to_s.downcase.strip == 'windows'
+              sh.echo "Caching is not supported on #{config[:os].to_s.capitalize}"
               cache = Noop.new(sh, data, cache_slug)
             end
             cache
