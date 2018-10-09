@@ -1,6 +1,7 @@
 language: ruby
 sudo: required
-dist: trusty
+dist: xenial
+group: edge
 rvm: 2.5.1
 cache:
   bundler: true
