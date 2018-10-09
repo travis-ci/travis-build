@@ -27,34 +27,6 @@ shared_examples_for 'a jdk build sexp' do
     end
   end
 
-  #describe 'if jdk is given' do
-  #  before :each do
-  #    data[:config][:jdk] = 'openjdk7'
-  #  end
-
-  #  it 'sets TRAVIS_JDK_VERSION' do
-  #    should include_sexp export_jdk_version
-  #  end
-
-  #  it 'runs jdk_switcher' do
-  #    if_jdk_switcher = sexp_find(subject, sexp)
-  #    expect(if_jdk_switcher).to include_sexp run_jdk_switcher
-  #  end
-  #end
-
-  #context "jdk is set to oraclejdk11" do
-  #  before :each do
-  #    data[:config][:jdk] = 'oraclejdk11'
-  #  end
-
-  #  it { store_example "oraclejdk11" }
-
-  #  it "downloads install-jdk.sh" do
-  #    should include_sexp( [:export, ["JAVA_HOME", "$HOME/oraclejdk11"], echo: true] )
-  #    should include_sexp( [:cmd, "curl -sf -O https://build.travis-ci.org/files/install-jdk.sh"])
-  #  end
-  #end
-
   describe 'if build.gradle exists' do
     let(:sexp) { sexp_find(subject, [:if, '-f build.gradle || -f build.gradle.kts'], [:then]) }
 

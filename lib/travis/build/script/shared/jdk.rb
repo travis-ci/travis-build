@@ -14,6 +14,8 @@ module Travis
           return if jdk == 'default'
 
           sh.raw(install_jdk(jdk), echo: true, timing: true, fold: 'install_jdk')
+          sh.raw("travis_setup_java #{jdk} #{vendor} #{version}")
+          sh.raw('unset -f travis_remove_from_path travis_set_java travis_install_jdk')
         end
 
         def export
@@ -60,13 +62,7 @@ module Travis
           end
 
           def install_jdk(jdk)
-            template('jdk.sh',
-                     jdk: jdk,
-                     jdk_glob: jdk_glob(jdk),
-                     jinfo_file: jinfo_file(jdk),
-                     app_host: app_host,
-                     args: install_jdk_args(jdk),
-                     cache_dir: cache_dir)
+            template('jdk.sh', jdk: jdk)
           end
 
           def jdk_glob(jdk)
@@ -88,27 +84,6 @@ module Travis
               vendor = 'openjdk'
             end
             [ vendor, m[:version] ]
-          end
-
-          def jinfo_file(jdk)
-            vendor, version = jdk_info(jdk)
-            if vendor == 'oracle'
-              ".java-#{version}-#{vendor}.jinfo"
-            elsif vendor == 'openjdk'
-                ".java-1.#{version}.*-#{vendor}-*.jinfo"
-            end
-          end
-
-          def install_jdk_args(jdk)
-            vendor, version = jdk_info(jdk)
-            if vendor == 'oracle'
-              license = 'BCL'
-            elsif vendor == 'openjdk'
-              license = 'GPL'
-            else
-              return false
-            end
-            "--feature #{version} --license #{license}"
           end
 
           def cache_dir
