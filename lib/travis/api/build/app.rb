@@ -18,9 +18,7 @@ module Travis
         set :root, File.expand_path('../../../../../', __FILE__)
         set :start, Time.now.utc
 
-        configure(:production, :staging) do
-          use Rack::SSL
-        end
+        use Rack::SSL if ENV['RACK_SSL_ENABLED']
 
         configure do
           use Sentry unless Travis::Build.config.sentry_dsn.to_s.empty?

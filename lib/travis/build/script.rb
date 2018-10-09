@@ -117,7 +117,7 @@ module Travis
       rescue Exception => e
         event = Travis::Build.config.sentry_dsn.empty? ? nil : Raven.capture_exception(e)
 
-        unless Travis::Build.config.dump_backtrace.empty?
+        unless Travis::Build.config.dump_backtrace?
           Travis::Build.logger.error(e)
           Travis::Build.logger.error(e.backtrace)
         end

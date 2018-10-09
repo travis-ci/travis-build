@@ -13,7 +13,7 @@ main() {
     -w "${PUMA_WORKERS:-2}"
   )
 
-  if [[ "${RACK_ENV}" == development ]]; then
+  if [[ "${RACK_ENV}" == development && ! "${DISABLE_RERUN}" ]]; then
     cmd=(rerun -p '**/*.{rb,ru}' -- "${cmd[@]}")
   fi
 
