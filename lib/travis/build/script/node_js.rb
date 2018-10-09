@@ -20,12 +20,15 @@ module Travis
         def setup
           super
 
-          setup_os
+          sh.fold "#{version_manager.name}.setup" do
+            setup_os
 
-          prepend_path './node_modules/.bin'
-          convert_legacy_nodejs_config
-          version_manager.update unless app_host.empty?
-          version_manager.install
+            prepend_path './node_modules/.bin'
+            convert_legacy_nodejs_config
+            version_manager.update unless app_host.empty?
+            version_manager.install
+          end
+
           npm_disable_prefix
           npm_disable_spinner
           npm_disable_progress
@@ -233,6 +236,9 @@ module Travis
 
           def setup_os
             if is_win?
+              sh.newline
+              sh.newline
+              sh.echo "Using NVS for managing Node.js versions on Windows (BETA)", ansi: :yellow
               sh.export 'NVS_HOME', '$ProgramData/nvs', echo: false
               sh.cmd 'git clone --single-branch -b joshk-msys_nt https://github.com/joshk/nvs $NVS_HOME'
               sh.cmd 'source $NVS_HOME/nvs.sh'

@@ -15,6 +15,10 @@ module Travis
             @node_js = node_js
           end
 
+          def name
+            self.class.to_s.sub(/.*::/,'').downcase
+          end
+
           def setup
 
           end

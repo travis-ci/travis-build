@@ -18,13 +18,8 @@ module Travis
           end
 
           def install
-            sh.echo ''
-            sh.echo ''
-            sh.fold "nvs" do
-              sh.echo "Using NVS for managing Node.js versions on Windows (BETA)", ansi: :yellow
-              install_version version
-              use_version version
-            end
+            install_version version
+            use_version version
           end
 
           def show_version
