@@ -20,19 +20,15 @@ module Travis
           end
 
           def setup
-
           end
 
           def update
-
           end
 
           def install
-
           end
 
           def show_version
-
           end
         end
       end
