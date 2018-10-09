@@ -240,7 +240,7 @@ module Travis
             if is_win?
               sh.echo "Using NVS for managing Node.js versions on Windows (BETA)", ansi: :yellow
               sh.export 'NVS_HOME', '$ProgramData/nvs', echo: false
-              sh.cmd 'git clone --single-branch -b joshk-msys_nt https://github.com/joshk/nvs $NVS_HOME'
+              sh.cmd 'git clone --single-branch https://github.com/jasongin/nvs $NVS_HOME'
               sh.cmd 'source $NVS_HOME/nvs.sh'
             end
           end
