@@ -183,7 +183,7 @@ describe Travis::Build::Script::Csharp, :sexp do
   describe 'export' do
     it 'sets TRAVIS_SOLUTION' do
       data[:config][:solution] = 'foo.sln'
-      should include_sexp [:export, ['TRAVIS_SOLUTION', 'foo.sln'], echo: true]
+      should include_sexp [:export, ['TRAVIS_SOLUTION', 'foo.sln'], echo: true, readonly: true]
     end
   end
 

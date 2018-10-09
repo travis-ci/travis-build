@@ -16,7 +16,7 @@ describe Travis::Build::Script::Php, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'sets TRAVIS_PHP_VERSION' do
-    should include_sexp [:export, ['TRAVIS_PHP_VERSION', '5.5']]
+    should include_sexp [:export, ['TRAVIS_PHP_VERSION', '5.5'], readonly: true]
   end
 
   it 'sets up the php version' do

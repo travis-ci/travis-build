@@ -27,7 +27,7 @@ describe Travis::Build::Script::Python, :sexp do
   end
 
   it 'sets TRAVIS_PYTHON_VERSION' do
-    should include_sexp [:export,  ['TRAVIS_PYTHON_VERSION', '2.7']]
+    should include_sexp [:export,  ['TRAVIS_PYTHON_VERSION', '2.7'], readonly: true]
   end
 
   it 'sets up the python version (pypy)' do

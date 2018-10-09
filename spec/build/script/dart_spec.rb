@@ -12,7 +12,7 @@ describe Travis::Build::Script::Dart, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'sets TRAVIS_DART_VERSION' do
-    should include_sexp [:export, ['TRAVIS_DART_VERSION', 'stable']]
+    should include_sexp [:export, ['TRAVIS_DART_VERSION', 'stable'], readonly: true]
   end
 
   it 'sets DART_SDK' do

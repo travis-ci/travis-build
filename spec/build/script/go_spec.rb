@@ -21,7 +21,7 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   it 'sets TRAVIS_GO_VERSION' do
-    should include_sexp [:export, ['TRAVIS_GO_VERSION', defaults[:go]]]
+    should include_sexp [:export, ['TRAVIS_GO_VERSION', defaults[:go]], readonly: true]
   end
 
   it 'conditionally sets GOMAXPROCS to 2' do

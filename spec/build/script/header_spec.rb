@@ -16,9 +16,14 @@ describe 'script header', integration: true do
   end
 
   let :bash_body do
-    script = %w[export]
-    rendered.split("\n").grep(/^'[a-z][a-z_]+\\\(\\\)\\ \\{'/).each do |func|
-      script << "type #{func.match(/^'(.+)\\\(\\\)\\ \\{'/)[1]}"
+    script = <<~SCRIPT.split("\n")
+      declare -rx "${_RO[@]}"
+      unset _RO
+      printenv
+      export
+    SCRIPT
+    Travis::Build::Script::TRAVIS_FUNCTIONS.each do |func|
+      script << "type #{func}"
     end
     "\n" + script.join("\n")
   end
@@ -45,34 +50,21 @@ describe 'script header', integration: true do
     expect(rendered).to_not be_empty
   end
 
-  %w(
-    travis_assert
-    travis_cmd
-    travis_fold
-    travis_internal_ruby
-    travis_jigger
-    travis_nanoseconds
-    travis_result
-    travis_retry
-    travis_terminate
-    travis_time_finish
-    travis_time_start
-    travis_wait
-  ).each do |api_function|
+  Travis::Build::Script::TRAVIS_FUNCTIONS.each do |api_function|
     it "defines #{api_function}" do
       expect(bash_output).to match(/^#{api_function} is a function/)
     end
   end
 
   {
-    SHELL: /.+/, # nonempty
+    SHELL: '.+', # nonempty
     TERM: 'xterm',
     USER: 'travis',
     TRAVIS_OS_NAME: 'linux|osx',
     TRAVIS_DIST: 'precise|trusty|xenial'
   }.each do |env_var, val|
     it "exports #{env_var}" do
-      expect(bash_output).to match(/^declare -x #{env_var}="#{val}"$/)
+      expect(bash_output).to match(/^declare -r?x #{env_var}="#{val}"$/)
     end
   end
 

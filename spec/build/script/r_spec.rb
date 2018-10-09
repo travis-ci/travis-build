@@ -13,7 +13,7 @@ describe Travis::Build::Script::R, :sexp do
     pending('known to fail with certain random seeds (incl 58438)')
     fail
     data[:config][:r] = 'bioc-devel'
-    should include_sexp [:export, ['TRAVIS_R_VERSION', 'devel']]
+    should include_sexp [:export, ['TRAVIS_R_VERSION', 'devel'], readonly: true]
     should include_sexp [:cmd, %r{source\(\"https://bioconductor.org/biocLite.R\"\)},
                          assert: true, echo: true, timing: true, retry: true]
     should include_sexp [:cmd, %r{useDevel\(TRUE\)},
@@ -26,7 +26,7 @@ describe Travis::Build::Script::R, :sexp do
     data[:config][:r] = 'bioc-release'
     should include_sexp [:cmd, %r{source\(\"https://bioconductor.org/biocLite.R\"\)},
                          assert: true, echo: true, timing: true, retry: true]
-    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.5.1']]
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.5.1'], readonly: true]
   end
 
   it 'r_packages works with a single package set' do
@@ -43,13 +43,13 @@ describe Travis::Build::Script::R, :sexp do
 
   it 'exports TRAVIS_R_VERSION' do
     data[:config][:r] = '3.3.0'
-    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.3.0']]
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.3.0'], readonly: true]
   end
 
   context "when R version is given as an array" do
     it 'uses the first value' do
       data[:config][:r] = %w(3.3.0)
-      should include_sexp [:export, ['TRAVIS_R_VERSION', '3.3.0']]
+      should include_sexp [:export, ['TRAVIS_R_VERSION', '3.3.0'], readonly: true]
     end
   end
 

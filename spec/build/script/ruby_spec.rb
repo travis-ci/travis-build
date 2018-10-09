@@ -27,7 +27,7 @@ describe Travis::Build::Script::Ruby, :sexp do
   end
 
   it 'sets TRAVIS_RUBY_VERSION' do
-    should include_sexp [:export, ['TRAVIS_RUBY_VERSION', 'default']]
+    should include_sexp [:export, ['TRAVIS_RUBY_VERSION', 'default'], readonly: true]
   end
 
   describe 'uses rvm if config does not have a :ruby key set' do

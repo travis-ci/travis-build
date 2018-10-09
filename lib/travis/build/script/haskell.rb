@@ -12,7 +12,7 @@ module Travis
 
         def configure
           super
-          sh.export 'TRAVIS_GHC_DEFAULT', DEFAULTS[:ghc], echo: false
+          sh.export 'TRAVIS_GHC_DEFAULT', DEFAULTS[:ghc], echo: false, readonly: true
           sh.raw bash('travis_ghc_setup_env')
           sh.raw 'travis_ghc_setup_env'
           sh.raw bash('travis_ghc_find')
@@ -31,7 +31,7 @@ module Travis
 
         def setup
           super
-          sh.export 'TRAVIS_HASKELL_VERSION', "$(travis_ghc_find '#{version}')"
+          sh.export 'TRAVIS_HASKELL_VERSION', "$(travis_ghc_find '#{version}')", readonly: true
           sh.export 'PATH', "${TRAVIS_GHC_ROOT}/${TRAVIS_HASKELL_VERSION}/bin:${PATH}", assert: true
           sh.if "-x /opt/ghc/${TRAVIS_HASKELL_VERSION}/bin/ghc" do
             sh.export "PATH", "/opt/ghc/${TRAVIS_HASKELL_VERSION}/bin:${PATH}"

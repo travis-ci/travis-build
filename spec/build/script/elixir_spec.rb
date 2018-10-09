@@ -15,11 +15,11 @@ describe Travis::Build::Script::Elixir, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'sets TRAVIS_OTP_RELEASE' do
-    should include_sexp [:export, ['TRAVIS_OTP_RELEASE', '17.4']] #, echo: true
+    should include_sexp [:export, ['TRAVIS_OTP_RELEASE', '17.4'], readonly: true]
   end
 
   it 'sets TRAVIS_ELIXIR_VERSION' do
-    should include_sexp [:export, ['TRAVIS_ELIXIR_VERSION', '1.0.2']] #, echo: true
+    should include_sexp [:export, ['TRAVIS_ELIXIR_VERSION', '1.0.2'], readonly: true]
   end
 
   it 'announces elixir version' do

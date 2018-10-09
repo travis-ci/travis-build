@@ -71,10 +71,10 @@ MESSAGE
         def export
           super
 
-          sh.export 'TRAVIS_DART_TEST', (!!task[:test]).to_s, echo: false
-          sh.export 'TRAVIS_DART_ANALYZE', (!!task[:dartanalyzer]).to_s, echo: false
-          sh.export 'TRAVIS_DART_FORMAT', (!!task[:dartfmt]).to_s, echo: false
-          sh.export 'TRAVIS_DART_VERSION', task[:dart], echo: false
+          sh.export 'TRAVIS_DART_TEST', (!!task[:test]).to_s, echo: false, readonly: true
+          sh.export 'TRAVIS_DART_ANALYZE', (!!task[:dartanalyzer]).to_s, echo: false, readonly: true
+          sh.export 'TRAVIS_DART_FORMAT', (!!task[:dartfmt]).to_s, echo: false, readonly: true
+          sh.export 'TRAVIS_DART_VERSION', task[:dart], echo: false, readonly: true
         end
 
         def setup

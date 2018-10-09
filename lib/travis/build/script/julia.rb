@@ -21,7 +21,7 @@ module Travis
           super
 
           sh.export 'TRAVIS_JULIA_VERSION', config[:julia].to_s.shellescape,
-            echo: false
+            echo: false, readonly: true
           sh.export 'JULIA_PROJECT', "@."
         end
 

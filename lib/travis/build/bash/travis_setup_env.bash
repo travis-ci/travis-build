@@ -1,11 +1,11 @@
-# shellcheck disable=SC1117
+# shellcheck disable=SC1117 disable=SC2034
 
 travis_setup_env() {
-  export ANSI_RED="\033[31;1m"
-  export ANSI_GREEN="\033[32;1m"
-  export ANSI_YELLOW="\033[33;1m"
-  export ANSI_RESET="\033[0m"
-  export ANSI_CLEAR="\033[0K"
+  declare -rx ANSI_RED="\033[31;1m"
+  declare -rx ANSI_GREEN="\033[32;1m"
+  declare -rx ANSI_YELLOW="\033[33;1m"
+  declare -rx ANSI_RESET="\033[0m"
+  declare -rx ANSI_CLEAR="\033[0K"
 
   export DEBIAN_FRONTEND=noninteractive
 
@@ -20,35 +20,31 @@ travis_setup_env() {
   export USER
 
   case $(uname | tr '[:upper:]' '[:lower:]') in
-  linux*)
-    export TRAVIS_OS_NAME=linux
-    ;;
-  darwin*)
-    export TRAVIS_OS_NAME=osx
-    ;;
-  msys*)
-    export TRAVIS_OS_NAME=windows
-    ;;
-  *)
-    export TRAVIS_OS_NAME=notset
-    ;;
+  linux*) TRAVIS_OS_NAME=linux ;;
+  darwin*) TRAVIS_OS_NAME=osx ;;
+  msys*) TRAVIS_OS_NAME=windows ;;
+  *) TRAVIS_OS_NAME=notset ;;
   esac
+  export TRAVIS_OS_NAME
+  _RO+=(TRAVIS_OS_NAME)
 
   export TRAVIS_DIST=notset
+  _RO+=(TRAVIS_DIST)
   export TRAVIS_INIT=notset
+  _RO+=(TRAVIS_INIT)
   TRAVIS_ARCH="$(uname -m)"
+  export TRAVIS_ARCH
+  _RO+=(TRAVIS_ARCH)
   if [[ "${TRAVIS_ARCH}" == x86_64 ]]; then
     TRAVIS_ARCH='amd64'
   fi
-  export TRAVIS_ARCH
 
   if [[ "${TRAVIS_OS_NAME}" == linux ]]; then
     TRAVIS_DIST="$(lsb_release -sc 2>/dev/null || echo notset)"
-    export TRAVIS_DIST
     if command -v systemctl >/dev/null 2>&1; then
-      export TRAVIS_INIT=systemd
+      TRAVIS_INIT=systemd
     else
-      export TRAVIS_INIT=upstart
+      TRAVIS_INIT=upstart
     fi
   fi
 
@@ -58,12 +54,13 @@ travis_setup_env() {
   TRAVIS_TMPDIR="$(mktemp -d 2>/dev/null || mktemp -d -t 'travis_tmp')"
   mkdir -p "${TRAVIS_TMPDIR}"
   export TRAVIS_TMPDIR
+  _RO+=(TRAVIS_TMPDIR)
 
-  TRAVIS_INFRA=unknown
+  export TRAVIS_INFRA=unknown
+  _RO+=(TRAVIS_INFRA)
   if [[ "${TRAVIS_ENABLE_INFRA_DETECTION}" == true ]]; then
     TRAVIS_INFRA="$(travis_whereami | awk -F= '/^infra/ { print $2 }')"
   fi
-  export TRAVIS_INFRA
 
   if command -v pgrep &>/dev/null; then
     pgrep -u "${USER}" 2>/dev/null |

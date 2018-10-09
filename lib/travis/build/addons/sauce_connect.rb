@@ -8,10 +8,10 @@ module Travis
 
         def after_header
           sh.export 'TRAVIS_SAUCE_CONNECT_PID', 'unset', echo: false
-          sh.export 'TRAVIS_SAUCE_CONNECT_LINUX_DOWNLOAD_URL', linux_download_url, echo: false
-          sh.export 'TRAVIS_SAUCE_CONNECT_OSX_DOWNLOAD_URL', osx_download_url, echo: false
-          sh.export 'TRAVIS_SAUCE_CONNECT_VERSION', sc_version, echo: false
-          sh.export 'TRAVIS_SAUCE_CONNECT_APP_HOST', '${TRAVIS_APP_HOST}', echo: false
+          sh.export 'TRAVIS_SAUCE_CONNECT_LINUX_DOWNLOAD_URL', linux_download_url, echo: false, readonly: true
+          sh.export 'TRAVIS_SAUCE_CONNECT_OSX_DOWNLOAD_URL', osx_download_url, echo: false, readonly: true
+          sh.export 'TRAVIS_SAUCE_CONNECT_VERSION', sc_version, echo: false, readonly: true
+          sh.export 'TRAVIS_SAUCE_CONNECT_APP_HOST', '${TRAVIS_APP_HOST}', echo: false, readonly: true
           sh.raw bash('travis_start_sauce_connect')
           sh.raw bash('travis_stop_sauce_connect')
         end

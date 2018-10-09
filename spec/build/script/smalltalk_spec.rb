@@ -157,7 +157,7 @@ describe Travis::Build::Script::Smalltalk, :sexp do
     end
 
     it 'sets TRAVIS_SMALLTALK_VERSION to correct version' do
-      should include_sexp [:export, ['TRAVIS_SMALLTALK_VERSION', 'Squeak-5.0']]
+      should include_sexp [:export, ['TRAVIS_SMALLTALK_VERSION', 'Squeak-5.0'], readonly: true]
     end
   end
 
@@ -167,7 +167,7 @@ describe Travis::Build::Script::Smalltalk, :sexp do
     end
 
     it 'sets TRAVIS_SMALLTALK_VERSION to correct version' do
-      should include_sexp [:export, ['TRAVIS_SMALLTALK_VERSION', 'Squeak-5.0']]
+      should include_sexp [:export, ['TRAVIS_SMALLTALK_VERSION', 'Squeak-5.0'], readonly: true]
     end
   end
 
@@ -177,7 +177,7 @@ describe Travis::Build::Script::Smalltalk, :sexp do
     end
 
     it 'sets TRAVIS_SMALLTALK_CONFIG' do
-      should include_sexp [:export, ['TRAVIS_SMALLTALK_CONFIG', 'mySuperTest.ston']]
+      should include_sexp [:export, ['TRAVIS_SMALLTALK_CONFIG', 'mySuperTest.ston'], readonly: true]
     end
   end
 
@@ -187,7 +187,7 @@ describe Travis::Build::Script::Smalltalk, :sexp do
     end
 
     it 'sets TRAVIS_SMALLTALK_VM' do
-      should include_sexp [:export, ['TRAVIS_SMALLTALK_VM', 'Pharo-vmLatest70']]
+      should include_sexp [:export, ['TRAVIS_SMALLTALK_VM', 'Pharo-vmLatest70'], readonly: true]
     end
   end
 

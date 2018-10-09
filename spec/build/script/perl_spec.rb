@@ -16,7 +16,7 @@ describe Travis::Build::Script::Perl, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'sets TRAVIS_PERL_VERSION' do
-    should include_sexp [:export, ['TRAVIS_PERL_VERSION', '5.14']]
+    should include_sexp [:export, ['TRAVIS_PERL_VERSION', '5.14'], readonly: true]
   end
 
   it 'sets up the perl version' do

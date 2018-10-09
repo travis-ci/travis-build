@@ -8,7 +8,7 @@ module Travis
 
         def export
           super
-          sh.export 'TRAVIS_OTP_RELEASE', otp_release, echo: false
+          sh.export 'TRAVIS_OTP_RELEASE', otp_release, echo: false, readonly: true
         end
 
         def setup

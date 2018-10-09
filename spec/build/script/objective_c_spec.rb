@@ -44,27 +44,27 @@ describe Travis::Build::Script::ObjectiveC, :sexp do
   describe 'export' do
     it 'sets TRAVIS_XCODE_SDK' do
       data[:config][:xcode_sdk] = 'iphonesimulator7.0'
-      should include_sexp [:export, ['TRAVIS_XCODE_SDK', 'iphonesimulator7.0']]
+      should include_sexp [:export, ['TRAVIS_XCODE_SDK', 'iphonesimulator7.0'], readonly: true]
     end
 
     it 'sets TRAVIS_XCODE_SCHEME' do
       data[:config][:xcode_scheme] = 'MyTests'
-      should include_sexp [:export, ['TRAVIS_XCODE_SCHEME', 'MyTests']]
+      should include_sexp [:export, ['TRAVIS_XCODE_SCHEME', 'MyTests'], readonly: true]
     end
 
     it 'sets TRAVIS_XCODE_PROJECT' do
       data[:config][:xcode_project] = 'MyProject.xcodeproj'
-      should include_sexp [:export, ['TRAVIS_XCODE_PROJECT', 'MyProject.xcodeproj']]
+      should include_sexp [:export, ['TRAVIS_XCODE_PROJECT', 'MyProject.xcodeproj'], readonly: true]
     end
 
     it 'sets TRAVIS_XCODE_WORKSPACE' do
       data[:config][:xcode_workspace] = 'MyWorkspace.xcworkspace'
-      should include_sexp [:export, ['TRAVIS_XCODE_WORKSPACE', 'MyWorkspace.xcworkspace']]
+      should include_sexp [:export, ['TRAVIS_XCODE_WORKSPACE', 'MyWorkspace.xcworkspace'], readonly: true]
     end
 
     it 'sets TRAVIS_XCODE_DESTINATION' do
       data[:config][:xcode_destination] = 'platform=iOS Simulator,name=iPhone X'
-      should include_sexp [:export, ['TRAVIS_XCODE_DESTINATION', 'platform\=iOS\ Simulator,name\=iPhone\ X']]
+      should include_sexp [:export, ['TRAVIS_XCODE_DESTINATION', 'platform\=iOS\ Simulator,name\=iPhone\ X'], readonly: true]
     end
   end
 

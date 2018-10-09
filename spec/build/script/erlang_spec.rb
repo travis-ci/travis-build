@@ -16,7 +16,7 @@ describe Travis::Build::Script::Erlang, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'sets TRAVIS_OTP_RELEASE' do
-    should include_sexp [:export, ['TRAVIS_OTP_RELEASE', 'R14B04']] #, echo: true
+    should include_sexp [:export, ['TRAVIS_OTP_RELEASE', 'R14B04'], readonly: true]
   end
 
   describe 'setup' do

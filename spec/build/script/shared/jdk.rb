@@ -1,5 +1,5 @@
 shared_examples_for 'a jdk build sexp' do
-  let(:export_jdk_version) { [:export, ['TRAVIS_JDK_VERSION', 'openjdk7']] }
+  let(:export_jdk_version) { [:export, ['TRAVIS_JDK_VERSION', 'openjdk7'], readonly: true] }
   let(:sexp)               { [:if, '"$(command -v jdk_switcher &>/dev/null; echo $?)" == 0'] }
   let(:run_jdk_switcher)   { [:cmd, 'jdk_switcher use openjdk7', assert: true, echo: true] }
   let(:set_dumb_term)      { [:export, ['TERM', 'dumb'], echo: true] }

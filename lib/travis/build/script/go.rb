@@ -14,7 +14,7 @@ module Travis
 
         def export
           super
-          sh.export 'TRAVIS_GO_VERSION', go_version, echo: false
+          sh.export 'TRAVIS_GO_VERSION', go_version, echo: false, readonly: true
           sh.if '-z $GOMAXPROCS' do
             sh.export 'GOMAXPROCS', '2', echo: false
           end
