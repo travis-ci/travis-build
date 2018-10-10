@@ -1,0 +1,19 @@
+travis_find_jdk_path() {
+  local vendor version jdkpath result jdk
+  jdk="$1"
+  vendor="$2"
+  version="$3"
+  shopt -s nullglob
+  if [[ "$vendor" == "openjdk" ]]; then
+    apt_glob="/usr/lib/jvm/java-1.${version}.*openjdk*"
+  elif [[ "$vendor" == "oracle" ]]; then
+    apt_glob="/usr*/lib/jvm/java-${version}-oracle"
+  fi
+  for jdkpath in $apt_glob "/usr*/local/lib/jvm/${jdk}"; do
+    [[ ! -d "$jdkpath" ]] && continue
+    result="$jdkpath"
+    break
+  done
+  shopt -u nullglob
+  echo "$result"
+}
