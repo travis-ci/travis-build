@@ -150,7 +150,7 @@ module Travis
         cache_slug_keys.compact.join('-')
       end
 
-      def archive_url_for(bucket, version, lang = self.class.name.split('::').last.downcase, ext = 'bz2')
+      def archive_url_for(bucket, version, lang = lang_name, ext = 'bz2')
         file_name = "#{[lang, version].compact.join("-")}.tar.#{ext}"
         sh.if "$(uname) = 'Linux'" do
           sh.raw "travis_host_os=$(lsb_release -is | tr 'A-Z' 'a-z')"
@@ -178,6 +178,17 @@ module Travis
 
       def debug_enabled?
         Travis::Build.config.enable_debug_tools == '1'
+      end
+
+      def setup
+        unless windows_supports?(lang_name)
+          sh.if '$"TRAVIS_OS_NAME" = windows' do
+            windows_unsupported_msg(lang_name).each do |line|
+              sh.echo line, ansi: :yellow
+            end
+            sh.raw 'travis_terminate 0'
+          end
+        end
       end
 
       private
@@ -377,6 +388,21 @@ module Travis
           error_message_ary(exception, event).each { |line| sh.raw "echo -e \"\033[31;1m#{line}\033[0m\"" }
           sh.raw "exit 2"
           Shell.generate(sh.to_sexp)
+        end
+
+        def lang_name
+          self.class.name.split('::').last.downcase
+        end
+
+        def windows_supports?(lang)
+          Travis::Build.config.windows_langs.include?(lang)
+        end
+
+        def windows_unsupported_msg(lang)
+          [
+            "#{lang} is currently unsupported on Windows",
+            ""
+          ]
         end
     end
   end

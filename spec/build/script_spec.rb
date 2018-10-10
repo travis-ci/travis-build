@@ -179,5 +179,22 @@ describe Travis::Build::Script, :sexp do
         it { expect(code).to_not match(/\s*travis_apt_get_update$/) }
       end
     end
+
+    context 'with windows and only ruby is supported' do
+      before do
+        payload[:config][:os] = 'windows'
+        Travis::Build.config.windows_langs = 'ruby'
+      end
+
+      context 'when building node_js' do
+        before { payload[:config][:language] = 'node_js' }
+        it "terminates early on windows" do
+          sexp = sexp_find(subject, [:if, '$"TRAVIS_OS_NAME" = windows'])
+          expect(sexp).to include_sexp([:raw, 'travis_terminate 0', assert: true])
+        end
+
+        it { store_example(name: 'windows-unsupported-lang') }
+      end
+    end
   end
 end
