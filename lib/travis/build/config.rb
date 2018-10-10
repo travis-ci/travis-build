@@ -17,7 +17,7 @@ module Travis
 
       def sc_data
         @sc_data ||= JSON.parse(
-          Travis::Build.top.join('tmp/sc_data.json').read.untaint
+          Travis::Build.top.join('tmp/sc_data.json').read.output_safe
         )
       end
 
@@ -110,6 +110,7 @@ module Travis
         sentry_dsn: ENV.fetch(
           'TRAVIS_BUILD_SENTRY_DSN', ENV.fetch('SENTRY_DSN', '')
         ),
+        tainted_node_logging_enabled: false,
         update_glibc: ENV.fetch(
           'TRAVIS_BUILD_UPDATE_GLIBC',
           ENV.fetch('TRAVIS_UPDATE_GLIBC', ENV.fetch('UPDATE_GLIBC', 'false'))
@@ -132,7 +133,7 @@ module Travis
                 "../../../../public/version-aliases/#{name}.json",
                 __FILE__
               )
-            ).untaint
+            ).output_safe
           )
         end
     end

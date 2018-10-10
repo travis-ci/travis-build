@@ -50,7 +50,7 @@ module Travis
           end
 
           def heroku_slug_commit
-            @heroku_slug_commit ||= ENV['HEROKU_SLUG_COMMIT'].to_s.dup.untaint
+            @heroku_slug_commit ||= ENV['HEROKU_SLUG_COMMIT'].to_s.output_safe
           end
       end
     end

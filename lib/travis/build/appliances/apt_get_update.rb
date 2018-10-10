@@ -50,7 +50,7 @@ module Travis
           def define_mirrors_by_infrastructure
             sh.raw 'declare -a _TRAVIS_APT_MIRRORS_BY_INFRASTRUCTURE'
             mirrors.each do |infra, url|
-              sh.raw %{_TRAVIS_APT_MIRRORS_BY_INFRASTRUCTURE+=(#{infra}::#{url})}.untaint
+              sh.raw %{_TRAVIS_APT_MIRRORS_BY_INFRASTRUCTURE+=(#{infra}::#{url})}.output_safe
             end
           end
 

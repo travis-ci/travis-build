@@ -60,7 +60,7 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
 
     describe 'uses casher production in default mode' do
       let(:branch) { 'production' }
-      let(:cmd) { [:cmd,  "curl -sf  -o $CASHER_DIR/bin/casher #{url}",retry: true, echo: "Installing caching utilities from the Travis CI server (https://#{Travis::Build.config.app_host.untaint}/files/casher) failed, failing over to using GitHub (#{url})"] }
+      let(:cmd) { [:cmd,  "curl -sf  -o $CASHER_DIR/bin/casher #{url}",retry: true, echo: "Installing caching utilities from the Travis CI server (https://#{Travis::Build.config.app_host.output_safe}/files/casher) failed, failing over to using GitHub (#{url})"] }
       it { should include_sexp [:export, ['CASHER_DIR', '${TRAVIS_HOME}/.casher'], echo: true] }
       it { should include_sexp [:mkdir, '$CASHER_DIR/bin', recursive: true] }
       it { should include_sexp cmd }

@@ -69,15 +69,15 @@ module Travis
           end
 
           def linux_download_url
-            @linux_download_url ||= sc_config['linux']['download_url'].to_s.dup.untaint
+            @linux_download_url ||= sc_config['linux']['download_url'].to_s.output_safe
           end
 
           def osx_download_url
-            @osx_download_url ||= sc_config['osx']['download_url'].to_s.dup.untaint
+            @osx_download_url ||= sc_config['osx']['download_url'].to_s.output_safe
           end
 
           def sc_version
-            @sc_version ||= sc_config['version'].to_s.dup.untaint
+            @sc_version ||= sc_config['version'].to_s.output_safe
           end
 
           def sc_config
