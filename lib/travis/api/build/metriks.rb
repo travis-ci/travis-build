@@ -8,9 +8,9 @@ module Travis
       class Metriks < Sinatra::Base
         configure do
           ::Metriks::LibratoMetricsReporter.new(
-            Travis::Build.config.librato.email.to_s.dup.untaint,
-            Travis::Build.config.librato.token.to_s.dup.untaint,
-            source: Travis::Build.config.librato.source.to_s.dup.untaint,
+            Travis::Build.config.librato.email.to_s,
+            Travis::Build.config.librato.token.to_s,
+            source: Travis::Build.config.librato.source.to_s,
             on_error: proc { |ex| puts "librato error: #{ex.message} (#{ex.response.body})" }
           ).start
 

@@ -173,7 +173,7 @@ module Travis
       end
 
       def app_host
-        @app_host ||= Travis::Build.config.app_host.to_s.strip.untaint
+        @app_host ||= Travis::Build.config.app_host.to_s.strip.dup.untaint
       end
 
       def debug_enabled?

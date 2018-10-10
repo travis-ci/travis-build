@@ -6,7 +6,7 @@ module Travis
     module Appliances
       class EtcHostsPinning < Base
         def apply
-          Travis::Build.config.etc_hosts_pinning.to_s.untaint.split(',').each do |etchostsline|
+          Travis::Build.config.etc_hosts_pinning.to_s.dup.untaint.split(',').each do |etchostsline|
             sh.raw %(echo #{Shellwords.escape(etchostsline.untaint)} | sudo tee -a /etc/hosts &>/dev/null)
           end
         end

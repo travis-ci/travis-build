@@ -158,7 +158,7 @@ module Travis
 
             unless safelisted.empty?
               safelisted.each do |source|
-                sourceline = source['sourceline'].untaint
+                sourceline = source['sourceline'].dup.untaint
                 if sourceline.start_with?('ppa:')
                   sh.cmd "sudo -E apt-add-repository -y #{sourceline.inspect}", echo: true, assert: true, timing: true
                 else
@@ -238,7 +238,7 @@ module Travis
           end
 
           def safelisted_source_key_url(source)
-            tmpl = Travis::Build.config.apt_source_safelist_key_url_template.to_s.untaint
+            tmpl = Travis::Build.config.apt_source_safelist_key_url_template.to_s.dup.untaint
             if source['key_url'] && (!data.disable_sudo? || skip_safelist?)
               tmpl = source['key_url']
             end

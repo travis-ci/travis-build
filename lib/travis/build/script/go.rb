@@ -7,9 +7,9 @@ module Travis
         DEFAULTS = {
           gobuild_args: '-v',
           gimme_config: {
-            url: Travis::Build.config.gimme.url.untaint
+            url: Travis::Build.config.gimme.url.dup.untaint
           },
-          go: Travis::Build.config.go_version.untaint
+          go: Travis::Build.config.go_version.dup.untaint
         }
 
         def export
@@ -170,7 +170,7 @@ module Travis
           end
 
           def gimme_url
-            cleaned = URI.parse(gimme_config[:url]).to_s.untaint
+            cleaned = URI.parse(gimme_config[:url]).to_s.dup.untaint
             return cleaned if cleaned =~ %r{^https://raw\.githubusercontent\.com/travis-ci/gimme}
             DEFAULTS[:gimme_config][:url]
           rescue URI::InvalidURIError => e
