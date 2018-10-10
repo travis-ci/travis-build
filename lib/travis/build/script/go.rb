@@ -7,9 +7,9 @@ module Travis
         DEFAULTS = {
           gobuild_args: '-v',
           gimme_config: {
-            url: Travis::Build.config.gimme.url.untaint
+            url: Travis::Build.config.gimme.url.dup.untaint
           },
-          go: Travis::Build.config.go_version.untaint
+          go: Travis::Build.config.go_version.dup.untaint
         }
 
         def export

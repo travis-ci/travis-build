@@ -231,7 +231,7 @@ module Travis
 
         def internal_ruby_regex_esc
           @internal_ruby_regex_esc ||= Shellwords.escape(
-            Travis::Build.config.internal_ruby_regex.dup
+            Travis::Build.config.internal_ruby_regex.dup.untaint
           )
         end
 
