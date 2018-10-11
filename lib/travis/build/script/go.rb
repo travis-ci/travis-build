@@ -46,7 +46,8 @@ module Travis
           sh.export 'PATH', "${TRAVIS_HOME}/gopath/bin:$PATH", echo: true
 
           sh.mkdir "${TRAVIS_HOME}/gopath/src/#{go_import_path}", recursive: true, assert: false, timing: false
-          sh.cmd "rsync -az ${TRAVIS_BUILD_DIR}/ ${TRAVIS_HOME}/gopath/src/#{go_import_path}/", assert: false, timing: false
+          # sh.cmd "rsync -az ${TRAVIS_BUILD_DIR}/ ${TRAVIS_HOME}/gopath/src/#{go_import_path}/", assert: false, timing: false
+          sh.cmd "tar -czf - ${TRAVIS_BUILD_DIR} | tar -xvf - -C ${TRAVIS_HOME}/gopath/src/#{go_import_path}", assert: false, timing: false
 
           sh.export "TRAVIS_BUILD_DIR", "${TRAVIS_HOME}/gopath/src/#{go_import_path}"
           sh.cd "${TRAVIS_HOME}/gopath/src/#{go_import_path}", assert: true
