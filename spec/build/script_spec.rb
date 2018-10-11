@@ -183,7 +183,12 @@ describe Travis::Build::Script, :sexp do
     context 'with windows and only ruby is supported' do
       before do
         payload[:config][:os] = 'windows'
+        @langs_before = Travis::Build.config.windows_langs.dup
         Travis::Build.config.windows_langs = 'ruby'
+      end
+
+      after do
+        Travis::Build.config.windows_langs = @langs_before
       end
 
       context 'when building node_js' do
