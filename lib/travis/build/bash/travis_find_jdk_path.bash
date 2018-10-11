@@ -9,7 +9,7 @@ travis_find_jdk_path() {
     apt_glob="/usr*/lib/jvm/java-${version}-oracle"
   fi
   shopt -s nullglob
-  for jdkpath in $apt_glob /usr*/local/lib/jvm/${jdk}; do
+  for jdkpath in /usr*/local/lib/jvm/"$jdk" $apt_glob; do
     [[ ! -d "$jdkpath" ]] && continue
     result="$jdkpath"
     break
