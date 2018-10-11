@@ -11,7 +11,7 @@ module Travis
               windows_unsupported_msg(lang_name).each do |line|
                 sh.echo line, ansi: :yellow
               end
-              sh.raw 'travis_terminate 0'
+              sh.raw 'travis_terminate 1'
             end
           end
         end

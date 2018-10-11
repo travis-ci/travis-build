@@ -190,7 +190,7 @@ describe Travis::Build::Script, :sexp do
         before { payload[:config][:language] = 'node_js' }
         it "terminates early on windows" do
           sexp = sexp_find(subject, [:if, '$(uname | tr \'[:upper:]\' \'[:lower:]\') = msys*'])
-          expect(sexp).to include_sexp([:raw, 'travis_terminate 0'])
+          expect(sexp).to include_sexp([:raw, 'travis_terminate 1'])
         end
 
         it { store_example(name: 'windows-unsupported-lang') }
