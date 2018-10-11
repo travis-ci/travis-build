@@ -28,8 +28,10 @@ module Travis
 
         def windows_unsupported_msg(lang)
           [
-            "#{lang} is currently unsupported on Windows",
-            ""
+            "",
+            "The language '#{lang}' is currently unsupported on the Windows Build Environment.",
+            "",
+            "Let us know if you'd like to see it: https://travis-ci.community/c/windows. Thanks for understanding!",
           ]
         end
 
