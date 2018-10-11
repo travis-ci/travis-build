@@ -65,6 +65,7 @@ module Travis
 end
 
 require 'core_ext/hash/deep_symbolize_keys'
+require 'core_ext/string/output_safe'
 require 'travis/shell'
 require 'travis/build/data'
 require 'travis/build/env'

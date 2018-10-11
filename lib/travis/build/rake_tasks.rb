@@ -488,6 +488,16 @@ module Travis
         end
       end
 
+      desc 'dump build logs for examples if present'
+      task :dump_examples_logs do
+        (top + 'tmp/examples-build-logs').glob('*.log') do |log_file|
+          logger.info "dumping #{log_file}"
+          $stdout.write(
+            log_file.read.sub(/.+Network availability confirmed\./m, '')
+          )
+        end
+      end
+
       task :ensure_shfmt do
         next if has_shfmt?
         tmpbin.mkpath

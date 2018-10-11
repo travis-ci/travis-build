@@ -111,13 +111,15 @@ module Travis
       end
 
       def compile(ignore_taint = false)
-        Shell.generate(sexp, ignore_taint)
+        nodes = sexp
+        Shell.generate(nodes, ignore_taint)
       rescue Travis::Shell::Generator::TaintedOutput => to
+        log_tainted_nodes(nodes)
         raise to
       rescue Exception => e
         event = Travis::Build.config.sentry_dsn.empty? ? nil : Raven.capture_exception(e)
 
-        unless Travis::Build.config.dump_backtrace.empty?
+        unless Travis::Build.config.dump_backtrace?
           Travis::Build.logger.error(e)
           Travis::Build.logger.error(e.backtrace)
         end
@@ -132,6 +134,14 @@ module Travis
       def sexp
         run
         sh.to_sexp
+      end
+
+      def log_tainted_nodes(nodes)
+        return unless Travis::Build.config.tainted_node_logging_enabled?
+        tainted_values = nodes.flatten.select(&:tainted?)
+        Travis::Build.logger.error(
+          "nodes contain tainted value(s) #{tainted_values.inspect}"
+        )
       end
 
       def cache_slug_keys
@@ -173,7 +183,7 @@ module Travis
       end
 
       def app_host
-        @app_host ||= Travis::Build.config.app_host.to_s.strip.untaint
+        @app_host ||= Travis::Build.config.app_host.to_s.strip.output_safe
       end
 
       def debug_enabled?
@@ -231,7 +241,7 @@ module Travis
 
         def internal_ruby_regex_esc
           @internal_ruby_regex_esc ||= Shellwords.escape(
-            Travis::Build.config.internal_ruby_regex.dup
+            Travis::Build.config.internal_ruby_regex.output_safe
           )
         end
 

@@ -3,6 +3,8 @@ require 'uri'
 require 'hashr'
 require 'travis/config'
 
+require 'core_ext/string/to_bool'
+
 module Travis
   module Build
     class Config < Travis::Config
@@ -15,7 +17,7 @@ module Travis
 
       def sc_data
         @sc_data ||= JSON.parse(
-          Travis::Build.top.join('tmp/sc_data.json').read.untaint
+          Travis::Build.top.join('tmp/sc_data.json').read.output_safe
         )
       end
 
@@ -56,8 +58,8 @@ module Travis
           'TRAVIS_BUILD_APT_SOURCE_SAFELIST_KEY_URL_TEMPLATE',
           'https://%{app_host}/files/gpg/%{source_alias}.asc'
         ),
-        apt_safelist_skip: ENV.fetch('TRAVIS_BUILD_APT_SAFELIST_SKIP', '') == 'true',
-        auth_disabled: ENV.fetch('TRAVIS_BUILD_AUTH_DISABLED', '') == 'true',
+        apt_safelist_skip: ENV.fetch('TRAVIS_BUILD_APT_SAFELIST_SKIP', '').to_bool,
+        auth_disabled: ENV.fetch('TRAVIS_BUILD_AUTH_DISABLED', '').to_bool,
         cabal_default: ENV.fetch('TRAVIS_BUILD_CABAL_DEFAULT', '2.0'),
         enable_debug_tools: ENV.fetch(
           'TRAVIS_BUILD_ENABLE_DEBUG_TOOLS',
@@ -65,7 +67,7 @@ module Travis
         ),
         enable_infra_detection: ENV.fetch(
           'TRAVIS_BUILD_ENABLE_INFRA_DETECTION', ''
-        ) == 'true',
+        ).to_bool,
         etc_hosts_pinning: ENV.fetch(
           'TRAVIS_BUILD_ETC_HOSTS_PINNING', ENV.fetch('ETC_HOSTS_PINNING', '')
         ),
@@ -108,10 +110,11 @@ module Travis
         sentry_dsn: ENV.fetch(
           'TRAVIS_BUILD_SENTRY_DSN', ENV.fetch('SENTRY_DSN', '')
         ),
+        tainted_node_logging_enabled: false,
         update_glibc: ENV.fetch(
           'TRAVIS_BUILD_UPDATE_GLIBC',
-          ENV.fetch('TRAVIS_UPDATE_GLIBC', ENV.fetch('UPDATE_GLIBC', ''))
-        ),
+          ENV.fetch('TRAVIS_UPDATE_GLIBC', ENV.fetch('UPDATE_GLIBC', 'false'))
+        ).to_bool,
         windows_langs: ENV.fetch(
           'TRAVIS_WINDOWS_LANGS',
           %w(
@@ -127,8 +130,8 @@ module Travis
           ).join(",")
         ).split(/,/),
         dump_backtrace: ENV.fetch(
-          'TRAVIS_BUILD_DUMP_BACKTRACE', ENV.fetch('DUMP_BACKTRACE', '')
-        )
+          'TRAVIS_BUILD_DUMP_BACKTRACE', ENV.fetch('DUMP_BACKTRACE', 'false')
+        ).to_bool
       )
 
       default(
@@ -144,7 +147,7 @@ module Travis
                 "../../../../public/version-aliases/#{name}.json",
                 __FILE__
               )
-            ).untaint
+            ).output_safe
           )
         end
     end
