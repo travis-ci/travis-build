@@ -5,7 +5,7 @@ module Travis
 
         def configure
           super
-          return unless uses_jdk?
+          return unless specifies_jdk?
 
           jdk = config[:jdk].gsub(/\s/,'')
 
@@ -13,12 +13,16 @@ module Travis
 
           vendor, version = jdk_info(jdk)
 
-          sh.raw("travis_setup_java #{jdk} #{vendor} #{version}", timing: true, fold: 'install_jdk')
+          sh.echo
+          sh.fold 'install_jdk' do
+            sh.echo "Installing #{jdk}", ansi: :yellow
+            sh.raw("travis_setup_java #{jdk} #{vendor} #{version}", timing: true)
+          end
         end
 
         def export
           super
-          sh.export 'TRAVIS_JDK_VERSION', config[:jdk], echo: false if uses_jdk?
+          sh.export 'TRAVIS_JDK_VERSION', config[:jdk], echo: false if specifies_jdk?
         end
 
         def setup
@@ -45,7 +49,7 @@ module Travis
         end
 
         def cache_slug
-          return super unless uses_jdk?
+          return super unless specifies_jdk?
           super << '--jdk-' << config[:jdk].to_s
         end
 
@@ -55,7 +59,7 @@ module Travis
             true
           end
 
-          def uses_jdk?
+          def specifies_jdk?
             !!config[:jdk]
           end
 
