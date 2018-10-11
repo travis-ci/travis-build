@@ -3,8 +3,6 @@ module Travis
     class Script
       module Jdk
 
-        include Template
-
         def configure
           super
           return unless uses_jdk?
@@ -13,9 +11,9 @@ module Travis
 
           return if jdk == 'default'
 
-          sh.raw(install_jdk(jdk), echo: true, timing: true, fold: 'install_jdk')
-          sh.raw("travis_setup_java #{jdk} #{vendor} #{version}")
-          sh.raw('unset -f travis_remove_from_path travis_set_java travis_install_jdk')
+          vendor, version = jdk_info(jdk)
+
+          sh.raw("travis_setup_java #{jdk} #{vendor} #{version}", timing: true, fold: 'install_jdk')
         end
 
         def export
@@ -59,21 +57,6 @@ module Travis
 
           def uses_jdk?
             !!config[:jdk]
-          end
-
-          def install_jdk(jdk)
-            template('jdk.sh', jdk: jdk)
-          end
-
-          def jdk_glob(jdk)
-            vendor, version = jdk_info(jdk)
-            if vendor == 'openjdk'
-              apt_glob = "/usr/lib/jvm/java-1.#{version}.*openjdk*"
-            elsif vendor == 'oracle'
-              apt_glob = "/usr*/lib/jvm/java-#{version}-oracle"
-            end
-            installjdk_glob = "/usr*/local/lib/jvm/#{jdk}"
-            "#{apt_glob} #{installjdk_glob}"
           end
 
           def jdk_info(jdk)
