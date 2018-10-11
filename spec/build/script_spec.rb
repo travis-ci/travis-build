@@ -189,7 +189,7 @@ describe Travis::Build::Script, :sexp do
       context 'when building node_js' do
         before { payload[:config][:language] = 'node_js' }
         it "terminates early on windows" do
-          sexp = sexp_find(subject, [:if, '$(uname | tr \'[:upper:]\' \'[:lower:]\') = msys*'])
+          sexp = sexp_find(subject, [:if, '"$TRAVIS_OS_NAME" = windows'])
           expect(sexp).to include_sexp([:raw, 'travis_terminate 1'])
         end
 
