@@ -67,6 +67,6 @@ travis_setup_env() {
 
   if command -v pgrep &>/dev/null; then
     pgrep -u "${USER}" 2>/dev/null |
-      grep -v -w "${$}" >"${TRAVIS_TMPDIR}/pids_before"
+      grep -v -w "${$}" >"${TRAVIS_TMPDIR}/pids_before" || true
   fi
 }
