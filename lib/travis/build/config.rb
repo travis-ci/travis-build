@@ -112,6 +112,20 @@ module Travis
           'TRAVIS_BUILD_UPDATE_GLIBC',
           ENV.fetch('TRAVIS_UPDATE_GLIBC', ENV.fetch('UPDATE_GLIBC', ''))
         ),
+        windows_langs: ENV.fetch(
+          'TRAVIS_WINDOWS_LANGS',
+          %w(
+            bash
+            csharp
+            go
+            node_js
+            powershell
+            rust
+            script
+            sh
+            shell
+          ).join(",")
+        ).split(/,/),
         dump_backtrace: ENV.fetch(
           'TRAVIS_BUILD_DUMP_BACKTRACE', ENV.fetch('DUMP_BACKTRACE', '')
         )

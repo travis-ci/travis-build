@@ -18,6 +18,8 @@ describe Travis::Build::Script::Ruby, :sexp do
     let(:cmds) { ['bundle install', 'bundle exec rake'] }
   end
 
+  it_behaves_like 'checks language support'
+
   it_behaves_like 'a build script sexp'
 
   describe 'using a jdk' do

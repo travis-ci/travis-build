@@ -150,7 +150,7 @@ module Travis
         cache_slug_keys.compact.join('-')
       end
 
-      def archive_url_for(bucket, version, lang = self.class.name.split('::').last.downcase, ext = 'bz2')
+      def archive_url_for(bucket, version, lang = lang_name, ext = 'bz2')
         file_name = "#{[lang, version].compact.join("-")}.tar.#{ext}"
         sh.if "$(uname) = 'Linux'" do
           sh.raw "travis_host_os=$(lsb_release -is | tr 'A-Z' 'a-z')"
@@ -236,6 +236,7 @@ module Travis
         end
 
         def configure
+          apply :check_unsupported
           apply :set_x
           apply :show_system_info
           apply :rm_riak_source
@@ -377,6 +378,10 @@ module Travis
           error_message_ary(exception, event).each { |line| sh.raw "echo -e \"\033[31;1m#{line}\033[0m\"" }
           sh.raw "exit 2"
           Shell.generate(sh.to_sexp)
+        end
+
+        def lang_name
+          self.class.name.split('::').last.downcase
         end
     end
   end
