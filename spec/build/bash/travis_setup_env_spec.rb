@@ -20,27 +20,31 @@ describe 'travis_setup_env', integration: true do
 
     output = result[:out].read
     expect(output.length).to be > 0
+    env = Hash[output.lines.map { |l| l.split('=', 2) }]
 
-    %w[
-      ANSI_CLEAR
-      ANSI_GREEN
-      ANSI_RED
-      ANSI_RESET
-      ANSI_YELLOW
-      DEBIAN_FRONTEND
-      SHELL
-      TERM
-      TRAVIS_ARCH
-      TRAVIS_CMD
-      TRAVIS_DIST
-      TRAVIS_INFRA
-      TRAVIS_INIT
-      TRAVIS_OS_NAME
-      TRAVIS_TEST_RESULT
-      TRAVIS_TMPDIR
-      USER
-    ].each do |env_var|
-      expect(output).to match(/^#{env_var}=/)
+    {
+      'ANSI_CLEAR' => /.+/,
+      'ANSI_GREEN' => /.+/,
+      'ANSI_RED' => /.+/,
+      'ANSI_RESET' => /.+/,
+      'ANSI_YELLOW' => /.+/,
+      'DEBIAN_FRONTEND' => /^noninteractive$/,
+      'SHELL' => /.+/,
+      'TERM' => /xterm/,
+      'TRAVIS_ARCH' => /(amd64|386)/,
+      'TRAVIS_CMD' => nil,
+      'TRAVIS_DIST' => /notset/,
+      'TRAVIS_INFRA' => /unknown/,
+      'TRAVIS_INIT' => /(upstart|systemd|notset)/,
+      'TRAVIS_OS_NAME' => /linux/,
+      'TRAVIS_TEST_RESULT' => nil,
+      'TRAVIS_TMPDIR' => /.+/,
+      'USER' => /^travis$/
+    }.each do |env_var, expected_value|
+      expect(env.key?(env_var)).to be true
+      next if expected_value.nil?
+      expect(env.fetch(env_var)).to match(expected_value),
+        "mismatched value for #{env_var}"
     end
   end
 
