@@ -180,17 +180,6 @@ module Travis
         Travis::Build.config.enable_debug_tools == '1'
       end
 
-      def setup
-        unless windows_supports?(lang_name)
-          sh.if '$"TRAVIS_OS_NAME" = windows' do
-            windows_unsupported_msg(lang_name).each do |line|
-              sh.echo line, ansi: :yellow
-            end
-            sh.raw 'travis_terminate 0'
-          end
-        end
-      end
-
       private
 
         def debug
@@ -247,6 +236,7 @@ module Travis
         end
 
         def configure
+          apply :check_unsupported
           apply :set_x
           apply :show_system_info
           apply :rm_riak_source
@@ -392,17 +382,6 @@ module Travis
 
         def lang_name
           self.class.name.split('::').last.downcase
-        end
-
-        def windows_supports?(lang)
-          Travis::Build.config.windows_langs.include?(lang)
-        end
-
-        def windows_unsupported_msg(lang)
-          [
-            "#{lang} is currently unsupported on Windows",
-            ""
-          ]
         end
     end
   end
