@@ -39,7 +39,7 @@ describe Travis::Build::Script::Go, :sexp do
 
   shared_examples 'gopath fix' do
     it { should include_sexp [:mkdir, "${TRAVIS_HOME}/gopath/src/#{host}/#{data[:repository][:slug]}", echo: true, recursive: true] }
-    it { should include_sexp [:cmd, "rsync -az ${TRAVIS_BUILD_DIR}/ ${TRAVIS_HOME}/gopath/src/#{host}/#{data[:repository][:slug]}/", echo: true] }
+    it { should include_sexp [:cmd, "tar -czf - ${TRAVIS_BUILD_DIR} | tar -xvf - -C ${TRAVIS_HOME}/gopath/src/#{host}/#{data[:repository][:slug]}", echo: true] }
     it { should include_sexp [:export, ['TRAVIS_BUILD_DIR', "${TRAVIS_HOME}/gopath/src/#{host}/#{data[:repository][:slug]}"], echo: true] }
     it { should include_sexp [:cd, "${TRAVIS_HOME}/gopath/src/#{host}/#{data[:repository][:slug]}", assert: true, echo: true] }
   end
