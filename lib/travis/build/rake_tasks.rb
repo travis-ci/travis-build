@@ -328,6 +328,7 @@ module Travis
       end
 
       extend Rake::DSL
+      extend self
 
       task 'assets:precompile' => %i[
         clean

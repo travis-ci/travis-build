@@ -21,6 +21,10 @@ Metrics/MethodLength:
 Metrics/ModuleLength:
   Max: 500
 
+Style/ModuleFunction:
+  Exclude:
+  - '**/lib/travis/build/rake_tasks.rb'
+
 Style/Documentation:
   Enabled: false
 
