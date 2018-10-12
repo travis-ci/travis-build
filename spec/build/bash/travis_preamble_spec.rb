@@ -1,5 +1,3 @@
-require 'spec_helpers/bash_function'
-
 describe 'travis_preamble', integration: true do
   include SpecHelpers::BashFunction
 
