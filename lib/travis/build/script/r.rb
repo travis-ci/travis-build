@@ -152,6 +152,26 @@ module Travis
 
                 setup_fortran_osx if config[:fortran]
 
+              when 'windows'
+                if r_version == 'devel'
+                  r_url = "#{repos[:CRAN]}/bin/windows/base/R-devel-win.exe"
+                elsif r_version == r_latest
+                  r_url = "#{repos[:CRAN]}/bin/windows/base/R-#{r_version}-win.exe"
+                else
+                  r_url = "#{repos[:CRAN]}/bin/windows/base/old/#{r_version}/R-#{r_version}-win.exe"
+                end
+
+                # Install from CRAN binary build for Windows
+                sh.cmd "curl -fLo /tmp/R-win.exe #{r_url}", retry: true
+
+                # Likely needs admin privileges somehow???
+                sh.cmd "powershell 'Start-Process -FilePath $env:TEMP\R-win.exe -ArgumentList /VERYSILENT /DIR=C:\R -NoNewWindow -Wait'"
+
+                sh.rm '/tmp/R-win.exe'
+
+                sh.if '-d src' do
+                  setup_rtools
+                end
               else
                 sh.failure "Operating system not supported: #{config[:os]}"
               end
@@ -523,6 +543,14 @@ module Travis
             sh.cmd 'sudo hdiutil detach /Volumes/gfortran'
             sh.rm '/tmp/gfortran61.dmg'
           end
+        end
+
+        def setup_rtools
+          return unless (config[:os] == 'windows')
+          rtools_url = "#{repos[:CRAN]}/bin/windows/Rtools/Rtools35.exe"
+          sh.cmd "curl -fLo /tmp/Rtools.exe #{rtools_url}"
+
+          sh.cmd "powershell 'Start-Process -FilePath $env:TEMP\Rtools.exe -ArgumentList /VERYSILENT -NoNewWindow -Wait'"
         end
 
         # Uninstalls the preinstalled homebrew
