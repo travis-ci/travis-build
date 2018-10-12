@@ -1,5 +1,3 @@
-require 'spec_helpers/bash_function'
-
 describe 'travis_retry', integration: true do
   include SpecHelpers::BashFunction
 

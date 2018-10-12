@@ -1,5 +1,3 @@
-require 'spec_helpers/bash_script'
-
 shared_examples_for 'a bash script' do
   include SpecHelpers::BashScript
 
