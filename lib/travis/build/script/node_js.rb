@@ -64,7 +64,7 @@ module Travis
                 npm_install config[:npm_args]
               end
               sh.else do
-                npm_install config[:npm_args]
+                sh.cmd "yarn", retry: true, fold: 'install'
               end
             end
             sh.else do
