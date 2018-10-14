@@ -64,7 +64,7 @@ module Travis
                 npm_install config[:npm_args]
               end
               sh.else do
-                sh.cmd "yarn", retry: true, fold: 'install'
+                npm_install config[:npm_args]
               end
             end
             sh.else do
@@ -204,7 +204,6 @@ module Travis
               sh.if yarn_req_not_met do
                 sh.echo "Node.js version $(node --version) does not meet requirement for yarn." \
                   " Please use Node.js #{YARN_REQUIRED_NODE_VERSION} or later.", ansi: :red
-                npm_install config[:npm_args]
               end
               sh.else do
                 sh.fold "install.yarn" do
