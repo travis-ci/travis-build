@@ -502,6 +502,17 @@ module Travis
 
             # Cleanup
             sh.rm "/tmp/#{pandoc_filename}"
+          when 'windows'
+            pandoc_filename = "pandoc-#{config[:pandoc_version]}-windows-x86_64.msi"
+            pandoc_url = "https://github.com/jgm/pandoc/releases/download/#{config[:pandoc_version]}/"\
+              "#{pandoc_filename}"
+
+            # Download and install pandoc
+            sh.cmd "curl -fLo /tmp/#{pandoc_filename} #{pandoc_url}"
+            sh.cmd "powershell 'Start-Process -FilePath $env:TEMP\#{pandoc_filename} -ArgumentList /VERYSILENT -NoNewWindow -Wait'"
+
+            # Cleanup
+            sh.rm "/tmp/#{pandoc_filename}"
           end
         end
 
