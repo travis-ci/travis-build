@@ -463,32 +463,8 @@ module Travis
         end
 
         def setup_latex
-          case config[:os]
-          when 'linux'
-            texlive_filename = 'texlive.tar.gz'
-            texlive_url = 'https://github.com/jimhester/ubuntu-bin/releases/download/latest/texlive.tar.gz'
-            sh.cmd "curl -fLo /tmp/#{texlive_filename} #{texlive_url}"
-            sh.cmd "tar xzf /tmp/#{texlive_filename} -C ~"
-            sh.export 'PATH', "${TRAVIS_HOME}/texlive/bin/x86_64-linux:$PATH"
-            sh.cmd 'tlmgr update --self', assert: false
-          when 'osx'
-            # We use basictex due to disk space constraints.
-            mactex = 'BasicTeX.pkg'
-            # TODO: Confirm that this will route us to the nearest mirror.
-            sh.cmd "curl -fLo \"/tmp/#{mactex}\" --retry 3 http://mirror.ctan.org/systems/mac/mactex/"\
-                   "#{mactex}"
-
-            sh.echo 'Installing OS X binary package for MacTeX'
-            sh.cmd "sudo installer -pkg \"/tmp/#{mactex}\" -target /"
-            sh.rm "/tmp/#{mactex}"
-            sh.export 'PATH', '/usr/texbin:/Library/TeX/texbin:$PATH'
-
-            sh.cmd 'sudo tlmgr update --self', assert: false
-
-            # Install common packages
-            sh.cmd 'sudo tlmgr install inconsolata upquote '\
-              'courier courier-scaled helvetic', assert: false
-          end
+          r_install ['tinytex']
+          sh.cmd "Rscript -e 'tinytex::install_tinytex()'"
         end
 
         def setup_pandoc
