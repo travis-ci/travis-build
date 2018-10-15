@@ -41,8 +41,6 @@ module Travis
                   ' in the issue', ansi: :green
 
           sh.fold('neko-install') do
-            neko_path = '${TRAVIS_HOME}/neko'
-
             sh.echo 'Installing Neko', ansi: :yellow
 
             # Install dependencies
@@ -50,48 +48,76 @@ module Travis
             when 'linux'
               sh.cmd 'travis_apt_get_update', retry: true
               sh.cmd 'sudo apt-get install libgc1c2 -qq', retry: true # required by neko
-            when 'osx'
-              # pass
+            when 'osx', 'windows'
+              sh.cmd 'choco install vcredist2013 -y', assert: true, echo: true
             end
 
-            sh.cmd %Q{mkdir -p #{neko_path}}
-            sh.cmd %Q{curl -s -L --retry 3 '#{neko_url}' | tar -C #{neko_path} -x -z --strip-components=1 -f -}, assert: true, echo: true, timing: true
-            # NEKOPATH is required by `nekotools boot ...`
-            sh.cmd %Q{export NEKOPATH="#{neko_path}"}
+            case config[:os]
+            when 'linux', 'osx'
+              neko_path = '${TRAVIS_HOME}/neko'
+              sh.cmd %Q{mkdir -p #{neko_path}}
+              sh.cmd %Q{curl -s -L --retry 3 '#{neko_url}' | tar -C #{neko_path} -x -z --strip-components=1 -f -}, assert: true, echo: true, timing: true
+              # NEKOPATH is required by `nekotools boot ...`
+              sh.cmd %Q{export NEKOPATH="#{neko_path}"}
 
-            ['neko', 'nekoc', 'nekoml', 'nekotools'].each do |bin|
-              sh.cmd %Q{sudo ln -s "#{neko_path}/#{bin}" /usr/local/bin/}
+              ['neko', 'nekoc', 'nekoml', 'nekotools'].each do |bin|
+                sh.cmd %Q{sudo ln -s "#{neko_path}/#{bin}" /usr/local/bin/}
+              end
+              sh.cmd %Q{for lib in #{neko_path}/libneko.*; do sudo ln -s "$lib" /usr/local/lib/; done}
+              sh.cmd %Q{for header in #{neko_path}/include/*; do sudo ln -s "$header" /usr/local/include/; done}
+              sh.cmd %Q{sudo mkdir -p /usr/local/lib/neko/}
+              sh.cmd %Q{for ndll in #{neko_path}/*.ndll; do sudo ln -s "$ndll" /usr/local/lib/neko/; done}
+              sh.cmd %Q{sudo ln -s "#{neko_path}/nekoml.std" /usr/local/lib/neko/}
+            when 'windows'
+              neko_path = '/c/neko'
+              sh.cmd %Q{curl -s -L --retry 3 '#{neko_url}' -o neko.zip}, assert: true, echo: true, timing: true
+              sh.cmd %Q{unzip -q neko.zip}, assert: true, echo: true
+              sh.cmd %Q{rm neko.zip}, assert: true, echo: true
+              sh.cmd %Q{mv neko-*-win #{neko_path}}, assert: true, echo: true
+
+              # NEKOPATH is required by `nekotools boot ...`
+              sh.cmd %Q{export NEKOPATH="#{neko_path}"}
+              sh.cmd %Q{export "PATH=#{neko_path}:$PATH"}
             end
-            sh.cmd %Q{for lib in #{neko_path}/libneko.*; do sudo ln -s "$lib" /usr/local/lib/; done}
-            sh.cmd %Q{for header in #{neko_path}/include/*; do sudo ln -s "$header" /usr/local/include/; done}
-            sh.cmd %Q{sudo mkdir -p /usr/local/lib/neko/}
-            sh.cmd %Q{for ndll in #{neko_path}/*.ndll; do sudo ln -s "$ndll" /usr/local/lib/neko/; done}
-            sh.cmd %Q{sudo ln -s "#{neko_path}/nekoml.std" /usr/local/lib/neko/}
 
             case config[:os]
             when 'linux'
               sh.cmd 'sudo ldconfig'
-            when 'osx'
+            when 'osx', 'windows'
               # pass
             end
           end
 
           sh.fold('haxe-install') do
-            haxe_path = '${TRAVIS_HOME}/haxe'
-
             sh.echo 'Installing Haxe', ansi: :yellow
-            sh.cmd %Q{mkdir -p #{haxe_path}}
-            sh.cmd %Q{curl -s -L --retry 3 '#{haxe_url}' | tar -C #{haxe_path} -x -z --strip-components=1 -f -}, assert: true, echo: true, timing: true
 
-            ['haxe', 'haxelib'].each do |bin|
-              sh.cmd %Q{sudo ln -s "#{haxe_path}/#{bin}" /usr/local/bin/}
+            case config[:os]
+            when 'linux', 'osx'
+              haxe_path = '${TRAVIS_HOME}/haxe'
+              sh.cmd %Q{mkdir -p #{haxe_path}}
+              sh.cmd %Q{curl -s -L --retry 3 '#{haxe_url}' | tar -C #{haxe_path} -x -z --strip-components=1 -f -}, assert: true, echo: true, timing: true
+
+              ['haxe', 'haxelib'].each do |bin|
+                sh.cmd %Q{sudo ln -s "#{haxe_path}/#{bin}" /usr/local/bin/}
+              end
+              sh.cmd %Q{sudo mkdir -p /usr/local/lib/haxe/}
+              sh.cmd %Q{sudo ln -s "#{haxe_path}/std" /usr/local/lib/haxe/std}
+
+              sh.cmd %Q{export HAXE_STD_PATH="#{haxe_path}/std"}
+              sh.cmd %Q{mkdir -p #{haxe_path}/lib}
+              sh.cmd %Q{haxelib setup #{haxe_path}/lib}
+            when 'windows'
+              haxe_path = '/c/haxe'
+              sh.cmd %Q{curl -s -L --retry 3 'https://haxe.org/website-content/downloads/3.4.7/downloads/haxe-3.4.7-win.zip' -o haxe.zip}, assert: true, echo: true, timing: true
+              sh.cmd %Q{unzip -q haxe.zip}, assert: true, echo: true
+              sh.cmd %Q{rm haxe.zip}, assert: true, echo: true
+              sh.cmd %Q{mv haxe* /c/haxe}, assert: true, echo: true
+
+              sh.cmd %Q{export HAXE_STD_PATH="/c/haxe/std"}
+              sh.cmd %Q{export "PATH=/c/haxe:$PATH"}
+              sh.cmd %Q{mkdir -p /c/haxe/lib}
+              sh.cmd %Q{haxelib setup /c/haxe/lib}
             end
-            sh.cmd %Q{sudo mkdir -p /usr/local/lib/haxe/}
-            sh.cmd %Q{sudo ln -s "#{haxe_path}/std" /usr/local/lib/haxe/std}
-
-            sh.cmd %Q{export HAXE_STD_PATH="#{haxe_path}/std"}
-            sh.cmd %Q{mkdir -p #{haxe_path}/lib}
-            sh.cmd %Q{haxelib setup #{haxe_path}/lib}
           end
         end
 
@@ -154,35 +180,41 @@ module Travis
           end
 
           def neko_url
-            case config[:os]
-            when 'linux'
-              os = 'linux64'
-            when 'osx'
-              os = 'osx64'
-            end
             version = Array(config[:neko]).first
-            "https://github.com/HaxeFoundation/neko/releases/download/v#{version.to_s.gsub(".", "-")}/neko-#{version}-#{os}.tar.gz"
+            file = case config[:os]
+            when 'linux'
+              "neko-#{version}-linux64.tar.gz"
+            when 'osx'
+              "neko-#{version}-osx64.tar.gz"
+            when 'windows'
+              "neko-#{version}-win.zip"
+            end
+            "https://github.com/HaxeFoundation/neko/releases/download/v#{version.to_s.gsub(".", "-")}/#{file}"
           end
 
           def haxe_url
             haxe_ver = haxe_version
             case haxe_ver
             when 'development'
-              os = case config[:os]
+              file = case config[:os]
               when 'linux'
-                'linux64'
+                "linux64/haxe_latest.tar.gz"
               when 'osx'
-                'mac'
+                "mac/haxe_latest.tar.gz"
+              when 'windows'
+                "windows/haxe_latest.zip"
               end
-              "https://build.haxe.org/builds/haxe/#{os}/haxe_latest.tar.gz"
+              "https://build.haxe.org/builds/haxe/#{file}"
             else
-              os = case config[:os]
+              file = case config[:os]
               when 'linux'
-                'linux64'
+                "haxe-#{haxe_ver}-linux64.tar.gz"
               when 'osx'
-                'osx'
+                "haxe-#{haxe_ver}-osx.tar.gz"
+              when 'windows'
+                "haxe-#{haxe_ver}-win.zip"
               end
-              "https://haxe.org/website-content/downloads/#{haxe_ver}/downloads/haxe-#{haxe_ver}-#{os}.tar.gz"
+              "https://haxe.org/website-content/downloads/#{haxe_ver}/downloads/#{file}"
             end
           end
 
