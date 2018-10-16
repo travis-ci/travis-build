@@ -410,7 +410,7 @@ module Travis
             sh.fold 'Bioconductor' do
               sh.echo 'Installing Bioconductor', ansi: :yellow
               bioc_install_script =
-                if r_version_less_than("3.5.1")
+                if r_version_less_than("3.5.0")
                   "source(\"#{config[:bioc]}\");"\
                   'tryCatch('\
                   " useDevel(#{as_r_boolean(config[:bioc_use_devel])}),"\
@@ -426,7 +426,7 @@ module Travis
                 end
                 sh.cmd "Rscript -e '#{bioc_install_script}'", retry: true
               bioc_install_bioccheck =
-                if r_version_less_than("3.5.1")
+                if r_version_less_than("3.5.0")
                   "BiocInstaller::biocLite(\"BiocCheck\")"
                 else
                   "BiocManager::install(\"BiocCheck\")"
