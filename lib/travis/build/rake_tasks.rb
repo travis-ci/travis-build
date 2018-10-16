@@ -428,7 +428,8 @@ module Travis
         'public/files/sbt',
         'public/files/sc-linux.tar.gz',
         'public/files/sc-osx.zip',
-        'public/files/tmate-static-linux-amd64.tar.gz'
+        'public/files/tmate-static-linux-amd64.tar.gz',
+        'public/version-aliases/ghc.json',
       ]
 
       desc 'update gpg public keys'

@@ -181,8 +181,13 @@ module Travis
             def run(command, args, options = {})
               sh.with_errexit_off do
                 sh.if "-f #{BIN_PATH}" do
-                  sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
-                  sh.cmd "rvm $(travis_internal_ruby) --fuzzy do #{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
+                  sh.if "-e ~/.rvm/scripts/rvm" do
+                    sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
+                    sh.cmd "rvm $(travis_internal_ruby) --fuzzy do #{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
+                  end
+                  sh.else do
+                    sh.cmd "#{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
+                  end
                 end
               end
             end
