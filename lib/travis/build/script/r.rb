@@ -576,6 +576,7 @@ module Travis
             config[:bioc_required] = true
             config[:bioc_use_devel] = true
             normalized_r_version('release')
+          # normalized_r_version('devel') # enable after Oct '18 release
           when 'bioc-release'
             config[:bioc_required] = true
             config[:bioc_use_devel] = false
