@@ -379,16 +379,30 @@ module Travis
       end
 
       desc 'update sauce connect data'
-      file('tmp/sc_data.json') { file_update_sc_data }
+      file('tmp/sc_data.json') do
+        begin
+          file_update_sc_data
+        rescue => e
+          logger.info "ignoring #{e}"
+        end
+      end
 
       desc 'update sc-linux'
       file 'public/files/sc-linux.tar.gz' => 'tmp/sc_data.json' do
-        file_update_sc('linux')
+        begin
+          file_update_sc('linux')
+        rescue => e
+          logger.info "ignoring #{e}"
+        end
       end
 
       desc 'update sc-mac'
       file 'public/files/sc-osx.zip' => 'tmp/sc_data.json' do
-        file_update_sc('osx')
+        begin
+          file_update_sc('osx')
+        rescue => e
+          logger.info "ignoring #{e}"
+        end
       end
 
       desc 'update sc'
