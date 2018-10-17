@@ -85,7 +85,13 @@ module Travis
           end
 
           def strategy
-            @strategy ||= if config[:os] == 'windows' && config.key?(:filter_secrets) && config[:filter_secrets]
+            @strategy ||= if config[:os] == 'windows' &&
+              (
+                !config.key?(:filter_secrets) ||
+                # if filter_secrets is undefined, we force :redirect_io
+                (config.key?(:filter_secrets) && config[:filter_secrets])
+                # if it is defined, and it is not `false`, force :redirect_io
+              )
               :redirect_io
             else
               Rollout.new(data).matches? ? :redirect_io : :pty
