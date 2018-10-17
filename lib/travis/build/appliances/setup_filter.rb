@@ -85,7 +85,11 @@ module Travis
           end
 
           def strategy
-            @strategy ||= Rollout.new(data).matches? ? :redirect_io : :pty
+            @strategy ||= if config[:os] == 'windows' && config.key?(:filter_secrets) && config[:filter_secrets]
+              :redirect_io
+            else
+              Rollout.new(data).matches? ? :redirect_io : :pty
+            end
           end
 
           def url(host = nil)
