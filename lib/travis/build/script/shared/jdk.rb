@@ -5,12 +5,15 @@ module Travis
         DEPRECATED_JDKS = %w(
           oraclejdk10
         )
+        OPENJDK_ALTERNATIVE = {
+          'oraclejdk10' => 'openjdk10'
+        }
 
         def configure
           super
 
           if jdk_deprecated?
-            sh.terminate 2, "#{jdk} is deprecated. See https://www.oracle.com/technetwork/java/javase/eol-135779.html for more details. Consider using appropriate OpenJDK instead.", ansi: :red
+            sh.terminate 2, "#{jdk} is deprecated. See https://www.oracle.com/technetwork/java/javase/eol-135779.html for more details. Consider using #{OPENJDK_ALTERNATIVE[jdk]} instead.", ansi: :red
           end
 
           if uses_jdk?
