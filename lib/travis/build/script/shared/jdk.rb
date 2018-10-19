@@ -2,8 +2,17 @@ module Travis
   module Build
     class Script
       module Jdk
+        OPENJDK_ALTERNATIVE = {
+          'oraclejdk10' => 'openjdk10'
+        }
+
         def configure
           super
+
+          if jdk_deprecated?
+            sh.terminate 2, "#{jdk} is deprecated. See https://www.oracle.com/technetwork/java/javase/eol-135779.html for more details. Consider using #{OPENJDK_ALTERNATIVE[jdk]} instead.", ansi: :red
+          end
+
           if uses_jdk?
             if use_install_jdk?(config[:jdk])
               download_install_jdk
@@ -98,6 +107,10 @@ module Travis
             old_repo = 'https://repository.apache.org/releases/'
             new_repo = 'https://repository.apache.org/content/repositories/releases/'
             sh.cmd "sed -i 's|#{old_repo}|#{new_repo}|g' ~/.m2/settings.xml", echo: false, assert: false, timing: false
+          end
+
+          def jdk_deprecated?
+            uses_jdk? && OPENJDK_ALTERNATIVE.keys.include?(jdk)
           end
       end
     end
