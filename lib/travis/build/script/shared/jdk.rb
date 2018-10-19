@@ -2,9 +2,6 @@ module Travis
   module Build
     class Script
       module Jdk
-        DEPRECATED_JDKS = %w(
-          oraclejdk10
-        )
         OPENJDK_ALTERNATIVE = {
           'oraclejdk10' => 'openjdk10'
         }
@@ -113,7 +110,7 @@ module Travis
           end
 
           def jdk_deprecated?
-            uses_jdk? && DEPRECATED_JDKS.include?(jdk)
+            uses_jdk? && OPENJDK_ALTERNATIVE.keys.include?(jdk)
           end
       end
     end
