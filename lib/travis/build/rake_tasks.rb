@@ -144,9 +144,8 @@ module Travis
           "#{fullparts[0]}.#{fullparts[1]}.x" => full_version
         }
 
-        if alias_major_minor
-          expanded["#{fullparts[0]}.#{fullparts[1]}"] = full_version
-        end
+        key = "#{fullparts[0]}.#{fullparts[1]}"
+        expanded[key] = full_version if alias_major_minor
 
         expanded
       end

@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 class String
   def output_safe
-    self.dup.untaint
+    dup.untaint
   end
 end

@@ -6,6 +6,7 @@ AllCops:
   - '**/Gemfile'
   - '**/Rakefile'
   - '**/config.ru'
+  - '**/lib/core_ext/**/*.rb'
   - '**/lib/travis/build/rake_tasks.rb'
   - '**/script/{build-s3-index-html,compile}'
   Exclude:
