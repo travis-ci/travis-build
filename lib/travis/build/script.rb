@@ -55,19 +55,14 @@ module Travis
         travis_cmd
         travis_decrypt
         travis_download
-        travis_find_jdk_path
         travis_fold
         travis_footer
-        travis_install_jdk
         travis_internal_ruby
         travis_jigger
-        travis_jinfo_file
         travis_nanoseconds
-        travis_remove_from_path
         travis_result
         travis_retry
         travis_setup_env
-        travis_setup_java
         travis_temporary_hacks
         travis_terminate
         travis_time_finish
