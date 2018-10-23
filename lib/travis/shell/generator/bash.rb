@@ -121,7 +121,7 @@ module Travis
         def handle_trace(name, body, options = {})
           span_id = rand 1..MAX_SPAN_ID
           span_id = span_id.to_s(16).rjust(16, "0")
-          name = name.to_s.lines.first.gsub(/<<.*/, '...')
+          name = (name.to_s.lines.first || '').gsub(/<<.*/, '...')
 
           start_span = {
             id: span_id,
