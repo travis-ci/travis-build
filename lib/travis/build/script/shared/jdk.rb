@@ -15,8 +15,6 @@ module Travis
             sh.terminate 2, "#{jdk} is deprecated. See https://www.oracle.com/technetwork/java/javase/eol-135779.html for more details. Consider using #{OPENJDK_ALTERNATIVE[jdk]} instead.", ansi: :red
           end
 
-          jdk = config[:jdk].gsub(/\s/,'')
-
           return if jdk == 'default'
 
           vendor, version = jdk_info(jdk)
@@ -62,6 +60,9 @@ module Travis
         end
 
         private
+          def jdk
+            config[:jdk].gsub(/\s/,'')
+          end
 
           def uses_java?
             true
@@ -92,7 +93,7 @@ module Travis
           end
 
           def jdk_deprecated?
-            uses_jdk? && OPENJDK_ALTERNATIVE.keys.include?(jdk)
+            specifies_jdk? && OPENJDK_ALTERNATIVE.keys.include?(jdk)
           end
       end
     end
