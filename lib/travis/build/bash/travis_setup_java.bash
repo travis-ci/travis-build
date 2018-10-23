@@ -9,10 +9,10 @@ travis_setup_java() {
       # No action is necessary under special conditions
       if [[ "$vendor" == oracle ]]; then
         [[ "$version" == 8 ]] &&
-          java -version 2>&1 | grep -qE "^java version \"1\.8\." &&
+          java -version 2>&1 | grep -qE "^java version \"1\\.8\\." &&
           return
         [[ "$version" == 10 ]] &&
-          java -version 2>&1 | grep -qE "^java version \"10\." &&
+          java -version 2>&1 | grep -qE "^java version \"10\\." &&
           return
       fi
     fi
