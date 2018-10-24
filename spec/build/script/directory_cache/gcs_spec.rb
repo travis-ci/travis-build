@@ -9,7 +9,7 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
   end
 
   def signed_url_for(branch, signature, ext = 'tbz', timeout = 30)
-    Shellwords.escape(GCS_SIGNED_URL % [url_for(branch, ext, timeout), signature])
+    Shellwords.escape(GCS_SIGNED_URL % [url_for(URI.encode(branch), ext, timeout), signature])
   end
 
   let(:master_fetch_signature) { "rtH5pKA2GoRqKYjQu3UweW5kRSk%3D" }
@@ -32,7 +32,7 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
   let(:pull_request)  { nil }
   let(:branch)        { 'master' }
   let(:sh)            { Travis::Shell::Builder.new }
-  let(:cache)         { described_class.new(sh, Travis::Build::Data.new(data), 'ex a/mple', test_time) }
+  let(:cache)         { described_class.new(sh, Travis::Build::Data.new(data), 'example', test_time) }
   let(:subject)       { sh.to_sexp }
 
   let(:key_pair) { described_class::KeyPair.new(gcs_options[:access_key_id], [:secret_access_key]) }
@@ -128,6 +128,28 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
     let(:fetch_signature) { 'RCp7Cd2IKLRCvEC%2F1sZRVBUBKx8%3D' }
     let(:fetch_signature_tgz) { 'GWX9Uh4HiQ9UDasvRB9pqRoq%2FI4%3D' }
     let(:push_signature)  { 'PHCIJ5h7qNkwVF9FceW%2F52ds%2Fw0%3D' }
+    let(:fallback_url_tgz)    { signed_url_for('master', master_fetch_signature_tgz, 'tgz') }
+
+    describe 'fetch' do
+      before { cache.fetch }
+      it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fallback_url_tgz}", timing: true] }
+    end
+
+    describe 'add' do
+      before { cache.add('/foo/bar') }
+      it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add /foo/bar'] }
+    end
+
+    describe 'push' do
+      before { cache.push }
+      it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher push #{push_url}", timing: true] }
+    end
+  end
+
+  describe 'on a branch with emoji' do
+    let(:branch)          { '🐡' }
+    let(:fetch_signature_tgz) { 'nw6VstugEoKi6SOErSiSaRCcrE0%3D' }
+    let(:push_signature)  { 'eftInSKO6b3Z4qRWdqzuD%2FIdPbw%3D' }
     let(:fallback_url_tgz)    { signed_url_for('master', master_fetch_signature_tgz, 'tgz') }
 
     describe 'fetch' do
