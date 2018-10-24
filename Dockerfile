@@ -1,4 +1,4 @@
-FROM ruby:2.5.1
+FROM ruby:2.5.2
 LABEL maintainer Travis CI GmbH <support+travis-app-docker-images@travis-ci.com>
 WORKDIR /usr/src/app
 
