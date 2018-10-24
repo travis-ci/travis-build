@@ -108,7 +108,7 @@ module Travis
               sh.if packages_locked? do
                 directory_cache.add '$HOME/.npm'
               end
-              sh.if "! (#{packages_locked?})" do
+              sh.else do
                 directory_cache.add 'node_modules'
               end
             end
