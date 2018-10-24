@@ -1,12 +1,14 @@
+require 'forwardable'
 require 'travis/build/helpers/template'
 
 module Travis
   module Build
     class Addons
       class Base
-        include Template
-
         attr_reader :script, :sh, :data, :config
+
+        extend Forwardable
+        def_delegators :script, :bash
 
         def initialize(script, sh, data, config)
           @script = script
@@ -17,7 +19,7 @@ module Travis
 
         def normalize_config(config)
           case config
-          when Fixnum, Float, String, Array, Hash
+          when Integer, Float, String, Array, Hash
             config
           else
             {}

@@ -10,7 +10,7 @@ module Travis
             sh.echo "Removing symlink #{symlink}"
             sh.cmd "sudo rm -f #{symlink}", echo: true
             %W(
-              #{HOME_DIR}/.jdk_switcher_rc
+              ${TRAVIS_HOME}/.jdk_switcher_rc
               /opt/jdk_switcher/jdk_switcher.sh
             ).each do |jdk_switcher|
               sh.if "-f #{jdk_switcher}" do

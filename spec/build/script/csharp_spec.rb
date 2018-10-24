@@ -6,6 +6,8 @@ describe Travis::Build::Script::Csharp, :sexp do
   subject      { script.sexp }
   it           { store_example }
 
+  it_behaves_like 'a bash script'
+
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=csharp'] }
   end
@@ -14,23 +16,23 @@ describe Travis::Build::Script::Csharp, :sexp do
 
   describe 'configure' do
     it 'sets up package repository for mono' do
-      should include_sexp [:cmd, 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF', assert: true]
+      should include_sexp [:cmd, 'sudo mv /tmp/mono.gpg /etc/apt/trusted.gpg.d/', assert: true]
       should include_sexp [:cmd, "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/ubuntu stable-trusty main' > /etc/apt/sources.list.d/mono-official.list\"", assert: true]
-      should include_sexp [:cmd, 'sudo apt-get update -qq', timing: true, assert: true]
+      should include_sexp [:cmd, 'travis_apt_get_update', retry: true, timing: true, assert: true]
     end
 
     it 'sets up package repository for dotnet 1.1.5' do
       data[:config][:dotnet] = '1.1.5'
-      should include_sexp [:cmd, 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys BE1229CF', assert: true]
-      should include_sexp [:cmd, "sudo sh -c \"echo 'deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-trusty-prod trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true]
-      should include_sexp [:cmd, 'sudo apt-get update -qq', timing: true, assert: true]
+      should include_sexp [:cmd, 'sudo mv /tmp/dotnet.gpg /etc/apt/trusted.gpg.d/', assert: true]
+      should include_sexp [:cmd, "sudo sh -c \"echo 'deb [arch=amd64] https://packages.microsoft.com/ubuntu/14.04/prod trusty main' > /etc/apt/sources.list.d/dotnet-official.list\"", assert: true]
+      should include_sexp [:cmd, 'travis_apt_get_update', retry: true, timing: true, assert: true]
     end
 
     it 'sets up package repository for dotnet 2.0.0 and above' do
       data[:config][:dotnet] = '2.0.0'
-      should include_sexp [:cmd, 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys BE1229CF', assert: true]
-      should include_sexp [:cmd, "sudo sh -c \"echo 'deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-trusty-prod trusty main' > /etc/apt/sources.list.d/dotnetdev.list\"", assert: true]
-      should include_sexp [:cmd, 'sudo apt-get update -qq', timing: true, assert: true]
+      should include_sexp [:cmd, 'sudo mv /tmp/dotnet.gpg /etc/apt/trusted.gpg.d/', assert: true]
+      should include_sexp [:cmd, "sudo sh -c \"echo 'deb [arch=amd64] https://packages.microsoft.com/ubuntu/14.04/prod trusty main' > /etc/apt/sources.list.d/dotnet-official.list\"", assert: true]
+      should include_sexp [:cmd, 'travis_apt_get_update', retry: true, timing: true, assert: true]
     end
 
     it 'installs mono' do
@@ -47,9 +49,29 @@ describe Travis::Build::Script::Csharp, :sexp do
       should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-sdk-2.0.0', timing: true, assert: true]
     end
 
+    it "installs dotnet 2.1 latest" do
+      data[:config][:dotnet] = '2.1'
+      should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-sdk-2.1', timing: true, assert: true]
+    end
+
     it "installs dotnet 2.1.300-rc1-008673" do
       data[:config][:dotnet] = '2.1.300-rc1-008673'
       should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-sdk-2.1.300-rc1-008673', timing: true, assert: true]
+    end
+
+    it "installs dotnet 2.1.300" do
+      data[:config][:dotnet] = '2.1.300'
+      should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-sdk-2.1=2.1.300*', timing: true, assert: true]
+    end
+
+    it "installs dotnet 2.1.301-preview1-12345" do
+      data[:config][:dotnet] = '2.1.301-preview1-12345'
+      should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-sdk-2.1=2.1.301-preview1-12345*', timing: true, assert: true]
+    end
+
+    it "installs dotnet 2.1.200" do
+      data[:config][:dotnet] = '2.1.200'
+      should include_sexp [:cmd, 'sudo apt-get install -qq dotnet-sdk-2.1.200', timing: true, assert: true]
     end
   end
 
@@ -70,8 +92,8 @@ describe Travis::Build::Script::Csharp, :sexp do
     end
 
     it 'throws a error with an invalid .NET Core version as float' do
-      data[:config][:dotnet] = 2.0
-      should include_sexp [:echo, "\"2.0\" is either an invalid version of \"dotnet\" or unsupported on this operating system.\nView valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/csharp/"]
+      data[:config][:dotnet] = 2
+      should include_sexp [:echo, "\"2\" is either an invalid version of \"dotnet\" or unsupported on this operating system.\nView valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/csharp/"]
     end
 
     it 'throws a error with an invalid version' do

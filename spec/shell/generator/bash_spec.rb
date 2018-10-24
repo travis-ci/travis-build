@@ -145,23 +145,18 @@ describe Travis::Shell::Generator::Bash, :include_node_helpers do
 
   describe :file do
     it 'generates command to store content to a file' do
-      @sexp = [:file, ['./foo', 'bar']]
-      expect(code).to eql('echo bar > ./foo')
-    end
-
-    it 'escapes the content' do
-      @sexp = [:file, ['./foo', 'foo bar']]
-      expect(code).to eql('echo foo\\ bar > ./foo')
+      @sexp = [:file, ['foo', 'bar']]
+      expect(code).to match(/^echo bar > foo/)
     end
 
     it 'appends to the file if :append is given' do
-      @sexp = [:file, ['./foo', 'bar'], append: true]
-      expect(code).to eql('echo bar >> ./foo')
+      @sexp = [:file, ['foo', 'bar'], append: true]
+      expect(code).to match(/^echo bar >> foo/)
     end
 
     it 'base64 decodes the content if :decode is given' do
       @sexp = [:file, ['./foo', 'Zm9vCg=='], decode: true]
-      expect(code).to eql('echo Zm9vCg\\=\\= | base64 --decode > ./foo')
+      expect(code).to match(/^echo Zm9vCg\\=\\= | base64 --decode > foo/)
     end
   end
 
@@ -227,6 +222,28 @@ describe Travis::Shell::Generator::Bash, :include_node_helpers do
     it 'generates a fold' do
       @sexp = [:fold, 'git', [:cmds, [[:cmd, 'foo'], [:cmd, 'bar']]]]
       expect(code).to eql("travis_fold start git\n  foo\n  bar\ntravis_fold end git")
+    end
+  end
+
+  describe :trace do
+    it 'generates a trace' do
+      @sexp = [:trace, 'foo', [[:cmd, 'foo']]]
+      expect(code).to match(/^travis_trace_span \\{[^\}]+\\}\nfoo\ntravis_trace_span \\{[^\}]+\\}$/)
+    end
+
+    it 'with multiple traces' do
+      @sexp = [:cmds, [
+        [:trace, 'foo', [[:cmd, 'foo']]],
+        [:trace, 'bar', [[:cmd, 'bar']]],
+      ]]
+      expect(code).to match(/^travis_trace_span \\{[^\}]+\\}\n  foo\n  travis_trace_span \\{[^\}]+\\}\n  travis_trace_span \\{[^\}]+\\}\n  bar\n  travis_trace_span \\{[^\}]+\\}$/)
+    end
+
+    it 'with nested traces' do
+      @sexp = [:trace, 'root', [[:cmds, [
+        [:trace, 'foo', [[:cmd, 'foo']]],
+      ]]]]
+      expect(code).to match(/^travis_trace_span \\{[^\}]+\\}\n  travis_trace_span \\{[^\}]+\\}\n  foo\n  travis_trace_span \\{[^\}]+\\}\ntravis_trace_span \\{[^\}]+\\}$/)
     end
   end
 

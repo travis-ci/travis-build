@@ -6,10 +6,6 @@ shared_examples_for 'compiled script' do
 
   subject { Travis::Build.script(data).compile }
 
-  # it 'output' do
-  #   puts subject
-  # end
-
   it 'can be compiled' do
     expect { subject }.to_not raise_error
   end
@@ -80,7 +76,7 @@ shared_examples_for 'a debug script' do
   end
 
   it 'resets build status' do
-    store_example('debug')
+    store_example(name: 'debug')
     should include_sexp [:echo, "This is a debug build. The build result is reset to its previous value, \\\"failed\\\".", {}]
   end
 end

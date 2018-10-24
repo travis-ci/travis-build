@@ -5,6 +5,13 @@ describe Travis::Build::Script::Python, :sexp do
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
   it           { store_example }
+  it           { store_example(integration: true) }
+
+  it_behaves_like 'a bash script', integration: true do
+    let(:bash_script_file) { bash_script_path(integration: true) }
+  end
+
+  it_behaves_like 'a bash script'
 
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=python'] }
@@ -104,8 +111,8 @@ describe Travis::Build::Script::Python, :sexp do
       expect(branch).to include_sexp [:echo, described_class::REQUIREMENTS_MISSING] #, ansi: :red
     end
 
-    it 'adds $HOME/.cache/pip to directory cache' do
-      should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add $HOME/.cache/pip', timing: true]
+    it 'adds ${TRAVIS_HOME}/.cache/pip to directory cache' do
+      should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add ${TRAVIS_HOME}/.cache/pip', timing: true]
     end
   end
 
