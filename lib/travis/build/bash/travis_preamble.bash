@@ -9,9 +9,8 @@ travis_preamble() {
     source "${TRAVIS_HOME}/.bash_profile"
   fi
 
-  echo "source ${TRAVIS_HOME}/.travis/job_stages" >>"${TRAVIS_HOME}/.bashrc"
-
   mkdir -p "${TRAVIS_HOME}/.travis"
+  echo "source ${TRAVIS_HOME}/.travis/job_stages" >>"${TRAVIS_HOME}/.bashrc"
 
   mkdir -p "${TRAVIS_BUILD_DIR}"
   cd "${TRAVIS_BUILD_DIR}" || exit 86

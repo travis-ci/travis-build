@@ -8,6 +8,12 @@ describe Travis::Build::Script::NodeJs, :sexp do
   it           { store_example }
   it           { store_example(integration: true) }
 
+  it_behaves_like 'a bash script', integration: true do
+    let(:bash_script_file) { bash_script_path(integration: true) }
+  end
+
+  it_behaves_like 'a bash script'
+
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=node_js'] }
     let(:cmds) { ['npm test'] }
@@ -152,5 +158,17 @@ describe Travis::Build::Script::NodeJs, :sexp do
   it 'converts 0.1 to 0.10' do
     data[:config][:node_js] = 0.1
     expect(script.send(:version)).to eql('0.10')
+  end
+
+  context "when os is windows" do
+    before :each do
+      data[:config][:os] = 'windows'
+    end
+
+    describe 'nvs install' do
+      it "runs nvs add" do
+        expect(subject).to include_sexp [:cmd, "nvs add 0.10", assert: true, echo: true, timing: true]
+      end
+    end
   end
 end

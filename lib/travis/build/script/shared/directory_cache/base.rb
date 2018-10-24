@@ -193,8 +193,13 @@ module Travis
             def run(command, args, options = {})
               sh.with_errexit_off do
                 sh.if "-f #{BIN_PATH}" do
-                  sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
-                  sh.cmd "rvm $(travis_internal_ruby) --fuzzy do #{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
+                  sh.if "-e ~/.rvm/scripts/rvm" do
+                    sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
+                    sh.cmd "rvm $(travis_internal_ruby) --fuzzy do #{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
+                  end
+                  sh.else do
+                    sh.cmd "#{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
+                  end
                 end
               end
             end
@@ -247,7 +252,7 @@ module Travis
             end
 
             def url(verb, path, options = {})
-              signature(verb, path, options).to_uri.to_s.untaint
+              signature(verb, path, options).to_uri.to_s.output_safe
             end
 
             def key_pair
@@ -287,14 +292,14 @@ module Travis
             end
 
             def app_host
-              @app_host ||= Travis::Build.config.app_host.to_s.strip.untaint
+              @app_host ||= Travis::Build.config.app_host.to_s.strip.output_safe
             end
 
             def update_static_file(name, location, remote_location, assert = false)
               flags = "-sf #{debug_flags}"
               cmd_opts = {retry: true, assert: false, echo: 'Installing caching utilities'}
               if casher_branch == 'production'
-                static_file_location = "https://#{app_host}/files/#{name}".untaint
+                static_file_location = "https://#{app_host}/files/#{name}".output_safe
                 sh.cmd curl_cmd(flags, location, static_file_location), cmd_opts
                 sh.if "$? -ne 0" do
                   cmd_opts[:echo] = "Installing caching utilities from the Travis CI server (#{static_file_location}) failed, failing over to using GitHub (#{remote_location})"

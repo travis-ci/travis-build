@@ -8,6 +8,10 @@ module Travis
         def apply
           Git.new(sh, data).checkout
         end
+
+        def apply?
+          true
+        end
       end
     end
   end

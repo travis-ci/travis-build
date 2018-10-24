@@ -5,6 +5,7 @@ PAYLOADS = {
     'type' => 'test',
     'enterprise' => 'false',
     'prefer_https' => false,
+    'host' => 'travis-ci.com',
     'config' => {
       'os' => 'linux',
       'env' => ['FOO=foo', 'SECURE BAR=bar']
@@ -34,6 +35,7 @@ PAYLOADS = {
     'type' => 'test',
     'enterprise' => 'false',
     'prefer_https' => false,
+    'host' => 'travis-ci.com',
     'config' => {
       'os' => 'linux',
       'env' => ['FOO=foo', 'SECURE BAR=bar']
@@ -88,8 +90,8 @@ PAYLOAD_LANGUAGE_OVERRIDES = {
       'slug' => 'travis-ci-examples/node_js-example'
     },
     'job' => {
-      'commit' => 'e2c19ee',
-      'commit_range' => 'dcdfff5..e2c19ee'
+      'commit' => 'baaf146',
+      'commit_range' => 'e2c19ee..baaf146'
     }
   },
   ruby: {
@@ -97,8 +99,8 @@ PAYLOAD_LANGUAGE_OVERRIDES = {
       'slug' => 'travis-ci-examples/ruby-example'
     },
     'job' => {
-      'commit' => '961e635',
-      'commit_range' => 'd8f6456..961e635'
+      'commit' => '9500504',
+      'commit_range' => '961e635..9500504'
     }
   },
   python: {
@@ -108,6 +110,9 @@ PAYLOAD_LANGUAGE_OVERRIDES = {
     'job' => {
       'commit' => '637a1e8',
       'commit_range' => '2777cf8..637a1e8'
+    },
+    'config' => {
+      'script' => 'py.test -v'
     }
   }
 }

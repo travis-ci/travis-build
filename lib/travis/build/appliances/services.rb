@@ -38,7 +38,7 @@ module Travis
         end
 
         def apply?
-          services.any?
+          super && services.any?
         end
 
         def apply_mongodb
