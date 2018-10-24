@@ -74,6 +74,10 @@ module Travis
         def cabal_version
           Array(config[:cabal]).first.to_s
         end
+
+        def cache_slug
+          super << '--ghc-' << version
+        end
       end
     end
   end
