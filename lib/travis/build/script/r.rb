@@ -70,8 +70,8 @@ module Travis
                 sh.cmd 'sudo add-apt-repository '\
                   "\"deb #{repos[:CRAN]}/bin/linux/ubuntu "\
                   "$(lsb_release -cs)/\""
-                sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com '\
-                  '--recv-keys E084DAB9'
+                sh.cmd 'apt-key adv --keyserver ha.pool.sks-keyservers.net '\
+                  '--recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9', sudo: true
 
                 # Add marutter's c2d4u plus ppa dependencies as listed on launchpad
                 if r_version_less_than('3.5.0')
@@ -89,7 +89,7 @@ module Travis
 
                 # Update after adding all repositories. Retry several
                 # times to work around flaky connection to Launchpad PPAs.
-                sh.cmd 'sudo apt-get update -qq', retry: true
+                sh.cmd 'travis_apt_get_update', retry: true
 
                 # Install precompiled R
                 # Install only the dependencies for an R development environment except for
@@ -111,8 +111,8 @@ module Travis
                 r_url = "https://s3.amazonaws.com/rstudio-travis/#{r_filename}"
                 sh.cmd "curl -fLo /tmp/#{r_filename} #{r_url}", retry: true
                 sh.cmd "tar xJf /tmp/#{r_filename} -C ~"
-                sh.export 'PATH', "$HOME/R-bin/bin:$PATH", echo: false
-                sh.export 'LD_LIBRARY_PATH', "$HOME/R-bin/lib:$LD_LIBRARY_PATH", echo: false
+                sh.export 'PATH', "${TRAVIS_HOME}/R-bin/bin:$PATH", echo: false
+                sh.export 'LD_LIBRARY_PATH', "${TRAVIS_HOME}/R-bin/lib:$LD_LIBRARY_PATH", echo: false
                 sh.rm "/tmp/#{r_filename}"
 
                 sh.cmd "sudo mkdir -p /usr/local/lib/R/site-library $R_LIBS_USER"
@@ -449,7 +449,7 @@ module Travis
             texlive_url = 'https://github.com/jimhester/ubuntu-bin/releases/download/latest/texlive.tar.gz'
             sh.cmd "curl -fLo /tmp/#{texlive_filename} #{texlive_url}"
             sh.cmd "tar xzf /tmp/#{texlive_filename} -C ~"
-            sh.export 'PATH', "/$HOME/texlive/bin/x86_64-linux:$PATH"
+            sh.export 'PATH', "${TRAVIS_HOME}/texlive/bin/x86_64-linux:$PATH"
             sh.cmd 'tlmgr update --self', assert: false
           when 'osx'
             # We use basictex due to disk space constraints.
@@ -488,14 +488,14 @@ module Travis
             # Cleanup
             sh.rm "/tmp/#{pandoc_filename}"
           when 'osx'
-          
+
             # Change OS name if requested version is less than 1.19.2.2
             # Name change was introduced in v2.0 of pandoc.
             # c.f. "Build Infrastructure Improvements" section of
             # https://github.com/jgm/pandoc/releases/tag/2.0
             # Lastly, the last binary for macOS before 2.0 is 1.19.2.1
             os_short_name = version_check_less_than("#{config[:pandoc_version]}", "1.19.2.2") ? "macOS" : "osx"
-            
+
             pandoc_filename = "pandoc-#{config[:pandoc_version]}-#{os_short_name}.pkg"
             pandoc_url = "https://github.com/jgm/pandoc/releases/download/#{config[:pandoc_version]}/"\
               "#{pandoc_filename}"
@@ -533,7 +533,7 @@ module Travis
           sh.cmd "sudo ruby uninstall --force"
           sh.cmd "rm uninstall"
         end
-        
+
         # Abstract out version check
         def version_check_less_than(version_str_new, version_str_old)
             Gem::Version.new(version_str_old) < Gem::Version.new(version_str_new)
@@ -550,7 +550,7 @@ module Travis
 
         def normalized_r_version(v=Array(config[:r]).first.to_s)
           case v
-          when 'release' then '3.5.0'
+          when 'release' then '3.5.1'
           when 'oldrel' then '3.4.4'
           when '3.0' then '3.0.3'
           when '3.1' then '3.1.3'

@@ -5,9 +5,6 @@ module Travis
   module Build
     module Appliances
       class Services < Base
-
-        include Template
-
         SERVICES = {
           'hbase'        => 'hbase-master', # for HBase status, see travis-ci/travis-cookbooks#40. MK.
           'memcache'     => 'memcached',
@@ -15,7 +12,6 @@ module Travis
           'rabbitmq'     => 'rabbitmq-server',
           'redis'        => 'redis-server'
         }
-        TEMPLATES_PATH = File.expand_path('../../templates', __FILE__)
 
         def apply
           sh.if '"$TRAVIS_OS_NAME" != "linux"' do
@@ -42,7 +38,7 @@ module Travis
         end
 
         def apply?
-          services.any?
+          super && services.any?
         end
 
         def apply_mongodb
@@ -79,7 +75,7 @@ module Travis
 
         def apply_postgresql
           return if data[:config]&.[](:addons)&.[](:postgresql)
-          sh.raw(template('postgresql.sh', version: nil), echo: false, timing: false)
+          sh.raw bash('travis_setup_postgresql'), echo: false, timing: false
           sh.cmd 'travis_setup_postgresql', echo: true, timing: true
         end
 

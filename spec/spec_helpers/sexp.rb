@@ -2,6 +2,8 @@ require 'fileutils'
 
 module SpecHelpers
   module Sexp
+    INTEGRATION_MAGIC_COMMENT = "\n\n# TRAVIS-BUILD INTEGRATION EXAMPLE MAGIC COMMENT\n"
+
     def sexp_fold(fold, sexp)
       [:fold, fold, [:cmds, [sexp]]]
     end
@@ -43,20 +45,42 @@ module SpecHelpers
       lft.is_a?(String) && rgt.is_a?(Regexp) ? lft =~ rgt : sexp == part
     end
 
-    def store_example(name = nil)
-      const_name = described_class.name.split('::').last.gsub(/([A-Z]+)/,'_\1').gsub(/^_/, '').downcase
-      name = [const_name, name].compact.join('-').gsub(' ', '_')
-
+    def store_example(name: nil, integration: false)
       if described_class < Travis::Build::Script
-        type = :build
         code = script.compile
       else
-        type = :addon
         code = Travis::Shell.generate(subject)
       end
 
-      FileUtils.mkdir_p('examples') unless File.directory?('examples')
-      File.open("examples/#{type}-#{name}.sh.txt", 'w+') { |f| f.write(code) }
+      SpecHelpers.top.join('examples').mkpath
+
+      bash_script_path(name: name, integration: integration).open('w+') do |f|
+        code += INTEGRATION_MAGIC_COMMENT if integration
+        f.write(code)
+      end
+    end
+
+    def bash_script_path(name: nil, integration: false)
+      const_name = described_class
+        .name
+        .split('::')
+        .last
+        .gsub(/([A-Z]+)/, '_\1')
+        .gsub(/^_/, '')
+        .downcase
+
+      name_suffix = [
+        const_name,
+        name,
+        integration ? 'integration' : nil
+      ].compact
+        .join('-')
+        .gsub(' ', '_')
+
+      type = :addon
+      type = :build if described_class < Travis::Build::Script
+
+      SpecHelpers.top.join("examples/#{type}-#{name_suffix}.bash.txt")
     end
   end
 end

@@ -46,8 +46,34 @@ require 'travis/build/script/shared/directory_cache'
 module Travis
   module Build
     class Script
-      TEMPLATES_PATH = File.expand_path('../templates', __FILE__)
       DEFAULTS = {}
+
+      TRAVIS_FUNCTIONS = %w[
+        travis_apt_get_update
+        travis_assert
+        travis_bash_qsort_numeric
+        travis_cleanup
+        travis_cmd
+        travis_decrypt
+        travis_download
+        travis_fold
+        travis_footer
+        travis_internal_ruby
+        travis_jigger
+        travis_nanoseconds
+        travis_result
+        travis_retry
+        travis_setup_env
+        travis_temporary_hacks
+        travis_terminate
+        travis_time_finish
+        travis_time_start
+        travis_trace_span
+        travis_vers2int
+        travis_wait
+        travis_whereami
+      ].freeze
+      private_constant :TRAVIS_FUNCTIONS
 
       class << self
         def defaults
@@ -55,10 +81,17 @@ module Travis
         end
       end
 
-      include Module.new { Stages::STAGES.map(&:name).flatten.each { |stage| define_method(stage) {} } }
-      include Appliances, DirectoryCache, Deprecation, Template
+      include Module.new do
+        Travis::Build::Stages::STAGES.map(&:name).flatten.each do |stage|
+          define_method(stage) {}
+        end
+      end
+
+      include Travis::Build::Appliances, Travis::Build::Script::DirectoryCache
+      include Travis::Build::Deprecation, Travis::Build::Bash
 
       attr_reader :sh, :raw_data, :data, :options, :validator, :addons, :stages
+      attr_reader :root, :home_dir, :build_dir
       attr_accessor :setup_cache_has_run_for
 
       def initialize(data)
@@ -68,6 +101,10 @@ module Travis
 
         tracing_enabled = data[:trace]
 
+        @root = '/'
+        @home_dir = HOME_DIR
+        @build_dir = BUILD_DIR
+
         @sh = Shell::Builder.new(tracing_enabled)
         @addons = Addons.new(self, sh, self.data, config)
         @stages = Stages.new(self, sh, config)
@@ -75,13 +112,15 @@ module Travis
       end
 
       def compile(ignore_taint = false)
-        Shell.generate(sexp, ignore_taint)
+        nodes = sexp
+        Shell.generate(nodes, ignore_taint)
       rescue Travis::Shell::Generator::TaintedOutput => to
+        log_tainted_nodes(nodes)
         raise to
       rescue Exception => e
         event = Travis::Build.config.sentry_dsn.empty? ? nil : Raven.capture_exception(e)
 
-        unless Travis::Build.config.dump_backtrace.empty?
+        unless Travis::Build.config.dump_backtrace?
           Travis::Build.logger.error(e)
           Travis::Build.logger.error(e.backtrace)
         end
@@ -96,6 +135,14 @@ module Travis
       def sexp
         run
         sh.to_sexp
+      end
+
+      def log_tainted_nodes(nodes)
+        return unless Travis::Build.config.tainted_node_logging_enabled?
+        tainted_values = nodes.flatten.select(&:tainted?)
+        Travis::Build.logger.error(
+          "nodes contain tainted value(s) #{tainted_values.inspect}"
+        )
       end
 
       def cache_slug_keys
@@ -114,7 +161,7 @@ module Travis
         cache_slug_keys.compact.join('-')
       end
 
-      def archive_url_for(bucket, version, lang = self.class.name.split('::').last.downcase, ext = 'bz2')
+      def archive_url_for(bucket, version, lang = lang_name, ext = 'bz2')
         file_name = "#{[lang, version].compact.join("-")}.tar.#{ext}"
         sh.if "$(uname) = 'Linux'" do
           sh.raw "travis_host_os=$(lsb_release -is | tr 'A-Z' 'a-z')"
@@ -132,11 +179,19 @@ module Travis
         ! data.debug_options.empty?
       end
 
-      private
+      def config
+        data.config
+      end
 
-        def config
-          data.config
-        end
+      def app_host
+        @app_host ||= Travis::Build.config.app_host.to_s.strip.output_safe
+      end
+
+      def debug_enabled?
+        Travis::Build.config.enable_debug_tools == '1'
+      end
+
+      private
 
         def debug
           if debug_build_via_api?
@@ -154,24 +209,45 @@ module Travis
 
         def run
           stages.run if apply :validate
-          sh.raw template('footer.sh')
+          sh.raw 'travis_cleanup'
+          sh.raw 'travis_footer'
           # apply :deprecations
         end
 
         def header
-          sh.raw(
-            template(
-              'header.sh',
-              build_dir: BUILD_DIR,
-              app_host: app_host,
-              internal_ruby_regex: Travis::Build.config.internal_ruby_regex.untaint,
-              root: '/',
-              home: HOME_DIR
-            ), pos: 0
+          sh.raw '#!/bin/bash'
+          sh.export 'TRAVIS_ROOT', root, echo: false, assert: false
+          sh.export 'TRAVIS_HOME', home_dir, echo: false, assert: false
+          sh.export 'TRAVIS_BUILD_DIR', build_dir, echo: false, assert: false
+          sh.export 'TRAVIS_INTERNAL_RUBY_REGEX', internal_ruby_regex_esc,
+                    echo: false, assert: false
+          sh.export 'TRAVIS_APP_HOST', app_host,
+                    echo: false, assert: false
+          if Travis::Build.config.enable_infra_detection?
+            sh.export 'TRAVIS_ENABLE_INFRA_DETECTION', 'true',
+                      echo: false, assert: false
+          end
+
+          sh.raw bash('travis_preamble')
+          sh.raw 'travis_preamble'
+
+          sh.file '${TRAVIS_HOME}/.travis/job_stages',
+                  "# travis_.+ functions:\n" +
+                  TRAVIS_FUNCTIONS.map { |f| bash(f) }.join("\n")
+
+          sh.raw 'source ${TRAVIS_HOME}/.travis/job_stages'
+          sh.raw 'travis_setup_env'
+          sh.raw 'travis_temporary_hacks'
+        end
+
+        def internal_ruby_regex_esc
+          @internal_ruby_regex_esc ||= Shellwords.escape(
+            Travis::Build.config.internal_ruby_regex.output_safe
           )
         end
 
         def configure
+          apply :check_unsupported
           apply :set_x
           apply :show_system_info
           apply :rm_riak_source
@@ -207,6 +283,7 @@ module Travis
           apply :nonblock_pipe
           apply :apt_get_update
           apply :deprecate_xcode_64
+          apply :update_heroku
         end
 
         def setup_filter
@@ -276,14 +353,6 @@ module Travis
           debug_build_via_api? && data.debug_options[:quiet]
         end
 
-        def debug_enabled?
-          Travis::Build.config.enable_debug_tools == '1'
-        end
-
-        def app_host
-          @app_host ||= Travis::Build.config.app_host.to_s.strip.untaint
-        end
-
         def error_message_ary(exception, event)
           if event
             contact_msg = ", or contact us at support@travis-ci.com"
@@ -320,6 +389,10 @@ module Travis
           error_message_ary(exception, event).each { |line| sh.raw "echo -e \"\033[31;1m#{line}\033[0m\"" }
           sh.raw "exit 2"
           Shell.generate(sh.to_sexp)
+        end
+
+        def lang_name
+          self.class.name.split('::').last.downcase
         end
     end
   end

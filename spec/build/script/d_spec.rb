@@ -6,9 +6,7 @@ describe Travis::Build::Script::D, :sexp do
   subject      { script.sexp }
   it           { store_example }
 
-  after(:all) do
-    #store_example
-  end
+  it_behaves_like 'a bash script'
 
   it_behaves_like 'a build script sexp'
 

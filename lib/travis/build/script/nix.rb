@@ -50,7 +50,7 @@ module Travis
 
             if config[:os] == 'linux'
               # single-user install (linux)
-              sh.cmd 'source $HOME/.nix-profile/etc/profile.d/nix.sh'
+              sh.cmd 'source ${TRAVIS_HOME}/.nix-profile/etc/profile.d/nix.sh'
             else
               # multi-user install (macos)
               sh.cmd 'source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'

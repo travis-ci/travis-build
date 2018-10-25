@@ -2,14 +2,23 @@ module Travis
   module Build
     class Script
       module Jdk
+        OPENJDK_ALTERNATIVE = {
+          'oraclejdk10' => 'openjdk10'
+        }
+
         def configure
           super
+
+          if jdk_deprecated?
+            sh.terminate 2, "#{jdk} is deprecated. See https://www.oracle.com/technetwork/java/javase/eol-135779.html for more details. Consider using #{OPENJDK_ALTERNATIVE[jdk]} instead.", ansi: :red
+          end
+
           if uses_jdk?
             if use_install_jdk?(config[:jdk])
               download_install_jdk
 
               sh.if "-f install-jdk.sh" do
-                sh.export "JAVA_HOME", "$HOME/#{jdk}"
+                sh.export "JAVA_HOME", "${TRAVIS_HOME}/#{jdk}"
                 sh.cmd "bash install-jdk.sh #{install_jdk_args config[:jdk]} --target $JAVA_HOME --workspace #{cache_dir}", echo: true, assert: true
                 sh.export "PATH", "$JAVA_HOME/bin:$PATH"
                 sh.raw 'set +e', echo: false
@@ -34,9 +43,9 @@ module Travis
             sh.export 'TERM', 'dumb'
           end
 
-          sh.echo "Disabling Gradle daemon", ansi: :yellow
-          sh.cmd 'mkdir -p ~/.gradle && echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties', echo: true, timing: false
+          sh.cmd 'mkdir -p ~/.gradle && echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties', echo: false, timing: false
 
+          correct_maven_repo
         end
 
         def announce
@@ -91,7 +100,17 @@ module Travis
           end
 
           def cache_dir
-            "$HOME/.cache/install-jdk"
+            "${TRAVIS_HOME}/.cache/install-jdk"
+          end
+
+          def correct_maven_repo
+            old_repo = 'https://repository.apache.org/releases/'
+            new_repo = 'https://repository.apache.org/content/repositories/releases/'
+            sh.cmd "sed -i 's|#{old_repo}|#{new_repo}|g' ~/.m2/settings.xml", echo: false, assert: false, timing: false
+          end
+
+          def jdk_deprecated?
+            uses_jdk? && OPENJDK_ALTERNATIVE.keys.include?(jdk)
           end
       end
     end

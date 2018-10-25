@@ -148,11 +148,21 @@ module Travis
               if edge_changed?(last_deploy, config)
                 cmd "gem uninstall -aIx dpl", echo: true
               end
-              sh.if "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*" do
-                cmd(dpl_install_command(WANT_18), echo: true, assert: !allow_failure, timing: true)
+              sh.if "-f $HOME/.rvm/scripts/rvm" do
+                sh.if "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*" do
+                  cmd(dpl_install_command(WANT_18), echo: true, assert: !allow_failure, timing: true)
+                end
+                sh.else do
+                  cmd(dpl_install_command, echo: true, assert: !allow_failure, timing: true)
+                end
               end
               sh.else do
-                cmd(dpl_install_command, echo: true, assert: !allow_failure, timing: true)
+                sh.if "$(ruby -e \"puts RUBY_VERSION\") = 1.9*" do
+                  cmd(dpl_install_command(WANT_18), echo: true, assert: !allow_failure, timing: true)
+                end
+                sh.else do
+                  cmd(dpl_install_command, echo: true, assert: !allow_failure, timing: true)
+                end
               end
               sh.cmd "rm -f $TRAVIS_BUILD_DIR/dpl-*.gem", echo: false, assert: false, timing: false
             end
@@ -182,8 +192,13 @@ module Travis
             end
 
             def cmd(cmd, *args)
-              sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
-              sh.cmd("rvm $(travis_internal_ruby) --fuzzy do ruby -S #{cmd}", *args)
+              sh.if "-e $HOME/.rvm/scripts/rvm" do
+                sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
+                sh.cmd("rvm $(travis_internal_ruby) --fuzzy do ruby -S #{cmd}", *args)
+              end
+              sh.else do
+                sh.cmd("ruby -S #{cmd}", *args)
+              end
             end
 
             def dpl_install_command(want_pre_19 = false)
