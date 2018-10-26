@@ -72,7 +72,7 @@ module Travis
         end
 
         def brew_bundle_args
-          if config[:brewfile] == true
+          if config[:brewfile].to_s.downcase == 'true'
             ''
           else
             " --file=#{Shellwords.escape(config[:brewfile])}"
