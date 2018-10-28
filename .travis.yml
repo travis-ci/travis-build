@@ -1,7 +1,10 @@
 language: ruby
+
 sudo: required
+
 dist: xenial
 group: edge
+
 rvm: 2.5.3
 
 cache:
@@ -19,16 +22,19 @@ stages:
 - ':ship: it to Quay.io'
 
 jobs:
-  allow_failures:
-  - script: ./script/docker-build-and-push
   include:
   - stage: test
     env:
     script: ./script/validate-example-payloads-with-docker
   - stage: ':ship: it to Quay.io'
+    language: bash
     env:
+    before_script: skip
     script: ./script/docker-build-and-push
-    if: NOT type IN (pull_request) AND branch = master
+    after_script: skip
+    after_failure: skip
+    before_deploy: skip
+    deploy: skip
 
 before_script:
 - eval "$(script/handle-docker-config)"
