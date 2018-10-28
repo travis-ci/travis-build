@@ -22,7 +22,7 @@ main() {
   cpid="${!}"
 
   local wait_times=0
-  while ! curl -sf localhost:4000/uptime &>/dev/null; do
+  while ! curl -sf localhost:8080/uptime &>/dev/null; do
     if [[ "${wait_times}" -gt 6 ]]; then
       echo '----> Timeout waiting for container to be up' >&2
       exit 1
