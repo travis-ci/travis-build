@@ -13,7 +13,6 @@ travis_wait_for_network() {
     done
 
     if [[ "${#urls[@]}" -eq "${confirmed}" ]]; then
-      echo -e "${ANSI_GREEN}Network availability confirmed.${ANSI_RESET}"
       return
     fi
 
