@@ -23,7 +23,7 @@ module Travis
               sh.cmd "brew_ruby=2.3"
             end
             sh.else do
-              sh.cmd "brew_ruby=$(rvm list | awk '/ruby-2\.[3-9]/ {print $1}' | head -1)"
+              sh.cmd "brew_ruby=$(rvm list | perl -ne '/ruby-(2\\.[3-9][0-9]*)/ && print $1,\"\\n\"'| head -1)"
             end
             update_homebrew if update_homebrew?
             install_homebrew_packages
