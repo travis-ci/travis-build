@@ -2,7 +2,6 @@
 
 set -ev
 
-local_image="travisbuild_${app_name}" # Docker Compose removes dashes and expects the name to end with the build app name
 quay_image=quay.io/travisci/travis-build
 tag_name=$(echo "$TRAVIS_BRANCH" | sed -e "s/\\//-/g")
 
