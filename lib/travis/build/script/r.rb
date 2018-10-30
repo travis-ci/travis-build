@@ -534,7 +534,7 @@ module Travis
 
         def setup_rtools
           return unless (config[:os] == 'windows')
-          rtools_url = "#{repos[:CRAN]}/bin/windows/Rtools/Rtools35.exe"
+          rtools_url = "#{repos[:CRAN]}/bin/windows/Rtools/Rtools#{rtools_version}.exe"
           sh.cmd "curl -fLo /tmp/Rtools.exe #{rtools_url}"
 
           sh.cmd "powershell 'Start-Process -FilePath $env:TEMP\Rtools.exe -ArgumentList /VERYSILENT -NoNewWindow -Wait'"
@@ -583,6 +583,24 @@ module Travis
             config[:r] = 'release'
             normalized_r_version
           else v
+          end
+        end
+
+        def rtools_version
+          @rtools_version ||= normalized_rtools_version
+        end
+
+        def normalized_rtools_version(v=Array(config[:rtools]).first.to_s)
+          if v != 'auto'
+            v
+          elsif r_version_less_than("3.1")
+            "31"
+          elsif r_version_less_than("3.2")
+            "32"
+          elsif r_version_less_than("3.3")
+            "33"
+          else
+            "35"
           end
         end
 
