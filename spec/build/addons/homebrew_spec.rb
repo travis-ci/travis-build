@@ -132,6 +132,13 @@ tap 'heroku/brew'
       it { should_not include_sexp [:cmd, 'brew bundle --verbose --global', echo: true, timing: true] }
     end
 
+    context 'when passing true as a string' do
+      let(:brew_config) { { brewfile: "true" } }
+
+      it { should include_sexp [:cmd, 'brew bundle --verbose', echo: true, timing: true] }
+      it { should_not include_sexp [:cmd, 'brew bundle --verbose --global', echo: true, timing: true] }
+    end
+
     context 'when using a custom Brewfile path' do
       let(:brew_config) { { brewfile: 'My Brewfile' } }
 
