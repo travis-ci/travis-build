@@ -32,7 +32,9 @@ module Travis
           bioc_check: false,
           bioc_use_devel: false,
           disable_homebrew: false,
-          r: 'release'
+          r: 'release',
+          rtools: 'auto',
+          r_arch: 'x64'
         }
 
         def initialize(data)
@@ -166,6 +168,8 @@ module Travis
 
                 # Likely needs admin privileges somehow???
                 sh.cmd "powershell 'Start-Process -FilePath $env:TEMP\R-win.exe -ArgumentList /VERYSILENT /DIR=C:\R -NoNewWindow -Wait'"
+
+                sh.export 'PATH', "/c/R/bin/#{config[:r_arch]}:$PATH", echo: false
 
                 sh.rm '/tmp/R-win.exe'
 
