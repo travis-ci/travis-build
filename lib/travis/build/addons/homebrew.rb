@@ -17,13 +17,13 @@ module Travis
 
         def before_before_install
           sh.fold('brew') do
-            sh.if '-z $(rvm list | grep ruby-2\.[3-9])' do
+            sh.if ruby_pre_2_3? do
               sh.echo "Homebrew requires Ruby 2.3 or later. Installing 2.3 for compatibility", ansi: :yellow
               sh.cmd "rvm install 2.3"
               sh.cmd "brew_ruby=2.3"
             end
             sh.else do
-              sh.cmd "brew_ruby=$(rvm list | perl -ne '/ruby-(2\\.[3-9][0-9]*)/ && print $1,\"\\n\"'| head -1)"
+              sh.cmd "brew_ruby=#{first_ruby_2_3_plus}"
             end
             update_homebrew if update_homebrew?
             install_homebrew_packages
@@ -98,6 +98,14 @@ module Travis
             sh.file '~/.Brewfile', brewfile_contents
             sh.cmd "rvm $brew_ruby do brew bundle --verbose --global", echo: true, timing: true
           end
+        end
+
+        def ruby_pre_2_3?
+          '-z $(rvm list | grep ruby-2\.[3-9])'
+        end
+
+        def first_ruby_2_3_plus
+          %q($(rvm list | perl -ne '/ruby-(2\.[3-9][0-9]*)/ && print $1,"\n"'| head -1))
         end
       end
     end
