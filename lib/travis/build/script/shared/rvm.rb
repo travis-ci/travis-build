@@ -74,7 +74,7 @@ module Travis
           def use_ruby_head
             sh.fold('rvm') do
               sh.echo MSGS[:setup_ruby_head] % ruby_version, ansi: :yellow
-              sh.cmd "rvm get stable", assert: false if ruby_version == 'jruby-head'
+              sh.cmd "rvm get stable", assert: false
               sh.export 'ruby_alias', "`rvm alias show #{ruby_version} 2>/dev/null`"
               sh.cmd "rvm alias delete #{ruby_version}"
               sh.cmd "rvm remove ${ruby_alias:-#{ruby_version}} --gems"
