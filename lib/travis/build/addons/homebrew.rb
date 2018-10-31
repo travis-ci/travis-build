@@ -9,6 +9,8 @@ module Travis
           osx
         ].freeze
 
+        BASELINE_RUBY_2_3 = '2.3.5'
+
         def before_before_install?
           SUPPORTED_OPERATING_SYSTEMS.any? do |os_match|
             data[:config][:os].to_s == os_match
@@ -18,9 +20,9 @@ module Travis
         def before_before_install
           sh.fold('brew') do
             sh.if ruby_pre_2_3? do
-              sh.echo "Homebrew requires Ruby 2.3 or later. Installing 2.3 for compatibility", ansi: :yellow
-              sh.cmd "rvm install 2.3"
-              sh.cmd "brew_ruby=2.3"
+              sh.echo "Homebrew requires Ruby 2.3 or later. Installing #{BASELINE_RUBY_2_3} for compatibility", ansi: :yellow
+              sh.cmd "rvm install #{BASELINE_RUBY_2_3}"
+              sh.cmd "brew_ruby=#{BASELINE_RUBY_2_3}"
             end
             sh.else do
               sh.cmd "brew_ruby=#{first_ruby_2_3_plus}"
