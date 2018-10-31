@@ -105,7 +105,7 @@ module Travis
         end
 
         def first_ruby_2_3_plus
-          %q($(rvm list | perl -ne '/ruby-(2\.[3-9][0-9]*)/ && print $1,"\n"'| head -1))
+          %q($(rvm list | perl -ne '/ruby-(2\.[3-9][0-9]*(\.[0-9]+)*)/ && print $1,"\n"'| head -1))
         end
       end
     end
