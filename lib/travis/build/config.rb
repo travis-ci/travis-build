@@ -81,7 +81,7 @@ module Travis
         go_version: ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.10.x'),
         internal_ruby_regex: ENV.fetch(
           'TRAVIS_BUILD_INTERNAL_RUBY_REGEX',
-          '^ruby-(2\.[0-2]\.[0-9]|1\.9\.3)'
+          '^ruby-(2\.[0-4]\.[0-9]|1\.9\.3)'
         ),
         librato: {
           email: ENV.fetch(
