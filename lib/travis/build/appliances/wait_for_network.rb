@@ -19,7 +19,7 @@ module Travis
               app_host: app_host,
               job_id: data.job[:id],
               repo: data.slug
-            }).untaint
+            }).output_safe
           end
         end
 

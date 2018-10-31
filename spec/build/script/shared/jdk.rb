@@ -42,6 +42,16 @@ shared_examples_for 'a jdk build sexp' do
     end
   end
 
+  describe 'if jdk is deprecated' do
+    before :each do
+      data[:config][:jdk] = 'oraclejdk10'
+    end
+
+    it 'terminates with status 2' do
+      should include_sexp( [:raw, "travis_terminate 2"])
+    end
+  end
+
   context "jdk is set to oraclejdk11" do
     before :each do
       data[:config][:jdk] = 'oraclejdk11'

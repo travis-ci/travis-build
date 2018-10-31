@@ -6,6 +6,7 @@ describe Travis::Build::Script::R, :sexp do
   subject       { script.sexp }
   it            { store_example }
 
+  it_behaves_like 'a bash script'
   it_behaves_like 'a build script sexp'
 
   it 'normalizes bioc-devel correctly' do
@@ -25,7 +26,7 @@ describe Travis::Build::Script::R, :sexp do
     data[:config][:r] = 'bioc-release'
     should include_sexp [:cmd, %r{source\(\"https://bioconductor.org/biocLite.R\"\)},
                          assert: true, echo: true, timing: true, retry: true]
-    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.5.0']]
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.5.1']]
   end
 
   it 'r_packages works with a single package set' do
@@ -53,7 +54,7 @@ describe Travis::Build::Script::R, :sexp do
   end
 
   it 'downloads and installs latest R' do
-    should include_sexp [:cmd, %r{^curl.*https://s3\.amazonaws\.com/rstudio-travis/R-3\.5\.0-\$\(lsb_release -cs\)\.xz},
+    should include_sexp [:cmd, %r{^curl.*https://s3\.amazonaws\.com/rstudio-travis/R-3\.5\.1-\$\(lsb_release -cs\)\.xz},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
@@ -85,7 +86,7 @@ describe Travis::Build::Script::R, :sexp do
     data[:config][:os] = 'osx'
     data[:config][:r] = '3.3'
     data[:config][:fortran] = true
-    should include_sexp [:cmd, %r{^curl.*#{Regexp.escape('/tmp/gfortran.tar.bz2 http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2')}},
+    should include_sexp [:cmd, %r{^curl.*\/tmp\/gfortran.tar.bz2 https?:\/\/.*\/gfortran-4.8.2-darwin13.tar.bz2},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
@@ -93,7 +94,7 @@ describe Travis::Build::Script::R, :sexp do
     data[:config][:os] = 'osx'
     data[:config][:r] = 'release'
     data[:config][:fortran] = true
-    should include_sexp [:cmd, %r{^curl.*#{Regexp.escape('/tmp/gfortran61.dmg http://coudert.name/software/gfortran-6.1-ElCapitan.dmg')}},
+    should include_sexp [:cmd, %r{^curl.*\/tmp\/gfortran61.dmg https?:\/\/.*\/macOS\/gfortran-6.1-ElCapitan.dmg},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
@@ -127,11 +128,11 @@ describe Travis::Build::Script::R, :sexp do
   it 'downloads pandoc <= 1.19.2.1 on OS X' do
     data[:config][:pandoc_version] = '1.19.2.1'
     data[:config][:os] = 'osx'
-    
+
     should include_sexp [:cmd, %r{curl.*/tmp/pandoc-1\.19\.2\.1-osx\.pkg https://github\.com/jgm/pandoc/releases/download/1\.19\.2\.1/pandoc-1\.19\.2\.1-osx\.pkg},
                          assert: true, echo: true, timing: true]
   end
-  
+
   it 'sets repos in ~/.Rprofile.site with defaults' do
     data[:config][:cran] = 'https://cloud.r-project.org'
     should include_sexp [:cmd, "echo 'options(repos = c(CRAN = \"https://cloud.r-project.org\"))' > ~/.Rprofile.site",
@@ -222,7 +223,7 @@ describe Travis::Build::Script::R, :sexp do
     }
     it {
       data[:config][:r] = 'release'
-      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.5.0")
+      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.5.1")
     }
     it {
       data[:config][:r] = 'oldrel'

@@ -3,8 +3,8 @@ module Travis
     class Script
       class Haskell < Script
         DEFAULTS = {
-          cabal: Travis::Build.config.cabal_default.to_s.untaint,
-          ghc: Travis::Build.config.ghc_default.to_s.untaint
+          cabal: Travis::Build.config.cabal_default.to_s.output_safe,
+          ghc: Travis::Build.config.ghc_default.to_s.output_safe
         }.freeze
         GHC_VERSION_ALIASES = Travis::Build.config.ghc_version_aliases_hash.merge(
           'default' => DEFAULTS[:ghc]
@@ -73,6 +73,10 @@ module Travis
 
         def cabal_version
           Array(config[:cabal]).first.to_s
+        end
+
+        def cache_slug
+          super << '--ghc-' << version
         end
       end
     end
