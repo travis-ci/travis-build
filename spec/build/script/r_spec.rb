@@ -94,7 +94,7 @@ describe Travis::Build::Script::R, :sexp do
     data[:config][:os] = 'osx'
     data[:config][:r] = 'release'
     data[:config][:fortran] = true
-    should include_sexp [:cmd, %r{^curl.*#{Regexp.escape('/tmp/gfortran61.dmg http://coudert.name/software/gfortran-6.1-ElCapitan.dmg')}},
+    should include_sexp [:cmd, %r{^curl.*#{Regexp.escape('/tmp/gfortran61.dmg http://cloud.r-project.org/contrib/extra/macOS/gfortran-6.1-ElCapitan.dmg')}},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
