@@ -35,7 +35,6 @@ module Travis
           npm_disable_spinner
           npm_disable_progress
           npm_disable_strict_ssl unless npm_strict_ssl?
-          setup_npm_cache if use_npm_cache?
           install_yarn
         end
 
@@ -103,10 +102,21 @@ module Travis
               directory_cache.add '${TRAVIS_HOME}/.cache/yarn'
             end
           end
+          if data.cache?(:npm)
+            sh.fold 'cache.npm' do
+              sh.echo ''
+              sh.if packages_locked? do
+                directory_cache.add '$HOME/.npm'
+              end
+              sh.else do
+                directory_cache.add 'node_modules'
+              end
+            end
+          end
         end
 
         def use_directory_cache?
-          super || data.cache?(:yarn)
+          super || data.cache?(:yarn) || data.cache?(:npm)
         end
 
         def version
@@ -173,24 +183,13 @@ module Travis
             (config[:node_js] || '').to_s.split('.')[0..1] == %w(0 9)
           end
 
-          def use_npm_cache?
-            Array(config[:cache]).include?('npm')
-          end
-
-          def setup_npm_cache
-            if data.hosts && data.hosts[:npm_cache]
-              sh.cmd 'npm config set registry http://registry.npmjs.org/', timing: false
-              sh.cmd "npm config set proxy #{data.hosts[:npm_cache]}", timing: false
-            end
-          end
-
           def iojs_3_plus?
             (config[:node_js] || '').to_s.split('.')[0].to_i >= 3
           end
 
           def npm_install(args)
             sh.fold "install.npm" do
-              sh.if "$(travis_vers2int `npm -v`) -ge $(travis_vers2int #{NPM_CI_CMD_VERSION}) && (-f npm-shrinkwrap.json || -f package-lock.json)" do
+              sh.if packages_locked? do
                 sh.cmd "npm ci #{args}", retry: true
               end
               sh.else do
@@ -204,7 +203,6 @@ module Travis
               sh.if yarn_req_not_met do
                 sh.echo "Node.js version $(node --version) does not meet requirement for yarn." \
                   " Please use Node.js #{YARN_REQUIRED_NODE_VERSION} or later.", ansi: :red
-                npm_install config[:npm_args]
               end
               sh.else do
                 sh.fold "install.yarn" do
@@ -243,6 +241,10 @@ module Travis
               sh.cmd 'git clone --single-branch https://github.com/jasongin/nvs $NVS_HOME'
               sh.cmd 'source $NVS_HOME/nvs.sh'
             end
+          end
+
+          def packages_locked?
+            "$(travis_vers2int `npm -v`) -ge $(travis_vers2int #{NPM_CI_CMD_VERSION}) && (-f npm-shrinkwrap.json || -f package-lock.json)"
           end
       end
     end

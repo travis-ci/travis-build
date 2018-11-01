@@ -79,8 +79,8 @@ module Travis
         node :newline, nil, { timing: false }.merge(options)
       end
 
-      def terminate(result = 2, message = nil)
-        echo message if message
+      def terminate(result = 2, message = nil, options = {})
+        echo message, options if message
         raw "travis_terminate #{result}"
       end
 
