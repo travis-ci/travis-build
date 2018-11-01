@@ -14,7 +14,7 @@ main() {
   )
 
   if [[ "${RACK_ENV}" == development && ! "${DISABLE_RERUN}" ]]; then
-    cmd=(rerun -p '**/*.{rb,ru}' -- "${cmd[@]}")
+    cmd=(bundle exec rerun -p '**/*.{rb,ru}' -- "${cmd[@]}")
   fi
 
   echo "----> ${cmd[*]}"
