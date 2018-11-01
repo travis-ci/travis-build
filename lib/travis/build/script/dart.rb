@@ -214,9 +214,9 @@ MESSAGE
             end
 
             args = args.is_a?(String) ? " #{args}" : ""
-            # Mac OS doesn't need or support xvfb-run.
+            # Mac OS & Windows doesn't need or support xvfb-run.
             xvfb_run = 'xvfb-run -s "-screen 0 1024x768x24" '
-            xvfb_run = '' if task[:xvfb] == false || os == "macos"
+            xvfb_run = '' if task[:xvfb] == false || os == "macos" || os == "windows"
             sh.cmd "#{xvfb_run}pub run test#{args}"
           end
 
@@ -265,7 +265,7 @@ MESSAGE
           end
 
           def os
-            config[:os] == 'osx' ? 'macos' : 'linux'
+            config[:os] == 'osx' ? 'macos' : config[:os]
           end
 
           def archive_url
