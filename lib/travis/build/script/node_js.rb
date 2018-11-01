@@ -105,7 +105,12 @@ module Travis
           if data.cache?(:npm)
             sh.fold 'cache.npm' do
               sh.echo ''
-              directory_cache.add '$HOME/.npm'
+              sh.if packages_locked? do
+                directory_cache.add '$HOME/.npm'
+              end
+              sh.else do
+                directory_cache.add 'node_modules'
+              end
             end
           end
         end
@@ -184,7 +189,7 @@ module Travis
 
           def npm_install(args)
             sh.fold "install.npm" do
-              sh.if "$(travis_vers2int `npm -v`) -ge $(travis_vers2int #{NPM_CI_CMD_VERSION}) && (-f npm-shrinkwrap.json || -f package-lock.json)" do
+              sh.if packages_locked? do
                 sh.cmd "npm ci #{args}", retry: true
               end
               sh.else do
@@ -236,6 +241,10 @@ module Travis
               sh.cmd 'git clone --single-branch https://github.com/jasongin/nvs $NVS_HOME'
               sh.cmd 'source $NVS_HOME/nvs.sh'
             end
+          end
+
+          def packages_locked?
+            "$(travis_vers2int `npm -v`) -ge $(travis_vers2int #{NPM_CI_CMD_VERSION}) && (-f npm-shrinkwrap.json || -f package-lock.json)"
           end
       end
     end
