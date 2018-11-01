@@ -25,7 +25,7 @@ module Travis
           sh.export 'TRAVIS_RUBY_VERSION', version, echo: false if rvm?
         end
 
-        def configure
+        def setup
           super
           setup_rvm if rvm?
         end
@@ -95,13 +95,13 @@ module Travis
 
           def use_ruby_version_file
             sh.fold('rvm') do
-              sh.cmd 'rvm use $(< .ruby-version) --install --binary --fuzzy', assert: true, echo: true, timing: true
+              sh.cmd 'rvm use $(< .ruby-version) --install --binary --fuzzy'
             end
           end
 
           def use_rvm_default_ruby
             sh.fold('rvm') do
-              sh.cmd "rvm use default", assert: true, echo: true, timing: true
+              sh.cmd "rvm use default", timing: true
             end
           end
 
@@ -112,13 +112,13 @@ module Travis
                 sh.if "! $(rvm list | grep ree)" do
                   sh.echo "Installing REE from source. This may take a few minutes.", ansi: :yellow
                   sh.cmd "sed -i 's|^\\(ree_1.8.7_url\\)=.*$|\\1=https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/rubyenterpriseedition|' ${TRAVIS_HOME}/.rvm/config/db"
-                  sh.cmd "rvm use #{ruby_version} --install --fuzzy", assert: true, echo: true, timing: true
+                  sh.cmd "rvm use #{ruby_version} --install --fuzzy"
                 end
                 sh.else do
-                  sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy", assert: true, echo: true, timing: true
+                  sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy"
                 end
               else
-                sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy", assert: true, echo: true, timing: true
+                sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy"
               end
             end
           end
@@ -128,7 +128,7 @@ module Travis
           end
 
           def skip_deps_install
-            sh.cmd "rvm autolibs disable", assert: true
+            sh.cmd "rvm autolibs disable", echo: false, timing: false
           end
 
           def write_default_gems
@@ -145,7 +145,7 @@ module Travis
             RVM_VERSION_ALIASES.select {|k,v| k == version}.each do |alias_version, real_version|
               grep_str = alias_version.gsub('.', '\\\\\\.')
               sh.if "-z $(rvm alias list | grep ^#{grep_str})" do
-                sh.cmd "rvm alias create #{alias_version} ruby-#{real_version}", echo: true, assert: true, timing: true
+                sh.cmd "rvm alias create #{alias_version} ruby-#{real_version}", echo: true, assert: true
               end
             end
           end
