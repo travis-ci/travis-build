@@ -36,13 +36,25 @@ describe Travis::Build::Addons::Deploy, :sexp do
     it { expect(sexp).to include_sexp [:cmd, './before_deploy_2.sh', assert: true, echo: true, timing: true] }
     it "installs dpl < 1.9 if travis_internal_ruby returns 1.9*" do
       expect(
-        sexp_find(sexp, [:if, "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*"], [:then])
+        sexp_filter(
+          sexp_filter(
+            sexp,
+            [:if, "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*"]
+          )[0],
+          [:if, "-e $HOME/.rvm/scripts/rvm"]
+        )[0]
       ).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl -v '< 1.9' ", echo: true, assert: true, timing: true]
     end
 
     it "installs latest dpl if travis_internal_ruby does not return 1.9*" do
       expect(
-        sexp_find(sexp, [:if, "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*"], [:else])
+        sexp_filter(
+          sexp_filter(
+            sexp,
+            [:if, "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*"]
+          )[0],
+          [:if, "-e $HOME/.rvm/scripts/rvm"]
+        )[1]
       ).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl", echo: true, assert: true, timing: true]
     end
     it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl', echo: true, assert: true, timing: true] }
@@ -229,4 +241,3 @@ describe Travis::Build::Addons::Deploy, :sexp do
     end
   end
 end
-

@@ -113,30 +113,6 @@ describe Travis::Build::Script::NodeJs, :sexp do
     end
   end
 
-  describe 'if an npm cache is set' do
-    let(:npm_set_registry) { [:cmd, 'npm config set registry http://registry.npmjs.org/', assert: true, echo: true] }
-    let(:npm_set_proxy)    { [:cmd, 'npm config set proxy http://npm.cache.com', assert: true, echo: true] }
-
-    it 'installs an npm proxy and registry' do
-      data['hosts'] = {'npm_cache' => 'http://npm.cache.com'}
-      data[:config][:cache] = 'npm'
-      should include_sexp npm_set_registry
-      should include_sexp npm_set_proxy
-    end
-
-    it "doesn't install a proxy when caching is not enabled" do
-      data['hosts'] = {'npm_cache' => 'http://npm.cache.com'}
-      should_not include_sexp npm_set_registry
-      should_not include_sexp npm_set_proxy
-    end
-
-    it "doesn't install a proxy when no host is configured" do
-      data[:config][:cache] = 'npm'
-      should_not include_sexp npm_set_registry
-      should_not include_sexp npm_set_proxy
-    end
-  end
-
   describe 'strict-ssl' do
     # let(:npm_set_strict_ssl) { [:cmd, 'npm conf set strict-ssl false', assert: true, echo: true] }
     let(:npm_set_strict_ssl) { [:cmd, 'npm conf set strict-ssl false', assert: true, echo: true, timing: true] }
