@@ -86,7 +86,7 @@ describe Travis::Build::Script::R, :sexp do
     data[:config][:os] = 'osx'
     data[:config][:r] = '3.3'
     data[:config][:fortran] = true
-    should include_sexp [:cmd, %r{^curl.*#{Regexp.escape('/tmp/gfortran.tar.bz2 http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2')}},
+    should include_sexp [:cmd, %r{^curl.*\/tmp\/gfortran.tar.bz2 https?:\/\/.*\/gfortran-4.8.2-darwin13.tar.bz2},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
@@ -94,7 +94,7 @@ describe Travis::Build::Script::R, :sexp do
     data[:config][:os] = 'osx'
     data[:config][:r] = 'release'
     data[:config][:fortran] = true
-    should include_sexp [:cmd, %r{^curl.*#{Regexp.escape('/tmp/gfortran61.dmg http://coudert.name/software/gfortran-6.1-ElCapitan.dmg')}},
+    should include_sexp [:cmd, %r{^curl.*\/tmp\/gfortran61.dmg https?:\/\/.*\/macOS\/gfortran-6.1-ElCapitan.dmg},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
