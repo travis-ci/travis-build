@@ -418,7 +418,7 @@ module Travis
                   ' );'\
                   'cat(append = TRUE, file = "~/.Rprofile.site", "options(repos = BiocInstaller::biocinstallRepos());")'
                 else
-                  'if (!requireNamespace(\"BiocManager\", quietly=TRUE))'\
+                  'if (!requireNamespace("BiocManager", quietly=TRUE))'\
                   '  install.packages("BiocManager");'\
                   "if (#{as_r_boolean(config[:bioc_use_devel])})"\
                   ' BiocManager::install(version = "devel");'\
