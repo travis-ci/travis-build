@@ -410,15 +410,29 @@ module Travis
             sh.fold 'Bioconductor' do
               sh.echo 'Installing Bioconductor', ansi: :yellow
               bioc_install_script =
-                "source(\"#{config[:bioc]}\");"\
-                'tryCatch('\
-                " useDevel(#{as_r_boolean(config[:bioc_use_devel])}),"\
-                ' error=function(e) {if (!grepl("already in use", e$message)) {e}}'\
-                  ');'\
+                if r_version_less_than("3.5.0")
+                  "source(\"#{config[:bioc]}\");"\
+                  'tryCatch('\
+                  " useDevel(#{as_r_boolean(config[:bioc_use_devel])}),"\
+                  ' error=function(e) {if (!grepl("already in use", e$message)) {e}}'\
+                  ' );'\
                   'cat(append = TRUE, file = "~/.Rprofile.site", "options(repos = BiocInstaller::biocinstallRepos());")'
+                else
+                  'if (!requireNamespace(\"BiocManager\", quietly=TRUE))'\
+                  '  install.packages("BiocManager");'\
+                  "if (#{as_r_boolean(config[:bioc_use_devel])})"\
+                  ' BiocManager::install(version = "devel");'\
+                  'cat(append = TRUE, file = "~/.Rprofile.site", "options(repos = BiocManager::repositories());")'
+                end
                 sh.cmd "Rscript -e '#{bioc_install_script}'", retry: true
+              bioc_install_bioccheck =
+                if r_version_less_than("3.5.0")
+                  "BiocInstaller::biocLite(\"BiocCheck\")"
+                else
+                  "BiocManager::install(\"BiocCheck\")"
+                end
                if config[:bioc_check]
-                 sh.cmd "Rscript -e 'BiocInstaller::biocLite(\"BiocCheck\")'"
+                 sh.cmd "Rscript -e '#{bioc_install_bioccheck}'"
                end
             end
           end
@@ -561,7 +575,7 @@ module Travis
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true
-            normalized_r_version('release')
+            normalized_r_version('devel')
           when 'bioc-release'
             config[:bioc_required] = true
             config[:bioc_use_devel] = false
