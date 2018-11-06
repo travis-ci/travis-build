@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 class Hash
   def compact
-    inject({}) do |result, (key, value)|
+    each_with_object({}) do |(key, value), result|
       result[key] = value unless value.nil?
-      result
     end
   end
 end

@@ -62,11 +62,11 @@ describe Travis::Build::Script::Cpp, :sexp do
       data[:config][:compiler] = 'clang'
     end
 
-    it 'sets CC to gcc' do
+    it 'sets CC to clang' do
       should include_sexp [:export, ['CC', 'clang'], echo: true]
     end
 
-    it 'sets CXX to g++' do
+    it 'sets CXX to clang++' do
       should include_sexp [:export, ['CXX', 'clang++'], echo: true]
     end
   end
@@ -76,11 +76,11 @@ describe Travis::Build::Script::Cpp, :sexp do
       data[:config][:compiler] = 'clang++'
     end
 
-    it 'sets CC to gcc' do
+    it 'sets CC to clang' do
       should include_sexp [:export, ['CC', 'clang'], echo: true]
     end
 
-    it 'sets CXX to g++' do
+    it 'sets CXX to clang++' do
       should include_sexp [:export, ['CXX', 'clang++'], echo: true]
     end
   end
