@@ -99,6 +99,17 @@ MESSAGE
             sh.cmd 'export DART_SDK="${TRAVIS_HOME}/dart-sdk"'
             sh.cmd 'export PATH="$DART_SDK/bin:$PATH"'
             sh.cmd 'export PATH="${TRAVIS_HOME}/.pub-cache/bin:$PATH"'
+            if config[:os] = 'windows'
+              # Work around issue that git bash requires extensions to run bat files
+              # https://github.com/msysgit/msysgit/issues/101
+              sh.cmd 'alias dart2js="dart2js.bat"'
+              sh.cmd 'alias dartanalyzer="dartanalyzer.bat"'
+              sh.cmd 'alias dartdevc="dartdevc.bat"'
+              sh.cmd 'alias dartdevk="dartdevk.bat"'
+              sh.cmd 'alias dartdoc="dartdoc.bat"'
+              sh.cmd 'alias dartfmt="dartfmt.bat"'
+              sh.cmd 'alias pub="pub.bat"'
+            end
           end
 
           if task[:install_dartium]
