@@ -1,0 +1,246 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require 'json'
+require 'yaml'
+require 'faraday'
+require 'faraday_middleware'
+require 'logger'
+
+ORG_API_HOSTNAME = "https://api.travis-ci.org"
+COM_API_HOSTNAME = "https://api.travis-ci.com"
+ORG_STAGING_API_HOSTNAME = "https://api-staging.travis-ci.org"
+COM_STAGING_API_HOSTNAME = "https://api-staging.travis-ci.com"
+
+def logger
+  @logger
+end
+
+def options
+  @options
+end
+
+@options = {
+  api_endpoint: ORG_API_HOSTNAME,
+  app_host: 'localhost',
+  log_level: 'info',
+  port: 80,
+  deploy: false,
+}
+
+opt_parser = OptionParser.new do |opts|
+  opts.banner = "Usage: example.rb [options]"
+
+  opts.on("--org", "Use .org API endpoint; same as --api-endpoint=#{ORG_API_HOSTNAME}") do |org|
+    options[:api_endpoint] = ORG_API_HOSTNAME
+  end
+
+  opts.on("--com", "Use .com API endpoint; same as --api-endpoint=#{COM_API_HOSTNAME}") do |com|
+    options[:api_endpoint] = COM_API_HOSTNAME
+  end
+
+  opts.on("--org-staging", "Use .org staging API endpoint; same as --api-endpoint=#{ORG_STAGING_API_HOSTNAME}") do |org|
+    options[:api_endpoint] = ORG_STAGING_API_HOSTNAME
+  end
+
+  opts.on("--com-staging", "Use .com staging API endpoint; same as --api-endpoint=#{COM_STAGING_API_HOSTNAME}") do |com|
+    options[:api_endpoint] = COM_STAGING_API_HOSTNAME
+  end
+
+  opts.on("--api-endpoint=MANDATORY", "Use arbitrary API host. Default: https://api.travis-ci.org") do |host|
+    options[:api_endpoint] = host
+  end
+
+  opts.on("--api-auth-token=MANDATORY", "Auth token for fetching data for private jobs") do |token|
+    options[:api_auth_token] = token
+  end
+
+  opts.on("--app-host=MANDATORY", "Specify app host to connect to. Default: localhost") do |app_host|
+    options[:app_host] = app_host
+  end
+
+  opts.on("--app-host-auth-token=MANDATORY", "Auth token for posting build data.") do |app_host_auth_token|
+    options[:app_host_auth_token] = app_host_auth_token
+  end
+
+  opts.on("--event-type=MANDATORY", "Specify job's event type; 'push', 'pull_request', or 'cron'. Default read from job data", %w(push pull_request cron)) do |type|
+    options[:event_type] = type
+  end
+
+  opts.on("--[no-]sudo", "Specify if `sudo` is available. Default: read from job data") do |sudo|
+    options[:sudo] = sudo
+  end
+
+  opts.on("--[no-]allow-failure", "Specify if job is allowed to fail. Default: read from job data") do |allow|
+    options[:allow_failure] = allow
+  end
+
+  opts.on("--log-level=MANDATORY", "Log level. Default: 'info'", %w(debug info)) do |level|
+    options[:log_level] = level
+  end
+
+  opts.on("--debug", "Same as --log-level=debug") do |level|
+    options[:log_level] = "debug"
+  end
+
+  opts.on("--port=MANDATORY", "Port number. Default: '80'") do |port|
+    options[:port] = port
+  end
+
+  # example:
+  # curl -sSf -L https://raw.githubusercontent.com/BanzaiMan/travis_production_test/test-s3-deployment/.travis.yml | ruby -r yaml -r json -e 'puts YAML.load($stdin).to_json' | jq .deploy | ./compile -p 4000 --deploy - 451018115
+  opts.on("--deploy=MANDATORY", "Deploy with given provider. Read config from the argument. JSON and YAML are supported. As a special case, if file is '-', it reads configuration from STDIN as JSON.") do |deploy|
+    options[:deploy] = deploy
+  end
+
+  opts.on("-f=MANDATORY", "--file=MANDATORY", "Output file path") do |path|
+    options[:path] = path
+  end
+end
+
+opt_parser.parse!
+
+@logger = Logger.new($stderr)
+
+logger.level = Logger.const_get(options[:log_level].upcase)
+
+output_file = options[:path] ? File.open(options[:path], "w") : $stdout
+
+logger.debug "options=#{options}"
+
+job_id = ARGV[0]
+
+def payload_from(f)
+  case f
+  when /\.json$/
+    JSON.parse(File.read(f))
+  when /\.ya?ml$/
+    YAML.load(File.read(f))
+  when IO
+    JSON.parse(f.read)
+  else
+    raise "Unknonw file type: #{f}"
+  end
+end
+
+def job(id)
+  j = request("job/#{id}", {"include" => "job.config"})
+  j.delete "log" # it is too long
+  j
+end
+
+def repo(id)
+  request("repo/#{id}")
+end
+
+def request(url, params={})
+  # params should be a hash of names and their values
+
+  conn = Faraday.new(options[:api_endpoint]) do |f|
+    f.use FaradayMiddleware::FollowRedirects, limit: 5
+    f.adapter Faraday.default_adapter
+    f.response :logger if logger.level == 'debug'
+  end
+
+  response = conn.get do |req|
+    req.url url
+    req.headers['Authorization'] = "token #{options[:api_auth_token]}" if options[:api_auth_token]
+    req.headers['Travis-API-Version'] = '3'
+    params.each do |k,v|
+      req.params[k] = v
+    end
+  end
+
+  unless response.success?
+    logger.info "response=#{response.status}"
+    raise
+  end
+
+  JSON.parse response.body
+end
+
+def file_path(name)
+  File.join(File.dirname(__FILE__), "example_payloads", name)
+end
+
+# Construct payload to POST
+# using API endpoint to discover job and repository data
+def job_payload(payload, repo, job)
+  if job["compare_url"] =~ /\/pull\/(\d+)$/
+    payload["job"]["ref"] = "refs/pull/#{$~[1]}/merge"
+  else
+    payload["job"]["commit"] = job["commit"]["sha"]
+  end
+
+  payload["config"] = job["config"]
+  payload["job"]["allow_failure"] = options[:allow_failure] if options.has_key?(:allow_failure)
+  payload["job"]["branch"] = job["commit"]["ref"].split("/").last rescue nil
+  payload["job"]["commit_message"] = job["commit"]["message"]
+  payload["job"]["commit_range"] = job["commit"]["compare_url"].split("/")[-1]
+  payload["job"]["id"] = job["id"]
+  payload["job"]["number"] = job["number"]
+  payload["job"]["pull_request"] = job["commit"]["compare_url"] =~ /\/pull\/\d+$/
+  payload["config"] = job["config"]
+  payload["config"]["addons"] = {}
+
+  payload["paranoid"] = !options[:sudo]
+
+  if options.has_key?(:sudo)
+    payload["paranoid"] = !options[:sudo]
+  else
+    payload["paranoid"] = !!!job["config"]["sudo"]
+  end
+  payload["repository"]["id"] = repo["id"]
+  payload["repository"]["github_id"] = repo["id"] # this is bogus data; something must exist for casher
+  payload["repository"]["slug"] = repo["slug"]
+  payload["repository"]["source_url"] = "https://github.com/%s.git" % repo["slug"]
+  payload["repository"]["source_host"] = 'github.com'
+
+  if options.has_key? :event_type
+    if options[:event_type] != 'pull_request'
+      payload["job"].delete("pull_request")
+    end
+    payload["source"]["event_type"] = options[:event_type]
+  end
+
+  if options.has_key?(:deploy)
+    if options[:deploy] == '-'
+      payload["config"]["addons"]["deploy"] = payload_from($stdin)
+    elsif File.exist?(options[:deploy].to_s)
+      payload["config"]["addons"]["deploy"] = payload_from(options[:deploy])
+    else
+      logger.warn "File '#{options[:deploy]}' does not exist"
+    end
+  end
+
+  payload["config"]["cache"] = options["cache"] || job["config"]["cache"]
+
+  payload.tap {|x| logger.debug "payload=#{x}"}
+end
+
+
+payload = payload_from(file_path "payload.json")
+
+j = job job_id
+
+logger.debug "job=#{j}"
+
+r = repo j["repository"]["id"]
+
+logger.debug "repo=#{r}"
+
+conn = Faraday.new(url: "http://#{options[:app_host]}:#{options[:port]}") do |f|
+  f.use FaradayMiddleware::FollowRedirects, limit: 5
+  f.adapter Faraday.default_adapter
+  f.response :logger if logger.level == 'debug'
+end
+
+response = conn.post do |req|
+  req.headers['Authorization'] = "token #{options[:app_host_auth_token]}" if options[:app_host_auth_token]
+  req.url '/script'
+  req.headers['Content-Type'] = 'application/json'
+  req.body = job_payload(payload, r, j).to_json
+end
+
+output_file.write response.body
+output_file.write "\n"
