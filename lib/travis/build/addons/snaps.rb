@@ -4,7 +4,7 @@ require 'shellwords'
 module Travis
   module Build
     class Addons
-      class Apt < Base
+      class Snaps < Base
         SUPER_USER_SAFE = true
         SUPPORTED_OPERATING_SYSTEMS = [
           /^linux.*/
