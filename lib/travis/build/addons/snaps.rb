@@ -18,7 +18,7 @@ module Travis
         end
 
         def before_prepare
-          sh.fold('snap') do?
+          sh.fold('snap') do
             install_snaps unless config_snaps.empty?
           end
         end
