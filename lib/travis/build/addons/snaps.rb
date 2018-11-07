@@ -7,7 +7,7 @@ module Travis
       class Snaps < Base
         SUPER_USER_SAFE = true
         SUPPORTED_OPERATING_SYSTEMS = [
-          /^linux.*/
+          /^linux/
         ].freeze
         SUPPORTED_DISTS = %w(
           xenial
@@ -34,7 +34,7 @@ module Travis
         def before_configure
           # keeping empty for now
         end
-        
+
         def config
           @config ||= Hash(super)
         end
@@ -42,7 +42,7 @@ module Travis
         def install_snaps
           sh.echo "Installing #{config_snaps.count} Snaps", ansi: :yellow
 
-          # install core separately 
+          # install core separately
           sh.cmd "sudo snap install core", echo: true, timing: true, assert: true
 
           config_snaps.each do |snap|
@@ -62,13 +62,13 @@ module Travis
 
         def expand_install_command(snap)
           return snap if snap.is_a?(String)
-            
+
           command = snap[:name]
-            
+
           if snap[:classic] == true
             command += " --classic"
           end
-  
+
           if snap.has_key?(:channel)
             command += " --channel=#{snap[:channel]}"
           end
