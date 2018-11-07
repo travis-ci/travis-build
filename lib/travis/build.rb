@@ -49,8 +49,6 @@ module Travis
           Script::ObjectiveC
         when 'bash', 'sh', 'shell', 'minimal' then
           Script::Generic
-        when 'elm' then
-          Script::Elm
         else
           name = lang.split('_').map { |w| w.capitalize }.join
           Script.const_get(name, false) rescue Script::Ruby
