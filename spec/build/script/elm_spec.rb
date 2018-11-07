@@ -21,6 +21,10 @@ describe Travis::Build::Script::Elm, :sexp do
     should include_sexp [:export, ['TRAVIS_ELM_TEST_VERSION', Travis::Build::Script::Elm::DEFAULTS[:elm_test]]]
   end
 
+  it 'sets TRAVIS_ELM_FORMAT_VERSION' do
+    should include_sexp [:export, ['TRAVIS_ELM_FORMAT_VERSION', Travis::Build::Script::Elm::DEFAULTS[:elm_format]]]
+  end
+
   it 'announces elm version' do
     should include_sexp [:cmd, 'elm --version', echo: true]
     should include_sexp [:cmd, 'elm-test --version', echo: true]
