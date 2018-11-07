@@ -418,7 +418,7 @@ module Travis
                   ' );'\
                   'cat(append = TRUE, file = "~/.Rprofile.site", "options(repos = BiocInstaller::biocinstallRepos());")'
                 else
-                  'if (!requireNamespace(\"BiocManager\", quietly=TRUE))'\
+                  'if (!requireNamespace("BiocManager", quietly=TRUE))'\
                   '  install.packages("BiocManager");'\
                   "if (#{as_r_boolean(config[:bioc_use_devel])})"\
                   ' BiocManager::install(version = "devel");'\
@@ -427,9 +427,9 @@ module Travis
                 sh.cmd "Rscript -e '#{bioc_install_script}'", retry: true
               bioc_install_bioccheck =
                 if r_version_less_than("3.5.0")
-                  "BiocInstaller::biocLite(\"BiocCheck\")"
+                  'BiocInstaller::biocLite("BiocCheck")'
                 else
-                  "BiocManager::install(\"BiocCheck\")"
+                  'BiocManager::install("BiocCheck")'
                 end
                if config[:bioc_check]
                  sh.cmd "Rscript -e '#{bioc_install_bioccheck}'"
