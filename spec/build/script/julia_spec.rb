@@ -8,6 +8,7 @@ describe Travis::Build::Script::Julia, :sexp do
   subject      { script.sexp }
   it           { store_example }
 
+  it_behaves_like 'a bash script'
   it_behaves_like 'a build script sexp'
 
   it 'sets TRAVIS_JULIA_VERSION' do
@@ -19,7 +20,4 @@ describe Travis::Build::Script::Julia, :sexp do
       echo: true, timing: true]
   end
 
-  it "announces `julia -e 'versioninfo()'`" do
-    should include_sexp [:cmd, "julia -e 'versioninfo()'", echo: true]
-  end
 end

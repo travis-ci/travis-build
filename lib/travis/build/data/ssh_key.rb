@@ -4,6 +4,8 @@ module Travis
   module Build
     class Data
       class SshKey < Struct.new(:value, :source, :encoded)
+        CUSTOM = %w(repository_settings travis_yaml)
+
         def value
           if encoded?
             Base64.decode64(super)
@@ -14,6 +16,10 @@ module Travis
 
         def encoded?
           encoded
+        end
+
+        def custom?
+          CUSTOM.include?(source)
         end
 
         def fingerprint

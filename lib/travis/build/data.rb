@@ -1,5 +1,7 @@
+require 'faraday'
 require 'core_ext/hash/deep_merge'
 require 'core_ext/hash/deep_symbolize_keys'
+require 'travis/github_apps'
 require 'travis/build/data/ssh_key'
 
 # actually, the worker payload can be cleaned up a lot ...
@@ -81,8 +83,16 @@ module Travis
         data[:env_vars] || []
       end
 
+      def custom_ssh_key?
+        !!ssh_key&.custom?
+      end
+
+      def ssh_key?
+        !!ssh_key
+      end
+
       def ssh_key
-        if ssh_key = data[:ssh_key]
+        @ssh_key ||= if ssh_key = data[:ssh_key]
           SshKey.new(ssh_key[:value], ssh_key[:source], ssh_key[:encoded])
         elsif source_key = data[:config][:source_key]
           SshKey.new(source_key, nil, true)
@@ -109,16 +119,34 @@ module Travis
         !!data[:paranoid]
       end
 
-      def source_host
-        source_url =~ %r(^(?:https?|git)(?:://|@)([^/]*?)(?:/|:)) && $1
-      end
-
       def api_url
         repository[:api_url]
       end
 
       def source_url
-        repository[:source_url]
+        source_ssh? ? source_ssh_url : source_https_url
+      end
+
+      def source_https?
+        !source_ssh?
+      end
+
+      def source_ssh?
+        repo_private? && !installation? or
+        repo_private? && custom_ssh_key? or
+        prefer_https?
+      end
+
+      def source_host
+        repository[:source_host]
+      end
+
+      def source_ssh_url
+        "git@#{source_host}:#{slug}.git"
+      end
+
+      def source_https_url
+        "https://#{source_host}/#{slug}.git"
       end
 
       def slug
@@ -127,6 +155,14 @@ module Travis
 
       def github_id
         repository.fetch(:github_id)
+      end
+
+      def repo_private?
+        repository[:private]
+      end
+
+      def default_branch
+        repository[:default_branch]
       end
 
       def commit
@@ -158,7 +194,7 @@ module Travis
       end
 
       def token
-        data[:oauth_token]
+        installation? ? installation_token : data[:oauth_token]
       end
 
       def debug_options
@@ -166,7 +202,19 @@ module Travis
       end
 
       def prefer_https?
-        source_url.downcase.start_with? "https"
+        data[:prefer_https]
+      end
+
+      def installation?
+        !!installation_id
+      end
+
+      def installation_id
+        repository[:installation_id]
+      end
+
+      def installation_token
+        GithubApps.new(installation_id).access_token
       end
     end
   end

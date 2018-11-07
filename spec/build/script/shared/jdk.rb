@@ -1,7 +1,12 @@
 shared_examples_for 'a jdk build sexp' do
   let(:export_jdk_version) { [:export, ['TRAVIS_JDK_VERSION', 'openjdk7']] }
+  let(:sexp)               { [:if, '"$(command -v jdk_switcher &>/dev/null; echo $?)" == 0'] }
   let(:run_jdk_switcher)   { [:cmd, 'jdk_switcher use openjdk7', assert: true, echo: true] }
   let(:set_dumb_term)      { [:export, ['TERM', 'dumb'], echo: true] }
+
+  before do
+    Travis::Build.config.app_host = 'build.travis-ci.org'
+  end
 
   describe 'if no jdk is given' do
     before :each do
@@ -32,7 +37,31 @@ shared_examples_for 'a jdk build sexp' do
     end
 
     it 'runs jdk_switcher' do
-      should include_sexp run_jdk_switcher
+      if_jdk_switcher = sexp_find(subject, sexp)
+      expect(if_jdk_switcher).to include_sexp run_jdk_switcher
+    end
+  end
+
+  describe 'if jdk is deprecated' do
+    before :each do
+      data[:config][:jdk] = 'oraclejdk10'
+    end
+
+    it 'terminates with status 2' do
+      should include_sexp( [:raw, "travis_terminate 2"])
+    end
+  end
+
+  context "jdk is set to oraclejdk11" do
+    before :each do
+      data[:config][:jdk] = 'oraclejdk11'
+    end
+
+    it { store_example(name: 'oraclejdk11') }
+
+    it "downloads install-jdk.sh" do
+      should include_sexp( [:export, ["JAVA_HOME", "${TRAVIS_HOME}/oraclejdk11"], echo: true] )
+      should include_sexp( [:cmd, "curl -sf -O https://build.travis-ci.org/files/install-jdk.sh"])
     end
   end
 

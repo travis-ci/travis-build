@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Travis::Build::Addons::Jwt, :sexp do
   let(:script) { stub('script') }
-  let(:data)   { payload_for(:push, :ruby, config: { addons: { jwt: config } }) }
+  let(:data)   { payload_for(:push, config: { language: 'ruby', addons: { jwt: config } }) }
   let(:sh)     { Travis::Shell::Builder.new }
   let(:addon)  { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
   subject      { sh.to_sexp }

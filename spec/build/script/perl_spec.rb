@@ -6,6 +6,8 @@ describe Travis::Build::Script::Perl, :sexp do
   subject      { script.sexp }
   it           { store_example }
 
+  it_behaves_like 'a bash script'
+
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=perl'] }
     let(:cmds) { ['./Build test'] }
@@ -29,6 +31,11 @@ describe Travis::Build::Script::Perl, :sexp do
   it 'converts 5.2 to 5.20' do
     data[:config][:perl] = 5.2
     should include_sexp [:cmd, 'perlbrew use 5.20', echo: true, timing: true]
+  end
+
+  it 'accepts an array and use the first value' do
+    data[:config][:perl] = %w( 5.22 )
+    should include_sexp [:cmd, 'perlbrew use 5.22', echo: true, timing: true]
   end
 
   it 'announces perl --version' do

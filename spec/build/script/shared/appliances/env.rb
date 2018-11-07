@@ -9,16 +9,15 @@ shared_examples_for 'a script with travis env vars sexp' do
     should include_sexp [:export, ['TRAVIS_JOB_ID',          '1']]
     should include_sexp [:export, ['TRAVIS_JOB_NUMBER',      '1.1']]
     should include_sexp [:export, ['TRAVIS_BRANCH',          'master']]
-    should include_sexp [:export, ['TRAVIS_COMMIT',          '313f61b']]
+    should include_sexp [:export, ['TRAVIS_COMMIT',          data[:job][:commit]]]
     should include_sexp [:export, ['TRAVIS_COMMIT_MESSAGE',  '$(git log --format=%B -n 1 | head -c 32768)']]
-    should include_sexp [:export, ['TRAVIS_COMMIT_RANGE',    '313f61b..313f61a']]
-    should include_sexp [:export, ['TRAVIS_REPO_SLUG',       'travis-ci/travis-ci']]
-    should include_sexp [:export, ['TRAVIS_OS_NAME',         'linux']]
+    should include_sexp [:export, ['TRAVIS_COMMIT_RANGE',    data[:job][:commit_range]]]
+    should include_sexp [:export, ['TRAVIS_REPO_SLUG',       data[:repository][:slug]]]
     should include_sexp [:export, ['TRAVIS_LANGUAGE',        data[:config][:language].to_s]]
     should include_sexp [:export, ['TRAVIS_SUDO',            'true']]
 
     unless described_class == Travis::Build::Script::Go
-      should include_sexp [:export, ['TRAVIS_BUILD_DIR', "#{Travis::Build::BUILD_DIR}/travis-ci/travis-ci"]]
+      should include_sexp [:export, ['TRAVIS_BUILD_DIR', "#{Travis::Build::BUILD_DIR}/#{data[:repository][:slug]}"]]
     end
   end
 
@@ -37,7 +36,7 @@ shared_examples_for 'a script with travis env vars sexp' do
     should include_sexp [:export, ['BAZ', 'baz'], echo: true]
     should include_sexp [:export, ['QUX', 'qux'], echo: true]
 
-    store_example 'env vars' if data[:config][:language] == :ruby
+    store_example(name: 'env vars') if data[:config][:language] == :ruby
   end
 
   it 'sets matrix env vars with higher priority (ie. after global env vars)' do
@@ -54,7 +53,7 @@ shared_examples_for 'a script with travis env vars sexp' do
     should include_sexp [:export, ['SETTINGS_VAR', 'value'], echo: true, secure: true]
     should include_sexp [:echo, 'Setting environment variables from repository settings', ansi: :yellow]
     should_not include_sexp [:echo, 'Setting environment variables from .travis.yml', ansi: :yellow]
-    store_example 'secure settings env var' if data[:config][:language] == :ruby
+    store_example(name: 'secure settings env var') if data[:config][:language] == :ruby
   end
 
   it 'sets environment variables from config' do
@@ -62,7 +61,7 @@ shared_examples_for 'a script with travis env vars sexp' do
     should include_sexp [:export, ['CONFIG_VAR', 'value'], echo: true, secure: true]
     should_not include_sexp [:echo, 'Setting environment variables from repository settings', ansi: :yellow]
     should include_sexp [:echo, 'Setting environment variables from .travis.yml', ansi: :yellow]
-    store_example 'secure config env var' if data[:config][:language] == :ruby
+    store_example(name: 'secure config env var') if data[:config][:language] == :ruby
   end
 end
 

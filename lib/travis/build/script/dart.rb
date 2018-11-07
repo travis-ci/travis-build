@@ -57,7 +57,7 @@ MESSAGE
               # Enable Multiverse Packages:
               sh.cmd "sudo sh -c 'echo \"deb http://gce_debian_mirror.storage.googleapis.com precise contrib non-free\" >> /etc/apt/sources.list'"
               sh.cmd "sudo sh -c 'echo \"deb http://gce_debian_mirror.storage.googleapis.com precise-updates contrib non-free\" >> /etc/apt/sources.list'"
-              sh.cmd "sudo sh -c 'apt-get update'"
+              sh.cmd 'travis_apt_get_update'
 
               # Pre-accepts MSFT Fonts EULA:
               sh.cmd "sudo sh -c 'echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections'"
@@ -93,20 +93,20 @@ MESSAGE
 
           sh.fold 'dart_install' do
             sh.echo 'Installing Dart', ansi: :yellow
-            sh.cmd "curl #{archive_url}/sdk/dartsdk-#{os}-x64-release.zip > $HOME/dartsdk.zip"
-            sh.cmd "unzip $HOME/dartsdk.zip -d $HOME > /dev/null"
-            sh.cmd "rm $HOME/dartsdk.zip"
-            sh.cmd 'export DART_SDK="$HOME/dart-sdk"'
+            sh.cmd "curl --connect-timeout 15 --retry 5 #{archive_url}/sdk/dartsdk-#{os}-x64-release.zip > ${TRAVIS_HOME}/dartsdk.zip"
+            sh.cmd "unzip ${TRAVIS_HOME}/dartsdk.zip -d ${TRAVIS_HOME} > /dev/null"
+            sh.cmd "rm ${TRAVIS_HOME}/dartsdk.zip"
+            sh.cmd 'export DART_SDK="${TRAVIS_HOME}/dart-sdk"'
             sh.cmd 'export PATH="$DART_SDK/bin:$PATH"'
-            sh.cmd 'export PATH="$HOME/.pub-cache/bin:$PATH"'
+            sh.cmd 'export PATH="${TRAVIS_HOME}/.pub-cache/bin:$PATH"'
           end
 
           if task[:install_dartium]
             sh.fold 'dartium_install' do
               sh.echo 'Installing Dartium', anis: :yellow
 
-              sh.cmd "mkdir $HOME/dartium"
-              sh.cmd "cd $HOME/dartium"
+              sh.cmd "mkdir ${TRAVIS_HOME}/dartium"
+              sh.cmd "cd ${TRAVIS_HOME}/dartium"
               sh.cmd "curl #{archive_url}/dartium/dartium-#{os}-x64-release.zip > dartium.zip"
               sh.cmd "unzip dartium.zip > /dev/null"
               sh.cmd "rm dartium.zip"
@@ -133,8 +133,8 @@ MESSAGE
               sh.echo 'Installing Content Shell', ansi: :yellow
 
               # Download and install Content Shell
-              sh.cmd "mkdir $HOME/content_shell"
-              sh.cmd "cd $HOME/content_shell"
+              sh.cmd "mkdir ${TRAVIS_HOME}/content_shell"
+              sh.cmd "cd ${TRAVIS_HOME}/content_shell"
               sh.cmd "curl #{archive_url}/dartium/content_shell-linux-x64-release.zip > content_shell.zip"
               sh.cmd "unzip content_shell.zip > /dev/null"
               sh.cmd "rm content_shell.zip"

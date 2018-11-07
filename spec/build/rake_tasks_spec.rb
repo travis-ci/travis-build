@@ -1,10 +1,10 @@
 require 'pathname'
 
-def top
-  @top ||= Pathname.new(Dir.mktmpdir)
+def tmp_top
+  @tmp_top ||= Pathname.new(Dir.mktmpdir)
 end
 
-Dir.chdir(top) do
+Dir.chdir(tmp_top) do
   require 'travis/build/rake_tasks'
 end
 
@@ -117,22 +117,22 @@ describe Travis::Build::RakeTasks do
   end
 
   before :all do
-    FileUtils.mkdir_p(top)
+    FileUtils.mkdir_p(tmp_top)
   end
 
   before :each do
     subject.logger.level = Logger::WARN
     subject.stubs(:build_faraday_conn).returns(conn)
-    subject.stubs(:top).returns(top)
+    subject.stubs(:top).returns(tmp_top)
     Rake::FileUtilsExt.verbose(false)
-    FileUtils.rm_rf(top.join('*'))
-    Dir.chdir(top)
-    top.mkpath
+    FileUtils.rm_rf(tmp_top.join('*'))
+    Dir.chdir(tmp_top)
+    tmp_top.mkpath
   end
 
   after :all do
     Dir.chdir(File.expand_path('../../../', __FILE__))
-    FileUtils.rm_rf(top)
+    FileUtils.rm_rf(tmp_top)
   end
 
   %w[
@@ -149,7 +149,7 @@ describe Travis::Build::RakeTasks do
   end
 
   it 'can clean up static files in public/' do
-    files = top + 'public/files'
+    files = tmp_top + 'public/files'
     files.mkpath
     thing = files + 'thing'
     thing.write('wat')
@@ -158,17 +158,14 @@ describe Travis::Build::RakeTasks do
     expect(thing).to_not be_exist
   end
 
-  it 'can clean up intermediate go and ghc version files' do
-    tmp = top + 'tmp'
+  it 'can clean up intermediate ghc version file' do
+    tmp = tmp_top + 'tmp'
     tmp.mkpath
     ghc_versions = tmp + 'ghc-versions.html'
     ghc_versions.write('wat')
-    go_versions = tmp + 'go-versions-binary-linux'
-    go_versions.write('huh')
     Rake::Task[:clean].reenable
     Rake::Task[:clean].invoke
     expect(ghc_versions).to_not be_exist
-    expect(go_versions).to_not be_exist
   end
 
   %w[
@@ -183,17 +180,15 @@ describe Travis::Build::RakeTasks do
     public/files/sc-osx.zip
     public/files/tmate-static-linux-amd64.tar.gz
     public/version-aliases/ghc.json
-    public/version-aliases/go.json
   ].each do |filename|
     it "can fetch #{filename}" do
       %w[
         tmp/ghc-versions.html
-        tmp/go-versions-binary-linux
       ].each { |t| Rake::Task[t].reenable }
 
       Rake::Task[filename].reenable
       Rake::Task[filename].invoke
-      expect(top + filename).to be_exist
+      expect(tmp_top + filename).to be_exist
     end
   end
 
@@ -201,7 +196,7 @@ describe Travis::Build::RakeTasks do
     subject.file_update_raw_ghc_versions
     subject.file_update_ghc_versions
     aliases = JSON.parse(
-      (top + 'public/version-aliases/ghc.json').read
+      (tmp_top + 'public/version-aliases/ghc.json').read
     )
     expect(aliases).to eq(
       '1' => '1.2.5',
@@ -217,27 +212,6 @@ describe Travis::Build::RakeTasks do
       '9.1.x' => '9.1.9',
       '9.x' => '9.1.9',
       '9.x.x' => '9.1.9'
-    )
-  end
-
-  it 'expands available go versions into aliases' do
-    subject.file_update_raw_go_versions
-    subject.file_update_go_versions
-    aliases = JSON.parse(
-      (top + 'public/version-aliases/go.json').read
-    )
-    expect(aliases).to eq(
-      '1' => '1.9.1',
-      '1.2' => '1.2.2',
-      '1.2.3' => '1.2.3',
-      '1.2.x' => '1.2.3',
-      '1.4.0' => '1.4.0',
-      '1.4.x' => '1.4.0',
-      '1.9.1' => '1.9.1',
-      '1.9.x' => '1.9.1',
-      '1.x' => '1.9.1',
-      '1.x.x' => '1.9.1',
-      'go1' => 'go1'
     )
   end
 end

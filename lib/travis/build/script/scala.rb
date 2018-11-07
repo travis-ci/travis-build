@@ -63,7 +63,7 @@ module Travis
         private
 
           def version
-            config[:scala].to_s
+            Array(config[:scala]).first.to_s
           end
 
           def sbt_args
