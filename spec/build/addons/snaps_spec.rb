@@ -18,6 +18,6 @@ describe Travis::Build::Addons::Snaps, :sexp do
   it { should include_sexp [:cmd, "sudo snap install core", echo: true, timing: true, assert: true] }
   it { should include_sexp [:cmd, "sudo snap install travis", echo: true, timing: true, assert: true] }
   it { should include_sexp [:cmd, "sudo snap install aws-cli --classic", echo: true, timing: true, assert: true] }
-  it { should include_sexp [:cmd, "sudo snap list", echo: true, timing: true] }
+  it { should include_sexp [:cmd, "sudo snap list", echo: true, timing: true, assert: true] }
 end
 
