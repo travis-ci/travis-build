@@ -7,7 +7,7 @@ describe Travis::Build::Addons::Snaps, :sexp do
   let(:sh)     { Travis::Shell::Builder.new }
   let(:addon)  { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
   subject      { sh.to_sexp }
-  before       { addon.after_prepare }
+  before       { addon.before_prepare }
 
   it { store_example }
 
