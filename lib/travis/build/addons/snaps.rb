@@ -20,6 +20,7 @@ module Travis
         end
 
         def before_prepare
+          sh.echo
           sh.fold('snap') do
             install_snaps unless config_snaps.empty?
           end
@@ -44,7 +45,7 @@ module Travis
           sh.cmd "sudo snap install core", echo: true, timing: true
 
           config_snaps.each do |snap|
-            sh.cmd "sudo snap install #{snap}", echo: true, timing: true
+            sh.cmd "sudo snap install #{expand_install_command(snap)}", echo: true, timing: true
           end
         end
 
@@ -54,6 +55,22 @@ module Travis
           if e.message =~ /no implicit conversion of Symbol into Integer/
             raise Travis::Build::SnapsConfigError.new
           end
+        end
+
+        def expand_install_command(snap)
+          return snap if snap.is_a?(String)
+            
+          command = snap[:name]
+            
+          if snap[:classic] == true
+            command += " --classic"
+          end
+  
+          if snap.has_key?(:channel)
+            command += " --channel=#{snap[:channel]}"
+          end
+
+          command
         end
       end
     end
