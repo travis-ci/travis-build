@@ -43,13 +43,13 @@ module Travis
           sh.echo "Installing #{config_snaps.count} Snaps", ansi: :yellow
 
           # install core separately 
-          sh.cmd "sudo snap install core", echo: true, timing: true
+          sh.cmd "sudo snap install core", echo: true, timing: true, assert: true
 
           config_snaps.each do |snap|
-            sh.cmd "sudo snap install #{expand_install_command(snap)}", echo: true, timing: true
+            sh.cmd "sudo snap install #{expand_install_command(snap)}", echo: true, timing: true, assert: true
           end
 
-          sh.cmd "sudo snap list", echo: true, timing: true
+          sh.cmd "sudo snap list", echo: true, timing: true, assert: true
         end
 
         def config_snaps
