@@ -28,6 +28,10 @@ module Travis
           super
           sh.cmd 'elm --version', echo: true
           sh.cmd 'elm-test --version', echo: true
+
+          # elm-format doesn't have --version,
+          # but the first line of `elm-format --help` prints the version
+          sh.cmd 'elm-format --help | head -n 1', echo: true
         end
 
         def setup

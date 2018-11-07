@@ -24,6 +24,7 @@ describe Travis::Build::Script::Elm, :sexp do
   it 'announces elm version' do
     should include_sexp [:cmd, 'elm --version', echo: true]
     should include_sexp [:cmd, 'elm-test --version', echo: true]
+    should include_sexp [:cmd, 'elm-format --help | head -n 1', echo: true]
   end
 
   describe 'script' do
