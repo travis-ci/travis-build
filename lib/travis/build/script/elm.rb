@@ -74,8 +74,8 @@ module Travis
                 directory_cache.add '$HOME/.cache/elm-test-stuff', 'test/elm-stuff'
               end
 
-              # In Elm 0.18+, all tests must live in tests/ (whereas previously
-              # tests/ was allowed, but so was test/)
+              # In Elm 0.18+, all tests live in tests/ by default
+              # (whereas previously tests/ was allowed, but so was test/)
               directory_cache.add '$HOME/.cache/elm-tests-stuff', 'tests/elm-stuff'
 
               # we build sysconfcpus from source, so cache the result
