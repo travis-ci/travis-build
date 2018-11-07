@@ -10,7 +10,7 @@ module Travis
           elm_test: '0.19.0'
         }
 
-        ELM_TEST_REQUIRED_NODE_VERSION = '4.0.0'
+        ELM_TEST_REQUIRED_NODE_VERSION = '6.0.0'
 
         def export
           super
