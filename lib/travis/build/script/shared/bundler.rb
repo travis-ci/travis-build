@@ -71,6 +71,7 @@ module Travis
           sh.else do
             sh.echo 'No Gemfile found, skipping bundle install'
           end
+          sh.newline
         end
 
         def prepare_cache
