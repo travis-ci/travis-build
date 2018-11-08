@@ -31,11 +31,11 @@ module Travis
             sh.elif '$(uname) = "Darwin"' do
               sh.cmd "wget#{WGET_FLAGS} -O /tmp/#{filename('dmg')} $FIREFOX_SOURCE_URL", echo: true, timing: true, retry: true
               sh.cmd "hdiutil mount -readonly -mountpoint firefox /tmp/#{filename('dmg')}"
-              sh.cmd "sudo rm -rf /Applications/Firefox.app"
-              sh.cmd "sudo cp -a firefox/Firefox.app /Applications"
-              sh.cmd "sudo ln -sf /Applications/Firefox.app/Contents/MacOS/firefox /usr/local/bin/firefox", echo: false
+              sh.cmd "sudo rm -rf '/Applications/#{mac_app_name}.app'"
+              sh.cmd "sudo cp -a 'firefox/#{mac_app_name}.app' /Applications"
+              sh.cmd "sudo ln -sf '/Applications/#{mac_app_name}.app/Contents/MacOS/firefox' /usr/local/bin/firefox", echo: false
               sh.cmd "hdiutil unmount firefox && rm /tmp/#{filename('dmg')}"
-              sh.export 'PATH', "/Applications/Firefox.app/Contents/MacOS:$PATH"
+              sh.export 'PATH', "/Applications/#{Shellwords.escape(mac_app_name)}.app/Contents/MacOS:$PATH"
             end
             sh.cd :back, echo: false, stack: true
           end
@@ -79,7 +79,7 @@ module Travis
             when 'latest-unsigned'
               host = 'index.taskcluster.net'
               path = "v1/task/gecko.v2.mozilla-release.latest.firefox.%s-add-on-devel/artifacts/public/build"
-              unsigned_archive_file = "firefox-%s.en-US.%s-add-on-devel.%s"
+              unsigned_archive_file = "target.%s"
               source_url_linux = "\"https://#{host}/#{path}/#{unsigned_archive_file}\""
               source_url_mac   = "\"https://#{host}/#{path}/#{unsigned_archive_file}\""
             else
@@ -88,11 +88,24 @@ module Travis
 
             sh.if "$(uname) = 'Linux'" do
               source_url_linux ||= "'https://#{host}/?product=#{product}&lang=en-US&os=linux64'"
-              sh.export 'FIREFOX_SOURCE_URL', source_url_linux % [ "linux64", "$(curl -sfL https://#{host}/#{path}/buildbot_properties.json | jq -r .properties.appVersion)" % "linux64", "linux-x86_64", "tar.bz2" ]
+              sh.export 'FIREFOX_SOURCE_URL', source_url_linux % [ "linux64", "tar.bz2" ]
             end
             sh.else do
               source_url_mac ||= "'https://#{host}/?product=#{product}&lang=en-US&os=osx'"
-              sh.export 'FIREFOX_SOURCE_URL', source_url_mac % ["macosx64", "$(curl -sfL https://#{host}/#{path}/buildbot_properties.json | jq -r .properties.appVersion)" % "macosx64", "mac", "dmg" ]
+              sh.export 'FIREFOX_SOURCE_URL', source_url_mac % ["macosx64", "dmg" ]
+            end
+          end
+
+          def mac_app_name
+            case latest
+            when 'latest-dev'
+              'Firefox Developer Edition'
+            when 'latest-nightly'
+              'Firefox Nightly'
+            when 'latest-unsigned'
+              'Nightly'
+            else
+              'Firefox'
             end
           end
 
