@@ -50,7 +50,6 @@ module Travis
           sh.export 'R_LIBS_SITE', '/usr/local/lib/R/site-library:/usr/lib/R/site-library', echo: false
           sh.export '_R_CHECK_CRAN_INCOMING_', 'false', echo: false
           sh.export 'NOT_CRAN', 'true', echo: false
-          sh.export 'R_PROFILE', "~/.Rprofile.site", echo: false
         end
 
         def configure
@@ -160,6 +159,7 @@ module Travis
               repos_str = repos.collect {|k,v| "#{k} = \"#{v}\""}.join(", ")
               options_repos = "options(repos = c(#{repos_str}))"
               sh.cmd %Q{echo '#{options_repos}' > ~/.Rprofile.site}
+              sh.export 'R_PROFILE', "~/.Rprofile.site", echo: false
 
               # PDF manual requires latex
               if config[:latex]
