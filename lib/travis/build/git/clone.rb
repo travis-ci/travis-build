@@ -13,6 +13,7 @@ module Travis
             fetch_ref if fetch_ref?
             checkout
           end
+          sh.newline
         end
 
         private
