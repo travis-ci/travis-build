@@ -57,8 +57,8 @@ module Travis
             "${TRAVIS_HOME}/firefox-#{version}"
           end
 
-          def filename(ext = 'bz2')
-            "firefox-#{version}.tar.#{ext}"
+          def filename(ext = 'tar.bz2')
+            "firefox-#{version}.#{ext}"
           end
 
           def export_source_url
