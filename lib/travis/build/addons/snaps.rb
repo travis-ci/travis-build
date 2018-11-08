@@ -21,10 +21,12 @@ module Travis
         end
 
         def before_prepare
-          sh.echo
+          return if config_snaps.empty?
+          sh.newline
           sh.fold('snap') do
-            install_snaps unless config_snaps.empty?
+            install_snaps
           end
+          sh.newline
         end
 
         def before_configure?

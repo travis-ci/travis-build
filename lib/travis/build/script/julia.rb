@@ -61,7 +61,7 @@ module Travis
           super
 
           sh.cmd 'julia --color=yes -e "VERSION >= v\"0.7.0-DEV.3630\" && using InteractiveUtils; versioninfo()"'
-          sh.echo ''
+          sh.newline
         end
 
         def script

@@ -4,7 +4,6 @@ module Travis
       class Netrc < Struct.new(:sh, :data)
         def apply
           sh.echo "Using ${TRAVIS_HOME}/#{netrc_filename} to clone repository.", ansi: :yellow
-          sh.newline
           sh.raw "echo -e #{Shellwords.escape netrc_content} > ${TRAVIS_HOME}/#{netrc_filename}"
           sh.raw "chmod 0600 ${TRAVIS_HOME}/#{netrc_filename}"
         end
