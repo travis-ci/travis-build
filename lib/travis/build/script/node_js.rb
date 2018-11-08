@@ -98,13 +98,13 @@ module Travis
         def setup_cache
           if data.cache?(:yarn)
             sh.fold 'cache.yarn' do
-              sh.echo ''
+              sh.newline
               directory_cache.add '${TRAVIS_HOME}/.cache/yarn'
             end
           end
           if data.cache?(:npm)
             sh.fold 'cache.npm' do
-              sh.echo ''
+              sh.newline
               sh.if packages_locked? do
                 directory_cache.add '$HOME/.npm'
               end

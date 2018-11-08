@@ -31,7 +31,7 @@ module Travis
         def setup_cache
           if data.cache?(:ccache)
             sh.fold 'cache.ccache' do
-              sh.echo ''
+              sh.newline
               directory_cache.add('~/.ccache')
             end
           end
