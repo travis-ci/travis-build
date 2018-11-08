@@ -18,6 +18,7 @@ module Travis
             super
             sh.cmd 'gem --version'
           end
+          sh.newline
         end
 
         def script
