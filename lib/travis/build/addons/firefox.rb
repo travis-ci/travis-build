@@ -11,13 +11,14 @@ module Travis
         attr_reader :version, :latest
 
         def after_prepare
+          @version, @latest = sanitize_version
+
+          unless version
+            sh.echo "Invalid version '#{raw_version}' given. Skipping Firefox installation.", ansi: :red
+            return
+          end
+
           sh.fold 'install_firefox' do
-            @version, @latest = sanitize_version
-
-            unless version
-              sh.echo "Invalid version '#{raw_version}' given.", ansi: :red
-            end
-
             sh.echo "Installing Firefox #{version}", ansi: :yellow
             export_source_url
             sh.mkdir install_dir, echo: false, recursive: true
