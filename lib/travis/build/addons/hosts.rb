@@ -11,18 +11,18 @@ module Travis
 
         def after_prepare
           sh.fold 'hosts.before' do
-            sh.echo ""
+            sh.newline
             sh.cmd "cat #{HOSTS_FILE}"
-            sh.echo ""
+            sh.newline
           end
           sh.fold 'hosts' do
             sh.cmd "sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 #{hosts}/' #{HOSTS_FILE} > #{TEMP_HOSTS_FILE}"
             sh.cmd "cat #{TEMP_HOSTS_FILE} | sudo tee #{HOSTS_FILE} > /dev/null"
           end
           sh.fold 'hosts.after' do
-            sh.echo ""
+            sh.newline
             sh.cmd "cat #{HOSTS_FILE}"
-            sh.echo ""
+            sh.newline
           end
         end
 

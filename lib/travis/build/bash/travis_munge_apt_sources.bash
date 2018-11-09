@@ -12,17 +12,19 @@ travis_munge_apt_sources() {
     return
   fi
 
-  local mirror="${TRAVIS_APT_MIRRORS_BY_INFRASTRUCTURE[${TRAVIS_INFRA}]}"
-  if [[ ! "${mirror}" ]]; then
-    mirror="${TRAVIS_APT_MIRRORS_BY_INFRASTRUCTURE[unknown]}"
-  fi
+  local mirror
+  for entry in "${_TRAVIS_APT_MIRRORS_BY_INFRASTRUCTURE[@]}"; do
+    if [[ "${entry%%::*}" == "${TRAVIS_INFRA}" ]]; then
+      mirror="${entry##*::}"
+    fi
+  done
 
   if [[ ! "${mirror}" ]]; then
-    echo -e "${ANSI_YELLOW}No APT mirror found; not updating ${src}.${ANSI_RESET}"
+    echo -e "No APT mirror found; not updating ${src}."
     return
   fi
 
-  echo -e "${ANSI_YELLOW}Setting APT mirror in ${src}: ${mirror}${ANSI_RESET}"
+  echo -e "Setting APT mirror in ${src}: ${mirror}"
 
   sed -e "s,http://.*\\.ubuntu\\.com/ubuntu/,${mirror}," \
     "${src}" >"${tmp_dest}"

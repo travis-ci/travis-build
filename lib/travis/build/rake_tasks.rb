@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
 require 'json'
 require 'logger'
 require 'pathname'
+require 'date'
 
 require 'faraday'
 require 'faraday_middleware'
@@ -21,7 +24,7 @@ module Travis
       SHFMT_URL = File.join(
         'https://github.com',
         "mvdan/sh/releases/download/#{SHFMT_VERSION}",
-        "shfmt_#{SHFMT_VERSION}_%{uname}_%{arch}"
+        "shfmt_#{SHFMT_VERSION}_%<uname>s_%<arch>s"
       )
 
       def fetch_githubusercontent_file(from, host: 'raw.githubusercontent.com',
@@ -35,7 +38,7 @@ module Travis
         to = File.join(top, 'public/files', to) unless to.absolute?
 
         response = conn.get do |req|
-          logger.info "Fetching #{conn.url_prefix.to_s}#{from}"
+          logger.info "Fetching #{conn.url_prefix}#{from}"
           req.url from
         end
 
@@ -46,7 +49,7 @@ module Travis
         dest.write(response.body)
         logger.info "Setting mode '0o#{mode.to_s(8)}' on #{dest}"
         dest.chmod(mode)
-      rescue Exception => e
+      rescue StandardError => e
         logger.info "Error: #{e.message}"
       end
 
@@ -55,31 +58,34 @@ module Travis
 
         response = conn.get do |req|
           releases_url = "repos/#{repo}/releases"
-          logger.info "Fetching releases from #{conn.url_prefix.to_s}#{releases_url}"
+          logger.info "Fetching releases from #{conn.url_prefix}#{releases_url}"
           req.url releases_url
-          oauth_token = ENV.fetch('GITHUB_OAUTH_TOKEN', ENV.fetch('no_scope_token', 'notset'))
+          oauth_token = ENV.fetch(
+            'GITHUB_OAUTH_TOKEN', ENV.fetch('no_scope_token', 'notset')
+          )
           if oauth_token && !oauth_token.empty? && oauth_token != 'notset'
-            logger.info "Adding 'Authorization' header for api.github.com request"
+            logger.info(
+              "Adding 'Authorization' header for api.github.com request"
+            )
             req.headers['Authorization'] = "token #{oauth_token}"
           end
         end
 
-        if response.success?
-          json_data = JSON.parse(response.body)
-          fail "No releases found for #{repo}" if json_data.empty?
-          json_data.sort! do |a, b|
-            semver_cmp(a['tag_name'].sub(/^v/, ''), b['tag_name'].sub(/^v/, ''))
-          end
-          json_data.last['tag_name']
-        else
-          fail "Could not find releases for #{repo}"
+        raise "Could not find releases for #{repo}" unless response.success?
+
+        json_data = JSON.parse(response.body)
+        raise "No releases found for #{repo}" if json_data.empty?
+
+        json_data.sort! do |a, b|
+          semver_cmp(a['tag_name'].sub(/^v/, ''), b['tag_name'].sub(/^v/, ''))
         end
+        json_data.last['tag_name']
       end
 
       def file_update_sc_data
         conn = build_faraday_conn(host: 'saucelabs.com')
         response = conn.get('versions.json')
-        fail 'Could not fetch sc metadata' unless response.success?
+        raise 'Could not fetch sc metadata' unless response.success?
 
         dest = top + 'tmp/sc_data.json'
         dest.dirname.mkpath
@@ -116,7 +122,8 @@ module Travis
         received_checksum = Digest::SHA1.hexdigest(archive_content)
 
         unless received_checksum == expected_checksum
-          fail "Checksums did not match: expected #{expected_checksum} received #{received_checksum}"
+          raise "Checksums did not match: expected #{expected_checksum} " \
+                "received #{received_checksum}"
         end
 
         dest.dirname.mkpath
@@ -137,11 +144,8 @@ module Travis
           "#{fullparts[0]}.#{fullparts[1]}.x" => full_version
         }
 
-        if alias_major_minor
-          expanded.merge!(
-            "#{fullparts[0]}.#{fullparts[1]}" => full_version,
-          )
-        end
+        key = "#{fullparts[0]}.#{fullparts[1]}"
+        expanded[key] = full_version if alias_major_minor
 
         expanded
       end
@@ -151,15 +155,16 @@ module Travis
           f.response :raise_error
           f.use FaradayMiddleware::FollowRedirects
           f.request :retry,
-            max: 4,
-            interval: 3,
-            interval_randomness: 0.25,
-            backoff_factor: 1.5,
-            exceptions: [
-              Errno::ETIMEDOUT,
-              Timeout::Error,
-              Faraday::ClientError
-            ]
+                    max: 4,
+                    interval: 3,
+                    interval_randomness: 0.25,
+                    backoff_factor: 1.5,
+                    exceptions: [
+                      Errno::ETIMEDOUT,
+                      Timeout::Error,
+                      Faraday::ClientError
+                    ],
+                    retry_statuses: 400..600
           f.adapter Faraday.default_adapter
         end
       end
@@ -170,7 +175,7 @@ module Travis
 
       def top
         @top ||= Pathname.new(
-          File.expand_path('../../../../', __FILE__)
+          File.expand_path('../../..', __dir__)
         )
       end
 
@@ -193,12 +198,12 @@ module Travis
         top.join('tmp/bin')
       end
 
-      def has_shfmt?
+      def shfmt?
         ENV['PATH'] = tmpbin_path
         `shfmt -version 2>/dev/null`.strip == SHFMT_VERSION
       end
 
-      def has_shellcheck?
+      def shellcheck?
         ENV['PATH'] = tmpbin_path
         vers = `shellcheck --version 2>/dev/null`.strip
         vers.split(/\n/)
@@ -206,8 +211,8 @@ module Travis
             .split.last == SHELLCHECK_VERSION.sub(/^v/, '')
       end
 
-      def semver_cmp(a, b)
-        Gem::Version.new(a.to_s) <=> Gem::Version.new(b.to_s)
+      def semver_cmp(vers_a, vers_b)
+        Gem::Version.new(vers_a.to_s) <=> Gem::Version.new(vers_b.to_s)
       end
 
       def task_clean
@@ -272,7 +277,7 @@ module Travis
           File.join(
             'tmate-io/tmate/releases/download',
             latest_release,
-            "tmate-#{latest_release}-static-linux-amd64.tar.gz",
+            "tmate-#{latest_release}-static-linux-amd64.tar.gz"
           ),
           host: 'github.com', to: 'tmate-static-linux-amd64.tar.gz'
         )
@@ -297,7 +302,7 @@ module Travis
         out = {}
 
         raw = (top + 'tmp/ghc-versions.html').read
-        raw.scan(%r[<a href="[^"]+">(?<version>\d[^<>]+)/</a>]i)
+        raw.scan(%r{<a href="[^"]+">(?<version>\d[^<>]+)/</a>}i)
            .to_a
            .flatten
            .reject { |v| v =~ /-(rc|latest)/ }
@@ -307,6 +312,7 @@ module Travis
         end
 
         raise StandardError, 'no ghc versions parsed' if out.empty?
+
         dest = top + 'public/version-aliases/ghc.json'
         dest.dirname.mkpath
         dest.write(JSON.pretty_generate(out))
@@ -320,10 +326,10 @@ module Travis
         ].join(':')
       end
 
-      extend self
       extend Rake::DSL
+      extend self
 
-      task 'assets:precompile' => %i(
+      task 'assets:precompile' => %i[
         clean
         update_sc
         update_godep
@@ -331,7 +337,7 @@ module Travis
         update_static_files
         update_version_aliases
         ls_public_files
-      )
+      ]
 
       desc 'clean up static files in public/'
       task(:clean) { task_clean }
@@ -421,15 +427,18 @@ module Travis
         'public/files/sbt',
         'public/files/sc-linux.tar.gz',
         'public/files/sc-osx.zip',
-        'public/files/tmate-static-linux-amd64.tar.gz'
+        'public/files/tmate-static-linux-amd64.tar.gz',
+        'public/version-aliases/ghc.json',
       ]
 
       desc 'update gpg public keys'
       task :update_gpg_public_keys do
-        repo_tarball_url = URI(ENV.fetch(
-          'TRAVIS_BUILD_APT_SOURCE_SAFELIST_REPO_TARBALL',
-          'https://codeload.github.com/travis-ci/apt-source-safelist/tar.gz/master'
-        ))
+        repo_tarball_url = URI(
+          ENV.fetch(
+            'TRAVIS_BUILD_APT_SOURCE_SAFELIST_REPO_TARBALL',
+            'https://codeload.github.com/travis-ci/apt-source-safelist/tar.gz/master'
+          )
+        )
 
         conn = build_faraday_conn(host: repo_tarball_url.hostname)
         response = conn.get(repo_tarball_url)
@@ -476,14 +485,29 @@ module Travis
         end
       end
 
-      desc 'validate bash syntax of all examples'
-      task :assert_examples do
+      desc 'assert validity of all examples'
+      task :assert_examples, [:parallel] do |_t, args|
         ENV['PATH'] = tmpbin_path
-        sh "#{top}/script/assert-examples"
+        if !args[:parallel].nil?
+          sh "parallel_rspec -- --tag example:true -- #{top}/spec"
+        else
+          sh "rspec --tag example:true #{top}/spec"
+        end
+      end
+
+      desc 'dump build logs for examples if present'
+      task :dump_examples_logs do
+        (top + 'tmp/examples-build-logs').glob('*.log') do |log_file|
+          logger.info "dumping #{log_file}"
+          $stdout.write(
+            log_file.read.sub(/.+Network availability confirmed\./m, '')
+          )
+        end
       end
 
       task :ensure_shfmt do
-        next if has_shfmt?
+        next if shfmt?
+
         tmpbin.mkpath
         dest = tmpbin.join('shfmt')
         dest.parent.mkpath
@@ -498,17 +522,26 @@ module Travis
       end
 
       task :ensure_shellcheck do
-        fail 'please `brew install shellcheck`' if uname == 'darwin'
-        next if has_shellcheck?
+        raise 'please `brew install shellcheck`' if uname == 'darwin'
+        next if shellcheck?
+
         tmpbin.mkpath
         tmp_dest = Pathname.new(Dir.tmpdir).join('shellcheck.tar.xz')
         tmp_dest.write(build_faraday_conn(host: nil).get(SHELLCHECK_URL).body)
-        sh %{tar -C "#{tmpbin}" --strip-components=1 --exclude="*.txt" -xf "#{tmp_dest}"}
+        tar_opts = %(-C "#{tmpbin}" --strip-components=1 --exclude="*.txt")
+        sh %(tar #{tar_opts} -xf "#{tmp_dest}")
         ENV['PATH'] = tmpbin_path
         sh 'shellcheck --version'
       end
 
-      task default: %i[spec shfmt assert_clean shellcheck assert_examples]
+      task default: %i[
+        rubocop
+        spec
+        shfmt
+        assert_clean
+        shellcheck
+        assert_examples
+      ]
     end
   end
 end

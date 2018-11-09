@@ -107,6 +107,10 @@ module Travis
             sh.cmd "sudo mv #{tmp_dest} ${TRAVIS_ROOT}/etc/apt/apt.conf.d"
           end
         end
+        
+        def config
+          @config ||= Hash(super)
+        end
 
         private
 
@@ -154,11 +158,11 @@ module Travis
 
             unless safelisted.empty?
               safelisted.each do |source|
-                sourceline = source['sourceline'].untaint
+                sourceline = source['sourceline'].output_safe
                 if sourceline.start_with?('ppa:')
                   sh.cmd "sudo -E apt-add-repository -y #{sourceline.inspect}", echo: true, assert: true, timing: true
                 else
-                  sh.cmd "curl -sSL \"#{safelisted_source_key_url(source).untaint}\" | sudo -E apt-key add -", echo: true, assert: true, timing: true
+                  sh.cmd "curl -sSL \"#{safelisted_source_key_url(source)}\" | sudo -E apt-key add -", echo: true, assert: true, timing: true
                   # Avoid adding deb-src lines to work around https://bugs.launchpad.net/ubuntu/+source/software-properties/+bug/987264
                   sh.cmd "echo #{sourceline.inspect} | sudo tee -a ${TRAVIS_ROOT}/etc/apt/sources.list >/dev/null", echo: true, assert: true, timing: true
                 end
@@ -201,10 +205,6 @@ module Travis
             end
           end
 
-          def config
-            @config ||= Hash(super)
-          end
-
           def config_sources
             @config_sources ||= Array(config[:sources]).flatten.compact
           rescue TypeError => e
@@ -238,7 +238,7 @@ module Travis
           end
 
           def safelisted_source_key_url(source)
-            tmpl = Travis::Build.config.apt_source_safelist_key_url_template
+            tmpl = Travis::Build.config.apt_source_safelist_key_url_template.to_s.output_safe
             if source['key_url'] && (!data.disable_sudo? || skip_safelist?)
               tmpl = source['key_url']
             end
@@ -246,7 +246,7 @@ module Travis
               tmpl.to_s,
               source_alias: source['alias'] || 'travis-security',
               app_host: Travis::Build.config.app_host.to_s.strip
-            )
+            ).output_safe
           end
 
           def stop_postgresql

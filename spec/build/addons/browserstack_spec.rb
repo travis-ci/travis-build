@@ -79,4 +79,15 @@ describe Travis::Build::Addons::Browserstack, :sexp do
     it_behaves_like 'installs browserstack local'
     it { should include_sexp [:cmd, "#{described_class::BROWSERSTACK_HOME}/BrowserStackLocal -d start #{config[:access_key]} -localIdentifier $BROWSERSTACK_LOCAL_IDENTIFIER -proxyHost #{config[:proxy_host]} -proxyPort #{config[:proxy_port]} -proxyUser #{config[:proxy_user]} -proxyPass #{config[:proxy_pass]}"] }
   end
+
+  describe 'with app path' do
+    let(:config) { { os: 'linux', username: 'user1', access_key: 'accesskey', app_path: 'some/path' } }
+
+    it_behaves_like 'installs browserstack local'
+    it { should include_sexp [:export, ["#{described_class::ENV_USER}", config[:username] + "-travis"], {:echo => true}] }
+    it { should include_sexp [:cmd, "curl -u \"#{config[:username]}:#{config[:access_key]}\" -X POST #{described_class::BROWSERSTACK_APP_AUTOMATE_URL} -F \"file=@$TRAVIS_BUILD_DIR/#{config[:app_path]}\" | tee $TRAVIS_BUILD_DIR/app_upload_out"] }
+    it { should include_sexp [:export, ["#{described_class::ENV_APP_ID}", "`cat $TRAVIS_BUILD_DIR/app_upload_out | jq -r .app_url`"], {:echo => true} ] }
+    it { should include_sexp [:export, ["#{described_class::ENV_CUSTOM_ID}", "`cat $TRAVIS_BUILD_DIR/app_upload_out | jq -r .custom_id`"], {:echo => true}] }
+    it { should include_sexp [:export, ["#{described_class::ENV_SHAREABLE_ID}", "`cat $TRAVIS_BUILD_DIR/app_upload_out | jq -r .shareable_id`"], {:echo => true}] }
+  end
 end

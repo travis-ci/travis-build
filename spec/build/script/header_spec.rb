@@ -1,5 +1,4 @@
 describe 'script header', integration: true do
-  let(:top) { Pathname.new(ENV.fetch('TOP')) }
   let(:build_dir) { Dir.mktmpdir(%w(travis-build- -header-spec)) }
   let(:data) { { config: { language: 'ruby' }, slug: 'example/test' } }
   let(:script) { Travis::Build::Script.new(data) }
@@ -113,7 +112,7 @@ describe 'script header', integration: true do
         )
       end
 
-      it 'selects the latest valid version' do
+      xit 'selects the latest valid version' do
         expect(bash_output.strip).to match(/^2\.2\.5$/)
       end
     end
@@ -130,7 +129,7 @@ describe 'script header', integration: true do
         )
       end
 
-      it 'selects 1.9.3' do
+      xit 'selects 1.9.3' do
         expect(bash_output.strip).to match(/^1\.9\.3$/)
       end
     end
@@ -148,7 +147,7 @@ describe 'script header', integration: true do
         )
       end
 
-      it 'selects the highest version with a 2-digit patch level' do
+      xit 'selects the highest version with a 2-digit patch level' do
         expect(bash_output.strip).to match(/^2\.1\.10$/)
       end
     end

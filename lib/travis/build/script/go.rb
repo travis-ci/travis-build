@@ -7,9 +7,9 @@ module Travis
         DEFAULTS = {
           gobuild_args: '-v',
           gimme_config: {
-            url: Travis::Build.config.gimme.url.untaint
+            url: Travis::Build.config.gimme.url.output_safe
           },
-          go: Travis::Build.config.go_version.untaint
+          go: Travis::Build.config.go_version.output_safe
         }
 
         def export
@@ -46,7 +46,7 @@ module Travis
           sh.export 'PATH', "${TRAVIS_HOME}/gopath/bin:$PATH", echo: true
 
           sh.mkdir "${TRAVIS_HOME}/gopath/src/#{go_import_path}", recursive: true, assert: false, timing: false
-          sh.cmd "rsync -az ${TRAVIS_BUILD_DIR}/ ${TRAVIS_HOME}/gopath/src/#{go_import_path}/", assert: false, timing: false
+          sh.cmd "tar -Pczf ${TRAVIS_TMPDIR}/src_archive.tar.gz -C ${TRAVIS_BUILD_DIR} . && tar -Pxzf ${TRAVIS_TMPDIR}/src_archive.tar.gz -C ${TRAVIS_HOME}/gopath/src/#{go_import_path}", assert: false, timing: false
 
           sh.export "TRAVIS_BUILD_DIR", "${TRAVIS_HOME}/gopath/src/#{go_import_path}"
           sh.cd "${TRAVIS_HOME}/gopath/src/#{go_import_path}", assert: true
@@ -170,7 +170,7 @@ module Travis
           end
 
           def gimme_url
-            cleaned = URI.parse(gimme_config[:url]).to_s.untaint
+            cleaned = URI.parse(gimme_config[:url]).to_s.output_safe
             return cleaned if cleaned =~ %r{^https://raw\.githubusercontent\.com/travis-ci/gimme}
             DEFAULTS[:gimme_config][:url]
           rescue URI::InvalidURIError => e

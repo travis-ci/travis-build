@@ -3,8 +3,13 @@
 set -ev
 
 app_name="web"
-local_image="travisbuild_${app_name}" # Docker Compose removes dashes and expects the name to end with the build app name
+local_image="travis-build_${app_name}"
 quay_image=quay.io/travisci/travis-build
+
+unset DOCKER_CERT_PATH
+unset DOCKER_HOST
+unset DOCKER_TLS
+unset DOCKER_TLS_VERIFY
 
 docker-compose build "${app_name}"
 docker login -u="${QUAY_ROBOT_HANDLE}" -p="${QUAY_ROBOT_TOKEN}" quay.io

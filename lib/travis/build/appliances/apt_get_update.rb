@@ -13,6 +13,10 @@ module Travis
           true
         end
 
+        def config
+          apt_config || {}
+        end
+
         private
 
           def update?
@@ -24,7 +28,7 @@ module Travis
           end
 
           def update
-            sh.cmd "travis_apt_get_update #{debug? ? 'debug' : ''}", retry: true
+            sh.cmd "travis_apt_get_update#{debug? ? ' debug' : ''}", retry: true
           end
 
           def used?
@@ -36,15 +40,17 @@ module Travis
           end
 
           def use_mirror
-            define_mirrors_by_infrastructure
-            sh.raw bash('travis_munge_apt_sources')
-            sh.cmd 'travis_munge_apt_sources'
+            sh.if '${TRAVIS_OS_NAME} == linux' do
+              define_mirrors_by_infrastructure
+              sh.raw bash('travis_munge_apt_sources')
+              sh.cmd 'travis_munge_apt_sources'
+            end
           end
 
           def define_mirrors_by_infrastructure
-            sh.raw 'declare -A TRAVIS_APT_MIRRORS_BY_INFRASTRUCTURE'
+            sh.raw 'declare -a _TRAVIS_APT_MIRRORS_BY_INFRASTRUCTURE'
             mirrors.each do |infra, url|
-              sh.raw %{TRAVIS_APT_MIRRORS_BY_INFRASTRUCTURE[#{infra}]="#{url}"}
+              sh.raw %{_TRAVIS_APT_MIRRORS_BY_INFRASTRUCTURE+=(#{infra}::#{url})}.output_safe
             end
           end
 
@@ -68,10 +74,6 @@ module Travis
             repo_slug.split('/').first
           end
 
-          def config
-            apt_config || {}
-          end
-
           def mirrors
             (Travis::Build.config[:apt_mirrors] || {}).to_hash
           end
@@ -83,4 +85,3 @@ module Travis
     end
   end
 end
-

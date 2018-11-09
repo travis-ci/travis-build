@@ -35,7 +35,7 @@ module Travis
 
           sh.if gemfile? do
             sh.if gemfile_lock? do
-              sh.echo ''
+              sh.newline
               if data.cache?(:bundler)
                 sh.fold 'cache.bundler' do
                   directory_cache.add(bundler_path(false))
@@ -44,7 +44,7 @@ module Travis
             end
             sh.else do
               # Cache bundler if it has been explicitly enabled
-              sh.echo ''
+              sh.newline
               if data.cache?(:bundler, false)
                 sh.fold 'cache.bundler' do
                   directory_cache.add(bundler_path(false))
@@ -71,6 +71,7 @@ module Travis
           sh.else do
             sh.echo 'No Gemfile found, skipping bundle install'
           end
+          sh.newline
         end
 
         def prepare_cache
