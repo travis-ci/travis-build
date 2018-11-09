@@ -6,6 +6,13 @@ describe Travis::Build::Script::NodeJs, :sexp do
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
   it           { store_example }
+  it           { store_example(integration: true) }
+
+  it_behaves_like 'a bash script', integration: true do
+    let(:bash_script_file) { bash_script_path(integration: true) }
+  end
+
+  it_behaves_like 'a bash script'
 
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=node_js'] }
@@ -106,34 +113,10 @@ describe Travis::Build::Script::NodeJs, :sexp do
     end
   end
 
-  describe 'if an npm cache is set' do
-    let(:npm_set_registry) { [:cmd, 'npm config set registry http://registry.npmjs.org/', assert: true, echo: true] }
-    let(:npm_set_proxy)    { [:cmd, 'npm config set proxy http://npm.cache.com', assert: true, echo: true] }
-
-    it 'installs an npm proxy and registry' do
-      data['hosts'] = {'npm_cache' => 'http://npm.cache.com'}
-      data[:config][:cache] = 'npm'
-      should include_sexp npm_set_registry
-      should include_sexp npm_set_proxy
-    end
-
-    it "doesn't install a proxy when caching is not enabled" do
-      data['hosts'] = {'npm_cache' => 'http://npm.cache.com'}
-      should_not include_sexp npm_set_registry
-      should_not include_sexp npm_set_proxy
-    end
-
-    it "doesn't install a proxy when no host is configured" do
-      data[:config][:cache] = 'npm'
-      should_not include_sexp npm_set_registry
-      should_not include_sexp npm_set_proxy
-    end
-  end
-
-  describe 'node 0.6.x' do
+  describe 'strict-ssl' do
     # let(:npm_set_strict_ssl) { [:cmd, 'npm conf set strict-ssl false', assert: true, echo: true] }
     let(:npm_set_strict_ssl) { [:cmd, 'npm conf set strict-ssl false', assert: true, echo: true, timing: true] }
-    ['0.6', '0.6.1', '0.6.99'].each do |version|
+    ['0.6', '0.6.1', '0.6.99', '0.8', '0.8.1', '0.8.99', '0.9', '0.9.1', '0.9.99'].each do |version|
       it "sets strict-ssl to false for node #{version}" do
         data[:config][:node_js] = version
         should include_sexp npm_set_strict_ssl
@@ -151,5 +134,17 @@ describe Travis::Build::Script::NodeJs, :sexp do
   it 'converts 0.1 to 0.10' do
     data[:config][:node_js] = 0.1
     expect(script.send(:version)).to eql('0.10')
+  end
+
+  context "when os is windows" do
+    before :each do
+      data[:config][:os] = 'windows'
+    end
+
+    describe 'nvs install' do
+      it "runs nvs add" do
+        expect(subject).to include_sexp [:cmd, "nvs add 0.10", assert: true, echo: true, timing: true]
+      end
+    end
   end
 end

@@ -11,7 +11,6 @@ module Travis
         SCRIPT_MISSING       = 'Please override the script: key in your .travis.yml to run tests.'
 
         PYENV_PATH_FILE      = '/etc/profile.d/pyenv.sh'
-        TEMP_PYENV_PATH_FILE = '/tmp/pyenv.sh'
 
         def export
           super
@@ -41,8 +40,8 @@ module Travis
         def setup_cache
           if data.cache?(:pip)
             sh.fold 'cache.pip' do
-              sh.echo ''
-              directory_cache.add '$HOME/.cache/pip'
+              sh.newline
+              directory_cache.add '${TRAVIS_HOME}/.cache/pip'
             end
           end
         end
@@ -77,7 +76,7 @@ module Travis
         private
 
           def version
-            config[:python].to_s
+            Array(config[:python]).first.to_s
           end
 
           def virtualenv_activate
@@ -110,14 +109,16 @@ module Travis
             sh.echo "Downloading archive: ${archive_url}", ansi: :yellow
             archive_basename = [lang, vers].compact.join("-")
             archive_filename = "#{archive_basename}.tar.bz2"
-            sh.cmd "curl -s -o #{archive_filename} ${archive_url}", assert: true
+            sh.cmd "curl -sSf -o #{archive_filename} ${archive_url}", echo: true, assert: false
+            sh.if "$? != 0" do
+              sh.failure "Unable to download #{version} archive. The archive may not exist. Please consider a different version."
+            end
             sh.cmd "sudo tar xjf #{archive_filename} --directory /", echo: true, assert: true
             sh.cmd "rm #{archive_filename}", echo: false
           end
 
           def setup_path(version = 'nightly')
-            sh.cmd "sed -e 's|export PATH=\\(.*\\)$|export PATH=/opt/python/#{version}/bin:\\1|' #{PYENV_PATH_FILE} > #{TEMP_PYENV_PATH_FILE}"
-            sh.cmd "cat #{TEMP_PYENV_PATH_FILE} | sudo tee #{PYENV_PATH_FILE} > /dev/null"
+            sh.cmd "echo 'export PATH=/opt/python/#{version}/bin:$PATH' | sudo tee -a #{PYENV_PATH_FILE} &>/dev/null"
           end
       end
     end

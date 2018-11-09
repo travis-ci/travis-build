@@ -9,9 +9,11 @@ describe Travis::Build::Script::Smalltalk, :sexp do
   subject         { script.sexp }
   it              { store_example }
 
+  it_behaves_like 'a bash script'
+
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=smalltalk'] }
-    let(:cmds) { ['$SMALLTALK_CI_HOME/run.sh'] }
+    let(:cmds) { ['smalltalkci'] }
   end
 
   it 'downloads and extracts correct script' do
@@ -19,6 +21,7 @@ describe Travis::Build::Script::Smalltalk, :sexp do
     should include_sexp [:cmd, 'unzip -q -o smalltalkCI.zip', assert: true, echo: true, timing: true]
     should include_sexp [:cmd, 'pushd smalltalkCI-* > /dev/null', assert: true, timing: true]
     should include_sexp [:cmd, 'source env_vars', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'export PATH="$(pwd)/bin:$PATH"', assert: true, echo: true, timing: true]
     should include_sexp [:cmd, 'popd > /dev/null; popd > /dev/null', assert: true, timing: true]
   end
 
@@ -151,6 +154,16 @@ describe Travis::Build::Script::Smalltalk, :sexp do
   describe 'set smalltalk version' do
     before do
       data[:config][:smalltalk] = 'Squeak-5.0'
+    end
+
+    it 'sets TRAVIS_SMALLTALK_VERSION to correct version' do
+      should include_sexp [:export, ['TRAVIS_SMALLTALK_VERSION', 'Squeak-5.0']]
+    end
+  end
+
+  context 'when smalltalk version is given as an array' do
+    before do
+      data[:config][:smalltalk] = %w(Squeak-5.0)
     end
 
     it 'sets TRAVIS_SMALLTALK_VERSION to correct version' do

@@ -55,13 +55,14 @@ module Travis
           sh.echo 'Please file any issues using the following link', ansi: :green
           sh.echo '  https://github.com/hpi-swa/smalltalkCI/issues', ansi: :green
 
-          sh.cmd 'pushd $HOME > /dev/null', echo: false
+          sh.cmd 'pushd ${TRAVIS_HOME} > /dev/null', echo: false
           sh.fold 'download_smalltalkci' do
             sh.echo 'Downloading and extracting smalltalkCI', ansi: :yellow
             sh.cmd "wget -q -O smalltalkCI.zip #{download_url}"
             sh.cmd 'unzip -q -o smalltalkCI.zip'
             sh.cmd 'pushd smalltalkCI-* > /dev/null', echo: false
             sh.cmd 'source env_vars'
+            sh.cmd 'export PATH="$(pwd)/bin:$PATH"'
             sh.cmd 'popd > /dev/null; popd > /dev/null', echo: false
           end
         end
@@ -69,7 +70,7 @@ module Travis
         def script
           super
 
-          sh.cmd "$SMALLTALK_CI_HOME/run.sh"
+          sh.cmd "smalltalkci"
         end
 
         private
@@ -87,7 +88,7 @@ module Travis
           end
 
           def smalltalk_version
-            config[:smalltalk].to_s
+            Array(config[:smalltalk]).first.to_s
           end
 
           def smalltalk_vm
@@ -101,7 +102,7 @@ module Travis
           def is_squeak?
             is_platform?('squeak')
           end
-          
+
           def is_etoys?
             is_platform?('etoys')
           end
@@ -139,7 +140,7 @@ module Travis
                 sh.cmd 'sudo dpkg --add-architecture i386'
               end
 
-              sh.cmd 'sudo apt-get update -qq', retry: true
+              sh.cmd 'travis_apt_get_update', retry: true
               sh.cmd "sudo apt-get install -y --no-install-recommends #{deps_32bit}", retry: true
             end
           end
@@ -226,7 +227,7 @@ module Travis
             sh.fold 'gemstone_dependencies' do
               sh.echo 'Installing GemStone dependencies', ansi: :yellow
 
-              sh.cmd 'sudo apt-get update -qq', retry: true
+              sh.cmd 'travis_apt_get_update', retry: true
               sh.cmd 'sudo apt-get install -y --no-install-recommends ' +
                      'libpam0g:i386 libssl1.0.0:i386 gcc-multilib ' +
                      'libstdc++6:i386 libfreetype6:i386 pstack ' +
