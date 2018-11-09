@@ -85,7 +85,7 @@ describe Travis::Build::Addons::Firefox, :sexp do
       let(:code) { ['install_firefox', 'Invalid version'] }
     end
 
-    it { should include_sexp [:echo, "Invalid version '20.0\\;\\ sudo\\ rm\\ -rf\\ /' given.", ansi: :red] }
+    it { should include_sexp [:echo, %r(Invalid version '20.0\\;\\ sudo\\ rm\\ -rf\\ /' given.), ansi: :red] }
     it { should_not include_sexp [:export, ['PATH', "${TRAVIS_HOME}/firefox-20.0/firefox:$PATH"], echo: true] }
   end
 end
