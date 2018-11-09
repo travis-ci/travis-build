@@ -127,7 +127,12 @@ describe Travis::Build::Script::Php, :sexp do
 
   context 'when archive_host is set' do
     before :all do
+      @archive_host = Travis::Build.config.archive_host
       Travis::Build.config.archive_host = 'runtime-archives.example.com'
+    end
+
+    after :all do
+      Travis::Build.config.archive_host = @archive_host
     end
 
     describe 'installs php nightly from specified archive_host' do
