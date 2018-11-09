@@ -78,8 +78,7 @@ port 4000 (as indicated in the previous section).
 ### Deployment data
 
 Since deployment configuration is most often sensitive, and is not exposed by
-the API server, the returned script does not have any deployment-related
-information.
+the API server, we will not get any deployment-related information.
 
 To fill in the deployment data, `script` takes the `--deploy` flag.
 If deployment configuration is stored in a JSON or YAML file, you can specify:
