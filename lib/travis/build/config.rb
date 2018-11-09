@@ -121,6 +121,7 @@ module Travis
             bash
             csharp
             go
+            julia
             node_js
             powershell
             rust
