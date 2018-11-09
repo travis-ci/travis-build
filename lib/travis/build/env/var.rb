@@ -3,18 +3,15 @@ module Travis
     class Env
       class Var
         PATTERN = /
-        (?:SECURE )? # optionally starts with "SECURE "
+        (?:SECURE\ )? # optionally starts with "SECURE "
         ([\w]+)= # left hand side, var name
           ( # right hand side is one of
-            ("|'|`).*?((?<!\\)\3) # quoted stuff
+            (?:[^"'`\ ]?("|'|`).*?((?<!\\)\3))+ # things quoted by ',",`, optionally preceded, one or more times
             |
-            \$\([^\)]*\) # $(command) output
+            (?:[^\$]?\$\(.*?\))+ # $(things), optionally preceded by non-$, one or more times
             |
-            \$\{[^\}]+\} # ${NAME}
-            |
-            \$\S* # $STUFF or $ (which assigns the value '$')
-            |
-            [^"'`\$\ ]+ # some bare word, not containing ", ', `, or $
+            [^"'\ ]+ # some bare word, not containing " or '
+                      # (this includes many variations of things starting in $)
             |
             (?=\s) # an empty string (look for a space ahead)
             |

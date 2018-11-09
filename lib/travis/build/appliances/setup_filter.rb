@@ -8,7 +8,7 @@ module Travis
       class SetupFilter < Base
         class Rollout < Struct.new(:data)
           def matches?
-            Travis::Rollout.matches?(:redirect_io, uid: repo_id, owner: owner_login)
+            Travis::Rollout.matches?(:redirect_io, uid: repo_id, owner: owner_login) && !blocklist.include?(owner_login)
           end
 
           def repo_id
@@ -21,6 +21,10 @@ module Travis
 
           def owner_login
             repo_slug.split('/').first
+          end
+
+          def blocklist
+            ENV["ROLLOUT_REDIRECT_IO_OWNERS_BLOCKLIST"].to_s.split(',')
           end
         end
 
@@ -45,7 +49,7 @@ module Travis
               export TRAVIS_FILTERED=pty
               %{curl}
               %{exports}
-              exec ruby ~/filter.rb "/usr/bin/env TERM=xterm /bin/bash --login $HOME/build.sh" %{args}
+              exec ruby ~/filter.rb "/usr/bin/env TERM=xterm /bin/bash --login ${TRAVIS_HOME}/build.sh" %{args}
             fi
           ),
           redirect_io: %(
@@ -65,7 +69,7 @@ module Travis
         def apply
           info :filter, strategy, data.repository[:slug].to_s, data.job[:id], data.job[:number]
           puts code if ENV['ROLLOUT_DEBUG']
-          sh.raw code
+          sh.raw code.output_safe
         end
 
         private
@@ -87,7 +91,7 @@ module Travis
           def url(host = nil)
             host ||= app_host || HOST
             url = "https://#{host}/filter/#{strategy}.rb"
-            Shellwords.escape(url).untaint
+            Shellwords.escape(url)
           end
 
           def args
@@ -95,8 +99,7 @@ module Travis
           end
 
           def exports
-            values = secrets.map(&:untaint)
-            values = values.map { |value| Shellwords.escape(value) }
+            values = secrets.map { |value| Shellwords.escape(value) }
             values = values.map.with_index { |value, ix| "export SECRET_#{ix}=#{value}" }
             values.join(' ')
           end
