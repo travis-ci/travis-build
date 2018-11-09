@@ -1,18 +1,26 @@
-FROM ruby:2.3.4
-
-LABEL maintainer Travis CI GmbH <support+travis-app-docker-images@travis-ci.com>
-
-# throw errors if Gemfile has been modified since Gemfile.lock
-RUN bundle config --global frozen 1
-
-RUN mkdir -p /usr/src/app
+FROM ruby:2.5.3 as builder
 WORKDIR /usr/src/app
 
-COPY Gemfile      /usr/src/app
-COPY Gemfile.lock /usr/src/app
+ARG GITHUB_OAUTH_TOKEN=notset
 
-RUN bundle install
+COPY . .
 
-COPY . /usr/src/app
+RUN git describe --always --dirty --tags | tee VERSION
+RUN bundle install --frozen --deployment --without='development test' --clean
+RUN bundle exec rake assets:precompile GITHUB_OAUTH_TOKEN=$GITHUB_OAUTH_TOKEN
+RUN tar -cjf public.tar.bz2 public && rm -rf public
 
-CMD bundle exec je puma -I lib -p ${PORT:-4000} -t ${PUMA_MIN_THREADS:-8}:${PUMA_MAX_THREADS:-12} -w ${PUMA_WORKERS:-2}
+FROM ruby:2.5.3-slim
+LABEL maintainer Travis CI GmbH <support+travis-app-docker-images@travis-ci.com>
+WORKDIR /usr/src/app
+
+ENV TRAVIS_BUILD_DUMP_BACKTRACE true
+ENV PORT 4000
+
+COPY --from=builder /usr/src/app /usr/src/app
+COPY --from=builder /usr/local/bundle/config /usr/local/bundle/config
+RUN rm -rf .git
+
+HEALTHCHECK --interval=5s CMD script/healthcheck
+EXPOSE 4000/tcp
+CMD ["script/server"]
