@@ -18,8 +18,8 @@ module Travis
               sh.echo "Invalid version '#{raw_version}' given.", ansi: :red
             end
 
-            export_source_url
             sh.echo "Installing Firefox #{version}", ansi: :yellow
+            export_source_url
             sh.mkdir install_dir, echo: false, recursive: true
             sh.chown 'travis', install_dir, recursive: true
             sh.cd install_dir, echo: false, stack: true
