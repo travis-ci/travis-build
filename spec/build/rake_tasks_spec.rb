@@ -1,10 +1,10 @@
 require 'pathname'
 
-def top
-  @top ||= Pathname.new(Dir.mktmpdir)
+def tmp_top
+  @tmp_top ||= Pathname.new(Dir.mktmpdir)
 end
 
-Dir.chdir(top) do
+Dir.chdir(tmp_top) do
   require 'travis/build/rake_tasks'
 end
 
@@ -117,22 +117,22 @@ describe Travis::Build::RakeTasks do
   end
 
   before :all do
-    FileUtils.mkdir_p(top)
+    FileUtils.mkdir_p(tmp_top)
   end
 
   before :each do
     subject.logger.level = Logger::WARN
     subject.stubs(:build_faraday_conn).returns(conn)
-    subject.stubs(:top).returns(top)
+    subject.stubs(:top).returns(tmp_top)
     Rake::FileUtilsExt.verbose(false)
-    FileUtils.rm_rf(top.join('*'))
-    Dir.chdir(top)
-    top.mkpath
+    FileUtils.rm_rf(tmp_top.join('*'))
+    Dir.chdir(tmp_top)
+    tmp_top.mkpath
   end
 
   after :all do
     Dir.chdir(File.expand_path('../../../', __FILE__))
-    FileUtils.rm_rf(top)
+    FileUtils.rm_rf(tmp_top)
   end
 
   %w[
@@ -149,7 +149,7 @@ describe Travis::Build::RakeTasks do
   end
 
   it 'can clean up static files in public/' do
-    files = top + 'public/files'
+    files = tmp_top + 'public/files'
     files.mkpath
     thing = files + 'thing'
     thing.write('wat')
@@ -159,7 +159,7 @@ describe Travis::Build::RakeTasks do
   end
 
   it 'can clean up intermediate ghc version file' do
-    tmp = top + 'tmp'
+    tmp = tmp_top + 'tmp'
     tmp.mkpath
     ghc_versions = tmp + 'ghc-versions.html'
     ghc_versions.write('wat')
@@ -188,7 +188,7 @@ describe Travis::Build::RakeTasks do
 
       Rake::Task[filename].reenable
       Rake::Task[filename].invoke
-      expect(top + filename).to be_exist
+      expect(tmp_top + filename).to be_exist
     end
   end
 
@@ -196,7 +196,7 @@ describe Travis::Build::RakeTasks do
     subject.file_update_raw_ghc_versions
     subject.file_update_ghc_versions
     aliases = JSON.parse(
-      (top + 'public/version-aliases/ghc.json').read
+      (tmp_top + 'public/version-aliases/ghc.json').read
     )
     expect(aliases).to eq(
       '1' => '1.2.5',

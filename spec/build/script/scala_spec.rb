@@ -10,6 +10,8 @@ describe Travis::Build::Script::Scala, :sexp do
   subject      { script.sexp }
   it           { store_example }
 
+  it_behaves_like 'a bash script'
+
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=scala'] }
     let(:cmds) { ['sbt ++2.12.2 test'] }

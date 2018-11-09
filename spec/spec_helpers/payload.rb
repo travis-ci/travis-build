@@ -22,7 +22,7 @@ module SpecHelpers
         )
       end
 
-      payload.deep_merge(extra)
+      payload.deep_merge(extra).taint
     end
   end
 end

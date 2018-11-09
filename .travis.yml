@@ -1,14 +1,14 @@
 language: ruby
 sudo: required
-dist: trusty
-rvm: 2.5.1
+dist: xenial
+rvm: 2.5.3
+
 cache:
   bundler: true
 
 env:
   global:
   - COVERAGE=1
-  - RUBYOPT=-W0
   matrix:
   - INTEGRATION_SPECS=0
   - INTEGRATION_SPECS=1
@@ -29,8 +29,20 @@ jobs:
     script: ./script/docker-build-and-push
     if: NOT type IN (pull_request) AND branch = master
 
-before_script: bundle exec rake clean assets:precompile
+before_script:
+- eval "$(script/handle-docker-config)"
+- bundle exec rake clean assets:precompile
+
+script:
+- bundle exec rake parallel:spec
+- bundle exec rake shfmt
+- bundle exec rake assert_clean
+- bundle exec rake shellcheck
+- bundle exec rake assert_examples[parallel]
+
 after_success: bundle exec codeclimate-test-reporter
+
+after_failure: bundle exec rake dump_examples_logs
 
 before_deploy:
 - sudo pip install -U -I Pygments
@@ -45,7 +57,6 @@ deploy:
   bucket: travis-build-examples
   local_dir: examples
   skip_cleanup: true
-  endpoint: travis-build-examples.s3-website-us-east-1.amazonaws.com
   region: us-east-1
   on:
     branch: master

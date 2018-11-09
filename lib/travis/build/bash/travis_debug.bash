@@ -14,7 +14,7 @@ travis_debug_warn() {
 }
 
 main() {
-  export TIMEOUT=30 # minutes
+  local QUIET TMATE TMATE_MSG
   export TMATE="tmate -S /tmp/tmate.sock"
 
   while [[ $# -gt 0 ]]; do
@@ -37,25 +37,20 @@ main() {
   For more information, consult https://docs.travis-ci.com/user/running-build-in-debug-mode/, or email support@travis-ci.com.
 
   "
-
   echo -en "${TMATE_MSG}" >"${TRAVIS_HOME}/.travis/debug_help"
-  sleep 2 # this sleep is necessary so that `echo`'s buffer can be flushed to disk
-  # before starting the tmate session
+  sync
   $TMATE new-session -d "cat ${TRAVIS_HOME}/.travis/debug_help; /bin/bash -l"
   $TMATE wait tmate-ready
 
   echo -e "${ANSI_YELLOW}Use the following SSH command to access the interactive debugging environment:${ANSI_RESET}"
   $TMATE display -p "$(echo -e "${ANSI_GREEN}#{tmate_ssh}${ANSI_RESET}")"
 
-  minute=0
-  second=0
   if [[ "$QUIET" == "1" ]]; then
     echo -e "This build is running in quiet mode. No session output will be displayed.${ANSI_RESET}"
-    echo -e "This debug build will stay alive for ${TIMEOUT} minutes.${ANSI_RESET}"
     echo -n .
-    while ((minute < TIMEOUT)) && $TMATE has-session &>/dev/null; do
-      sleep 1
-      ((++second % 60 == 0)) && ((minute++)) && echo -n .
+    local counter=0
+    while sleep 1 && $TMATE has-session &>/dev/null; do
+      (((++counter % 60) == 0)) && echo -n .
     done
     echo
   else

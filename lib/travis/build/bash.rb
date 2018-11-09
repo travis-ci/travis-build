@@ -2,7 +2,7 @@ module Travis
   module Build
     module Bash
       def bash(name, encode: false)
-        bytes = bash_pathname(name).read.untaint
+        bytes = bash_pathname(name).read.output_safe
         return Base64.encode64(bytes) if encode
         bytes
       end

@@ -121,7 +121,7 @@ module Travis
         def handle_trace(name, body, options = {})
           span_id = rand 1..MAX_SPAN_ID
           span_id = span_id.to_s(16).rjust(16, "0")
-          name = name.to_s.lines.first.gsub(/<<.*/, '...')
+          name = (name.to_s.lines.first || '').gsub(/<<.*/, '...')
 
           start_span = {
             id: span_id,
@@ -203,7 +203,11 @@ module Travis
           def handle_secure_vars(key, value, options)
             if options[:echo] && options[:secure]
               options[:echo] = "export #{key}=[secure]"
-              value.untaint
+              # Mark secure value as safe for output *here only*
+              # to ensure the presence of the previously tainted
+              # value in any other strings will result in the
+              # compiled script being tainted
+              value = value.output_safe
             end
             [key, value, options]
           end

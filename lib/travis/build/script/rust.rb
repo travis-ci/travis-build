@@ -42,7 +42,7 @@ module Travis
           sh.cmd 'rustc --version'
           sh.cmd 'rustup --version'
           sh.cmd 'cargo --version'
-          sh.echo ''
+          sh.newline
         end
 
         def script

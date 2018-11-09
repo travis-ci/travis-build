@@ -26,6 +26,9 @@ travis_setup_env() {
   darwin*)
     export TRAVIS_OS_NAME=osx
     ;;
+  msys*)
+    export TRAVIS_OS_NAME=windows
+    ;;
   *)
     export TRAVIS_OS_NAME=notset
     ;;
@@ -53,6 +56,7 @@ travis_setup_env() {
   export TRAVIS_CMD=
 
   TRAVIS_TMPDIR="$(mktemp -d 2>/dev/null || mktemp -d -t 'travis_tmp')"
+  mkdir -p "${TRAVIS_TMPDIR}"
   export TRAVIS_TMPDIR
 
   TRAVIS_INFRA=unknown
@@ -63,6 +67,6 @@ travis_setup_env() {
 
   if command -v pgrep &>/dev/null; then
     pgrep -u "${USER}" 2>/dev/null |
-      grep -v -w "${$}" >"${TRAVIS_TMPDIR}/pids_before"
+      grep -v -w "${$}" >"${TRAVIS_TMPDIR}/pids_before" || true
   fi
 }
