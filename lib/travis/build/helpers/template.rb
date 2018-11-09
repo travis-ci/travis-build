@@ -4,13 +4,15 @@ module Travis
   module Build
     module Template
       class Template < OpenStruct
-        def render(filename)
-          ERB.new(File.read(filename)).result(binding)
+        def render(name, basedir: nil)
+          name = name.to_s
+          name = File.expand_path(name, basedir) unless basedir.nil?
+          ERB.new(File.read(name)).result(binding)
         end
       end
 
       def template(name, vars = {})
-        Template.new(vars).render(File.expand_path(name, self.class::TEMPLATES_PATH))
+        Template.new(vars).render(name, basedir: self.class::TEMPLATES_PATH)
       end
     end
   end

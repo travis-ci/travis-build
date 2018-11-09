@@ -1,5 +1,6 @@
 require 'core_ext/hash/compact'
 require 'travis/shell/generator'
+require 'json'
 
 module Travis
   module Shell
@@ -115,6 +116,62 @@ module Travis
           end
         end
 
+        # format roughly based on the stackdriver trace api
+        #   https://cloud.google.com/trace/docs/reference/v2/rest/v2/projects.traces/batchWrite
+        def handle_trace(name, body, options = {})
+          span_id = rand 1..MAX_SPAN_ID
+          span_id = span_id.to_s(16).rjust(16, "0")
+          name = (name.to_s.lines.first || '').gsub(/<<.*/, '...')
+
+          start_span = {
+            id: span_id,
+            parent_id: parent_span_id,
+            name: name,
+            start_time: '__TRAVIS_TIMESTAMP__'
+          }
+
+          end_span = {
+            id: span_id,
+            end_time: '__TRAVIS_TIMESTAMP__',
+            status: '__TRAVIS_STATUS__'
+          }
+
+          lines = ["travis_trace_span #{escape(start_span.to_json)}"]
+          with_span(span_id) do
+            body.each do |node|
+              lines << handle(node)
+            end
+          end
+          lines << "travis_trace_span #{escape(end_span.to_json)}"
+          lines
+        end
+
+        def handle_trace_root(body, options = {})
+          span_id = root_span_id
+
+          start_span = {
+            id: span_id,
+            parent_id: nil,
+            name: 'root',
+            start_time: '__TRAVIS_TIMESTAMP__'
+          }
+
+          end_span = {
+            id: span_id,
+            end_time: '__TRAVIS_TIMESTAMP__',
+            status: '__TRAVIS_STATUS__'
+          }
+
+          lines = ["travis_trace_span #{escape(start_span.to_json)}"]
+          with_span(span_id) do
+            body.each do |node|
+              lines << handle(node)
+            end
+          end
+          lines << "travis_trace_span #{escape(end_span.to_json)}"
+          lines
+        end
+
         def handle_if(condition, *branches)
           options = branches.last.is_a?(Hash) ? branches.pop : {}
           with_margin do
@@ -146,7 +203,11 @@ module Travis
           def handle_secure_vars(key, value, options)
             if options[:echo] && options[:secure]
               options[:echo] = "export #{key}=[secure]"
-              value.untaint
+              # Mark secure value as safe for output *here only*
+              # to ensure the presence of the previously tainted
+              # value in any other strings will result in the
+              # compiled script being tainted
+              value = value.output_safe
             end
             [key, value, options]
           end

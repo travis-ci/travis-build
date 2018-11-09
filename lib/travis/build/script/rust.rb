@@ -18,7 +18,7 @@ module Travis
         def setup_cache
           if data.cache?(:cargo)
             sh.fold 'cache.cargo' do
-              directory_cache.add "$HOME/.cargo", "target"
+              directory_cache.add "${TRAVIS_HOME}/.cargo", "target"
             end
           end
 
@@ -32,7 +32,7 @@ module Travis
             else
               sh.cmd RUSTUP_CMD, echo: true, assert: true
             end
-            sh.export 'PATH', "$HOME/.cargo/bin:$PATH"
+            sh.export 'PATH', "${TRAVIS_HOME}/.cargo/bin:$PATH"
           end
         end
 
@@ -42,7 +42,7 @@ module Travis
           sh.cmd 'rustc --version'
           sh.cmd 'rustup --version'
           sh.cmd 'cargo --version'
-          sh.echo ''
+          sh.newline
         end
 
         def script
@@ -61,7 +61,7 @@ module Travis
         private
 
           def version
-            config[:rust].to_s
+            Array(config[:rust]).first.to_s
           end
       end
     end

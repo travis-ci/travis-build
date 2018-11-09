@@ -5,10 +5,15 @@ module Travis
     class Addons
       class SauceConnect < Base
         SUPER_USER_SAFE = true
-        TEMPLATES_PATH = File.expand_path('templates', __FILE__.sub('.rb', ''))
 
         def after_header
-          sh.raw template('sauce_connect.sh')
+          sh.export 'TRAVIS_SAUCE_CONNECT_PID', 'unset', echo: false
+          sh.export 'TRAVIS_SAUCE_CONNECT_LINUX_DOWNLOAD_URL', linux_download_url, echo: false
+          sh.export 'TRAVIS_SAUCE_CONNECT_OSX_DOWNLOAD_URL', osx_download_url, echo: false
+          sh.export 'TRAVIS_SAUCE_CONNECT_VERSION', sc_version, echo: false
+          sh.export 'TRAVIS_SAUCE_CONNECT_APP_HOST', '${TRAVIS_APP_HOST}', echo: false
+          sh.raw bash('travis_start_sauce_connect')
+          sh.raw bash('travis_stop_sauce_connect')
         end
 
         def before_before_script
@@ -61,6 +66,29 @@ module Travis
 
           def tunnel_domains
             config[:tunnel_domains]
+          end
+
+          def linux_download_url
+            @linux_download_url ||= sc_config['linux']['download_url'].to_s.output_safe
+          end
+
+          def osx_download_url
+            @osx_download_url ||= sc_config['osx']['download_url'].to_s.output_safe
+          end
+
+          def sc_version
+            @sc_version ||= sc_config['version'].to_s.output_safe
+          end
+
+          def sc_config
+            Travis::Build.config.sc_data.fetch(
+              'Sauce Connect',
+              {
+                'linux' => { 'download_url' => '' },
+                'osx' => { 'download_url' => '' },
+                'version' => ''
+              }
+            )
           end
       end
     end
