@@ -99,6 +99,7 @@ module Travis
               fetch
               add(directories) if data.cache?(:directories)
             end
+            sh.newline
           end
 
           def run_rvm_use
