@@ -194,6 +194,7 @@ module Travis
                 sh.cmd "npm install #{args}", retry: true
               end
             end
+            sh.newline
           end
 
           def install_yarn
