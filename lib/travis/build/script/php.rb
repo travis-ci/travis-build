@@ -188,8 +188,8 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
               version = '7.0'
             end
             sh.raw archive_url_for('travis-php-archives', version)
-            sh.cmd "php_archive_status=($(curl --head --silent https://s3.amazonaws.com/travis-php-archives/binaries/ubuntu/16.04/x86_64/php-7.4.tar.bz2 | head -n 1 | grep -q 200); $?)", echo: false, assert: false
-            sh.if("$php_archive_status == 0") do
+            sh.cmd "curl --stderr stderr.log -o stdout.log -sIf ${archive_url}", echo: false, assert: false
+            sh.if("$? == 0") do
               sh.echo "Downloading pre-built archive from: ${archive_url}"
               sh.cmd "curl -s -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /", echo: true, assert: false
               sh.cmd "rm -f archive.tar.bz2", echo: false
@@ -197,7 +197,7 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
             sh.else do
               sh.echo "Pre-built archive for #{version} is not currently available"
               sh.raw "travis_terminate 1"
-            end  
+            end
           end
         end
 
