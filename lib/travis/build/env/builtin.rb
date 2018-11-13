@@ -53,6 +53,7 @@ module Travis
               TRAVIS_PULL_REQUEST_BRANCH: job[:pull_request_head_branch],
               TRAVIS_PULL_REQUEST_SHA: job[:pull_request_head_sha],
               TRAVIS_PULL_REQUEST_SLUG: job[:pull_request_head_slug],
+              TRAVIS_JOB_NAME:        job[:name]
             }
           end
       end
