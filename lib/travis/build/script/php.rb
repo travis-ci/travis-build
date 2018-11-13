@@ -195,7 +195,10 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
               sh.cmd "rm -f archive.tar.bz2", echo: false
             end
             sh.else do
-              sh.echo "Pre-built archive for #{version} is not currently available"
+              sh.newline
+              sh.echo "Pre-built archive for #{version} is not currently available", ansi: :red
+              sh.newline
+              sh.echo "Your build has been stopped."
               sh.raw "travis_terminate 1"
             end
           end
