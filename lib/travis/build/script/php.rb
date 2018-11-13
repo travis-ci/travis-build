@@ -44,7 +44,7 @@ module Travis
             unless php_5_3_or_older?
               sh.else do
                 sh.fold "pearrc" do
-                  sh.echo "Writing ${TRAVIS_HOME}/.pearrc", ansi: :yellow
+                  sh.echo "Writing ${TRAVIS_HOME}/.pearrc"
                   overwrite_pearrc(version)
                   sh.cmd "pear config-show", echo: true
                 end
@@ -52,8 +52,10 @@ module Travis
             end
             sh.cmd "phpenv global #{version}", assert: true
           end
-          sh.cmd "phpenv rehash", assert: false, echo: false, timing: false
+          sh.cmd "phpenv rehash", assert: false, echo: true, timing: false
+          sh.newline
           composer_self_update
+          sh.newline
         end
 
         def announce
@@ -179,15 +181,23 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
         end
 
         def install_php_on_demand(version='nightly')
-          sh.echo "#{version} is not pre-installed; installing", ansi: :yellow
-          if version == '7'
-            setup_alias(version, '7.0')
-            version = '7.0'
+          sh.fold("php.install") do
+            sh.echo "Installing PHP #{version}", ansi: :yellow
+            if version == '7'
+              setup_alias(version, '7.0')
+              version = '7.0'
+            end
+            sh.raw archive_url_for('travis-php-archives', version)
+            sh.if("curl --head --silent https://s3.amazonaws.com/travis-php-archives/binaries/ubuntu/16.04/x86_64/php-7.4.tar.bz2 | head -n 1 | grep -q 200") do
+              sh.echo "Downloading pre-built archive: ${archive_url}"
+              sh.cmd "curl -s -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /", echo: true, assert: false
+              sh.cmd "rm -f archive.tar.bz2", echo: false
+            end
+            sh.else do
+              sh.echo "Pre-build archive for #{version} is not currently available"
+              sh.raw "travis_terminate 1"
+            end  
           end
-          sh.raw archive_url_for('travis-php-archives', version)
-          sh.echo "Downloading archive: ${archive_url}", ansi: :yellow
-          sh.cmd "curl -s -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /", echo: true, assert: false
-          sh.cmd "rm -f archive.tar.bz2", echo: false
         end
 
         def setup_alias(from, to)
@@ -200,6 +210,7 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
               sh.cmd "composer self-update 1.0.0", assert: false
             end
             sh.cmd "composer self-update", assert: false
+            sh.newline
           end
         end
 
