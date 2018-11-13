@@ -40,6 +40,7 @@ module Travis
               TRAVIS_JOB_ID:          job[:id],
               TRAVIS_JOB_NUMBER:      job[:number],
               TRAVIS_JOB_WEB_URL:     "https://#{data[:host]}/#{repository[:slug]}/jobs/#{job[:id]}",
+              TRAVIS_JOB_NAME:        job[:name],
               TRAVIS_BRANCH:          job[:branch],
               TRAVIS_COMMIT:          job[:commit],
               TRAVIS_COMMIT_MESSAGE: '$(git log --format=%B -n 1 | head -c 32768)',
@@ -53,7 +54,6 @@ module Travis
               TRAVIS_PULL_REQUEST_BRANCH: job[:pull_request_head_branch],
               TRAVIS_PULL_REQUEST_SHA: job[:pull_request_head_sha],
               TRAVIS_PULL_REQUEST_SLUG: job[:pull_request_head_slug],
-              TRAVIS_JOB_NAME:        job[:name]
             }
           end
       end
