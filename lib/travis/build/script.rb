@@ -201,7 +201,7 @@ module Travis
               sh.raw "travis_debug"
             end
 
-            sh.echo
+            sh.newline
             sh.echo "All remaining steps, including caching and deploy, will be skipped.", ansi: :yellow
           end
         end
@@ -273,6 +273,7 @@ module Travis
           apply :disable_ssh_roaming
           apply :debug_tools
           apply :npm_registry
+          apply :uninstall_oclint
           apply :rvm_use
           apply :rm_oraclejdk8_symlink
           apply :enable_i386
@@ -311,7 +312,7 @@ module Travis
           if debug_build_via_api?
             raise "Debug payload does not contain 'previous_state' value." unless previous_state = data.debug_options[:previous_state]
 
-            sh.echo
+            sh.newline
             sh.echo "This is a debug build. The build result is reset to its previous value, \\\"#{previous_state}\\\".", ansi: :yellow
 
             case previous_state

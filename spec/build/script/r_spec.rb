@@ -14,9 +14,9 @@ describe Travis::Build::Script::R, :sexp do
     fail
     data[:config][:r] = 'bioc-devel'
     should include_sexp [:export, ['TRAVIS_R_VERSION', 'devel']]
-    should include_sexp [:cmd, %r{source\(\"https://bioconductor.org/biocLite.R\"\)},
+    should include_sexp [:cmd, %r{install.packages\(\"BiocManager"\)},
                          assert: true, echo: true, timing: true, retry: true]
-    should include_sexp [:cmd, %r{useDevel\(TRUE\)},
+    should include_sexp [:cmd, %r{BiocManager::install\(version = \"devel\"\)},
                          assert: true, echo: true, timing: true, retry: true]
   end
 
@@ -24,7 +24,7 @@ describe Travis::Build::Script::R, :sexp do
     pending('known to fail with certain random seeds (incl 58438)')
     fail
     data[:config][:r] = 'bioc-release'
-    should include_sexp [:cmd, %r{source\(\"https://bioconductor.org/biocLite.R\"\)},
+    should include_sexp [:cmd, %r{install.packages\(\"BiocManager"\)},
                          assert: true, echo: true, timing: true, retry: true]
     should include_sexp [:export, ['TRAVIS_R_VERSION', '3.5.1']]
   end
@@ -185,11 +185,21 @@ describe Travis::Build::Script::R, :sexp do
     it 'does not install bioc if not required' do
       should_not include_sexp [:cmd, /.*biocLite.*/,
                                assert: true, echo: true, retry: true, timing: true]
+      should_not include_sexp [:cmd, /.*BiocManager::install.*/,
+                               assert: true, echo: true, retry: true, timing: true]
     end
 
-    it 'does install bioc if requested' do
+    it 'does install bioc if requested in release' do
       data[:config][:bioc_required] = true
-      should include_sexp [:cmd, /.*biocLite.*/,
+      data[:config][:r] = 'bioc-release'
+      should include_sexp [:cmd, /.*BiocManager::install.*/,
+                           assert: true, echo: true, retry: true, timing: true]
+    end
+
+    it 'does install bioc if requested in devel' do
+      data[:config][:bioc_required] = true
+      data[:config][:r] = 'bioc-devel'
+      should include_sexp [:cmd, /.*BiocManager::install.*/,
                            assert: true, echo: true, retry: true, timing: true]
     end
 
@@ -199,9 +209,17 @@ describe Travis::Build::Script::R, :sexp do
                            echo: true, timing: true]
     end
 
-    it 'does install bioc with bioc_packages' do
+    it 'does install bioc with bioc_packages in release' do
       data[:config][:bioc_packages] = ['GenomicFeatures']
-      should include_sexp [:cmd, /.*biocLite.*/,
+      data[:config][:r] = 'bioc-release'
+      should include_sexp [:cmd, /.*BiocManager::install.*/,
+                           assert: true, echo: true, retry: true, timing: true]
+    end
+
+    it 'does install bioc with bioc_packages in devel' do
+      data[:config][:bioc_packages] = ['GenomicFeatures']
+      data[:config][:r] = 'bioc-devel'
+      should include_sexp [:cmd, /.*BiocManager::install.*/,
                            assert: true, echo: true, retry: true, timing: true]
     end
 

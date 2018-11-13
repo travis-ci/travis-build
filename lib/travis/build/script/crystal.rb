@@ -49,7 +49,7 @@ module Travis
 
           sh.cmd 'crystal --version'
           sh.cmd 'shards --version'
-          sh.echo ''
+          sh.newline
         end
 
         def install

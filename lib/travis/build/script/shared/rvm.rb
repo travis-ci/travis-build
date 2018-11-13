@@ -27,7 +27,10 @@ module Travis
 
         def setup
           super
-          setup_rvm if rvm?
+          if rvm?
+            setup_rvm
+            sh.newline
+          end
         end
 
         def announce
