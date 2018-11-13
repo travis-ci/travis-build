@@ -21,7 +21,7 @@ describe Travis::Build::Script::Php, :sexp do
 
   it 'sets up the php version' do
     should include_sexp [:cmd, 'phpenv global 5.5 2>/dev/null', echo: true, timing: true]
-    should include_sexp [:cmd, 'phpenv rehash']
+    should include_sexp [:cmd, 'phpenv rehash', echo: true]
   end
 
   it 'announces php --version' do
@@ -45,21 +45,21 @@ describe Travis::Build::Script::Php, :sexp do
   context 'with php nightly' do
     describe 'writes ~/.pearrc if necessary' do
       before { data[:config][:php] = 'nightly' }
-      it { should include_sexp [:echo, 'Writing ${TRAVIS_HOME}/.pearrc', ansi: :yellow] }
+      it { should include_sexp [:echo, 'Writing ${TRAVIS_HOME}/.pearrc'] }
     end
   end
 
   context 'with unrecognized php version' do
     describe 'writes ~/.pearrc if necessary' do
       before { data[:config][:php] = 'foobar' }
-      it { should include_sexp [:echo, 'Writing ${TRAVIS_HOME}/.pearrc', ansi: :yellow] }
+      it { should include_sexp [:echo, 'Writing ${TRAVIS_HOME}/.pearrc'] }
     end
   end
 
   context 'with php 5.4' do
     describe 'writes ~/.pearrc if necessary' do
       before { data[:config][:php] = '5.4' }
-      it { should include_sexp [:echo, 'Writing ${TRAVIS_HOME}/.pearrc', ansi: :yellow] }
+      it { should include_sexp [:echo, 'Writing ${TRAVIS_HOME}/.pearrc'] }
     end
   end
 
@@ -67,7 +67,7 @@ describe Travis::Build::Script::Php, :sexp do
     before { data[:config][:php] = '5.3' }
     after { store_example(name: '5.3') }
     describe 'does not write ~/.pearrc' do
-      it { should_not include_sexp [:echo, 'Writing ${TRAVIS_HOME}/.pearrc', ansi: :yellow] }
+      it { should_not include_sexp [:echo, 'Writing ${TRAVIS_HOME}/.pearrc'] }
     end
 
     describe 'when running on non-Precise image' do
