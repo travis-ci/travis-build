@@ -42,6 +42,9 @@ jobs:
 
 before_script:
   - bundle exec rake clean assets:precompile
+  # specific to enterprise-2.2 branch given the lack of the
+  # `assert_examples` rake task
+  - unset DOCKER_HOST
 
 script:
   - bundle exec rake spec
