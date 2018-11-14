@@ -92,14 +92,14 @@ MESSAGE
           sh.export 'PUB_ENVIRONMENT', 'travis'
 
           sh.fold 'dart_install' do
-            sh.echo 'Installing Dart', ansi: :yellow
+            sh.echo 'Installing Dart on #{os}', ansi: :yellow
             sh.cmd "curl --connect-timeout 15 --retry 5 #{archive_url}/sdk/dartsdk-#{os}-x64-release.zip > ${TRAVIS_HOME}/dartsdk.zip"
             sh.cmd "unzip ${TRAVIS_HOME}/dartsdk.zip -d ${TRAVIS_HOME} > /dev/null"
             sh.cmd "rm ${TRAVIS_HOME}/dartsdk.zip"
             sh.cmd 'export DART_SDK="${TRAVIS_HOME}/dart-sdk"'
             sh.cmd 'export PATH="$DART_SDK/bin:$PATH"'
             sh.cmd 'export PATH="${TRAVIS_HOME}/.pub-cache/bin:$PATH"'
-            if config[:os] = 'windows'
+            if os = 'windows'
               # Work around issue that git bash requires extensions to run bat files
               # https://github.com/msysgit/msysgit/issues/101
               sh.cmd 'alias dart2js="dart2js.bat"'
