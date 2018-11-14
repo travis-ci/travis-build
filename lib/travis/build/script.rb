@@ -284,6 +284,7 @@ module Travis
           apply :apt_get_update
           apply :deprecate_xcode_64
           apply :update_heroku
+          apply :shell_session_update
         end
 
         def setup_filter
