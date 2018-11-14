@@ -5,7 +5,7 @@ module Travis
     module Appliances
       class WaitForNetwork < Base
         def apply
-
+          return if Travis::Build.config.wait_for_network_check
           sh.raw <<~BASHSNIP
             travis_wait_for_network() {
               local wait_retries="${1}"
