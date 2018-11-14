@@ -17,7 +17,7 @@ module Travis
               sh.cmd "service rethinkdb stop", sudo: true
               sh.cmd "wget -qO- https://download.rethinkdb.com/apt/pubkey.gpg | sudo apt-key add -v -''", echo: true
               sh.cmd 'echo -e "\ndeb http://download.rethinkdb.com/apt $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list > /dev/null'
-              sh.cmd "apt-get update -qq", assert: false, sudo: true
+              sh.cmd 'travis_apt_get_update', assert: false
               sh.cmd "package_version=`apt-cache show rethinkdb | grep -F \"Version: #{rethinkdb_version}\" | sort -r | head -n 1 | awk '{printf $2}'`"
               sh.cmd "apt-get install -y -o Dpkg::Options::='--force-confnew' rethinkdb=$package_version", sudo: true, echo: true, timing: true
               sh.echo "Installing RethinkDB default instance configuration"

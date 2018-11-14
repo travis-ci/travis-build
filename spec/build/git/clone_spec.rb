@@ -3,91 +3,27 @@ require 'spec_helper'
 describe Travis::Build::Git::Clone, :sexp do
   let(:payload)  { payload_for(:push, :ruby) }
   let(:script)   { Travis::Build::Script.new(payload) }
-  subject(:sexp) { sexp_find(script.sexp, [:fold, 'git.checkout']) }
+  subject(:sexp) { script.sexp }
 
-  let(:url)    { 'git://github.com/travis-ci/travis-ci.git' }
-  let(:dir)    { 'travis-ci/travis-ci' }
+  let(:url)    { "https://github.com/#{payload[:repository][:slug]}.git" }
+  let(:dir)    { payload[:repository][:slug] }
   let(:depth)  { Travis::Build::Git::DEFAULTS[:git][:depth] }
   let(:branch) { payload[:job][:branch] || 'master' }
 
   let(:oauth_token) { 'abcdef01234' }
+  let(:netrc)  { /echo -e "machine #{host}\\n  login #{oauth_token}\\n" > \${TRAVIS_HOME}\/\.netrc/ }
+  let(:host)   { 'github.com' }
 
   before :each do
     payload[:config][:git] = { strategy: 'clone' }
   end
-
-  context 'when source_url starts with "https"' do
-    before { payload[:repository][:source_url] = "https://github.com/travis-ci/travis-ci.git" }
-
-    context "when payload includes oauth_token" do
-      # case where (in Enterprise) scheduler sets the source URL with https
-      before { payload[:oauth_token] = oauth_token }
-
-      it 'writes to $HOME/.netrc' do
-        expect(script.sexp).to include_sexp [:raw, /echo -e "machine github.com\n  login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
-      end
-    end
-
-    context "when payload does not include oauth_token" do
-      # hosted .org
-      it 'does not write to $HOME/.netrc' do
-        should_not include_sexp [:raw, /echo -e "machine github.com\n  login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
-      end
-    end
-  end
-
-  context 'when source_url starts with "https" on a GitHub Enterprise host' do
-    let(:ghe_host) { 'ghe.example.com'}
-    before { payload[:repository][:source_url] = "https://#{ghe_host}/travis-ci/travis-ci.git" }
-
-    context "when payload includes oauth_token" do
-      # case where (in Enterprise) scheduler sets the source URL with https
-      before { payload[:oauth_token] = oauth_token }
-
-      it 'writes to $HOME/.netrc' do
-        expect(script.sexp).to include_sexp [:raw, /echo -e "machine #{ghe_host}\n  login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
-      end
-    end
-
-    context "when payload does not include oauth_token" do
-      # hosted .org
-      it 'does not write to $HOME/.netrc' do
-        should_not include_sexp [:raw, /echo -e "machine #{ghe_host}\n  login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
-      end
-    end
-  end
-
-  context 'when source_url starts with "git"' do
-    context "when payload includes oauth_token" do
-      # hosted .com, or Enterprise with default config
-      before { payload[:oauth_token] = oauth_token }
-
-      it 'does not write to $HOME/.netrc' do
-        should_not include_sexp [:raw, /echo -e "machine github.com\n  login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
-      end
-    end
-
-    context "when payload does not include oauth_token" do
-      # this should not happen
-      it 'does not write to $HOME/.netrc' do
-        should_not include_sexp [:raw, /echo -e "machine github.com\n  login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
-      end
-    end
-  end
-
-  context 'when source_url starts with "git"' do
-    it 'deos not write to $HOME/.netrc' do
-      should_not include_sexp [:raw, /echo -e "machine github.com login #{oauth_token}\\n" > \$HOME\/\.netrc/, assert: true ]
-    end
-  end
-
 
   describe 'when the repository is not yet cloned' do
     let(:args) { "--depth=#{depth} --branch=#{branch.shellescape}" }
     let(:cmd)  { "git clone #{args} #{url} #{dir}" }
     subject    { sexp_find(sexp, [:if, "! -d #{dir}/.git"]) }
 
-    let(:clone) { [:cmd, cmd, assert: true, echo: true, retry: true, timing: true] }
+    let(:clone) { [:cmd, cmd, echo: true, retry: true, timing: true] }
 
     describe 'with no depth specified' do
       it { should include_sexp clone }
@@ -128,16 +64,26 @@ describe Travis::Build::Git::Clone, :sexp do
   describe 'when the repository is already cloned' do
     subject         { sexp_find(sexp, [:if, "! -d #{dir}/.git"], [:else]) }
 
-    let(:fetch)     { [:cmd, 'git -C travis-ci/travis-ci fetch origin', assert: true, echo: true, retry: true, timing: true] }
-    let(:reset)     { [:cmd, 'git -C travis-ci/travis-ci reset --hard', assert: true, echo: true] }
+    let(:fetch)     { [:cmd, "git -C #{payload[:repository][:slug]} fetch origin", assert: true, echo: true, retry: true, timing: true] }
+    let(:reset)     { [:cmd, "git -C #{payload[:repository][:slug]} reset --hard", assert: true, echo: true] }
 
     it { should include_sexp fetch }
     it { should include_sexp reset }
+
+    context 'when git.quiet is true' do
+      before :each do
+        payload[:config][:git].merge!({ quiet: true })
+      end
+
+      let(:quiet_fetch)     { [:cmd, "git -C #{payload[:repository][:slug]} fetch origin --quiet", assert: true, echo: true, retry: true, timing: true] }
+
+      it { should include_sexp quiet_fetch }
+    end
   end
 
-  let(:cd)            { [:cd,  'travis-ci/travis-ci', echo: true] }
+  let(:cd)            { [:cd,  payload[:repository][:slug], echo: true] }
   let(:fetch_ref)     { [:cmd, %r(git fetch origin \+[\w/]+:), assert: true, echo: true, retry: true, timing: true] }
-  let(:checkout_push) { [:cmd, 'git checkout -qf 313f61b', assert: true, echo: true] }
+  let(:checkout_push) { [:cmd, "git checkout -qf #{payload[:job][:commit]}", assert: true, echo: true] }
   let(:checkout_tag)  { [:cmd, 'git checkout -qf v1.0.0', assert: true, echo: true] }
   let(:checkout_pull) { [:cmd, 'git checkout -qf FETCH_HEAD', assert: true, echo: true] }
 
@@ -146,6 +92,16 @@ describe Travis::Build::Git::Clone, :sexp do
   describe 'with a ref given' do
     before { payload[:job][:ref] = 'refs/pull/118/merge' }
     it { should include_sexp fetch_ref }
+
+    context 'when git.quiet is true' do
+      before :each do
+        payload[:config][:git].merge!({ quiet: true })
+      end
+
+      let(:quiet_fetch_ref) { [:cmd, %r(git fetch origin \+[\w/]+: --quiet), assert: true, echo: true, retry: true, timing: true] }
+
+      it { should include_sexp quiet_fetch_ref }
+    end
   end
 
   describe 'with a tag given' do
@@ -166,5 +122,13 @@ describe Travis::Build::Git::Clone, :sexp do
   describe 'checks out the given commit for a pull request' do
     before { payload[:job][:pull_request] = true }
     it { should include_sexp checkout_pull }
+  end
+
+  context "When sparse_checkout is requested" do
+    before { payload[:config][:git]['sparse_checkout'] = 'sparse_checkout_file' }
+    it { should include_sexp [:cmd, "git -C #{payload[:repository][:slug]} pull origin master --depth=50", echo: true, timing: true, retry: true]}
+    it { should include_sexp [:cmd, "echo sparse_checkout_file >> #{payload[:repository][:slug]}/.git/info/sparse-checkout", assert: true, echo: true, timing: true, retry: true]}
+    it { should include_sexp [:cmd, "cat #{payload[:repository][:slug]}/sparse_checkout_file >> #{payload[:repository][:slug]}/.git/info/sparse-checkout", assert: true, echo: true, timing: true, retry: true]}
+    it { store_example(name: 'git sparse checkout') }
   end
 end

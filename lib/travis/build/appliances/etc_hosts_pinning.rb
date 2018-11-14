@@ -6,13 +6,13 @@ module Travis
     module Appliances
       class EtcHostsPinning < Base
         def apply
-          Travis::Build.config.etc_hosts_pinning.split(',').each do |etchostsline|
-            sh.raw %(echo #{Shellwords.escape(etchostsline.untaint)} | sudo tee -a /etc/hosts &>/dev/null)
+          Travis::Build.config.etc_hosts_pinning.to_s.output_safe.split(',').each do |etchostsline|
+            sh.raw %(echo #{Shellwords.escape(etchostsline)} | sudo tee -a /etc/hosts &>/dev/null)
           end
         end
 
         def apply?
-          !Travis::Build.config.etc_hosts_pinning.strip.empty?
+          super && !Travis::Build.config.etc_hosts_pinning.to_s.strip.empty?
         end
       end
     end

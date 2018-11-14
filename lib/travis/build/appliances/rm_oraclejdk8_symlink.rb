@@ -7,15 +7,13 @@ module Travis
         def apply
           symlink = '/usr/lib/jvm/java-8-oracle-amd64'
           sh.if "-L #{symlink}" do
-            sh.echo "Removing symlink #{symlink}"
-            sh.cmd "sudo rm -f #{symlink}", echo: true
+            sh.cmd "sudo rm -f #{symlink}", echo: false
             %W(
-              #{HOME_DIR}/.jdk_switcher_rc
+              ${TRAVIS_HOME}/.jdk_switcher_rc
               /opt/jdk_switcher/jdk_switcher.sh
             ).each do |jdk_switcher|
               sh.if "-f #{jdk_switcher}" do
-                sh.echo 'Reload jdk_switcher'
-                sh.cmd "source #{jdk_switcher}", echo: true
+                sh.cmd "source #{jdk_switcher}", echo: false
               end
             end
           end

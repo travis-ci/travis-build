@@ -7,6 +7,8 @@ describe Travis::Build::Script::Go, :sexp do
   subject        { script.sexp }
   it             { store_example }
 
+  it_behaves_like 'a bash script'
+
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=go'] }
     let(:cmds) { ['go test'] }
@@ -15,11 +17,11 @@ describe Travis::Build::Script::Go, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'sets GOPATH' do
-    should include_sexp [:export, ['GOPATH', '$HOME/gopath'], echo: true]
+    should include_sexp [:export, ['GOPATH', '${TRAVIS_HOME}/gopath'], echo: true]
   end
 
   it 'sets TRAVIS_GO_VERSION' do
-    should include_sexp [:export, ['TRAVIS_GO_VERSION', '1.9']]
+    should include_sexp [:export, ['TRAVIS_GO_VERSION', defaults[:go]]]
   end
 
   it 'conditionally sets GOMAXPROCS to 2' do
@@ -27,51 +29,48 @@ describe Travis::Build::Script::Go, :sexp do
   end
 
   it 'sets the default go version if not :go config given' do
-    should include_sexp [:cmd, 'GIMME_OUTPUT="$(gimme 1.9 | tee -a $HOME/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, %{GIMME_OUTPUT="$(gimme #{defaults[:go]} | tee -a ${TRAVIS_HOME}/.bashrc)" && eval "$GIMME_OUTPUT"}, assert: true, echo: true, timing: true]
   end
 
   it 'sets the go version from config :go' do
     data[:config][:go] = 'go1.2'
-    should include_sexp [:cmd, 'GIMME_OUTPUT="$(gimme 1.2.2 | tee -a $HOME/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'GIMME_OUTPUT="$(gimme 1.2 | tee -a ${TRAVIS_HOME}/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
   end
 
   shared_examples 'gopath fix' do
-    it { should include_sexp [:mkdir, "$HOME/gopath/src/#{hostname}/travis-ci/travis-ci", echo: true, recursive: true] }
-    it { should include_sexp [:cmd, "rsync -az ${TRAVIS_BUILD_DIR}/ $HOME/gopath/src/#{hostname}/travis-ci/travis-ci/", echo: true] }
-    it { should include_sexp [:export, ['TRAVIS_BUILD_DIR', "$HOME/gopath/src/#{hostname}/travis-ci/travis-ci"], echo: true] }
-    it { should include_sexp [:cd, "$HOME/gopath/src/#{hostname}/travis-ci/travis-ci", assert: true, echo: true] }
+    it { should include_sexp [:mkdir, "${TRAVIS_HOME}/gopath/src/#{host}/#{data[:repository][:slug]}", echo: true, recursive: true] }
+    it { should include_sexp [:cmd, "tar -Pczf ${TRAVIS_TMPDIR}/src_archive.tar.gz -C ${TRAVIS_BUILD_DIR} . && tar -Pxzf ${TRAVIS_TMPDIR}/src_archive.tar.gz -C ${TRAVIS_HOME}/gopath/src/#{host}/#{data[:repository][:slug]}", echo: true] }
+    it { should include_sexp [:export, ['TRAVIS_BUILD_DIR', "${TRAVIS_HOME}/gopath/src/#{host}/#{data[:repository][:slug]}"], echo: true] }
+    it { should include_sexp [:cd, "${TRAVIS_HOME}/gopath/src/#{host}/#{data[:repository][:slug]}", assert: true, echo: true] }
   end
 
   describe 'with github.com' do
-    let(:hostname) { 'github.com' }
+    let(:host) { 'github.com' }
+    before { data[:repository]['source_host'] = host }
     it_behaves_like 'gopath fix'
   end
 
   describe 'with ghs' do
-    let(:hostname) { 'ghe.example.com' }
-
-    before do
-      data[:repository]['source_url'] = "git@#{hostname}:travis-ci/travis-ci.git"
-    end
-
+    let(:host) { 'ghe.example.com' }
+    before { data[:repository]['source_host'] = host }
     it_behaves_like 'gopath fix'
   end
 
   it 'installs the go version' do
     data[:config][:go] = 'go1.1'
-    should include_sexp [:cmd, 'GIMME_OUTPUT="$(gimme 1.1 | tee -a $HOME/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'GIMME_OUTPUT="$(gimme 1.1 | tee -a ${TRAVIS_HOME}/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
   end
 
-  Travis::Build.config.go_version_aliases_hash.each do |version_alias, version|
-    it "sets version #{version.inspect} for alias #{version_alias.inspect}" do
-      data[:config][:go] = version_alias
-      should include_sexp [:cmd, %Q'GIMME_OUTPUT="$(gimme #{version} | tee -a $HOME/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
+  context "when go version is an array" do
+    it "installs the first version specified" do
+      data[:config][:go] = ['1.6']
+      should include_sexp [:cmd, 'GIMME_OUTPUT="$(gimme 1.6 | tee -a ${TRAVIS_HOME}/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
     end
   end
 
   it 'passes through arbitrary tag versions' do
     data[:config][:go] = 'release9000'
-    should include_sexp [:cmd, 'GIMME_OUTPUT="$(gimme release9000 | tee -a $HOME/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, 'GIMME_OUTPUT="$(gimme release9000 | tee -a ${TRAVIS_HOME}/.bashrc)" && eval "$GIMME_OUTPUT"', assert: true, echo: true, timing: true]
   end
 
   it 'announces go version' do
@@ -87,7 +86,7 @@ describe Travis::Build::Script::Go, :sexp do
     'https://gist.githubusercontent.com/meatballhat/e2baf03f7ffae8047ccd/raw/f6d89b63eadb5faeeeed5b1bcd63c3fb60df3900/breakout.sh'
   ].each do |url|
     it "ignores invalid gimme_config.url #{url}" do
-      should include_sexp [:cmd, "curl -sL -o $HOME/bin/gimme '#{defaults[:gimme_config][:url]}'"]
+      should include_sexp [:cmd, "curl -sL -o ${TRAVIS_HOME}/bin/gimme '#{defaults[:gimme_config][:url]}'"]
     end
   end
 
@@ -104,7 +103,7 @@ describe Travis::Build::Script::Go, :sexp do
     end
   end
 
-  %w(1 1.2 1.2.2 1.3 1.5 1.6 tip).each do |recent_go_version|
+  %w(1.2 1.3 1.5 1.6 1.9 1.10.x 1.x master).each do |recent_go_version|
     describe "if no Makefile exists on #{recent_go_version}" do
       it 'installs with go get -t' do
         data[:config][:go] = recent_go_version

@@ -1,4 +1,6 @@
 require 'travis/build/addons/base'
+require 'net/http'
+require 'json'
 
 module Travis
   module Build
@@ -6,13 +8,18 @@ module Travis
       class Browserstack < Base
         # mark safe for use on containers
         SUPER_USER_SAFE = true
-        BROWSERSTACK_HOME = '$HOME/.browserstack'
+        BROWSERSTACK_HOME = '${TRAVIS_HOME}/.browserstack'
         BROWSERSTACK_BIN_FILE = 'BrowserStackLocal'
         BROWSERSTACK_BIN_URL = 'https://www.browserstack.com/browserstack-local'
         ENV_USER = 'BROWSERSTACK_USER'
+        ENV_USERNAME = 'BROWSERSTACK_USERNAME'
         ENV_KEY = 'BROWSERSTACK_ACCESS_KEY'
         ENV_LOCAL = 'BROWSERSTACK_LOCAL'
         ENV_LOCAL_IDENTIFIER = 'BROWSERSTACK_LOCAL_IDENTIFIER'
+        ENV_APP_ID = 'BROWSERSTACK_APP_ID'
+        ENV_CUSTOM_ID = 'BROWSERSTACK_CUSTOM_ID'
+        ENV_SHAREABLE_ID = 'BROWSERSTACK_SHAREABLE_ID'
+        BROWSERSTACK_APP_AUTOMATE_URL = 'https://api-cloud.browserstack.com/app-automate/upload'
 
         def before_before_script
           sh.fold "browserstack.install" do
@@ -23,6 +30,10 @@ module Travis
             sh.fold 'browserstack.start' do
               start_browserstack
             end
+          end
+
+          if app_path && !app_path.empty?
+            upload_app()
           end
         end
 
@@ -169,11 +180,40 @@ module Travis
             sh.cmd "#{build_start_command(browserstack_key)}"
             browserstack_user = username.to_s
             sh.export ENV_USER, browserstack_user + "-travis", echo: true unless browserstack_user.empty?
+            sh.export ENV_USERNAME, browserstack_user + "-travis", echo: true unless browserstack_user.empty?
             sh.export ENV_KEY, browserstack_key, echo: false
             sh.export ENV_LOCAL, 'true', echo: true
           end
-        end
 
+          def custom_id
+            config[:custom_id] || config[:customId]
+          end
+
+          def app_path
+            path = config[:app_path] || config[:appPath]
+            return File.join('$TRAVIS_BUILD_DIR', path) if path && !path.empty?
+            return path
+          end
+
+          def upload_app()
+            upload_command = "curl -u \"#{username}:#{browserstack_key}\" -X POST #{BROWSERSTACK_APP_AUTOMATE_URL} -F \"file=@#{app_path}\""
+            if custom_id && !custom_id.empty?
+              upload_command += " -F 'data={\"custom_id\": \"#{custom_id}\"}'"
+            end
+            sh.fold "browserstack app upload" do
+              sh.if "-e #{app_path}" do
+                sh.cmd "#{upload_command} | tee $TRAVIS_BUILD_DIR/app_upload_out"
+                sh.export(ENV_APP_ID, "`cat $TRAVIS_BUILD_DIR/app_upload_out | jq -r .app_url`")
+                sh.export(ENV_CUSTOM_ID, "`cat $TRAVIS_BUILD_DIR/app_upload_out | jq -r .custom_id`")
+                sh.export(ENV_SHAREABLE_ID, "`cat $TRAVIS_BUILD_DIR/app_upload_out | jq -r .shareable_id`")
+                sh.cmd("rm $TRAVIS_BUILD_DIR/app_upload_out")
+              end
+              sh.else do
+                sh.echo("App file not found")
+              end
+            end
+          end
+      end
     end
   end
 end

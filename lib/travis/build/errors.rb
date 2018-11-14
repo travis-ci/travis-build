@@ -61,5 +61,15 @@ module Travis
         '/user/installing-dependencies'
       end
     end
+
+    class SnapsConfigError < CompilationError
+      def initialize(msg = "\\`snaps\\` should be a list.")
+        super
+      end
+
+      def doc_path
+        '/user/installing-dependencies'
+      end
+    end
   end
 end

@@ -19,7 +19,7 @@ module Travis
 
         DEFAULTS = {
           haxe: 'stable',
-          neko: '2.1.0'
+          neko: '2.2.0'
         }
 
         def export
@@ -42,14 +42,14 @@ module Travis
                   ' in the issue', ansi: :green
 
           sh.fold('neko-install') do
-            neko_path = '${HOME}/neko'
+            neko_path = '${TRAVIS_HOME}/neko'
 
             sh.echo 'Installing Neko', ansi: :yellow
 
             # Install dependencies
             case config[:os]
             when 'linux'
-              sh.cmd 'sudo apt-get update -qq', retry: true
+              sh.cmd 'travis_apt_get_update', retry: true
               sh.cmd 'sudo apt-get install libgc1c2 -qq', retry: true # required by neko
             when 'osx'
               # pass
@@ -78,7 +78,7 @@ module Travis
           end
 
           sh.fold('haxe-install') do
-            haxe_path = '${HOME}/haxe'
+            haxe_path = '${TRAVIS_HOME}/haxe'
 
             sh.echo 'Installing Haxe', ansi: :yellow
             sh.cmd %Q{mkdir -p #{haxe_path}}
@@ -142,7 +142,7 @@ module Travis
               nil
             end
 
-            haxeorg_stable || github_stable || "3.4.4"
+            haxeorg_stable || github_stable || "3.4.7"
           end
 
           def haxe_version
@@ -150,7 +150,7 @@ module Travis
             when 'stable'
               haxe_stable
             else
-              config[:haxe].to_s
+              Array(config[:haxe]).first.to_s
             end
           end
 
@@ -161,8 +161,8 @@ module Travis
             when 'osx'
               os = 'osx64'
             end
-            version = config[:neko]
-            "http://nekovm.org/_media/neko-#{version}-#{os}.tar.gz"
+            version = Array(config[:neko]).first
+            "https://github.com/HaxeFoundation/neko/releases/download/v#{version.to_s.gsub(".", "-")}/neko-#{version}-#{os}.tar.gz"
           end
 
           def haxe_url
@@ -175,7 +175,7 @@ module Travis
               when 'osx'
                 'mac'
               end
-              "http://hxbuilds.s3-website-us-east-1.amazonaws.com/builds/haxe/#{os}/haxe_latest.tar.gz"
+              "https://build.haxe.org/builds/haxe/#{os}/haxe_latest.tar.gz"
             else
               os = case config[:os]
               when 'linux'
@@ -183,7 +183,7 @@ module Travis
               when 'osx'
                 'osx'
               end
-              "http://haxe.org/website-content/downloads/#{haxe_ver}/downloads/haxe-#{haxe_ver}-#{os}.tar.gz"
+              "https://haxe.org/website-content/downloads/#{haxe_ver}/downloads/haxe-#{haxe_ver}-#{os}.tar.gz"
             end
           end
 

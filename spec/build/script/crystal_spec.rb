@@ -6,14 +6,15 @@ describe Travis::Build::Script::Crystal, :sexp do
   subject      { script.sexp }
   it           { store_example }
 
+  it_behaves_like 'a bash script'
   it_behaves_like 'a build script sexp'
 
   it "announces `crystal --version`" do
     should include_sexp [:cmd, "crystal --version", echo: true]
   end
 
-  it "announces `crystal deps --version`" do
-    should include_sexp [:cmd, "crystal deps --version", echo: true]
+  it "announces `shards --version`" do
+    should include_sexp [:cmd, "shards --version", echo: true]
   end
 
   it "runs tests by default" do
