@@ -83,7 +83,7 @@ module Travis
           'TRAVIS_BUILD_UPDATE_GLIBC',
           ENV.fetch('TRAVIS_UPDATE_GLIBC', ENV.fetch('UPDATE_GLIBC', ''))
         ),
-        wait_for_network_check: ENV.fetch('TRAVIS_WAIT_FOR_NETWORK_CHECK', 'true').to_bool
+        wait_for_network_check: (ENV.fetch('TRAVIS_WAIT_FOR_NETWORK_CHECK', 'true') == 'true')
       )
 
       default(
