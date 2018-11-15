@@ -65,6 +65,7 @@ module Travis
           sh.echo 'Please open any issues at https://github.com/travis-ci/travis-ci/issues/new and cc @domenkozar @garbas @matthewbauer @grahamc', ansi: :green
 
           sh.cmd "nix-env --version"
+          sh.cmd "nix-instantiate --eval -E 'with import <nixpkgs> {}; lib.version or lib.nixpkgsVersion'"
         end
 
         def script
