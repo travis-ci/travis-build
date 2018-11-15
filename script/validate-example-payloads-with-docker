@@ -1,8 +1,25 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -o errexit
+set -o pipefail
 
 main() {
-  : "${GITHUB_OAUTH_TOKEN:=${no_scope_token}}"
+  # shellcheck disable=SC2154
+  if [[ ! "${GITHUB_OAUTH_TOKEN}" && "${no_scope_token}" ]]; then
+    echo "----> Using no_scope_token for GitHub OAuth"
+    GITHUB_OAUTH_TOKEN="${no_scope_token}"
+  fi
+
+  [[ "${GITHUB_OAUTH_TOKEN}" ]] || {
+    echo Missing GITHUB_OAUTH_TOKEN
+    exit 86
+  }
+
+  if [[ "${GITHUB_OAUTH_TOKEN}" == notset ]]; then
+    echo Refusing to use GITHUB_OAUTH_TOKEN=notset
+    exit 86
+  fi
+
+  export GITHUB_OAUTH_TOKEN
 
   local top
   top="$(git rev-parse --show-toplevel)"
