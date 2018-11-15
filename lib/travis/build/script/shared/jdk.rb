@@ -44,8 +44,6 @@ module Travis
           end
 
           sh.cmd 'mkdir -p ~/.gradle && echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties', echo: false, timing: false
-
-          correct_maven_repo
         end
 
         def announce
@@ -101,12 +99,6 @@ module Travis
 
           def cache_dir
             "${TRAVIS_HOME}/.cache/install-jdk"
-          end
-
-          def correct_maven_repo
-            old_repo = 'https://repository.apache.org/releases/'
-            new_repo = 'https://repository.apache.org/content/repositories/releases/'
-            sh.cmd "sed -i 's|#{old_repo}|#{new_repo}|g' ~/.m2/settings.xml", echo: false, assert: false, timing: false
           end
 
           def jdk_deprecated?

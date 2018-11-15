@@ -24,8 +24,13 @@ module Travis
 
     class << self
       def version
-        @version ||= `git rev-parse HEAD 2>/dev/null || \\
-                        echo "${HEROKU_SLUG_COMMIT:-unknown}"`.strip
+        return @version if @version
+        @version ||= `git describe --always --dirty --tags 2>/dev/null`.strip
+        @version = nil unless $?.success?
+        @version ||= ENV.fetch('HEROKU_SLUG_COMMIT', nil)
+        @version ||= top.join('VERSION').read if top.join('VERSION').exist?
+        @version ||= 'unknown'
+        @version
       end
 
       def self.register(key)

@@ -38,6 +38,7 @@ module Travis
               TRAVIS_BUILD_DIR:       repository[:slug],
               TRAVIS_BUILD_WEB_URL:   "https://#{data[:host]}/#{repository[:slug]}/builds/#{build[:id]}",
               TRAVIS_JOB_ID:          job[:id],
+              TRAVIS_JOB_NAME:        job[:name],
               TRAVIS_JOB_NUMBER:      job[:number],
               TRAVIS_JOB_WEB_URL:     "https://#{data[:host]}/#{repository[:slug]}/jobs/#{job[:id]}",
               TRAVIS_BRANCH:          job[:branch],
