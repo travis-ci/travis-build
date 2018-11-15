@@ -53,6 +53,16 @@ describe Travis::Build::Addons::Firefox, :sexp do
     it { should include_sexp [:export, ['PATH', "${TRAVIS_HOME}/firefox-latest-beta/firefox:$PATH"], echo: true] }
   end
 
+  context 'given a valid version "latest-dev"' do
+    let(:config) { 'latest-dev' }
+
+    it 'copies correct Mac app dir to the destination' do
+      expect(sexp_find(subject, [:if, "$(uname) = \"Linux\""], [:elif, "$(uname) = \"Darwin\""])).to include_sexp(
+        [:cmd, "sudo cp -a 'firefox/Firefox Developer Edition.app' /Applications"]
+      )
+    end
+  end
+
   context 'given a valid version "latest-esr"' do
     let(:config) { 'latest-esr' }
     it { should include_sexp [:export, ['PATH', "${TRAVIS_HOME}/firefox-latest-esr/firefox:$PATH"], echo: true] }
@@ -62,7 +72,7 @@ describe Travis::Build::Addons::Firefox, :sexp do
     let(:config) { 'latest-unsigned' }
     it "exports latest-unsigned source URL" do
       expect(sexp_find(subject, [:if, "$(uname) = 'Linux'"])).to include_sexp(
-        [:export, ['FIREFOX_SOURCE_URL', "\"https://index.taskcluster.net/v1/task/gecko.v2.mozilla-release.latest.firefox.linux64-add-on-devel/artifacts/public/build/firefox-$(curl -sfL https://index.taskcluster.net/v1/task/gecko.v2.mozilla-release.latest.firefox.linux64-add-on-devel/artifacts/public/build/buildbot_properties.json | jq -r .properties.appVersion).en-US.linux-x86_64-add-on-devel.tar.bz2\""], echo: true]
+        [:export, ['FIREFOX_SOURCE_URL', "\"https://index.taskcluster.net/v1/task/gecko.v2.mozilla-release.latest.firefox.linux64-add-on-devel/artifacts/public/build/target.tar.bz2\""], echo: true]
       )
     end
     it { should include_sexp [:export, ['PATH', "${TRAVIS_HOME}/firefox-latest-unsigned/firefox:$PATH"], echo: true] }
@@ -71,12 +81,7 @@ describe Travis::Build::Addons::Firefox, :sexp do
   context 'given a invalid version string' do
     let(:config) { '20.0; sudo rm -rf /' }
 
-    it_behaves_like 'compiled script' do
-      let(:code) { ['install_firefox', 'Invalid version'] }
-    end
-
-    it { should include_sexp [:echo, "Invalid version '20.0\\;\\ sudo\\ rm\\ -rf\\ /' given.", ansi: :red] }
+    it { should include_sexp [:echo, %r(Invalid version '20.0\\;\\ sudo\\ rm\\ -rf\\ /' given.), ansi: :red] }
     it { should_not include_sexp [:export, ['PATH', "${TRAVIS_HOME}/firefox-20.0/firefox:$PATH"], echo: true] }
   end
 end
-
