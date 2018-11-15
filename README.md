@@ -13,79 +13,15 @@ form.
 
 ## Running test suites
 
-Run
+For basic testing, run:
 
-``` bash
-bundle exec rake spec
+```sh-session
+$ bundle exec rake clean assets:precompile
+$ bundle exec rspec spec
 ```
 
-## Use as addon for CLI
-
-You can set travis-build up as a plugin for the [command line
-client](https://github.com/travis-ci/travis.rb):
-
-``` bash
-ln -s PATH_TO_TRAVIS_BUILD ~/.travis/travis-build
-gem install bundler
-bundle install --gemfile ~/.travis/travis-build/Gemfile
-bundler binstubs travis
-```
-
-You will now be able to run `travis compile`, which produces the bash script
-that runs the specified job, except that the secure environment variables are
-not defined, and that the build matrix expansion is not considered, e.g:
-
-``` bash
-~/.travis/travis-build/bin/travis compile
-```
-
-### _Important_
-
-The resulting script contains commands that make changes to the system on which
-it is executed (e.g., edit `/etc/resolv.conf`, install software).  Some require
-`sudo` privileges and they are not easily undone.
-
-It is highly recommended that you run this in a container or other virtualized
-environment.
-
-### Invocation
-
-The command can be invoked in 3 ways:
-
-Without an argument, it produces the bash script for the local `.travis.yml`
-without considering `env` and `matrix` values (`travis-build` is unable to
-expand these keys correctly).
-
-``` bash
-~/.travis/travis-build/bin/travis compile
-```
-
-With a single integer, it produces the script for the given build (or the first
-job of that build matrix).
-
-``` bash
-~/.travis/travis-build/bin/travis compile 8
-```
-
-With an argument of the form `M.N`, it produces the bash script for the job
-`M.N`.
-
-``` bash
-~/.travis/travis-build/bin/travis compile 351.2
-```
-
-The generated script can be used in a container or virtualized environment that
-closely mimics Travis CI's build environment to aid you in debugging the build
-failures.  Instructions for running such a container are available
-[in the Travis CI docs](https://docs.travis-ci.com/user/common-build-problems/#running-a-container-based-docker-image-locally).
-
-## Raw CLI script
-
-In addition to the travis CLI plugin you can also run the standalone CLI script:
-
-``` bash
-bundle exec script/compile < payload.json > build.sh
-```
+More comprehensive tests are also possible. See `.travis.yml` for more
+information.
 
 ## Docker container
 
@@ -117,9 +53,65 @@ docker-compose run -e RACK_ENV=development -p 4000:4000 web
 See [`docker-compose` documentation](https://docs.docker.com/compose/reference/run/)
 for more information.
 
+## Testing script generation
+
+Once you have the Docker container running as explained in the previous section,
+it is possible to test `travis-build`'s script generating capability with the
+`compile` script.
+
+### Using `compile`
+
+On its most basic level, `compile` constructs an appropriate JSON payload and
+issues an HTTP `POST` request to `/script`, which is exactly how `travis-build`
+does its job internally.
+
+To create the payload, the script requires a job (not build) id to fetch from
+the API server; for example:
+
+    ./compile -p 4000 451073131
+
+By default, the script fetches data from the .org API endpoint (https://api.travis-ci.org),
+and sends the `POST` request to `localhost`'s port 80.
+In the above example, we override the port, since the Docker container publishes
+port 4000 (as indicated in the previous section).
+
+### Deployment data
+
+Since deployment configuration is most often sensitive, and is not exposed by
+the API server, we will not get any deployment-related information.
+
+To fill in the deployment data, `script` takes the `--deploy` flag.
+If deployment configuration is stored in a JSON or YAML file, you can specify:
+
+    ./compile -p 4000 --deploy=deploy.json 451073131
+
+It is also possible to feed the JSON data via STDIN. This is useful if you want
+to read the YAML configuration from GitHub:
+
+    $ curl -sSf -L https://raw.githubusercontent.com/REPO/OWNER/master/.travis.yml | ruby -r yaml -r json -e 'puts YAML.load($stdin).to_json' | jq .deploy | ./compile -p 4000 --deploy -
+
+Here, we read the configuration from https://raw.githubusercontent.com/REPO/OWNER/master/.travis.yml,
+converts it to JSON, then pick out the `deploy` definition at the top level with
+[jq](https://stedolan.github.io/jq/).
+
+
+### _Important_
+
+The resulting script contains commands that make changes to the system on which
+it is executed (e.g., edit `/etc/resolv.conf`, install software).  Some require
+`sudo` privileges and they are not easily undone.
+
+It is highly recommended that you run this in a container or other virtualized
+environment.
+
+The generated script can be used in a container or virtualized environment that
+closely mimics Travis CI's build environment to aid you in debugging the build
+failures.  Instructions for running such a container are available
+[in the Travis CI docs](https://docs.travis-ci.com/user/common-build-problems/#running-a-container-based-docker-image-locally).
+
 ## License & copyright information
 
 See [LICENSE](./LICENSE) file.
 
-Copyright (c) 2011-2016 [Travis CI development
+Copyright (c) 2011-2018 [Travis CI development
 team](https://github.com/travis-ci).
