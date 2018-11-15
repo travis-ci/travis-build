@@ -1,0 +1,35 @@
+describe 'travis_getaddrinfo', integration: true do
+  include SpecHelpers::BashFunction
+
+  let :stubs do
+    <<~BASH
+      rvm() {
+        while [[ "${1}" != do ]]; do
+          shift
+        done
+        shift
+        "${@}"
+      }
+      travis_internal_ruby() {
+        echo '2.5.3'
+      }
+    BASH
+  end
+
+  it 'is valid bash' do
+    expect(run_script('travis_getaddrinfo', '')[:truth]).to be true
+  end
+
+  it 'can run successfully' do
+    result = run_script(
+      'travis_getaddrinfo',
+      "#{stubs}\ntravis_getaddrinfo www.google.com",
+      image: 'ruby:2.5.3',
+    )
+    expect(result[:truth]).to be true
+    response = result[:out].read.strip.split($NL).first
+    expect(response).to_not be_nil
+    expect(response).to_not be_empty
+    expect(Addrinfo.tcp(response, 80).ip?).to be true
+  end
+end
