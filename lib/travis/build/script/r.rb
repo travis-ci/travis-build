@@ -32,7 +32,9 @@ module Travis
           bioc_check: false,
           bioc_use_devel: false,
           disable_homebrew: false,
-          r: 'release'
+          r: 'release',
+          rtools: 'auto',
+          r_arch: 'x64'
         }
 
         def initialize(data)
@@ -151,6 +153,28 @@ module Travis
 
                 setup_fortran_osx if config[:fortran]
 
+              when 'windows'
+                if r_version == 'devel'
+                  r_url = "#{repos[:CRAN]}/bin/windows/base/R-devel-win.exe"
+                elsif r_version == r_latest
+                  r_url = "#{repos[:CRAN]}/bin/windows/base/R-#{r_version}-win.exe"
+                else
+                  r_url = "#{repos[:CRAN]}/bin/windows/base/old/#{r_version}/R-#{r_version}-win.exe"
+                end
+
+                # Install from CRAN binary build for Windows
+                sh.cmd "curl -fLo /tmp/R-win.exe #{r_url}", retry: true
+
+                # Likely needs admin privileges somehow???
+                sh.cmd "powershell 'Start-Process -FilePath $env:TEMP\R-win.exe -ArgumentList /VERYSILENT /DIR=C:\R -NoNewWindow -Wait'"
+
+                sh.export 'PATH', "/c/R/bin/#{config[:r_arch]}:$PATH", echo: false
+
+                sh.rm '/tmp/R-win.exe'
+
+                sh.if '-d src' do
+                  setup_rtools
+                end
               else
                 sh.failure "Operating system not supported: #{config[:os]}"
               end
@@ -457,32 +481,8 @@ module Travis
         end
 
         def setup_latex
-          case config[:os]
-          when 'linux'
-            texlive_filename = 'texlive.tar.gz'
-            texlive_url = 'https://github.com/jimhester/ubuntu-bin/releases/download/latest/texlive.tar.gz'
-            sh.cmd "curl -fLo /tmp/#{texlive_filename} #{texlive_url}"
-            sh.cmd "tar xzf /tmp/#{texlive_filename} -C ~"
-            sh.export 'PATH', "${TRAVIS_HOME}/texlive/bin/x86_64-linux:$PATH"
-            sh.cmd 'tlmgr update --self', assert: false
-          when 'osx'
-            # We use basictex due to disk space constraints.
-            mactex = 'BasicTeX.pkg'
-            # TODO: Confirm that this will route us to the nearest mirror.
-            sh.cmd "curl -fLo \"/tmp/#{mactex}\" --retry 3 http://mirror.ctan.org/systems/mac/mactex/"\
-                   "#{mactex}"
-
-            sh.echo 'Installing OS X binary package for MacTeX'
-            sh.cmd "sudo installer -pkg \"/tmp/#{mactex}\" -target /"
-            sh.rm "/tmp/#{mactex}"
-            sh.export 'PATH', '/usr/texbin:/Library/TeX/texbin:$PATH'
-
-            sh.cmd 'sudo tlmgr update --self', assert: false
-
-            # Install common packages
-            sh.cmd 'sudo tlmgr install inconsolata upquote '\
-              'courier courier-scaled helvetic', assert: false
-          end
+          r_install ['tinytex']
+          sh.cmd "Rscript -e 'tinytex::install_tinytex()'"
         end
 
         def setup_pandoc
@@ -520,6 +520,17 @@ module Travis
 
             # Cleanup
             sh.rm "/tmp/#{pandoc_filename}"
+          when 'windows'
+            pandoc_filename = "pandoc-#{config[:pandoc_version]}-windows-x86_64.msi"
+            pandoc_url = "https://github.com/jgm/pandoc/releases/download/#{config[:pandoc_version]}/"\
+              "#{pandoc_filename}"
+
+            # Download and install pandoc
+            sh.cmd "curl -fLo /tmp/#{pandoc_filename} #{pandoc_url}"
+            sh.cmd "powershell 'Start-Process -FilePath $env:TEMP\#{pandoc_filename} -ArgumentList /VERYSILENT -NoNewWindow -Wait'"
+
+            # Cleanup
+            sh.rm "/tmp/#{pandoc_filename}"
           end
         end
 
@@ -537,6 +548,14 @@ module Travis
             sh.cmd 'sudo hdiutil detach /Volumes/gfortran'
             sh.rm '/tmp/gfortran61.dmg'
           end
+        end
+
+        def setup_rtools
+          return unless (config[:os] == 'windows')
+          rtools_url = "#{repos[:CRAN]}/bin/windows/Rtools/Rtools#{rtools_version}.exe"
+          sh.cmd "curl -fLo /tmp/Rtools.exe #{rtools_url}"
+
+          sh.cmd "powershell 'Start-Process -FilePath $env:TEMP\Rtools.exe -ArgumentList /VERYSILENT -NoNewWindow -Wait'"
         end
 
         # Uninstalls the preinstalled homebrew
@@ -582,6 +601,24 @@ module Travis
             config[:r] = 'release'
             normalized_r_version
           else v
+          end
+        end
+
+        def rtools_version
+          @rtools_version ||= normalized_rtools_version
+        end
+
+        def normalized_rtools_version(v=Array(config[:rtools]).first.to_s)
+          if v != 'auto'
+            v
+          elsif r_version_less_than("3.1")
+            "31"
+          elsif r_version_less_than("3.2")
+            "32"
+          elsif r_version_less_than("3.3")
+            "33"
+          else
+            "35"
           end
         end
 
