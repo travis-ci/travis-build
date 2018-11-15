@@ -6,12 +6,12 @@ bin/*
 .bundle/*
 /tmp/
 play/*.sh
-examples/*.txt
+examples/
 rspec.log
 .vagrant
 coverage/
 .*env
 /public/files/
-/lib/travis/build/addons/sauce_connect/templates/sauce_connect.sh
 .rake_tasks
-examples/*.sh
+/.docker/
+vendor/

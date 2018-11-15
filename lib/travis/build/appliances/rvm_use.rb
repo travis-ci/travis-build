@@ -6,7 +6,7 @@ module Travis
       class RvmUse < Base
         def apply
           sh.if "$(command -v sw_vers)" do
-            sh.cmd "rvm use", echo: true
+            sh.cmd "rvm use &>/dev/null", echo: false
           end
         end
       end

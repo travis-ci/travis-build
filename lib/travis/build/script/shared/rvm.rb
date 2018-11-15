@@ -15,8 +15,9 @@ module Travis
         )
 
         RVM_VERSION_ALIASES = {
-          '2.3' => '2.3.4',
-          '2.4' => '2.4.1'
+          '2.3' => '2.3.7',
+          '2.4' => '2.4.4',
+          '2.5' => '2.5.1'
         }
 
         def export
@@ -26,7 +27,10 @@ module Travis
 
         def setup
           super
-          setup_rvm if rvm?
+          if rvm?
+            setup_rvm
+            sh.newline
+          end
         end
 
         def announce
@@ -110,7 +114,7 @@ module Travis
               if ruby_version.start_with? 'ree'
                 sh.if "! $(rvm list | grep ree)" do
                   sh.echo "Installing REE from source. This may take a few minutes.", ansi: :yellow
-                  sh.cmd "sed -i 's|^\\(ree_1.8.7_url\\)=.*$|\\1=https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/rubyenterpriseedition|' $HOME/.rvm/config/db"
+                  sh.cmd "sed -i 's|^\\(ree_1.8.7_url\\)=.*$|\\1=https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/rubyenterpriseedition|' ${TRAVIS_HOME}/.rvm/config/db"
                   sh.cmd "rvm use #{ruby_version} --install --fuzzy"
                 end
                 sh.else do

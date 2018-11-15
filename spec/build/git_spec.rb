@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe Travis::Build::Git, :sexp do
-  let(:netrc_inst)  { /echo -e "machine #{host}\\n  login travis-ci\\n  password access_token\\n" > \$HOME\/\.netrc/ }
-  let(:netrc_oauth) { /echo -e "machine #{host}\\n  login oauth_token\\n" > \$HOME\/\.netrc/ }
+  let(:netrc_inst)  { /echo -e "machine #{host}\\n  login travis-ci\\n  password access_token\\n" > \${TRAVIS_HOME}\/\.netrc/ }
+  let(:netrc_oauth) { /echo -e "machine #{host}\\n  login oauth_token\\n" > \${TRAVIS_HOME}\/\.netrc/ }
   let(:host)        { 'github.com' }
   let(:payload)     { payload_for(:push, :ruby) }
   let(:script)      { Travis::Build::Script.new(payload) }
@@ -11,13 +11,13 @@ describe Travis::Build::Git, :sexp do
   before { Travis::GithubApps.any_instance.stubs(:access_token).returns 'access_token' }
 
   shared_examples 'writes a netrc' do |type|
-    it 'writes $HOME/.netrc' do
+    it 'writes ${TRAVIS_HOME}/.netrc' do
       sexp_find(subject, [:raw, send(:"netrc_#{type}"), assert: true])
     end
   end
 
   shared_examples 'does not write a netrc' do
-    it 'does not write $HOME/.netrc' do
+    it 'does not write ${TRAVIS_HOME}/.netrc' do
       should_not include_sexp [:raw, netrc_inst, assert: true]
       should_not include_sexp [:raw, netrc_oauth, assert: true]
     end
@@ -36,8 +36,8 @@ describe Travis::Build::Git, :sexp do
   end
 
   shared_examples 'clones via' do |protocol|
-    let(:ssh)   { 'git@github.com:travis-ci/travis-ci.git' }
-    let(:https) { 'https://github.com/travis-ci/travis-ci.git' }
+    let(:ssh)   { "git@github.com:#{payload[:repository][:slug]}.git" }
+    let(:https) { "https://github.com/#{payload[:repository][:slug]}.git" }
     let(:cmd)   { [:cmd, /git clone.* #{send(protocol)}/] }
 
     it 'clones via ssh' do

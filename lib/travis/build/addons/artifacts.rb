@@ -7,7 +7,6 @@ module Travis
     class Addons
       class Artifacts < Base
         SUPER_USER_SAFE = true
-        TEMPLATES_PATH = File.expand_path('templates', __FILE__.sub('.rb', ''))
 
         attr_reader :env, :options, :validator
 
@@ -19,7 +18,7 @@ module Travis
         end
 
         def after_header
-          sh.raw template('artifacts.sh')
+          sh.raw bash('travis_artifacts_install')
         end
 
         def after_after_script
@@ -31,7 +30,7 @@ module Travis
         private
 
           def run
-            sh.echo 'Uploading Artifacts (BETA)', ansi: :yellow
+            sh.echo 'Uploading Artifacts', ansi: :yellow
             sh.fold 'artifacts.setup' do
               install
               export

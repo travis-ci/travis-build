@@ -3,6 +3,8 @@ require 'uri'
 require 'hashr'
 require 'travis/config'
 
+require 'core_ext/string/to_bool'
+
 module Travis
   module Build
     class Config < Travis::Config
@@ -13,26 +15,59 @@ module Travis
         @ghc_version_aliases_hash ||= version_aliases_hash('ghc')
       end
 
+      def sc_data
+        @sc_data ||= JSON.parse(
+          Travis::Build.top.join('tmp/sc_data.json').read.output_safe
+        )
+      end
+
       define(
         api_token: ENV.fetch(
           'TRAVIS_BUILD_API_TOKEN', ENV.fetch('API_TOKEN', '')
         ),
-        app_host: ENV.fetch('TRAVIS_BUILD_APP_HOST', ''),
-        apt_package_whitelist: {
-          precise: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_WHITELIST_PRECISE', ''),
-          trusty: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_WHITELIST_TRUSTY', '')
+        app_host: ENV.fetch('TRAVIS_APP_HOST', ''),
+        apt_mirrors: {
+          ec2: ENV.fetch(
+            'TRAVIS_BUILD_APT_MIRRORS_EC2',
+            'http://us-east-1.ec2.archive.ubuntu.com/ubuntu/'
+          ),
+          gce: ENV.fetch(
+            'TRAVIS_BUILD_APT_MIRRORS_GCE',
+            'http://us-central1.gce.archive.ubuntu.com/ubuntu/'
+          ),
+          packet: ENV.fetch(
+            'TRAVIS_BUILD_APT_MIRRORS_PACKET',
+            'http://archive.ubuntu.com/ubuntu/'
+          ),
+          unknown: ENV.fetch(
+            'TRAVIS_BUILD_APT_MIRRORS_UNKNOWN',
+            'http://archive.ubuntu.com/ubuntu/'
+          )
         },
-        apt_source_whitelist: {
-          precise: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_WHITELIST_PRECISE', ''),
-          trusty: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_WHITELIST_TRUSTY', '')
+        apt_package_safelist: {
+          precise: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_PRECISE', ''),
+          trusty: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_TRUSTY', ''),
+          xenial: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_XENIAL', ''),
         },
-        apt_whitelist_skip: ENV.fetch('TRAVIS_BUILD_APT_WHITELIST_SKIP', ''),
+        apt_source_safelist: {
+          precise: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_SAFELIST_PRECISE', ''),
+          trusty: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_SAFELIST_TRUSTY', ''),
+          xenial: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_SAFELIST_XENIAL', ''),
+        },
+        apt_source_safelist_key_url_template: ENV.fetch(
+          'TRAVIS_BUILD_APT_SOURCE_SAFELIST_KEY_URL_TEMPLATE',
+          'https://%{app_host}/files/gpg/%{source_alias}.asc'
+        ),
+        apt_safelist_skip: ENV.fetch('TRAVIS_BUILD_APT_SAFELIST_SKIP', '').to_bool,
+        auth_disabled: ENV.fetch('TRAVIS_BUILD_AUTH_DISABLED', '').to_bool,
         cabal_default: ENV.fetch('TRAVIS_BUILD_CABAL_DEFAULT', '2.0'),
-        auth_disabled: ENV.fetch('TRAVIS_BUILD_AUTH_DISABLED', ''),
         enable_debug_tools: ENV.fetch(
           'TRAVIS_BUILD_ENABLE_DEBUG_TOOLS',
           ENV.fetch('TRAVIS_ENABLE_DEBUG_TOOLS', '')
         ),
+        enable_infra_detection: ENV.fetch(
+          'TRAVIS_BUILD_ENABLE_INFRA_DETECTION', ''
+        ).to_bool,
         etc_hosts_pinning: ENV.fetch(
           'TRAVIS_BUILD_ETC_HOSTS_PINNING', ENV.fetch('ETC_HOSTS_PINNING', '')
         ),
@@ -46,7 +81,7 @@ module Travis
         go_version: ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.10.x'),
         internal_ruby_regex: ENV.fetch(
           'TRAVIS_BUILD_INTERNAL_RUBY_REGEX',
-          '^ruby-(2\.[0-2]\.[0-9]|1\.9\.3)'
+          '^ruby-(2\.[0-4]\.[0-9]|1\.9\.3)'
         ),
         librato: {
           email: ENV.fetch(
@@ -75,13 +110,28 @@ module Travis
         sentry_dsn: ENV.fetch(
           'TRAVIS_BUILD_SENTRY_DSN', ENV.fetch('SENTRY_DSN', '')
         ),
+        tainted_node_logging_enabled: false,
         update_glibc: ENV.fetch(
           'TRAVIS_BUILD_UPDATE_GLIBC',
-          ENV.fetch('TRAVIS_UPDATE_GLIBC', ENV.fetch('UPDATE_GLIBC', ''))
-        ),
+          ENV.fetch('TRAVIS_UPDATE_GLIBC', ENV.fetch('UPDATE_GLIBC', 'false'))
+        ).to_bool,
+        windows_langs: ENV.fetch(
+          'TRAVIS_WINDOWS_LANGS',
+          %w(
+            bash
+            csharp
+            go
+            node_js
+            powershell
+            rust
+            script
+            sh
+            shell
+          ).join(",")
+        ).split(/,/),
         dump_backtrace: ENV.fetch(
-          'TRAVIS_BUILD_DUMP_BACKTRACE', ENV.fetch('DUMP_BACKTRACE', '')
-        )
+          'TRAVIS_BUILD_DUMP_BACKTRACE', ENV.fetch('DUMP_BACKTRACE', 'false')
+        ).to_bool
       )
 
       default(
@@ -97,7 +147,7 @@ module Travis
                 "../../../../public/version-aliases/#{name}.json",
                 __FILE__
               )
-            ).untaint
+            ).output_safe
           )
         end
     end
