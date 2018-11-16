@@ -5,6 +5,7 @@ travis_getaddrinfo() {
     return
   fi
 
+  # shellcheck disable=SC1010
   rvm "$(travis_internal_ruby)" --fuzzy do ruby -rsocket <<EORUBY
 puts Addrinfo.getaddrinfo(
   '${nodename}', nil, nil, :STREAM
