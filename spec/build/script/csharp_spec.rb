@@ -209,6 +209,12 @@ describe Travis::Build::Script::Csharp, :sexp do
       data[:config][:os] = 'linux'
       should include_sexp [:cmd, 'nuget restore foo.sln', assert: true, echo: true, timing: true, retry: true]
     end
+
+    it 'correctly shellescapes solutions' do
+      data[:config][:solution] = 'test shellescape.sln'
+      data[:config][:os] = 'linux'
+      should include_sexp [:cmd, 'nuget restore test\ shellescape.sln', assert: true, echo: true, timing: true, retry: true]
+    end
   end
 
   describe 'script' do
@@ -219,6 +225,12 @@ describe Travis::Build::Script::Csharp, :sexp do
     it 'builds specified solution' do
       data[:config][:solution] = 'foo.sln'
       should include_sexp [:cmd, 'msbuild /p:Configuration=Release foo.sln', echo: true, timing: true]
+    end
+
+    it 'correctly shellescapes solutions' do
+      data[:config][:solution] = 'test shellescape.sln'
+      data[:config][:os] = 'linux'
+      should include_sexp [:cmd, 'msbuild /p:Configuration=Release test\ shellescape.sln', assert: true, echo: true, timing: true]
     end
   end
 
