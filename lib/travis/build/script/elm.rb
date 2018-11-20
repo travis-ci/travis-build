@@ -142,7 +142,7 @@ module Travis
           end
 
           def install_elm_test
-              sh.if "$(vers2int $(echo `node --version` | tr -d 'v')) -lt $(vers2int #{ELM_TEST_REQUIRED_NODE_VERSION})" do
+              sh.if "$(travis_vers2int $(echo `node --version` | tr -d 'v')) -lt $(travis_vers2int #{ELM_TEST_REQUIRED_NODE_VERSION})" do
                 sh.echo "Node.js version $(node --version) does not meet requirement for elm-test." \
                   " Please use Node.js #{ELM_TEST_REQUIRED_NODE_VERSION} or later.", ansi: :red
               end
