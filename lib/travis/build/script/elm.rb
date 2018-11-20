@@ -55,6 +55,7 @@ module Travis
             install_sysconfcpus
           end
 
+          sh.echo 'Installing elm, elm-test, and elm-format', ansi: :green
           sh.fold 'install.elm' do
             install_elm
             install_elm_test
@@ -173,6 +174,7 @@ module Travis
           end
 
           def install_sysconfcpus
+            sh.echo 'Installing sysconfcpus', ansi: :green
             sh.fold 'sysconfcpus' do
               # this is a prerequisite for the convert_binary_to_sysconfcpus method
               # which provides an epic build time improvement - see https://github.com/elm-lang/elm-compiler/issues/1473#issuecomment-245704142
