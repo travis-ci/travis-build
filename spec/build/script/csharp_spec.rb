@@ -230,7 +230,7 @@ describe Travis::Build::Script::Csharp, :sexp do
     it 'correctly shellescapes solutions' do
       data[:config][:solution] = 'test shellescape.sln'
       data[:config][:os] = 'linux'
-      should include_sexp [:cmd, 'msbuild /p:Configuration=Release test\ shellescape.sln', assert: true, echo: true, timing: true]
+      should include_sexp [:cmd, 'msbuild /p:Configuration=Release test\ shellescape.sln', echo: true, timing: true]
     end
   end
 
