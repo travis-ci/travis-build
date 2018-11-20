@@ -34,6 +34,8 @@ module Travis
           # elm-format doesn't have --version,
           # but the first line of `elm-format --help` prints the version
           sh.cmd 'elm-format --help | head -n 1', echo: true
+
+          sh.echo '' # A blank line visually separates this from the next cmd
         end
 
         def setup
