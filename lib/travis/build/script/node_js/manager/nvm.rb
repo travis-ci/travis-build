@@ -13,7 +13,6 @@ module Travis
           end
 
           def update
-            sh.echo "Updating nvm", ansi: :yellow, timing: false
             nvm_dir = "${TRAVIS_HOME}/.nvm"
             sh.raw "mkdir -p #{nvm_dir}"
             sh.raw "curl -s -o #{nvm_dir}/nvm.sh   https://#{app_host}/files/nvm.sh".output_safe,   assert: false
