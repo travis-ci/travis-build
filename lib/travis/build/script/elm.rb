@@ -6,9 +6,9 @@ module Travis
         DEFAULT_NODE_VERSION = '10.13.0'
 
         DEFAULTS = {
-          elm: '0.19.0',
-          elm_test: '0.19.0',
-          elm_format: '0.19.0'
+          elm: 'elm0.19.0',
+          elm_test: 'elm0.19.0',
+          elm_format: 'elm0.19.0'
         }
 
         ELM_TEST_REQUIRED_NODE_VERSION = '6.0.0'
@@ -98,7 +98,7 @@ module Travis
           end
 
           def elm_version_number(index)
-            elm_version.split(".")[index]
+            elm_version.gsub(/[a-zA-Z]/, "").split(".")[index]
           end
 
           def elm_major_version
@@ -121,8 +121,12 @@ module Travis
             config[:elm_format].to_s
           end
 
+          def npm_install_global(package_name, package_version)
+            sh.cmd "npm install -g #{package_name}@#{package_version}"
+          end
+
           def install_elm
-            npm_install "-g elm@elm-#{elm_version}"
+            npm_install_global 'elm', elm_version
 
             convert_binary_to_sysconfcpus 'elm'
 
@@ -136,7 +140,7 @@ module Travis
           end
 
           def install_elm_format
-            npm_install "-g elm-format@elm-#{elm_format_version}"
+            npm_install_global 'elm-format', elm_format_version
 
             convert_binary_to_sysconfcpus 'elm-format'
           end
@@ -148,7 +152,7 @@ module Travis
               end
               sh.else do
                 sh.if "-z \"$(command -v elm-test)\"" do
-                  npm_install "-g elm-test@#{elm_test_version}"
+                  npm_install_global 'elm-test', elm_test_version
 
                   convert_binary_to_sysconfcpus 'elm-test'
                 end
