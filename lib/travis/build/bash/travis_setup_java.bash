@@ -5,7 +5,12 @@ travis_setup_java() {
   version="$3"
   jdkpath="$(travis_find_jdk_path "$jdk" "$vendor" "$version")"
   if [[ -z "$jdkpath" ]]; then
-    travis_install_jdk "$vendor" "$version"
+    if [[ "$TRAVIS_OS_NAME" == osx ]]; then
+      [[ "$(java -version |& awk '/HotSpot/{print "oracle";exit};END{print "openjdk"}')" == "$vendor"]] &&
+        java -version |& awk -F"'" -v version=$version 'BEGIN{if(version<9)version = "1\."version}{if ($2~version){exit 0} else {exit 1}' &&
+        return
+    fi
+    travis_install_jdk "$jdk" "$vendor" "$version"
   elif compgen -G "${jdkpath%/*}/$(travis_jinfo_file "$vendor" "$version")" &>/dev/null &&
     declare -f jdk_switcher &>/dev/null; then
     travis_cmd "jdk_switcher use \"$jdk\"" --echo --assert

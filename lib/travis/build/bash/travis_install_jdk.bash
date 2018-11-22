@@ -1,7 +1,8 @@
 travis_install_jdk() {
-  local url vendor version license
-  vendor="$1"
-  version="$2"
+  local url vendor version license jdk
+  jdk="$1"
+  vendor="$2"
+  version="$3"
   if [[ "$vendor" == openjdk ]]; then
     license=GPL
   elif [[ "$vendor" == oracle ]]; then
@@ -14,7 +15,7 @@ travis_install_jdk() {
     travis_cmd curl\ -sLf\ $url\ \>\~/bin/install-jdk.sh --echo --assert
   fi
   chmod +x ~/bin/install-jdk.sh
-  travis_cmd 'export JAVA_HOME=~/jdk' --echo
+  travis_cmd "export JAVA_HOME=~/$jdk" --echo
   # shellcheck disable=SC2016
   travis_cmd 'export PATH="$JAVA_HOME/bin:$PATH"' --echo
   # shellcheck disable=2088
