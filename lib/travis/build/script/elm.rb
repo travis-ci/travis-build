@@ -43,8 +43,7 @@ module Travis
           'but is community maintained.', ansi: :green
           sh.echo 'Please file any issues using the following link',
             ansi: :green
-          sh.echo '  https://github.com/travis-ci/travis-ci/issues' \
-            '/new?labels=community:elm', ansi: :green
+          sh.echo '  https://travis-ci.community/c/languages/elm', ansi: :green
           sh.echo 'and mention \`@avh4\`, \`@lukewestby\`, \`@stoeffel\` and \`@rtfeldman\`' \
             ' in the issue', ansi: :green
 
