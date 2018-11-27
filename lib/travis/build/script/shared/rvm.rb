@@ -71,7 +71,7 @@ module Travis
           def rvm_strategy
             return :use_ruby_head    if ruby_version.include?('ruby-head')
             return :use_default_ruby if ruby_version == 'default'
-            return :use_truffleruby  if ruby_version.include?('truffleruby')
+            return :use_truffleruby  if ruby_version.start_with?('truffleruby')
             :use_ruby_version
           end
 
