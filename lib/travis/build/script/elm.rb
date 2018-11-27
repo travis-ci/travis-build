@@ -7,8 +7,6 @@ module Travis
 
         DEFAULTS = {
           elm: 'elm0.19.0',
-          elm_test: 'elm0.19.0',
-          elm_format: 'elm0.19.0'
         }
 
         ELM_TEST_REQUIRED_NODE_VERSION = '6.0.0'
@@ -45,8 +43,7 @@ module Travis
           'but is community maintained.', ansi: :green
           sh.echo 'Please file any issues using the following link',
             ansi: :green
-          sh.echo '  https://github.com/travis-ci/travis-ci/issues' \
-            '/new?labels=community:elm', ansi: :green
+          sh.echo '  https://travis-ci.community/c/languages/elm', ansi: :green
           sh.echo 'and mention \`@avh4\`, \`@lukewestby\`, \`@stoeffel\` and \`@rtfeldman\`' \
             ' in the issue', ansi: :green
 
@@ -117,11 +114,15 @@ module Travis
           end
 
           def elm_test_version
-            config[:elm_test].to_s
+            (config[:elm_test] || elm_version_tagged).to_s
           end
 
           def elm_format_version
-            config[:elm_format].to_s
+            (config[:elm_format] || elm_version_tagged).to_s
+          end
+
+          def elm_version_tagged
+            "elm" + elm_version.sub(/^elm/,"")
           end
 
           def npm_install_global(package_name, package_version)
