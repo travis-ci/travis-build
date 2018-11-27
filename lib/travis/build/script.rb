@@ -29,6 +29,7 @@ require 'travis/build/script/haxe'
 require 'travis/build/script/julia'
 require 'travis/build/script/nix'
 require 'travis/build/script/node_js'
+require 'travis/build/script/elm'
 require 'travis/build/script/objective_c'
 require 'travis/build/script/perl'
 require 'travis/build/script/perl6'
@@ -284,6 +285,7 @@ module Travis
           apply :apt_get_update
           apply :deprecate_xcode_64
           apply :update_heroku
+          apply :shell_session_update
         end
 
         def setup_filter
