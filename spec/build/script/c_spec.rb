@@ -1,7 +1,8 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::C, :sexp do
-  let(:data)   { payload_for(:push, :c) }
+  let(:data)   { payload_for(:push, :c, config: config) }
+  let(:config) { {} }
   let(:script) { described_class.new(data) }
   subject      { script.sexp }
   it           { store_example }
@@ -27,13 +28,31 @@ describe Travis::Build::Script::C, :sexp do
     should include_sexp [:cmd, './configure && make && make test', echo: true, timing: true]
   end
 
+  context "when clang is requested" do
+    let(:config) { { compiler: 'clang' } }
+    it { store_example(name: 'clang') }
+
+    it 'adds LLVM apt source' do
+      should include_sexp [:cmd, "echo \"deb https://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs) main\"  | sudo tee /etc/apt/sources.list.d/llvm.list >/dev/null"]
+    end
+  end
+
+  context "when clang-7 is requested" do
+    let(:config) { { compiler: 'clang-7' } }
+    it { store_example(name: 'clang-7') }
+
+    it 'adds LLVM apt source' do
+      should include_sexp [:cmd, "echo \"deb https://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-7 main\"  | sudo tee /etc/apt/sources.list.d/llvm.list >/dev/null"]
+    end
+  end
+
   describe '#cache_slug' do
     subject { described_class.new(data).cache_slug }
     it { should eq("cache-#{CACHE_SLUG_EXTRAS}--compiler-gcc") }
   end
 
   context 'when cache requires ccache' do
-    let(:data) { payload_for(:push, :c, config: { cache: 'ccache' }) }
+    let(:config) { { cache: 'ccache' } }
 
     describe '#export' do
       it 'prepends /usr/lib/ccache to PATH' do
@@ -42,4 +61,3 @@ describe Travis::Build::Script::C, :sexp do
     end
   end
 end
-
