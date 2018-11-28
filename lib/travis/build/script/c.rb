@@ -57,9 +57,9 @@ module Travis
             pkgs = [ compiler, 'libstdc++6' ]
 
             case compiler
-            when /^gcc(-\d+(\.\d+)*)?/
+            when /^gcc(-\d+(\.\d+)*)?/i
               apt_repo_command = "sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test"
-            when /^clang(-\d+(\.\d+)*)?/
+            when /^clang(-\d+(\.\d+)*)?/i
               sh.if "$(lsb_release -cs) = trusty" do
                 sh.cmd "sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test"
               end
