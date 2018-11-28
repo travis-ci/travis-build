@@ -6,6 +6,7 @@ module Travis
       class AptGetUpdate < Base
         def apply
           use_mirror
+          use_proxy
           update if update?
         end
 
@@ -40,11 +41,14 @@ module Travis
           end
 
           def use_mirror
-            sh.if '${TRAVIS_OS_NAME} == linux' do
-              define_mirrors_by_infrastructure
-              sh.raw bash('travis_munge_apt_sources')
-              sh.cmd 'travis_munge_apt_sources'
-            end
+            define_mirrors_by_infrastructure
+            sh.raw bash('travis_munge_apt_sources')
+            sh.cmd 'travis_munge_apt_sources'
+          end
+
+          def use_proxy
+            sh.raw bash('travis_setup_apt_proxy')
+            sh.cmd 'travis_setup_apt_proxy'
           end
 
           def define_mirrors_by_infrastructure

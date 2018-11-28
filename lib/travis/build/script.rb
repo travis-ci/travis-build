@@ -223,6 +223,9 @@ module Travis
                     echo: false, assert: false
           sh.export 'TRAVIS_APP_HOST', app_host,
                     echo: false, assert: false
+          sh.export 'TRAVIS_APT_PROXY', apt_proxy,
+                    echo: false, assert: false
+
           if Travis::Build.config.enable_infra_detection?
             sh.export 'TRAVIS_ENABLE_INFRA_DETECTION', 'true',
                       echo: false, assert: false
@@ -244,6 +247,10 @@ module Travis
           @internal_ruby_regex_esc ||= Shellwords.escape(
             Travis::Build.config.internal_ruby_regex.output_safe
           )
+        end
+
+        def apt_proxy
+          @apt_proxy ||= Travis::Build.config.apt_proxy.output_safe
         end
 
         def configure
