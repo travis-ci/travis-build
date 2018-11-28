@@ -6,6 +6,9 @@ module Travis
           compiler: 'g++'
         }
 
+        GCC_REGEXP   = /^g(?:cc|\+\+)(-\d+(\.\d+)*)?/i
+        CLANG_REGEXP = /^clang(?:\+\+)?(-\d+(\.\d+)*)?/i
+
         def export
           super
           sh.export 'TRAVIS_COMPILER', compiler
@@ -57,9 +60,9 @@ module Travis
 
           def cxx
             case compiler
-            when /^g(?:cc|\+\+)(-\d+(\.\d+)*)?/i then
+            when GCC_REGEXP then
               "g++#{$1}"
-            when /^clang(?:\+\+)?(-\d+(\.\d+)*)?/i then
+            when CLANG_REGEXP then
               "clang++#{$1}"
             else
               'g++'
@@ -68,9 +71,9 @@ module Travis
 
           def cc
             case compiler
-            when /^g(?:cc|\+\+)(-\d+(\.\d+)*)?/i then
+            when GCC_REGEXP then
               "gcc#{$1}"
-            when /^clang(?:\+\+)?(-\d+(\.\d+)*)?/i then
+            when CLANG_REGEXP then
               "clang#{$1}"
             else
               'gcc'
@@ -81,9 +84,9 @@ module Travis
             pkgs = [ compiler, 'libstdc++6' ]
 
             case compiler
-            when /^gcc(?:\+\+)?(-\d(\.\d)*)?/
+            when GCC_REGEXP
               apt_repo_command = "sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test"
-            when /^clang(?:\+\+)?(-\d(\.\d)*)?/
+            when CLANG_REGEXP
               sh.if "$(lsb_release -cs) = trusty" do
                 sh.cmd "sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test"
               end
