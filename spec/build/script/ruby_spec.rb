@@ -1,20 +1,30 @@
 require 'spec_helper'
 
 describe Travis::Build::Script::Ruby, :sexp do
-  let(:data)   { payload_for(:push, :ruby) }
+  let(:data) { payload_for(:push, :ruby) }
   let(:script) { described_class.new(data) }
-  subject      { script.sexp }
-  it           { store_example }
+  subject { script.sexp }
+  it { store_example }
+  it { store_example(integration: true) }
+
+  it_behaves_like 'a bash script', integration: true do
+    let(:bash_script_file) { bash_script_path(integration: true) }
+  end
+
+  it_behaves_like 'a bash script'
 
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=ruby'] }
     let(:cmds) { ['bundle install', 'bundle exec rake'] }
   end
 
+  it_behaves_like 'checks language support'
+
   it_behaves_like 'a build script sexp'
 
   describe 'using a jdk' do
     before { data[:config][:jdk] = 'openjdk7' }
+
     it_behaves_like 'a jdk build sexp'
   end
 
@@ -175,8 +185,8 @@ describe Travis::Build::Script::Ruby, :sexp do
 
     it 'ensures rvm alias is defined' do
       sexp = sexp_find(subject, [:if, "-z $(rvm alias list | grep ^2\\\\.3)"], [:then])
-      store_example "rvm-alias"
-      expect(sexp).to include_sexp [:cmd, "rvm alias create 2.3 ruby-2.3.4", assert: true, echo: true, timing: true]
+      store_example(name: 'rvm-alias')
+      expect(sexp).to include_sexp [:cmd, "rvm alias create 2.3 ruby-2.3.7", assert: true, echo: true, timing: true]
     end
   end
 
@@ -187,6 +197,25 @@ describe Travis::Build::Script::Ruby, :sexp do
 
     it 'sets autolibs to disable' do
       should include_sexp [:cmd, "rvm autolibs disable", assert: true]
+    end
+  end
+
+  context 'when testing with truffleruby' do
+    before :each do
+      data[:config][:rvm] = 'truffleruby'
+    end
+
+    it 'uses latest rvm' do
+      should include_sexp [:cmd, "rvm get master", assert: true, echo: true, timing: true]
+    end
+
+    it 'sets autolibs to disable' do
+      should include_sexp [:cmd, "rvm autolibs disable", assert: true]
+    end
+
+    it 'uses rvm install and rvm use' do
+      should include_sexp [:cmd, "rvm install truffleruby", assert: true, echo: true, timing: true]
+      should include_sexp [:cmd, "rvm use truffleruby", assert: true, echo: true, timing: true]
     end
   end
 end

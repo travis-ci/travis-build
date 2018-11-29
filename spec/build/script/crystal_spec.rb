@@ -6,6 +6,7 @@ describe Travis::Build::Script::Crystal, :sexp do
   subject      { script.sexp }
   it           { store_example }
 
+  it_behaves_like 'a bash script'
   it_behaves_like 'a build script sexp'
 
   it "announces `crystal --version`" do

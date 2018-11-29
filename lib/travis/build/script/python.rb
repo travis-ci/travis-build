@@ -40,8 +40,8 @@ module Travis
         def setup_cache
           if data.cache?(:pip)
             sh.fold 'cache.pip' do
-              sh.echo ''
-              directory_cache.add '$HOME/.cache/pip'
+              sh.newline
+              directory_cache.add '${TRAVIS_HOME}/.cache/pip'
             end
           end
         end

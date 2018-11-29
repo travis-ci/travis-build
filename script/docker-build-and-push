@@ -3,22 +3,27 @@
 set -ev
 
 app_name="web"
-local_image="travisbuild_$app_name" # Docker Compose removes dashes and expects the name to end with the build app name
-quay_image=quay.io/travisci/travis-build;
+local_image="travis-build_${app_name}"
+quay_image=quay.io/travisci/travis-build
 
-docker-compose build "$app_name"
-docker login -u="$QUAY_ROBOT_HANDLE" -p="$QUAY_ROBOT_TOKEN" quay.io;
-docker images;
+unset DOCKER_CERT_PATH
+unset DOCKER_HOST
+unset DOCKER_TLS
+unset DOCKER_TLS_VERIFY
 
-docker tag $local_image $quay_image:$TRAVIS_BRANCH;
-docker push $quay_image:$TRAVIS_BRANCH;
+docker-compose build "${app_name}"
+docker login -u="${QUAY_ROBOT_HANDLE}" -p="${QUAY_ROBOT_TOKEN}" quay.io
+docker images
 
-docker tag $local_image $quay_image:${TRAVIS_COMMIT:0:7};
-docker push $quay_image:${TRAVIS_COMMIT:0:7};
+docker tag "${local_image}" "${quay_image}:${TRAVIS_BRANCH}"
+docker push "${quay_image}:${TRAVIS_BRANCH}"
 
-if [ ${TRAVIS_BRANCH} = "master" ]; then
-  docker tag $local_image $quay_image:latest;
-  docker push $quay_image:$TRAVIS_BRANCH;
+docker tag "${local_image}" "${quay_image}:${TRAVIS_COMMIT:0:7}"
+docker push "${quay_image}:${TRAVIS_COMMIT:0:7}"
+
+if [[ "${TRAVIS_BRANCH}" == "master" ]]; then
+  docker tag "${local_image}" "${quay_image}:latest"
+  docker push "${quay_image}:${TRAVIS_BRANCH}"
 fi
 
-exit 0;
+exit 0

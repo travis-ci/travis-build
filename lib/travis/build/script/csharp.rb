@@ -34,7 +34,7 @@ module Travis
         def configure
           super
 
-          sh.echo ''
+          sh.newline
           sh.echo 'C# support for Travis-CI is community maintained.', ansi: :red
           sh.echo 'Please open any issues at https://github.com/travis-ci/travis-ci/issues/new and cc @joshua-anderson @akoeplinger @nterry', ansi: :red
 
@@ -53,11 +53,11 @@ View valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csh
             case config_os
             when 'linux'
               if is_mono_2_10_8
-                sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
+                sh.cmd 'travis_apt_get_update', retry: true, timing: true, assert: true
                 sh.cmd 'sudo apt-get install -qq mono-complete mono-vbnc', timing: true, assert: true
               elsif is_mono_3_2_8
                 sh.cmd 'sudo apt-add-repository ppa:directhex/ppa -y', assert: true # Official ppa of the mono debian maintainer
-                sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
+                sh.cmd 'travis_apt_get_update', retry: true, timing: true, assert: true
                 sh.cmd 'sudo apt-get install -qq mono-complete mono-vbnc fsharp', timing: true, assert: true
               else
                 setup_pgp_key "mono"
@@ -97,7 +97,7 @@ View valid versions of \"mono\" at https://docs.travis-ci.com/user/languages/csh
                   sh.cmd "sudo sh -c \"echo 'deb http://download.mono-project.com/repo/debian wheezy/snapshots/#{config_mono} main' >> /etc/apt/sources.list.d/mono-official.list\"", assert: true
                 end
 
-                sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
+                sh.cmd 'travis_apt_get_update', retry: true, timing: true, assert: true
                 sh.cmd "sudo apt-get install -qq mono-complete mono-vbnc fsharp nuget #{'referenceassemblies-pcl' if !is_mono_3_8_0}", timing: true, assert: true
                                                                                       # PCL Assemblies only supported on mono 3.10 and greater
               end
@@ -148,7 +148,7 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
               sh.else do
                 sh.failure "The version of this operating system is not supported by .NET Core. View valid versions at https://docs.travis-ci.com/user/languages/csharp/"
               end
-              sh.cmd 'sudo apt-get update -qq', timing: true, assert: true
+              sh.cmd 'travis_apt_get_update', retry: true, timing: true, assert: true
               sh.cmd "sudo apt-get install -qq dotnet-#{dotnet_package_prefix}-#{dotnet_package_version}", timing: true, assert: true
             when 'osx'
               min_osx_minor = 11
@@ -177,10 +177,10 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
 
           sh.cmd 'mono --version', timing: true if is_mono_enabled
           sh.cmd "#{mono_build_cmd} /version", timing: true if is_mono_enabled
-          sh.echo ''
+          sh.newline
 
           sh.cmd 'dotnet --info', timing: true if is_dotnet_enabled
-          sh.echo ''
+          sh.newline
         end
 
         def export

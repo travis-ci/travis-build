@@ -9,8 +9,8 @@ module Travis
         SUPER_USER_SAFE = true
         DEFAULT_SQ_HOST_URL = "https://sonarcloud.io"
         SCANNER_CLI_VERSION = "3.0.3.778"
-        SCANNER_HOME = "$HOME/.sonarscanner"
-        CACHE_DIR = "$HOME/.sonar/cache"
+        SCANNER_HOME = "${TRAVIS_HOME}/.sonarscanner"
+        CACHE_DIR = "${TRAVIS_HOME}/.sonar/cache"
         SCANNER_CLI_REPO = "http://repo1.maven.org/maven2"
         BUILD_WRAPPER_LINUX = "build-wrapper-linux-x86"
         BUILD_WRAPPER_MACOSX = "build-wrapper-macosx-x86"
@@ -19,7 +19,7 @@ module Travis
           branch_disabled: 'this branch is not master or it does not match declared branches',
           no_secure_env: 'it is not running in a secure environment'
         }
-        
+
         def before_before_script
           @unfolded_warnings = []
           sh.fold 'sonarcloud.addon' do
@@ -184,7 +184,7 @@ SH
           def addon_hash
             Digest::MD5.hexdigest(File.read(__FILE__).gsub(/\s+/, ""))
           end
-          
+
           def default_branch?
             data.default_branch == data.branch
           end

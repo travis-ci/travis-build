@@ -15,8 +15,9 @@ module Travis
         )
 
         RVM_VERSION_ALIASES = {
-          '2.3' => '2.3.4',
-          '2.4' => '2.4.1'
+          '2.3' => '2.3.7',
+          '2.4' => '2.4.4',
+          '2.5' => '2.5.1'
         }
 
         def export
@@ -26,7 +27,10 @@ module Travis
 
         def setup
           super
-          setup_rvm if rvm?
+          if rvm?
+            setup_rvm
+            sh.newline
+          end
         end
 
         def announce
@@ -65,6 +69,7 @@ module Travis
           end
 
           def rvm_strategy
+            return :use_truffleruby  if ruby_version.start_with?('truffleruby')
             return :use_ruby_head    if ruby_version.include?('ruby-head')
             return :use_default_ruby if ruby_version == 'default'
             :use_ruby_version
@@ -104,13 +109,24 @@ module Travis
             end
           end
 
+          def use_truffleruby
+            skip_deps_install # Travis' LLVM 5.0 is not recognized by RVM
+            sh.fold('rvm') do
+              # TruffleRuby has frequent (~monthly) releases,
+              # use latest RVM to have the latest version available.
+              sh.cmd "rvm get master"
+              sh.cmd "rvm install #{ruby_version}"
+              sh.cmd "rvm use #{ruby_version}"
+            end
+          end
+
           def use_ruby_version
             skip_deps_install if rbx?
             sh.fold('rvm') do
               if ruby_version.start_with? 'ree'
                 sh.if "! $(rvm list | grep ree)" do
                   sh.echo "Installing REE from source. This may take a few minutes.", ansi: :yellow
-                  sh.cmd "sed -i 's|^\\(ree_1.8.7_url\\)=.*$|\\1=https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/rubyenterpriseedition|' $HOME/.rvm/config/db"
+                  sh.cmd "sed -i 's|^\\(ree_1.8.7_url\\)=.*$|\\1=https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/rubyenterpriseedition|' ${TRAVIS_HOME}/.rvm/config/db"
                   sh.cmd "rvm use #{ruby_version} --install --fuzzy"
                 end
                 sh.else do

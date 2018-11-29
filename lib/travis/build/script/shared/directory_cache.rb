@@ -11,7 +11,9 @@ module Travis
         def directory_cache
           @directory_cache ||= begin
             cache = cache_class.new(sh, data, cache_slug, Time.now)
-            cache = Noop.new(sh, data, cache_slug) unless cache.valid? && use_directory_cache?
+            if !cache.valid? || !use_directory_cache?
+              cache = Noop.new(sh, data, cache_slug)
+            end
             cache
           end
         end
@@ -42,6 +44,7 @@ module Travis
             end
             directory_cache.push
           end
+          sh.newline
         end
 
         def prepare_cache
