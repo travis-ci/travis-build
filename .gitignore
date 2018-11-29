@@ -13,3 +13,5 @@ coverage/
 .*env
 /public/files/
 .rake_tasks
+/.docker/
+vendor/

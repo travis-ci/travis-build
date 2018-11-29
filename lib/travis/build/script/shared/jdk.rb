@@ -2,8 +2,17 @@ module Travis
   module Build
     class Script
       module Jdk
+        OPENJDK_ALTERNATIVE = {
+          'oraclejdk10' => 'openjdk10'
+        }
+
         def configure
           super
+
+          if jdk_deprecated?
+            sh.terminate 2, "#{jdk} is deprecated. See https://www.oracle.com/technetwork/java/javase/eol-135779.html for more details. Consider using #{OPENJDK_ALTERNATIVE[jdk]} instead.", ansi: :red
+          end
+
           if uses_jdk?
             if use_install_jdk?(config[:jdk])
               download_install_jdk
@@ -33,10 +42,6 @@ module Travis
           sh.if '-f build.gradle || -f build.gradle.kts' do
             sh.export 'TERM', 'dumb'
           end
-
-          sh.echo "Disabling Gradle daemon", ansi: :yellow
-          sh.cmd 'mkdir -p ~/.gradle && echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties', echo: true, timing: false
-
         end
 
         def announce
@@ -92,6 +97,10 @@ module Travis
 
           def cache_dir
             "${TRAVIS_HOME}/.cache/install-jdk"
+          end
+
+          def jdk_deprecated?
+            uses_jdk? && OPENJDK_ALTERNATIVE.keys.include?(jdk)
           end
       end
     end

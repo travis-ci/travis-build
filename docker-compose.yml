@@ -1,4 +1,4 @@
-version: "2"
+version: "2.1"
 services:
   web:
     build:
@@ -6,6 +6,6 @@ services:
       args:
       - GITHUB_OAUTH_TOKEN
     environment:
-    - RACK_ENV=production
+    - RACK_ENV=${RACK_ENV:-production}
     ports:
     - 4000:4000

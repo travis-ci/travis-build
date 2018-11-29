@@ -13,6 +13,7 @@ module Travis
             fetch_ref if fetch_ref?
             checkout
           end
+          sh.newline
         end
 
         private
@@ -125,7 +126,7 @@ module Travis
           end
 
           def github?
-            host = data.source_host.downcase
+            host = data.source_host.to_s.downcase
             host == 'github.com' || host.end_with?('.github.com')
           end
       end

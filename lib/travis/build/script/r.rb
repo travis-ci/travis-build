@@ -50,7 +50,6 @@ module Travis
           sh.export 'R_LIBS_SITE', '/usr/local/lib/R/site-library:/usr/lib/R/site-library', echo: false
           sh.export '_R_CHECK_CRAN_INCOMING_', 'false', echo: false
           sh.export 'NOT_CRAN', 'true', echo: false
-          sh.export 'R_PROFILE', "~/.Rprofile.site", echo: false
         end
 
         def configure
@@ -70,8 +69,8 @@ module Travis
                 sh.cmd 'sudo add-apt-repository '\
                   "\"deb #{repos[:CRAN]}/bin/linux/ubuntu "\
                   "$(lsb_release -cs)/\""
-                sh.cmd 'sudo apt-key adv --keyserver keyserver.ubuntu.com '\
-                  '--recv-keys E084DAB9'
+                sh.cmd 'apt-key adv --keyserver ha.pool.sks-keyservers.net '\
+                  '--recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9', sudo: true
 
                 # Add marutter's c2d4u plus ppa dependencies as listed on launchpad
                 if r_version_less_than('3.5.0')
@@ -160,6 +159,7 @@ module Travis
               repos_str = repos.collect {|k,v| "#{k} = \"#{v}\""}.join(", ")
               options_repos = "options(repos = c(#{repos_str}))"
               sh.cmd %Q{echo '#{options_repos}' > ~/.Rprofile.site}
+              sh.export 'R_PROFILE', "~/.Rprofile.site", echo: false
 
               # PDF manual requires latex
               if config[:latex]
@@ -410,15 +410,29 @@ module Travis
             sh.fold 'Bioconductor' do
               sh.echo 'Installing Bioconductor', ansi: :yellow
               bioc_install_script =
-                "source(\"#{config[:bioc]}\");"\
-                'tryCatch('\
-                " useDevel(#{as_r_boolean(config[:bioc_use_devel])}),"\
-                ' error=function(e) {if (!grepl("already in use", e$message)) {e}}'\
-                  ');'\
+                if r_version_less_than("3.5.0")
+                  "source(\"#{config[:bioc]}\");"\
+                  'tryCatch('\
+                  " useDevel(#{as_r_boolean(config[:bioc_use_devel])}),"\
+                  ' error=function(e) {if (!grepl("already in use", e$message)) {e}}'\
+                  ' );'\
                   'cat(append = TRUE, file = "~/.Rprofile.site", "options(repos = BiocInstaller::biocinstallRepos());")'
+                else
+                  'if (!requireNamespace("BiocManager", quietly=TRUE))'\
+                  '  install.packages("BiocManager");'\
+                  "if (#{as_r_boolean(config[:bioc_use_devel])})"\
+                  ' BiocManager::install(version = "devel");'\
+                  'cat(append = TRUE, file = "~/.Rprofile.site", "options(repos = BiocManager::repositories());")'
+                end
                 sh.cmd "Rscript -e '#{bioc_install_script}'", retry: true
+              bioc_install_bioccheck =
+                if r_version_less_than("3.5.0")
+                  'BiocInstaller::biocLite("BiocCheck")'
+                else
+                  'BiocManager::install("BiocCheck")'
+                end
                if config[:bioc_check]
-                 sh.cmd "Rscript -e 'BiocInstaller::biocLite(\"BiocCheck\")'"
+                 sh.cmd "Rscript -e '#{bioc_install_bioccheck}'"
                end
             end
           end
@@ -488,14 +502,14 @@ module Travis
             # Cleanup
             sh.rm "/tmp/#{pandoc_filename}"
           when 'osx'
-          
+
             # Change OS name if requested version is less than 1.19.2.2
             # Name change was introduced in v2.0 of pandoc.
             # c.f. "Build Infrastructure Improvements" section of
             # https://github.com/jgm/pandoc/releases/tag/2.0
             # Lastly, the last binary for macOS before 2.0 is 1.19.2.1
             os_short_name = version_check_less_than("#{config[:pandoc_version]}", "1.19.2.2") ? "macOS" : "osx"
-            
+
             pandoc_filename = "pandoc-#{config[:pandoc_version]}-#{os_short_name}.pkg"
             pandoc_url = "https://github.com/jgm/pandoc/releases/download/#{config[:pandoc_version]}/"\
               "#{pandoc_filename}"
@@ -517,7 +531,7 @@ module Travis
             sh.cmd 'sudo tar fvxz /tmp/gfortran.tar.bz2 -C /'
             sh.rm '/tmp/gfortran.tar.bz2'
           else
-            sh.cmd "curl -fLo /tmp/gfortran61.dmg http://coudert.name/software/gfortran-6.1-ElCapitan.dmg", retry: true
+            sh.cmd "curl -fLo /tmp/gfortran61.dmg #{repos[:CRAN]}/contrib/extra/macOS/gfortran-6.1-ElCapitan.dmg", retry: true
             sh.cmd 'sudo hdiutil attach /tmp/gfortran61.dmg -mountpoint /Volumes/gfortran'
             sh.cmd 'sudo installer -pkg "/Volumes/gfortran/gfortran-6.1-ElCapitan/gfortran.pkg" -target /'
             sh.cmd 'sudo hdiutil detach /Volumes/gfortran'
@@ -533,7 +547,7 @@ module Travis
           sh.cmd "sudo ruby uninstall --force"
           sh.cmd "rm uninstall"
         end
-        
+
         # Abstract out version check
         def version_check_less_than(version_str_new, version_str_old)
             Gem::Version.new(version_str_old) < Gem::Version.new(version_str_new)
@@ -550,7 +564,7 @@ module Travis
 
         def normalized_r_version(v=Array(config[:r]).first.to_s)
           case v
-          when 'release' then '3.5.0'
+          when 'release' then '3.5.1'
           when 'oldrel' then '3.4.4'
           when '3.0' then '3.0.3'
           when '3.1' then '3.1.3'
@@ -561,7 +575,7 @@ module Travis
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true
-            normalized_r_version('release')
+            normalized_r_version('devel')
           when 'bioc-release'
             config[:bioc_required] = true
             config[:bioc_use_devel] = false

@@ -29,6 +29,7 @@ require 'travis/build/script/haxe'
 require 'travis/build/script/julia'
 require 'travis/build/script/nix'
 require 'travis/build/script/node_js'
+require 'travis/build/script/elm'
 require 'travis/build/script/objective_c'
 require 'travis/build/script/perl'
 require 'travis/build/script/perl6'
@@ -51,6 +52,7 @@ module Travis
         travis_apt_get_update
         travis_assert
         travis_bash_qsort_numeric
+        travis_cleanup
         travis_cmd
         travis_decrypt
         travis_download
@@ -110,13 +112,15 @@ module Travis
       end
 
       def compile(ignore_taint = false)
-        Shell.generate(sexp, ignore_taint)
+        nodes = sexp
+        Shell.generate(nodes, ignore_taint)
       rescue Travis::Shell::Generator::TaintedOutput => to
+        log_tainted_nodes(nodes)
         raise to
       rescue Exception => e
         event = Travis::Build.config.sentry_dsn.empty? ? nil : Raven.capture_exception(e)
 
-        unless Travis::Build.config.dump_backtrace.empty?
+        unless Travis::Build.config.dump_backtrace?
           Travis::Build.logger.error(e)
           Travis::Build.logger.error(e.backtrace)
         end
@@ -131,6 +135,14 @@ module Travis
       def sexp
         run
         sh.to_sexp
+      end
+
+      def log_tainted_nodes(nodes)
+        return unless Travis::Build.config.tainted_node_logging_enabled?
+        tainted_values = nodes.flatten.select(&:tainted?)
+        Travis::Build.logger.error(
+          "nodes contain tainted value(s) #{tainted_values.inspect}"
+        )
       end
 
       def cache_slug_keys
@@ -149,7 +161,7 @@ module Travis
         cache_slug_keys.compact.join('-')
       end
 
-      def archive_url_for(bucket, version, lang = self.class.name.split('::').last.downcase, ext = 'bz2')
+      def archive_url_for(bucket, version, lang = lang_name, ext = 'bz2')
         file_name = "#{[lang, version].compact.join("-")}.tar.#{ext}"
         sh.if "$(uname) = 'Linux'" do
           sh.raw "travis_host_os=$(lsb_release -is | tr 'A-Z' 'a-z')"
@@ -167,11 +179,19 @@ module Travis
         ! data.debug_options.empty?
       end
 
-      private
+      def config
+        data.config
+      end
 
-        def config
-          data.config
-        end
+      def app_host
+        @app_host ||= Travis::Build.config.app_host.to_s.strip.output_safe
+      end
+
+      def debug_enabled?
+        Travis::Build.config.enable_debug_tools == '1'
+      end
+
+      private
 
         def debug
           if debug_build_via_api?
@@ -182,13 +202,14 @@ module Travis
               sh.raw "travis_debug"
             end
 
-            sh.echo
+            sh.newline
             sh.echo "All remaining steps, including caching and deploy, will be skipped.", ansi: :yellow
           end
         end
 
         def run
           stages.run if apply :validate
+          sh.raw 'travis_cleanup'
           sh.raw 'travis_footer'
           # apply :deprecations
         end
@@ -202,6 +223,9 @@ module Travis
                     echo: false, assert: false
           sh.export 'TRAVIS_APP_HOST', app_host,
                     echo: false, assert: false
+          sh.export 'TRAVIS_APT_PROXY', apt_proxy,
+                    echo: false, assert: false
+
           if Travis::Build.config.enable_infra_detection?
             sh.export 'TRAVIS_ENABLE_INFRA_DETECTION', 'true',
                       echo: false, assert: false
@@ -221,11 +245,16 @@ module Travis
 
         def internal_ruby_regex_esc
           @internal_ruby_regex_esc ||= Shellwords.escape(
-            Travis::Build.config.internal_ruby_regex.dup
+            Travis::Build.config.internal_ruby_regex.output_safe
           )
         end
 
+        def apt_proxy
+          @apt_proxy ||= Travis::Build.config.apt_proxy.output_safe
+        end
+
         def configure
+          apply :check_unsupported
           apply :set_x
           apply :show_system_info
           apply :rm_riak_source
@@ -252,6 +281,7 @@ module Travis
           apply :disable_ssh_roaming
           apply :debug_tools
           apply :npm_registry
+          apply :uninstall_oclint
           apply :rvm_use
           apply :rm_oraclejdk8_symlink
           apply :enable_i386
@@ -261,6 +291,8 @@ module Travis
           apply :nonblock_pipe
           apply :apt_get_update
           apply :deprecate_xcode_64
+          apply :update_heroku
+          apply :shell_session_update
         end
 
         def setup_filter
@@ -289,7 +321,7 @@ module Travis
           if debug_build_via_api?
             raise "Debug payload does not contain 'previous_state' value." unless previous_state = data.debug_options[:previous_state]
 
-            sh.echo
+            sh.newline
             sh.echo "This is a debug build. The build result is reset to its previous value, \\\"#{previous_state}\\\".", ansi: :yellow
 
             case previous_state
@@ -330,14 +362,6 @@ module Travis
           debug_build_via_api? && data.debug_options[:quiet]
         end
 
-        def debug_enabled?
-          Travis::Build.config.enable_debug_tools == '1'
-        end
-
-        def app_host
-          @app_host ||= Travis::Build.config.app_host.to_s.strip.untaint
-        end
-
         def error_message_ary(exception, event)
           if event
             contact_msg = ", or contact us at support@travis-ci.com"
@@ -374,6 +398,10 @@ module Travis
           error_message_ary(exception, event).each { |line| sh.raw "echo -e \"\033[31;1m#{line}\033[0m\"" }
           sh.raw "exit 2"
           Shell.generate(sh.to_sexp)
+        end
+
+        def lang_name
+          self.class.name.split('::').last.downcase
         end
     end
   end
