@@ -87,7 +87,7 @@ module Travis
             when GCC_REGEXP
               apt_repo_command = "sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test"
             when CLANG_REGEXP
-              sh.if "$(lsb_release -cs) = trusty" do
+              sh.if "$(command -v lsb_release) && $(lsb_release -cs) = trusty" do
                 sh.cmd "sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test"
               end
               apt_key_command = "wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -"
@@ -101,7 +101,7 @@ module Travis
               sh.newline
               sh.fold "compiler.install" do
                 sh.echo "#{compiler} is not found. Installing"
-                sh.if "$(lsb_release -cs) = trusty && #{compiler} =~ ^clang" do
+                sh.if "$(command -v lsb_release) && $(lsb_release -cs) = trusty && #{compiler} =~ ^clang" do
                   sh.cmd "sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test"
                 end
 
