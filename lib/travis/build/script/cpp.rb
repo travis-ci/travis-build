@@ -81,7 +81,7 @@ module Travis
           end
 
           def install_compiler(compiler)
-            pkgs = [ compiler, 'libstdc++6' ]
+            pkgs = [ cc, 'libstdc++6' ]
 
             case compiler
             when GCC_REGEXP
