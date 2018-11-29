@@ -23,7 +23,7 @@ module Travis
 
         def configure
           super
-          install_compiler(compiler)
+          install_compiler(cc)
         end
 
         def announce
@@ -81,7 +81,7 @@ module Travis
           end
 
           def install_compiler(compiler)
-            pkgs = [ cc, 'libstdc++6' ]
+            pkgs = [ compiler, 'libstdc++6' ]
 
             case compiler
             when GCC_REGEXP
