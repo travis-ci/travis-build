@@ -43,6 +43,8 @@ module Travis
             sh.export 'TERM', 'dumb'
           end
           
+          # We disable the Gradle daemon on Android build's
+          # because it's causing out of memory issues otherwise.
           if uses_android?
             sh.cmd 'mkdir -p ~/.gradle && echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties', echo: false, timing: false
           end
