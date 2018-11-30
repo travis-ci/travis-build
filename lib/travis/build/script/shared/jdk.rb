@@ -42,6 +42,10 @@ module Travis
           sh.if '-f build.gradle || -f build.gradle.kts' do
             sh.export 'TERM', 'dumb'
           end
+          
+          if uses_android?
+            sh.cmd 'mkdir -p ~/.gradle && echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties', echo: false, timing: false
+          end
         end
 
         def announce
@@ -65,6 +69,10 @@ module Travis
 
           def uses_jdk?
             !!config[:jdk]
+          end
+        
+          def uses_android?
+            !!config[:language] && config[:language] == "android"
           end
 
           def jdk
