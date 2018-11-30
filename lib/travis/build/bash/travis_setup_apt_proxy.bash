@@ -21,7 +21,6 @@ travis_setup_apt_proxy() {
   (
     cat <<EOCONF
 Acquire::http::Proxy "${TRAVIS_APT_PROXY}";
-Acquire::https::Proxy false;
 EOCONF
   ) | sudo tee "${dest_dir}/99-travis-apt-proxy" &>/dev/null
 }
