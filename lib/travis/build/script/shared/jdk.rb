@@ -42,6 +42,14 @@ module Travis
           sh.if '-f build.gradle || -f build.gradle.kts' do
             sh.export 'TERM', 'dumb'
           end
+          
+          # We disable the Gradle daemon because
+          # it's causing out of memory issues otherwise.
+          disable_gradle_daemon
+        end
+        
+        def disable_gradle_daemon
+          sh.cmd 'mkdir -p ~/.gradle && echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties', echo: false, timing: false
         end
 
         def announce
