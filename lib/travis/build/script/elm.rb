@@ -47,9 +47,10 @@ module Travis
           sh.echo 'and mention \`@avh4\`, \`@lukewestby\`, \`@stoeffel\` and \`@rtfeldman\`' \
             ' in the issue', ansi: :green
 
-
-          sh.if '! -d sysconfcpus/bin' do
-            install_sysconfcpus
+          if using_sysconfcpus?
+            sh.if '! -d sysconfcpus/bin' do
+              install_sysconfcpus
+            end
           end
 
           sh.fold 'install.elm' do
@@ -77,12 +78,14 @@ module Travis
                 directory_cache.add '$HOME/.cache/elm-test-stuff', 'test/elm-stuff'
               end
 
+              if using_sysconfcpus?
+                # we build sysconfcpus from source, so cache the result
+                directory_cache.add '$HOME/.cache/sysconfcpus-cache', 'sysconfcpus'
+              end
+
               # In Elm 0.18+, all tests live in tests/ by default
               # (whereas previously tests/ was allowed, but so was test/)
               directory_cache.add '$HOME/.cache/elm-tests-stuff', 'tests/elm-stuff'
-
-              # we build sysconfcpus from source, so cache the result
-              directory_cache.add '$HOME/.cache/sysconfcpus-cache', 'sysconfcpus'
             end
           end
         end
@@ -129,24 +132,30 @@ module Travis
             sh.cmd "npm install -g #{package_name}@#{package_version}"
           end
 
+          def using_sysconfcpus?
+            # Prior to Elm 0.19, we need sysconfcpus to prevent elm make from
+            # thinking it has access to 32 cores. (It actually has access to 2
+            # cores in the virtualized environment, but it uses the number of
+            # _physical_ cores to determine how many threads to parallelize.)
+            @using_sysconfcpus ||= elm_major_version == 0 && elm_minor_version <= 18
+          end
+
           def install_elm
             npm_install_global 'elm', elm_version
 
-            convert_binary_to_sysconfcpus 'elm'
-
-            # Beginning with Elm 0.19, there's one `elm` binary and that's it.
-            # In that case, there won't be any files to convert here!
-            if elm_major_version == 0 && elm_minor_version <= 18
+            if using_sysconfcpus?
               convert_binary_to_sysconfcpus 'elm-make'
               convert_binary_to_sysconfcpus 'elm-package'
-              convert_binary_to_sysconfcpus 'elm-format'
+              convert_binary_to_sysconfcpus 'elm'
             end
           end
 
           def install_elm_format
             npm_install_global 'elm-format', elm_format_version
 
-            convert_binary_to_sysconfcpus 'elm-format'
+            if using_sysconfcpus?
+              convert_binary_to_sysconfcpus 'elm-format'
+            end
           end
 
           def install_elm_test
@@ -158,7 +167,9 @@ module Travis
                 sh.if "-z \"$(command -v elm-test)\"" do
                   npm_install_global 'elm-test', elm_test_version
 
-                  convert_binary_to_sysconfcpus 'elm-test'
+                  if using_sysconfcpus?
+                    convert_binary_to_sysconfcpus 'elm-test'
+                  end
                 end
               end
           end
