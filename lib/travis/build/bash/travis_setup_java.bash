@@ -6,8 +6,19 @@ travis_setup_java() {
   jdkpath="$(travis_find_jdk_path "$jdk" "$vendor" "$version")"
   if [[ -z "$jdkpath" ]]; then
     if [[ "$TRAVIS_OS_NAME" == osx ]]; then
-      [[ "$(java -version |& awk '/HotSpot/{print "oracle";exit};END{print "openjdk"}')" == "$vendor"]] &&
-        java -version |& awk -F"'" -v version=$version 'BEGIN{if(version<9)version = "1\."version}{if ($2~version){exit 0} else {exit 1}' &&
+      java -version 2>&1 | awk -v vendor="$vendor" -v version="$version" -F'"' '
+        BEGIN {
+          v = "openjdk"
+          if(version<9) { version = "1\\."version }
+          version = "^"version"\\."
+        }
+        /HotSpot/ { v = "oracle" }
+        /version/ { if ($2 !~ version) e++ }
+        END {
+          if (vendor !=v ) e++
+          exit e
+        }
+      ' &&
         return
     fi
     travis_install_jdk "$jdk" "$vendor" "$version"
