@@ -13,7 +13,7 @@ travis_install_jdk() {
   if ! travis_download "$url" ~/bin/install-jdk.sh; then
     url="https://raw.githubusercontent.com/sormuras/bach/master/install-jdk.sh"
     travis_download "$url" ~/bin/install-jdk.sh || {
-      echo "${ANSI_RED}Could not acquire install-jdk.sh. Stopping build.${ANSI_RESET}">/dev/stderr
+      echo "${ANSI_RED}Could not acquire install-jdk.sh. Stopping build.${ANSI_RESET}" >/dev/stderr
       travis_terminate 2
     }
   fi
