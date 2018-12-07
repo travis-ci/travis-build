@@ -1,5 +1,5 @@
 travis_install_jdk() {
-  local url vendor version license jdk
+  local url vendor version license jdk certlink
   jdk="$1"
   vendor="$2"
   version="$3"
@@ -21,6 +21,7 @@ travis_install_jdk() {
   travis_cmd "export JAVA_HOME=~/$jdk" --echo
   # shellcheck disable=SC2016
   travis_cmd 'export PATH="$JAVA_HOME/bin:$PATH"' --echo
+  [[ "$TRAVIS_OS_NAME" == linux && "$vendor" == openjdk ]] && certlink=" --cacerts"
   # shellcheck disable=2088
-  travis_cmd "~/bin/install-jdk.sh --target \"$JAVA_HOME\" --workspace \"$TRAVIS_HOME/.cache/install-jdk\" --feature \"$version\" --license \"$license\"" --echo --assert
+  travis_cmd "~/bin/install-jdk.sh --target \"$JAVA_HOME\" --workspace \"$TRAVIS_HOME/.cache/install-jdk\" --feature \"$version\" --license \"$license\"$certlink" --echo --assert
 }
