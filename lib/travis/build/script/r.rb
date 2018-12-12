@@ -69,8 +69,8 @@ module Travis
                 sh.cmd 'sudo add-apt-repository '\
                   "\"deb #{repos[:CRAN]}/bin/linux/ubuntu "\
                   "$(lsb_release -cs)/\""
-                sh.cmd 'apt-key adv --keyserver ha.pool.sks-keyservers.net '\
-                  '--recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9', sudo: true
+
+                setup_pgp_key
 
                 # Add marutter's c2d4u plus ppa dependencies as listed on launchpad
                 if r_version_less_than('3.5.0')
@@ -605,6 +605,64 @@ module Travis
             config[:bioc].sub!(/^https:/, "http:")
           end
           v
+        end
+
+
+        # Michael Rutter's public key
+        # http://keyserver.ubuntu.com/pks/lookup?search=0xE298A3A825C0D65DFD57CBB651716619E084DAB9&op=vindex
+        # This key will expire on 2020-10-16 and will need to be updated.
+        def marutter_pgp_key
+          return <<~END_PGP_PUBLIC_KEY
+            -----BEGIN PGP PUBLIC KEY BLOCK-----
+            Version: SKS 1.1.6
+            Comment: Hostname: keyserver.ubuntu.com
+
+            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
+            =IwiZ
+            -----END PGP PUBLIC KEY BLOCK-----
+            END_PGP_PUBLIC_KEY
+        end
+
+        def setup_pgp_key
+          pgp_key = marutter_pgp_key
+          key_type = "marutter"
+
+          sh.cmd "echo '#{pgp_key}' > /tmp/#{key_type}.asc"
+          sh.cmd "gpg --dearmor < /tmp/#{key_type}.asc > /tmp/#{key_type}.gpg", assert: true
+          sh.cmd "mv /tmp/#{key_type}.gpg /etc/apt/trusted.gpg.d/", assert: true, sudo: true
         end
       end
     end
