@@ -40,7 +40,7 @@ travis_cmd() {
   fi
 
   if [[ -n "${output}" ]]; then
-    echo "\$ ${display:-${cmd}}"
+    echo "${PS1}${display:-${cmd}}"
   fi
 
   if [[ -n "${retry}" ]]; then

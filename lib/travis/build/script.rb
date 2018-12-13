@@ -261,6 +261,7 @@ module Travis
         def configure
           apply :check_unsupported
           apply :set_x
+          apply :set_ps1
           apply :show_system_info
           apply :rm_riak_source
           apply :fix_rwky_redis
