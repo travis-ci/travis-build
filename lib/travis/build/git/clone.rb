@@ -14,6 +14,8 @@ module Travis
             checkout
           end
           sh.newline
+          sh.echo 'After checkout'
+          sh.cmd 'cat /etc/hosts'
         end
 
         private
