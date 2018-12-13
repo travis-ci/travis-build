@@ -17,7 +17,7 @@ module Travis
           sh.raw %q(cat /tmp/hosts_127_0_0_1 | sudo tee -a /etc/hosts > /dev/null)
           sh.echo 'After PutLocalhostFirst'
           sh.raw 'cat /etc/hosts'
-          sh.raw 'sudo sync -f'
+          sh.raw 'sudo sync'
         end
       end
     end
