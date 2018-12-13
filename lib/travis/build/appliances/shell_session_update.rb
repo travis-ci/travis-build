@@ -11,6 +11,8 @@ module Travis
               export -f shell_session_update
             fi
           EOF
+          sh.echo 'After ShellSessionUpdate'
+          sh.cmd 'cat /etc/hosts'
         end
       end
     end
