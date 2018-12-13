@@ -49,6 +49,7 @@ module Travis
             sh.raw 'travis_debug_install'
             sh.echo "Preparing debug sessions."
             sh.raw 'TRAVIS_CMD=travis_debug'
+            sh.raw 'export TRAVIS_DEBUG_MODE=true'
             sh.raw 'travis_debug.sh "$@"'
           sh.raw '}'
         end
