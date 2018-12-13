@@ -69,8 +69,10 @@ module Travis
                 sh.cmd 'sudo add-apt-repository '\
                   "\"deb #{repos[:CRAN]}/bin/linux/ubuntu "\
                   "$(lsb_release -cs)/\""
-                sh.cmd 'apt-key adv --keyserver ha.pool.sks-keyservers.net '\
-                  '--recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9', sudo: true
+
+                # This key is added implicitly by the marutter PPA below
+                #sh.cmd 'apt-key adv --keyserver ha.pool.sks-keyservers.net '\
+                  #'--recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9', sudo: true
 
                 # Add marutter's c2d4u plus ppa dependencies as listed on launchpad
                 if r_version_less_than('3.5.0')
