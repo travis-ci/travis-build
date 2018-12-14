@@ -14,7 +14,7 @@ describe Travis::Build::Script::Scala, :sexp do
 
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=scala'] }
-    let(:cmds) { ['sbt ++2.12.7 test'] }
+    let(:cmds) { ['sbt ++2.12.8 test'] }
   end
 
   it_behaves_like 'a build script sexp'
@@ -22,11 +22,11 @@ describe Travis::Build::Script::Scala, :sexp do
   it_behaves_like 'announces java versions'
 
   it 'sets TRAVIS_SCALA_VERSION' do
-    should include_sexp [:export, ['TRAVIS_SCALA_VERSION', '2.12.7']]
+    should include_sexp [:export, ['TRAVIS_SCALA_VERSION', '2.12.8']]
   end
 
-  it 'announces Scala 2.12.7' do
-    should include_sexp [:echo, 'Using Scala 2.12.7']
+  it 'announces Scala 2.12.8' do
+    should include_sexp [:echo, 'Using Scala 2.12.8']
   end
 
   context "when scala version is given as an array" do
@@ -62,12 +62,12 @@ describe Travis::Build::Script::Scala, :sexp do
       let(:sexp) { sexp_find(sexp_filter(subject, [:if, '-d project || -f build.sbt'])[1], [:then]) }
 
       it 'runs sbt with default arguments' do
-        expect(sexp).to include_sexp [:cmd, 'sbt ++2.12.7 test', echo: true, timing: true]
+        expect(sexp).to include_sexp [:cmd, 'sbt ++2.12.8 test', echo: true, timing: true]
       end
 
       it 'runs sbt with additional arguments' do
         data[:config][:sbt_args] = '-Dsbt.log.noformat=true'
-        expect(sexp).to include_sexp [:cmd, 'sbt -Dsbt.log.noformat=true ++2.12.7 test', echo: true, timing: true]
+        expect(sexp).to include_sexp [:cmd, 'sbt -Dsbt.log.noformat=true ++2.12.8 test', echo: true, timing: true]
       end
     end
   end
