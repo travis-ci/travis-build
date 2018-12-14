@@ -49,6 +49,7 @@ module Travis
           trusty: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_TRUSTY', ''),
           xenial: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_XENIAL', ''),
         },
+        apt_proxy: ENV.fetch('TRAVIS_BUILD_APT_PROXY', ''),
         apt_source_safelist: {
           precise: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_SAFELIST_PRECISE', ''),
           trusty: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_SAFELIST_TRUSTY', ''),

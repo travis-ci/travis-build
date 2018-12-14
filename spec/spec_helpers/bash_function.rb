@@ -2,7 +2,8 @@ require 'shellwords'
 
 module SpecHelpers
   module BashFunction
-    def run_script(function_name, command, out: nil, err: nil)
+    def run_script(function_name, command, image: 'bash:4', out: nil,
+                   err: nil, cleanup: true)
       container_name = "travis_bash_function_#{rand(1000..1999)}"
 
       out ||= Tempfile.new('travis_bash_function')
@@ -13,12 +14,12 @@ module SpecHelpers
       system(
         %W[
           docker create
-            --rm
+            #{cleanup ? '--rm' : ''}
             -e TRAVIS_ROOT=/
             -e TRAVIS_HOME=/home/travis
             -e TRAVIS_BUILD_DIR=/home/travis/build/#{function_name}_spec
             --name=#{container_name}
-            bash:4
+            #{image}
             bash -c
         ].join(' ') + ' ' + Shellwords.escape(script),
         %i[out err] => '/dev/null'

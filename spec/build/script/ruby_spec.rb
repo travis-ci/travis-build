@@ -199,4 +199,23 @@ describe Travis::Build::Script::Ruby, :sexp do
       should include_sexp [:cmd, "rvm autolibs disable", assert: true]
     end
   end
+
+  context 'when testing with truffleruby' do
+    before :each do
+      data[:config][:rvm] = 'truffleruby'
+    end
+
+    it 'uses latest rvm' do
+      should include_sexp [:cmd, "rvm get master", assert: true, echo: true, timing: true]
+    end
+
+    it 'sets autolibs to disable' do
+      should include_sexp [:cmd, "rvm autolibs disable", assert: true]
+    end
+
+    it 'uses rvm install and rvm use' do
+      should include_sexp [:cmd, "rvm install truffleruby", assert: true, echo: true, timing: true]
+      should include_sexp [:cmd, "rvm use truffleruby", assert: true, echo: true, timing: true]
+    end
+  end
 end
