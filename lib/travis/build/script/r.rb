@@ -65,11 +65,6 @@ module Travis
               sh.echo 'Installing R', ansi: :yellow
               case config[:os]
               when 'linux'
-                # Set up our CRAN mirror.
-                sh.cmd 'sudo add-apt-repository '\
-                  "\"deb #{repos[:CRAN]}/bin/linux/ubuntu "\
-                  "$(lsb_release -cs)/\""
-
                 # This key is added implicitly by the marutter PPA below
                 #sh.cmd 'apt-key adv --keyserver ha.pool.sks-keyservers.net '\
                   #'--recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9', sudo: true
