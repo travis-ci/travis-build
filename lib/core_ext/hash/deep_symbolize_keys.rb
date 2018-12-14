@@ -1,20 +1,39 @@
+# frozen_string_literal: true
+
 class Hash
-  def deep_symbolize_keys
-    inject({}) { |result, (key, value)|
-      result[(key.to_sym rescue key) || key] = case value
+  unless Hash.method_defined?(:deep_symbolize_keys)
+    def deep_symbolize_keys
+      each_with_object({}) do |(key, value), result|
+        key = deep_symbolize_key(key) || key
+        result[key] = deep_symbolize_coerce_value(value)
+      end
+    end
+
+    def deep_symbolize_key(key)
+      key.to_sym
+    rescue StandardError
+      key
+    end
+
+    private :deep_symbolize_key
+
+    def deep_symbolize_coerce_value(value)
+      case value
       when Array
-        value.map { |value| value.is_a?(Hash) ? value.deep_symbolize_keys : value }
+        value.map { |v| v.is_a?(Hash) ? v.deep_symbolize_keys : v }
       when Hash
         value.deep_symbolize_keys
       else
         value
       end
-      result
-    }
-  end unless Hash.method_defined?(:deep_symbolize_keys)
+    end
 
-  def deep_symbolize_keys!
-    replace(deep_symbolize_keys)
-  end unless Hash.method_defined?(:deep_symbolize_keys!)
+    private :deep_symbolize_coerce_value
+  end
+
+  unless Hash.method_defined?(:deep_symbolize_keys!)
+    def deep_symbolize_keys!
+      replace(deep_symbolize_keys)
+    end
+  end
 end
-

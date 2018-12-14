@@ -29,6 +29,7 @@ require 'travis/build/script/haxe'
 require 'travis/build/script/julia'
 require 'travis/build/script/nix'
 require 'travis/build/script/node_js'
+require 'travis/build/script/elm'
 require 'travis/build/script/objective_c'
 require 'travis/build/script/perl'
 require 'travis/build/script/perl6'
@@ -55,14 +56,19 @@ module Travis
         travis_cmd
         travis_decrypt
         travis_download
+        travis_find_jdk_path
         travis_fold
         travis_footer
+        travis_install_jdk
         travis_internal_ruby
         travis_jigger
+        travis_jinfo_file
         travis_nanoseconds
+        travis_remove_from_path
         travis_result
         travis_retry
         travis_setup_env
+        travis_setup_java
         travis_temporary_hacks
         travis_terminate
         travis_time_finish
@@ -201,7 +207,7 @@ module Travis
               sh.raw "travis_debug"
             end
 
-            sh.echo
+            sh.newline
             sh.echo "All remaining steps, including caching and deploy, will be skipped.", ansi: :yellow
           end
         end
@@ -222,6 +228,9 @@ module Travis
                     echo: false, assert: false
           sh.export 'TRAVIS_APP_HOST', app_host,
                     echo: false, assert: false
+          sh.export 'TRAVIS_APT_PROXY', apt_proxy,
+                    echo: false, assert: false
+
           if Travis::Build.config.enable_infra_detection?
             sh.export 'TRAVIS_ENABLE_INFRA_DETECTION', 'true',
                       echo: false, assert: false
@@ -243,6 +252,10 @@ module Travis
           @internal_ruby_regex_esc ||= Shellwords.escape(
             Travis::Build.config.internal_ruby_regex.output_safe
           )
+        end
+
+        def apt_proxy
+          @apt_proxy ||= Travis::Build.config.apt_proxy.output_safe
         end
 
         def configure
@@ -273,6 +286,7 @@ module Travis
           apply :disable_ssh_roaming
           apply :debug_tools
           apply :npm_registry
+          apply :uninstall_oclint
           apply :rvm_use
           apply :rm_oraclejdk8_symlink
           apply :enable_i386
@@ -283,6 +297,7 @@ module Travis
           apply :apt_get_update
           apply :deprecate_xcode_64
           apply :update_heroku
+          apply :shell_session_update
         end
 
         def setup_filter
@@ -311,7 +326,7 @@ module Travis
           if debug_build_via_api?
             raise "Debug payload does not contain 'previous_state' value." unless previous_state = data.debug_options[:previous_state]
 
-            sh.echo
+            sh.newline
             sh.echo "This is a debug build. The build result is reset to its previous value, \\\"#{previous_state}\\\".", ansi: :yellow
 
             case previous_state

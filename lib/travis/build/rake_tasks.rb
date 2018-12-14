@@ -144,9 +144,8 @@ module Travis
           "#{fullparts[0]}.#{fullparts[1]}.x" => full_version
         }
 
-        if alias_major_minor
-          expanded["#{fullparts[0]}.#{fullparts[1]}"] = full_version
-        end
+        key = "#{fullparts[0]}.#{fullparts[1]}"
+        expanded[key] = full_version if alias_major_minor
 
         expanded
       end
@@ -207,6 +206,7 @@ module Travis
       def shellcheck?
         ENV['PATH'] = tmpbin_path
         vers = `shellcheck --version 2>/dev/null`.strip
+        return false if vers.nil? || vers.strip.empty?
         vers.split(/\n/)
             .find { |s| s.start_with?('version:') }
             .split.last == SHELLCHECK_VERSION.sub(/^v/, '')

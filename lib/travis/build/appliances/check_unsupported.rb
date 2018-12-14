@@ -31,7 +31,7 @@ module Travis
             "",
             "The language '#{lang}' is currently unsupported on the Windows Build Environment.",
             "",
-            "Let us know if you'd like to see it: https://travis-ci.community/c/windows. Thanks for understanding!",
+            "Let us know if you'd like to see it: https://travis-ci.community/c/environments/windows. Thanks for understanding!",
           ]
         end
 

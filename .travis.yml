@@ -1,7 +1,6 @@
 language: ruby
 sudo: required
 dist: xenial
-group: edge
 rvm: 2.5.3
 
 cache:
