@@ -280,7 +280,7 @@ module Travis
               if branch = data.cache[:branch]
                 branch
               else
-                edge? ? 'master' : 'production'
+                edge? ? 'master' : use_bash? ? 'bash' : 'production'
               end
             end
 
@@ -307,8 +307,15 @@ module Travis
                   sh.cmd curl_cmd(flags, location, remote_location), cmd_opts
                 end
               else
+                if casher_branch == 'bash'
+                  cmd_opts[:echo] = 'Installing caching utilities, bash version'
+                end
                 sh.cmd curl_cmd(flags, location, (CASHER_URL % casher_branch)), cmd_opts
               end
+            end
+
+            def use_bash?
+              rand * 100 < Travis::Build.config.bash_casher_pct.to_i
             end
 
             def curl_cmd(flags, location, remote_location)

@@ -105,4 +105,20 @@ describe Travis::Build::Script::DirectoryCache, :sexp do
       end
     end
   end
+
+  context 'when using Bash casher' do
+    before :each do
+      Travis::Build.config.bash_casher_pct = '100'
+    end
+
+    after :each do
+      Travis::Build.config.bash_casher_pct = '0'
+    end
+
+    let(:config) { { cache: 'bundler' } }
+
+    it "fetches bash casher" do
+      expect(sexp).to include_sexp [:cmd, "curl -sf  -o $CASHER_DIR/bin/casher https://raw.githubusercontent.com/travis-ci/casher/bash/bin/casher", echo: "Installing caching utilities, bash version", timing: true, retry: true]
+    end
+  end
 end
