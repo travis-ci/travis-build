@@ -20,11 +20,8 @@ travis_munge_apt_sources() {
   done
 
   if [[ ! "${mirror}" ]]; then
-    echo -e "No APT mirror found; not updating ${src}."
     return
   fi
-
-  echo -e "Setting APT mirror in ${src}: ${mirror}"
 
   sed -e "s,http://.*\\.ubuntu\\.com/ubuntu/,${mirror}," \
     "${src}" >"${tmp_dest}"

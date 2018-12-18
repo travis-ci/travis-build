@@ -115,7 +115,7 @@ GEM
     pusher-client (0.6.2)
       json
       websocket (~> 1.0)
-    rack (1.6.10)
+    rack (1.6.11)
     rack-protection (1.5.5)
       rack
     rack-ssl (1.4.1)
@@ -231,4 +231,4 @@ DEPENDENCIES
   travis-support!
 
 BUNDLED WITH
-   1.16.5
+   1.16.6

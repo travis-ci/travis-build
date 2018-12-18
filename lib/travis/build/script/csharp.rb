@@ -193,12 +193,12 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
         end
 
         def install
-          sh.cmd "nuget restore #{config_solution}", retry: true if is_mono_enabled && config_solution && !is_mono_2_10_8 && !is_mono_3_2_8
+          sh.cmd "nuget restore #{config_solution.shellescape}", retry: true if is_mono_enabled && config_solution && !is_mono_2_10_8 && !is_mono_3_2_8
         end
 
         def script
           if config_solution && is_mono_enabled
-            sh.cmd "#{mono_build_cmd} /p:Configuration=Release #{config_solution}", timing: true
+            sh.cmd "#{mono_build_cmd} /p:Configuration=Release #{config_solution.shellescape}", timing: true
           else
             sh.failure 'No solution or script defined, exiting'
           end

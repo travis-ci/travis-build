@@ -71,8 +71,10 @@ module Travis
                 sh.cmd 'sudo add-apt-repository '\
                   "\"deb #{repos[:CRAN]}/bin/linux/ubuntu "\
                   "$(lsb_release -cs)/\""
-                sh.cmd 'apt-key adv --keyserver ha.pool.sks-keyservers.net '\
-                  '--recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9', sudo: true
+
+                # This key is added implicitly by the marutter PPA below
+                #sh.cmd 'apt-key adv --keyserver ha.pool.sks-keyservers.net '\
+                  #'--recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9', sudo: true
 
                 # Add marutter's c2d4u plus ppa dependencies as listed on launchpad
                 if r_version_less_than('3.5.0')
@@ -109,7 +111,7 @@ module Travis
                   "#{optional_apt_pkgs}", retry: true
 
                 r_filename = "R-#{r_version}-$(lsb_release -cs).xz"
-                r_url = "https://s3.amazonaws.com/rstudio-travis/#{r_filename}"
+                r_url = "https://travis-ci.rstudio.org/#{r_filename}"
                 sh.cmd "curl -fLo /tmp/#{r_filename} #{r_url}", retry: true
                 sh.cmd "tar xJf /tmp/#{r_filename} -C ~"
                 sh.export 'PATH', "${TRAVIS_HOME}/R-bin/bin:$PATH", echo: false
