@@ -86,7 +86,7 @@ module SpecHelpers
         f.adapter Faraday.default_adapter
       end
 
-      JSON.parse(conn.get('/fAwln').body).fetch('default')
+      JSON.parse(conn.get('/fphGt').body).fetch('default')
     end
 
     def list_build_examples
