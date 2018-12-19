@@ -277,6 +277,7 @@ module Travis
           apply :fix_etc_hosts
           apply :fix_mvn_settings_xml
           apply :no_ipv6_localhost
+          apply :enable_ipv4_forwarding
           apply :fix_etc_mavenrc
           apply :etc_hosts_pinning
           apply :fix_wwdr_certificate
