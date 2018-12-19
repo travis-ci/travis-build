@@ -127,11 +127,11 @@ module Travis
         def announce
           super
 
-          sh.fold('haxe -version') do
-            sh.cmd "haxe -version", assert: true, echo: false
+          sh.fold('haxe-version') do
+            sh.cmd "haxe -version", assert: true, echo: true
           end
-          sh.fold('neko -version') do
-            sh.cmd "neko -version", assert: true, echo: false
+          sh.fold('neko-version') do
+            sh.cmd "neko -version", assert: true, echo: true
           end
         end
 
