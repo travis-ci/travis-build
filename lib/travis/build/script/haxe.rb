@@ -127,10 +127,12 @@ module Travis
         def announce
           super
 
-          # Neko 2.0.0 output the version number without linebreak.
-          # The webpage has trouble displaying it without wrapping with echo.
-          sh.cmd "echo $(haxe -version)"
-          sh.cmd "echo $(neko -version)"
+          sh.fold('haxe -version') do
+            sh.cmd "haxe -version", assert: true, echo: false
+          end
+          sh.fold('neko -version') do
+            sh.cmd "neko -version", assert: true, echo: false
+          end
         end
 
         def install
