@@ -127,10 +127,10 @@ module Travis
           super
 
           sh.fold('haxe-version') do
-            sh.cmd "haxe -version", assert: true, echo: true
+            sh.cmd "haxe -version 2>&1", assert: true, echo: true
           end
           sh.fold('neko-version') do
-            sh.cmd "neko -version", assert: true, echo: true
+            sh.cmd "neko -version 2>&1", assert: true, echo: true
           end
         end
 
