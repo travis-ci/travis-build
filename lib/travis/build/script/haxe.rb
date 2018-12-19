@@ -48,8 +48,10 @@ module Travis
             when 'linux'
               sh.cmd 'travis_apt_get_update', retry: true
               sh.cmd 'sudo apt-get install libgc1c2 -qq', retry: true # required by neko
-            when 'osx', 'windows'
+            when 'windows'
               sh.cmd 'choco install vcredist2013 -y', assert: true, echo: true
+            when 'osx'
+              # pass
             end
 
             case config[:os]
