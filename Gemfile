@@ -37,6 +37,6 @@ gem 'sinatra', '~> 1.4'
 gem 'sinatra-contrib'
 gem 'travis'
 gem 'travis-config'
-gem 'travis-github_apps', git: gh('travis-ci/travis-github_apps'), branch: 'ha-fix-access-token-url'
+gem 'travis-github_apps', git: gh('travis-ci/travis-github_apps')
 gem 'travis-rollout', git: gh('travis-ci/travis-rollout')
 gem 'travis-support', git: gh('travis-ci/travis-support')

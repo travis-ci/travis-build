@@ -13,8 +13,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-github_apps
-  revision: fe8254de006dab9ce95652a1c593318cc7a93529
-  branch: ha-fix-access-token-url
+  revision: fb865ee510534006f15553f4ef3746c2610a4668
   specs:
     travis-github_apps (0.2.0)
       activesupport (>= 3.2)
