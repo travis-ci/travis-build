@@ -78,6 +78,7 @@ shared_examples_for 'a debug script' do
 
   it 'resets build status' do
     store_example(name: 'debug')
+    should include_sexp [:cmd, 'rm ${TRAVIS_HOME}/.netrc']
     should include_sexp [:echo, "This is a debug build. The build result is reset to its previous value, \\\"failed\\\".", {}]
   end
 end
