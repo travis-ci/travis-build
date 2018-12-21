@@ -67,7 +67,7 @@ module Travis
             sh.echo 'Using Go 1.5 Vendoring, not checking for Godeps'
           end
           sh.else do
-            sh .if '-f Godeps/Godeps.json' do
+            sh.if '-f Godeps/Godeps.json' do
               sh.export 'GOPATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace:$GOPATH', retry: false
               sh.export 'PATH', '${TRAVIS_BUILD_DIR}/Godeps/_workspace/bin:$PATH', retry: false
 
@@ -77,6 +77,10 @@ module Travis
                   sh.cmd 'godep restore', retry: true, timing: true, assert: true, echo: true
                 end
               end
+            end
+            sh.elif '-f Gopkg.toml' do 
+              fetch_dep
+              sh.cmd 'dep ensure', retry: true, timing: true, assert: true, echo: true
             end
           end
 
@@ -195,6 +199,21 @@ module Travis
             sh.export 'PATH', "${TRAVIS_HOME}/bin:$PATH", retry: false, echo: false
             # install bootstrap version so that tip/master/whatever can be used immediately
             sh.cmd %Q'gimme #{DEFAULTS[:go]} &>/dev/null'
+          end
+
+          def fetch_dep
+            dep = "$HOME/gopath/bin/dep"
+
+            sh.mkdir "$HOME/gopath/bin", echo: false, recursive: true
+
+            sh.if "$TRAVIS_OS_NAME = osx" do
+              sh.cmd "curl -sL -o #{dep} https://github.com/golang/dep/releases/download/v0.3.2/dep-darwin-amd64", echo: false
+            end
+            sh.elif "$TRAVIS_OS_NAME = linux" do
+              sh.cmd "curl -sL -o #{dep} https://github.com/golang/dep/releases/download/v0.3.2/dep-linux-amd64", echo: false
+            end
+
+            sh.cmd "chmod +x #{dep}"
           end
 
           def fetch_godep
