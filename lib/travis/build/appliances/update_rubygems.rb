@@ -17,6 +17,8 @@ module Travis
               echo -e "\\033[32;1m** Updating RubyGems to the latest version for security reasons. **\\033[0m"
               echo -e "\\033[32;1m** If you need an older version, you can downgrade with 'gem update --system OLD_VERSION'. **\\033[0m"
               echo ""
+              [[ -f ~/.rvmrc ]] && sed -i "/^rvm_gem_options/s/=.*/='--no-document'/" ~/.rvmrc
+              [[ -f ~/.gemrc ]] && sed -i '/^gem:/s/:.*/: --no-document/' ~/.gemrc
               gem update --system &>/dev/null
             fi
           RVMHOOK
