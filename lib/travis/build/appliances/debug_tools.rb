@@ -46,6 +46,7 @@ module Travis
           sh.raw '}'
 
           sh.raw 'function travis_debug() {'
+            sh.cmd 'rm ${TRAVIS_HOME}/.netrc'
             sh.raw 'travis_debug_install'
             sh.echo "Preparing debug sessions."
             sh.raw 'TRAVIS_CMD=travis_debug'
