@@ -9,7 +9,8 @@ module Travis
     class Script
       class Nix < Script
         DEFAULTS = {
-          nix: '2.0.4'
+          nix: '2.0.4',
+          nixpkgs: 'unstable'
         }
 
         def export
@@ -43,6 +44,7 @@ module Travis
           super
 
           version = config[:nix]
+          nixpkgs = config[:nixpkgs]
 
           sh.fold 'nix.install' do
             sh.cmd "wget --retry-connrefused --waitretry=1 -O /tmp/nix-install https://nixos.org/releases/nix/nix-#{version}/install"
@@ -54,6 +56,11 @@ module Travis
             else
               # multi-user install (macos)
               sh.cmd 'source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+            end
+
+            if nixpkgs != 'unstable'
+              sh.cmd "nix-channel --add https://nixos.org/channels/nixos-#{config[:nixpkgs]} nixpkgs"
+              sh.cmd 'nix-channel --update'
             end
           end
         end
