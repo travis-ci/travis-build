@@ -58,7 +58,7 @@ module Travis
             end
 
             config[:channels].map do |channel, url|
-              sh.cmd "nix-channel --add #{expand_channel_url(channel, url)} #{channel}"
+              sh.cmd "nix-channel --add #{url} #{channel}"
             end
 
             sh.cmd 'nix-channel --update'
@@ -77,25 +77,6 @@ module Travis
 
         def script
           sh.cmd 'nix-build'
-        end
-
-        private
-
-        def is_number?(str)
-          true if Float(str) rescue false
-        end
-
-        def expand_channel_url(channel, url)
-          if is_number? url
-            case channel.to_s
-            when "nixpkgs"
-              "https://nixos.org/channels/nixos-#{url}"
-            else
-              url
-            end
-          else
-            url
-          end
         end
       end
     end

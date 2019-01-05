@@ -21,20 +21,4 @@ describe Travis::Build::Script::Nix, :sexp do
       should include_sexp [:cmd, 'nix-channel --add bar foo', assert: true, timing: true, echo: true]
     end
   end
-
-  context 'when the nixpkgs channel is configured' do
-    context 'when using a version number shorthand' do
-      let(:config) { { channels: { nixpkgs: '18.09' } } }
-      it 'sets the nixpkgs channel' do
-        should include_sexp [:cmd, 'nix-channel --add https://nixos.org/channels/nixos-18.09 nixpkgs', assert: true, timing: true, echo: true]
-      end
-    end
-
-    context 'when using a full url' do
-      let(:config) { { channels: { nixpkgs: 'https://nixos.org/channels/nixos-18.09' } } }
-      it 'sets the nixpkgs channel' do
-        should include_sexp [:cmd, 'nix-channel --add https://nixos.org/channels/nixos-18.09 nixpkgs', assert: true, timing: true, echo: true]
-      end
-    end
-  end
 end
