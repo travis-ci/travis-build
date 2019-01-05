@@ -57,7 +57,7 @@ module Travis
               sh.cmd 'source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
             end
 
-            unless config[:nixpkgs] == 'unstable'
+            unless config[:nixpkgs].to_s == 'unstable'
               sh.cmd "nix-channel --add https://nixos.org/channels/nixos-#{config[:nixpkgs]} nixpkgs"
               sh.cmd 'nix-channel --update'
             end
