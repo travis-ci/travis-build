@@ -44,7 +44,6 @@ module Travis
           super
 
           version = config[:nix]
-          nixpkgs = config[:nixpkgs]
 
           sh.fold 'nix.install' do
             sh.cmd "wget --retry-connrefused --waitretry=1 -O /tmp/nix-install https://nixos.org/releases/nix/nix-#{version}/install"
@@ -58,7 +57,7 @@ module Travis
               sh.cmd 'source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
             end
 
-            unless nixpkgs == 'unstable'
+            unless config[:nixpkgs] == 'unstable'
               sh.cmd "nix-channel --add https://nixos.org/channels/nixos-#{config[:nixpkgs]} nixpkgs"
               sh.cmd 'nix-channel --update'
             end
