@@ -14,7 +14,7 @@ module Travis
 
             if [[ "$(travis_vers2int "$(gem --version)")" -lt "$(travis_vers2int "#{RUBYGEMS_BASELINE_VERSION}")" ]]; then
               echo ""
-              echo -e "\\033[32;1m** Updating RubyGems to the latest version for security reasons. **\\033[0m"
+              echo -e "\\033[32;1m** Updating RubyGems to the latest compatible version for security reasons. **\\033[0m"
               echo -e "\\033[32;1m** If you need an older version, you can downgrade with 'gem update --system OLD_VERSION'. **\\033[0m"
               echo ""
               if [[ "$(travis_vers2int "$(ruby -e 'puts RUBY_VERSION')")" -lt "$(travis_vers2int "2.3.0")" ]]; then
