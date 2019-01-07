@@ -163,6 +163,7 @@ module Travis
                 setup_latex
               else
                 config[:r_check_args] << " --no-manual"
+                config[:r_build_args] << " --no-manual"
               end
 
               setup_bioc if needs_bioc?
