@@ -35,6 +35,7 @@ module Travis
           sh.cmd 'python --version'
           sh.cmd 'pip --version'
           sh.export 'PIP_DISABLE_PIP_VERSION_CHECK', '1', echo: false
+          sh.export 'PIP_PROGRESS_BAR', 'off', echo: false
         end
 
         def setup_cache
@@ -61,7 +62,7 @@ module Travis
         def script
           # This always fails the build, asking the user to provide a custom :script.
           # The Python ecosystem has no good default build command most of the
-          # community aggrees on. Per discussion with jezjez, josh-k and others. MK
+          # community agrees on. Per discussion with jezjez, josh-k and others. MK
           sh.failure SCRIPT_MISSING
         end
 
