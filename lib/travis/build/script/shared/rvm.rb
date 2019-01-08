@@ -65,7 +65,7 @@ module Travis
 
           def import_gpg_key
             RVM_GPG_KEY_IDS.each do |id|
-              sh.cmd "command curl -sSL https://rvm.io/#{id}.asc | gpg2 --import -", assert: false 
+              sh.cmd "command curl -sSL https://rvm.io/#{id}.asc | gpg2 --import -", assert: false
             end
           end
 
@@ -145,6 +145,11 @@ module Travis
                 sh.else do
                   sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy"
                 end
+              elsif ruby_version.start_with? 'jruby'
+                import_gpg_key
+                sh.echo "Updating RVM", ansi: :yellow
+                sh.cmd "rvm get stable"
+                sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy"
               else
                 sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy"
               end
