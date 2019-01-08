@@ -20,6 +20,11 @@ module Travis
           '2.5' => '2.5.1'
         }
 
+        RVM_GPG_KEY_IDS = %w(
+          mpapis
+          pkuczynski
+        )
+
         def export
           super
           sh.export 'TRAVIS_RUBY_VERSION', version, echo: false if rvm?
@@ -58,6 +63,12 @@ module Travis
             force_187_p371 vers
           end
 
+          def import_gpg_key
+            RVM_GPG_KEY_IDS.each do |id|
+              sh.cmd "command curl -sSL https://rvm.io/#{id}.asc | gpg2 --import -", assert: false 
+            end
+          end
+
           def setup_rvm
             write_default_gems
             if without_teeny?(version)
@@ -77,6 +88,7 @@ module Travis
 
           def use_ruby_head
             sh.fold('rvm') do
+              import_gpg_key
               sh.echo MSGS[:setup_ruby_head] % ruby_version, ansi: :yellow
               sh.cmd "rvm get stable", assert: false if ruby_version == 'jruby-head'
               sh.export 'ruby_alias', "`rvm alias show #{ruby_version} 2>/dev/null`"
@@ -114,6 +126,7 @@ module Travis
             sh.fold('rvm') do
               # TruffleRuby has frequent (~monthly) releases,
               # use latest RVM to have the latest version available.
+              import_gpg_key
               sh.cmd "rvm get master"
               sh.cmd "rvm install #{ruby_version}"
               sh.cmd "rvm use #{ruby_version}"
