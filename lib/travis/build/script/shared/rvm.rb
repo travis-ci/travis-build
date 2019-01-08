@@ -64,7 +64,7 @@ module Travis
           end
 
           def import_gpg_key
-            sh.cmd "command gpg2 --version &>/dev/null && gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys #{RVM_GPG_KEYS.join(" ")}",
+            sh.cmd "command gpg2 --version &>/dev/null && gpg2 --keyserver hkp://pool.sks-keyservers.net --recv-keys #{RVM_GPG_KEYS.join(" ")}",
               echo: "Importing new GPG keys for RVM", assert: false
           end
 
