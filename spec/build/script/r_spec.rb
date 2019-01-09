@@ -26,7 +26,7 @@ describe Travis::Build::Script::R, :sexp do
     data[:config][:r] = 'bioc-release'
     should include_sexp [:cmd, %r{install.packages\(\"BiocManager"\)},
                          assert: true, echo: true, timing: true, retry: true]
-    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.5.1']]
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.5.2']]
   end
 
   it 'r_packages works with a single package set' do
@@ -54,7 +54,7 @@ describe Travis::Build::Script::R, :sexp do
   end
 
   it 'downloads and installs latest R' do
-    should include_sexp [:cmd, %r{^curl.*https://s3\.amazonaws\.com/rstudio-travis/R-3\.5\.1-\$\(lsb_release -cs\)\.xz},
+    should include_sexp [:cmd, %r{^curl.*https://travis-ci\.rstudio\.org/R-3\.5\.2-\$\(lsb_release -cs\)\.xz},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
@@ -100,19 +100,19 @@ describe Travis::Build::Script::R, :sexp do
 
   it 'downloads and installs R 3.1' do
     data[:config][:r] = '3.1'
-    should include_sexp [:cmd, %r{^curl.*https://s3\.amazonaws\.com/rstudio-travis/R-3\.1\.3-\$\(lsb_release -cs\)\.xz},
+    should include_sexp [:cmd, %r{^curl.*https://travis-ci\.rstudio\.org/R-3\.1\.3-\$\(lsb_release -cs\)\.xz},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
   it 'downloads and installs R 3.2' do
     data[:config][:r] = '3.2'
-    should include_sexp [:cmd, %r{^curl.*https://s3\.amazonaws\.com/rstudio-travis/R-3\.2\.5-\$\(lsb_release -cs\)\.xz},
+    should include_sexp [:cmd, %r{^curl.*https://travis-ci\.rstudio\.org/R-3\.2\.5-\$\(lsb_release -cs\)\.xz},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
   it 'downloads and installs R devel' do
     data[:config][:r] = 'devel'
-    should include_sexp [:cmd, %r{^curl.*https://s3\.amazonaws\.com/rstudio-travis/R-devel-\$\(lsb_release -cs\)\.xz},
+    should include_sexp [:cmd, %r{^curl.*https://travis-ci\.rstudio\.org/R-devel-\$\(lsb_release -cs\)\.xz},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
@@ -241,7 +241,7 @@ describe Travis::Build::Script::R, :sexp do
     }
     it {
       data[:config][:r] = 'release'
-      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.5.1")
+      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.5.2")
     }
     it {
       data[:config][:r] = 'oldrel'

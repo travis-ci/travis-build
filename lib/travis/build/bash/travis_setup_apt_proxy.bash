@@ -22,6 +22,10 @@ travis_setup_apt_proxy() {
     cat <<EOCONF
 Acquire::http::Proxy "${TRAVIS_APT_PROXY}";
 Acquire::https::Proxy false;
+Acquire::http::Proxy::download.oracle.com "DIRECT";
+Acquire::https::Proxy::download.oracle.com "DIRECT";
+Acquire::http::Proxy::*.java.net "DIRECT";
+Acquire::https::Proxy::*.java.net "DIRECT";
 EOCONF
   ) | sudo tee "${dest_dir}/99-travis-apt-proxy" &>/dev/null
 }
