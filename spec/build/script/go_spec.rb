@@ -6,6 +6,11 @@ describe Travis::Build::Script::Go, :sexp do
   let(:defaults) { described_class::DEFAULTS }
   subject        { script.sexp }
   it             { store_example }
+  it             { store_example(integration: true) }
+
+  it_behaves_like 'a bash script', integration: true do
+    let(:bash_script_file) { bash_script_path(integration: true) }
+  end
 
   it_behaves_like 'a bash script'
 
