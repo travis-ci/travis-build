@@ -79,7 +79,7 @@ module Travis
             'https://raw.githubusercontent.com/travis-ci/gimme/v1.3.0/gimme'
           )
         },
-        go_version: ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.10.x'),
+        go_version: ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.11.x'),
         internal_ruby_regex: ENV.fetch(
           'TRAVIS_BUILD_INTERNAL_RUBY_REGEX',
           '^ruby-(2\.[0-4]\.[0-9]|1\.9\.3)'

@@ -36,34 +36,43 @@ module Travis
         end
 
         def setup
-          sh.cmd %Q'GIMME_OUTPUT="$(gimme #{go_version} | tee -a ${TRAVIS_HOME}/.bashrc)" && eval "$GIMME_OUTPUT"'
+          sh.cmd %[GIMME_ENV="$(gimme "#{go_version}" | tee -a "${TRAVIS_HOME}/.bashrc")"]
+          sh.cmd 'eval "${GIMME_ENV}"'
 
-          # NOTE: $GOPATH is a plural ":"-separated var a la $PATH.  We export
-          # only a single path here, but users who want to treat $GOPATH as
-          # singular *should* probably use "${GOPATH%%:*}" to take the first
-          # entry.
-          sh.export 'GOPATH', "${TRAVIS_HOME}/gopath", echo: true
-          sh.export 'PATH', "${TRAVIS_HOME}/gopath/bin:$PATH", echo: true
+          sh.if uses_gomod? do
+            sh.export 'GO111MODULE', 'on', echo: true
+          end
+          sh.else do
+            # NOTE: $GOPATH is a plural ":"-separated var a la $PATH.  We export
+            # only a single path here, but users who want to treat $GOPATH as
+            # singular *should* probably use "${GOPATH%%:*}" to take the first
+            # entry.
+            sh.export 'GOPATH', "${TRAVIS_HOME}/gopath", echo: true
+            sh.export 'PATH', "${TRAVIS_HOME}/gopath/bin:$PATH", echo: true
 
-          sh.mkdir "${TRAVIS_HOME}/gopath/src/#{go_import_path}", recursive: true, assert: false, timing: false
-          sh.cmd "tar -Pczf ${TRAVIS_TMPDIR}/src_archive.tar.gz -C ${TRAVIS_BUILD_DIR} . && tar -Pxzf ${TRAVIS_TMPDIR}/src_archive.tar.gz -C ${TRAVIS_HOME}/gopath/src/#{go_import_path}", assert: false, timing: false
+            sh.mkdir "${TRAVIS_HOME}/gopath/src/#{go_import_path}", recursive: true, assert: false, timing: false
+            sh.cmd "tar -Pczf ${TRAVIS_TMPDIR}/src_archive.tar.gz -C ${TRAVIS_BUILD_DIR} . && tar -Pxzf ${TRAVIS_TMPDIR}/src_archive.tar.gz -C ${TRAVIS_HOME}/gopath/src/#{go_import_path}", assert: false, timing: false
 
-          sh.export "TRAVIS_BUILD_DIR", "${TRAVIS_HOME}/gopath/src/#{go_import_path}"
-          sh.cd "${TRAVIS_HOME}/gopath/src/#{go_import_path}", assert: true
+            sh.export "TRAVIS_BUILD_DIR", "${TRAVIS_HOME}/gopath/src/#{go_import_path}"
+            sh.cd "${TRAVIS_HOME}/gopath/src/#{go_import_path}", assert: true
 
-          # Defer setting up cache until we have changed directories, so that
-          # cache.directories can be properly resolved relative to the directory
-          # in which the user-controlled portion of the build starts
-          # See https://github.com/travis-ci/travis-ci/issues/3055
+            # Defer setting up cache until we have changed directories, so that
+            # cache.directories can be properly resolved relative to the directory
+            # in which the user-controlled portion of the build starts
+            # See https://github.com/travis-ci/travis-ci/issues/3055
 
-          sh.raw '_old_remote="$(git config --get remote.origin.url)"'
-          sh.cmd "git config remote.origin.url \"${_old_remote%.git}\"", echo: false
-          sh.raw 'unset _old_remote'
+            sh.raw '_old_remote="$(git config --get remote.origin.url)"'
+            sh.cmd "git config remote.origin.url \"${_old_remote%.git}\"", echo: false
+            sh.raw 'unset _old_remote'
+          end
           super
         end
 
         def install
-          sh.if uses_15_vendoring? do
+          sh.if uses_gomod? do
+            sh.echo 'Using Go 1.11+ Modules'
+          end
+          sh.elif uses_15_vendoring? do
             sh.echo 'Using Go 1.5 Vendoring, not checking for Godeps'
           end
           sh.else do
@@ -81,7 +90,7 @@ module Travis
           end
 
           sh.if uses_make do
-            sh.echo 'Makefile detected', retry: true, fold: 'install' # TODO instead negate the condition
+            sh.echo 'Makefile detected', retry: true, fold: 'install'
           end
           sh.else do
             sh.cmd "#{go_get_cmd} #{gobuild_args} ./...", retry: true, fold: 'install'
@@ -105,6 +114,13 @@ module Travis
 
           def uses_make
             '-f GNUmakefile || -f makefile || -f Makefile || -f BSDmakefile'
+          end
+
+          def uses_gomod?
+            if comparable_go_version < Gem::Version.new('1.11')
+              return '2 -eq 5'
+            end
+            '-f go.mod || "${GO111MODULE}" == on'
           end
 
           # see https://golang.org/doc/go1.6#go_command
