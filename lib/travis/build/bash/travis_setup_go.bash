@@ -22,12 +22,13 @@ travis_setup_go() {
     return
   fi
 
-  cat "${gimme_env}" | tee -a "${TRAVIS_HOME}/.bashrc"
+  tee -a "${TRAVIS_HOME}/.bashrc" <"${gimme_env}"
+  # shellcheck source=/dev/null
   source "${gimme_env}"
 
   if [[ "${go_version_int}" > "$(travis_vers2int "1.10")" ]] &&
     [[ -f "${TRAVIS_BUILD_DIR}/go.mod" || "${GO111MODULE}" == on ]]; then
-    travis_cmd export\ GO111MODULE\=on --echo
+    travis_cmd export\ GO111MODULE=on --echo
     return
   fi
 
@@ -35,8 +36,8 @@ travis_setup_go() {
   # only a single path here, but users who want to treat $GOPATH as
   # singular *should* probably use "${GOPATH%%:*}" to take the first
   # entry.
-  travis_cmd export\ GOPATH\="${TRAVIS_HOME}/gopath" --echo
-  travis_cmd export\ PATH\="${TRAVIS_HOME}/gopath/bin:$PATH" --echo
+  travis_cmd export\ GOPATH="${TRAVIS_HOME}/gopath" --echo
+  travis_cmd export\ PATH="${TRAVIS_HOME}/gopath/bin:$PATH" --echo
 
   mkdir -p "${TRAVIS_HOME}/gopath/src/${go_import_path}"
   tar -Pczf "${TRAVIS_TMPDIR}/src_archive.tar.gz" -C "${TRAVIS_BUILD_DIR}" . &&

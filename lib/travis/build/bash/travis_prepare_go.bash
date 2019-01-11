@@ -12,7 +12,7 @@ travis_prepare_go() {
   local gimme_version
   gimme_version="$(gimme --version &>/dev/null || echo 0)"
 
-  if [[ "$(travis_vers2int "${gimme_version}")" > "$(travis_vers2int "1.5.2")" ]] ; then
+  if [[ "$(travis_vers2int "${gimme_version}")" > "$(travis_vers2int "1.5.2")" ]]; then
     return
   fi
 
