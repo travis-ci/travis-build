@@ -1,4 +1,3 @@
-require 'shellwords'
 require 'uri'
 
 module Travis
@@ -16,13 +15,13 @@ module Travis
         def export
           super
           sh.raw bash('travis_export_go')
-          sh.cmd %[travis_export_go '#{go_version}'], echo: false
+          sh.cmd %[travis_export_go #{shesc(go_version)}], echo: false
         end
 
         def prepare
           super
           sh.raw bash('travis_prepare_go')
-          sh.cmd %[travis_prepare_go '#{gimme_url}' '#{DEFAULTS[:go]}], echo: false
+          sh.cmd %[travis_prepare_go #{shesc(gimme_url)} #{shesc(DEFAULTS[:go])}], echo: false
         end
 
         def announce
@@ -40,12 +39,12 @@ module Travis
 
         def install
           sh.raw bash('travis_install_go')
-          sh.cmd "travis_install_go #{go_version} #{Shellwords.escape(gobuild_args)}", fold: 'install'
+          sh.cmd "travis_install_go #{go_version} #{shesc(gobuild_args)}", fold: 'install'
         end
 
         def script
           sh.raw bash('travis_script_go')
-          sh.cmd "travis_script_go #{Shellwords.escape(gobuild_args)}"
+          sh.cmd "travis_script_go #{shesc(gobuild_args)}"
         end
 
         def cache_slug
