@@ -43,7 +43,6 @@ travis_prepare_go() {
   __travis_prepare_go_gimme_bootstrap "${default_go_version}"
 }
 
-
 __travis_prepare_go_gimme_bootstrap() {
   # install bootstrap version so that tip/master/whatever can be used
   # immediately, then update the cache of known versions
