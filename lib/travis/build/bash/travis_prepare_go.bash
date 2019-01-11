@@ -2,6 +2,16 @@ travis_prepare_go() {
   local gimme_url="${1}"
   local default_go_version="${2}"
 
+  if [[ ! "${gimme_url}" ]]; then
+    echo 'Missing gimme_url positional argument' >&2
+    return 0
+  fi
+
+  if [[ ! "${default_go_version}" ]]; then
+    echo 'Missing default_go_version positional argument' >&2
+    return 0
+  fi
+
   unset gvm
   if [[ -d "${TRAVIS_HOME}/.gvm" ]]; then
     mv "${TRAVIS_HOME}/.gvm" "${TRAVIS_HOME}/.gvm.disabled"
@@ -12,7 +22,8 @@ travis_prepare_go() {
   local gimme_version
   gimme_version="$(gimme --version &>/dev/null || echo 0)"
 
-  if [[ "$(travis_vers2int "${gimme_version}")" > "$(travis_vers2int "1.5.2")" ]]; then
+  if [[ "$(travis_vers2int "${gimme_version#v}")" > "$(travis_vers2int "1.5.2.99")" ]]; then
+    __travis_prepare_go_gimme_bootstrap "${default_go_version}"
     return
   fi
 
@@ -29,9 +40,13 @@ travis_prepare_go() {
   fi
 
   chmod +x "${TRAVIS_HOME}/bin/gimme"
+  __travis_prepare_go_gimme_bootstrap "${default_go_version}"
+}
 
+
+__travis_prepare_go_gimme_bootstrap() {
   # install bootstrap version so that tip/master/whatever can be used
   # immediately, then update the cache of known versions
-  gimme "${default_go_version}" &>/dev/null
+  gimme "${1}" &>/dev/null
   gimme -k &>/dev/null
 }
