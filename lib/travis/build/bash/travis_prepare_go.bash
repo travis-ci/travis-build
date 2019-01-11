@@ -4,12 +4,12 @@ travis_prepare_go() {
 
   if [[ ! "${gimme_url}" ]]; then
     echo 'Missing gimme_url positional argument' >&2
-    return 0
+    return 86
   fi
 
   if [[ ! "${default_go_version}" ]]; then
     echo 'Missing default_go_version positional argument' >&2
-    return 0
+    return 86
   fi
 
   unset gvm

@@ -2,6 +2,11 @@ travis_setup_go() {
   local go_version="${TRAVIS_GO_VERSION:-${1}}"
   local go_import_path="${2}"
 
+  if [[ ! "${go_import_path}" ]]; then
+    echo 'Missing go_import_path positional argument' >&2
+    return 86
+  fi
+
   local go_version_resolved
   go_version_resolved="$(gimme -r)"
   go_version_resolved="${go_version_resolved#go}"
@@ -12,24 +17,20 @@ travis_setup_go() {
   export GIMME_GO_VERSION="${go_version}"
   export TRAVIS_GO_VERSION_RESOLVED="${go_version_resolved}"
 
-  if [[ ! "${go_import_path}" ]]; then
-    echo 'Missing second positional argument' >&2
-    return
-  fi
-
   local gimme_env="${TRAVIS_TMPDIR}/gimme.env"
   if ! gimme >"${gimme_env}"; then
-    return
+    echo 'Failed to run gimme' >&2
+    return 86
   fi
 
   tee -a "${TRAVIS_HOME}/.bashrc" <"${gimme_env}"
   # shellcheck source=/dev/null
   source "${gimme_env}"
 
-  if [[ "${go_version_int}" > "$(travis_vers2int "1.10")" ]] &&
+  if [[ "${go_version_int}" > "$(travis_vers2int "1.10.99")" ]] &&
     [[ -f "${TRAVIS_BUILD_DIR}/go.mod" || "${GO111MODULE}" == on ]]; then
     travis_cmd export\ GO111MODULE=on --echo
-    return
+    return 0
   fi
 
   # NOTE: $GOPATH is a plural ":"-separated var a la $PATH.  We export
