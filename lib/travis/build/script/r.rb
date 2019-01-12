@@ -162,8 +162,8 @@ module Travis
               if config[:latex]
                 setup_latex
               else
-                config[:r_check_args] << " --no-manual"
-                config[:r_build_args] << " --no-manual"
+                config[:r_check_args] = config[:r_check_args] + " --no-manual"
+                config[:r_build_args] = config[:r_build_args] + " --no-manual"
               end
 
               setup_bioc if needs_bioc?
@@ -562,7 +562,7 @@ module Travis
 
         def normalized_r_version(v=Array(config[:r]).first.to_s)
           case v
-          when 'release' then '3.5.1'
+          when 'release' then '3.5.2'
           when 'oldrel' then '3.4.4'
           when '3.0' then '3.0.3'
           when '3.1' then '3.1.3'
