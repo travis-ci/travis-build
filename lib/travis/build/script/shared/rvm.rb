@@ -192,8 +192,8 @@ module Travis
           end
 
           def install_bundler
-            sh.if "! $(command -v bundler)" do
-              sh.fold "install_bundler" do                
+            sh.if "! $(command -v bundle)" do
+              sh.fold "install_bundler" do
                 sh.if "$(travis_vers2int \"$(ruby -e 'puts RUBY_VERSION')\") -lt $(travis_vers2int #{BUNDLER2_RUBY})" do
                   sh.cmd "gem install bundler -v '< 2'"
                 end
