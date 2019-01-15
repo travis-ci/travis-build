@@ -86,7 +86,7 @@ module Travis
           sh.elif '"$TRAVIS_INIT" == systemd' do
             sh.cmd 'sudo systemctl start xvfb', echo: true, timing: true
           end
-          sh.export 'DISPLAY', '99:0', echo: true
+          sh.export 'DISPLAY', ':99.0', echo: true
         end
 
         private
