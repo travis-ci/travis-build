@@ -97,7 +97,7 @@ module Travis
           if data.cache?(:yarn)
             sh.fold 'cache.yarn' do
               sh.newline
-              directory_cache.add '${TRAVIS_HOME}/.cache/yarn'
+              directory_cache.add '$(dirname $(yarn cache dir))'
             end
           end
           if data.cache?(:npm)
