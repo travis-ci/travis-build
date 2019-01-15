@@ -193,12 +193,13 @@ module Travis
 
           def install_bundler
             sh.if "! $(command -v bundler)" do
-              sh.echo "Installing Bundler", ansi: :yellow
-              sh.if "$(travis_vers2int \"$(ruby -e 'puts RUBY_VERSION')\") -lt $(travis_vers2int #{BUNDLER2_RUBY})" do
-                sh.cmd "gem install bundler -v '< 2'"
-              end
-              sh.else do
-                sh.cmd "gem install bundler"
+              sh.fold "install_bundler" do                
+                sh.if "$(travis_vers2int \"$(ruby -e 'puts RUBY_VERSION')\") -lt $(travis_vers2int #{BUNDLER2_RUBY})" do
+                  sh.cmd "gem install bundler -v '< 2'"
+                end
+                sh.else do
+                  sh.cmd "gem install bundler"
+                end
               end
             end
           end
