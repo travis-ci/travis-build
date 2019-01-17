@@ -32,7 +32,7 @@ module Travis
           npm_disable_spinner
           npm_disable_progress
           npm_disable_strict_ssl unless npm_strict_ssl?
-          install_yarn
+          install_yarn_when_locked
         end
 
         def announce
@@ -95,6 +95,7 @@ module Travis
 
         def setup_cache
           if data.cache?(:yarn)
+            install_yarn
             sh.fold 'cache.yarn' do
               sh.newline
               directory_cache.add '$(dirname $(yarn cache dir))'
@@ -197,24 +198,28 @@ module Travis
             sh.newline
           end
 
-          def install_yarn
+          def install_yarn_when_locked
             sh.if "-f yarn.lock" do
               sh.if yarn_req_not_met do
                 sh.echo "Node.js version $(node --version) does not meet requirement for yarn." \
                   " Please use Node.js #{YARN_REQUIRED_NODE_VERSION} or later.", ansi: :red
               end
               sh.else do
-                sh.if "-z \"$(command -v yarn)\"" do
-                  sh.fold "install.yarn" do
-                    sh.if "-z \"$(command -v gpg)\"" do
-                      sh.export "YARN_GPG", "no"
-                    end
-                    sh.echo   "Installing yarn", ansi: :green
-                    sh.cmd    "curl -o- -L https://yarnpkg.com/install.sh | bash", echo: true, timing: true
-                    sh.echo   "Setting up \\$PATH", ansi: :green
-                    sh.export "PATH", "${TRAVIS_HOME}/.yarn/bin:$PATH"
-                  end
+                install_yarn
+              end
+            end
+          end
+
+          def install_yarn
+            sh.if "-z \"$(command -v yarn)\"" do
+              sh.fold "install.yarn" do
+                sh.if "-z \"$(command -v gpg)\"" do
+                  sh.export "YARN_GPG", "no"
                 end
+                sh.echo   "Installing yarn", ansi: :green
+                sh.cmd    "curl -o- -L https://yarnpkg.com/install.sh | bash", echo: true, timing: true
+                sh.echo   "Setting up \\$PATH", ansi: :green
+                sh.export "PATH", "${TRAVIS_HOME}/.yarn/bin:$PATH"
               end
             end
           end
