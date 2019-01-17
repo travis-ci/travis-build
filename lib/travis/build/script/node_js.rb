@@ -204,8 +204,8 @@ module Travis
                   " Please use Node.js #{YARN_REQUIRED_NODE_VERSION} or later.", ansi: :red
               end
               sh.else do
-                sh.fold "install.yarn" do
-                  sh.if "-z \"$(command -v yarn)\"" do
+                sh.if "-z \"$(command -v yarn)\"" do
+                  sh.fold "install.yarn" do
                     sh.if "-z \"$(command -v gpg)\"" do
                       sh.export "YARN_GPG", "no"
                     end
