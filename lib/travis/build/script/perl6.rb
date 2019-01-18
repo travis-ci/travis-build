@@ -50,7 +50,7 @@ module Travis
         end
 
         def script
-          sh.cmd "PERL6LIB=lib prove -v -r --exec=perl6 t/"
+          sh.cmd "PERL6LIB=lib prove --ext t --ext t6 -v -r --exec=perl6 t/"
         end
 
         def cache_slug
