@@ -26,6 +26,7 @@ module Travis
           'TRAVIS_BUILD_API_TOKEN', ENV.fetch('API_TOKEN', '')
         ),
         app_host: ENV.fetch('TRAVIS_APP_HOST', ''),
+        apt_gpg_keys: ENV.fetch( 'TRAVIS_BUILD_APT_GPG_KEYS', ''),
         apt_mirrors: {
           ec2: ENV.fetch(
             'TRAVIS_BUILD_APT_MIRRORS_EC2',

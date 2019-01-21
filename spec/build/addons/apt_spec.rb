@@ -12,6 +12,7 @@ describe Travis::Build::Addons::Apt, :sexp do
   let(:package_safelists) { { xenial: %w(git curl) } }
   let(:paranoid)           { true }
   let(:safelist_skip)     { false }
+  let(:apt_gpg_keys)       { '6B05F25D762E3157,DEADBEEF01234' }
   subject                  { sh.to_sexp }
 
   before :all do
@@ -23,6 +24,11 @@ describe Travis::Build::Addons::Apt, :sexp do
     described_class.instance_variable_set(:@source_safelists, nil)
     script.stubs(:bash).returns('')
     addon.stubs(:skip_safelist?).returns(safelist_skip)
+    Travis::Build.config.apt_gpg_keys = apt_gpg_keys
+  end
+
+  after :each do
+    Travis::Build.config.apt_gpg_keys = nil
   end
 
   context 'when on osx' do
@@ -260,6 +266,12 @@ describe Travis::Build::Addons::Apt, :sexp do
       it { should include_sexp [:cmd, apt_sources_append_command('foobar'), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_sources_append_command(evilbadthings['sourceline']), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_add_repository_command('ppa:evilbadppa'), echo: true, assert: true, timing: true] }
+    end
+
+    context "when TRAVIS_BUILD_APT_GPG_KEYS is set" do
+      let(:apt_config) { { sources: 'packagecloud-xenial' } }
+
+      it { should include_sexp [:cmd, "sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6B05F25D762E3157", echo: true]}
     end
   end
 
