@@ -91,7 +91,9 @@ export MIX_ARCHIVES=#{KIEX_MIX_HOME}elixir-#{elixir_version}' > #{KIEX_ELIXIR_HO
         end
 
         def required_otp_version
-          if elixir_1_6_0_or_higher?
+          if elixir_1_8_0_or_higher?
+            '20.0'
+          elsif elixir_1_6_0_or_higher?
             '19.0'
           elsif elixir_1_2_0_or_higher?
             '18.0'
