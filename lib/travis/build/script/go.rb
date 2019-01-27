@@ -146,9 +146,9 @@ module Travis
                 go_version != '1.x' &&
                 comparable_go_version < Gem::Version.new('1.2'))
             then
-              'go get'
+              'go get -d'
             else
-              'go get -t'
+              'go get -d -t'
             end
           end
 
