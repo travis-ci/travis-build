@@ -117,7 +117,7 @@ tap 'heroku/brew'
 
     let(:brew_config) { { update: true } }
 
-    it { should include_sexp [:cmd, 'rvm $brew_ruby do brew update', echo: true, timing: true] }
+    it { should include_sexp [:cmd, 'rvm $brew_ruby do brew update 1>/dev/null', echo: true, timing: true] }
   end
 
   context 'when providing a custom Brewfile' do
@@ -171,7 +171,7 @@ cask 'google-chrome'
 cask 'java8'
     BREWFILE
 
-    it { should include_sexp [:cmd, 'rvm $brew_ruby do brew update', echo: true, timing: true] }
+    it { should include_sexp [:cmd, 'rvm $brew_ruby do brew update 1>/dev/null', echo: true, timing: true] }
     it { should include_sexp [:file, ['~/.Brewfile', brewfile]] }
     it { should include_sexp [:cmd, 'rvm $brew_ruby do brew bundle --verbose --global', echo: true, timing: true] }
     it { should include_sexp [:cmd, 'rvm $brew_ruby do brew bundle --verbose', echo: true, timing: true] }
