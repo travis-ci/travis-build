@@ -1,4 +1,4 @@
-travis_install_go() {
+travis_install_go_dependencies() {
   : "${GIMME_GO_VERSION:=${1}}"
   export GIMME_GO_VERSION
 
@@ -11,8 +11,7 @@ travis_install_go() {
   local go_version_int
   go_version_int="$(travis_vers2int "${go_version}")"
 
-  if [[ "${go_version_int}" > "$(travis_vers2int "1.10.99")" || "${go_version}" == tip || "${go_version}" == master ]] &&
-    [[ -f go.mod || "${GO111MODULE}" == on ]]; then
+  if __travis_go_supports_modules; then
     echo 'Using Go 1.11+ Modules'
   elif [[ "${go_version_int}" > "$(travis_vers2int "1.4.99")" ]]; then
     echo 'Using Go 1.5 Vendoring, not checking for Godeps'
@@ -23,7 +22,7 @@ travis_install_go() {
 
       if [[ "${go_version}" != go1 && "${go_version_int}" > "$(travis_vers2int "1.1.99")" ]]; then
         if [[ ! -d "Godeps/_workspace/src" ]]; then
-          __travis_install_go_fetch_godep
+          __travis_go_fetch_godep
           travis_cmd godep\ restore --retry --timing --assert --echo
         fi
       fi
@@ -35,22 +34,4 @@ travis_install_go() {
   else
     travis_cmd "go get ${gobuild_args} ./..." --retry
   fi
-}
-
-__travis_install_go_fetch_godep() {
-  local godep="${TRAVIS_HOME}/gopath/bin/godep"
-
-  mkdir -p "${TRAVIS_HOME}/gopath/bin"
-
-  if [[ "${TRAVIS_OS_NAME}" == osx ]]; then
-    travis_download \
-      "https://${TRAVIS_APP_HOST}/files/godep_darwin_amd64" "${godep}" ||
-      travis_cmd go\ get\ github.com/tools/godep --echo -retry --timing --assert
-  elif [[ "${TRAVIS_OS_NAME}" == linux ]]; then
-    travis_download \
-      "https://${TRAVIS_APP_HOST}/files/godep_linux_amd64" "${godep}" ||
-      travis_cmd go\ get\ github.com/tools/godep --echo -retry --timing --assert
-  fi
-
-  chmod +x "${godep}"
 }

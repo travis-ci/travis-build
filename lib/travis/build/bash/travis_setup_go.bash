@@ -27,8 +27,7 @@ travis_setup_go() {
   # shellcheck source=/dev/null
   source "${gimme_env}"
 
-  if [[ "${go_version_int}" > "$(travis_vers2int "1.10.99")" ]] &&
-    [[ -f "${TRAVIS_BUILD_DIR}/go.mod" || "${GO111MODULE}" == on ]]; then
+  if __travis_go_supports_modules; then
     travis_cmd export\ GO111MODULE=on --echo
     return 0
   fi

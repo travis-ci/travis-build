@@ -1,4 +1,4 @@
-describe 'travis_install_go', integration: true do
+describe 'travis_install_go_dependencies', integration: true do
   include SpecHelpers::BashFunction
 
   let :script_header do
@@ -22,17 +22,18 @@ describe 'travis_install_go', integration: true do
       source /tmp/tbb/travis_time_finish.bash
       source /tmp/tbb/travis_time_start.bash
       source /tmp/tbb/travis_vers2int.bash
+      source /tmp/tbb/__travis_go_functions.bash
     BASH
   end
 
   it 'is valid bash' do
-    expect(run_script('travis_install_go', '')[:truth]).to be true
+    expect(run_script('travis_install_go_dependencies', '')[:truth]).to be true
   end
 
   it 'supports go 1.11+ modules' do
     result = run_script(
-      'travis_install_go',
-      "#{script_header} GO111MODULE=on travis_install_go 1.11.1 -v"
+      'travis_install_go_dependencies',
+      "#{script_header} GO111MODULE=on travis_install_go_dependencies 1.11.1 -v"
     )
     out = result[:out].read
     expect(result[:err].read).to eq ''
@@ -43,8 +44,8 @@ describe 'travis_install_go', integration: true do
 
   it 'supports go 1.5+ vendoring' do
     result = run_script(
-      'travis_install_go',
-      "#{script_header} travis_install_go 1.7.6 -v"
+      'travis_install_go_dependencies',
+      "#{script_header} travis_install_go_dependencies 1.7.6 -v"
     )
     out = result[:out].read
     expect(result[:err].read).to eq ''
@@ -55,7 +56,7 @@ describe 'travis_install_go', integration: true do
 
   it 'supports godep' do
     result = run_script(
-      'travis_install_go',
+      'travis_install_go_dependencies',
       <<~BASH
         #{script_header}
         godep() {
@@ -63,12 +64,12 @@ describe 'travis_install_go', integration: true do
             echo "----> godep" "${@}"
           fi
         }
-        __travis_install_go_fetch_godep() {
+        __travis_go_fetch_godep() {
           :
         }
         mkdir -p Godeps
         touch Godeps/Godeps.json
-        travis_install_go 1.4.3 -v
+        travis_install_go_dependencies 1.4.3 -v
       BASH
     )
     out = result[:out].read
@@ -80,11 +81,11 @@ describe 'travis_install_go', integration: true do
 
   it 'echoes about it when a makefile is present' do
     result = run_script(
-      'travis_install_go',
+      'travis_install_go_dependencies',
       <<~BASH
         #{script_header}
         touch Makefile
-        travis_install_go 1.11.1 -v
+        travis_install_go_dependencies 1.11.1 -v
       BASH
     )
     out = result[:out].read
@@ -94,8 +95,8 @@ describe 'travis_install_go', integration: true do
 
   it 'runs "go get" when no makefile is present' do
     result = run_script(
-      'travis_install_go',
-      "#{script_header} travis_install_go 1.11.1 -v"
+      'travis_install_go_dependencies',
+      "#{script_header} travis_install_go_dependencies 1.11.1 -v"
     )
     out = result[:out].read
     expect(result[:err].read).to eq ''

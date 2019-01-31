@@ -20,6 +20,7 @@ module Travis
 
         def prepare
           super
+          sh.raw bash('__travis_go_functions')
           sh.raw bash('travis_prepare_go')
           sh.cmd %[travis_prepare_go #{shesc(gimme_url)} #{shesc(DEFAULTS[:go])}], echo: false
         end
@@ -38,8 +39,8 @@ module Travis
         end
 
         def install
-          sh.raw bash('travis_install_go')
-          sh.cmd "travis_install_go #{go_version} #{shesc(gobuild_args)}", fold: 'install'
+          sh.raw bash('travis_install_go_dependencies')
+          sh.cmd "travis_install_go_dependencies #{go_version} #{shesc(gobuild_args)}", fold: 'install'
         end
 
         def script
