@@ -79,7 +79,7 @@ describe 'travis_prepare_go', integration: true do
         <<~BASH
           #{script_header}
           GIMME_VERSION=v1.5.3
-          apk add --no-cache curl
+          apk add --no-cache curl grep
 
           travis_prepare_go "${GIMME_URL}" "1.7.6"
           echo "${GIMME_COMMANDS_RUN[@]}"
@@ -99,7 +99,7 @@ describe 'travis_prepare_go', integration: true do
         'travis_prepare_go',
         <<~BASH
           #{script_header}
-          apk add --no-cache curl
+          apk add --no-cache curl grep
 
           travis_prepare_go "${GIMME_URL}" "1.6.4"
           echo "${GIMME_COMMANDS_RUN[@]}"
@@ -123,7 +123,7 @@ describe 'travis_prepare_go', integration: true do
           <<~BASH
             #{script_header}
             unset TRAVIS_APP_HOST
-            apk add --no-cache curl
+            apk add --no-cache curl grep
 
             travis_prepare_go "${GIMME_URL}" "1.6.4"
             echo "${GIMME_COMMANDS_RUN[@]}"
