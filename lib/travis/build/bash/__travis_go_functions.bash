@@ -1,8 +1,6 @@
 __travis_go_supports_modules() {
-  if [[ "${go_version_int}" > "$(travis_vers2int "1.10.99")" ||
-        "${go_version}" == tip ||
-        "${go_version}" == master ]] &&
-     [[ -f "${TRAVIS_BUILD_DIR}/go.mod" || "${GO111MODULE}" == on ]]; then
+  if [[ "${go_version_int}" > "$(travis_vers2int "1.10.99")" || "${go_version}" == tip || "${go_version}" == master ]] &&
+    [[ -f "${TRAVIS_BUILD_DIR}/go.mod" || "${GO111MODULE}" == on ]]; then
     return 1
   fi
   return 0
