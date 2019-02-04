@@ -96,7 +96,7 @@ module Travis
           ),
         },
         network: {
-          wait?: ENV.fetch('TRAVIS_BUILD_NETWORK_WAIT', 'true').to_bool,
+          wait: ENV.fetch('TRAVIS_BUILD_NETWORK_WAIT', 'true').to_bool,
           wait_retries: Integer(ENV.fetch(
             'TRAVIS_BUILD_NETWORK_WAIT_RETRIES',
             ENV.fetch('NETWORK_WAIT_RETRIES', '20')
