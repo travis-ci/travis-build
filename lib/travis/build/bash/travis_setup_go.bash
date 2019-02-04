@@ -7,15 +7,9 @@ travis_setup_go() {
     return 86
   fi
 
-  local go_version_resolved
-  go_version_resolved="$(gimme -r)"
-  go_version_resolved="${go_version_resolved#go}"
-
-  local go_version_int
-  go_version_int="$(travis_vers2int "${go_version_resolved}")"
-
   export GIMME_GO_VERSION="${go_version}"
-  export TRAVIS_GO_VERSION_RESOLVED="${go_version_resolved}"
+  __travis_go_ensure_resolved
+  export TRAVIS_GO_VERSION="${_TRAVIS_RESOLVED_GIMME_GO_VERSION}"
 
   local gimme_env="${TRAVIS_TMPDIR}/gimme.env"
   if ! gimme >"${gimme_env}"; then
