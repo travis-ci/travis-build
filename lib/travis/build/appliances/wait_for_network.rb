@@ -5,6 +5,8 @@ module Travis
     module Appliances
       class WaitForNetwork < Base
         def apply
+          return unless wait?
+
           sh.raw bash('travis_wait_for_network')
           sh.cmd(
             "travis_wait_for_network #{wait_retries} #{check_urls.map(&:inspect).join(' ')}",
@@ -24,6 +26,10 @@ module Travis
 
         private def wait_retries
           @wait_retries ||= Integer(Travis::Build.config.network.wait_retries)
+        end
+
+        private def wait?
+          @wait ||= Travis::Build.config.network.wait?
         end
       end
     end
