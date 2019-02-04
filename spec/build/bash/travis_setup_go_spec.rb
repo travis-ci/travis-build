@@ -6,6 +6,8 @@ describe 'travis_setup_go', integration: true do
 
   let :script_header do
     <<~BASH
+      apk add --no-cache grep
+
       source /tmp/tbb/travis_vers2int.bash
       source /tmp/tbb/__travis_go_functions.bash
 

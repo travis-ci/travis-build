@@ -24,6 +24,7 @@ describe 'travis_install_go_dependencies', integration: true do
       source /tmp/tbb/travis_time_finish.bash
       source /tmp/tbb/travis_time_start.bash
       source /tmp/tbb/travis_vers2int.bash
+      source /tmp/tbb/travis_has_makefile.bash
       source /tmp/tbb/__travis_go_functions.bash
     BASH
   end
