@@ -3,6 +3,8 @@ describe 'travis_install_go_dependencies', integration: true do
 
   let :script_header do
     <<~BASH
+      apk add --no-cache grep
+
       gimme() {
         if [[ "${1}" == -r ]]; then
           echo "${GIMME_GO_VERSION}"

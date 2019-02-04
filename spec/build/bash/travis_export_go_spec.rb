@@ -25,11 +25,11 @@ describe 'travis_export_go', integration: true do
     expect(result[:out].read).to include('GIMME_GO_VERSION=1.23.4')
   end
 
-  it 'defaults GOMAXPROCS=2' do
+  it 'defaults GOMAXPROCS' do
     result = run_script(
       'travis_export_go', 'travis_export_go 1.23.4 && printenv'
     )
-    expect(result[:out].read).to include('GOMAXPROCS=2')
+    expect(result[:out].read).to match(/GOMAXPROCS=./)
   end
 
   it 'does not overwrite GOMAXPROCS' do
