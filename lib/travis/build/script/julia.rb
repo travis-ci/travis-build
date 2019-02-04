@@ -88,7 +88,7 @@ module Travis
               sh.cmd 'git fetch --unshallow'
             end
             # build
-            sh.cmd 'julia --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; Pkg.clone(pwd()); Pkg.build(\"${JL_PKG}\"); else using Pkg; Pkg.build(); end"', assert: true
+            sh.cmd 'julia --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; Pkg.clone(pwd()); Pkg.build(\"${JL_PKG}\"); else using Pkg; if VERSION >= v\"1.1.0-rc1\"; Pkg.build(verbose=true); else Pkg.build(); end; end"', assert: true
             # run tests
             sh.cmd 'julia --check-bounds=yes --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; Pkg.test(\"${JL_PKG}\", coverage=true); else using Pkg; Pkg.test(coverage=true); end"', assert: true
             # coverage
@@ -105,7 +105,7 @@ module Travis
               sh.cmd 'git fetch --unshallow'
             end
             # build
-            sh.cmd 'julia --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; Pkg.clone(pwd()); Pkg.build(\"${JL_PKG}\")"', assert: true
+            sh.cmd 'julia --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; Pkg.clone(pwd()); if VERSION >= v\"1.1.0-rc1\"; Pkg.build(\"${JL_PKG}\"; verbose=true); else Pkg.build(\"${JL_PKG}\"); end"', assert: true
             # run tests
             sh.cmd 'julia --check-bounds=yes --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; Pkg.test(\"${JL_PKG}\", coverage=true)"', assert: true
             # coverage
