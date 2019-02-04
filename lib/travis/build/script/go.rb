@@ -12,17 +12,24 @@ module Travis
           go: Travis::Build.config.go_version.output_safe
         }
 
+        def prepare
+          super
+          sh.raw bash('__travis_go_functions')
+          sh.raw bash('travis_has_makefile')
+          sh.raw bash('travis_prepare_go')
+          sh.cmd %[travis_prepare_go #{shesc(gimme_url)} #{shesc(DEFAULTS[:go])}], echo: false
+        end
+
         def export
           super
           sh.raw bash('travis_export_go')
           sh.cmd %[travis_export_go #{shesc(go_version)}], echo: false
         end
 
-        def prepare
+        def setup
+          sh.raw bash('travis_setup_go')
+          sh.cmd "travis_setup_go #{go_version} #{go_import_path}"
           super
-          sh.raw bash('__travis_go_functions')
-          sh.raw bash('travis_prepare_go')
-          sh.cmd %[travis_prepare_go #{shesc(gimme_url)} #{shesc(DEFAULTS[:go])}], echo: false
         end
 
         def announce
@@ -30,12 +37,6 @@ module Travis
           sh.cmd 'gimme version'
           sh.cmd 'go version'
           sh.cmd 'go env', fold: 'go.env'
-        end
-
-        def setup
-          sh.raw bash('travis_setup_go')
-          sh.cmd "travis_setup_go #{go_version} #{go_import_path}"
-          super
         end
 
         def install

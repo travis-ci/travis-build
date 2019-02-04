@@ -22,7 +22,7 @@ travis_install_go_dependencies() {
     fi
   fi
 
-  if [[ -f GNUmakefile || -f makefile || -f Makefile || -f BSDmakefile ]]; then
+  if travis_has_makefile; then
     echo 'Makefile detected'
   else
     travis_cmd "go get ${gobuild_args} ./..." --retry
