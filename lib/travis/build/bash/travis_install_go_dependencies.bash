@@ -2,7 +2,8 @@ travis_install_go_dependencies() {
   : "${GIMME_GO_VERSION:=${1}}"
   export GIMME_GO_VERSION
 
-  local gobuild_args=("${2}")
+  local gobuild_args
+  IFS=" " read -r -a gobuild_args <<<"${2}"
 
   if __travis_go_supports_modules; then
     echo 'Using Go 1.11+ Modules'
