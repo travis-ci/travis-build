@@ -20,17 +20,17 @@ travis_setup_go() {
   # shellcheck source=/dev/null
   source "${gimme_env}"
 
-  if __travis_go_supports_modules; then
-    travis_cmd export\ GO111MODULE=on --echo
-    return 0
-  fi
-
   # NOTE: $GOPATH is a plural ":"-separated var a la $PATH.  We export
   # only a single path here, but users who want to treat $GOPATH as
   # singular *should* probably use "${GOPATH%%:*}" to take the first
   # entry.
   travis_cmd export\ GOPATH="${TRAVIS_HOME}/gopath" --echo
   travis_cmd export\ PATH="${TRAVIS_HOME}/gopath/bin:$PATH" --echo
+
+  if __travis_go_supports_modules; then
+    travis_cmd export\ GO111MODULE=on --echo
+    return 0
+  fi
 
   mkdir -p "${TRAVIS_HOME}/gopath/src/${go_import_path}"
   tar -Pczf "${TRAVIS_TMPDIR}/src_archive.tar.gz" -C "${TRAVIS_BUILD_DIR}" . &&

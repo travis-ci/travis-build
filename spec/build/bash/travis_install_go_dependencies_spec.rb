@@ -106,6 +106,6 @@ describe 'travis_install_go_dependencies', integration: true do
     )
     out = result[:out].read
     expect(result[:err].read).to eq ''
-    expect(out).to include('----> go get')
+    expect(out).to include('----> go get -v -t ./...')
   end
 end
