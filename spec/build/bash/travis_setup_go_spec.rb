@@ -1,7 +1,7 @@
 describe 'travis_setup_go', integration: true do
   include SpecHelpers::BashFunction
 
-  let(:go_version) { '1.7.6' }
+  let(:go_version) { '1.7.x' }
   let(:go_import_path) { 'github.com/travis-ci-examples/go-example' }
 
   let :script_header do
@@ -50,6 +50,21 @@ describe 'travis_setup_go', integration: true do
     )
     expect(result[:err].read.strip).
       to include('Missing go_import_path positional argument')
+  end
+
+  it 'retains TRAVIS_GO_VERSION' do
+    result = run_script(
+      'travis_setup_go',
+      <<~BASH
+        #{script_header}
+
+        export TRAVIS_GO_VERSION=#{go_version}
+        travis_setup_go #{go_version} ""
+        echo TRAVIS_GO_VERSION=${TRAVIS_GO_VERSION}
+      BASH
+    )
+    expect(result[:out].read.strip)
+      .to match(/^TRAVIS_GO_VERSION=#{go_version}/)
   end
 
   it 'aborts when gimme fails' do

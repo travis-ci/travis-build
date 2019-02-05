@@ -9,7 +9,6 @@ travis_setup_go() {
 
   export GIMME_GO_VERSION="${go_version}"
   __travis_go_ensure_resolved
-  export TRAVIS_GO_VERSION="${_TRAVIS_RESOLVED_GIMME_GO_VERSION}"
 
   local gimme_env="${TRAVIS_TMPDIR}/gimme.env"
   if ! gimme >"${gimme_env}"; then
@@ -17,7 +16,7 @@ travis_setup_go() {
     return 86
   fi
 
-  tee -a "${TRAVIS_HOME}/.bashrc" <"${gimme_env}"
+  tee -a "${TRAVIS_HOME}/.bashrc" <"${gimme_env}" &>/dev/null
   # shellcheck source=/dev/null
   source "${gimme_env}"
 
