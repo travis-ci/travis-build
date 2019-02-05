@@ -6,18 +6,18 @@ __travis_go_supports_modules() {
 
   if [[ "${gv_int}" > "$(travis_vers2int "1.10.99")" || "${gv}" == tip || "${gv}" == master ]] &&
     [[ -f "${TRAVIS_BUILD_DIR}/go.mod" || "${GO111MODULE}" == on ]]; then
-    return 1
+    return 0
   fi
-  return 0
+  return 1
 }
 
 __travis_go_supports_vendoring() {
   __travis_go_ensure_resolved
 
   if [[ "${_TRAVIS_RESOLVED_GIMME_GO_VERSION_INT}" > "$(travis_vers2int "1.4.99")" ]]; then
-    return 1
+    return 0
   fi
-  return 0
+  return 1
 }
 
 __travis_go_supports_godep() {
@@ -27,9 +27,9 @@ __travis_go_supports_godep() {
   local gv="${_TRAVIS_RESOLVED_GIMME_GO_VERSION}"
 
   if [[ "${gv}" != go1 && "${gv_int}" > "$(travis_vers2int "1.1.99")" ]]; then
-    return 1
+    return 0
   fi
-  return 0
+  return 1
 }
 
 __travis_go_ensure_resolved() {

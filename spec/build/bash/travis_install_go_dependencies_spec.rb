@@ -26,6 +26,9 @@ describe 'travis_install_go_dependencies', integration: true do
       source /tmp/tbb/travis_vers2int.bash
       source /tmp/tbb/travis_has_makefile.bash
       source /tmp/tbb/__travis_go_functions.bash
+
+      export TRAVIS_BUILD_DIR=/var/tmp/build
+      mkdir -p "${TRAVIS_BUILD_DIR}"
     BASH
   end
 
@@ -70,8 +73,8 @@ describe 'travis_install_go_dependencies', integration: true do
         __travis_go_fetch_godep() {
           :
         }
-        mkdir -p Godeps
-        touch Godeps/Godeps.json
+        mkdir -p "${TRAVIS_BUILD_DIR}/Godeps"
+        touch "${TRAVIS_BUILD_DIR}/Godeps/Godeps.json"
         travis_install_go_dependencies 1.4.3 -v
       BASH
     )
@@ -87,7 +90,7 @@ describe 'travis_install_go_dependencies', integration: true do
       'travis_install_go_dependencies',
       <<~BASH
         #{script_header}
-        touch Makefile
+        touch "${TRAVIS_BUILD_DIR}/Makefile"
         travis_install_go_dependencies 1.11.1 -v
       BASH
     )

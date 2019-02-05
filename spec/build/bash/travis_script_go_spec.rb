@@ -1,6 +1,23 @@
 describe 'travis_script_go', integration: true do
   include SpecHelpers::BashFunction
 
+  let :script_header do
+    <<~BASH
+      apk add --no-cache grep
+
+      travis_cmd() {
+        TRAVIS_CMD_RAN+=("${*}")
+      }
+      TRAVIS_CMD_RAN=()
+
+      source /tmp/tbb/travis_has_makefile.bash
+      source /tmp/tbb/__travis_go_functions.bash
+
+      export TRAVIS_BUILD_DIR=/var/tmp/build
+      mkdir -p "${TRAVIS_BUILD_DIR}"
+    BASH
+  end
+
   it 'is valid bash' do
     expect(run_script('travis_script_go', '')[:truth]).to be true
   end
@@ -9,11 +26,9 @@ describe 'travis_script_go', integration: true do
     result = run_script(
       'travis_script_go',
       <<~BASH
-      travis_cmd() {
-        TRAVIS_CMD_RAN+=("${*}")
-      }
-      TRAVIS_CMD_RAN=()
-      touch Makefile
+      #{script_header}
+
+      touch ${TRAVIS_BUILD_DIR}/Makefile
 
       travis_script_go -v
 
@@ -29,10 +44,7 @@ describe 'travis_script_go', integration: true do
     result = run_script(
       'travis_script_go',
       <<~BASH
-      travis_cmd() {
-        TRAVIS_CMD_RAN+=("${*}")
-      }
-      TRAVIS_CMD_RAN=()
+      #{script_header}
 
       travis_script_go -v
 
