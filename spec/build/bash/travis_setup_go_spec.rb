@@ -104,45 +104,26 @@ describe 'travis_setup_go', integration: true do
       expect(out).to match(/git config remote\.origin\.url.+/)
     end
 
-    context 'when go.mod is present' do
-      it 'ensures GO111MODULE=on is set' do
-        result = run_script(
-          'travis_setup_go',
-          <<~BASH
-            #{script_header}
+    %w[on off auto].each do |go111module|
+      context "when GO111MODULE=#{go111module} is set" do
+        it 'leaves it alone' do
+          result = run_script(
+            'travis_setup_go',
+            <<~BASH
+              #{script_header}
 
-            echo nonempty >"${TRAVIS_BUILD_DIR}/go.mod"
-            travis_setup_go #{go_version} #{go_import_path}
-            for c in "${COMMANDS_RUN[@]}"; do
-              echo "---> ${c}"
-            done
-          BASH
-        )
+              export GO111MODULE=#{go111module}
+              travis_setup_go #{go_version} #{go_import_path}
+              for c in "${COMMANDS_RUN[@]}"; do
+                echo "---> ${c}"
+              done
+            BASH
+          )
 
-        expect(result[:err].read).to eq ''
-        out = result[:out].read
-        expect(out).to match(/travis_cmd export GO111MODULE=on.+/)
-      end
-    end
-
-    context 'when GO111MODULE=on is set' do
-      it 'ensures GO111MODULE=on is set' do
-        result = run_script(
-          'travis_setup_go',
-          <<~BASH
-            #{script_header}
-
-            export GO111MODULE=on
-            travis_setup_go #{go_version} #{go_import_path}
-            for c in "${COMMANDS_RUN[@]}"; do
-              echo "---> ${c}"
-            done
-          BASH
-        )
-
-        expect(result[:err].read).to eq ''
-        out = result[:out].read
-        expect(out).to match(/travis_cmd export GO111MODULE=on.+/)
+          expect(result[:err].read).to eq ''
+          out = result[:out].read
+          expect(out).to match(/travis_cmd export GO111MODULE=#{go111module}\b.+/)
+        end
       end
     end
   end

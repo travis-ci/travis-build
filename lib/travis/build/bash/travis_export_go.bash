@@ -7,4 +7,8 @@ travis_export_go() {
   export GIMME_GO_VERSION="${TRAVIS_GO_VERSION}"
   : "${GOMAXPROCS:=$(nproc 2>/dev/null || echo 2)}"
   export GOMAXPROCS
+
+  : "${GO111MODULE:=auto}"
+  export GO111MODULE
+
 }

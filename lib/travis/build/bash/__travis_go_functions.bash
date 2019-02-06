@@ -1,37 +1,3 @@
-__travis_go_supports_modules() {
-  __travis_go_ensure_resolved
-
-  local gv_int="${_TRAVIS_RESOLVED_GIMME_GO_VERSION_INT}"
-  local gv="${_TRAVIS_RESOLVED_GIMME_GO_VERSION}"
-
-  if [[ "${gv_int}" > "$(travis_vers2int "1.10.99")" || "${gv}" == tip || "${gv}" == master ]] &&
-    [[ -f "${TRAVIS_BUILD_DIR}/go.mod" || "${GO111MODULE}" == on ]]; then
-    return 0
-  fi
-  return 1
-}
-
-__travis_go_supports_vendoring() {
-  __travis_go_ensure_resolved
-
-  if [[ "${_TRAVIS_RESOLVED_GIMME_GO_VERSION_INT}" > "$(travis_vers2int "1.4.99")" ]]; then
-    return 0
-  fi
-  return 1
-}
-
-__travis_go_supports_godep() {
-  __travis_go_ensure_resolved
-
-  local gv_int="${_TRAVIS_RESOLVED_GIMME_GO_VERSION_INT}"
-  local gv="${_TRAVIS_RESOLVED_GIMME_GO_VERSION}"
-
-  if [[ "${gv}" != go1 && "${gv_int}" > "$(travis_vers2int "1.1.99")" ]]; then
-    return 0
-  fi
-  return 1
-}
-
 __travis_go_ensure_resolved() {
   if [[ "${GIMME_GO_VERSION}" ]] &&
     [[ "${_TRAVIS_RESOLVED_GIMME_GO_VERSION}" ]] &&
@@ -68,4 +34,18 @@ __travis_go_fetch_godep() {
   fi
 
   chmod +x "${godep}"
+}
+
+__travis_go_handle_godep_usage() {
+  if [[ ! -f "${TRAVIS_BUILD_DIR}/Godeps/Godeps.json" ]]; then
+    return
+  fi
+
+  travis_cmd export\ GOPATH="${TRAVIS_BUILD_DIR}/Godeps/_workspace:${GOPATH}"
+  travis_cmd export\ PATH="${TRAVIS_BUILD_DIR}/Godeps/_workspace/bin:${PATH}"
+
+  if [[ ! -d "${TRAVIS_BUILD_DIR}/Godeps/_workspace/src" ]]; then
+    __travis_go_fetch_godep
+    travis_cmd godep\ restore --retry --timing --assert --echo
+  fi
 }
