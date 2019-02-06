@@ -36,7 +36,6 @@ __travis_go_fetch_godep() {
   chmod +x "${godep}"
 }
 
-
 __travis_go_handle_godep_usage() {
   if [[ ! -f "${TRAVIS_BUILD_DIR}/Godeps/Godeps.json" ]]; then
     return
