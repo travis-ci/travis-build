@@ -2,7 +2,8 @@ travis_install_go_dependencies() {
   : "${GIMME_GO_VERSION:=${1}}"
   export GIMME_GO_VERSION
 
-  local gobuild_args="${2}"
+  local gobuild_args
+  IFS=" " read -r -a gobuild_args <<<"${2}"
 
   if __travis_go_supports_modules; then
     echo 'Using Go 1.11+ Modules'
@@ -25,6 +26,17 @@ travis_install_go_dependencies() {
   if travis_has_makefile; then
     echo 'Makefile detected'
   else
-    travis_cmd "go get ${gobuild_args} ./..." --retry
+    local has_t
+    for arg in "${gobuild_args[@]}"; do
+      if [[ "${arg}" == "-t" ]]; then
+        has_t=1
+      fi
+    done
+
+    if [[ ! "${has_t}" ]]; then
+      gobuild_args=("${gobuild_args[@]}" -t)
+    fi
+
+    travis_cmd "go get ${gobuild_args[*]} ./..." --retry
   fi
 }
