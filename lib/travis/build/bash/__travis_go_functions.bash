@@ -1,14 +1,34 @@
-__travis_go_supports_modules() {
+__travis_go_requires_gopath_working_directory() {
   __travis_go_ensure_resolved
 
   local gv_int="${_TRAVIS_RESOLVED_GIMME_GO_VERSION_INT}"
   local gv="${_TRAVIS_RESOLVED_GIMME_GO_VERSION}"
 
-  if [[ "${gv_int}" > "$(travis_vers2int "1.10.99")" || "${gv}" == tip || "${gv}" == master ]] &&
-    [[ -f "${TRAVIS_BUILD_DIR}/go.mod" || "${GO111MODULE}" == on ]]; then
+  if [[ ! "${gv_int}" > "$(travis_vers2int "1.10.99")" && "${gv}" != tip && "${gv}" != master ]]; then
     return 0
   fi
-  return 1
+
+  if [[ "${GO111MODULE}" == auto || "${GO111MODULE}" == off ]]; then
+    return 0
+  fi
+
+  if [[ "${GO111MODULE}" == on ]]; then
+    if [[ ! -f "${TRAVIS_BUILD_DIR}/go.mod" ]]; then
+      printf '%sWarning: GO111MODULE=%s but no go.mod file found.%s\n' \
+        "${ANSI_YELLOW}" "${GO111MODULE}" "${ANSI_RESET}"
+    fi
+    return 1
+  fi
+
+  return 0
+}
+
+__travis_go_uses_modules() {
+  if __travis_go_requires_gopath_working_directory; then
+    return 1
+  fi
+
+  return 0
 }
 
 __travis_go_supports_vendoring() {

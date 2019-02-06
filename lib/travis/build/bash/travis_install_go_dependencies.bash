@@ -5,7 +5,7 @@ travis_install_go_dependencies() {
   local gobuild_args
   IFS=" " read -r -a gobuild_args <<<"${2}"
 
-  if __travis_go_supports_modules; then
+  if __travis_go_uses_modules; then
     echo 'Using Go 1.11+ Modules'
   elif __travis_go_supports_vendoring; then
     echo 'Using Go 1.5 Vendoring, not checking for Godeps'
