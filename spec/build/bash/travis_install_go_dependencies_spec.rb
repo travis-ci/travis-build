@@ -43,8 +43,6 @@ describe 'travis_install_go_dependencies', integration: true do
     )
     out = result[:out].read
     expect(result[:err].read).to eq ''
-    expect(out).to include('Using Go 1.11+ Modules')
-    expect(out).to_not include('Using Go 1.5 Vendoring')
     expect(out).to_not include('godep restore')
   end
 
@@ -55,8 +53,6 @@ describe 'travis_install_go_dependencies', integration: true do
     )
     out = result[:out].read
     expect(result[:err].read).to eq ''
-    expect(out).to_not include('Using Go 1.11+ Modules')
-    expect(out).to include('Using Go 1.5 Vendoring')
     expect(out).to_not include('godep restore')
   end
 
@@ -80,8 +76,6 @@ describe 'travis_install_go_dependencies', integration: true do
     )
     out = result[:out].read
     expect(result[:err].read).to eq ''
-    expect(out).to_not include('Using Go 1.11+ Modules')
-    expect(out).to_not include('Using Go 1.5 Vendoring')
     expect(out).to include('godep restore')
   end
 

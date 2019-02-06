@@ -28,10 +28,6 @@ travis_setup_go() {
   tar -Pczf "${TRAVIS_TMPDIR}/src_archive.tar.gz" -C "${TRAVIS_BUILD_DIR}" . &&
     tar -Pxzf "${TRAVIS_TMPDIR}/src_archive.tar.gz" -C "${TRAVIS_HOME}/gopath/src/${go_import_path}"
 
-  if ! __travis_go_requires_gopath_working_directory; then
-    return 0
-  fi
-
   export TRAVIS_BUILD_DIR="${TRAVIS_HOME}/gopath/src/${go_import_path}"
   travis_cmd cd\ "${TRAVIS_HOME}/gopath/src/${go_import_path}" --assert
 
