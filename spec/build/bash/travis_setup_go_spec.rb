@@ -122,7 +122,7 @@ describe 'travis_setup_go', integration: true do
 
           expect(result[:err].read).to eq ''
           out = result[:out].read
-          expect(out).to match(/travis_cmd export GO111MODULE=#{go111module}\b.+/)
+          expect(out).to match(/travis_cmd export GO111MODULE="#{go111module}".+/)
         end
       end
     end
@@ -150,6 +150,41 @@ describe 'travis_setup_go', integration: true do
       expect(out).to match(/travis_cmd export PATH.+/)
       expect(out).to match(/tar -Pxzf .+#{go_import_path}/)
       expect(out).to match(/git config remote\.origin\.url.+/)
+    end
+  end
+
+  context 'when PATH contains spaces and parentheses' do
+    it 'exports a valid PATH value' do
+      result = run_script(
+        'travis_setup_go',
+        <<~BASH
+          #{script_header}
+
+          export PATH="/c/wat/Program Files (x86)/whee:/c/Users/Fun [why]:/usr/bin:/bin"
+
+          travis_cmd() {
+            COMMANDS_RUN+=("travis_cmd ${*}");
+            if [[ "${1}" =~ export ]]; then
+              eval "${1}"
+            fi
+          }
+
+          echo before PATH="${PATH}"
+
+          travis_setup_go #{go_version} #{go_import_path}
+          for c in "${COMMANDS_RUN[@]}"; do
+            echo "---> ${c}"
+          done
+
+          echo after PATH="${PATH}"
+        BASH
+      )
+
+      expect(result[:err].read).to eq ''
+      out = result[:out].read
+      expect(out).to match(/travis_cmd export PATH.+/)
+      expect(out).to match(/before PATH=.+/)
+      expect(out).to match(/after PATH=.+Program Files \(x86\)\/.+/)
     end
   end
 end

@@ -20,9 +20,9 @@ travis_setup_go() {
   # shellcheck source=/dev/null
   source "${gimme_env}"
 
-  travis_cmd export\ GOPATH="${TRAVIS_HOME}/gopath" --echo
-  travis_cmd export\ PATH="${TRAVIS_HOME}/gopath/bin:$PATH" --echo
-  travis_cmd export\ GO111MODULE="${GO111MODULE}" --echo
+  travis_cmd "export GOPATH=\"${TRAVIS_HOME}/gopath\"" --echo
+  travis_cmd "export PATH=\"${TRAVIS_HOME}/gopath/bin:${PATH}\"" --echo
+  travis_cmd "export GO111MODULE=\"${GO111MODULE}\"" --echo
 
   mkdir -p "${TRAVIS_HOME}/gopath/src/${go_import_path}"
   tar -Pczf "${TRAVIS_TMPDIR}/src_archive.tar.gz" -C "${TRAVIS_BUILD_DIR}" . &&

@@ -41,8 +41,8 @@ __travis_go_handle_godep_usage() {
     return
   fi
 
-  travis_cmd export\ GOPATH="${TRAVIS_BUILD_DIR}/Godeps/_workspace:${GOPATH}"
-  travis_cmd export\ PATH="${TRAVIS_BUILD_DIR}/Godeps/_workspace/bin:${PATH}"
+  travis_cmd "export GOPATH=\"${TRAVIS_BUILD_DIR}/Godeps/_workspace:${GOPATH}\""
+  travis_cmd "export PATH=\"${TRAVIS_BUILD_DIR}/Godeps/_workspace/bin:${PATH}\""
 
   if [[ ! -d "${TRAVIS_BUILD_DIR}/Godeps/_workspace/src" ]]; then
     __travis_go_fetch_godep
