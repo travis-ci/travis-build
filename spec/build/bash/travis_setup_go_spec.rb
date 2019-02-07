@@ -43,13 +43,22 @@ describe 'travis_setup_go', integration: true do
     expect(run_script('travis_setup_go', '')[:truth]).to be true
   end
 
-  it 'requires a go_import_path positional argument' do
+  it 'requires TRAVIS_GO_VERSION' do
     result = run_script(
       'travis_setup_go',
-      %[travis_setup_go #{go_version} ""]
+      'travis_setup_go'
     )
     expect(result[:err].read.strip).
-      to include('Missing go_import_path positional argument')
+      to include('Missing TRAVIS_GO_VERSION')
+  end
+
+  it 'requires TRAVIS_GO_IMPORT_PATH' do
+    result = run_script(
+      'travis_setup_go',
+      'TRAVIS_GO_VERSION=1.2.x travis_setup_go'
+    )
+    expect(result[:err].read.strip).
+      to include('Missing TRAVIS_GO_IMPORT_PATH')
   end
 
   it 'retains TRAVIS_GO_VERSION' do
@@ -59,7 +68,8 @@ describe 'travis_setup_go', integration: true do
         #{script_header}
 
         export TRAVIS_GO_VERSION=#{go_version}
-        travis_setup_go #{go_version} ""
+        export TRAVIS_GO_IMPORT_PATH=#{go_import_path}
+        travis_setup_go
         echo TRAVIS_GO_VERSION=${TRAVIS_GO_VERSION}
       BASH
     )

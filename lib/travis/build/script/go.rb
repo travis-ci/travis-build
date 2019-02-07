@@ -21,14 +21,14 @@ module Travis
         end
 
         def export
-          super
           sh.raw bash('travis_export_go')
-          sh.cmd %[travis_export_go #{shesc(go_version)}], echo: false
+          sh.cmd %[travis_export_go #{shesc(go_version)} #{shesc(go_import_path)}], echo: true
+          super
         end
 
         def setup
           sh.raw bash('travis_setup_go')
-          sh.cmd "travis_setup_go #{go_version} #{go_import_path}"
+          sh.cmd 'travis_setup_go'
           super
         end
 

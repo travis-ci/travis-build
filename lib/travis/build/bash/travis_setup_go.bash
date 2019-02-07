@@ -1,9 +1,14 @@
 travis_setup_go() {
   local go_version="${TRAVIS_GO_VERSION:-${1}}"
-  local go_import_path="${2}"
+  local go_import_path="${TRAVIS_GO_IMPORT_PATH:-${2}}"
+
+  if [[ ! "${go_version}" ]]; then
+    echo 'Missing TRAVIS_GO_VERSION' >&2
+    return 86
+  fi
 
   if [[ ! "${go_import_path}" ]]; then
-    echo 'Missing go_import_path positional argument' >&2
+    echo 'Missing TRAVIS_GO_IMPORT_PATH' >&2
     return 86
   fi
 
