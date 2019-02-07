@@ -239,17 +239,19 @@ module Travis
           sh.raw bash('travis_preamble')
           sh.raw 'travis_preamble'
 
-          sh.file '${TRAVIS_HOME}/.travis/job_stages',
+          sh.file '${TRAVIS_HOME}/.travis/functions',
                   "# travis_.+ functions:\n" +
                   TRAVIS_FUNCTIONS.map { |f| bash(f) }.join("\n")
 
-          sh.raw 'source ${TRAVIS_HOME}/.travis/job_stages'
+          sh.file '${TRAVIS_HOME}/.travis/job_stages',
+                  %[source "${TRAVIS_HOME}/.travis/functions"\n]
+          sh.raw 'source "${TRAVIS_HOME}/.travis/functions"'
           sh.raw 'travis_setup_env'
           sh.raw 'travis_temporary_hacks'
         end
 
         def internal_ruby_regex_esc
-          @internal_ruby_regex_esc ||= Shellwords.escape(
+          @internal_ruby_regex_esc ||= shesc(
             Travis::Build.config.internal_ruby_regex.output_safe
           )
         end
@@ -407,6 +409,10 @@ module Travis
 
         def lang_name
           self.class.name.split('::').last.downcase
+        end
+
+        def shesc(str)
+          Shellwords.escape(str)
         end
     end
   end

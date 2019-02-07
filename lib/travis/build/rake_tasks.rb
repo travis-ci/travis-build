@@ -207,6 +207,7 @@ module Travis
         ENV['PATH'] = tmpbin_path
         vers = `shellcheck --version 2>/dev/null`.strip
         return false if vers.nil? || vers.strip.empty?
+
         vers.split(/\n/)
             .find { |s| s.start_with?('version:') }
             .split.last == SHELLCHECK_VERSION.sub(/^v/, '')
