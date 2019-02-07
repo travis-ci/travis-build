@@ -8,6 +8,10 @@ module Travis
         def apply
           sh.file '${TRAVIS_HOME}/.rvm/hooks/after_use', <<~RVMHOOK
             #!/bin/bash
+            if [[ "${rvm_ruby_string}" =~ "truffleruby" ]]; then
+              # TruffleRuby always has a more recent RubyGems than 2.6.13.
+              return 0
+            fi
             gem --help &>/dev/null || return 0
 
             #{bash('travis_vers2int')}
