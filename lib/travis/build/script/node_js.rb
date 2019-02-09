@@ -161,12 +161,25 @@ module Travis
           def update_nvm
             return if app_host.empty?
             sh.echo "Updating nvm", ansi: :yellow, timing: false
+
             nvm_dir = "$HOME/.nvm"
             sh.raw "mkdir -p #{nvm_dir}"
+
+            sh.echo "app_host is #{app_host}", ansi: :yellow, timing: false
+            sh.echo "nvm dir is #{nvm_dir}", ansi: :yellow, timing: false
+
+            sh.echo "right before curl -s o to https://#{app_host}/files/nvm.sh", ansi: :yellow, timing: false
             sh.raw "curl -s -o #{nvm_dir}/nvm.sh   https://#{app_host}/files/nvm.sh".untaint,   assert: false
+            sh.echo "right after nvm.sh curl call", ansi: :yellow, timing: false
+
+            sh.echo "right before curl -s o to https://#{app_host}/files/nvm-exec.sh", ansi: :yellow, timing: false
             sh.raw "curl -s -o #{nvm_dir}/nvm-exec https://#{app_host}/files/nvm-exec".untaint, assert: false
+            sh.echo "right after nvm-exec.sh curl call", ansi: :yellow, timing: false
+
+            sh.echo "right before chmod 0755 on #{nvm_dir}/nvm.sh and #{nvm_dir}/nvm-exec", ansi: :yellow, timing: false
             sh.raw "chmod 0755 #{nvm_dir}/nvm.sh #{nvm_dir}/nvm-exec", assert: true
             sh.raw "source #{nvm_dir}/nvm.sh", assert: false
+            sh.echo "end of update_nvm method", ansi: :yellow, timing: false
           end
 
           def npm_disable_prefix
