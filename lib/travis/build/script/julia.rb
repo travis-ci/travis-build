@@ -2,10 +2,9 @@
 
 # Community maintainers:
 #
-#   Tony Kelman       <tony kelman net, @tkelman>
-#   Pontus Stenetorp  <pontus stenetorp se, @ninjin>
-#   Elliot Saba       <staticfloat gmail com, @staticfloat>
-#   Simon Byrne       <simonbyrne gmail.com, @simonbyrne>
+#   Alex Arslan       (@ararslann)
+#   Elliot Saba       (@staticfloat)
+#   Stefan Karpinski  (@StefanKarpinski)
 #
 module Travis
   module Build
@@ -34,8 +33,8 @@ module Travis
             ansi: :green
           sh.echo '  https://github.com/travis-ci/travis-ci/issues' \
             '/new?labels=julia', ansi: :green
-          sh.echo 'and mention \`@tkelman\`, \`@ninjin\`, \`@staticfloat\`' \
-            ' and \`@simonbyrne\` in the issue', ansi: :green
+          sh.echo 'and mention \`@ararslan\`, \`@staticfloat\`' \
+            ' and \`@StefanKarpinski\` in the issue', ansi: :green
 
           sh.fold 'Julia-install' do
             sh.echo 'Installing Julia', ansi: :yellow
