@@ -40,7 +40,7 @@ module Travis
 
           def git_clone
             if retry_git_commands?
-              sh.cmd "for i in {1..3}; do travis_wait #{retry_timeout_threshold} git clone #{clone_args} #{data.source_url} #{dir}; done", assert: false, retry: true
+              sh.cmd "for i in {1..3}; do travis_wait #{retry_timeout_threshold} git clone #{clone_args} #{data.source_url} #{dir} && break; rm -rf  #{dir}; done", assert: false, retry: true
             else
               sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: false, retry: true
             end
@@ -48,7 +48,7 @@ module Travis
 
           def git_fetch
             if retry_git_commands?
-              sh.cmd "for i in {1..3}; do travis_wait #{retry_timeout_threshold} git -C #{dir} fetch origin#{fetch_args}; done", assert: true, retry: true
+              sh.cmd "for i in {1..3}; do travis_wait #{retry_timeout_threshold} git -C #{dir} fetch origin#{fetch_args} && break; done", assert: true, retry: true
             else
               sh.cmd "git -C #{dir} fetch origin#{fetch_args}", assert: true, retry: true
             end
@@ -79,7 +79,7 @@ module Travis
 
           def fetch_ref
             if retry_git_commands?
-              sh.cmd "for i in {1..3}; do travis_wait #{retry_timeout_threshold} git fetch origin +#{data.ref}:#{fetch_args}; done", assert: true, retry: true
+              sh.cmd "for i in {1..3}; do travis_wait #{retry_timeout_threshold} git fetch origin +#{data.ref}:#{fetch_args} && break; done", assert: true, retry: true
             else
               sh.cmd "git fetch origin +#{data.ref}:#{fetch_args}", assert: true, retry: true
             end
