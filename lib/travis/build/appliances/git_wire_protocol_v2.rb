@@ -6,7 +6,6 @@ module Travis
       class GitWireProtocolV2 < Base
         def apply
             sh.cmd "git config --global protocol.version 2", assert: false, echo: true
-          end
         end
       end
     end
