@@ -5,7 +5,7 @@ module Travis
     module Appliances
       class GitWireProtocolV2 < Base
         def apply
-            sh.cmd "git config --global protocol.version 2", assert: false, echo: true
+            sh.cmd "git config --global protocol.version 2", assert: false, echo: false
         end
       end
     end
