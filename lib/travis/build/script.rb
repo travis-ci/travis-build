@@ -177,7 +177,16 @@ module Travis
           sh.raw "travis_rel=$(sw_vers -productVersion)"
           sh.raw "travis_rel_version=${travis_rel%*.*}"
         end
-        "archive_url=https://s3.amazonaws.com/#{bucket}/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/#{file_name}"
+        "archive_url=https://#{lang_archive_prefix(lang, bucket)}/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/#{file_name}"
+      end
+
+      def lang_archive_prefix(lang, bucket)
+        case lang
+        when 'python'
+          "travis-ci-python-archives.global.ssl.fastly.net"
+        else
+          "s3.amazonaws.com/#{bucket}"
+        end
       end
 
       def debug_build_via_api?
