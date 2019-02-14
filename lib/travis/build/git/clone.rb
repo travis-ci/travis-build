@@ -22,16 +22,12 @@ module Travis
             data.repository[:slug].to_s
           end
 
-          def owner_login
-            repo_slug.split('/').first
-          end
-
-          def retry_git_commands_owners
-            ENV["RETRY_GIT_COMMANDS_OWNERS"].to_s.split(',')
+          def retry_git_commands_slugs
+            ENV["RETRY_GIT_COMMANDS_SLUGS"].to_s.split(',')
           end
 
           def retry_git_commands?
-            retry_git_commands_owners.include?(owner_login)
+            retry_git_commands_slugs.include?(repo_slug)
           end
 
           def retry_timeout_threshold
