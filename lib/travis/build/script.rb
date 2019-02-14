@@ -181,12 +181,9 @@ module Travis
       end
 
       def lang_archive_prefix(lang, bucket)
-        case lang
-        when 'python'
-          "travis-ci-python-archives.global.ssl.fastly.net"
-        else
-          "s3.amazonaws.com/#{bucket}"
-        end
+        custom_archive = ENV["TRAVIS_BUILD_LANG_ARCHIVES_#{lang}".upcase]
+        
+        custom_archive || "s3.amazonaws.com/#{bucket}"
       end
 
       def debug_build_via_api?
