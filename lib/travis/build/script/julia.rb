@@ -2,7 +2,7 @@
 
 # Community maintainers:
 #
-#   Alex Arslan       (@ararslann)
+#   Alex Arslan       (@ararslan)
 #   Elliot Saba       (@staticfloat)
 #   Stefan Karpinski  (@StefanKarpinski)
 #
