@@ -13,7 +13,7 @@ module Travis
           git_version = `git version`
           major, minor, build = git_version.match(GIT_VERSION).captures
           if major.to_i => GIT_WIRE_PROTOCOL_V2_MAJOR && minor.to_i => GIT_WIRE_PROTOCOL_V2_MINOR
-            sh.cmd "git config --global protocol.version 2", assert: false, echo: false
+            sh.cmd "git config --global protocol.version 2", assert: false, echo: true
           end
         end
       end
