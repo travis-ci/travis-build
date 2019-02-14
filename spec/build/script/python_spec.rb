@@ -79,7 +79,18 @@ describe Travis::Build::Script::Python, :sexp do
 
     it "downloads archive" do
       branch = sexp_find(sexp, [:then])
-      expect(branch).to include_sexp [:raw, "archive_url=https://travis-ci-python-archives.global.ssl.fastly.net/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/python-#{version}.tar.bz2"]
+      expect(branch).to include_sexp [:raw, "archive_url=https://s3.amazonaws.com/travis-python-archives/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/python-#{version}.tar.bz2"]
+    end
+
+    context 'and using a custom archive url' do
+      before { ENV["TRAVIS_BUILD_LANG_ARCHIVES_PYTHON"] = "cdn.of.lots.of.python.stuff" }
+      after  { ENV.delete("TRAVIS_BUILD_LANG_ARCHIVES_PYTHON") }
+
+      it "downloads archive" do
+        ENV['']
+        branch = sexp_find(sexp, [:then])
+        expect(branch).to include_sexp [:raw, "archive_url=https://cdn.of.lots.of.python.stuff/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/python-#{version}.tar.bz2"]
+      end
     end
   end
 
