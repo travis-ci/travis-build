@@ -4,9 +4,16 @@ module Travis
   module Build
     module Appliances
       class GitWireProtocolV2 < Base
+
+        def apply?
+          # Git version on `xcode9.3` image doesn't support protocol v2
+          data[:config][:osx_image].to_s.empty? || data[:config][:osx_image] != 'xcode9.3'
+        end
+
         def apply
           sh.cmd "git config --global protocol.version 2", assert: false, echo: false
         end
+
       end
     end
   end
