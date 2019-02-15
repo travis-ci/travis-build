@@ -183,7 +183,7 @@ module Travis
       def lang_archive_prefix(lang, bucket)
         custom_archive = ENV["TRAVIS_BUILD_LANG_ARCHIVES_#{lang}".upcase]
         
-        custom_archive || "s3.amazonaws.com/#{bucket}"
+        custom_archive.output_safe || "s3.amazonaws.com/#{bucket}"
       end
 
       def debug_build_via_api?
