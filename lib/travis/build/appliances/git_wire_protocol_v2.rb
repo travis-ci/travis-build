@@ -6,8 +6,10 @@ module Travis
       class GitWireProtocolV2 < Base
 
         def apply?
-          # Git version on `xcode9.3` image doesn't support protocol v2
-          data[:config][:osx_image].to_s.empty? || !%w[xcode9.3 xcode9.3-moar].include?(data[:config][:osx_image])
+          # Git version on `xcode9.3` and android images doesn't support protocol v2
+          data[:config][:osx_image].to_s.empty?
+            || !%w[xcode9.3 xcode9.3-moar].include?(data[:config][:osx_image])
+            || data[:config][:language] != "android"
         end
 
         def apply
