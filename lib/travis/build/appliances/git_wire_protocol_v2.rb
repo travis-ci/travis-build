@@ -4,12 +4,17 @@ module Travis
   module Build
     module Appliances
       class GitWireProtocolV2 < Base
+        
+        def is_xcode93
+          !data[:config][:osx_image].to_s.empty? && %w[xcode9.3 xcode9.3-moar].include?(data[:config][:osx_image])
+        end
+        
+        def is_android
+          !data[:config][:language].to_s.empty? && data[:config][:language] == "android"
+        end
 
         def apply?
-          # Git version on `xcode9.3` and android images doesn't support protocol v2
-          data[:config][:osx_image].to_s.empty?
-            || !%w[xcode9.3 xcode9.3-moar].include?(data[:config][:osx_image])
-            || data[:config][:language] != "android"
+          !is_xcode93? && !is_android
         end
 
         def apply
