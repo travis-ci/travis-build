@@ -177,7 +177,13 @@ module Travis
           sh.raw "travis_rel=$(sw_vers -productVersion)"
           sh.raw "travis_rel_version=${travis_rel%*.*}"
         end
-        "archive_url=https://s3.amazonaws.com/#{bucket}/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/#{file_name}"
+        "archive_url=https://#{lang_archive_prefix(lang, bucket)}/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/#{file_name}"
+      end
+
+      def lang_archive_prefix(lang, bucket)
+        custom_archive = ENV["TRAVIS_BUILD_LANG_ARCHIVES_#{lang}".upcase]
+        
+        custom_archive.to_s.empty? ? "s3.amazonaws.com/#{bucket}" : custom_archive.output_safe
       end
 
       def debug_build_via_api?
@@ -300,6 +306,7 @@ module Travis
           apply :deprecate_xcode_64
           apply :update_heroku
           apply :shell_session_update
+          apply :git_wire_protocol_v2
         end
 
         def setup_filter
