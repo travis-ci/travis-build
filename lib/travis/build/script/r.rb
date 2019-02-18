@@ -544,6 +544,7 @@ module Travis
           sh.cmd "curl -fsSOL https://raw.githubusercontent.com/Homebrew/install/master/uninstall"
           sh.cmd "sudo ruby uninstall --force"
           sh.cmd "rm uninstall"
+          sh.cmd "hash -r"
         end
 
         # Abstract out version check
