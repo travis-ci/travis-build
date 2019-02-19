@@ -28,7 +28,7 @@ module Travis
 
         def export
           super
-          sh.export 'TRAVIS_JDK_VERSION', config[:jdk], echo: false if specifies_jdk?
+          sh.export 'TRAVIS_JDK_VERSION', jdk, echo: false if specifies_jdk?
         end
 
         def setup
@@ -37,12 +37,12 @@ module Travis
           sh.if '-f build.gradle || -f build.gradle.kts' do
             sh.export 'TERM', 'dumb'
           end
-          
+
           # We disable the Gradle daemon because
           # it's causing out of memory issues otherwise.
           disable_gradle_daemon
         end
-        
+
         def disable_gradle_daemon
           sh.if '"$TRAVIS_DIST" == precise || "$TRAVIS_DIST" == trusty' do
             sh.cmd 'mkdir -p ~/.gradle && echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties', echo: false, timing: false
@@ -64,7 +64,7 @@ module Travis
 
         private
           def jdk
-            config[:jdk].gsub(/\s/,'')
+            Array(config[:jdk]).first.gsub(/\s/,'')
           end
 
           def uses_java?
