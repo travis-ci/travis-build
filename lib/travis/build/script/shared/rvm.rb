@@ -67,7 +67,12 @@ module Travis
 
           def import_gpg_key
             RVM_GPG_KEY_IDS.each do |id|
-              sh.cmd "command curl -sSL https://rvm.io/#{id}.asc | gpg2 --import -", assert: false
+              sh.if "$(command -v gpg2)" do
+                sh.cmd "command curl -sSL https://rvm.io/#{id}.asc | gpg2 --import -", assert: false
+              end
+              sh.else do
+                sh.cmd "command curl -sSL https://rvm.io/#{id}.asc | gpg --import -", assert: false
+              end
             end
           end
 
