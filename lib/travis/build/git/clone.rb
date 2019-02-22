@@ -18,6 +18,46 @@ module Travis
 
         private
 
+          def repo_slug
+            data.repository[:slug].to_s
+          end
+
+          def owner_login
+            repo_slug.split('/').first
+          end
+
+          def retry_git_commands_owners
+            ENV["RETRY_GIT_COMMANDS_OWNERS"].to_s.split(',')
+          end
+
+          def retry_git_commands_slugs
+            ENV["RETRY_GIT_COMMANDS_SLUGS"].to_s.split(',')
+          end
+
+          def retry_git_commands?
+            retry_git_commands_slugs.include?(repo_slug) || retry_git_commands_owners.include?(owner_login)
+          end
+
+          def retry_timeout_threshold
+            ENV["GIT_COMMANDS_RETRY_TIMEOUT_THRESHOLD"] ? ENV["GIT_COMMANDS_RETRY_TIMEOUT_THRESHOLD"] : "5"
+          end
+
+          def git_clone
+            if retry_git_commands?
+              sh.cmd "for i in {1..3}; do travis_wait #{retry_timeout_threshold} git clone #{clone_args} #{data.source_url} #{dir} && break; rm -rf  #{dir}; done", assert: false, retry: true
+            else
+              sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: false, retry: true
+            end
+          end
+
+          def git_fetch
+            if retry_git_commands?
+              sh.cmd "for i in {1..3}; do travis_wait #{retry_timeout_threshold} git -C #{dir} fetch origin#{fetch_args} && break; done", assert: true, retry: true
+            else
+              sh.cmd "git -C #{dir} fetch origin#{fetch_args}", assert: true, retry: true
+            end
+          end
+
           def clone_or_fetch
             sh.if "! -d #{dir}/.git" do
               if sparse_checkout
@@ -31,18 +71,22 @@ module Travis
                 sh.cmd "cat #{dir}/#{sparse_checkout} >> #{dir}/.git/info/sparse-checkout", assert: true, retry: true
                 sh.cmd "git -C #{dir} reset --hard", assert: true, timing: false
               else
-                sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: false, retry: true
+                git_clone
                 warn_github_status
               end
             end
             sh.else do
-              sh.cmd "git -C #{dir} fetch origin#{fetch_args}", assert: true, retry: true
+              git_fetch
               sh.cmd "git -C #{dir} reset --hard", assert: true, timing: false
             end
           end
 
           def fetch_ref
-            sh.cmd "git fetch origin +#{data.ref}:#{fetch_args}", assert: true, retry: true
+            if retry_git_commands?
+              sh.cmd "for i in {1..3}; do travis_wait #{retry_timeout_threshold} git fetch origin +#{data.ref}:#{fetch_args} && break; done", assert: true, retry: true
+            else
+              sh.cmd "git fetch origin +#{data.ref}:#{fetch_args}", assert: true, retry: true
+            end
           end
 
           def fetch_ref?
