@@ -17,6 +17,53 @@ module Travis
         end
 
         private
+          TRACE_COMMAND_GIT_TRACE = "GIT_TRACE=true"
+          TRACE_COMMAND_STRACE = "strace"
+          DEFAULT_TRACE_COMMAND = TRACE_COMMAND_GIT_TRACE
+
+          def repo_slug
+            data.repository[:slug].to_s
+          end
+
+          def owner_login
+            repo_slug.split('/').first
+          end
+
+          def trace_git_commands_owners
+            ENV["TRACE_GIT_COMMANDS_OWNERS"].to_s.split(',')
+          end
+
+          def trace_git_commands_slugs
+            ENV["TRACE_GIT_COMMANDS_SLUGS"].to_s.split(',')
+          end
+
+          def trace_git_commands?
+            trace_git_commands_slugs.include?(repo_slug) || trace_git_commands_owners.include?(owner_login)
+          end
+
+          def trace_command
+            if ENV["TRACE_COMMAND"].to_s == TRACE_COMMAND_STRACE
+              TRACE_COMMAND_STRACE
+            else
+              DEFAULT_TRACE_COMMAND
+            end
+          end
+
+          def git_clone
+            if trace_git_commands?
+              sh.cmd "#{trace_command} git clone #{clone_args} #{data.source_url} #{dir}", assert: false, retry: true
+            else
+              sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: false, retry: true
+            end
+          end
+
+           def git_fetch
+            if trace_git_commands?
+              sh.cmd "#{trace_command} git -C #{dir} fetch origin#{fetch_args}", assert: true, retry: true
+            else
+              sh.cmd "git -C #{dir} fetch origin#{fetch_args}", assert: true, retry: true
+            end
+          end
 
           def clone_or_fetch
             sh.if "! -d #{dir}/.git" do
@@ -31,18 +78,22 @@ module Travis
                 sh.cmd "cat #{dir}/#{sparse_checkout} >> #{dir}/.git/info/sparse-checkout", assert: true, retry: true
                 sh.cmd "git -C #{dir} reset --hard", assert: true, timing: false
               else
-                sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: false, retry: true
+                git_clone
                 warn_github_status
               end
             end
             sh.else do
-              sh.cmd "git -C #{dir} fetch origin#{fetch_args}", assert: true, retry: true
+              git_fetch
               sh.cmd "git -C #{dir} reset --hard", assert: true, timing: false
             end
           end
 
           def fetch_ref
-            sh.cmd "git fetch origin +#{data.ref}:#{fetch_args}", assert: true, retry: true
+            if trace_git_commands?
+              sh.cmd "#{trace_command} git fetch origin +#{data.ref}:#{fetch_args}", assert: true, retry: true
+            else
+              sh.cmd "git fetch origin +#{data.ref}:#{fetch_args}", assert: true, retry: true
+            end
           end
 
           def fetch_ref?
