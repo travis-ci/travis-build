@@ -11,7 +11,8 @@ module Travis
             clone_or_fetch
             sh.cd dir
             fetch_ref if fetch_ref?
-            checkout
+            sh.cmd "git fsck", assert: false, retry: true if trace_git_commands?
+            if 
           end
           sh.newline
         end
