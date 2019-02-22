@@ -11,6 +11,7 @@ module Travis
             clone_or_fetch
             sh.cd dir
             fetch_ref if fetch_ref?
+            checkout
             sh.cmd "git fsck", assert: false, retry: true if trace_git_commands?
           end
           sh.newline
@@ -49,20 +50,16 @@ module Travis
             end
           end
 
+          def git_cmd
+            trace_git_commands? ? "#{trace_command} git" : "git"
+          end
+
           def git_clone
-            if trace_git_commands?
-              sh.cmd "#{trace_command} git clone #{clone_args} #{data.source_url} #{dir}", assert: false, retry: true
-            else
-              sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: false, retry: true
-            end
+            sh.cmd "#{git_cmd} clone #{clone_args} #{data.source_url} #{dir}", assert: false, retry: true
           end
 
            def git_fetch
-            if trace_git_commands?
-              sh.cmd "#{trace_command} git -C #{dir} fetch origin#{fetch_args}", assert: true, retry: true
-            else
-              sh.cmd "git -C #{dir} fetch origin#{fetch_args}", assert: true, retry: true
-            end
+            sh.cmd "#{git_cmd} -C #{dir} fetch origin#{fetch_args}", assert: true, retry: true
           end
 
           def clone_or_fetch
@@ -89,11 +86,7 @@ module Travis
           end
 
           def fetch_ref
-            if trace_git_commands?
-              sh.cmd "#{trace_command} git fetch origin +#{data.ref}:#{fetch_args}", assert: true, retry: true
-            else
-              sh.cmd "git fetch origin +#{data.ref}:#{fetch_args}", assert: true, retry: true
-            end
+            sh.cmd "#{git_cmd} fetch origin +#{data.ref}:#{fetch_args}", assert: true, retry: true
           end
 
           def fetch_ref?
