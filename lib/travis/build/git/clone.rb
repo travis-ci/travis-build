@@ -31,11 +31,11 @@ module Travis
           end
 
           def trace_git_commands_owners
-            Travis::Build.config.trace_git_commands_owners.split(',')
+            Travis::Build.config.trace_git_commands_owners.output_safe.split(',')
           end
 
           def trace_git_commands_slugs
-            Travis::Build.config.trace_git_commands_slugs.split(',')
+            Travis::Build.config.trace_git_commands_slugs.output_safe.split(',')
           end
 
           def trace_git_commands?
@@ -43,8 +43,8 @@ module Travis
           end
 
           def trace_command
-            if Travis::Build.config.trace_command == TRACE_COMMAND_STRACE
-              Travis::Build.config.trace_command
+            if Travis::Build.config.trace_command.output_safe == TRACE_COMMAND_STRACE
+              Travis::Build.config.trace_command.output_safe
             else
               DEFAULT_TRACE_COMMAND
             end
