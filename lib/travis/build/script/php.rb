@@ -9,6 +9,16 @@ module Travis
 
         def configure
           super
+
+          if data.language_default_p
+            sh.echo "Using the default PHP version #{DEFAULTS[:php]}. " \
+              "Starting on [DATE] the default will change to 7.3. " \
+              "If you wish to keep using this version beyond this date, " \
+              "please explicitly set the php value in configuration.",
+              ansi: :yellow
+            sh.newline
+          end
+
           configure_hhvm if hhvm?
         end
 

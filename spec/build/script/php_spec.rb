@@ -36,6 +36,11 @@ describe Travis::Build::Script::Php, :sexp do
     should include_sexp [:cmd, 'phpunit', echo: true, timing: true]
   end
 
+  context "with minimal config" do
+    before { data[:config][:language] = 'php'; data[:config].delete(:php) }
+    it { should include_sexp [:echo, /Using the default PHP version/, ansi: :yellow] }
+  end
+
   describe 'installs php nightly' do
     before { data[:config][:php] = 'nightly' }
     # expect(sexp).to include_sexp [:raw, "archive_url=https://s3.amazonaws.com/travis-php-archives/php-#{version}-archive.tar.bz2"]
