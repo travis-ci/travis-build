@@ -20,6 +20,7 @@ module Travis
         private
           TRACE_COMMAND_GIT_TRACE = "GIT_TRACE=true"
           TRACE_COMMAND_STRACE = "strace"
+          TRACE_COMMAND_ALL = "all"
           DEFAULT_TRACE_COMMAND = TRACE_COMMAND_GIT_TRACE
 
           def repo_slug
@@ -43,8 +44,10 @@ module Travis
           end
 
           def trace_command
-            if Travis::Build.config.trace_command.output_safe == TRACE_COMMAND_STRACE
-              Travis::Build.config.trace_command.output_safe
+            if Travis::Build.config.trace_command.output_safe == TRACE_COMMAND_ALL
+              "GIT_TRACE=true GIT_FLUSH=1 GIT_TRACE_PERFORMANCE=true GIT_TRACE_PACK_ACCESS=true GIT_TRACE_PACKET=true GIT_TRACE_PACK_ACCESS=true strace"
+            elsif Travis::Build.config.trace_command.output_safe == TRACE_COMMAND_STRACE
+              "strace"
             else
               DEFAULT_TRACE_COMMAND
             end
