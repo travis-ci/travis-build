@@ -3,6 +3,7 @@ require 'core_ext/hash/deep_symbolize_keys'
 require 'core_ext/object/false'
 require 'erb'
 require 'rbconfig'
+require 'date'
 
 require 'travis/build/addons'
 require 'travis/build/appliances'
@@ -425,6 +426,16 @@ module Travis
 
         def shesc(str)
           Shellwords.escape(str)
+        end
+
+        def check_deprecation(cfg)
+          if data.language_default_p && DateTime.now < Date.parse(cfg[:cutoff_date])
+            sh.echo "Using the default #{cfg[:name] || self.class.name} version #{cfg[:current_default]}. " \
+              "Starting on #{cfg[:cutoff_date]} the default will change to #{cfg[:new_default]}. " \
+              "If you wish to keep using this version beyond this date, " \
+              "please explicitly set the #{cfg[:name]} value in configuration.",
+              ansi: :yellow
+          end
         end
     end
   end

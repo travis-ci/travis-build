@@ -7,17 +7,19 @@ module Travis
           composer: '--no-interaction --prefer-source'
         }
 
+        DEPRECATIONS = [
+          {
+            name: 'PHP',
+            current_default: '5.5',
+            new_default: '7.3',
+            cutoff_date: '2019-03-15',
+          }
+        ]
+
         def configure
           super
 
-          if data.language_default_p
-            sh.echo "Using the default PHP version #{DEFAULTS[:php]}. " \
-              "Starting on [DATE] the default will change to 7.3. " \
-              "If you wish to keep using this version beyond this date, " \
-              "please explicitly set the php value in configuration.",
-              ansi: :yellow
-            sh.newline
-          end
+          DEPRECATIONS.each { |dep| check_deprecation dep }
 
           configure_hhvm if hhvm?
         end
