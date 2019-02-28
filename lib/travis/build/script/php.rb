@@ -18,9 +18,6 @@ module Travis
 
         def configure
           super
-
-          DEPRECATIONS.each { |dep| check_deprecation dep }
-
           configure_hhvm if hhvm?
         end
 

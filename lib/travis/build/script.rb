@@ -313,6 +313,8 @@ module Travis
           apply :update_heroku
           apply :shell_session_update
           apply :git_wire_protocol_v2
+
+          check_deprecation
         end
 
         def setup_filter
@@ -428,13 +430,16 @@ module Travis
           Shellwords.escape(str)
         end
 
-        def check_deprecation(cfg)
-          if data.language_default_p && DateTime.now < Date.parse(cfg[:cutoff_date])
-            sh.echo "Using the default #{cfg[:name] || self.class.name} version #{cfg[:current_default]}. " \
-              "Starting on #{cfg[:cutoff_date]} the default will change to #{cfg[:new_default]}. " \
-              "If you wish to keep using this version beyond this date, " \
-              "please explicitly set the #{cfg[:name]} value in configuration.",
-              ansi: :yellow
+        def check_deprecation
+          return unless self.class.const_defined?("DEPRECATIONS")
+          self.class.const_get("DEPRECATIONS").each do |cfg|
+            if data.language_default_p && DateTime.now < Date.parse(cfg[:cutoff_date])
+              sh.echo "Using the default #{cfg[:name] || self.class.name} version #{cfg[:current_default]}. " \
+                "Starting on #{cfg[:cutoff_date]} the default will change to #{cfg[:new_default]}. " \
+                "If you wish to keep using this version beyond this date, " \
+                "please explicitly set the #{cfg[:name]} value in configuration.",
+                ansi: :yellow
+            end
           end
         end
     end
