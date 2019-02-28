@@ -101,7 +101,12 @@ module Travis
 
       def initialize(data)
         @raw_data = data.deep_symbolize_keys
-        @data = Data.new({ config: self.class.defaults }.deep_merge(self.raw_data))
+        raw_config = @raw_data[:config]
+        lang_sym = raw_config.fetch(:language,"").to_sym
+        @data = Data.new({
+          config: self.class.defaults,
+          language_default_p: !raw_config[lang_sym]
+        }.deep_merge(self.raw_data))
         @options = {}
 
         tracing_enabled = data[:trace]
@@ -182,7 +187,7 @@ module Travis
 
       def lang_archive_prefix(lang, bucket)
         custom_archive = ENV["TRAVIS_BUILD_LANG_ARCHIVES_#{lang}".upcase]
-        
+
         custom_archive.to_s.empty? ? "s3.amazonaws.com/#{bucket}" : custom_archive.output_safe
       end
 

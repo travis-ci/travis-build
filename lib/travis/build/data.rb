@@ -24,9 +24,7 @@ module Travis
       def initialize(data, defaults = {})
         data = data.deep_symbolize_keys
         defaults = defaults.deep_symbolize_keys
-        @language_default_p = data[:config].respond_to?(:has_key?) &&
-          data[:config].has_key?(:language) &&
-          data[:config].has_key?(data[:config][:language].to_s.downcase.to_sym)
+        @language_default_p = data[:language_default_p]
         @data = DEFAULTS.deep_merge(defaults.deep_merge(data))
       end
 
