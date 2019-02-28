@@ -312,7 +312,6 @@ module Travis
           apply :deprecate_xcode_64
           apply :update_heroku
           apply :shell_session_update
-          apply :git_wire_protocol_v2
 
           check_deprecation
         end
