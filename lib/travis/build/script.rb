@@ -3,6 +3,7 @@ require 'core_ext/hash/deep_symbolize_keys'
 require 'core_ext/object/false'
 require 'erb'
 require 'rbconfig'
+require 'date'
 
 require 'travis/build/addons'
 require 'travis/build/appliances'
@@ -101,7 +102,12 @@ module Travis
 
       def initialize(data)
         @raw_data = data.deep_symbolize_keys
-        @data = Data.new({ config: self.class.defaults }.deep_merge(self.raw_data))
+        raw_config = @raw_data[:config]
+        lang_sym = raw_config.fetch(:language,"").to_sym
+        @data = Data.new({
+          config: self.class.defaults,
+          language_default_p: !raw_config[lang_sym]
+        }.deep_merge(self.raw_data))
         @options = {}
 
         tracing_enabled = data[:trace]
@@ -182,7 +188,7 @@ module Travis
 
       def lang_archive_prefix(lang, bucket)
         custom_archive = ENV["TRAVIS_BUILD_LANG_ARCHIVES_#{lang}".upcase]
-        
+
         custom_archive.to_s.empty? ? "s3.amazonaws.com/#{bucket}" : custom_archive.output_safe
       end
 
@@ -306,6 +312,8 @@ module Travis
           apply :deprecate_xcode_64
           apply :update_heroku
           apply :shell_session_update
+
+          check_deprecation
         end
 
         def setup_filter
@@ -419,6 +427,19 @@ module Travis
 
         def shesc(str)
           Shellwords.escape(str)
+        end
+
+        def check_deprecation
+          return unless self.class.const_defined?("DEPRECATIONS")
+          self.class.const_get("DEPRECATIONS").each do |cfg|
+            if data.language_default_p && DateTime.now < Date.parse(cfg[:cutoff_date])
+              sh.echo "Using the default #{cfg[:name] || self.class.name} version #{cfg[:current_default]}. " \
+                "Starting on #{cfg[:cutoff_date]} the default will change to #{cfg[:new_default]}. " \
+                "If you wish to keep using this version beyond this date, " \
+                "please explicitly set the #{cfg[:name]} value in configuration.",
+                ansi: :yellow
+            end
+          end
         end
     end
   end

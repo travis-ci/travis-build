@@ -7,6 +7,15 @@ module Travis
           composer: '--no-interaction --prefer-source'
         }
 
+        DEPRECATIONS = [
+          {
+            name: 'PHP',
+            current_default: DEFAULTS[:php],
+            new_default: '7.2',
+            cutoff_date: '2019-03-12',
+          }
+        ]
+
         def configure
           super
           configure_hhvm if hhvm?

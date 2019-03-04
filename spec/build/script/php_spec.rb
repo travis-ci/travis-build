@@ -36,6 +36,35 @@ describe Travis::Build::Script::Php, :sexp do
     should include_sexp [:cmd, 'phpunit', echo: true, timing: true]
   end
 
+  context "with minimal config" do
+    before do
+      data[:config][:language] = 'php'; data[:config].delete(:php)
+      described_class.send :remove_const, :DEPRECATIONS
+      described_class.const_set("DEPRECATIONS", [
+        {
+          name: 'PHP',
+          current_default: '5.5',
+          new_default: '7.3',
+          cutoff_date: '2018-03-15',
+        }
+      ])
+    end
+
+    context "before default change cutoff date" do
+      before do
+        DateTime.stubs(:now).returns(DateTime.parse("2018-01-01"))
+      end
+      it { should include_sexp [:echo, /Using the default PHP version/, ansi: :yellow] }
+    end
+
+    context "after default change cutoff date" do
+      before do
+        DateTime.stubs(:now).returns(DateTime.parse("2019-01-01"))
+      end
+      it { should_not include_sexp [:echo, /Using the default PHP version/, ansi: :yellow] }
+    end
+  end
+
   describe 'installs php nightly' do
     before { data[:config][:php] = 'nightly' }
     # expect(sexp).to include_sexp [:raw, "archive_url=https://s3.amazonaws.com/travis-php-archives/php-#{version}-archive.tar.bz2"]
