@@ -432,12 +432,20 @@ module Travis
         def check_deprecation
           return unless self.class.const_defined?("DEPRECATIONS")
           self.class.const_get("DEPRECATIONS").each do |cfg|
-            if data.language_default_p && DateTime.now < Date.parse(cfg[:cutoff_date])
-              sh.echo "Using the default #{cfg[:name] || self.class.name} version #{cfg[:current_default]}. " \
-                "Starting on #{cfg[:cutoff_date]} the default will change to #{cfg[:new_default]}. " \
-                "If you wish to keep using this version beyond this date, " \
-                "please explicitly set the #{cfg[:name]} value in configuration.",
-                ansi: :yellow
+            if data.language_default_p
+              if DateTime.now < Date.parse(cfg[:cutoff_date])
+                sh.echo "Using the default #{cfg[:name] || self.class.name} version #{cfg[:current_default]}. " \
+                  "Starting on #{cfg[:cutoff_date]} the default will change to #{cfg[:new_default]}. " \
+                  "If you wish to keep using this version beyond this date, " \
+                  "please explicitly set the #{cfg[:name]} value in configuration.",
+                  ansi: :yellow
+              else
+                sh.echo "Using the new default #{cfg[:name] || self.class.name} version #{cfg[:new_default]}. " \
+                  "Starting on #{cfg[:cutoff_date]} the default changed from #{cfg[:current_default]} to #{cfg[:new_default]}. " \
+                  "If you wish to revert to using the old version, " \
+                  "please explicitly set the #{cfg[:name]} value in configuration.",
+                  ansi: :yellow
+              end
             end
           end
         end

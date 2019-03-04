@@ -54,14 +54,14 @@ describe Travis::Build::Script::Php, :sexp do
       before do
         DateTime.stubs(:now).returns(DateTime.parse("2018-01-01"))
       end
-      it { should include_sexp [:echo, /Using the default PHP version/, ansi: :yellow] }
+      it { should include_sexp [:echo, /default will change to 7.3/, ansi: :yellow] }
     end
 
     context "after default change cutoff date" do
       before do
         DateTime.stubs(:now).returns(DateTime.parse("2019-01-01"))
       end
-      it { should_not include_sexp [:echo, /Using the default PHP version/, ansi: :yellow] }
+      it { should include_sexp [:echo, /default changed from 5.5 to 7.3/, ansi: :yellow] }
     end
   end
 

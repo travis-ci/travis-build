@@ -10,7 +10,7 @@ module Travis
         DEPRECATIONS = [
           {
             name: 'PHP',
-            current_default: DEFAULTS[:php],
+            current_default: '5.5',
             new_default: '7.2',
             cutoff_date: '2019-03-12',
           }
