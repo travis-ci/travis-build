@@ -7,10 +7,18 @@ describe Travis::Build::Script::Ruby, :sexp do
   it { store_example }
   it { store_example(integration: true) }
 
+  it_behaves_like 'a bash script', integration: true do
+    let(:bash_script_file) { bash_script_path(integration: true) }
+  end
+
+  it_behaves_like 'a bash script'
+
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=ruby'] }
     let(:cmds) { ['bundle install', 'bundle exec rake'] }
   end
+
+  it_behaves_like 'checks language support'
 
   it_behaves_like 'a build script sexp'
 
@@ -189,6 +197,25 @@ describe Travis::Build::Script::Ruby, :sexp do
 
     it 'sets autolibs to disable' do
       should include_sexp [:cmd, "rvm autolibs disable", assert: true]
+    end
+  end
+
+  context 'when testing with truffleruby' do
+    before :each do
+      data[:config][:rvm] = 'truffleruby'
+    end
+
+    it 'uses latest rvm' do
+      should include_sexp [:cmd, "rvm get master", assert: true, echo: true, timing: true]
+    end
+
+    it 'sets autolibs to disable' do
+      should include_sexp [:cmd, "rvm autolibs disable", assert: true]
+    end
+
+    it 'uses rvm install and rvm use' do
+      should include_sexp [:cmd, "rvm install truffleruby", assert: true, echo: true, timing: true]
+      should include_sexp [:cmd, "rvm use truffleruby", assert: true, echo: true, timing: true]
     end
   end
 end

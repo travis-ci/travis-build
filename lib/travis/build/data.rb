@@ -19,11 +19,12 @@ module Travis
         pip:       false
       }
 
-      attr_reader :data
+      attr_reader :data, :language_default_p
 
       def initialize(data, defaults = {})
         data = data.deep_symbolize_keys
         defaults = defaults.deep_symbolize_keys
+        @language_default_p = data[:language_default_p]
         @data = DEFAULTS.deep_merge(defaults.deep_merge(data))
       end
 

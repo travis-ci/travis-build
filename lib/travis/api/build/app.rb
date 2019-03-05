@@ -1,12 +1,14 @@
 require 'json'
-require 'rack/ssl'
-require 'sinatra/base'
 require 'metriks'
 require 'pp'
+require 'rack/ssl'
+require 'rbtrace' if ENV['RBTRACE_ENABLED']
+require 'sinatra/base'
 
 require 'travis/build'
-require 'travis/api/build/sentry'
+
 require 'travis/api/build/metriks'
+require 'travis/api/build/sentry'
 
 module Travis
   module Api
@@ -16,9 +18,7 @@ module Travis
         set :root, File.expand_path('../../../../../', __FILE__)
         set :start, Time.now.utc
 
-        configure(:production, :staging) do
-          use Rack::SSL
-        end
+        use Rack::SSL if ENV['RACK_SSL_ENABLED']
 
         configure do
           use Sentry unless Travis::Build.config.sentry_dsn.to_s.empty?

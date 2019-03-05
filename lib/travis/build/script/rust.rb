@@ -39,10 +39,10 @@ module Travis
         def announce
           super
 
-          sh.cmd 'rustc --version'
-          sh.cmd 'rustup --version'
-          sh.cmd 'cargo --version'
-          sh.echo ''
+          sh.cmd 'rustc --version',  assert: true
+          sh.cmd 'rustup --version', assert: true
+          sh.cmd 'cargo --version',  assert: true
+          sh.newline
         end
 
         def script

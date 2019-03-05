@@ -20,7 +20,7 @@ module Travis
         def configure
           super
 
-          sh.echo ''
+          sh.newline
           sh.echo 'Perl6 support for Travis-CI is community maintained.', ansi: :red
           sh.echo 'Please open any issues at https://github.com/travis-ci/travis-ci/issues/new', ansi: :red
           sh.echo 'and cc @paultcochrane, @hoelzro, @ugexe, and @tony-o', ansi: :red
@@ -50,7 +50,7 @@ module Travis
         end
 
         def script
-          sh.cmd "PERL6LIB=lib prove -v -r --exec=perl6 t/"
+          sh.cmd "PERL6LIB=lib prove --ext .t --ext .t6 -v -r --exec=perl6 t/"
         end
 
         def cache_slug

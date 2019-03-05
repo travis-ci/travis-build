@@ -6,6 +6,8 @@ describe Travis::Build::Script::C, :sexp do
   subject      { script.sexp }
   it           { store_example }
 
+  it_behaves_like 'a bash script'
+
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=c'] }
     let(:cmds) { ['./configure && make && make test'] }

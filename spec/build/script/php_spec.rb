@@ -6,6 +6,8 @@ describe Travis::Build::Script::Php, :sexp do
   subject(:sexp) { script.sexp }
   it             { store_example }
 
+  it_behaves_like 'a bash script'
+
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=php'] }
     let(:cmds) { ['phpunit'] }
@@ -32,6 +34,35 @@ describe Travis::Build::Script::Php, :sexp do
 
   it 'runs phpunit' do
     should include_sexp [:cmd, 'phpunit', echo: true, timing: true]
+  end
+
+  context "with minimal config" do
+    before do
+      data[:config][:language] = 'php'; data[:config].delete(:php)
+      described_class.send :remove_const, :DEPRECATIONS
+      described_class.const_set("DEPRECATIONS", [
+        {
+          name: 'PHP',
+          current_default: '5.5',
+          new_default: '7.3',
+          cutoff_date: '2018-03-15',
+        }
+      ])
+    end
+
+    context "before default change cutoff date" do
+      before do
+        DateTime.stubs(:now).returns(DateTime.parse("2018-01-01"))
+      end
+      it { should include_sexp [:echo, /Using the default PHP version/, ansi: :yellow] }
+    end
+
+    context "after default change cutoff date" do
+      before do
+        DateTime.stubs(:now).returns(DateTime.parse("2019-01-01"))
+      end
+      it { should_not include_sexp [:echo, /Using the default PHP version/, ansi: :yellow] }
+    end
   end
 
   describe 'installs php nightly' do

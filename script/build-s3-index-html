@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require 'erb'
 require 'pathname'
@@ -19,13 +20,13 @@ def main
       hl_out = examples.join("#{filename.basename('.bash.txt')}.html")
       command = %W[
         pygmentize
-          -O full,style=colorful,linenos=1
-          -l bash
-          -o #{hl_out}
-          #{filename}
+        -O full,style=colorful,linenos=1
+        -l bash
+        -o #{hl_out}
+        #{filename}
       ].join(' ')
       system(command)
-      $stderr.puts("#{prog}: highlighted #{filename} -> #{hl_out}")
+      warn("#{prog}: highlighted #{filename} -> #{hl_out}")
       highlighted_filenames[filename.basename] = hl_out
     end
   end
@@ -33,7 +34,7 @@ def main
   outfile = top.join('examples/index.html')
   outfile.write(ERB.new(DATA.read).result(binding))
 
-  $stderr.puts("#{prog}: wrote #{outfile}")
+  warn("#{prog}: wrote #{outfile}")
   0
 end
 
@@ -55,7 +56,7 @@ __END__
       <li><%= f.basename('.bash.txt') %> [
         <a href="<%= f.basename %>">txt</a>
         <% unless highlighted_filenames[f.basename].nil? %>
-          <a href="<%= highlighted_filenames[f.basename] %>">html</a>
+          <a href="<%= highlighted_filenames[f.basename].basename %>">html</a>
         <% end %>
       ]
       </li>

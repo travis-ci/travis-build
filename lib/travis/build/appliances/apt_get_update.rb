@@ -6,6 +6,7 @@ module Travis
       class AptGetUpdate < Base
         def apply
           use_mirror
+          use_proxy
           update if update?
         end
 
@@ -28,7 +29,7 @@ module Travis
           end
 
           def update
-            sh.cmd "travis_apt_get_update #{debug? ? 'debug' : ''}", retry: true
+            sh.cmd "travis_apt_get_update#{debug? ? ' debug' : ''}", retry: true
           end
 
           def used?
@@ -40,17 +41,20 @@ module Travis
           end
 
           def use_mirror
-            sh.if '${TRAVIS_OS_NAME} == linux' do
-              define_mirrors_by_infrastructure
-              sh.raw bash('travis_munge_apt_sources')
-              sh.cmd 'travis_munge_apt_sources'
-            end
+            define_mirrors_by_infrastructure
+            sh.raw bash('travis_munge_apt_sources')
+            sh.cmd 'travis_munge_apt_sources'
+          end
+
+          def use_proxy
+            sh.raw bash('travis_setup_apt_proxy')
+            sh.cmd 'travis_setup_apt_proxy'
           end
 
           def define_mirrors_by_infrastructure
             sh.raw 'declare -a _TRAVIS_APT_MIRRORS_BY_INFRASTRUCTURE'
             mirrors.each do |infra, url|
-              sh.raw %{_TRAVIS_APT_MIRRORS_BY_INFRASTRUCTURE+=(#{infra}::#{url})}
+              sh.raw %{_TRAVIS_APT_MIRRORS_BY_INFRASTRUCTURE+=(#{infra}::#{url})}.output_safe
             end
           end
 

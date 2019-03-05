@@ -16,7 +16,7 @@ module Travis
         end
 
         def apply?
-          !data.disable_sudo?
+          super && !data.disable_sudo?
         end
 
         private

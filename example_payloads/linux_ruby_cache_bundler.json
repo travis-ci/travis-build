@@ -1,117 +1,115 @@
 {
-  "cache_settings":{
-    "fetch_timeout":1200,
-    "gcs":{
-      "access_key_id":"GCS_KEY_ID",
-      "aws_signature_version":"2",
-      "bucket":"our_secret_stash",
-      "hostname":"storage.googleapis.com",
-      "secret_access_key":"GCS_KEY"
+  "cache_settings": {
+    "fetch_timeout": 1200,
+    "gcs": {
+      "access_key_id": "GCS_KEY_ID",
+      "aws_signature_version": "2",
+      "bucket": "our_secret_stash",
+      "hostname": "storage.googleapis.com",
+      "secret_access_key": "GCS_KEY"
     },
-    "push_timeout":7200,
-    "type":"gcs"
+    "push_timeout": 7200,
+    "type": "gcs"
   },
-  "config":{
-    ".result":"configured",
-    "addons":{
-      "apt":{
-        "packages":[
+  "config": {
+    ".result": "configured",
+    "addons": {
+      "apt": {
+        "packages": [
           "bc"
         ]
       }
     },
-    "after_failure":"bundle exec chirp dumplogs",
-    "after_script":"bundle exec chirp sendstats 2>/dev/null",
-    "env":[
+    "after_failure": "bundle exec chirp dumplogs",
+    "after_script": "bundle exec chirp sendstats 2>/dev/null",
+    "env": [
       "FOO=bar"
     ],
     "cache": "bundler",
-    "global_env":[
+    "global_env": [
       "CHIRP_SUMMARY_OUTPUT=\"${TRAVIS_BUILD_DIR}/chirp.json\"",
       "CHIRP_TRACKER_STATS_URL=\"https://chirp-tracker-staging.herokuapp.com/stats\"",
       "SITE=org"
     ],
-    "language":"ruby",
-    "linux_shared":{
-      "addons":{
-        "apt":{
-          "packages":[
+    "language": "ruby",
+    "linux_shared": {
+      "addons": {
+        "apt": {
+          "packages": [
             "bc"
           ]
         }
       },
-      "os":"linux"
+      "os": "linux"
     },
-    "notifications":{
-      "webhooks":{
-        "on_failure":"never",
-        "on_success":"always",
-        "urls":[
+    "notifications": {
+      "webhooks": {
+        "on_failure": "never",
+        "on_success": "always",
+        "urls": [
           "https://chirp-tracker-production.herokuapp.com/travis"
         ]
       }
     },
-    "os":"linux",
-    "rvm":"default",
-    "script":[
+    "os": "linux",
+    "rvm": "default",
+    "script": [
       "bundle exec rake"
     ],
-    "sudo":false
+    "sudo": false
   },
-  "env_vars":[
+  "env_vars": [
     {
-      "name":"hello",
-      "public":false,
-      "value":"yessy"
+      "name": "hello",
+      "public": false,
+      "value": "yessy"
     }
   ],
-  "fix_etc_hosts":true,
-  "fix_resolv_conf":true,
-  "job":{
-    "allow_failure":false,
-    "branch":"master",
-    "commit":"a15c1259aeaf8e1955f01ed53abfa7cc5ef5e640",
-    "commit_message":"Bump dyno=scheduler.4396",
-    "commit_range":"f8e89280ead2...a15c1259aeaf",
-    "debug_options":{
-
-    },
-    "id":539369,
-    "number":"18939.5",
-    "pull_request":false,
-    "queued_at":"2017-02-03T03:32:30Z",
-    "ref":null,
-    "secure_env_enabled":true,
-    "state":"queued",
-    "tag":null
+  "fix_etc_hosts": true,
+  "fix_resolv_conf": true,
+  "job": {
+    "allow_failure": false,
+    "branch": "master",
+    "commit": "a15c1259aeaf8e1955f01ed53abfa7cc5ef5e640",
+    "commit_message": "Bump dyno=scheduler.4396",
+    "commit_range": "f8e89280ead2...a15c1259aeaf",
+    "debug_options": {},
+    "id": 539369,
+    "number": "18939.5",
+    "pull_request": false,
+    "queued_at": "2017-02-03T03:32:30Z",
+    "ref": null,
+    "secure_env_enabled": true,
+    "state": "queued",
+    "tag": null
   },
-  "paranoid":false,
-  "queue":"builds.macstadium6",
-  "repository":{
-    "api_url":"https://api.github.com/repos/travis-repos/chirp-org-staging",
-    "default_branch":"master",
-    "description":"chirp for staging.travis-ci.org",
-    "github_id":30708062,
-    "id":17192,
-    "last_build_duration":15,
-    "last_build_finished_at":"2017-02-03T03:28:27Z",
-    "last_build_id":539357,
-    "last_build_number":"18938",
-    "last_build_started_at":"2017-02-03T03:23:02Z",
-    "last_build_state":"canceled",
-    "slug":"travis-repos/chirp-org-staging",
-    "source_url":"https://github.com/travis-repos/chirp-org-staging.git"
+  "paranoid": false,
+  "queue": "builds.macstadium6",
+  "repository": {
+    "api_url": "https://api.github.com/repos/travis-repos/chirp-org-staging",
+    "default_branch": "master",
+    "description": "chirp for staging.travis-ci.org",
+    "github_id": 30708062,
+    "id": 17192,
+    "last_build_duration": 15,
+    "last_build_finished_at": "2017-02-03T03:28:27Z",
+    "last_build_id": 539357,
+    "last_build_number": "18938",
+    "last_build_started_at": "2017-02-03T03:23:02Z",
+    "last_build_state": "canceled",
+    "slug": "travis-repos/chirp-org-staging",
+    "source_url": "https://github.com/travis-repos/chirp-org-staging.git"
   },
-  "source":{
-    "event_type":"push",
-    "id":539364,
-    "number":"18939"
+  "source": {
+    "event_type": "push",
+    "id": 539364,
+    "number": "18939"
   },
-  "ssh_key":null,
-  "timeouts":{
-    "hard_limit":null,
-    "log_silence":null
+  "ssh_key": null,
+  "timeouts": {
+    "hard_limit": null,
+    "log_silence": null
   },
-  "type":"test",
-  "vm_type":"default"
+  "type": "test",
+  "vm_type": "default"
 }

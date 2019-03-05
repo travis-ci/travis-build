@@ -35,12 +35,13 @@ module Travis
           sh.cmd 'python --version'
           sh.cmd 'pip --version'
           sh.export 'PIP_DISABLE_PIP_VERSION_CHECK', '1', echo: false
+          sh.export 'PIP_PROGRESS_BAR', 'off', echo: false
         end
 
         def setup_cache
           if data.cache?(:pip)
             sh.fold 'cache.pip' do
-              sh.echo ''
+              sh.newline
               directory_cache.add '${TRAVIS_HOME}/.cache/pip'
             end
           end
@@ -61,7 +62,7 @@ module Travis
         def script
           # This always fails the build, asking the user to provide a custom :script.
           # The Python ecosystem has no good default build command most of the
-          # community aggrees on. Per discussion with jezjez, josh-k and others. MK
+          # community agrees on. Per discussion with jezjez, josh-k and others. MK
           sh.failure SCRIPT_MISSING
         end
 
@@ -109,11 +110,11 @@ module Travis
             sh.echo "Downloading archive: ${archive_url}", ansi: :yellow
             archive_basename = [lang, vers].compact.join("-")
             archive_filename = "#{archive_basename}.tar.bz2"
-            sh.cmd "curl -sSf -o #{archive_filename} ${archive_url}", echo: true, assert: false
+            sh.cmd "curl -sSf -o #{archive_filename} ${archive_url}", echo: true, assert: false, timing: true
             sh.if "$? != 0" do
               sh.failure "Unable to download #{version} archive. The archive may not exist. Please consider a different version."
             end
-            sh.cmd "sudo tar xjf #{archive_filename} --directory /", echo: true, assert: true
+            sh.cmd "sudo tar xjf #{archive_filename} --directory /", echo: true, assert: true, timing: true
             sh.cmd "rm #{archive_filename}", echo: false
           end
 
@@ -124,4 +125,3 @@ module Travis
     end
   end
 end
-
