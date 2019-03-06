@@ -54,8 +54,6 @@ module Travis
           Script::ObjectiveC
         when 'bash', 'sh', 'shell', 'minimal' then
           Script::Generic
-        when 'php', 'hack' then
-          Script::Php
         else
           name = lang.split('_').map { |w| w.capitalize }.join
           Script.const_get(name, false) rescue Script::Ruby
