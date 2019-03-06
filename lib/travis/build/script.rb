@@ -431,7 +431,7 @@ module Travis
         end
 
         def check_deprecation
-          return unless self.class.const_defined?("DEPRECATIONS")
+          return unless self.class.const_defined?("DEPRECATIONS", false)
           self.class.const_get("DEPRECATIONS").each do |cfg|
             if data.language_default_p && DateTime.now < Date.parse(cfg[:cutoff_date])
               sh.echo "Using the default #{cfg[:name] || self.class.name} version #{cfg[:current_default]}. " \
