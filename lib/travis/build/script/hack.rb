@@ -34,6 +34,7 @@ module Travis
             sh.echo "hhvm version given #{config[:hhvm]}"
             sh.failure "hhvm version must be one of: hhvm, hhvm-dbg, hhvm-nightly, hhvm-nightly-dbg, hhmv-dev-nightly."
           end
+          true
         end
       end
     end
