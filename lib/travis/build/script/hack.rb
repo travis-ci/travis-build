@@ -9,6 +9,26 @@ module Travis
           super
         end
 
+        def export
+          super
+        end
+
+        def setup
+
+        end
+
+        def announce
+
+        end
+
+        def install
+
+        end
+
+        def script
+
+        end
+
         def hhvm?
           unless config[:hhvm] =~ /^hhvm(?:-(dbg|dev|nightly|nightly-dbg|dev-nightly))?/
             sh.echo "hhvm version given #{config[:hhvm]}"
