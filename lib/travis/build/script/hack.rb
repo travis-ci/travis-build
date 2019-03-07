@@ -50,6 +50,10 @@ module Travis
           Array(config[:hhvm]).first.to_s
         end
 
+        def cache_slug
+          (super << "--hack-" << version).gsub(/--php-[^-]+/,'')
+        end
+
       end
     end
   end
