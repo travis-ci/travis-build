@@ -3,7 +3,8 @@ module Travis
     class Script
       class Hack < Php
         DEFAULTS = {
-          hhvm: 'hhvm' # lts
+          hhvm: 'hhvm', # lts
+          php: '7.2',
         }
 
         VALID_HHVM = %w(
@@ -23,7 +24,9 @@ module Travis
         end
 
         def setup
-
+          setup_php php_version
+          sh.cmd "phpenv rehash", assert: false, echo: false, timing: false
+          sh.cmd "composer self-update", assert: false
         end
 
         def announce
@@ -48,6 +51,10 @@ module Travis
 
         def version
           Array(config[:hhvm]).first.to_s
+        end
+
+        def php_version
+          Array(config[:php]).first.to_s
         end
 
         def cache_slug

@@ -46,20 +46,7 @@ module Travis
             end
             sh.mkdir "${TRAVIS_HOME}/.phpenv/versions/hhvm/etc/conf.d", recursive: true
           else
-            sh.cmd "phpenv global #{version} 2>/dev/null", assert: false
-            sh.if "$? -ne 0" do
-              install_php_on_demand(version)
-            end
-            unless php_5_3_or_older?
-              sh.else do
-                sh.fold "pearrc" do
-                  sh.echo "Writing ${TRAVIS_HOME}/.pearrc", ansi: :yellow
-                  overwrite_pearrc(version)
-                  sh.cmd "pear config-show", echo: true
-                end
-              end
-            end
-            sh.cmd "phpenv global #{version}", assert: true
+            setup_php version
           end
           sh.cmd "phpenv rehash", assert: false, echo: false, timing: false
           composer_self_update
@@ -242,6 +229,23 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
           ).gsub("__VERSION__", version)
 
           sh.cmd "echo '<?php error_reporting(0); echo serialize(#{pear_config}) ?>' | php > ${TRAVIS_HOME}/.pearrc", echo: false
+        end
+
+        def setup_php version
+          sh.cmd "phpenv global #{version} 2>/dev/null", assert: false
+          sh.if "$? -ne 0" do
+            install_php_on_demand(version)
+          end
+          unless php_5_3_or_older?
+            sh.else do
+              sh.fold "pearrc" do
+                sh.echo "Writing ${TRAVIS_HOME}/.pearrc", ansi: :yellow
+                overwrite_pearrc(version)
+                sh.cmd "pear config-show", echo: true
+              end
+            end
+          end
+          sh.cmd "phpenv global #{version}", assert: true
         end
       end
     end
