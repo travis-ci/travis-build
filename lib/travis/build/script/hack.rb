@@ -31,6 +31,7 @@ module Travis
 
         def announce
           sh.cmd 'hhvm --version'
+          super
         end
 
         def install
