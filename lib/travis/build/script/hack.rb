@@ -55,7 +55,7 @@ module Travis
         end
 
         def php_version
-          Array(config[:php]).first.to_s
+          Array(config[:php] || DEFAULTS[:php]).first.to_s
         end
 
         def cache_slug
