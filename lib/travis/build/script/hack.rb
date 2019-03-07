@@ -59,7 +59,7 @@ module Travis
         end
 
         def cache_slug
-          (super << "--hack-" << version).gsub(/--php-[^-]+/,'')
+          super << "--hack-" << version
         end
 
       end
