@@ -5,6 +5,15 @@ module Travis
         DEFAULTS = {
           hhvm: 'hhvm' # lts
         }
+
+        VALID_HHVM = %w(
+          hhvm
+          hhvm-dbb
+          hhvm-nightly
+          hhvm-nightly-dbg
+          hhvm-dev-nightly
+        )
+
         def configure
           super
         end
@@ -30,12 +39,17 @@ module Travis
         end
 
         def hhvm?
-          unless config[:hhvm] =~ /^hhvm(?:-(dbg|dev|nightly|nightly-dbg|dev-nightly))?/
-            sh.echo "hhvm version given #{config[:hhvm]}"
-            sh.failure "hhvm version must be one of: hhvm, hhvm-dbg, hhvm-nightly, hhvm-nightly-dbg, hhmv-dev-nightly."
+          unless VALID_HHVM.include? version
+            sh.echo "hhvm version given #{version}"
+            sh.failure "hhvm version must be one of: #{VALID_HHVM.join(", ")}."
           end
           true
         end
+
+        def version
+          Array(config[:hhvm]).first.to_s
+        end
+
       end
     end
   end
