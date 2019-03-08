@@ -12,8 +12,9 @@ module Travis
           hhvm-dbg
           hhvm-nightly
           hhvm-nightly-dbg
-          hhvm-dev-nightly
         )
+
+        VERSION_REGEXP = /\d+\.\d+(-lts)?/
 
         def configure
           super
@@ -45,9 +46,10 @@ module Travis
         end
 
         def hhvm?
-          unless VALID_HHVM.include? version
+          unless VALID_HHVM.include?(version) || version =~ VERSION_REGEXP
             sh.echo "hhvm version given #{version}"
-            sh.failure "hhvm version must be one of: #{VALID_HHVM.join(", ")}."
+            sh.failure "hhvm version must be one of: #{VALID_HHVM.join(", ")}, or " \
+              "match regular expression #{VERSION_REGEXP} (e.g., 3.27 or 3.30-lts)."
           end
           true
         end
