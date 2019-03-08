@@ -92,13 +92,26 @@ MESSAGE
           sh.export 'PUB_ENVIRONMENT', 'travis'
 
           sh.fold 'dart_install' do
-            sh.echo 'Installing Dart', ansi: :yellow
+            # Install SDK and set environment variables.
+            sh.echo "Installing Dart on #{os}", ansi: :yellow
             sh.cmd "curl --connect-timeout 15 --retry 5 #{archive_url}/sdk/dartsdk-#{os}-x64-release.zip > ${TRAVIS_HOME}/dartsdk.zip"
             sh.cmd "unzip ${TRAVIS_HOME}/dartsdk.zip -d ${TRAVIS_HOME} > /dev/null"
             sh.cmd "rm ${TRAVIS_HOME}/dartsdk.zip"
             sh.cmd 'export DART_SDK="${TRAVIS_HOME}/dart-sdk"'
             sh.cmd 'export PATH="$DART_SDK/bin:$PATH"'
             sh.cmd 'export PATH="${TRAVIS_HOME}/.pub-cache/bin:$PATH"'
+
+            if os = 'windows'
+              # Define commands; on Windows git bash requires .bat extensions
+              # https://github.com/msysgit/msysgit/issues/101
+              sh.raw 'function dart2js() { dart2js.bat "$@" }'
+              sh.raw 'function dartanalyzer() { dartanalyzer.bat "$@" }'
+              sh.raw 'function dartdevc() { dartdevc.bat "$@" }'
+              sh.raw 'function dartdevk() { dartdevk.bat "$@" }'
+              sh.raw 'function dartdoc() { dartdoc.bat "$@" }'
+              sh.raw 'function dartfmt() { dartfmt.bat "$@" }'
+              sh.raw 'function pub() { pub.bat "$@" }'
+            end
           end
 
           if task[:install_dartium]
@@ -214,9 +227,9 @@ MESSAGE
             end
 
             args = args.is_a?(String) ? " #{args}" : ""
-            # Mac OS doesn't need or support xvfb-run.
+            # Mac OS & Windows doesn't need or support xvfb-run.
             xvfb_run = 'xvfb-run -s "-screen 0 1024x768x24" '
-            xvfb_run = '' if task[:xvfb] == false || os == "macos"
+            xvfb_run = '' if task[:xvfb] == false || os == "macos" || os == "windows"
             sh.cmd "#{xvfb_run}pub run test#{args}"
           end
 
@@ -265,7 +278,7 @@ MESSAGE
           end
 
           def os
-            config[:os] == 'osx' ? 'macos' : 'linux'
+            config[:os] == 'osx' ? 'macos' : config[:os]
           end
 
           def archive_url
