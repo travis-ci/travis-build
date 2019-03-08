@@ -2,10 +2,9 @@
 
 # Community maintainers:
 #
-#   Tony Kelman       <tony kelman net, @tkelman>
-#   Pontus Stenetorp  <pontus stenetorp se, @ninjin>
-#   Elliot Saba       <staticfloat gmail com, @staticfloat>
-#   Simon Byrne       <simonbyrne gmail.com, @simonbyrne>
+#   Alex Arslan       (@ararslan)
+#   Elliot Saba       (@staticfloat)
+#   Stefan Karpinski  (@StefanKarpinski)
 #
 module Travis
   module Build
@@ -34,8 +33,8 @@ module Travis
             ansi: :green
           sh.echo '  https://github.com/travis-ci/travis-ci/issues' \
             '/new?labels=julia', ansi: :green
-          sh.echo 'and mention \`@tkelman\`, \`@ninjin\`, \`@staticfloat\`' \
-            ' and \`@simonbyrne\` in the issue', ansi: :green
+          sh.echo 'and mention \`@ararslan\`, \`@staticfloat\`' \
+            ' and \`@StefanKarpinski\` in the issue', ansi: :green
 
           sh.fold 'Julia-install' do
             sh.echo 'Installing Julia', ansi: :yellow
@@ -80,7 +79,7 @@ module Travis
               sh.cmd 'git fetch --unshallow'
             end
             # build
-            sh.cmd 'julia --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; Pkg.clone(pwd()); Pkg.build(\"${JL_PKG}\"); else using Pkg; Pkg.build(); end"', assert: true
+            sh.cmd 'julia --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; Pkg.clone(pwd()); Pkg.build(\"${JL_PKG}\"); else using Pkg; if VERSION >= v\"1.1.0-rc1\"; Pkg.build(verbose=true); else Pkg.build(); end; end"', assert: true
             # run tests
             sh.cmd 'julia --check-bounds=yes --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; Pkg.test(\"${JL_PKG}\", coverage=true); else using Pkg; Pkg.test(coverage=true); end"', assert: true
             # coverage
@@ -90,14 +89,14 @@ module Travis
             if config[:coveralls]
               sh.cmd 'julia --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; cd(Pkg.dir(\"${JL_PKG}\")); else using Pkg; end; Pkg.add(\"Coverage\"); using Coverage; Coveralls.submit(process_folder())"'
             end
-            
+
           end
           sh.else do
             sh.if '-a .git/shallow' do
               sh.cmd 'git fetch --unshallow'
             end
             # build
-            sh.cmd 'julia --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; Pkg.clone(pwd()); Pkg.build(\"${JL_PKG}\")"', assert: true
+            sh.cmd 'julia --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; Pkg.clone(pwd()); if VERSION >= v\"1.1.0-rc1\"; Pkg.build(\"${JL_PKG}\"; verbose=true); else Pkg.build(\"${JL_PKG}\"); end"', assert: true
             # run tests
             sh.cmd 'julia --check-bounds=yes --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; Pkg.test(\"${JL_PKG}\", coverage=true)"', assert: true
             # coverage

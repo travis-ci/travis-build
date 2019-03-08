@@ -33,26 +33,26 @@ describe Travis::Build::Script::Python, :sexp do
   it 'sets up the python version (pypy)' do
     data[:config][:python] = 'pypy'
     should include_sexp [:cmd,  'source ~/virtualenv/pypy/bin/activate', assert: true, echo: true, timing: true]
-    should include_sexp [:cmd,  "curl -sSf -o pypy.tar.bz2 ${archive_url}", echo: true]
+    should include_sexp [:cmd,  "curl -sSf -o pypy.tar.bz2 ${archive_url}", echo: true, timing: true]
   end
 
   it 'sets up the python version (pypy-5.3.1)' do
     data[:config][:python] = 'pypy-5.3.1'
     should include_sexp [:cmd,  'source ~/virtualenv/pypy-5.3.1/bin/activate', assert: true, echo: true, timing: true]
-    should include_sexp [:cmd,  "curl -sSf -o pypy-5.3.1.tar.bz2 ${archive_url}", echo: true]
+    should include_sexp [:cmd,  "curl -sSf -o pypy-5.3.1.tar.bz2 ${archive_url}", echo: true, timing: true]
     should include_sexp [:cmd,  "rm pypy-5.3.1.tar.bz2"]
   end
 
   it 'sets up the python version (pypy3.3-5.2-alpha1)' do
     data[:config][:python] = 'pypy3.3-5.2-alpha1'
     should include_sexp [:cmd,  'source ~/virtualenv/pypy3.3-5.2-alpha1/bin/activate', assert: true, echo: true, timing: true]
-    should include_sexp [:cmd,  "curl -sSf -o pypy3.3-5.2-alpha1.tar.bz2 ${archive_url}", echo: true]
+    should include_sexp [:cmd,  "curl -sSf -o pypy3.3-5.2-alpha1.tar.bz2 ${archive_url}", echo: true, timing: true]
     should include_sexp [:cmd,  "rm pypy3.3-5.2-alpha1.tar.bz2"]
   end
 
   it 'sets up the python version (pypy3)' do
     data[:config][:python] = 'pypy3'
-    should include_sexp [:cmd,  "curl -sSf -o pypy3.tar.bz2 ${archive_url}", echo: true]
+    should include_sexp [:cmd,  "curl -sSf -o pypy3.tar.bz2 ${archive_url}", echo: true, timing: true]
     should include_sexp [:cmd,  'source ~/virtualenv/pypy3/bin/activate', assert: true, echo: true, timing: true]
   end
 
@@ -69,7 +69,7 @@ describe Travis::Build::Script::Python, :sexp do
 
   it 'sets up the python version nightly' do
     data[:config][:python] = 'nightly'
-    should include_sexp [:cmd,  'sudo tar xjf python-nightly.tar.bz2 --directory /', echo: true, assert: true]
+    should include_sexp [:cmd,  'sudo tar xjf python-nightly.tar.bz2 --directory /', echo: true, assert: true, timing: true]
     should include_sexp [:cmd,  'source ~/virtualenv/pythonnightly/bin/activate', assert: true, echo: true, timing: true]
   end
 
@@ -80,6 +80,17 @@ describe Travis::Build::Script::Python, :sexp do
     it "downloads archive" do
       branch = sexp_find(sexp, [:then])
       expect(branch).to include_sexp [:raw, "archive_url=https://s3.amazonaws.com/travis-python-archives/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/python-#{version}.tar.bz2"]
+    end
+
+    context 'and using a custom archive url' do
+      before { ENV["TRAVIS_BUILD_LANG_ARCHIVES_PYTHON"] = "cdn.of.lots.of.python.stuff" }
+      after  { ENV.delete("TRAVIS_BUILD_LANG_ARCHIVES_PYTHON") }
+
+      it "downloads archive" do
+        ENV['']
+        branch = sexp_find(sexp, [:then])
+        expect(branch).to include_sexp [:raw, "archive_url=https://cdn.of.lots.of.python.stuff/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/python-#{version}.tar.bz2"]
+      end
     end
   end
 

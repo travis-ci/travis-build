@@ -76,10 +76,10 @@ module Travis
         gimme: {
           url: ENV.fetch(
             'TRAVIS_BUILD_GIMME_URL',
-            'https://raw.githubusercontent.com/travis-ci/gimme/v1.3.0/gimme'
+            'https://raw.githubusercontent.com/travis-ci/gimme/v1.5.3/gimme'
           )
         },
-        go_version: ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.10.x'),
+        go_version: ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.11.x'),
         internal_ruby_regex: ENV.fetch(
           'TRAVIS_BUILD_INTERNAL_RUBY_REGEX',
           '^ruby-(2\.[0-4]\.[0-9]|1\.9\.3)'
@@ -112,6 +112,9 @@ module Travis
           'TRAVIS_BUILD_SENTRY_DSN', ENV.fetch('SENTRY_DSN', '')
         ),
         tainted_node_logging_enabled: false,
+        trace_command: ENV.fetch('TRACE_COMMAND', 'GIT_TRACE=true'),
+        trace_git_commands_owners: ENV.fetch('TRACE_GIT_COMMANDS_OWNERS', ''),
+        trace_git_commands_slugs: ENV.fetch('TRACE_GIT_COMMANDS_SLUGS', ''),
         update_glibc: ENV.fetch(
           'TRAVIS_BUILD_UPDATE_GLIBC',
           ENV.fetch('TRAVIS_UPDATE_GLIBC', ENV.fetch('UPDATE_GLIBC', 'false'))

@@ -65,11 +65,6 @@ module Travis
               sh.echo 'Installing R', ansi: :yellow
               case config[:os]
               when 'linux'
-                # Set up our CRAN mirror.
-                sh.cmd 'sudo add-apt-repository '\
-                  "\"deb #{repos[:CRAN]}/bin/linux/ubuntu "\
-                  "$(lsb_release -cs)/\""
-
                 # This key is added implicitly by the marutter PPA below
                 #sh.cmd 'apt-key adv --keyserver ha.pool.sks-keyservers.net '\
                   #'--recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9', sudo: true
@@ -167,7 +162,8 @@ module Travis
               if config[:latex]
                 setup_latex
               else
-                config[:r_check_args] << " --no-manual"
+                config[:r_check_args] = config[:r_check_args] + " --no-manual"
+                config[:r_build_args] = config[:r_build_args] + " --no-manual"
               end
 
               setup_bioc if needs_bioc?
@@ -463,7 +459,7 @@ module Travis
           when 'linux'
             texlive_filename = 'texlive.tar.gz'
             texlive_url = 'https://github.com/jimhester/ubuntu-bin/releases/download/latest/texlive.tar.gz'
-            sh.cmd "curl -fLo /tmp/#{texlive_filename} #{texlive_url}"
+            sh.cmd "curl -fLo /tmp/#{texlive_filename} #{texlive_url}", retry: true
             sh.cmd "tar xzf /tmp/#{texlive_filename} -C ~"
             sh.export 'PATH', "${TRAVIS_HOME}/texlive/bin/x86_64-linux:$PATH"
             sh.cmd 'tlmgr update --self', assert: false
@@ -548,6 +544,7 @@ module Travis
           sh.cmd "curl -fsSOL https://raw.githubusercontent.com/Homebrew/install/master/uninstall"
           sh.cmd "sudo ruby uninstall --force"
           sh.cmd "rm uninstall"
+          sh.cmd "hash -r"
         end
 
         # Abstract out version check
@@ -566,7 +563,7 @@ module Travis
 
         def normalized_r_version(v=Array(config[:r]).first.to_s)
           case v
-          when 'release' then '3.5.1'
+          when 'release' then '3.5.2'
           when 'oldrel' then '3.4.4'
           when '3.0' then '3.0.3'
           when '3.1' then '3.1.3'
