@@ -21,6 +21,8 @@ module Travis
 
         def export
           super
+          sh.export 'TRAVIS_PHP_VERSION', php_version, echo: false # redefine TRAVIS_PHP_VERSION
+          sh.export 'TRAVIS_HACK_VERSION', version, echo: false
         end
 
         def setup
