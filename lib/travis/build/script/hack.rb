@@ -3,13 +3,13 @@ module Travis
     class Script
       class Hack < Php
         DEFAULTS = {
-          hhvm: 'hhvm', # lts
+          hhvm: 'hhvm',
           php: '7.2',
         }
 
         VALID_HHVM = %w(
           hhvm
-          hhvm-dbb
+          hhvm-dbg
           hhvm-nightly
           hhvm-nightly-dbg
           hhvm-dev-nightly
