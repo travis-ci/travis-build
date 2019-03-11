@@ -9,9 +9,9 @@ module Travis
         }
 
         CONFIG = %w(
-          rvm_remote_server_url3=https://s3.amazonaws.com/travis-rubies/binaries
-          rvm_remote_server_type3=rubies
-          rvm_remote_server_verify_downloads3=1
+          rvm_remote_server_url2=https://storage.googleapis.com/travis-ci-language-archives/ruby/binaries
+          rvm_remote_server_type2=rubies
+          rvm_remote_server_verify_downloads2=1
         )
 
         RVM_VERSION_ALIASES = {
@@ -207,6 +207,10 @@ module Travis
                 end
               end
             end
+          end
+
+          def eradicate_travis_rubies
+            sh.cmd "sed -i -e 'rubies\.travis-ci\.org' $rvm_path/config/db", echo: false
           end
       end
     end

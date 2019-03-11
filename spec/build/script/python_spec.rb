@@ -79,7 +79,7 @@ describe Travis::Build::Script::Python, :sexp do
 
     it "downloads archive" do
       branch = sexp_find(sexp, [:then])
-      expect(branch).to include_sexp [:raw, "archive_url=https://s3.amazonaws.com/travis-python-archives/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/python-#{version}.tar.bz2"]
+      expect(branch).to include_sexp [:raw, "archive_url=https://storage.googleapis.com/travis-ci-language-archives/python/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/python-#{version}.tar.bz2"]
     end
 
     context 'and using a custom archive url' do

@@ -26,7 +26,7 @@ describe Travis::Build::Script::Erlang, :sexp do
 
     it 'downloads OTP archive on demand when the desired release is not pre-installed' do
       branch = sexp_find(subject, [:if, '! -f ${TRAVIS_HOME}/otp/R14B04/activate'])
-      expect(branch).to include_sexp [:raw, 'archive_url=https://s3.amazonaws.com/travis-otp-releases/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/erlang-R14B04-nonroot.tar.bz2', assert: true]
+      expect(branch).to include_sexp [:raw, 'archive_url=https://storage.googleapis.com/travis-ci-language-archives/erlang/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/erlang-R14B04-nonroot.tar.bz2', assert: true]
       expect(branch).to include_sexp [:cmd, 'wget -o ${TRAVIS_HOME}/erlang.tar.bz2 ${archive_url}', assert: true, echo: true, timing: true]
     end
   end
@@ -74,4 +74,3 @@ describe Travis::Build::Script::Erlang, :sexp do
     it { is_expected.to eq("cache-#{CACHE_SLUG_EXTRAS}--otp-R14B04") }
   end
 end
-

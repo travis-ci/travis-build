@@ -61,7 +61,7 @@ describe Travis::Build::Script::Elixir, :sexp do
           describe "wanted OTP release #{otp_release_wanted}" do
             it "is installed" do
               sexp = sexp_find(subject, [:if, "! -f ${TRAVIS_HOME}/otp/#{otp_release_wanted}/activate"], [:then])
-              expect(sexp).to include_sexp([:raw, "archive_url=https://s3.amazonaws.com/travis-otp-releases/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/erlang-#{otp_release_wanted}-nonroot.tar.bz2", assert: true])
+              expect(sexp).to include_sexp([:raw, "archive_url=https://storage.googleapis.com/travis-ci-language-archives/erlang/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/erlang-#{otp_release_wanted}-nonroot.tar.bz2", assert: true])
               expect(sexp).to include_sexp([:cmd, "wget -o ${TRAVIS_HOME}/erlang.tar.bz2 ${archive_url}", assert: true, echo: true, timing: true])
             end
           end
@@ -69,7 +69,7 @@ describe Travis::Build::Script::Elixir, :sexp do
           describe "required OTP release #{otp_release_required}" do
             it "is installed" do
               sexp = sexp_find(subject, [:if, "! -f ${TRAVIS_HOME}/otp/#{otp_release_required}/activate"], [:then])
-              expect(sexp).to include_sexp([:raw, "archive_url=https://s3.amazonaws.com/travis-otp-releases/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/erlang-#{otp_release_required}-nonroot.tar.bz2", assert: true])
+              expect(sexp).to include_sexp([:raw, "archive_url=https://storage.googleapis.com/travis-ci-language-archives/erlang/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/erlang-#{otp_release_required}-nonroot.tar.bz2", assert: true])
               expect(sexp).to include_sexp([:cmd, "wget -o ${TRAVIS_HOME}/erlang.tar.bz2 ${archive_url}", assert: true, echo: true, timing: true])
             end
           end
@@ -92,4 +92,3 @@ describe Travis::Build::Script::Elixir, :sexp do
   installs_required_otp_release('1.0.5', '18.0', '17.4')
   installs_required_otp_release('1.0.5', 'R16B03-1', '17.4')
 end
-

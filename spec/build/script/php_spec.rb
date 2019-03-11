@@ -149,7 +149,7 @@ describe Travis::Build::Script::Php, :sexp do
     let(:sexp) { sexp_find(sexp_filter(subject, [:if, "$? -ne 0"])[1], [:then]) }
 
     it 'installs PHP version on demand' do
-      expect(sexp).to include_sexp [:raw, "archive_url=https://s3.amazonaws.com/travis-php-archives/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/php-#{version}.tar.bz2", assert: true]
+      expect(sexp).to include_sexp [:raw, "archive_url=https://storage.googleapis.com/travis-ci-language-archives/php/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/php-#{version}.tar.bz2", assert: true]
       expect(sexp).to include_sexp [:cmd, "curl -s -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /", echo: true, timing: true]
     end
   end
