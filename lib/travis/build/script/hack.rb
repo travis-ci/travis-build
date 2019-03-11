@@ -17,6 +17,12 @@ module Travis
         VERSION_REGEXP = /\d+\.\d+(-lts)?/
 
         def configure
+          unless VALID_HHVM.include?(version) || version =~ VERSION_REGEXP
+            sh.echo "hhvm version given #{version}"
+            sh.failure "hhvm version must be one of: #{VALID_HHVM.join(", ")}, or " \
+              "match regular expression #{VERSION_REGEXP} (e.g., 3.27 or 3.30-lts)."
+          end
+
           super
         end
 
@@ -46,12 +52,11 @@ module Travis
         end
 
         def hhvm?
-          unless VALID_HHVM.include?(version) || version =~ VERSION_REGEXP
-            sh.echo "hhvm version given #{version}"
-            sh.failure "hhvm version must be one of: #{VALID_HHVM.join(", ")}, or " \
-              "match regular expression #{VERSION_REGEXP} (e.g., 3.27 or 3.30-lts)."
-          end
           true
+        end
+
+        def php_5_3_or_older?
+          false
         end
 
         def version
