@@ -9,7 +9,7 @@ module Travis
         }
 
         CONFIG = %w(
-          rvm_remote_server_url2=https://storage.googleapis.com/travis-ci-language-archives/ruby/binaries
+          rvm_remote_server_url2=https://__RUBIES_HOST__/binaries
           rvm_remote_server_type2=rubies
           rvm_remote_server_verify_downloads2=1
         )
@@ -82,10 +82,25 @@ module Travis
               setup_rvm_aliases
             end
             sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false, timing: false)
-            sh.file '$rvm_path/user/db', CONFIG.join("\n")
+            setup_remote_archive_host rubies_host
             send rvm_strategy
 
             install_bundler
+          end
+
+          def setup_remote_archive_host(host)
+            sh.file '$rvm_path/user/db', CONFIG.join("\n").gsub('__RUBIES_HOST__', rubies_host)
+          end
+
+          def rubies_host
+            case Travis::Build.config.lang_archive_host
+            when 'gcs'
+              'language-archives.travis-ci.com/ruby'
+            when 's3'
+              's3.amazonaws.com/travis-rubies'
+            else
+              's3.amazonaws.com/travis-rubies' # explict default
+            end
           end
 
           def rvm_strategy
