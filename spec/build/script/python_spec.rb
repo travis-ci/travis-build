@@ -79,7 +79,7 @@ describe Travis::Build::Script::Python, :sexp do
 
     it "downloads archive" do
       branch = sexp_find(sexp, [:then])
-      expect(branch).to include_sexp [:raw, "archive_url=https://storage.googleapis.com/travis-ci-language-archives/python/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/python-#{version}.tar.bz2"]
+      expect(branch).to include_sexp [:raw, "archive_url=https://s3.amazonaws.com/travis-python-archives/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/python-#{version}.tar.bz2"]
     end
 
     context 'and using a custom archive url' do
@@ -90,6 +90,21 @@ describe Travis::Build::Script::Python, :sexp do
         ENV['']
         branch = sexp_find(sexp, [:then])
         expect(branch).to include_sexp [:raw, "archive_url=https://cdn.of.lots.of.python.stuff/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/python-#{version}.tar.bz2"]
+      end
+    end
+
+    context 'and using gcs as language archive host' do
+      before :each do
+        @old_lang_archive_host = Travis::Build.config.lang_archive_host
+        Travis::Build.config.lang_archive_host = 'gcs'
+      end
+
+      after { Travis::Build.config.lang_archive_host = @old_lang_archive_host }
+
+      it "downloads archive" do
+        ENV['']
+        branch = sexp_find(sexp, [:then])
+        expect(branch).to include_sexp [:raw, "archive_url=https://language-archives.travis-ci.com/python/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/python-#{version}.tar.bz2"]
       end
     end
   end

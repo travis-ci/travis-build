@@ -188,8 +188,18 @@ module Travis
 
       def lang_archive_prefix(lang, bucket)
         custom_archive = ENV["TRAVIS_BUILD_LANG_ARCHIVES_#{lang}".upcase]
+        unless custom_archive.to_s.empty?
+          return custom_archive.output_safe
+        end
 
-        custom_archive.to_s.empty? ? "storage.googleapis.com/travis-ci-language-archives/#{lang}" : custom_archive.output_safe
+        case Travis::Build.config.lang_archive_host
+        when 'gcs'
+          "language-archives.travis-ci.com/#{lang}"
+        when 's3'
+          "s3.amazonaws.com/#{bucket}"
+        else
+          "s3.amazonaws.com/#{bucket}" # explicitly state default
+        end
       end
 
       def debug_build_via_api?
