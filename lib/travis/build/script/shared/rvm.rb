@@ -208,10 +208,6 @@ module Travis
               end
             end
           end
-
-          def eradicate_travis_rubies
-            sh.cmd "sed -i -e 'rubies\.travis-ci\.org' $rvm_path/config/db", echo: false
-          end
       end
     end
   end
