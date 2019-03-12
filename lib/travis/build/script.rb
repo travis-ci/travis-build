@@ -197,6 +197,8 @@ module Travis
           "language-archives.travis-ci.com/#{lang}"
         when 's3'
           "s3.amazonaws.com/#{bucket}"
+        when 'cdn'
+          "travis-ci-#{bucket}.global.ssl.fastly.net"
         else
           "s3.amazonaws.com/#{bucket}" # explicitly state default
         end
