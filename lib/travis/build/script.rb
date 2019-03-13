@@ -183,6 +183,7 @@ module Travis
           sh.raw "travis_rel=$(sw_vers -productVersion)"
           sh.raw "travis_rel_version=${travis_rel%*.*}"
         end
+        lang = 'python' if lang.start_with?('py')
         "archive_url=https://#{lang_archive_prefix(lang, bucket)}/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/#{file_name}"
       end
 
