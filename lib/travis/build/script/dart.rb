@@ -101,7 +101,7 @@ MESSAGE
             sh.cmd 'export PATH="$DART_SDK/bin:$PATH"'
             sh.cmd 'export PATH="${TRAVIS_HOME}/.pub-cache/bin:$PATH"'
 
-            if os = 'windows'
+            if os == 'windows'
               # Define commands; on Windows git bash requires .bat extensions
               # https://github.com/msysgit/msysgit/issues/101
               sh.raw 'function dart2js() { dart2js.bat "$@" }'
