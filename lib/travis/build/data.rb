@@ -206,6 +206,10 @@ module Travis
         data[:prefer_https]
       end
 
+      def keep_netrc?
+        !!data[:keep_netrc]
+      end
+
       def installation?
         !!installation_id
       end
