@@ -104,12 +104,12 @@ describe Travis::Build::Script::Python, :sexp do
       it "downloads archive" do
         ENV['']
         branch = sexp_find(sexp, [:then])
-        expect(branch).to include_sexp [:raw, "archive_url=https://language-archives.travis-ci.com/python/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/python-#{version}.tar.bz2"]
+        expect(branch).to include_sexp [:raw, "archive_url=https://storage.googleapis.com/travis-ci-language-archives/python/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/python-#{version}.tar.bz2"]
       end
 
       it 'sets up pypy' do
         data[:config][:python] = 'pypy-5.3.1'
-        should include_sexp [:raw, "archive_url=https://language-archives.travis-ci.com/python/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/pypy-5.3.1.tar.bz2"]
+        should include_sexp [:raw, "archive_url=https://storage.googleapis.com/travis-ci-language-archives/python/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/pypy-5.3.1.tar.bz2"]
       end
     end
   end
