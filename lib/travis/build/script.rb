@@ -195,11 +195,11 @@ module Travis
 
         case Travis::Build.config.lang_archive_host
         when 'gcs'
-          "language-archives.travis-ci.com/#{lang}"
+          "storage.googleapis.com/travis-ci-language-archives/#{lang}"
         when 's3'
           "s3.amazonaws.com/#{bucket}"
         when 'cdn'
-          "travis-ci-#{bucket}.global.ssl.fastly.net"
+          "language-archives.travis-ci.com/#{lang}"
         else
           "s3.amazonaws.com/#{bucket}" # explicitly state default
         end
