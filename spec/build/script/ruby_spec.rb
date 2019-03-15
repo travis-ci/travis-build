@@ -186,7 +186,7 @@ describe Travis::Build::Script::Ruby, :sexp do
     it 'ensures rvm alias is defined' do
       sexp = sexp_find(subject, [:if, "-z $(rvm alias list | grep ^2\\\\.3)"], [:then])
       store_example(name: 'rvm-alias')
-      expect(sexp).to include_sexp [:cmd, "rvm alias create 2.3 ruby-2.3.7", assert: true, echo: true, timing: true]
+      expect(sexp).to include_sexp [:cmd, "rvm alias create 2.3 ruby-2.3.8", assert: true, echo: true, timing: true]
     end
   end
 

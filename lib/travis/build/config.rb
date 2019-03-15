@@ -84,6 +84,7 @@ module Travis
           'TRAVIS_BUILD_INTERNAL_RUBY_REGEX',
           '^ruby-(2\.[0-4]\.[0-9]|1\.9\.3)'
         ),
+        lang_archive_host: ENV.fetch('TRAVIS_LANGUAGE_ARCHIVE_HOST', 's3'),
         librato: {
           email: ENV.fetch(
             'TRAVIS_BUILD_LIBRATO_EMAIL', ENV.fetch('LIBRATO_EMAIL', '')
