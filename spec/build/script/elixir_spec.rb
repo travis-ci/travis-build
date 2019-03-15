@@ -92,4 +92,3 @@ describe Travis::Build::Script::Elixir, :sexp do
   installs_required_otp_release('1.0.5', '18.0', '17.4')
   installs_required_otp_release('1.0.5', 'R16B03-1', '17.4')
 end
-
