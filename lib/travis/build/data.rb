@@ -207,7 +207,7 @@ module Travis
       end
 
       def keep_netrc?
-        !!data[:keep_netrc]
+        data.key?(:keep_netrc) ? data[:keep_netrc] : true
       end
 
       def installation?
