@@ -104,13 +104,13 @@ MESSAGE
             if os == 'windows'
               # Define commands; on Windows git bash requires .bat extensions
               # https://github.com/msysgit/msysgit/issues/101
-              sh.raw 'function dart2js() { dart2js.bat "$@" }'
-              sh.raw 'function dartanalyzer() { dartanalyzer.bat "$@" }'
-              sh.raw 'function dartdevc() { dartdevc.bat "$@" }'
-              sh.raw 'function dartdevk() { dartdevk.bat "$@" }'
-              sh.raw 'function dartdoc() { dartdoc.bat "$@" }'
-              sh.raw 'function dartfmt() { dartfmt.bat "$@" }'
-              sh.raw 'function pub() { pub.bat "$@" }'
+              sh.raw 'function dart2js() { dart2js.bat "$@"; }'
+              sh.raw 'function dartanalyzer() { dartanalyzer.bat "$@"; }'
+              sh.raw 'function dartdevc() { dartdevc.bat "$@"; }'
+              sh.raw 'function dartdevk() { dartdevk.bat "$@"; }'
+              sh.raw 'function dartdoc() { dartdoc.bat "$@"; }'
+              sh.raw 'function dartfmt() { dartfmt.bat "$@"; }'
+              sh.raw 'function pub() { pub.bat "$@"; }'
             end
           end
 
