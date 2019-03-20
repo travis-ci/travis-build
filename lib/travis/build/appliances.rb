@@ -46,6 +46,7 @@ require 'travis/build/appliances/apt_get_update'
 require 'travis/build/appliances/no_world_writable_dirs'
 require 'travis/build/appliances/ensure_path_components'
 require 'travis/build/appliances/wait_for_network'
+require 'travis/build/appliances/define_docker_config'
 
 module Travis
   module Build
