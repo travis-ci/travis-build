@@ -81,6 +81,7 @@ module Travis
                 end
 
                 # Both c2d4u and c2d4u3.5 depend on this ppa for ffmpeg
+                if config[:os] == 'trusty'
                 sh.cmd 'sudo add-apt-repository -y "ppa:kirillshkrogalev/ffmpeg-next"'
 
                 # Update after adding all repositories. Retry several
