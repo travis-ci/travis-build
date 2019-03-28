@@ -32,6 +32,7 @@ module Travis
           bioc_check: false,
           bioc_use_devel: false,
           disable_homebrew: false,
+          dump_logs: false,
           r: 'release'
         }
 
@@ -269,6 +270,10 @@ module Travis
               dump_error_logs
               sh.failure "Found warnings, treating as errors (as requested)."
             end
+          end
+
+          if config[:dump_logs]
+            dump_error_logs
           end
 
         end
