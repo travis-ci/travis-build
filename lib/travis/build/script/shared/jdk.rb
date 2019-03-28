@@ -81,6 +81,8 @@ module Travis
               vendor = 'oracle'
             elsif m[:vendor].start_with? 'openjdk'
               vendor = 'openjdk'
+            elsif m[:vendor].start_with? 'adoptopenjdk'
+              vendor = 'adoptopenjdk'
             end
             [ vendor, m[:version] ]
           end
