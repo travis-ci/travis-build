@@ -23,8 +23,13 @@ travis_install_jdk() {
   travis_cmd 'export PATH="$JAVA_HOME/bin:$PATH"' --echo
   [[ "$TRAVIS_OS_NAME" == linux && "$vendor" == openjdk ]] && certlink=" --cacerts"
   if [[ "$vendor" == adoptopenjdk ]]; then
+    if [[ "$TRAVIS_OS_NAME" == osx ]]; then
+      os="mac"
+    else
+      os="$TRAVIS_OS_NAME"
+    fi
     # shellcheck disable=2088
-    travis_cmd "~/bin/install-jdk.sh --url \"https://api.adoptopenjdk.net/v2/binary/releases/openjdk$version?openjdk_impl=hotspot&os=linux&arch=x64&type=jdk"\"
+    travis_cmd "~/bin/install-jdk.sh --url \"https://api.adoptopenjdk.net/v2/binary/releases/openjdk$version?openjdk_impl=hotspot&os=$os&arch=x64&type=jdk"\"
   else
     # shellcheck disable=2088
     travis_cmd "~/bin/install-jdk.sh --target \"$JAVA_HOME\" --workspace \"$TRAVIS_HOME/.cache/install-jdk\" --feature \"$version\" --license \"$license\"$certlink" --echo --assert
