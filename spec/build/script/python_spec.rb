@@ -149,6 +149,6 @@ describe Travis::Build::Script::Python, :sexp do
 
   it 'sets up python with system site packages enabled' do
     data[:config][:virtualenv] = { 'system_site_packages' => true }
-    should include_sexp [:cmd,  'source ~/virtualenv/python2.7_with_system_site_packages/bin/activate', assert: true, echo: true, timing: true]
+    should include_sexp [:cmd,  'source ~/virtualenv/python3.6_with_system_site_packages/bin/activate', assert: true, echo: true, timing: true]
   end
 end
