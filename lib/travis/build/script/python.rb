@@ -7,6 +7,15 @@ module Travis
           virtualenv: { system_site_packages: false }
         }
 
+        DEPRECATIONS = [
+          {
+            name: 'Python',
+            current_default: DEFAULTS[:python],
+            new_default: '3.6',
+            cutoff_date: '2019-04-16',
+          }
+        ]
+
         REQUIREMENTS_MISSING = 'Could not locate requirements.txt. Override the install: key in your .travis.yml to install dependencies.'
         SCRIPT_MISSING       = 'Please override the script: key in your .travis.yml to run tests.'
 
