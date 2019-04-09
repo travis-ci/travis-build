@@ -32,12 +32,14 @@ module Travis
           bioc_check: false,
           bioc_use_devel: false,
           disable_homebrew: false,
+          use_devtools: false,
           r: 'release'
         }
 
         def initialize(data)
           # TODO: Is there a way to avoid explicitly naming arguments here?
           super
+          @remotes_installed = false
           @devtools_installed = false
           @bioc_installed = false
         end
@@ -322,10 +324,13 @@ module Travis
         def r_github_install(packages)
           return if packages.empty?
           packages = Array(packages)
-          setup_devtools
+
+          setup_remotes
+          setup_devtools if config[:use_devtools]
+
           sh.echo "Installing R packages from GitHub: #{packages.join(', ')}"
           pkg_arg = packages_as_arg(packages)
-          install_script = "devtools::install_github(#{pkg_arg}, build_vignettes = FALSE)"
+          install_script = "remotes::install_github(#{pkg_arg}, build_vignettes = FALSE)"
           sh.cmd "Rscript -e '#{install_script}'"
         end
 
@@ -366,10 +371,12 @@ module Travis
         end
 
         def install_deps
-          setup_devtools
+          setup_remotes
+          setup_devtools if config[:use_devtools]
+
           install_script =
-            'deps <- devtools::dev_package_deps(dependencies = NA);'\
-            'devtools::install_deps(dependencies = TRUE);'\
+            'deps <- remotes::dev_package_deps(dependencies = NA);'\
+            'remotes::install_deps(dependencies = TRUE);'\
             'if (!all(deps$package %in% installed.packages())) {'\
             ' message("missing: ", paste(setdiff(deps$package, installed.packages()), collapse=", "));'\
             ' q(status = 1, save = "no")'\
@@ -435,6 +442,23 @@ module Travis
             end
           end
           @bioc_installed = true
+        end
+
+        def setup_remotes
+          unless @remotes_installed
+            case config[:os]
+            when 'linux'
+              # We can't use remotes binaries because R versions < 3.5 are not
+              # compatible with R versions >= 3.5
+                r_install ['remotes']
+            else
+              remotes_check = '!requireNamespace("remotes", quietly = TRUE)'
+              remotes_install = 'install.packages("remotes")'
+              sh.cmd "Rscript -e 'if (#{remotes_check}) #{remotes_install}'",
+                     retry: true
+            end
+          end
+          @remotes_installed = true
         end
 
         def setup_devtools
