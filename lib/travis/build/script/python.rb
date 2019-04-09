@@ -10,7 +10,7 @@ module Travis
         DEPRECATIONS = [
           {
             name: 'Python',
-            current_default: DEFAULTS[:phython],
+            current_default: DEFAULTS[:python],
             new_default: '3.6',
             cutoff_date: '2019-04-16',
           }
