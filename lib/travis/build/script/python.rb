@@ -58,10 +58,10 @@ module Travis
 
         def install
           sh.if '-f Requirements.txt' do
-            sh.cmd 'pip install -r Requirements.txt', fold: 'install', retry: true
+            sh.cmd 'pip install --progress-bar off -r Requirements.txt', fold: 'install', retry: true
           end
           sh.elif '-f requirements.txt' do
-            sh.cmd 'pip install -r requirements.txt', fold: 'install', retry: true
+            sh.cmd 'pip install --progress-bar off -r requirements.txt', fold: 'install', retry: true
           end
           sh.else do
             sh.echo REQUIREMENTS_MISSING # , ansi: :red
