@@ -84,8 +84,7 @@ MESSAGE
             'but is community maintained.', ansi: :green
           sh.echo 'Please file any issues using the following link',
             ansi: :green
-          sh.echo '  https://github.com/travis-ci/travis-ci/issues' \
-            '/new?labels=community:dart', ansi: :green
+          sh.echo '  https://travis-ci.community/c/languages/dart', ansi: :green
           sh.echo 'and mention \`@nex3\` and \`@a14n\`' \
             ' in the issue', ansi: :green
 

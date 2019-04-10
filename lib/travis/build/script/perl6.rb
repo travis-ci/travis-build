@@ -22,7 +22,7 @@ module Travis
 
           sh.newline
           sh.echo 'Perl6 support for Travis-CI is community maintained.', ansi: :red
-          sh.echo 'Please open any issues at https://github.com/travis-ci/travis-ci/issues/new', ansi: :red
+          sh.echo 'Please open any issues at hhttps://travis-ci.community/c/languages/perl6', ansi: :red
           sh.echo 'and cc @paultcochrane, @hoelzro, @ugexe, and @tony-o', ansi: :red
 
           sh.echo 'Installing Rakudo (MoarVM)', ansi: :yellow
