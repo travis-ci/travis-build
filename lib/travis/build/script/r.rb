@@ -59,7 +59,7 @@ module Travis
 
           sh.echo 'R for Travis-CI is not officially supported, '\
                   'but is community maintained.', ansi: :green
-          sh.echo 'Please file any issues at https://github.com/travis-ci/travis-ci/issues'
+          sh.echo 'Please file any issues at https://travis-ci.community/c/languages/r'
           sh.echo 'and mention @jeroen and @jimhester in the issue'
 
           sh.fold 'R-install' do
