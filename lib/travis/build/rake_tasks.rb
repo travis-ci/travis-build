@@ -501,9 +501,11 @@ module Travis
       task :dump_examples_logs do
         (top + 'tmp/examples-build-logs').glob('*.log') do |log_file|
           logger.info "dumping #{log_file}"
+          logger.info "---"
           $stdout.write(
             log_file.read.sub(/.+Network availability confirmed\./m, '')
           )
+          logger.info "---"
         end
       end
 
