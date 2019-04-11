@@ -332,7 +332,7 @@ module Travis
 
           sh.echo "Installing R packages from GitHub: #{packages.join(', ')}"
           pkg_arg = packages_as_arg(packages)
-          install_script = "remotes::install_github(#{pkg_arg}, build_vignettes = FALSE)"
+          install_script = "remotes::install_github(#{pkg_arg})"
           sh.cmd "Rscript -e '#{install_script}'"
         end
 
