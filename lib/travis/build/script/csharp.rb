@@ -36,7 +36,7 @@ module Travis
 
           sh.newline
           sh.echo 'C# support for Travis-CI is community maintained.', ansi: :red
-          sh.echo 'Please open any issues at https://github.com/travis-ci/travis-ci/issues/new and cc @joshua-anderson @akoeplinger @nterry', ansi: :red
+          sh.echo 'Please open any issues at https://travis-ci.community/c/languages/37-category and cc @joshua-anderson @akoeplinger @nterry', ansi: :red
 
           install_mono if is_mono_enabled
           install_dotnet if is_dotnet_enabled

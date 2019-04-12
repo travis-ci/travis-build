@@ -31,8 +31,7 @@ module Travis
             'but is community maintained.', ansi: :green
           sh.echo 'Please file any issues using the following link',
             ansi: :green
-          sh.echo '  https://github.com/travis-ci/travis-ci/issues' \
-            '/new?labels=julia', ansi: :green
+          sh.echo '  https://travis-ci.community/c/languages/julia', ansi: :green
           sh.echo 'and mention \`@ararslan\`, \`@staticfloat\`' \
             ' and \`@StefanKarpinski\` in the issue', ansi: :green
 

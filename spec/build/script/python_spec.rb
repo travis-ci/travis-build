@@ -60,6 +60,37 @@ describe Travis::Build::Script::Python, :sexp do
     should include_sexp [:cmd,  'source ~/virtualenv/python3.6/bin/activate', assert: true, echo: true, timing: true]
   end
 
+  context "with minimal config" do
+    before do
+      data[:config][:language] = 'python'; data[:config].delete(:python)
+      described_class.send :remove_const, :DEPRECATIONS
+      described_class.const_set("DEPRECATIONS", [
+        {
+          name: 'Python',
+          current_default: '2.7',
+          new_default: '3.5',
+          cutoff_date: '2020-01-01',
+        }
+      ])
+    end
+
+    context "before default change cutoff date" do
+      before do
+        DateTime.stubs(:now).returns(DateTime.parse("2019-12-01"))
+      end
+      it { store_example name: "update-default-before-cutoff" }
+      it { should include_sexp [:echo, /Using the default Python version/, ansi: :yellow] }
+    end
+
+    context "after default change cutoff date" do
+      before do
+        DateTime.stubs(:now).returns(DateTime.parse("2020-02-01"))
+      end
+      it { should_not include_sexp [:echo, /Using the default Python version/, ansi: :yellow] }
+    end
+  end
+
+
   context "when python version is given as an array" do
     before { data[:config][:python] = %w(3.6) }
     it 'sets up the python version (3.6)' do
