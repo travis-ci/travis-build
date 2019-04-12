@@ -295,6 +295,7 @@ module Travis
           apply :update_apt_keys
           apply :fix_hhvm_source
           apply :update_mongo_arch
+          apply :docker_mirror
           apply :fix_container_based_trusty
           apply :fix_sudo_enabled_trusty
           apply :update_glibc
