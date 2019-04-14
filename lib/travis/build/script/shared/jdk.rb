@@ -2,11 +2,18 @@ module Travis
   module Build
     class Script
       module Jdk
+
+        OPENJDK_ALTERNATIVE = {
+          'oraclejdk10' => 'openjdk10'
+        }
+
         def configure
           super
           return unless specifies_jdk?
 
-          jdk = config[:jdk].gsub(/\s/,'')
+          if jdk_deprecated?
+            sh.terminate 2, "#{jdk} is deprecated. See https://www.oracle.com/technetwork/java/javase/eol-135779.html for more details. Consider using #{OPENJDK_ALTERNATIVE[jdk]} instead.", ansi: :red
+          end
 
           return if jdk == 'default'
 
@@ -21,17 +28,25 @@ module Travis
 
         def export
           super
-          sh.export 'TRAVIS_JDK_VERSION', config[:jdk], echo: false if specifies_jdk?
+          sh.export 'TRAVIS_JDK_VERSION', jdk, echo: false if specifies_jdk?
         end
 
         def setup
           super
+
           sh.if '-f build.gradle || -f build.gradle.kts' do
             sh.export 'TERM', 'dumb'
           end
 
-          sh.echo "Disabling Gradle daemon", ansi: :yellow
-          sh.cmd 'mkdir -p ~/.gradle && echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties', echo: true
+          # We disable the Gradle daemon because
+          # it's causing out of memory issues otherwise.
+          disable_gradle_daemon
+        end
+
+        def disable_gradle_daemon
+          sh.if '"$TRAVIS_DIST" == precise || "$TRAVIS_DIST" == trusty' do
+            sh.cmd 'mkdir -p ~/.gradle && echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties', echo: false, timing: false
+          end
         end
 
         def announce
@@ -48,6 +63,9 @@ module Travis
         end
 
         private
+          def jdk
+            Array(config[:jdk]).first.gsub(/\s/,'')
+          end
 
           def uses_java?
             true
@@ -55,6 +73,24 @@ module Travis
 
           def specifies_jdk?
             !!config[:jdk]
+          end
+
+          def jdk_info(jdk)
+            m = jdk.match(/(?<vendor>[a-z]+)-?(?<version>.+)?/)
+            if m[:vendor]. start_with? 'oracle'
+              vendor = 'oracle'
+            elsif m[:vendor].start_with? 'openjdk'
+              vendor = 'openjdk'
+            end
+            [ vendor, m[:version] ]
+          end
+
+          def cache_dir
+            "$HOME/.cache/install-jdk"
+          end
+
+          def jdk_deprecated?
+            specifies_jdk? && OPENJDK_ALTERNATIVE.keys.include?(jdk)
           end
       end
     end
