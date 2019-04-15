@@ -3,6 +3,7 @@ require 'travis/support'
 module Travis
   module Build
     autoload :Config, 'travis/build/config'
+    autoload :Bash, 'travis/build/bash'
 
     HOME_DIR  = '$HOME'
     BUILD_DIR = File.join(HOME_DIR, 'build')
