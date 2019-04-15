@@ -48,6 +48,15 @@ module Travis
       TEMPLATES_PATH = File.expand_path('../templates', __FILE__)
       DEFAULTS = {}
 
+      TRAVIS_FUNCTIONS = %w[
+        travis_find_jdk_path
+        travis_install_jdk
+        travis_jinfo_file
+        travis_remove_from_path
+        travis_setup_java
+      ].freeze
+      private_constant :TRAVIS_FUNCTIONS
+
       class << self
         def defaults
           Git::DEFAULTS.merge(self::DEFAULTS)
@@ -56,6 +65,7 @@ module Travis
 
       include Module.new { Stages::STAGES.map(&:name).flatten.each { |stage| define_method(stage) {} } }
       include Appliances, DirectoryCache, Deprecation, Template
+      include Travis::Build::Bash
 
       attr_reader :sh, :data, :options, :validator, :addons, :stages
       attr_accessor :setup_cache_has_run_for
@@ -156,6 +166,9 @@ module Travis
               home: HOME_DIR
             ), pos: 0
           )
+          sh.file '${TRAVIS_HOME}/.travis/functions',
+                  "# travis_.+ functions:\n" +
+                    TRAVIS_FUNCTIONS.map { |f| bash(f) }.join("\n")
         end
 
         def configure
