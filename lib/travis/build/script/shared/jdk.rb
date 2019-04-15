@@ -63,35 +63,35 @@ module Travis
         end
 
         private
-          def jdk
-            Array(config[:jdk]).first.gsub(/\s/,'')
-          end
+        def jdk
+          Array(config[:jdk]).first.gsub(/\s/,'')
+        end
 
-          def uses_java?
-            true
-          end
+        def uses_java?
+          true
+        end
 
-          def specifies_jdk?
-            !!config[:jdk]
-          end
+        def specifies_jdk?
+          !!config[:jdk]
+        end
 
-          def jdk_info(jdk)
-            m = jdk.match(/(?<vendor>[a-z]+)-?(?<version>.+)?/)
-            if m[:vendor]. start_with? 'oracle'
-              vendor = 'oracle'
-            elsif m[:vendor].start_with? 'openjdk'
-              vendor = 'openjdk'
-            end
-            [ vendor, m[:version] ]
+        def jdk_info(jdk)
+          m = jdk.match(/(?<vendor>[a-z]+)-?(?<version>.+)?/)
+          if m[:vendor]. start_with? 'oracle'
+            vendor = 'oracle'
+          elsif m[:vendor].start_with? 'openjdk'
+            vendor = 'openjdk'
           end
+          [ vendor, m[:version] ]
+        end
 
-          def cache_dir
-            "$HOME/.cache/install-jdk"
-          end
+        def cache_dir
+          "${HOME}/.cache/install-jdk"
+        end
 
-          def jdk_deprecated?
-            specifies_jdk? && OPENJDK_ALTERNATIVE.keys.include?(jdk)
-          end
+        def jdk_deprecated?
+          specifies_jdk? && OPENJDK_ALTERNATIVE.keys.include?(jdk)
+        end
       end
     end
   end
