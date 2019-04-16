@@ -53,6 +53,7 @@ module Travis
         travis_install_jdk
         travis_jinfo_file
         travis_remove_from_path
+        travis_setup_env
         travis_setup_java
       ].freeze
       private_constant :TRAVIS_FUNCTIONS
@@ -156,6 +157,8 @@ module Travis
         end
 
         def header
+          sh.raw '#!/bin/bash'
+          sh.export 'TRAVIS_APP_HOST', app_host, echo: false, assert: false
           sh.raw(
             template(
               'header.sh',
@@ -170,6 +173,7 @@ module Travis
                   "# travis_.+ functions:\n" +
                     TRAVIS_FUNCTIONS.map { |f| bash(f) }.join("\n")
           sh.raw 'source "$HOME/.travis/functions"'
+          sh.raw 'travis_setup_env'
         end
 
         def configure
