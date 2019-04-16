@@ -166,9 +166,10 @@ module Travis
               home: HOME_DIR
             ), pos: 0
           )
-          sh.file '${TRAVIS_HOME}/.travis/functions',
+          sh.file '$HOME/.travis/functions',
                   "# travis_.+ functions:\n" +
                     TRAVIS_FUNCTIONS.map { |f| bash(f) }.join("\n")
+          sh.raw 'source "$HOME/.travis/functions"'
         end
 
         def configure
