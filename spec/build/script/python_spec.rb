@@ -28,7 +28,7 @@ describe Travis::Build::Script::Python, :sexp do
 
   it 'sets TRAVIS_PYTHON_VERSION' do
     should include_sexp [:export,  ['TRAVIS_PYTHON_VERSION', '3.6']]
-    should include_sexp [:export,  ['TRAVIS_TOXENV', 'py' + ENV['TRAVIS_PYTHON_VERSION'].gsub('.', '')]]
+    should include_sexp [:export,  ['TRAVIS_TOXENV', 'py36']]
   end
 
   it 'sets up the python version (pypy)' do
