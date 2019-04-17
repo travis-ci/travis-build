@@ -89,6 +89,10 @@ module Travis
             Array(config[:python]).first.to_s
           end
 
+          def toxenv
+            'py' + version.gsub('.', '')
+          end
+
           def virtualenv_activate
             "~/virtualenv/#{virtualenv}#{system_site_packages}/bin/activate"
           end
