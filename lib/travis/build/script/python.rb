@@ -24,6 +24,7 @@ module Travis
         def export
           super
           sh.export 'TRAVIS_PYTHON_VERSION', version, echo: false
+          sh.export 'TRAVIS_TOXENV', toxenv, echo: false
         end
 
         def configure
