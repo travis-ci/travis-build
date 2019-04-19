@@ -8,14 +8,14 @@ travis_docker_mirror() {
 		}' >/etc/docker/daemon.json
 	EOPIPE
   case "$TRAVIS_INIT" in
-    upstart)
-      sudo service docker restart &>/dev/null
-      ;;
-    systemd)
-      sudo systemctl restart docker &>/dev/null
-      ;;
-    *)
-      echo 'Unknown init system'>/dev/stderr
-      ;;
+  upstart)
+    sudo service docker restart &>/dev/null
+    ;;
+  systemd)
+    sudo systemctl restart docker &>/dev/null
+    ;;
+  *)
+    echo 'Unknown init system' >/dev/stderr
+    ;;
   esac
 }
