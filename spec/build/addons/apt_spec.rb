@@ -8,10 +8,10 @@ describe Travis::Build::Addons::Apt, :sexp do
   let(:addon)              { described_class.new(script, sh, Travis::Build::Data.new(data), apt_config) }
   let(:apt_config)         { {} }
   let(:dist)               { :xenial }
-  let(:source_whitelists)  { { xenial: [{ alias: 'testing', sourceline: 'deb http://example.com/deb repo main' }] } }
-  let(:package_whitelists) { { xenial: %w(git curl) } }
+  let(:source_safelists)  { { xenial: [{ alias: 'testing', sourceline: 'deb http://example.com/deb repo main' }] } }
+  let(:package_safelists) { { xenial: %w(git curl) } }
   let(:paranoid)           { true }
-  let(:whitelist_skip)     { false }
+  let(:safelist_skip)     { false }
   subject                  { sh.to_sexp }
 
   before :all do
@@ -19,9 +19,10 @@ describe Travis::Build::Addons::Apt, :sexp do
   end
 
   before :each do
-    described_class.instance_variable_set(:@package_whitelists, nil)
-    described_class.instance_variable_set(:@source_whitelists, nil)
-    addon.stubs(:skip_whitelist?).returns(whitelist_skip)
+    described_class.instance_variable_set(:@package_safelists, nil)
+    described_class.instance_variable_set(:@source_safelists, nil)
+    script.stubs(:bash).returns('')
+    addon.stubs(:skip_safelist?).returns(safelist_skip)
   end
 
   context 'when on osx' do
@@ -53,82 +54,82 @@ describe Travis::Build::Addons::Apt, :sexp do
     end
   end
 
-  context 'when the package whitelist is provided' do
+  context 'when the package safelist is provided' do
     before do
-      described_class.stubs(:fetch_package_whitelist)
-        .returns(package_whitelists[dist].join("\n"))
+      described_class.stubs(:fetch_package_safelist)
+        .returns(package_safelists[dist].join("\n"))
       addon.before_prepare
     end
 
-    it 'exposes a package whitelist' do
-      expect(described_class.package_whitelists).to_not be_empty
+    it 'exposes a package safelist' do
+      expect(described_class.package_safelists).to_not be_empty
     end
 
-    it 'instances delegate package whitelist to class' do
-      expect(described_class.package_whitelists)
-        .to eql(addon.send(:package_whitelists))
+    it 'instances delegate package safelist to class' do
+      expect(described_class.package_safelists)
+        .to eql(addon.send(:package_safelists))
     end
   end
 
-  context 'when the source whitelist is provided' do
+  context 'when the source safelist is provided' do
     before do
-      described_class.stubs(:fetch_source_whitelist)
-        .returns(JSON.dump(source_whitelists[dist]))
+      described_class.stubs(:fetch_source_safelist)
+        .returns(JSON.dump(source_safelists[dist]))
       addon.before_prepare
     end
 
-    it 'exposes a source whitelist' do
-      expect(described_class.source_whitelists).to_not be_empty
+    it 'exposes a source safelist' do
+      expect(described_class.source_safelists).to_not be_empty
     end
 
-    it 'instances delegate source whitelist to class' do
-      expect(described_class.source_whitelists)
-        .to eql(addon.send(:source_whitelists))
+    it 'instances delegate source safelist to class' do
+      expect(described_class.source_safelists)
+        .to eql(addon.send(:source_safelists))
     end
   end
 
-  context 'when the package whitelist cannot be fetched' do
+  context 'when the package safelist cannot be fetched' do
     before do
-      described_class.stubs(:fetch_package_whitelist).raises(StandardError)
+      described_class.stubs(:fetch_package_safelist).raises(StandardError)
       addon.before_prepare
     end
 
-    it 'defaults package whitelist to empty array' do
-      expect(described_class.package_whitelists[dist]).to eql([])
+    it 'defaults package safelist to empty array' do
+      expect(described_class.package_safelists[dist]).to eql([])
     end
   end
 
-  context 'when the source whitelist cannot be fetched' do
+  context 'when the source safelist cannot be fetched' do
     before do
-      described_class.stubs(:fetch_source_whitelist).raises(StandardError)
+      described_class.stubs(:fetch_source_safelist).raises(StandardError)
       addon.before_prepare
     end
 
-    it 'defaults source whitelist to empty hash' do
-      expect(described_class.source_whitelists)
+    it 'defaults source safelist to empty hash' do
+      expect(described_class.source_safelists)
         .to eql({ precise: {}, trusty: {}, xenial: {}, unset: {} })
     end
   end
 
   context 'with packages' do
     before do
-      addon.stubs(:package_whitelists).returns(package_whitelists)
+      addon.stubs(:package_safelists).returns(package_safelists)
       addon.before_prepare
     end
 
     def apt_get_install_command(*packages)
-      "sudo -E apt-get -yq --no-install-suggests --no-install-recommends $TRAVIS_APT_OPTS install #{packages.join(' ')}"
+      "sudo -E apt-get -yq --no-install-suggests --no-install-recommends $(travis_apt_get_options) install #{packages.join(' ')}"
     end
 
-    context 'with multiple whitelisted packages' do
+    context 'with multiple safelisted packages' do
       let(:apt_config) { { packages: ['git', 'curl'] } }
 
-      it { store_example("whitelisted")}
+      it { store_example(name: 'safelisted') }
 
       it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true] }
     end
 
-    context 'with multiple packages, some whitelisted' do
+    context 'with multiple packages, some safelisted' do
       let(:apt_config) { { packages: ['git', 'curl', 'darkcoin'] } }
 
       it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true] }
@@ -139,21 +140,21 @@ describe Travis::Build::Addons::Apt, :sexp do
         it { should include_sexp [:cmd, apt_get_install_command('git', 'curl', 'darkcoin'), echo: true, timing: true] }
       end
 
-      context 'when whitelist skippping is enabled' do
+      context 'when safelist skippping is enabled' do
         let(:paranoid) { true }
-        let(:whitelist_skip) { true }
+        let(:safelist_skip) { true }
 
         it { should include_sexp [:cmd, apt_get_install_command('git', 'curl', 'darkcoin'), echo: true, timing: true] }
       end
     end
 
-    context 'with singular whitelisted package' do
+    context 'with singular safelisted package' do
       let(:apt_config) { { packages: 'git' } }
 
       it { should include_sexp [:cmd, apt_get_install_command('git'), echo: true, timing: true] }
     end
 
-    context 'with no whitelisted packages' do
+    context 'with no safelisted packages' do
       let(:apt_config) { { packages: nil } }
 
       it { should_not include_sexp [:cmd, apt_get_install_command('git'), echo: true, timing: true] }
@@ -170,16 +171,14 @@ describe Travis::Build::Addons::Apt, :sexp do
     let(:deadsnakes) do
       {
         'alias' => 'deadsnakes-xenial',
-        'sourceline' => 'ppa:fkrull/deadsnakes-xenial',
-        'key_url' => nil
+        'sourceline' => 'ppa:fkrull/deadsnakes-xenial'
       }
     end
 
     let(:packagecloud) do
       {
         'alias' => 'packagecloud-xenial',
-        'sourceline' => 'deb https://packagecloud.io/chef/stable/ubuntu/ xenial main',
-        'key_url' => 'https://packagecloud.io/gpg.key'
+        'sourceline' => 'deb https://packagecloud.io/chef/stable/ubuntu/ xenial main'
       }
     end
 
@@ -190,7 +189,7 @@ describe Travis::Build::Addons::Apt, :sexp do
       }
     end
 
-    let(:source_whitelists) do
+    let(:source_safelists) do
       {
         xenial: {
           'deadsnakes-xenial' => deadsnakes,
@@ -200,7 +199,7 @@ describe Travis::Build::Addons::Apt, :sexp do
     end
 
     before do
-      addon.stubs(:source_whitelists).returns(source_whitelists)
+      addon.stubs(:source_safelists).returns(source_safelists)
       addon.before_prepare
     end
 
@@ -209,40 +208,32 @@ describe Travis::Build::Addons::Apt, :sexp do
     end
 
     def apt_sources_append_command(sourceline)
-      "echo #{sourceline.inspect} | sudo tee -a /etc/apt/sources.list > /dev/null"
+      "echo #{sourceline.inspect} | sudo tee -a ${TRAVIS_ROOT}/etc/apt/sources.list >/dev/null"
     end
 
-    def apt_key_add_command(key_url)
-      "curl -sSL #{key_url.inspect} | sudo -E apt-key add -"
-    end
-
-    context 'with multiple whitelisted sources' do
+    context 'with multiple safelisted sources' do
       let(:apt_config) { { sources: ['deadsnakes-xenial'] } }
 
       it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
-      it { should_not include_sexp [:cmd, apt_key_add_command(deadsnakes['key_url']), echo: true, assert: true, timing: true] }
     end
 
-    context 'with multiple sources, some whitelisted' do
-      let(:apt_config) { { sources: ['packagecloud-xenial', 'deadsnakes-xenial', 'evilbadthings', 'ppa:evilbadppa', { sourceline: 'foobar', key_url: 'deadbeef' }] } }
+    context 'with multiple sources, some safelisted' do
+      let(:apt_config) { { sources: ['packagecloud-xenial', 'deadsnakes-xenial', 'evilbadthings', 'ppa:evilbadppa', { sourceline: 'foobar' }] } }
 
       it { should include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
       it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
-      it { should include_sexp [:cmd, apt_key_add_command(packagecloud['key_url']), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_sources_append_command(evilbadthings['sourceline']), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_add_repository_command('ppa:evilbadppa'), echo: true, assert: true, timing: true] }
-      it { should_not include_sexp [:cmd, apt_key_add_command(deadsnakes['key_url']), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_sources_append_command('foobar'), echo: true, assert: true, timing: true] }
-      it { should_not include_sexp [:cmd, apt_key_add_command('deadbeef'), echo: true, assert: true, timing: true] }
     end
 
-    context 'with singular whitelisted source' do
+    context 'with singular safelisted source' do
       let(:apt_config) { { sources: 'packagecloud-xenial' } }
 
       it { should include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
     end
 
-    context 'with no whitelisted sources' do
+    context 'with no safelisted sources' do
       let(:apt_config) { { sources: nil } }
 
       it { should_not include_sexp [:cmd, apt_add_repository_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
@@ -250,48 +241,33 @@ describe Travis::Build::Addons::Apt, :sexp do
 
     context 'when sudo is enabled' do
       let(:paranoid) { false }
-      let(:apt_config) { { sources: ['packagecloud-xenial', 'deadsnakes-xenial', 'evilbadthings', 'ppa:archivematica/externals', { sourceline: 'foobar', key_url: 'deadbeef' }] } }
+      let(:apt_config) { { sources: ['packagecloud-xenial', 'deadsnakes-xenial', 'evilbadthings', 'ppa:archivematica/externals', { sourceline: 'foobar' }] } }
 
       it { should include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
       it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
-      it { should include_sexp [:cmd, apt_key_add_command(packagecloud['key_url']), echo: true, assert: true, timing: true] }
       it { should include_sexp [:cmd, apt_sources_append_command('foobar'), echo: true, assert: true, timing: true] }
-      it { should include_sexp [:cmd, apt_key_add_command('deadbeef'), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_sources_append_command(evilbadthings['sourceline']), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_add_repository_command('ppa:evilbadppa'), echo: true, assert: true, timing: true] }
-
-      context 'when a malformed source is given' do
-        let(:apt_config) { { sources: [{ key_url: 'deadbeef' }] } }
-        it { should include_sexp [:echo, "'sourceline' key missing:", ansi: :yellow] }
-      end
     end
 
-    context 'when whitelist skipping is enabled' do
+    context 'when safelist skipping is enabled' do
       let(:paranoid) { true }
-      let(:apt_config) { { sources: ['packagecloud-xenial', 'deadsnakes-xenial', 'evilbadthings', 'ppa:archivematica/externals', { sourceline: 'foobar', key_url: 'deadbeef' }] } }
-      let(:whitelist_skip) { true }
+      let(:apt_config) { { sources: ['packagecloud-xenial', 'deadsnakes-xenial', 'evilbadthings', 'ppa:archivematica/externals', { sourceline: 'foobar' }] } }
+      let(:safelist_skip) { true }
 
       it { should include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
       it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
-      it { should include_sexp [:cmd, apt_key_add_command(packagecloud['key_url']), echo: true, assert: true, timing: true] }
       it { should include_sexp [:cmd, apt_sources_append_command('foobar'), echo: true, assert: true, timing: true] }
-      it { should include_sexp [:cmd, apt_key_add_command('deadbeef'), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_sources_append_command(evilbadthings['sourceline']), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_add_repository_command('ppa:evilbadppa'), echo: true, assert: true, timing: true] }
-
-      context 'when a malformed source is given' do
-        let(:apt_config) { { sources: [{ key_url: 'deadbeef' }] } }
-        it { should include_sexp [:echo, "'sourceline' key missing:", ansi: :yellow] }
-      end
     end
   end
-
 
   context "when config.retries is set" do
     let(:apt_config) { { config: { retries: true } } }
     before { addon.before_configure }
 
-    it { store_example "retries" }
+    it { store_example(name: 'retries') }
 
     it { should include_sexp [:echo, "Configuring default apt-get retries", ansi: :yellow] }
   end

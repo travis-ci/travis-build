@@ -3,9 +3,18 @@ module Travis
     class Script
       class Python < Script
         DEFAULTS = {
-          python: '2.7',
+          python: '3.6',
           virtualenv: { system_site_packages: false }
         }
+
+        DEPRECATIONS = [
+          {
+            name: 'Python',
+            current_default: DEFAULTS[:python],
+            new_default: '3.6',
+            cutoff_date: '2019-04-16',
+          }
+        ]
 
         REQUIREMENTS_MISSING = 'Could not locate requirements.txt. Override the install: key in your .travis.yml to install dependencies.'
         SCRIPT_MISSING       = 'Please override the script: key in your .travis.yml to run tests.'
@@ -35,13 +44,14 @@ module Travis
           sh.cmd 'python --version'
           sh.cmd 'pip --version'
           sh.export 'PIP_DISABLE_PIP_VERSION_CHECK', '1', echo: false
+          sh.export 'PIP_PROGRESS_BAR', 'off', echo: false
         end
 
         def setup_cache
           if data.cache?(:pip)
             sh.fold 'cache.pip' do
-              sh.echo ''
-              directory_cache.add '$HOME/.cache/pip'
+              sh.newline
+              directory_cache.add '${TRAVIS_HOME}/.cache/pip'
             end
           end
         end
@@ -61,7 +71,7 @@ module Travis
         def script
           # This always fails the build, asking the user to provide a custom :script.
           # The Python ecosystem has no good default build command most of the
-          # community aggrees on. Per discussion with jezjez, josh-k and others. MK
+          # community agrees on. Per discussion with jezjez, josh-k and others. MK
           sh.failure SCRIPT_MISSING
         end
 
@@ -109,11 +119,11 @@ module Travis
             sh.echo "Downloading archive: ${archive_url}", ansi: :yellow
             archive_basename = [lang, vers].compact.join("-")
             archive_filename = "#{archive_basename}.tar.bz2"
-            sh.cmd "curl -sSf -o #{archive_filename} ${archive_url}", echo: true, assert: false
+            sh.cmd "curl -sSf -o #{archive_filename} ${archive_url}", echo: true, assert: false, timing: true
             sh.if "$? != 0" do
               sh.failure "Unable to download #{version} archive. The archive may not exist. Please consider a different version."
             end
-            sh.cmd "sudo tar xjf #{archive_filename} --directory /", echo: true, assert: true
+            sh.cmd "sudo tar xjf #{archive_filename} --directory /", echo: true, assert: true, timing: true
             sh.cmd "rm #{archive_filename}", echo: false
           end
 
@@ -124,4 +134,3 @@ module Travis
     end
   end
 end
-

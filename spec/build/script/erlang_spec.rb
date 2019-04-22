@@ -6,6 +6,8 @@ describe Travis::Build::Script::Erlang, :sexp do
   subject      { script.sexp }
   it           { store_example }
 
+  it_behaves_like 'a bash script'
+
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=erlang'] }
     let(:cmds) { ['rebar skip_deps=true eunit'] }
@@ -19,13 +21,13 @@ describe Travis::Build::Script::Erlang, :sexp do
 
   describe 'setup' do
     it 'activates otp' do
-      should include_sexp [:cmd, 'source $HOME/otp/R14B04/activate', assert: true, echo: true, timing: true]
+      should include_sexp [:cmd, 'source ${TRAVIS_HOME}/otp/R14B04/activate', assert: true, echo: true, timing: true]
     end
 
     it 'downloads OTP archive on demand when the desired release is not pre-installed' do
-      branch = sexp_find(subject, [:if, '! -f $HOME/otp/R14B04/activate'])
+      branch = sexp_find(subject, [:if, '! -f ${TRAVIS_HOME}/otp/R14B04/activate'])
       expect(branch).to include_sexp [:raw, 'archive_url=https://s3.amazonaws.com/travis-otp-releases/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/erlang-R14B04-nonroot.tar.bz2', assert: true]
-      expect(branch).to include_sexp [:cmd, 'wget -o $HOME/erlang.tar.bz2 ${archive_url}', assert: true, echo: true, timing: true]
+      expect(branch).to include_sexp [:cmd, 'wget -o ${TRAVIS_HOME}/erlang.tar.bz2 ${archive_url}', assert: true, echo: true, timing: true]
     end
   end
 
@@ -72,4 +74,3 @@ describe Travis::Build::Script::Erlang, :sexp do
     it { is_expected.to eq("cache-#{CACHE_SLUG_EXTRAS}--otp-R14B04") }
   end
 end
-

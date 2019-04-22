@@ -8,6 +8,7 @@ describe Travis::Build::Script::Julia, :sexp do
   subject      { script.sexp }
   it           { store_example }
 
+  it_behaves_like 'a bash script'
   it_behaves_like 'a build script sexp'
 
   it 'sets TRAVIS_JULIA_VERSION' do

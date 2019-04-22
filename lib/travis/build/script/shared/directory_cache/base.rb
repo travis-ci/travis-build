@@ -99,6 +99,7 @@ module Travis
               fetch
               add(directories) if data.cache?(:directories)
             end
+            sh.newline
           end
 
           def run_rvm_use
@@ -106,7 +107,7 @@ module Travis
           end
 
           def install
-            sh.export 'CASHER_DIR', '$HOME/.casher'
+            sh.export 'CASHER_DIR', '${TRAVIS_HOME}/.casher'
 
             sh.mkdir '$CASHER_DIR/bin', echo: false, recursive: true
             update_static_file('casher', BIN_PATH, casher_url, true)
@@ -131,19 +132,25 @@ module Travis
 
           def fetch_urls
             urls = [
-              fetch_url(group, true),
-              fetch_url
+              fetch_url(uri_normalize_name(group), true),
+              fetch_url(uri_normalize_name(group)),
+              fetch_url(normalize_name(group), true),
+              fetch_url(normalize_name(group))
             ]
             if data.pull_request
-              urls << fetch_url(data.branch, true)
-              urls << fetch_url(data.branch)
+              urls << fetch_url(uri_normalize_name(data.branch), true)
+              urls << fetch_url(uri_normalize_name(data.branch))
+              urls << fetch_url(normalize_name(data.branch), true)
+              urls << fetch_url(normalize_name(data.branch))
             end
             if data.branch != data.repository[:default_branch]
-              urls << fetch_url(data.repository[:default_branch], true)
-              urls << fetch_url(data.repository[:default_branch])
+              urls << fetch_url(uri_normalize_name(data.repository[:default_branch]), true)
+              urls << fetch_url(uri_normalize_name(data.repository[:default_branch]))
+              urls << fetch_url(normalize_name(data.repository[:default_branch]), true)
+              urls << fetch_url(normalize_name(data.repository[:default_branch]))
             end
 
-            urls.uniq
+            urls.uniq.compact
           end
 
           def push
@@ -151,11 +158,17 @@ module Travis
           end
 
           def fetch_url(branch = group, extras = false)
-            url('GET', prefixed(branch, extras), expires: fetch_timeout)
+            prefix = prefixed(branch, extras)
+            if prefix
+              url('GET', prefix, expires: fetch_timeout)
+            end
           end
 
           def push_url(branch = group)
-            url('PUT', prefixed(branch, true), expires: push_timeout)
+            prefix = prefixed(uri_normalize_name(branch), true)
+            if prefix
+              url('PUT', prefix, expires: push_timeout)
+            end
           end
 
           def fold(message = nil)
@@ -181,8 +194,13 @@ module Travis
             def run(command, args, options = {})
               sh.with_errexit_off do
                 sh.if "-f #{BIN_PATH}" do
-                  sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
-                  sh.cmd "rvm $(travis_internal_ruby) --fuzzy do #{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
+                  sh.if "-e ~/.rvm/scripts/rvm" do
+                    sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
+                    sh.cmd "rvm $(travis_internal_ruby) --fuzzy do #{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
+                  end
+                  sh.else do
+                    sh.cmd "#{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
+                  end
                 end
               end
             end
@@ -227,12 +245,15 @@ module Travis
               else
                 args = [data_store_options.fetch(:bucket, ''), data.github_id, branch, slug_local].compact
               end
-              args.map! { |arg| arg.to_s.gsub(/[^\w\.\_\-]+/, '') }
+
+              args.map!(&:to_s)
+              return if args.any? {|part| part.empty?}
+
               '/' << args.join('/') << '.tgz'
             end
 
             def url(verb, path, options = {})
-              signature(verb, path, options).to_uri.to_s.untaint
+              signature(verb, path, options).to_uri.to_s.output_safe
             end
 
             def key_pair
@@ -272,14 +293,14 @@ module Travis
             end
 
             def app_host
-              @app_host ||= Travis::Build.config.app_host.to_s.strip.untaint
+              @app_host ||= Travis::Build.config.app_host.to_s.strip.output_safe
             end
 
             def update_static_file(name, location, remote_location, assert = false)
               flags = "-sf #{debug_flags}"
               cmd_opts = {retry: true, assert: false, echo: 'Installing caching utilities'}
               if casher_branch == 'production'
-                static_file_location = "https://#{app_host}/files/#{name}".untaint
+                static_file_location = "https://#{app_host}/files/#{name}".output_safe
                 sh.cmd curl_cmd(flags, location, static_file_location), cmd_opts
                 sh.if "$? -ne 0" do
                   cmd_opts[:echo] = "Installing caching utilities from the Travis CI server (#{static_file_location}) failed, failing over to using GitHub (#{remote_location})"
@@ -292,6 +313,14 @@ module Travis
 
             def curl_cmd(flags, location, remote_location)
               "curl #{flags} -o #{location} #{remote_location}"
+            end
+
+            def normalize_name(branch)
+              branch.to_s.gsub(/[^\w\.\_\-]+/, '')
+            end
+
+            def uri_normalize_name(branch)
+              URI.encode(branch)
             end
 
         end

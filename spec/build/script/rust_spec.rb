@@ -7,6 +7,8 @@ describe Travis::Build::Script::Rust, :sexp do
   subject      { script.sexp }
   it           { store_example }
 
+  it_behaves_like 'a bash script'
+
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=rust'] }
     let(:cmds) { ['cargo build --verbose'] }
@@ -19,11 +21,11 @@ describe Travis::Build::Script::Rust, :sexp do
   end
 
   it 'announces rust version' do
-    should include_sexp [:cmd, 'rustc --version', echo: true]
+    should include_sexp [:cmd, 'rustc --version', assert: true, echo: true]
   end
 
   it 'announces cargo version' do
-    should include_sexp [:cmd, 'cargo --version', echo: true]
+    should include_sexp [:cmd, 'cargo --version', assert: true, echo: true]
   end
 
   it 'runs cargo test' do
@@ -43,7 +45,7 @@ describe Travis::Build::Script::Rust, :sexp do
     let(:data)   { payload_for(:push, :rust, config: { cache: 'cargo' }, cache_options: options) }
 
     it 'caches desired directories' do
-      should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add $HOME/.cargo target', timing: true]
+      should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add ${TRAVIS_HOME}/.cargo target', timing: true]
     end
   end
 end

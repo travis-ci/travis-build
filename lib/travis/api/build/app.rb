@@ -1,11 +1,14 @@
 require 'json'
-require 'rack/ssl'
-require 'sinatra/base'
 require 'metriks'
+require 'pp'
+require 'rack/ssl'
+require 'rbtrace' if ENV['RBTRACE_ENABLED']
+require 'sinatra/base'
 
 require 'travis/build'
-require 'travis/api/build/sentry'
+
 require 'travis/api/build/metriks'
+require 'travis/api/build/sentry'
 
 module Travis
   module Api
@@ -15,9 +18,7 @@ module Travis
         set :root, File.expand_path('../../../../../', __FILE__)
         set :start, Time.now.utc
 
-        configure(:production, :staging) do
-          use Rack::SSL
-        end
+        use Rack::SSL if ENV['RACK_SSL_ENABLED']
 
         configure do
           use Sentry unless Travis::Build.config.sentry_dsn.to_s.empty?
@@ -43,20 +44,11 @@ module Travis
         end
 
         before '/script' do
-          return if auth_disabled?
+          authenticate!
+        end
 
-          unless env.key?('HTTP_AUTHORIZATION')
-            halt 401, 'missing Authorization header'
-          end
-
-          type, token = env['HTTP_AUTHORIZATION'].to_s.split(' ', 2)
-
-          api_tokens.each do |valid_token|
-            return if Rack::Utils.secure_compare(type, 'token') &&
-                      Rack::Utils.secure_compare(token, valid_token)
-          end
-
-          halt 403, 'access denied'
+        before '/sexp' do
+          authenticate!
         end
 
         error JSON::ParserError do
@@ -86,6 +78,23 @@ module Travis
           compiled
         end
 
+        post '/sexp' do
+          payload = JSON.parse(request.body.read)
+
+          unless Travis::Build.config.sentry_dsn.empty?
+            Raven.extra_context(
+              repository: payload.fetch('repository', {}).fetch('slug', '???'),
+              job: payload.fetch('job', {}).fetch('id', '???'),
+            )
+          end
+
+          sexp = Travis::Build.script(payload).sexp
+
+          content_type 'application/text'
+          status 200
+          sexp.pretty_inspect
+        end
+
         get('/') { uptime }
         get('/uptime') { uptime }
         get('/boom') { raise StandardError, ':bomb:' }
@@ -98,6 +107,23 @@ module Travis
             'Travis-Build-Version' => Travis::Build.version
           )
           status 200
+        end
+
+        def authenticate!
+          return if auth_disabled?
+
+          unless env.key?('HTTP_AUTHORIZATION')
+            halt 401, 'missing Authorization header'
+          end
+
+          type, token = env['HTTP_AUTHORIZATION'].to_s.split(' ', 2)
+
+          api_tokens.each do |valid_token|
+            return if Rack::Utils.secure_compare(type, 'token') &&
+                      Rack::Utils.secure_compare(token, valid_token)
+          end
+
+          halt 403, 'access denied'
         end
       end
     end

@@ -5,7 +5,10 @@ module Travis
     module Appliances
       class FixMvnSettingsXml < Base
         def apply
-          sh.cmd %(test -f ~/.m2/settings.xml && sed -i.bak -e 's|https://nexus.codehaus.org/snapshots/|https://oss.sonatype.org/content/repositories/codehaus-snapshots/|g' ~/.m2/settings.xml)
+          sh.if "-f ~/.m2/settings.xml" do
+            sh.cmd %(sed -i$([ "$TRAVIS_OS_NAME" == osx ] && echo " ").bak1 -e 's|https://nexus.codehaus.org/snapshots/|https://oss.sonatype.org/content/repositories/codehaus-snapshots/|g' ~/.m2/settings.xml), echo: false, assert: false, timing: false
+            sh.cmd %(sed -i$([ "$TRAVIS_OS_NAME" == osx ] && echo " ").bak2 -e 's|https://repository.apache.org/releases/|https://repository.apache.org/content/repositories/releases/|g' ~/.m2/settings.xml), echo: false, assert: false, timing: false
+          end
         end
       end
     end

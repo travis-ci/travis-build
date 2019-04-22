@@ -2,10 +2,9 @@
 
 # Community maintainers:
 #
-#   Tony Kelman       <tony kelman net, @tkelman>
-#   Pontus Stenetorp  <pontus stenetorp se, @ninjin>
-#   Elliot Saba       <staticfloat gmail com, @staticfloat>
-#   Simon Byrne       <simonbyrne gmail.com, @simonbyrne>
+#   Alex Arslan       (@ararslan)
+#   Elliot Saba       (@staticfloat)
+#   Stefan Karpinski  (@StefanKarpinski)
 #
 module Travis
   module Build
@@ -13,6 +12,8 @@ module Travis
       class Julia < Script
         DEFAULTS = {
           julia: '1',
+          coveralls: false,
+          codecov: false,
         }
 
         def export
@@ -30,10 +31,9 @@ module Travis
             'but is community maintained.', ansi: :green
           sh.echo 'Please file any issues using the following link',
             ansi: :green
-          sh.echo '  https://github.com/travis-ci/travis-ci/issues' \
-            '/new?labels=julia', ansi: :green
-          sh.echo 'and mention \`@travis-ci/julia-maintainers\`' \
-            'in the issue', ansi: :green
+          sh.echo '  https://travis-ci.community/c/languages/julia', ansi: :green
+          sh.echo 'and mention \`@ararslan\`, \`@staticfloat\`' \
+            ' and \`@StefanKarpinski\` in the issue', ansi: :green
 
           sh.fold 'Julia-install' do
             sh.echo 'Installing Julia', ansi: :yellow
@@ -51,7 +51,7 @@ module Travis
             else
               sh.failure "Operating system not supported: #{config[:os]}"
             end
-            sh.cmd 'export PATH="${PATH}:${HOME}/julia/bin"'
+            sh.cmd 'export PATH="${PATH}:${TRAVIS_HOME}/julia/bin"'
           end
         end
 
@@ -59,7 +59,7 @@ module Travis
           super
 
           sh.cmd 'julia --color=yes -e "VERSION >= v\"0.7.0-DEV.3630\" && using InteractiveUtils; versioninfo()"'
-          sh.echo ''
+          sh.newline
         end
 
         def script
@@ -78,18 +78,33 @@ module Travis
               sh.cmd 'git fetch --unshallow'
             end
             # build
-            sh.cmd 'julia --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; Pkg.clone(pwd()); Pkg.build(\"${JL_PKG}\"); else using Pkg; Pkg.build(); end"'
+            sh.cmd 'julia --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; Pkg.clone(pwd()); Pkg.build(\"${JL_PKG}\"); else using Pkg; if VERSION >= v\"1.1.0-rc1\"; Pkg.build(verbose=true); else Pkg.build(); end; end"', assert: true
             # run tests
-            sh.cmd 'julia --check-bounds=yes --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; Pkg.test(\"${JL_PKG}\", coverage=true); else using Pkg; Pkg.test(coverage=true); end"'
+            sh.cmd 'julia --check-bounds=yes --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; Pkg.test(\"${JL_PKG}\", coverage=true); else using Pkg; Pkg.test(coverage=true); end"', assert: true
+            # coverage
+            if config[:codecov]
+              sh.cmd 'julia --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; cd(Pkg.dir(\"${JL_PKG}\")); else using Pkg; end; Pkg.add(\"Coverage\"); using Coverage; Codecov.submit(process_folder())"'
+            end
+            if config[:coveralls]
+              sh.cmd 'julia --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; cd(Pkg.dir(\"${JL_PKG}\")); else using Pkg; end; Pkg.add(\"Coverage\"); using Coverage; Coveralls.submit(process_folder())"'
+            end
+
           end
           sh.else do
             sh.if '-a .git/shallow' do
               sh.cmd 'git fetch --unshallow'
             end
             # build
-            sh.cmd 'julia --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; Pkg.clone(pwd()); Pkg.build(\"${JL_PKG}\")"'
+            sh.cmd 'julia --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; Pkg.clone(pwd()); if VERSION >= v\"1.1.0-rc1\"; Pkg.build(\"${JL_PKG}\"; verbose=true); else Pkg.build(\"${JL_PKG}\"); end"', assert: true
             # run tests
-            sh.cmd 'julia --check-bounds=yes --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; Pkg.test(\"${JL_PKG}\", coverage=true)"'
+            sh.cmd 'julia --check-bounds=yes --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; Pkg.test(\"${JL_PKG}\", coverage=true)"', assert: true
+            # coverage
+            if config[:codecov]
+              sh.cmd 'julia --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; cd(Pkg.dir(\"${JL_PKG}\")); Pkg.add(\"Coverage\"); using Coverage; Codecov.submit(process_folder())"'
+            end
+            if config[:coveralls]
+              sh.cmd 'julia --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; cd(Pkg.dir(\"${JL_PKG}\")); Pkg.add(\"Coverage\"); using Coverage; Coveralls.submit(process_folder())"'
+            end
           end
         end
 
@@ -118,7 +133,7 @@ module Travis
               url = "julialang-s3.julialang.org/bin/#{osarch}/#{$1}/julia-#{$1}-latest-#{ext}"
             when '1'
               # TODO: create a permalink to latest 1.y.z
-              url = "julialang-s3.julialang.org/bin/#{osarch}/1.0/julia-1.0-latest-#{ext}"
+              url = "julialang-s3.julialang.org/bin/#{osarch}/1.1/julia-1.1-latest-#{ext}"
             else
               sh.failure "Unknown Julia version: #{julia_version}"
             end

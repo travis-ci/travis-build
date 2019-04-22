@@ -6,6 +6,8 @@ describe Travis::Build::Script::Elixir, :sexp do
   subject      { script.sexp }
   it           { store_example }
 
+  it_behaves_like 'a bash script'
+
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=elixir'] }
   end
@@ -58,17 +60,17 @@ describe Travis::Build::Script::Elixir, :sexp do
         if otp_release_wanted == otp_release_required
           describe "wanted OTP release #{otp_release_wanted}" do
             it "is installed" do
-              sexp = sexp_find(subject, [:if, "! -f #{Travis::Build::HOME_DIR}/otp/#{otp_release_wanted}/activate"], [:then])
+              sexp = sexp_find(subject, [:if, "! -f ${TRAVIS_HOME}/otp/#{otp_release_wanted}/activate"], [:then])
               expect(sexp).to include_sexp([:raw, "archive_url=https://s3.amazonaws.com/travis-otp-releases/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/erlang-#{otp_release_wanted}-nonroot.tar.bz2", assert: true])
-              expect(sexp).to include_sexp([:cmd, "wget -o $HOME/erlang.tar.bz2 ${archive_url}", assert: true, echo: true, timing: true])
+              expect(sexp).to include_sexp([:cmd, "wget -o ${TRAVIS_HOME}/erlang.tar.bz2 ${archive_url}", assert: true, echo: true, timing: true])
             end
           end
         else
           describe "required OTP release #{otp_release_required}" do
             it "is installed" do
-              sexp = sexp_find(subject, [:if, "! -f #{Travis::Build::HOME_DIR}/otp/#{otp_release_required}/activate"], [:then])
+              sexp = sexp_find(subject, [:if, "! -f ${TRAVIS_HOME}/otp/#{otp_release_required}/activate"], [:then])
               expect(sexp).to include_sexp([:raw, "archive_url=https://s3.amazonaws.com/travis-otp-releases/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/erlang-#{otp_release_required}-nonroot.tar.bz2", assert: true])
-              expect(sexp).to include_sexp([:cmd, "wget -o $HOME/erlang.tar.bz2 ${archive_url}", assert: true, echo: true, timing: true])
+              expect(sexp).to include_sexp([:cmd, "wget -o ${TRAVIS_HOME}/erlang.tar.bz2 ${archive_url}", assert: true, echo: true, timing: true])
             end
           end
         end
@@ -90,4 +92,3 @@ describe Travis::Build::Script::Elixir, :sexp do
   installs_required_otp_release('1.0.5', '18.0', '17.4')
   installs_required_otp_release('1.0.5', 'R16B03-1', '17.4')
 end
-

@@ -36,20 +36,19 @@ module Travis
                   'but is community maintained.', ansi: :green
           sh.echo 'Please file any issues using the following link',
                   ansi: :green
-          sh.echo '  https://github.com/travis-ci/travis-ci/issues' \
-                  '/new?labels=haxe', ansi: :green
+          sh.echo '  https://travis-ci.community/c/languages/haxe', ansi: :green
           sh.echo 'and mention \`@andyli\`, \`@waneck\`, and \`@Simn\`'\
                   ' in the issue', ansi: :green
 
           sh.fold('neko-install') do
-            neko_path = '${HOME}/neko'
+            neko_path = '${TRAVIS_HOME}/neko'
 
             sh.echo 'Installing Neko', ansi: :yellow
 
             # Install dependencies
             case config[:os]
             when 'linux'
-              sh.cmd 'sudo apt-get update -qq', retry: true
+              sh.cmd 'travis_apt_get_update', retry: true
               sh.cmd 'sudo apt-get install libgc1c2 -qq', retry: true # required by neko
             when 'osx'
               # pass
@@ -78,7 +77,7 @@ module Travis
           end
 
           sh.fold('haxe-install') do
-            haxe_path = '${HOME}/haxe'
+            haxe_path = '${TRAVIS_HOME}/haxe'
 
             sh.echo 'Installing Haxe', ansi: :yellow
             sh.cmd %Q{mkdir -p #{haxe_path}}
@@ -142,7 +141,7 @@ module Travis
               nil
             end
 
-            haxeorg_stable || github_stable || "3.4.4"
+            haxeorg_stable || github_stable || "3.4.7"
           end
 
           def haxe_version
@@ -175,7 +174,7 @@ module Travis
               when 'osx'
                 'mac'
               end
-              "http://hxbuilds.s3-website-us-east-1.amazonaws.com/builds/haxe/#{os}/haxe_latest.tar.gz"
+              "https://build.haxe.org/builds/haxe/#{os}/haxe_latest.tar.gz"
             else
               os = case config[:os]
               when 'linux'
