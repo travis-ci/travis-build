@@ -26,7 +26,7 @@ module Travis
           sh.echo 'and cc @paultcochrane, @hoelzro, @ugexe, and @tony-o', ansi: :red
 
           sh.echo 'Installing Rakudo (MoarVM)', ansi: :yellow
-          sh.cmd 'git clone https://github.com/tadzik/rakudobrew.git ${TRAVIS_HOME}/.rakudobrew'
+          sh.cmd 'git clone -b v1 https://github.com/tadzik/rakudobrew.git ${TRAVIS_HOME}/.rakudobrew'
           sh.export 'PATH', '${TRAVIS_HOME}/.rakudobrew/bin:$PATH', echo: false
         end
 
