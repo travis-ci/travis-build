@@ -138,11 +138,16 @@ module Travis
 
         expanded = {
           full_version => full_version,
-          major => full_version,
-          "#{major}.x" => full_version,
-          "#{major}.x.x" => full_version,
-          "#{fullparts[0]}.#{fullparts[1]}.x" => full_version
         }
+
+        unless full_version =~ /(alpha|beta)/i
+          expanded.merge!({
+            major => full_version,
+            "#{major}.x" => full_version,
+            "#{major}.x.x" => full_version,
+            "#{fullparts[0]}.#{fullparts[1]}.x" => full_version
+          })
+        end
 
         key = "#{fullparts[0]}.#{fullparts[1]}"
         expanded[key] = full_version if alias_major_minor
