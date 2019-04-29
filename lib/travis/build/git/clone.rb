@@ -1,4 +1,5 @@
 require 'shellwords'
+require 'uri'
 require 'travis/build/git/netrc'
 
 module Travis
@@ -6,63 +7,21 @@ module Travis
     class Git
       class Clone < Struct.new(:sh, :data)
         def apply
+          netrc.write if netrc.write?
+
           sh.fold 'git.checkout' do
             sh.export 'GIT_LFS_SKIP_SMUDGE', '1' if lfs_skip_smudge?
             clone_or_fetch
             sh.cd dir
             fetch_ref if fetch_ref?
             checkout
-            sh.cmd "git fsck", assert: false, retry: true if trace_git_commands?
           end
-          sh.newline
         end
 
         private
-          TRACE_COMMAND_GIT_TRACE = "GIT_TRACE=true"
-          TRACE_COMMAND_STRACE = "strace"
-          TRACE_COMMAND_ALL = "all"
-          DEFAULT_TRACE_COMMAND = TRACE_COMMAND_GIT_TRACE
 
-          def repo_slug
-            data.repository[:slug].to_s
-          end
-
-          def owner_login
-            repo_slug.split('/').first
-          end
-
-          def trace_git_commands_owners
-            Travis::Build.config.trace_git_commands_owners.output_safe.split(',')
-          end
-
-          def trace_git_commands_slugs
-            Travis::Build.config.trace_git_commands_slugs.output_safe.split(',')
-          end
-
-          def trace_git_commands?
-            trace_git_commands_slugs.include?(repo_slug) || trace_git_commands_owners.include?(owner_login)
-          end
-
-          def trace_command
-            if Travis::Build.config.trace_command.output_safe == TRACE_COMMAND_ALL
-              "GIT_TRACE=true GIT_FLUSH=1 GIT_TRACE_PERFORMANCE=true GIT_TRACE_PACK_ACCESS=true GIT_TRACE_PACKET=true GIT_TRACE_PACK_ACCESS=true strace"
-            elsif Travis::Build.config.trace_command.output_safe == TRACE_COMMAND_STRACE
-              "strace"
-            else
-              DEFAULT_TRACE_COMMAND
-            end
-          end
-
-          def git_cmd
-            trace_git_commands? ? "#{trace_command} git" : "git"
-          end
-
-          def git_clone
-            sh.cmd "#{git_cmd} clone #{clone_args} #{data.source_url} #{dir}", assert: false, retry: true
-          end
-
-           def git_fetch
-            sh.cmd "#{git_cmd} -C #{dir} fetch origin#{fetch_args}", assert: true, retry: true
+          def netrc
+            @netrc ||= Netrc.new(sh, data)
           end
 
           def clone_or_fetch
@@ -78,18 +37,18 @@ module Travis
                 sh.cmd "cat #{dir}/#{sparse_checkout} >> #{dir}/.git/info/sparse-checkout", assert: true, retry: true
                 sh.cmd "git -C #{dir} reset --hard", assert: true, timing: false
               else
-                git_clone
+                sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: false, retry: true
                 warn_github_status
               end
             end
             sh.else do
-              git_fetch
+              sh.cmd "git -C #{dir} fetch origin", assert: true, retry: true
               sh.cmd "git -C #{dir} reset --hard", assert: true, timing: false
             end
           end
 
           def fetch_ref
-            sh.cmd "#{git_cmd} fetch origin +#{data.ref}:#{fetch_args}", assert: true, retry: true
+            sh.cmd "git fetch origin +#{data.ref}:", assert: true, retry: true
           end
 
           def fetch_ref?
@@ -115,12 +74,6 @@ module Travis
 
           def pull_args
             args = depth_flag
-            args << " --quiet" if quiet?
-            args
-          end
-
-          def fetch_args
-            args = ""
             args << " --quiet" if quiet?
             args
           end
@@ -173,8 +126,14 @@ module Travis
           end
 
           def github?
-            host = data.source_host.to_s.downcase
-            host == 'github.com' || host.end_with?('.github.com')
+            source_host_name.downcase == 'github.com' || source_host_name.downcase.end_with?('.github.com')
+          end
+
+          def source_host_name
+            # we will assume that the URL looks like one for git+ssh; e.g., git@github.com:travis-ci/travis-build.git
+            match = /[^@]+@(.*):/.match(data.source_url)
+            return match[1] if match
+            URI.parse(data.source_url).host
           end
       end
     end
