@@ -9,7 +9,7 @@ module Travis
         attr_reader :script, :sh, :data, :config
 
         def after_configure
-          sh.raw "echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-certificates.crt >/dev/null"
+          update_certs
         end
 
         def initialize(script, sh, data, config)
@@ -85,6 +85,15 @@ SH
           sh.else echo:true do
             sh.raw "echo -e \"\033[33;1mSkipping build_coverity due to previous error\033[0m\""
           end
+        end
+
+        def update_certs
+          sh.raw "curl -Ls https://entrust.com/root-certificates/entrust_l1k.cer -o ~/entrust_l1k.crt"
+          sh.raw "curl -LS https://curl.haxx.se/ca/cacert.pem -o ~/cacert.pem"
+          sh.raw "cat ~/entrust_l1k.crt >> ~/cacert.pem"
+          sh.raw 'echo "cacert=\"$HOME/cacert.pem\"" >> ~/.curlrc'
+          sh.raw 'echo "ca_certificate=$HOME/cacert.pem" >> ~/.wgetrc'
+          sh.raw "echo -n | openssl s_client -connect scan.coverity.com:443 2>/dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-certificates.crt >/dev/null"
         end
 
       end
