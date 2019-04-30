@@ -68,6 +68,8 @@ module Travis
             sh.cmd 'sudo service mysql start', assert: false, echo: true, timing: true
           end
           sh.elif '"$TRAVIS_INIT" == systemd' do
+            sh.cmd 'DATADIR=$(mysqld --verbose --help | grep ^datadir | awk "{print $2}")', assert: false, echo: true, timing: true
+            sh.cmd 'sudo find ${DATADIR} -type f -exec touch {} \;', assert: false, echo: true, timing: true
             sh.cmd 'sudo systemctl start mysql', assert: false, echo: true, timing: true
           end
           sh.cmd 'travis_mysql_ping'
