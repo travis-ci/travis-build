@@ -114,5 +114,14 @@ PAYLOAD_LANGUAGE_OVERRIDES = {
     'config' => {
       'script' => 'py.test -v'
     }
+  },
+  go: {
+    'repository' => {
+      'slug' => 'travis-ci-examples/go-example'
+    },
+    'job' => {
+      'commit' => '80f94a0',
+      'commit_range' => 'cf2a57e..80f94a0'
+    }
   }
 }

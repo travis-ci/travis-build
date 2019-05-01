@@ -16,11 +16,11 @@ describe Travis::Build::Script::Php, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'sets TRAVIS_PHP_VERSION' do
-    should include_sexp [:export, ['TRAVIS_PHP_VERSION', '5.5']]
+    should include_sexp [:export, ['TRAVIS_PHP_VERSION', '7.2']]
   end
 
   it 'sets up the php version' do
-    should include_sexp [:cmd, 'phpenv global 5.5 2>/dev/null', echo: true, timing: true]
+    should include_sexp [:cmd, 'phpenv global 7.2 2>/dev/null', echo: true, timing: true]
     should include_sexp [:cmd, 'phpenv rehash']
   end
 
@@ -34,6 +34,35 @@ describe Travis::Build::Script::Php, :sexp do
 
   it 'runs phpunit' do
     should include_sexp [:cmd, 'phpunit', echo: true, timing: true]
+  end
+
+  context "with minimal config" do
+    before do
+      data[:config][:language] = 'php'; data[:config].delete(:php)
+      described_class.send :remove_const, :DEPRECATIONS
+      described_class.const_set("DEPRECATIONS", [
+        {
+          name: 'PHP',
+          current_default: '5.5',
+          new_default: '7.3',
+          cutoff_date: '2018-03-15',
+        }
+      ])
+    end
+
+    context "before default change cutoff date" do
+      before do
+        DateTime.stubs(:now).returns(DateTime.parse("2018-01-01"))
+      end
+      it { should include_sexp [:echo, /Using the default PHP version/, ansi: :yellow] }
+    end
+
+    context "after default change cutoff date" do
+      before do
+        DateTime.stubs(:now).returns(DateTime.parse("2019-01-01"))
+      end
+      it { should_not include_sexp [:echo, /Using the default PHP version/, ansi: :yellow] }
+    end
   end
 
   describe 'installs php nightly' do

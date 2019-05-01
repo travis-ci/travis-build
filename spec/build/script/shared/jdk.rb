@@ -27,6 +27,16 @@ shared_examples_for 'a jdk build sexp' do
     end
   end
 
+  context "when jdk is an array" do
+    before :each do
+      data[:config][:jdk] = ['openjdk7']
+    end
+
+    it 'sets TRAVIS_JDK_VERSION' do
+      should include_sexp export_jdk_version
+    end
+  end
+
   describe 'if build.gradle exists' do
     let(:sexp) { sexp_find(subject, [:if, '-f build.gradle || -f build.gradle.kts'], [:then]) }
 

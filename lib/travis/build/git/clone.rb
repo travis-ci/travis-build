@@ -12,11 +12,58 @@ module Travis
             sh.cd dir
             fetch_ref if fetch_ref?
             checkout
+            sh.cmd "git fsck", assert: false, retry: true if trace_git_commands?
           end
           sh.newline
         end
 
         private
+          TRACE_COMMAND_GIT_TRACE = "GIT_TRACE=true"
+          TRACE_COMMAND_STRACE = "strace"
+          TRACE_COMMAND_ALL = "all"
+          DEFAULT_TRACE_COMMAND = TRACE_COMMAND_GIT_TRACE
+
+          def repo_slug
+            data.repository[:slug].to_s
+          end
+
+          def owner_login
+            repo_slug.split('/').first
+          end
+
+          def trace_git_commands_owners
+            Travis::Build.config.trace_git_commands_owners.output_safe.split(',')
+          end
+
+          def trace_git_commands_slugs
+            Travis::Build.config.trace_git_commands_slugs.output_safe.split(',')
+          end
+
+          def trace_git_commands?
+            trace_git_commands_slugs.include?(repo_slug) || trace_git_commands_owners.include?(owner_login)
+          end
+
+          def trace_command
+            if Travis::Build.config.trace_command.output_safe == TRACE_COMMAND_ALL
+              "GIT_TRACE=true GIT_FLUSH=1 GIT_TRACE_PERFORMANCE=true GIT_TRACE_PACK_ACCESS=true GIT_TRACE_PACKET=true GIT_TRACE_PACK_ACCESS=true strace"
+            elsif Travis::Build.config.trace_command.output_safe == TRACE_COMMAND_STRACE
+              "strace"
+            else
+              DEFAULT_TRACE_COMMAND
+            end
+          end
+
+          def git_cmd
+            trace_git_commands? ? "#{trace_command} git" : "git"
+          end
+
+          def git_clone
+            sh.cmd "#{git_cmd} clone #{clone_args} #{data.source_url} #{dir}", assert: false, retry: true
+          end
+
+           def git_fetch
+            sh.cmd "#{git_cmd} -C #{dir} fetch origin#{fetch_args}", assert: true, retry: true
+          end
 
           def clone_or_fetch
             sh.if "! -d #{dir}/.git" do
@@ -31,18 +78,18 @@ module Travis
                 sh.cmd "cat #{dir}/#{sparse_checkout} >> #{dir}/.git/info/sparse-checkout", assert: true, retry: true
                 sh.cmd "git -C #{dir} reset --hard", assert: true, timing: false
               else
-                sh.cmd "git clone #{clone_args} #{data.source_url} #{dir}", assert: false, retry: true
+                git_clone
                 warn_github_status
               end
             end
             sh.else do
-              sh.cmd "git -C #{dir} fetch origin#{fetch_args}", assert: true, retry: true
+              git_fetch
               sh.cmd "git -C #{dir} reset --hard", assert: true, timing: false
             end
           end
 
           def fetch_ref
-            sh.cmd "git fetch origin +#{data.ref}:#{fetch_args}", assert: true, retry: true
+            sh.cmd "#{git_cmd} fetch origin +#{data.ref}:#{fetch_args}", assert: true, retry: true
           end
 
           def fetch_ref?
@@ -55,7 +102,7 @@ module Travis
 
           def checkout_ref
             return 'FETCH_HEAD' if data.pull_request
-            return data.tag     if data.tag
+            return tag if data.tag
             data.commit
           end
 

@@ -32,12 +32,14 @@ module Travis
           bioc_check: false,
           bioc_use_devel: false,
           disable_homebrew: false,
+          use_devtools: false,
           r: 'release'
         }
 
         def initialize(data)
           # TODO: Is there a way to avoid explicitly naming arguments here?
           super
+          @remotes_installed = false
           @devtools_installed = false
           @bioc_installed = false
         end
@@ -58,7 +60,7 @@ module Travis
 
           sh.echo 'R for Travis-CI is not officially supported, '\
                   'but is community maintained.', ansi: :green
-          sh.echo 'Please file any issues at https://github.com/travis-ci/travis-ci/issues'
+          sh.echo 'Please file any issues at https://travis-ci.community/c/languages/r'
           sh.echo 'and mention @jeroen and @jimhester in the issue'
 
           sh.fold 'R-install' do
@@ -82,7 +84,9 @@ module Travis
                 end
 
                 # Both c2d4u and c2d4u3.5 depend on this ppa for ffmpeg
-                sh.cmd 'sudo add-apt-repository -y "ppa:kirillshkrogalev/ffmpeg-next"'
+                sh.if "$(lsb_release -cs) = 'trusty'" do
+                  sh.cmd 'sudo add-apt-repository -y "ppa:kirillshkrogalev/ffmpeg-next"'
+                end
 
                 # Update after adding all repositories. Retry several
                 # times to work around flaky connection to Launchpad PPAs.
@@ -163,7 +167,8 @@ module Travis
               if config[:latex]
                 setup_latex
               else
-                config[:r_check_args] << " --no-manual"
+                config[:r_check_args] = config[:r_check_args] + " --no-manual"
+                config[:r_build_args] = config[:r_build_args] + " --no-manual"
               end
 
               setup_bioc if needs_bioc?
@@ -322,10 +327,13 @@ module Travis
         def r_github_install(packages)
           return if packages.empty?
           packages = Array(packages)
-          setup_devtools
+
+          setup_remotes
+          setup_devtools if config[:use_devtools]
+
           sh.echo "Installing R packages from GitHub: #{packages.join(', ')}"
           pkg_arg = packages_as_arg(packages)
-          install_script = "devtools::install_github(#{pkg_arg}, build_vignettes = FALSE)"
+          install_script = "remotes::install_github(#{pkg_arg})"
           sh.cmd "Rscript -e '#{install_script}'"
         end
 
@@ -366,10 +374,12 @@ module Travis
         end
 
         def install_deps
-          setup_devtools
+          setup_remotes
+          setup_devtools if config[:use_devtools]
+
           install_script =
-            'deps <- devtools::dev_package_deps(dependencies = NA);'\
-            'devtools::install_deps(dependencies = TRUE);'\
+            'deps <- remotes::dev_package_deps(dependencies = NA);'\
+            'remotes::install_deps(dependencies = TRUE);'\
             'if (!all(deps$package %in% installed.packages())) {'\
             ' message("missing: ", paste(setdiff(deps$package, installed.packages()), collapse=", "));'\
             ' q(status = 1, save = "no")'\
@@ -437,6 +447,23 @@ module Travis
           @bioc_installed = true
         end
 
+        def setup_remotes
+          unless @remotes_installed
+            case config[:os]
+            when 'linux'
+              # We can't use remotes binaries because R versions < 3.5 are not
+              # compatible with R versions >= 3.5
+                r_install ['remotes']
+            else
+              remotes_check = '!requireNamespace("remotes", quietly = TRUE)'
+              remotes_install = 'install.packages("remotes")'
+              sh.cmd "Rscript -e 'if (#{remotes_check}) #{remotes_install}'",
+                     retry: true
+            end
+          end
+          @remotes_installed = true
+        end
+
         def setup_devtools
           unless @devtools_installed
             case config[:os]
@@ -459,7 +486,7 @@ module Travis
           when 'linux'
             texlive_filename = 'texlive.tar.gz'
             texlive_url = 'https://github.com/jimhester/ubuntu-bin/releases/download/latest/texlive.tar.gz'
-            sh.cmd "curl -fLo /tmp/#{texlive_filename} #{texlive_url}"
+            sh.cmd "curl -fLo /tmp/#{texlive_filename} #{texlive_url}", retry: true
             sh.cmd "tar xzf /tmp/#{texlive_filename} -C ~"
             sh.export 'PATH', "${TRAVIS_HOME}/texlive/bin/x86_64-linux:$PATH"
             sh.cmd 'tlmgr update --self', assert: false
@@ -544,6 +571,7 @@ module Travis
           sh.cmd "curl -fsSOL https://raw.githubusercontent.com/Homebrew/install/master/uninstall"
           sh.cmd "sudo ruby uninstall --force"
           sh.cmd "rm uninstall"
+          sh.cmd "hash -r"
         end
 
         # Abstract out version check
@@ -562,14 +590,15 @@ module Travis
 
         def normalized_r_version(v=Array(config[:r]).first.to_s)
           case v
-          when 'release' then '3.5.2'
-          when 'oldrel' then '3.4.4'
+          when 'release' then '3.6.0'
+          when 'oldrel' then '3.5.3'
           when '3.0' then '3.0.3'
           when '3.1' then '3.1.3'
           when '3.2' then '3.2.5'
           when '3.3' then '3.3.3'
           when '3.4' then '3.4.4'
-          when '3.5' then '3.5.0'
+          when '3.5' then '3.5.3'
+          when '3.6' then '3.6.0'
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true

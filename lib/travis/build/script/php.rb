@@ -3,9 +3,18 @@ module Travis
     class Script
       class Php < Script
         DEFAULTS = {
-          php:      '5.5',
+          php:      '7.2',
           composer: '--no-interaction --prefer-source'
         }
+
+        DEPRECATIONS = [
+          {
+            name: 'PHP',
+            current_default: DEFAULTS[:php],
+            new_default: '7.2',
+            cutoff_date: '2019-03-12',
+          }
+        ]
 
         def configure
           super

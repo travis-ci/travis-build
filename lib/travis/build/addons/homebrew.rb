@@ -44,7 +44,7 @@ module Travis
 
         def update_homebrew
           sh.echo "Updating Homebrew", ansi: :yellow
-          sh.cmd "rvm $brew_ruby do brew update", echo: true, timing: true
+          sh.cmd "rvm $brew_ruby do brew update 1>/dev/null", echo: true, timing: true
         end
 
         def config_packages
