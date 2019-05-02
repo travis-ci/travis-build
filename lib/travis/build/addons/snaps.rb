@@ -65,17 +65,29 @@ module Travis
         def expand_install_command(snap)
           return snap if snap.is_a?(String)
 
-          command = snap[:name]
-
           if snap[:classic] == true
-            command += " --classic"
+            sh.echo "'classic: true' is deprecated. Please use 'confinement: classic' instead.", ansi: :yellow
+            snap[:confinement] = 'classic'
           end
 
-          if snap.has_key?(:channel)
-            command += " --channel=#{snap[:channel]}"
-          end
+          [ snap[:name], confinement_flag(snap), channel_flag(snap) ].compact.join(" ")
+        end
 
-          command
+        def confinement_flag(snap)
+          confinement = snap[:confinement].to_s.downcase
+
+          case confinement
+          when /classic|devmode/
+            "--#{confinement}"
+          end
+        end
+
+        def channel_flag(snap)
+          channel = snap[:channel].to_s.downcase
+
+          unless channel.empty?
+            "--channel=#{channel}"
+          end
         end
       end
     end
