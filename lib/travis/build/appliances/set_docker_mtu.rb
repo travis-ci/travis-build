@@ -19,8 +19,6 @@ if [[ $? = 0 ]]; then
 else
   echo '{\"mtu\":1460}' | sudo tee /etc/docker/daemon.json > /dev/null
 fi
-
-sudo service docker restart
             EOF
           end
         end
