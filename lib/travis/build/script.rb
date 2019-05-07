@@ -325,6 +325,7 @@ module Travis
           apply :deprecate_xcode_64
           apply :update_heroku
           apply :shell_session_update
+          apply :set_docker_mtu
 
           check_deprecation
         end
