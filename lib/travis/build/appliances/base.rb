@@ -15,6 +15,10 @@ module Travis
         def windows?
           config[:os] == 'windows'
         end
+
+        def linux?
+          config[:os] == 'linux'
+        end
       end
     end
   end
