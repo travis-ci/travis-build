@@ -1,4 +1,4 @@
-FROM ruby:2.5.3 as builder
+FROM ruby:2.3.4 as builder
 WORKDIR /usr/src/app
 
 ARG GITHUB_OAUTH_TOKEN=notset
