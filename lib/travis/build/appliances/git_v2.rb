@@ -9,7 +9,7 @@ module Travis
         end
 
         def apply?
-          config[:os] == 'osx' && config[:osx_image].start_with? 'xcode10'
+          config[:os] == 'osx' && config[:osx_image] && config[:osx_image].start_with?('xcode10')
         end
       end
     end
