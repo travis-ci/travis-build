@@ -326,6 +326,7 @@ module Travis
           apply :update_heroku
           apply :shell_session_update
           apply :git_v2
+          apply :set_docker_mtu
 
           check_deprecation
         end
