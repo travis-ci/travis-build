@@ -86,7 +86,7 @@ module Travis
         end
 
         def skip_safelist?
-          Travis::Build.config.apt_safelist_skip?
+          Travis::Build.config.apt_safelist_skip
         end
 
         def load_alias_list?
