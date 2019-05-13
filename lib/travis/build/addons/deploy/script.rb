@@ -70,7 +70,7 @@ module Travis
 
               sh.else do
                 warning_message_unless(repo_condition, "this repo's name does not match one specified in .travis.yml's deploy.on.repo: #{on[:repo]}")
-                warning_message_unless(branch_condition, "current branch is \"$TRAVIS_BRANCH\" and deployment configuration is for: #{data.branch}")
+                warning_message_unless(branch_condition, "current branch is [ \"$TRAVIS_BRANCH\" ] and deployment configuration is for [ #{branch_config.join(', ')} ]")
                 warning_message_unless(runtime_conditions, "this is not on the required runtime")
                 warning_message_unless(custom_conditions, "a custom condition was not met")
                 warning_message_unless(tags_condition, "this is not a tagged commit")
@@ -110,11 +110,13 @@ module Travis
             def repo_condition
               "$TRAVIS_REPO_SLUG = \"#{on[:repo]}\"" if on[:repo]
             end
+          
+            def branch_config
+              on[:branch].respond_to?(:keys) ? on[:branch].keys : on[:branch]
+            end
 
             def branch_condition
               return if on[:all_branches] || on[:tags]
-
-              branch_config = on[:branch].respond_to?(:keys) ? on[:branch].keys : on[:branch]
 
               branches  = Array(branch_config || default_branches)
               branches.map { |b| "$TRAVIS_BRANCH = #{b}" }.join(' || ')
