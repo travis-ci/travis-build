@@ -327,6 +327,7 @@ module Travis
           apply :shell_session_update
           apply :git_v2
           apply :set_docker_mtu
+          apply :resolvconf
 
           check_deprecation
         end
