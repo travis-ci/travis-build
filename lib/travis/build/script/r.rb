@@ -602,12 +602,12 @@ module Travis
             config[:bioc_required] = true
             config[:bioc_use_devel] = true
             config[:r] = 'release'
-            normalized_r_version
+            normalized_r_version('release')
           when 'bioc-release'
             config[:bioc_required] = true
             config[:bioc_use_devel] = false
             config[:r] = 'release'
-            normalized_r_version
+            normalized_r_version('release')
           else v
           end
         end
