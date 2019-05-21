@@ -8,7 +8,7 @@ describe Travis::Build::Addons::Apt, :sexp do
   let(:addon)              { described_class.new(script, sh, Travis::Build::Data.new(data), apt_config) }
   let(:apt_config)         { {} }
   let(:dist)               { :xenial }
-  let(:source_safelists)  { { xenial: [{ alias: 'testing', sourceline: 'deb http://example.com/deb repo main' }] } }
+  let(:source_alias_lists)  { { xenial: [{ alias: 'testing', sourceline: 'deb http://example.com/deb repo main' }] } }
   let(:package_safelists) { { xenial: %w(git curl) } }
   let(:paranoid)           { true }
   let(:safelist_skip)     { false }
@@ -20,7 +20,7 @@ describe Travis::Build::Addons::Apt, :sexp do
 
   before :each do
     described_class.instance_variable_set(:@package_safelists, nil)
-    described_class.instance_variable_set(:@source_safelists, nil)
+    described_class.instance_variable_set(:@source_alias_lists, nil)
     script.stubs(:bash).returns('')
     addon.stubs(:skip_safelist?).returns(safelist_skip)
   end
@@ -74,17 +74,17 @@ describe Travis::Build::Addons::Apt, :sexp do
   context 'when the source safelist is provided' do
     before do
       described_class.stubs(:fetch_source_safelist)
-        .returns(JSON.dump(source_safelists[dist]))
+        .returns(JSON.dump(source_alias_lists[dist]))
       addon.before_prepare
     end
 
     it 'exposes a source safelist' do
-      expect(described_class.source_safelists).to_not be_empty
+      expect(described_class.source_alias_lists).to_not be_empty
     end
 
     it 'instances delegate source safelist to class' do
-      expect(described_class.source_safelists)
-        .to eql(addon.send(:source_safelists))
+      expect(described_class.source_alias_lists)
+        .to eql(addon.send(:source_alias_lists))
     end
   end
 
@@ -106,7 +106,7 @@ describe Travis::Build::Addons::Apt, :sexp do
     end
 
     it 'defaults source safelist to empty hash' do
-      expect(described_class.source_safelists)
+      expect(described_class.source_alias_lists)
         .to eql({ precise: {}, trusty: {}, xenial: {}, unset: {} })
     end
   end
@@ -189,7 +189,7 @@ describe Travis::Build::Addons::Apt, :sexp do
       }
     end
 
-    let(:source_safelists) do
+    let(:source_alias_lists) do
       {
         xenial: {
           'deadsnakes-xenial' => deadsnakes,
@@ -199,7 +199,7 @@ describe Travis::Build::Addons::Apt, :sexp do
     end
 
     before do
-      addon.stubs(:source_safelists).returns(source_safelists)
+      addon.stubs(:source_alias_lists).returns(source_alias_lists)
       addon.before_prepare
     end
 

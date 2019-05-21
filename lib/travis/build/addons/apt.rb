@@ -20,8 +20,8 @@ module Travis
             @package_safelists ||= load_package_safelists
           end
 
-          def source_safelists
-            @source_safelists ||= load_source_safelists
+          def source_alias_lists
+            @source_alias_lists ||= load_source_alias_lists
           end
 
           private
@@ -39,7 +39,7 @@ module Travis
             loaded
           end
 
-          def load_source_safelists(dists = SUPPORTED_DISTS)
+          def load_source_alias_lists(dists = SUPPORTED_DISTS)
             require 'faraday'
             loaded = { unset: {} }.merge(Hash[dists.map { |dist| [dist.to_sym, {}] }])
             dists.each do |dist|
@@ -107,7 +107,7 @@ module Travis
             sh.cmd "sudo mv #{tmp_dest} ${TRAVIS_ROOT}/etc/apt/apt.conf.d"
           end
         end
-        
+
         def config
           @config ||= Hash(super)
         end
@@ -122,7 +122,7 @@ module Travis
             disallowed_while_sudo = []
 
             config_sources.each do |src|
-              source = source_safelists[config_dist][src]
+              source = source_alias_lists[config_dist][src]
 
               if source.respond_to?(:[]) && source['sourceline']
                 safelisted << source.clone
@@ -233,8 +233,8 @@ module Travis
             ::Travis::Build::Addons::Apt.package_safelists
           end
 
-          def source_safelists
-            ::Travis::Build::Addons::Apt.source_safelists
+          def source_alias_lists
+            ::Travis::Build::Addons::Apt.source_alias_lists
           end
 
           def safelisted_source_key_url(source)
