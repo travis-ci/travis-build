@@ -87,6 +87,10 @@ module Travis
           Travis::Build.config.apt_safelist_skip?
         end
 
+        def load_alias_list?
+          Travis::Build.config.apt_load_source_alias_list?
+        end
+
         def before_configure?
           config[:config] && config[:config][:retries]
         end
@@ -122,10 +126,13 @@ module Travis
             disallowed_while_sudo = []
 
             config_sources.each do |src|
-              source = source_alias_lists[config_dist][src]
-
-              if source.respond_to?(:[]) && source['sourceline']
-                safelisted << source.clone
+              if load_alias_list? && source = source_alias_lists[config_dist][src]
+                if source.respond_to?(:[]) && source['sourceline']
+                  safelisted << source.clone
+                else
+                  sh.echo "'sourceline' is missing in the alias #{src}", ansi: :yellow
+                  sh.echo Shellwords.escape(src.inspect)
+                end
               elsif !data.disable_sudo? || skip_safelist?
                 if src.respond_to?(:has_key?)
                   if src.has_key?(:sourceline)

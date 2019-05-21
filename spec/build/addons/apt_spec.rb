@@ -12,6 +12,7 @@ describe Travis::Build::Addons::Apt, :sexp do
   let(:package_safelists) { { xenial: %w(git curl) } }
   let(:paranoid)           { true }
   let(:safelist_skip)     { false }
+  let(:apt_load_source_alias_list) { true }
   subject                  { sh.to_sexp }
 
   before :all do
@@ -23,6 +24,7 @@ describe Travis::Build::Addons::Apt, :sexp do
     described_class.instance_variable_set(:@source_alias_lists, nil)
     script.stubs(:bash).returns('')
     addon.stubs(:skip_safelist?).returns(safelist_skip)
+    addon.stubs(:load_alias_list?).returns(apt_load_source_alias_list)
   end
 
   context 'when on osx' do
@@ -260,6 +262,14 @@ describe Travis::Build::Addons::Apt, :sexp do
       it { should include_sexp [:cmd, apt_sources_append_command('foobar'), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_sources_append_command(evilbadthings['sourceline']), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_add_repository_command('ppa:evilbadppa'), echo: true, assert: true, timing: true] }
+    end
+
+    context 'when apt source aliases are not loaded' do
+      let(:apt_load_source_alias_list) { false }
+      let(:apt_config) { { sources: ['packagecloud-xenial', 'deadsnakes-xenial', 'evilbadthings', 'ppa:archivematica/externals', { sourceline: 'foobar' }] } }
+
+      it { should_not include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
+      it { should_not include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
     end
   end
 
