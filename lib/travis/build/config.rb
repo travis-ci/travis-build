@@ -50,12 +50,12 @@ module Travis
           xenial: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_XENIAL', ''),
         },
         apt_proxy: ENV.fetch('TRAVIS_BUILD_APT_PROXY', ''),
-        apt_source_safelist: {
+        apt_source_alias_list: {
           precise: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_SAFELIST_PRECISE', ''),
           trusty: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_SAFELIST_TRUSTY', ''),
           xenial: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_SAFELIST_XENIAL', ''),
         },
-        apt_source_safelist_key_url_template: ENV.fetch(
+        apt_source_alias_list_key_url_template: ENV.fetch(
           'TRAVIS_BUILD_APT_SOURCE_SAFELIST_KEY_URL_TEMPLATE',
           'https://%{app_host}/files/gpg/%{source_alias}.asc'
         ),

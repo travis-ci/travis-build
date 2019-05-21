@@ -43,7 +43,7 @@ module Travis
             require 'faraday'
             loaded = { unset: {} }.merge(Hash[dists.map { |dist| [dist.to_sym, {}] }])
             dists.each do |dist|
-              response = fetch_source_safelist(dist)
+              response = fetch_source_alias_list(dist)
               entries = JSON.parse(response)
               loaded[dist.to_sym] = Hash[entries.reject { |e| !e.key?('alias') }.map { |e| [e.fetch('alias'), e] }]
             end
@@ -57,16 +57,16 @@ module Travis
             Faraday.get(package_safelist_url(dist)).body.to_s
           end
 
-          def fetch_source_safelist(dist)
-            Faraday.get(source_safelist_url(dist)).body.to_s
+          def fetch_source_alias_list(dist)
+            Faraday.get(source_alias_list_url(dist)).body.to_s
           end
 
           def package_safelist_url(dist)
             Travis::Build.config.apt_package_safelist[dist.downcase].to_s
           end
 
-          def source_safelist_url(dist)
-            Travis::Build.config.apt_source_safelist[dist.downcase].to_s
+          def source_alias_list_url(dist)
+            Travis::Build.config.apt_source_alias_list[dist.downcase].to_s
           end
         end
 
@@ -238,7 +238,7 @@ module Travis
           end
 
           def safelisted_source_key_url(source)
-            tmpl = Travis::Build.config.apt_source_safelist_key_url_template.to_s.output_safe
+            tmpl = Travis::Build.config.apt_source_alias_list_key_url_template.to_s.output_safe
             if source['key_url'] && (!data.disable_sudo? || skip_safelist?)
               tmpl = source['key_url']
             end

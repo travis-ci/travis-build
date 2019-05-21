@@ -73,7 +73,7 @@ describe Travis::Build::Addons::Apt, :sexp do
 
   context 'when the source safelist is provided' do
     before do
-      described_class.stubs(:fetch_source_safelist)
+      described_class.stubs(:fetch_source_alias_list)
         .returns(JSON.dump(source_alias_lists[dist]))
       addon.before_prepare
     end
@@ -101,7 +101,7 @@ describe Travis::Build::Addons::Apt, :sexp do
 
   context 'when the source safelist cannot be fetched' do
     before do
-      described_class.stubs(:fetch_source_safelist).raises(StandardError)
+      described_class.stubs(:fetch_source_alias_list).raises(StandardError)
       addon.before_prepare
     end
 
