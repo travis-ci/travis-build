@@ -78,6 +78,7 @@ module Travis
 
         def before_prepare
           sh.fold('apt') do
+            add_apt_gpg_keys
             add_apt_sources unless config_sources.empty?
             add_apt_packages unless config_packages.empty?
           end
@@ -107,7 +108,7 @@ module Travis
             sh.cmd "sudo mv #{tmp_dest} ${TRAVIS_ROOT}/etc/apt/apt.conf.d"
           end
         end
-        
+
         def config
           @config ||= Hash(super)
         end
@@ -202,6 +203,24 @@ module Travis
                 sh.raw "TRAVIS_CMD='#{command}'"
                 sh.raw "travis_assert $result"
               end
+            end
+          end
+
+          def gpg_keys_url
+            Travis::Build.config.gpg_keys_url.to_s
+          end
+
+          def fetch_gpg_keys
+            Faraday.get(gpg_keys_url).body.to_s
+          rescue
+            '[]'
+          end
+
+          def add_apt_gpg_keys
+            apt_gpg_keys = Array(JSON.parse(fetch_gpg_keys))
+            apt_gpg_keys.each do |key|
+              sh.echo "Adding GPG key for #{key["name"]}"
+              sh.cmd "sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys #{key["id"]}", echo: true
             end
           end
 

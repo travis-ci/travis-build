@@ -60,6 +60,7 @@ module Travis
           'https://%{app_host}/files/gpg/%{source_alias}.asc'
         ),
         apt_safelist_skip: ENV.fetch('TRAVIS_BUILD_APT_SAFELIST_SKIP', '').to_bool,
+        gpg_keys_url: ENV.fetch('TRAVIS_BUILD_GPG_KEYS_URL',''),
         auth_disabled: ENV.fetch('TRAVIS_BUILD_AUTH_DISABLED', '').to_bool,
         cabal_default: ENV.fetch('TRAVIS_BUILD_CABAL_DEFAULT', '2.0'),
         enable_debug_tools: ENV.fetch(
