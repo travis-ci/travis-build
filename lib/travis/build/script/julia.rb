@@ -2,10 +2,9 @@
 
 # Community maintainers:
 #
-#   Tony Kelman       <tony kelman net, @tkelman>
-#   Pontus Stenetorp  <pontus stenetorp se, @ninjin>
-#   Elliot Saba       <staticfloat gmail com, @staticfloat>
-#   Simon Byrne       <simonbyrne gmail.com, @simonbyrne>
+#   Alex Arslan       (@ararslan)
+#   Elliot Saba       (@staticfloat)
+#   Stefan Karpinski  (@StefanKarpinski)
 #
 module Travis
   module Build
@@ -13,6 +12,8 @@ module Travis
       class Julia < Script
         DEFAULTS = {
           julia: 'release',
+          coveralls: false,
+          codecov: false,
         }
 
         def export
@@ -20,6 +21,7 @@ module Travis
 
           sh.export 'TRAVIS_JULIA_VERSION', config[:julia].to_s.shellescape,
             echo: false
+          sh.export 'JULIA_PROJECT', "@."
         end
 
         def setup
@@ -29,10 +31,9 @@ module Travis
             'but is community maintained.', ansi: :green
           sh.echo 'Please file any issues using the following link',
             ansi: :green
-          sh.echo '  https://github.com/travis-ci/travis-ci/issues' \
-            '/new?labels=julia', ansi: :green
-          sh.echo 'and mention \`@tkelman\`, \`@ninjin\`, \`@staticfloat\`' \
-            ' and \`@simonbyrne\` in the issue', ansi: :green
+          sh.echo '  https://travis-ci.community/c/languages/julia', ansi: :green
+          sh.echo 'and mention \`@ararslan\`, \`@staticfloat\`' \
+            ' and \`@StefanKarpinski\` in the issue', ansi: :green
 
           sh.fold 'Julia-install' do
             sh.echo 'Installing Julia', ansi: :yellow
@@ -50,38 +51,60 @@ module Travis
             else
               sh.failure "Operating system not supported: #{config[:os]}"
             end
-            sh.cmd 'export PATH="${PATH}:${HOME}/julia/bin"'
+            sh.cmd 'export PATH="${PATH}:${TRAVIS_HOME}/julia/bin"'
           end
         end
 
         def announce
           super
 
-          sh.cmd "julia -e 'versioninfo()'"
-          sh.echo ''
+          sh.cmd 'julia --color=yes -e "VERSION >= v\"0.7.0-DEV.3630\" && using InteractiveUtils; versioninfo()"'
+          sh.newline
         end
 
         def script
           sh.echo 'Executing the default test script', ansi: :green
-          set_jl_pkg
+
+          # Extract the package name from the repository slug (org/pkgname.jl)
+          m = /(\w+?)\/(\w+?)(?:\.jl)?$/.match(data[:repository][:slug])
+          if m != nil
+            sh.export 'JL_PKG', m[2]
+          end
           sh.echo 'Package name determined from repository url to be ${JL_PKG}',
             ansi: :green
-          # Check if the repository is a Julia package.
-          sh.if "-f src/${JL_PKG}.jl" do
+          # Check if the repository is using new Pkg
+          sh.if "-f Project.toml || -f JuliaProject.toml" do
             sh.if '-a .git/shallow' do
               sh.cmd 'git fetch --unshallow'
             end
-            sh.cmd "julia --color=yes -e 'Pkg.clone(pwd())'"
-            sh.cmd 'julia --color=yes -e "Pkg.build(\"${JL_PKG}\")"'
-            sh.if '-f test/runtests.jl' do
-              sh.cmd 'julia --check-bounds=yes --color=yes ' \
-                '-e "Pkg.test(\"${JL_PKG}\", coverage=true)"'
+            # build
+            sh.cmd 'julia --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; Pkg.clone(pwd()); Pkg.build(\"${JL_PKG}\"); else using Pkg; if VERSION >= v\"1.1.0-rc1\"; Pkg.build(verbose=true); else Pkg.build(); end; end"', assert: true
+            # run tests
+            sh.cmd 'julia --check-bounds=yes --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; Pkg.test(\"${JL_PKG}\", coverage=true); else using Pkg; Pkg.test(coverage=true); end"', assert: true
+            # coverage
+            if config[:codecov]
+              sh.cmd 'julia --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; cd(Pkg.dir(\"${JL_PKG}\")); else using Pkg; end; Pkg.add(\"Coverage\"); using Coverage; Codecov.submit(process_folder())"'
             end
+            if config[:coveralls]
+              sh.cmd 'julia --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; cd(Pkg.dir(\"${JL_PKG}\")); else using Pkg; end; Pkg.add(\"Coverage\"); using Coverage; Coveralls.submit(process_folder())"'
+            end
+
           end
           sh.else do
-            sh.echo '\`src/${JL_PKG}.jl\` not found, repository is not a '\
-              'valid Julia package so the default test script is empty',
-              ansi: :yellow
+            sh.if '-a .git/shallow' do
+              sh.cmd 'git fetch --unshallow'
+            end
+            # build
+            sh.cmd 'julia --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; Pkg.clone(pwd()); if VERSION >= v\"1.1.0-rc1\"; Pkg.build(\"${JL_PKG}\"; verbose=true); else Pkg.build(\"${JL_PKG}\"); end"', assert: true
+            # run tests
+            sh.cmd 'julia --check-bounds=yes --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; Pkg.test(\"${JL_PKG}\", coverage=true)"', assert: true
+            # coverage
+            if config[:codecov]
+              sh.cmd 'julia --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; cd(Pkg.dir(\"${JL_PKG}\")); Pkg.add(\"Coverage\"); using Coverage; Codecov.submit(process_folder())"'
+            end
+            if config[:coveralls]
+              sh.cmd 'julia --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; cd(Pkg.dir(\"${JL_PKG}\")); Pkg.add(\"Coverage\"); using Coverage; Coveralls.submit(process_folder())"'
+            end
           end
         end
 
@@ -112,15 +135,6 @@ module Travis
               sh.failure "Unknown Julia version: #{julia_version}"
             end
             "https://#{url}"
-          end
-
-          def set_jl_pkg
-            # Regular expression from: julia:base/pkg/entry.jl
-            urlregex = 'r"(?:^|[/\\\\])(\w+?)(?:\.jl)?(?:\.git)?$"'
-            jlcode = "println(match(#{urlregex}, readchomp(STDIN)).captures[1])"
-            shurl = "git remote -v | head -n 1 | cut -f 2 | cut -f 1 -d ' '"
-            sh.export 'JL_PKG', "$(#{shurl} | julia -e '#{jlcode}')",
-              echo: false
           end
       end
     end

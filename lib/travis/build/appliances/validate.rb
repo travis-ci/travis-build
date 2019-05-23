@@ -24,6 +24,10 @@ module Travis
           result
         end
 
+        def apply?
+          true
+        end
+
         private
 
           def validate_config

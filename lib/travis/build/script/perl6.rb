@@ -20,14 +20,14 @@ module Travis
         def configure
           super
 
-          sh.echo ''
+          sh.newline
           sh.echo 'Perl6 support for Travis-CI is community maintained.', ansi: :red
-          sh.echo 'Please open any issues at https://github.com/travis-ci/travis-ci/issues/new', ansi: :red
+          sh.echo 'Please open any issues at hhttps://travis-ci.community/c/languages/perl6', ansi: :red
           sh.echo 'and cc @paultcochrane, @hoelzro, @ugexe, and @tony-o', ansi: :red
 
           sh.echo 'Installing Rakudo (MoarVM)', ansi: :yellow
-          sh.cmd 'git clone https://github.com/tadzik/rakudobrew.git $HOME/.rakudobrew'
-          sh.export 'PATH', '$HOME/.rakudobrew/bin:$PATH', echo: false
+          sh.cmd 'git clone https://github.com/tadzik/rakudobrew.git ${TRAVIS_HOME}/.rakudobrew'
+          sh.export 'PATH', '${TRAVIS_HOME}/.rakudobrew/bin:$PATH', echo: false
         end
 
         def setup
@@ -50,7 +50,7 @@ module Travis
         end
 
         def script
-          sh.cmd "PERL6LIB=lib prove -v -r --exec=perl6 t/"
+          sh.cmd "PERL6LIB=lib prove --ext .t --ext .t6 -v -r --exec=perl6 t/"
         end
 
         def cache_slug

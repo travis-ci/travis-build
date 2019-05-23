@@ -8,7 +8,9 @@ module Travis
 
         def export
           super
+          sh.export 'TRAVIS_COMPILER', compiler
           sh.export 'CC', compiler
+          sh.export 'CC_FOR_BUILD', compiler
           if data.cache?(:ccache)
             sh.export 'PATH', "/usr/lib/ccache:$PATH"
           end
@@ -30,7 +32,7 @@ module Travis
         def setup_cache
           if data.cache?(:ccache)
             sh.fold 'cache.ccache' do
-              sh.echo ''
+              sh.newline
               directory_cache.add('~/.ccache')
             end
           end

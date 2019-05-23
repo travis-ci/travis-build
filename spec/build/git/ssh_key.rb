@@ -30,7 +30,7 @@ describe Travis::Build::Git::SshKey, :sexp do
 
   context 'when prefer_https? is set' do
     before :each do
-      payload[:repository][:source_url] = "https://github.com/travis-ci/travis-ci.git"
+      payload[:repository][:source_url] = "https://github.com/#{payload[:repository][:slug]}.git"
       payload[:config][:source_key] = Base64.encode64(source_key)
     end
 

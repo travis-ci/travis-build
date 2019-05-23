@@ -1,0 +1,66 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'erb'
+require 'pathname'
+
+def main
+  top = Pathname.new(File.expand_path('../', __dir__))
+  prog = File.basename($PROGRAM_NAME)
+
+  examples = top.join('examples')
+
+  filenames = examples.glob('*.bash.txt')
+  filenames.sort!
+
+  highlighted_filenames = {}
+
+  if system('pygmentize -V &>/dev/null')
+    filenames.each do |filename|
+      hl_out = examples.join("#{filename.basename('.bash.txt')}.html")
+      command = %W[
+        pygmentize
+        -O full,style=colorful,linenos=1
+        -l bash
+        -o #{hl_out}
+        #{filename}
+      ].join(' ')
+      system(command)
+      warn("#{prog}: highlighted #{filename} -> #{hl_out}")
+      highlighted_filenames[filename.basename] = hl_out
+    end
+  end
+
+  outfile = top.join('examples/index.html')
+  outfile.write(ERB.new(DATA.read).result(binding))
+
+  warn("#{prog}: wrote #{outfile}")
+  0
+end
+
+exit(main) if $PROGRAM_NAME == __FILE__
+
+__END__
+<html>
+  <head>
+    <style>
+      body {
+        font-family: "Helvetica Neue", Helvetica, "Liberation Sans", Calibri, Arial, sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Travis CI build script examples</h1>
+    <ul>
+      <% filenames.each do |f| %>
+      <li><%= f.basename('.bash.txt') %> [
+        <a href="<%= f.basename %>">txt</a>
+        <% unless highlighted_filenames[f.basename].nil? %>
+          <a href="<%= highlighted_filenames[f.basename].basename %>">html</a>
+        <% end %>
+      ]
+      </li>
+      <% end %>
+    </ul>
+  </body>
+</html>

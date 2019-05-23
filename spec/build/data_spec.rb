@@ -99,4 +99,14 @@ describe Travis::Build::Data do
       it { expect(data.cache).to eq(bundler: false, cocoapods: false, composer: false, ccache: false, pip: false) }
     end
   end
+
+  describe 'installation' do
+    let(:config) { { repository: { installation_id: 1, source_url: 'https://github.com/foo/bar' } } }
+    let(:data) { Travis::Build::Data.new(config) }
+
+    before { Travis::GithubApps.any_instance.stubs(:access_token).returns 'access_token' }
+
+    it { expect(data.installation?).to be true }
+    it { expect(data.token).to eq 'access_token' }
+  end
 end

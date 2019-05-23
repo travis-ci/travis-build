@@ -10,9 +10,10 @@ module Travis
       attr_reader :stack
       attr_accessor :options
 
-      def initialize
+      def initialize(trace_enabled = false)
         @stack = [Shell::Ast::Script.new]
         @options = {}
+        @trace_enabled = trace_enabled
       end
 
       def sh # rename to node?
@@ -45,7 +46,9 @@ module Travis
 
       def cmd(data, *args)
         # validate_non_empty_string!(:cmd, data)
-        node :cmd, data, *args
+        trace(data) {
+          node :cmd, data, *args
+        }
       end
 
       def set(name, value, options = {})
@@ -76,14 +79,14 @@ module Travis
         node :newline, nil, { timing: false }.merge(options)
       end
 
-      def terminate(result = 2, message = nil)
-        echo message if message
+      def terminate(result = 2, message = nil, options = {})
+        echo message, options if message
         raw "travis_terminate #{result}"
       end
 
-      def failure(message)
+      def failure(message = nil)
         export 'TRAVIS_CMD', 'no_script', echo: false
-        echo message
+        echo message if message
         raw 'travis_run_after_failure'
         raw 'set -e'
         raw 'false'
@@ -127,6 +130,26 @@ module Travis
         block = with_node(&block) if block
         node = Shell::Ast::Fold.new(*args, &block)
         sh.nodes.insert(options[:pos] || -1, node)
+      end
+
+      def trace(*args, &block)
+        unless @trace_enabled
+          return yield
+        end
+        args = merge_options(args)
+        block = with_node(&block) if block
+        node = Shell::Ast::Trace.new(*args, &block)
+        sh.nodes << node
+      end
+
+      def trace_root(*args, &block)
+        unless @trace_enabled
+          return yield
+        end
+        args = merge_options(args)
+        block = with_node(&block) if block
+        node = Shell::Ast::TraceRoot.new(*args, &block)
+        sh.nodes << node
       end
 
       def if(*args, &block)
