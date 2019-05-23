@@ -15,6 +15,8 @@ module Travis
           xenial
         ).freeze
 
+        attr_reader :safelisted, :disallowed_while_sudo
+
         class << self
           def package_safelists
             @package_safelists ||= load_package_safelists
@@ -121,23 +123,14 @@ module Travis
           def add_apt_sources
             sh.echo "Adding APT Sources", ansi: :yellow
 
-            safelisted = []
+            @safelisted = []
             disallowed = []
-            disallowed_while_sudo = []
+            @disallowed_while_sudo = []
 
             config_sources.each do |src|
               if !load_alias_list?
                 sh.echo "Skipping loading APT source aliases list", ansi: :yellow
-
-                if src.respond_to?(:has_key?)
-                  safelisted << {
-                    'sourceline' => src[:sourceline],
-                    'key_url' => src[:key_url]
-                  }
-                else
-                  sh.echo "'sourceline' key missing", ansi: :yellow
-                  sh.echo Shellwords.escape(src.inspect)
-                end
+                add_to_safelisted src
                 next
               end
 
@@ -149,19 +142,7 @@ module Travis
                   sh.echo Shellwords.escape(src.inspect)
                 end
               elsif !data.disable_sudo? || skip_safelist?
-                if src.respond_to?(:has_key?)
-                  if src.has_key?(:sourceline)
-                    safelisted << {
-                      'sourceline' => src[:sourceline],
-                      'key_url' => src[:key_url]
-                    }
-                  else
-                    sh.echo "'sourceline' key missing:", ansi: :yellow
-                    sh.echo Shellwords.escape(src.inspect)
-                  end
-                else
-                  disallowed_while_sudo << src
-                end
+                add_to_safelisted src
               elsif source.nil?
                 disallowed << src
               end
@@ -189,6 +170,22 @@ module Travis
                   sh.cmd "echo #{sourceline.inspect} | sudo tee -a ${TRAVIS_ROOT}/etc/apt/sources.list >/dev/null", echo: true, assert: true, timing: true
                 end
               end
+            end
+          end
+
+          def add_to_safelisted(src)
+            if src.respond_to?(:has_key?)
+              if src.has_key?(:sourceline)
+                safelisted << {
+                  'sourceline' => src[:sourceline],
+                  'key_url' => src[:key_url]
+                }
+              else
+                sh.echo "'sourceline' key missing:", ansi: :yellow
+                sh.echo Shellwords.escape(src.inspect)
+              end
+            else
+              disallowed_while_sudo << src
             end
           end
 
