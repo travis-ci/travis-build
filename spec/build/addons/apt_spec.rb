@@ -268,6 +268,9 @@ describe Travis::Build::Addons::Apt, :sexp do
       let(:apt_load_source_alias_list) { false }
       let(:apt_config) { { sources: ['packagecloud-xenial', 'deadsnakes-xenial', 'evilbadthings', 'ppa:archivematica/externals', { sourceline: 'foobar' }] } }
 
+      it { should include_sexp [:echo, "Skipping loading APT source aliases list", ansi: :yellow] }
+      it { should_not include_sexp [:echo, /^Disallowing sources:/, ansi: :red] }
+      it { should include_sexp [:cmd, apt_sources_append_command('foobar'), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
     end

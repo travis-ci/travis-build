@@ -126,7 +126,22 @@ module Travis
             disallowed_while_sudo = []
 
             config_sources.each do |src|
-              if load_alias_list? && source = source_alias_lists[config_dist][src]
+              if !load_alias_list?
+                sh.echo "Skipping loading APT source aliases list", ansi: :yellow
+
+                if src.respond_to?(:has_key?)
+                  safelisted << {
+                    'sourceline' => src[:sourceline],
+                    'key_url' => src[:key_url]
+                  }
+                else
+                  sh.echo "'sourceline' key missing", ansi: :yellow
+                  sh.echo Shellwords.escape(src.inspect)
+                end
+                next
+              end
+
+              if source = source_alias_lists[config_dist][src]
                 if source.respond_to?(:[]) && source['sourceline']
                   safelisted << source.clone
                 else
