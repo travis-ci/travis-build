@@ -429,6 +429,8 @@ module Travis
                   '  install.packages("BiocManager");'\
                   "if (#{as_r_boolean(config[:bioc_use_devel])})"\
                   ' BiocManager::install(version = "devel");'\
+                  'else'\
+                  ' BiocManager::install();'\
                   'cat(append = TRUE, file = "~/.Rprofile.site", "options(repos = BiocManager::repositories());")'
                 end
                 sh.cmd "Rscript -e '#{bioc_install_script}'", retry: true
