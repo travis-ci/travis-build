@@ -62,6 +62,7 @@ module Travis
         apt_safelist_skip: ENV.fetch('TRAVIS_BUILD_APT_SAFELIST_SKIP', '').to_bool,
         apt_load_source_alias_list: ENV.fetch('TRAVIS_BUILD_APT_LOAD_SOURCE_ALIAS_LIST', 'true').to_bool,
         auth_disabled: ENV.fetch('TRAVIS_BUILD_AUTH_DISABLED', '').to_bool,
+        bash_casher_pct: ENV.fetch('TRAVIS_BASH_CACHER_PCT', '0'),
         cabal_default: ENV.fetch('TRAVIS_BUILD_CABAL_DEFAULT', '2.0'),
         enable_debug_tools: ENV.fetch(
           'TRAVIS_BUILD_ENABLE_DEBUG_TOOLS',
