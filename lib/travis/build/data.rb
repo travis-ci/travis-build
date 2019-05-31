@@ -217,6 +217,10 @@ module Travis
       def installation_token
         GithubApps.new(installation_id).access_token
       end
+
+      def workspaces
+        config[:workspaces]
+      end
     end
   end
 end

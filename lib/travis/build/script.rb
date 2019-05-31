@@ -43,6 +43,7 @@ require 'travis/build/script/rust'
 require 'travis/build/script/scala'
 require 'travis/build/script/smalltalk'
 require 'travis/build/script/shared/directory_cache'
+require 'travis/build/script/shared/workspace'
 
 module Travis
   module Build
@@ -454,6 +455,32 @@ module Travis
                 "If you wish to keep using this version beyond this date, " \
                 "please explicitly set the #{cfg[:name]} value in configuration.",
                 ansi: :yellow
+            end
+          end
+        end
+
+        def use_workspaces
+          return unless data.workspaces && data.workspaces.key?(:use)
+
+          ws_config = Array(data.workspaces[:use])
+
+          sh.fold "workspaces_use" do
+            ws_config.each do |ws|
+              # ws.fetch
+              # ws.expand
+            end
+          end
+        end
+
+        def create_workspaces
+          return unless data.workspaces && data.workspaces.key?(:create)
+
+          ws_config = Array(data.workspaces[:create])
+
+          sh.fold "workspaces_create" do
+            ws_config.each do |ws|
+              # ws.compress
+              # ws.upload
             end
           end
         end
