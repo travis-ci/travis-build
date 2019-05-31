@@ -26,26 +26,26 @@ describe Travis::Build::Addons::AptPackages, :sexp do
   context 'with multiple safelisted packages' do
     let(:config) { ['git', 'curl'] }
 
-    it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true] }
+    it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), retry: true, echo: true, timing: true] }
   end
 
   context 'with multiple packages, some safelisted' do
     let(:config) { ['git', 'curl', 'darkcoin'] }
 
-    it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true] }
+    it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), retry: true, echo: true, timing: true] }
   end
 
   context 'with multiple packages, some safelisted on unrestricted box' do
     let(:config) { ['git', 'curl', 'darkcoin'] }
     let(:paranoid) { false }
 
-    it { should include_sexp [:cmd, apt_get_install_command('git', 'curl', 'darkcoin'), echo: true, timing: true] }
+    it { should include_sexp [:cmd, apt_get_install_command('git', 'curl', 'darkcoin'), retry: true, echo: true, timing: true] }
   end
 
   context 'with singular safelisted package' do
     let(:config) { 'git' }
 
-    it { should include_sexp [:cmd, apt_get_install_command('git'), echo: true, timing: true] }
+    it { should include_sexp [:cmd, apt_get_install_command('git'), retry: true, echo: true, timing: true] }
   end
 
   context 'with no safelisted packages' do

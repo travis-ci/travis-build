@@ -163,7 +163,7 @@ module Travis
               safelisted.each do |source|
                 sourceline = source['sourceline'].output_safe
                 if sourceline.start_with?('ppa:')
-                  sh.cmd "sudo -E apt-add-repository -y #{sourceline.inspect}", echo: true, assert: true, timing: true
+                  sh.cmd "sudo -E apt-add-repository -y #{sourceline.inspect}", retry: true, echo: true, assert: true, timing: true
                 else
                   sh.cmd "curl -sSL \"#{safelisted_source_key_url(source)}\" | sudo -E apt-key add -", echo: true, assert: true, timing: true
                   # Avoid adding deb-src lines to work around https://bugs.launchpad.net/ubuntu/+source/software-properties/+bug/987264
@@ -210,7 +210,7 @@ module Travis
               sh.raw bash('travis_apt_get_options')
               command = 'sudo -E apt-get -yq --no-install-suggests --no-install-recommends ' \
                 "$(travis_apt_get_options) install #{safelisted.join(' ')}"
-              sh.cmd command, echo: true, timing: true
+              sh.cmd command, retry: true, echo: true, timing: true
 
               sh.raw "result=$?"
               sh.if '$result -ne 0' do

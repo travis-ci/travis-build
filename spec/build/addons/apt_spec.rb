@@ -128,32 +128,32 @@ describe Travis::Build::Addons::Apt, :sexp do
 
       it { store_example(name: 'safelisted') }
 
-      it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true] }
+      it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), retry: true, echo: true, timing: true] }
     end
 
     context 'with multiple packages, some safelisted' do
       let(:apt_config) { { packages: ['git', 'curl', 'darkcoin'] } }
 
-      it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true] }
+      it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), retry: true, echo: true, timing: true] }
 
       context 'when sudo is enabled' do
         let(:paranoid) { false }
 
-        it { should include_sexp [:cmd, apt_get_install_command('git', 'curl', 'darkcoin'), echo: true, timing: true] }
+        it { should include_sexp [:cmd, apt_get_install_command('git', 'curl', 'darkcoin'), retry: true, echo: true, timing: true] }
       end
 
       context 'when safelist skippping is enabled' do
         let(:paranoid) { true }
         let(:safelist_skip) { true }
 
-        it { should include_sexp [:cmd, apt_get_install_command('git', 'curl', 'darkcoin'), echo: true, timing: true] }
+        it { should include_sexp [:cmd, apt_get_install_command('git', 'curl', 'darkcoin'), retry: true, echo: true, timing: true] }
       end
     end
 
     context 'with singular safelisted package' do
       let(:apt_config) { { packages: 'git' } }
 
-      it { should include_sexp [:cmd, apt_get_install_command('git'), echo: true, timing: true] }
+      it { should include_sexp [:cmd, apt_get_install_command('git'), retry: true, echo: true, timing: true] }
     end
 
     context 'with no safelisted packages' do
@@ -165,7 +165,7 @@ describe Travis::Build::Addons::Apt, :sexp do
     context 'with nested arrays of packages' do
       let(:apt_config) { { packages: [%w(git curl)] } }
 
-      it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), echo: true, timing: true] }
+      it { should include_sexp [:cmd, apt_get_install_command('git', 'curl'), retry: true, echo: true, timing: true] }
     end
   end
 
@@ -216,14 +216,14 @@ describe Travis::Build::Addons::Apt, :sexp do
     context 'with multiple safelisted sources' do
       let(:apt_config) { { sources: ['deadsnakes-xenial'] } }
 
-      it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
+      it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), retry: true, echo: true, assert: true, timing: true] }
     end
 
     context 'with multiple sources, some safelisted' do
       let(:apt_config) { { sources: ['packagecloud-xenial', 'deadsnakes-xenial', 'evilbadthings', 'ppa:evilbadppa', { sourceline: 'foobar' }] } }
 
       it { should include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
-      it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
+      it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), retry: true, echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_sources_append_command(evilbadthings['sourceline']), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_add_repository_command('ppa:evilbadppa'), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_sources_append_command('foobar'), echo: true, assert: true, timing: true] }
@@ -246,7 +246,7 @@ describe Travis::Build::Addons::Apt, :sexp do
       let(:apt_config) { { sources: ['packagecloud-xenial', 'deadsnakes-xenial', 'evilbadthings', 'ppa:archivematica/externals', { sourceline: 'foobar' }] } }
 
       it { should include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
-      it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
+      it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), retry: true, echo: true, assert: true, timing: true] }
       it { should include_sexp [:cmd, apt_sources_append_command('foobar'), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_sources_append_command(evilbadthings['sourceline']), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_add_repository_command('ppa:evilbadppa'), echo: true, assert: true, timing: true] }
@@ -258,7 +258,7 @@ describe Travis::Build::Addons::Apt, :sexp do
       let(:safelist_skip) { true }
 
       it { should include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
-      it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
+      it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), retry: true, echo: true, assert: true, timing: true] }
       it { should include_sexp [:cmd, apt_sources_append_command('foobar'), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_sources_append_command(evilbadthings['sourceline']), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_add_repository_command('ppa:evilbadppa'), echo: true, assert: true, timing: true] }
