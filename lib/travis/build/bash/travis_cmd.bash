@@ -55,8 +55,8 @@ travis_cmd() {
     result="${?}"
     if [[ -n "${secure}" && "${result}" -ne 0 ]]; then
       echo -e "${ANSI_RED}We were unable to parse one of your secure environment variables.${ANSI_CLEAR}
-${ANSI_RED}Please make sure to escape special characters such as ' ' and $ with .${ANSI_CLEAR}
-${ANSI_RED}For example, thi$isanexample would be typed as thi$isanexample. See https://docs.travis-ci.com/user/encryption-keys.${ANSI_CLEAR}"
+${ANSI_RED}Please make sure to escape special characters such as ' ' (white space) and $ (dollar symbol) with \ (backslash) .${ANSI_CLEAR}
+${ANSI_RED}For example, thi$isanexample would be typed as thi\$isanexample. See https://docs.travis-ci.com/user/encryption-keys.${ANSI_CLEAR}"
     fi
   fi
 
