@@ -43,7 +43,9 @@ module Travis
         end
 
         def install_casher
-          directory_cache.install
+          sh.if "-z ${CASHER_DIR}" do            
+            directory_cache.install
+          end
         end
       end
     end
