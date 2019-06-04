@@ -462,12 +462,14 @@ module Travis
         def use_workspaces
           return unless data.workspaces && data.workspaces.key?(:use)
 
-          ws_config = Array(data.workspaces[:use])
+          ws_names = Array(data.workspaces[:use])
 
           sh.fold "workspaces_use" do
-            ws_config.each do |ws|
-              # ws.fetch
-              # ws.expand
+            ws_names.each do |name|
+              ws = Travis::Build::Script::Workspace.new(sh, data, name, [], :use)
+              ws.install_casher
+              ws.fetch
+              ws.expand
             end
           end
         end
@@ -478,9 +480,12 @@ module Travis
           ws_config = Array(data.workspaces[:create])
 
           sh.fold "workspaces_create" do
-            ws_config.each do |ws|
-              # ws.compress
-              # ws.upload
+            ws_config.each do |cfg|
+              next unless cfg.key?(:name) && cfg.key?(:paths)
+              ws = Travis::Build::Script::Workspace.new(sh, data, cfg[:name], cfg[:paths], :create)
+              ws.install_casher
+              ws.compress
+              ws.upload
             end
           end
         end

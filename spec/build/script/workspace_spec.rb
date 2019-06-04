@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe Travis::Build::Script::Workspace do
-  let(:options) {}
+describe Travis::Build::Script::Workspace, :sexp do
+  let(:options) { { fetch_timeout: 20, push_timeout: 30, type: 's3', s3: { bucket: 's3_bucket', secret_access_key: 's3_secret_access_key', access_key_id: 's3_access_key_id' } } }
   let(:data)    { payload_for(:push, :ruby, config: config, cache_options: options) }
   let(:sh)      { Travis::Shell::Builder.new }
   let(:sexp)    { script.sexp }

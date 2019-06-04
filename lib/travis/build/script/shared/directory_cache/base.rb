@@ -56,7 +56,7 @@ module Travis
           BIN_PATH   = '$CASHER_DIR/bin/casher'
 
           attr_reader :sh, :data, :slug, :start, :msgs
-          attr_accessor :signer
+          attr_accessor :signer, :casher_installed
 
           def initialize(sh, data, slug, start = Time.now)
             @sh = sh
@@ -64,6 +64,7 @@ module Travis
             @slug = slug
             @start = start
             @msgs = []
+            @casher_installed = false
           end
 
           def valid?
@@ -107,6 +108,7 @@ module Travis
           end
 
           def install
+            return if casher_installed
             sh.export 'CASHER_DIR', '${TRAVIS_HOME}/.casher'
 
             sh.mkdir '$CASHER_DIR/bin', echo: false, recursive: true
@@ -118,6 +120,7 @@ module Travis
             sh.if "-f #{BIN_PATH}" do
               sh.chmod '+x', BIN_PATH, assert: false, echo: false
             end
+            casher_installed = true
           end
 
           def add(*paths)
