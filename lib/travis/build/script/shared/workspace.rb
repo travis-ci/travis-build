@@ -30,7 +30,7 @@ module Travis
         end
 
         def expand
-          sh.cmd "tar -xPzf #{archive_name}"
+          sh.cmd "tar -xPzf ${CASHER_DIR}/fetch.tgz"
         end
 
         # for creating workspace
