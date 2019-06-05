@@ -17,7 +17,7 @@ module Travis
           @directory_cache = cache_class.new(@sh, @data, name, Time.now)
           @directory_cache.define_singleton_method :prefixed do |branch, extras|
             [
-              "/",
+              "dummy_path",
               data.build[:id],
               name,
             ].join("/") << ".tgz"
