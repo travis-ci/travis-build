@@ -64,6 +64,10 @@ module Travis
         data[:cache_settings] || data[:cache_options] || {}
       end
 
+      def workspace_settings
+        data[:workspace_settings] || cache_options 
+      end
+
       def cache(input = config[:cache])
         case input
         when Hash           then input

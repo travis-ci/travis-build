@@ -21,6 +21,9 @@ module Travis
               name,
             ].join("/") << ".tgz"
           end
+          @directory_cache.define_singleton_method :cache_options do
+            data.workspace_settings || data.cache_options || {}
+          end
         end
 
         def use_directory_cache?
