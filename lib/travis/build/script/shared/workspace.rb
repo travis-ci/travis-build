@@ -32,9 +32,6 @@ module Travis
           true
         end
 
-        def archive_name
-          "#{name}.tgz"
-        end
         # for using workspace
         def fetch
           directory_cache.fetch
