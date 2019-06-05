@@ -18,6 +18,7 @@ module Travis
           @directory_cache.define_singleton_method :prefixed do |branch, extras|
             [
               nil,
+              'workspaces',
               data.build[:id],
               name,
             ].join("/") << ".tgz"
