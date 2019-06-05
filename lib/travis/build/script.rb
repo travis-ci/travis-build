@@ -466,10 +466,12 @@ module Travis
 
           sh.fold "workspaces_use" do
             ws_names.each do |name|
+              sh.echo "Fetching workspace #{name}", ansi: :green
               ws = Travis::Build::Script::Workspace.new(sh, data, name, [], :use)
               ws.install_casher
               ws.fetch
               ws.expand
+              sh.newline
             end
           end
         end
@@ -483,12 +485,19 @@ module Travis
           ws_config = Array([data.workspaces[:create]]).flatten
 
           sh.fold "workspaces_create" do
+            sh.echo "Creating workspaces", ansi: :green
             ws_config.each do |cfg|
-              next unless cfg.key?(:name) && cfg.key?(:paths)
+              unless cfg.key?(:name) && cfg.key?(:paths)
+                sh.echo "workspaces.create must be a hash with keys 'name' and 'paths', " \
+                  "or an array of such hashes", ansi: :yellow
+                next
+              end
+              sh.echo "Workspace: #{cfg[:name]}", ansi: :green
               ws = Travis::Build::Script::Workspace.new(sh, data, cfg[:name], cfg[:paths], :create)
               ws.install_casher
               ws.compress
               ws.upload
+              sh.newline
             end
           end
         end
