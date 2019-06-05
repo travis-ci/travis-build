@@ -15,6 +15,12 @@ module Travis
           @paths = Array(paths)
           @type = type
           @directory_cache = cache_class.new(@sh, @data, name, Time.now)
+          @directory_cache.define_singleton_method :prefixed do |branch, extras|
+            [
+              data.build[:id],
+              name,
+            ].join("/") << ".tgz"
+          end
         end
 
         def use_directory_cache?
@@ -43,7 +49,7 @@ module Travis
         end
 
         def install_casher
-          sh.if "-z ${CASHER_DIR}" do            
+          sh.if "-z ${CASHER_DIR}" do
             directory_cache.install
           end
         end

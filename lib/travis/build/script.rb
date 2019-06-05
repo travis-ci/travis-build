@@ -477,7 +477,10 @@ module Travis
         def create_workspaces
           return unless data.workspaces && data.workspaces.key?(:create)
 
-          ws_config = Array(data.workspaces[:create])
+          # data.workspaces[:create] is expected to be either:
+          # 1. a hash with keys :name and :paths, or
+          # 2. an array of hashes with these keys
+          ws_config = Array([data.workspaces[:create]]).flatten
 
           sh.fold "workspaces_create" do
             ws_config.each do |cfg|
