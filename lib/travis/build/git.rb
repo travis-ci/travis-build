@@ -14,6 +14,7 @@ module Travis
           quiet: false,
           lfs_skip_smudge: false,
           sparse_checkout: false,
+          clone: true
         }
       }
 
@@ -65,7 +66,7 @@ module Travis
         end
 
         def clone_or_fetch
-          Clone.new(sh, data).apply
+          Clone.new(sh, data).apply if clone?
         end
 
         def submodules
@@ -83,6 +84,11 @@ module Travis
         def use_tarball?
           config[:git][:strategy] == 'tarball'
         end
+
+        def clone?
+          config[:git][:clone]
+        end
+
 
         def dir
           data.slug
