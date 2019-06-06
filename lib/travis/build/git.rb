@@ -66,7 +66,11 @@ module Travis
         end
 
         def clone_or_fetch
-          Clone.new(sh, data).apply if clone?
+          if clone?
+            Clone.new(sh, data).apply
+          else
+            sh.echo "Skipping `git clone` based on given configuration", ansi: :yellow
+          end
         end
 
         def submodules
