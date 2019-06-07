@@ -56,7 +56,6 @@ module Travis
           BIN_PATH   = '$CASHER_DIR/bin/casher'
 
           attr_reader :sh, :data, :slug, :start, :msgs
-          attr_accessor :signer
 
           def initialize(sh, data, slug, start = Time.now)
             @sh = sh
@@ -72,7 +71,7 @@ module Travis
           end
 
           def signature(verb, path, options)
-            @signer = case data_store_options.fetch(:aws_signature_version, DEFAULT_AWS_SIGNATURE_VERSION).to_s
+            case aws_signature_version
             when '2'
               Signatures::AWS2Signature.new(
                 key: key_pair,
@@ -239,7 +238,7 @@ module Travis
                 slug_local = slug.gsub(/^cache(.+?)(?=--)/,'cache')
               end
 
-              case data_store_options.fetch(:aws_signature_version, DEFAULT_AWS_SIGNATURE_VERSION).to_s
+              case aws_signature_version
               when '2'
                 args = [data.github_id, branch, slug_local].compact
               else
@@ -321,6 +320,10 @@ module Travis
 
             def uri_normalize_name(branch)
               URI.encode(branch)
+            end
+
+            def aws_signature_version
+              data_store_options.fetch(:aws_signature_version, DEFAULT_AWS_SIGNATURE_VERSION).to_s
             end
 
         end

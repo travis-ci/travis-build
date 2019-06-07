@@ -16,12 +16,14 @@ module Travis
           @type = type
           @directory_cache = cache_class.new(@sh, @data, name, Time.now)
           @directory_cache.define_singleton_method :prefixed do |branch, extras|
-            [
-              nil,
-              'workspaces',
-              data.build[:id],
-              name,
-            ].join("/") << ".tgz"
+            parts = case aws_signature_version
+            when '2'
+              [ 'workspaces', data.build[:id], name ]
+            else
+              [ data_store_options.fetch(:bucket,''), 'workspaces', data.build[:id], name ]
+            end
+
+            "/" << parts.join("/") << '.tgz'
           end
           @directory_cache.define_singleton_method :cache_options do
             data.workspace_settings || data.cache_options || {}
