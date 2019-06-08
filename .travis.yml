@@ -31,7 +31,6 @@ jobs:
     after_script: skip
     after_failure: skip
     before_deploy: skip
-    deploy: skip
 
 before_script:
 - eval "$(script/handle-docker-config)"
