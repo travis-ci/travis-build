@@ -56,7 +56,7 @@ __END__
       <li><%= f.basename('.bash.txt') %> [
         <a href="<%= f.basename %>">txt</a>
         <% unless highlighted_filenames[f.basename].nil? %>
-          <a href="<%= highlighted_filenames[f.basename] %>">html</a>
+          <a href="<%= highlighted_filenames[f.basename].basename %>">html</a>
         <% end %>
       ]
       </li>

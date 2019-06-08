@@ -22,7 +22,26 @@ module Travis
               bash &>/dev/null
             KEYUPDATE
             sh.cmd command, echo: false
+
+            sh.cmd rabbit_key_update, echo: false
           end
+        end
+
+        def rabbit_key_update
+          <<~EORABBIT
+          if [[ ( \"$TRAVIS_DIST\" == trusty || \"$TRAVIS_DIST\" == precise) && -f /etc/init.d/rabbitmq-server ]]; then
+            curl -sSL #{key_url('rabbitmq-trusty')} | sudo apt-key add -
+          fi &>/dev/null
+          EORABBIT
+        end
+
+        def key_url(repo)
+          tmpl = Travis::Build.config.apt_source_alias_list_key_url_template.to_s.output_safe
+          format(
+            tmpl.to_s,
+            source_alias: repo,
+            app_host: Travis::Build::config.app_host.to_s.strip
+          ).output_safe
         end
       end
     end

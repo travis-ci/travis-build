@@ -74,4 +74,3 @@ describe Travis::Build::Script::Erlang, :sexp do
     it { is_expected.to eq("cache-#{CACHE_SLUG_EXTRAS}--otp-R14B04") }
   end
 end
-

@@ -49,16 +49,18 @@ module Travis
           trusty: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_TRUSTY', ''),
           xenial: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_XENIAL', ''),
         },
-        apt_source_safelist: {
-          precise: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_SAFELIST_PRECISE', ''),
-          trusty: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_SAFELIST_TRUSTY', ''),
-          xenial: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_SAFELIST_XENIAL', ''),
+        apt_proxy: ENV.fetch('TRAVIS_BUILD_APT_PROXY', ''),
+        apt_source_alias_list: {
+          precise: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_PRECISE', ''),
+          trusty: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_TRUSTY', ''),
+          xenial: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_XENIAL', ''),
         },
-        apt_source_safelist_key_url_template: ENV.fetch(
-          'TRAVIS_BUILD_APT_SOURCE_SAFELIST_KEY_URL_TEMPLATE',
+        apt_source_alias_list_key_url_template: ENV.fetch(
+          'TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_KEY_URL_TEMPLATE',
           'https://%{app_host}/files/gpg/%{source_alias}.asc'
         ),
         apt_safelist_skip: ENV.fetch('TRAVIS_BUILD_APT_SAFELIST_SKIP', '').to_bool,
+        apt_load_source_alias_list: ENV.fetch('TRAVIS_BUILD_APT_LOAD_SOURCE_ALIAS_LIST', 'true').to_bool,
         auth_disabled: ENV.fetch('TRAVIS_BUILD_AUTH_DISABLED', '').to_bool,
         cabal_default: ENV.fetch('TRAVIS_BUILD_CABAL_DEFAULT', '2.0'),
         enable_debug_tools: ENV.fetch(
@@ -75,14 +77,15 @@ module Travis
         gimme: {
           url: ENV.fetch(
             'TRAVIS_BUILD_GIMME_URL',
-            'https://raw.githubusercontent.com/travis-ci/gimme/v1.3.0/gimme'
+            'https://raw.githubusercontent.com/travis-ci/gimme/v1.5.3/gimme'
           )
         },
-        go_version: ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.10.x'),
+        go_version: ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.11.x'),
         internal_ruby_regex: ENV.fetch(
           'TRAVIS_BUILD_INTERNAL_RUBY_REGEX',
-          '^ruby-(2\.[0-2]\.[0-9]|1\.9\.3)'
+          '^ruby-(2\.[0-4]\.[0-9]|1\.9\.3)'
         ),
+        lang_archive_host: ENV.fetch('TRAVIS_LANGUAGE_ARCHIVE_HOST', 's3'),
         librato: {
           email: ENV.fetch(
             'TRAVIS_BUILD_LIBRATO_EMAIL', ENV.fetch('LIBRATO_EMAIL', '')
@@ -111,6 +114,9 @@ module Travis
           'TRAVIS_BUILD_SENTRY_DSN', ENV.fetch('SENTRY_DSN', '')
         ),
         tainted_node_logging_enabled: false,
+        trace_command: ENV.fetch('TRACE_COMMAND', 'GIT_TRACE=true'),
+        trace_git_commands_owners: ENV.fetch('TRACE_GIT_COMMANDS_OWNERS', ''),
+        trace_git_commands_slugs: ENV.fetch('TRACE_GIT_COMMANDS_SLUGS', ''),
         update_glibc: ENV.fetch(
           'TRAVIS_BUILD_UPDATE_GLIBC',
           ENV.fetch('TRAVIS_UPDATE_GLIBC', ENV.fetch('UPDATE_GLIBC', 'false'))

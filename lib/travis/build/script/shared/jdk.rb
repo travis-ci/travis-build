@@ -2,38 +2,33 @@ module Travis
   module Build
     class Script
       module Jdk
+
         OPENJDK_ALTERNATIVE = {
           'oraclejdk10' => 'openjdk10'
         }
 
         def configure
           super
+          return unless specifies_jdk?
 
           if jdk_deprecated?
             sh.terminate 2, "#{jdk} is deprecated. See https://www.oracle.com/technetwork/java/javase/eol-135779.html for more details. Consider using #{OPENJDK_ALTERNATIVE[jdk]} instead.", ansi: :red
           end
 
-          if uses_jdk?
-            if use_install_jdk?(config[:jdk])
-              download_install_jdk
+          return if jdk == 'default'
 
-              sh.if "-f install-jdk.sh" do
-                sh.export "JAVA_HOME", "${TRAVIS_HOME}/#{jdk}"
-                sh.cmd "bash install-jdk.sh #{install_jdk_args config[:jdk]} --target $JAVA_HOME --workspace #{cache_dir}", echo: true, assert: true
-                sh.export "PATH", "$JAVA_HOME/bin:$PATH"
-                sh.raw 'set +e', echo: false
-              end
-            else
-              sh.if '"$(command -v jdk_switcher &>/dev/null; echo $?)" == 0' do
-                sh.cmd "jdk_switcher use #{config[:jdk]}", assert: true, echo: true, timing: false
-              end
-            end
+          vendor, version = jdk_info(jdk)
+
+          sh.echo
+          sh.fold 'install_jdk' do
+            sh.echo "Installing #{jdk}", ansi: :yellow
+            sh.raw("travis_setup_java #{jdk} #{vendor} #{version}", timing: true)
           end
         end
 
         def export
           super
-          sh.export 'TRAVIS_JDK_VERSION', config[:jdk], echo: false if uses_jdk?
+          sh.export 'TRAVIS_JDK_VERSION', jdk, echo: false if specifies_jdk?
         end
 
         def setup
@@ -43,9 +38,15 @@ module Travis
             sh.export 'TERM', 'dumb'
           end
 
-          sh.cmd 'mkdir -p ~/.gradle && echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties', echo: false, timing: false
+          # We disable the Gradle daemon because
+          # it's causing out of memory issues otherwise.
+          disable_gradle_daemon
+        end
 
-          correct_maven_repo
+        def disable_gradle_daemon
+          sh.if '"$TRAVIS_DIST" == precise || "$TRAVIS_DIST" == trusty' do
+            sh.cmd 'mkdir -p ~/.gradle && echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties', echo: false, timing: false
+          end
         end
 
         def announce
@@ -57,60 +58,39 @@ module Travis
         end
 
         def cache_slug
-          return super unless uses_jdk?
+          return super unless specifies_jdk?
           super << '--jdk-' << config[:jdk].to_s
         end
 
         private
+          def jdk
+            Array(config[:jdk]).first.gsub(/\s/,'')
+          end
 
           def uses_java?
             true
           end
 
-          def uses_jdk?
+          def specifies_jdk?
             !!config[:jdk]
           end
 
-          def jdk
-            config[:jdk].gsub(/\s/,'')
-          end
-
-          def use_install_jdk?(jdk)
-            ! install_jdk_args(jdk).empty?
-          end
-
-          def download_install_jdk
-            return if app_host.empty?
-            sh.cmd "curl -sf -O https://#{app_host}/files/install-jdk.sh"
-          end
-
-          def install_jdk_args(jdk)
-            args_for = {
-              # OpenJDK
-              'openjdk-ea'   => '-L GPL',
-              'openjdk9'     => '-F 9  -L GPL',
-              'openjdk10'    => '-F 10 -L GPL',
-              'openjdk11'    => '-F 11 -L GPL',
-              # OracleJDK
-              'oraclejdk-ea' => '-L BCL',
-              'oraclejdk10'  => '-F 10 -L BCL',
-              'oraclejdk11'  => '-F 11 -L BCL',
-            }
-            args_for.fetch(jdk, '')
+          def jdk_info(jdk)
+            m = jdk.match(/(?<vendor>[a-z]+)-?(?<version>.+)?/)
+            if m[:vendor]. start_with? 'oracle'
+              vendor = 'oracle'
+            elsif m[:vendor].start_with? 'openjdk'
+              vendor = 'openjdk'
+            end
+            [ vendor, m[:version] ]
           end
 
           def cache_dir
             "${TRAVIS_HOME}/.cache/install-jdk"
           end
 
-          def correct_maven_repo
-            old_repo = 'https://repository.apache.org/releases/'
-            new_repo = 'https://repository.apache.org/content/repositories/releases/'
-            sh.cmd "sed -i 's|#{old_repo}|#{new_repo}|g' ~/.m2/settings.xml", echo: false, assert: false, timing: false
-          end
-
           def jdk_deprecated?
-            uses_jdk? && OPENJDK_ALTERNATIVE.keys.include?(jdk)
+            specifies_jdk? && OPENJDK_ALTERNATIVE.keys.include?(jdk)
           end
       end
     end

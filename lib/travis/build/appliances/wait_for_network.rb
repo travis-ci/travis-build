@@ -10,7 +10,6 @@ module Travis
             "travis_wait_for_network #{wait_retries} #{check_urls.map(&:inspect).join(' ')}",
             echo: false
           )
-          sh.echo
         end
 
         private def check_urls

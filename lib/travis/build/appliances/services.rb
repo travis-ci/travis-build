@@ -79,6 +79,16 @@ module Travis
           sh.cmd 'travis_setup_postgresql', echo: true, timing: true
         end
 
+        def apply_xvfb
+          sh.if '"$TRAVIS_INIT" == upstart' do
+            sh.cmd 'sudo service xvfb start', echo: true, timing: true
+          end
+          sh.elif '"$TRAVIS_INIT" == systemd' do
+            sh.cmd 'sudo systemctl start xvfb', echo: true, timing: true
+          end
+          sh.export 'DISPLAY', ':99.0', echo: true
+        end
+
         private
 
           def services

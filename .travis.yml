@@ -1,9 +1,6 @@
 language: ruby
 
-sudo: required
-
 dist: xenial
-group: edge
 
 rvm: 2.5.3
 
@@ -41,11 +38,11 @@ before_script:
 - bundle exec rake clean assets:precompile
 
 script:
-- bundle exec rake parallel:spec
+- bundle exec rspec spec
 - bundle exec rake shfmt
 - bundle exec rake assert_clean
 - bundle exec rake shellcheck
-- bundle exec rake assert_examples[parallel]
+- bundle exec rake assert_examples
 
 after_success: bundle exec codeclimate-test-reporter
 

@@ -44,6 +44,7 @@ module Travis
             end
             directory_cache.push
           end
+          sh.newline
         end
 
         def prepare_cache

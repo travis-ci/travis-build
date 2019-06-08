@@ -20,22 +20,19 @@ module Travis
         def setup
           super
 
-          sh.newline
-          sh.newline
-          sh.fold "#{version_manager.name}.setup" do
-            setup_os
+          setup_os
+          convert_legacy_nodejs_config
+          version_manager.update unless app_host.empty?
+          prepend_path './node_modules/.bin'
 
-            prepend_path './node_modules/.bin'
-            convert_legacy_nodejs_config
-            version_manager.update unless app_host.empty?
-            version_manager.install
-          end
+          version_manager.install
+          sh.newline
 
           npm_disable_prefix
           npm_disable_spinner
           npm_disable_progress
           npm_disable_strict_ssl unless npm_strict_ssl?
-          install_yarn
+          install_yarn_when_locked
         end
 
         def announce
@@ -54,6 +51,7 @@ module Travis
              sh.cmd 'yarn --version'
              sh.cmd 'hash -d yarn', echo: false
           end
+          sh.newline
         end
 
         def install
@@ -97,14 +95,15 @@ module Travis
 
         def setup_cache
           if data.cache?(:yarn)
+            install_yarn
             sh.fold 'cache.yarn' do
-              sh.echo ''
-              directory_cache.add '${TRAVIS_HOME}/.cache/yarn'
+              sh.newline
+              directory_cache.add '$(dirname $(yarn cache dir))'
             end
           end
           if data.cache?(:npm)
             sh.fold 'cache.npm' do
-              sh.echo ''
+              sh.newline
               sh.if packages_locked? do
                 directory_cache.add '$HOME/.npm'
               end
@@ -196,33 +195,38 @@ module Travis
                 sh.cmd "npm install #{args}", retry: true
               end
             end
+            sh.newline
           end
 
-          def install_yarn
+          def install_yarn_when_locked
             sh.if "-f yarn.lock" do
               sh.if yarn_req_not_met do
                 sh.echo "Node.js version $(node --version) does not meet requirement for yarn." \
                   " Please use Node.js #{YARN_REQUIRED_NODE_VERSION} or later.", ansi: :red
               end
               sh.else do
-                sh.fold "install.yarn" do
-                  sh.if "-z \"$(command -v yarn)\"" do
-                    sh.if "-z \"$(command -v gpg)\"" do
-                      sh.export "YARN_GPG", "no"
-                    end
-                    sh.echo   "Installing yarn", ansi: :green
-                    sh.cmd    "curl -o- -L https://yarnpkg.com/install.sh | bash", echo: true, timing: true
-                    sh.echo   "Setting up \\$PATH", ansi: :green
-                    sh.export "PATH", "${TRAVIS_HOME}/.yarn/bin:$PATH"
-                  end
+                install_yarn
+              end
+            end
+          end
+
+          def install_yarn
+            sh.if "-z \"$(command -v yarn)\"" do
+              sh.fold "install.yarn" do
+                sh.if "-z \"$(command -v gpg)\"" do
+                  sh.export "YARN_GPG", "no"
                 end
+                sh.echo   "Installing yarn", ansi: :green
+                sh.cmd    "curl -o- -L https://yarnpkg.com/install.sh | bash", echo: true, timing: true
+                sh.echo   "Setting up \\$PATH", ansi: :green
+                sh.export "PATH", "${TRAVIS_HOME}/.yarn/bin:$PATH"
               end
             end
           end
 
           def prepend_path(path)
             sh.if "$(echo :$PATH: | grep -v :#{path}:)" do
-              sh.export "PATH", "#{path}:$PATH", echo: true
+              sh.export "PATH", "#{path}:$PATH", echo: false
             end
           end
 
@@ -236,10 +240,13 @@ module Travis
 
           def setup_os
             if is_win?
-              sh.echo "Using NVS for managing Node.js versions on Windows (BETA)", ansi: :yellow
-              sh.export 'NVS_HOME', '$ProgramData/nvs', echo: false
-              sh.cmd 'git clone --single-branch https://github.com/jasongin/nvs $NVS_HOME'
-              sh.cmd 'source $NVS_HOME/nvs.sh'
+              sh.fold "#{version_manager.name}.setup" do
+                sh.echo "Using NVS for managing Node.js versions on Windows (BETA)", ansi: :yellow
+                sh.export 'NVS_HOME', '$ProgramData/nvs', echo: false
+                sh.cmd 'git clone --single-branch https://github.com/jasongin/nvs $NVS_HOME'
+                sh.cmd 'source $NVS_HOME/nvs.sh'
+              end
+              sh.newline
             end
           end
 

@@ -21,11 +21,11 @@ describe Travis::Build::Script::Rust, :sexp do
   end
 
   it 'announces rust version' do
-    should include_sexp [:cmd, 'rustc --version', echo: true]
+    should include_sexp [:cmd, 'rustc --version', assert: true, echo: true]
   end
 
   it 'announces cargo version' do
-    should include_sexp [:cmd, 'cargo --version', echo: true]
+    should include_sexp [:cmd, 'cargo --version', assert: true, echo: true]
   end
 
   it 'runs cargo test' do

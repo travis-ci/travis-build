@@ -13,8 +13,14 @@ main() {
     -w "${PUMA_WORKERS:-2}"
   )
 
-  if [[ "${RACK_ENV}" == development && ! "${DISABLE_RERUN}" ]]; then
-    cmd=(rerun -p '**/*.{rb,ru}' -- "${cmd[@]}")
+  if [[ -f public.tar.bz2 && ! -d public ]]; then
+    tar -xf public.tar.bz2
+  fi
+
+  if [[ "${RACK_ENV}" == development ]] &&
+    [[ ! -f /.dockerenv ]] &&
+    [[ ! "${DISABLE_RERUN}" ]]; then
+    cmd=(bundle exec rerun -p '**/*.{rb,ru}' -- "${cmd[@]}")
   fi
 
   echo "----> ${cmd[*]}"

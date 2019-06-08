@@ -16,6 +16,13 @@ module Travis
         include RVM
         include Bundler
 
+        def setup
+          super
+          sh.if podfile? do
+            suppress_cocoapods_msg
+          end
+        end
+
         def announce
           super
           sh.fold 'announce' do
@@ -45,10 +52,10 @@ module Travis
           super
 
           sh.if podfile? do
-            sh.echo ''
+            sh.newline
             if data.cache?(:cocoapods)
               sh.fold 'cache.cocoapods' do
-                sh.echo ''
+                sh.newline
                 directory_cache.add("#{pod_dir}/Pods")
               end
             end
@@ -134,6 +141,11 @@ module Travis
                 xcodebuild_args << " -#{var} #{config[:"xcode_#{var}"].to_s.shellescape}" if config[:"xcode_#{var}"]
               end
             end.strip
+          end
+
+          def suppress_cocoapods_msg
+            sh.mkdir "$HOME/.cocoapods", recursive: true
+            sh.cmd "echo \"new_version_message: false\" >> $HOME/.cocoapods/config.yaml"
           end
 
           # DEPRECATED_MISSING_WORKSPACE_OR_PROJECT = <<-msg

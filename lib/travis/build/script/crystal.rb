@@ -40,7 +40,7 @@ module Travis
 
           sh.echo 'Crystal for Travis-CI is not officially supported, but is community maintained.', ansi: :green
           sh.echo 'Please file any issues using the following link', ansi: :green
-          sh.echo '  https://github.com/travis-ci/travis-ci/issues/new?labels=community:crystal', ansi: :green
+          sh.echo '  https://travis-ci.community/c/languages/crystal', ansi: :green
           sh.echo 'and mention \`@jhass\`, \`@matiasgarciaisaia\`, \`@waj\` and \`@will\` in the issue', ansi: :green
         end
 
@@ -49,7 +49,7 @@ module Travis
 
           sh.cmd 'crystal --version'
           sh.cmd 'shards --version'
-          sh.echo ''
+          sh.newline
         end
 
         def install

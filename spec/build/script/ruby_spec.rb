@@ -186,7 +186,7 @@ describe Travis::Build::Script::Ruby, :sexp do
     it 'ensures rvm alias is defined' do
       sexp = sexp_find(subject, [:if, "-z $(rvm alias list | grep ^2\\\\.3)"], [:then])
       store_example(name: 'rvm-alias')
-      expect(sexp).to include_sexp [:cmd, "rvm alias create 2.3 ruby-2.3.7", assert: true, echo: true, timing: true]
+      expect(sexp).to include_sexp [:cmd, "rvm alias create 2.3 ruby-2.3.8", assert: true, echo: true, timing: true]
     end
   end
 
@@ -197,6 +197,25 @@ describe Travis::Build::Script::Ruby, :sexp do
 
     it 'sets autolibs to disable' do
       should include_sexp [:cmd, "rvm autolibs disable", assert: true]
+    end
+  end
+
+  context 'when testing with truffleruby' do
+    before :each do
+      data[:config][:rvm] = 'truffleruby'
+    end
+
+    it 'uses latest rvm' do
+      should include_sexp [:cmd, "rvm get master", assert: true, echo: true, timing: true]
+    end
+
+    it 'sets autolibs to disable' do
+      should include_sexp [:cmd, "rvm autolibs disable", assert: true]
+    end
+
+    it 'uses rvm install and rvm use' do
+      should include_sexp [:cmd, "rvm install truffleruby", assert: true, echo: true, timing: true]
+      should include_sexp [:cmd, "rvm use truffleruby", assert: true, echo: true, timing: true]
     end
   end
 end
