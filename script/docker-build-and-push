@@ -12,7 +12,9 @@ unset DOCKER_HOST
 unset DOCKER_TLS
 unset DOCKER_TLS_VERIFY
 
-docker build -t "${quay_image}:${tag_name}" .
+docker pull "${quay_image}:${tag_name}" || true
+
+docker build -t "${quay_image}:${tag_name}" --cache-from "${quay_image}:${tag_name}" .
 
 docker images
 
