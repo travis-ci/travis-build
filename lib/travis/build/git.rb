@@ -69,7 +69,7 @@ module Travis
           if clone?
             Clone.new(sh, data).apply
           else
-            sh.echo "Skipping `git clone` based on given configuration", ansi: :yellow
+            sh.echo 'Skipping \`git clone\` based on given configuration', ansi: :yellow
           end
         end
 
