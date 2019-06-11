@@ -14,6 +14,7 @@ module Travis
           quiet: false,
           lfs_skip_smudge: false,
           sparse_checkout: false,
+          clone: true
         }
       }
 
@@ -78,7 +79,11 @@ module Travis
         end
 
         def clone_or_fetch
-          Clone.new(sh, data).apply
+          if clone?
+            Clone.new(sh, data).apply
+          else
+            sh.echo 'Skipping \`git clone\` based on given configuration', ansi: :yellow
+          end
         end
 
         def submodules
@@ -96,6 +101,11 @@ module Travis
         def use_tarball?
           config[:git][:strategy] == 'tarball'
         end
+
+        def clone?
+          config[:git][:clone]
+        end
+
 
         def dir
           data.slug
