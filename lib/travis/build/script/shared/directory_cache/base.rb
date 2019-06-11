@@ -55,14 +55,15 @@ module Travis
           CASHER_URL = 'https://raw.githubusercontent.com/travis-ci/casher/%s/bin/casher'
           BIN_PATH   = '$CASHER_DIR/bin/casher'
 
-          attr_reader :sh, :data, :slug, :start, :msgs
+          attr_reader :sh, :data, :slug, :start, :msgs, :archive_type
 
-          def initialize(sh, data, slug, start = Time.now)
+          def initialize(sh, data, slug, start = Time.now, archive_type = 'cache')
             @sh = sh
             @data = data
             @slug = slug
             @start = start
             @msgs = []
+            @archive_type = archive_type
           end
 
           def valid?
@@ -195,10 +196,10 @@ module Travis
                 sh.if "-f #{BIN_PATH}" do
                   sh.if "-e ~/.rvm/scripts/rvm" do
                     sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
-                    sh.cmd "rvm $(travis_internal_ruby) --fuzzy do #{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
+                    sh.cmd "rvm $(travis_internal_ruby) --fuzzy do #{BIN_PATH} #{archive_type} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
                   end
                   sh.else do
-                    sh.cmd "#{BIN_PATH} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
+                    sh.cmd "#{BIN_PATH} #{archive_type} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
                   end
                 end
               end
@@ -279,7 +280,7 @@ module Travis
               if branch = data.cache[:branch]
                 branch
               else
-                edge? ? 'master' : 'production'
+                edge? ? 'master' : 'bash'
               end
             end
 
@@ -298,7 +299,7 @@ module Travis
             def update_static_file(name, location, remote_location, assert = false)
               flags = "-sf #{debug_flags}"
               cmd_opts = {retry: true, assert: false, echo: 'Installing caching utilities'}
-              if casher_branch == 'production'
+              if casher_branch == 'bash'
                 static_file_location = "https://#{app_host}/files/#{name}".output_safe
                 sh.cmd curl_cmd(flags, location, static_file_location), cmd_opts
                 sh.if "$? -ne 0" do
