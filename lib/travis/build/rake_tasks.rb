@@ -230,7 +230,7 @@ module Travis
       end
 
       def file_update_casher
-        fetch_githubusercontent_file 'travis-ci/casher/production/bin/casher'
+        fetch_githubusercontent_file 'travis-ci/casher/bash/bin/casher'
       end
 
       def file_update_gimme
