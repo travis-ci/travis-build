@@ -63,7 +63,8 @@ module Travis
         }
 
         def apply?
-          enabled? and secrets.any?
+          enabled? and secrets.any? and !windows?
+          sh.echo 'Secrets are not currently filtered on Windows, please be careful', ansi: 'yellow' if windows?
         end
 
         def apply
