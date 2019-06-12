@@ -97,7 +97,7 @@ module Travis
         private
 
           def elm_version
-            config[:elm].to_s
+            Array(config[:elm]).first.to_s
           end
 
           def elm_version_number(index)
