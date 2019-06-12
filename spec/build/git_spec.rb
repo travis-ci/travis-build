@@ -45,6 +45,14 @@ describe Travis::Build::Git, :sexp do
     end
   end
 
+  shared_examples 'does not clone' do
+    let(:payload) {payload_for(:push, :ruby, git: { clone: 'false'})}
+
+    it 'clones via ssh' do
+      expect(sexp_find(subject, cmd)).to be_nil
+    end
+  end
+
   # Behaviour:
   #
   # * private repo without installation: install key and use ssh clone
