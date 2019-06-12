@@ -10,7 +10,7 @@ shared_examples_for 'a script with travis env vars sexp' do
     should include_sexp [:export, ['TRAVIS_JOB_NUMBER',      '1.1']]
     should include_sexp [:export, ['TRAVIS_BRANCH',          'master']]
     should include_sexp [:export, ['TRAVIS_COMMIT',          data[:job][:commit]]]
-    should include_sexp [:export, ['TRAVIS_COMMIT_MESSAGE',  '$(git log --format=%B -n 1 | head -c 32768)']]
+    should include_sexp [:export, ['TRAVIS_COMMIT_MESSAGE',  '$(test -d .git && git log --format=%B -n 1 | head -c 32768)']]
     should include_sexp [:export, ['TRAVIS_COMMIT_RANGE',    data[:job][:commit_range]]]
     should include_sexp [:export, ['TRAVIS_REPO_SLUG',       data[:repository][:slug]]]
     should include_sexp [:export, ['TRAVIS_LANGUAGE',        data[:config][:language].to_s]]

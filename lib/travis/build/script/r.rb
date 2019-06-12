@@ -428,7 +428,7 @@ module Travis
                   'if (!requireNamespace("BiocManager", quietly=TRUE))'\
                   '  install.packages("BiocManager");'\
                   "if (#{as_r_boolean(config[:bioc_use_devel])})"\
-                  ' BiocManager::install(version = "devel");'\
+                  ' BiocManager::install(version = "devel", ask = FALSE);'\
                   'else'\
                   ' BiocManager::install();'\
                   'cat(append = TRUE, file = "~/.Rprofile.site", "options(repos = BiocManager::repositories());")'
