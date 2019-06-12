@@ -27,31 +27,29 @@ module Travis
         def setup
           super
 
-          sh.echo 'Julia for Travis-CI is not officially supported, ' \
-            'but is community maintained.', ansi: :green
-          sh.echo 'Please file any issues using the following link',
-            ansi: :green
-          sh.echo '  https://travis-ci.community/c/languages/julia', ansi: :green
-          sh.echo 'and mention \`@ararslan\`, \`@staticfloat\`' \
-            ' and \`@StefanKarpinski\` in the issue', ansi: :green
-
           sh.fold 'Julia-install' do
             sh.echo 'Installing Julia', ansi: :yellow
-            sh.cmd 'CURL_USER_AGENT="Travis-CI $(curl --version | head -n 1)"'
             case config[:os]
             when 'linux'
-              sh.cmd 'mkdir -p ~/julia'
-              sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L --retry 7 '#{julia_url}' } \
-                       '| tar -C ~/julia -x -z --strip-components=1 -f -'
+              sh.cmd 'snap install --edge julia --classic', echo: true, sudo: true
             when 'osx'
+              sh.cmd 'CURL_USER_AGENT="Travis-CI $(curl --version | head -n 1)"'
+              sh.echo 'Julia for Travis-CI on the Mac is not officially supported, ' \
+              'but is community maintained.', ansi: :green
+              sh.echo 'Please file any issues using the following link',
+              ansi: :green
+              sh.echo '  https://travis-ci.community/c/languages/julia', ansi: :green
+              sh.echo 'and mention \`@ararslan\`, \`@staticfloat\`' \
+              ' and \`@StefanKarpinski\` in the issue', ansi: :green
+
               sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L --retry 7 -o julia.dmg '#{julia_url}'}
               sh.cmd 'mkdir juliamnt'
               sh.cmd 'hdiutil mount -readonly -mountpoint juliamnt julia.dmg'
               sh.cmd 'cp -a juliamnt/*.app/Contents/Resources/julia ~/'
+              sh.cmd 'export PATH="${PATH}:${TRAVIS_HOME}/julia/bin"'
             else
               sh.failure "Operating system not supported: #{config[:os]}"
             end
-            sh.cmd 'export PATH="${PATH}:${TRAVIS_HOME}/julia/bin"'
           end
         end
 
