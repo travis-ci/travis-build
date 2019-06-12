@@ -31,6 +31,7 @@ module Travis
             sh.echo 'Installing Julia', ansi: :yellow
             case config[:os]
             when 'linux'
+              sh.cmd 'snap install core18', echo: true, sudo: true
               sh.cmd 'snap install --edge julia --classic', echo: true, sudo: true
             when 'osx'
               sh.cmd 'CURL_USER_AGENT="Travis-CI $(curl --version | head -n 1)"'
