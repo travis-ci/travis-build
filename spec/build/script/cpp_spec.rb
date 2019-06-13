@@ -56,6 +56,20 @@ describe Travis::Build::Script::Cpp, :sexp do
       should include_sexp [:export, ['CXX', 'g++'], echo: true]
     end
   end
+  
+  describe 'g++-4.9 given as compiler' do
+      before :each do
+          data[:config][:compiler] = 'g++-4.9'
+      end
+      
+      it 'sets CC to gcc-4.9' do
+          should include_sexp [:export, ['CC', 'gcc-4.9'], echo: true]
+      end
+      
+      it 'sets CXX to g++-4.9' do
+          should include_sexp [:export, ['CXX', 'g++-4.9'], echo: true]
+      end
+  end
 
   describe 'clang given as compiler' do
     before :each do
@@ -84,10 +98,24 @@ describe Travis::Build::Script::Cpp, :sexp do
       should include_sexp [:export, ['CXX', 'clang++'], echo: true]
     end
   end
+  
+  describe 'clang++-3.7 given as compiler' do
+      before :each do
+          data[:config][:compiler] = 'clang++-3.7'
+      end
+      
+      it 'sets CC to clang-3.7' do
+          should include_sexp [:export, ['CC', 'clang-3.7'], echo: true]
+      end
+      
+      it 'sets CXX to clang++-3.7' do
+          should include_sexp [:export, ['CXX', 'clang++-3.7'], echo: true]
+      end
+  end
 
-  it 'runs gcc --version' do
-    data[:config][:compiler] = 'gcc'
-    should include_sexp [:cmd, 'gcc --version', echo: true]
+  it 'runs g++ --version' do
+    data[:config][:compiler] = 'g++'
+    should include_sexp [:cmd, 'g++ --version', echo: true]
   end
 
   it 'runs ./configure && make && make test' do
