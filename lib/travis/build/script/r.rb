@@ -79,7 +79,7 @@ module Travis
                   sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter3.5"'
                   sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u3.5"'
                   sh.cmd 'sudo add-apt-repository -y "ppa:ubuntugis/ppa"'
-                  sh.cmd 'sudo add-apt-repository -y "ppa:opencpu/jq"'
+                  sh.cmd 'sudo add-apt-repository -y "ppa:cran/travis"'
                 end
 
                 # Both c2d4u and c2d4u3.5 depend on this ppa for ffmpeg
