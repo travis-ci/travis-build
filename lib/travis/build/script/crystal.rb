@@ -13,6 +13,7 @@ module Travis
             when 'linux'
               validate_version
               if config[:crystal] == 'nightly'
+                sh.cmd %Q(sudo apt-get install -y gcc pkg-config git tzdata libpcre3-dev libevent-dev libyaml-dev libgmp-dev libssl-dev libxml2-dev)
                 sh.cmd %Q(sudo snap install crystal --classic --edge)
               else
                 version = {
