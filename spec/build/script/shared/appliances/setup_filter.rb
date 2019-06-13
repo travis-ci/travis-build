@@ -1,5 +1,5 @@
 shared_examples_for 'setup filter' do
-  let(:filter) {[:echo, 'Secrets are not currently filtered on Windows, please be careful', ansi: 'yellow']}
+  let(:filter) {[:echo, 'Secret environment variables are not obfuscated on Windows, please refer to our documentation: https://docs.travis-ci.com/user/best-practices-security', ansi: 'yellow']}
 
   describe 'skips on Windows' do
     before do
