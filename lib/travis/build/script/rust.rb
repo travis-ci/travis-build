@@ -12,7 +12,13 @@ module Travis
         def export
           super
 
-          sh.export 'TRAVIS_RUST_VERSION', config[:rust].to_s.shellescape, echo: false
+          sh.if '-f rust-toolchain' do
+            sh.echo "Setting Rust version from rust-toolchain: `cat rust-toolchain`", ansi: :yellow
+            sh.export 'TRAVIS_RUST_VERSION', "`cat rust-toolchain`", echo: false
+          end
+          sh.else do
+            sh.export 'TRAVIS_RUST_VERSION', config[:rust].to_s.shellescape, echo: false
+          end
         end
 
         def setup_cache
@@ -25,7 +31,7 @@ module Travis
           sh.fold('rustup-install') do
             sh.echo 'Installing Rust', ansi: :yellow
             unless app_host.empty?
-              sh.cmd "curl -sSf https://#{app_host}/files/rustup-init.sh | sh -s -- --default-toolchain=$TRAVIS_RUST_VERSION -y", echo: true, assert: false
+              sh.cmd "curl -sSf https://#{app_host}/files/rustup-init.sh | sh -s -- --default-toolchain=${RUSTUP_TOOLCHAIN:-$TRAVIS_RUST_VERSION} -y", echo: true, assert: false
               sh.if "$? -ne 0" do
                 sh.cmd RUSTUP_CMD, echo: true, assert: true
               end

@@ -16,8 +16,14 @@ describe Travis::Build::Script::Rust, :sexp do
 
   it_behaves_like 'a build script sexp'
 
+  it 'sets TRAVIS_RUST_VERSION from rust-toolchain if available' do
+    expect(
+      sexp_find(subject, [:if, "-f rust-toolchain"], [:then])
+    ).to include_sexp [:export, ["TRAVIS_RUST_VERSION", "`cat rust-toolchain`"]]
+  end
+
   it 'downloads and installs Rust' do
-    should include_sexp [:cmd, %r(curl -sSf #{Travis::Build::Script::Rust::RUST_RUSTUP} | sh -s -- --default-toolchain=$TRAVIS_RUST_VERSION -y), assert: true, echo: true, timing: true]
+    should include_sexp [:cmd, %r(curl -sSf #{Travis::Build::Script::Rust::RUST_RUSTUP} | sh -s -- --default-toolchain=${RUSTUP_TOOLCHAIN:-$TRAVIS_RUST_VERSION} -y), assert: true, echo: true, timing: true]
   end
 
   it 'announces rust version' do
