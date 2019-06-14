@@ -9,7 +9,7 @@ module Travis
         end
 
         def apply
-          sh.if 'sudo service resolvconf >&/dev/null', raw: true do
+          sh.if 'sudo service resolvconf status >&/dev/null', raw: true do
             sh.fold "resolvconf" do
               sh.raw <<-EOF
   echo "options timeout:1"  | sudo tee -a /etc/resolvconf/resolv.conf.d/tail >/dev/null
