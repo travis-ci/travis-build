@@ -86,6 +86,9 @@ module Travis
         end
 
         def linux_nightly
+          sh.if '"$TRAVIS_DIST" == precise || "$TRAVIS_DIST" == trusty' do
+            sh.failure "Crystal nightlies will only be supported on Xenial or later releases"
+          end
           sh.cmd %Q(sudo apt-get install -y gcc pkg-config git tzdata libpcre3-dev libevent-dev libyaml-dev libgmp-dev libssl-dev libxml2-dev)
           sh.cmd %Q(sudo snap install crystal --classic --edge)
         end
