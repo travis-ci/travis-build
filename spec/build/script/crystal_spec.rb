@@ -43,7 +43,7 @@ describe Travis::Build::Script::Crystal, :sexp do
     it "installs linux nightly when specified" do
       data[:config][:os] = "linux"
       data[:config][:crystal] = "nightly"
-      should include_sexp [:cmd, "sudo apt-get install -y crystal-nightly libgmp-dev"]
+      should include_sexp [:cmd, "sudo snap install crystal --classic --edge"]
     end
 
     it 'throws a error with a non-release version on macOS' do
