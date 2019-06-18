@@ -143,7 +143,7 @@ module Travis
               urls << fetch_url(normalize_name(data.branch), true)
               urls << fetch_url(normalize_name(data.branch))
             end
-            if data.branch != data.repository[:default_branch]
+            if data.repository[:default_branch] && data.branch != data.repository[:default_branch]
               urls << fetch_url(uri_normalize_name(data.repository[:default_branch]), true)
               urls << fetch_url(uri_normalize_name(data.repository[:default_branch]))
               urls << fetch_url(normalize_name(data.repository[:default_branch]), true)
