@@ -40,6 +40,9 @@ module Travis
             sh.cmd 'CURL_USER_AGENT="Travis-CI $(curl --version | head -n 1)"'
             case config[:os]
             when 'linux'
+              if config[:julia] == 'nightly' && config[:arch] == 'arm64'
+                sh.failure 'Nightly Julia binaries are not available for AArch64'
+              end
               sh.cmd 'mkdir -p ~/julia'
               sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L --retry 7 '#{julia_url}' } \
                        '| tar -C ~/julia -x -z --strip-components=1 -f -'
@@ -113,9 +116,16 @@ module Travis
           def julia_url
             case config[:os]
             when 'linux'
-              osarch = 'linux/x64'
-              ext = 'linux-x86_64.tar.gz'
-              nightlyext = 'linux64.tar.gz'
+              case config[:arch]
+              when 'arm64'
+                osarch = 'linux/aarch64'
+                ext = 'linux-aarch64.tar.gz'
+                nightlyext = nil  # There are no nightlies for ARM
+              else
+                osarch = 'linux/x64'
+                ext = 'linux-x86_64.tar.gz'
+                nightlyext = 'linux64.tar.gz'
+              end
             when 'osx'
               osarch = 'mac/x64'
               ext = 'mac64.dmg'
