@@ -11,6 +11,8 @@ describe Travis::Build::Env do
       repository: { slug: 'travis-ci/travis-ci' },
       env_vars: [
         { name: 'BAM', value: 'bam', public: true },
+        { name: 'FOODEV', value: 'foodev', public: true, branch: 'foo-(dev)' },
+        { name: 'FOOMASTER', value: 'foomaster', public: true, branch: 'master' },
         { name: 'BAZ', value: 'baz', public: false },
       ]
     }
@@ -86,6 +88,15 @@ describe Travis::Build::Env do
 
       it 'does not include secure vars' do
         expect(keys).to_not include('BAZ')
+      end
+    end
+    
+    describe 'for env jobs (pull requests) restricted to branch' do
+      it 'includes vars restricted to foo-(dev) branch' do
+        expect(keys).to include('FOODEV')
+      end
+      it 'does not include vars restricted to master branch' do
+        expect(keys).to_not include('FOOMASTER')
       end
     end
   end

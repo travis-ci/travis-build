@@ -6,7 +6,7 @@ module Travis
       class Base < Struct.new(:env, :data)
         extend Forwardable
 
-        def_delegators :data, :config
+        def_delegators :data, :config, :job
 
         def to_vars(type, args)
           vars = args.map { |arg| to_var(type, *arg) }.select(&:valid?)
