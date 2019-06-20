@@ -192,14 +192,15 @@ module Travis
             end
 
             def run(command, args, options = {})
+              cache_name = URI.encode_www_form_component(slug)
               sh.with_errexit_off do
                 sh.if "-f #{BIN_PATH}" do
                   sh.if "-e ~/.rvm/scripts/rvm" do
                     sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
-                    sh.cmd "rvm $(travis_internal_ruby) --fuzzy do #{BIN_PATH} #{archive_type} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
+                    sh.cmd "rvm $(travis_internal_ruby) --fuzzy do #{BIN_PATH} --name #{cache_name} #{archive_type} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
                   end
                   sh.else do
-                    sh.cmd "#{BIN_PATH} #{archive_type} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
+                    sh.cmd "#{BIN_PATH} --name #{cache_name} #{archive_type} #{command} #{Array(args).join(' ')}", options.merge(echo: false, assert: false)
                   end
                 end
               end

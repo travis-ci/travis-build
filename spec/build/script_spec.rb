@@ -34,11 +34,11 @@ describe Travis::Build::Script, :sexp do
   end
 
   it 'runs casher cache fetch' do
-    should include_sexp [:cmd, /casher cache fetch/, :*]
+    should include_sexp [:cmd, /casher --name \S+ cache fetch/, :*]
   end
 
   it 'runs casher cache push' do
-    should include_sexp [:cmd, /casher cache push/, :*]
+    should include_sexp [:cmd, /casher --name \S+ cache push/, :*]
   end
 
   describe 'does not explode' do
