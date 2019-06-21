@@ -58,6 +58,10 @@ module Travis
           super || data.cache?(:cargo)
         end
 
+        def before_cache
+          sh.cmd 'rm -rf "$HOME/.cargo/registry/src"', timing: false, echo: false
+        end
+
         private
 
           def version

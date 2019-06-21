@@ -56,5 +56,9 @@ describe Travis::Build::Script::Rust, :sexp do
     it 'caches desired directories' do
       should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add ${TRAVIS_HOME}/.cargo target ${TRAVIS_HOME}/.rustup', timing: true]
     end
+
+    it 'removes $HOME/.cargo/registry/src' do
+      should include_sexp [:cmd, 'rm -rf "$HOME/.cargo/registry/src"']
+    end
   end
 end
