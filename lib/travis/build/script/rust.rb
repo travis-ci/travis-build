@@ -9,6 +9,17 @@ module Travis
           rust: 'stable',
         }
 
+        CARGO_CACHE_DIRS = %W(
+          ${TRAVIS_HOME}/.cargo
+          target
+          ${TRAVIS_HOME}/.rustup
+          ${TRAVIS_HOME}/.cache/sccache
+        )
+
+        CARGO_CACHE_CLEANUP_DIRS = %W(
+          $HOME/.cargo/registry/src
+        )
+
         def export
           super
 
@@ -18,7 +29,7 @@ module Travis
         def setup_cache
           if data.cache?(:cargo)
             sh.fold 'cache.cargo' do
-              directory_cache.add "${TRAVIS_HOME}/.cargo", "target", "${TRAVIS_HOME}/.rustup", "${TRAVIS_HOME}/.cache/sccache"
+              directory_cache.add CARGO_CACHE_DIRS
             end
           end
 
@@ -59,7 +70,7 @@ module Travis
         end
 
         def before_cache
-          sh.cmd 'rm -rf "$HOME/.cargo/registry/src"', timing: false, echo: false
+          sh.cmd "rm -rf \"#{CARGO_CACHE_CLEANUP_DIRS.join(" ")}\"", timing: false, echo: false
         end
 
         private
