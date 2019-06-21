@@ -7,6 +7,7 @@ module Travis
         def apply
           sh.if '"$TRAVIS_OS_NAME" == linux' do
             command = <<~KEYUPDATE
+            export APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
             apt-key adv --list-public-keys --with-fingerprint --with-colons |
               awk -F: '
                   $1=="pub" && $2~/^[er]$/ { state="expired" }
@@ -36,7 +37,7 @@ module Travis
         end
 
         def key_url(repo)
-          tmpl = Travis::Build.config.apt_source_safelist_key_url_template.to_s.output_safe
+          tmpl = Travis::Build.config.apt_source_alias_list_key_url_template.to_s.output_safe
           format(
             tmpl.to_s,
             source_alias: repo,
@@ -47,4 +48,3 @@ module Travis
     end
   end
 end
-

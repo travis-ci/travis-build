@@ -50,16 +50,17 @@ module Travis
           xenial: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_XENIAL', ''),
         },
         apt_proxy: ENV.fetch('TRAVIS_BUILD_APT_PROXY', ''),
-        apt_source_safelist: {
-          precise: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_SAFELIST_PRECISE', ''),
-          trusty: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_SAFELIST_TRUSTY', ''),
-          xenial: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_SAFELIST_XENIAL', ''),
+        apt_source_alias_list: {
+          precise: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_PRECISE', ''),
+          trusty: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_TRUSTY', ''),
+          xenial: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_XENIAL', ''),
         },
-        apt_source_safelist_key_url_template: ENV.fetch(
-          'TRAVIS_BUILD_APT_SOURCE_SAFELIST_KEY_URL_TEMPLATE',
+        apt_source_alias_list_key_url_template: ENV.fetch(
+          'TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_KEY_URL_TEMPLATE',
           'https://%{app_host}/files/gpg/%{source_alias}.asc'
         ),
         apt_safelist_skip: ENV.fetch('TRAVIS_BUILD_APT_SAFELIST_SKIP', '').to_bool,
+        apt_load_source_alias_list: ENV.fetch('TRAVIS_BUILD_APT_LOAD_SOURCE_ALIAS_LIST', 'true').to_bool,
         auth_disabled: ENV.fetch('TRAVIS_BUILD_AUTH_DISABLED', '').to_bool,
         cabal_default: ENV.fetch('TRAVIS_BUILD_CABAL_DEFAULT', '2.0'),
         enable_debug_tools: ENV.fetch(

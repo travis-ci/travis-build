@@ -12,7 +12,7 @@ describe Travis::Build::Addons::AptPackages, :sexp do
 
   before :each do
     described_class.instance_variable_set(:@package_safelists, nil)
-    described_class.instance_variable_set(:@source_safelists, nil)
+    described_class.instance_variable_set(:@source_alias_lists, nil)
     addon.stubs(:skip_safelist?).returns(safelist_skip)
     addon.stubs(:package_safelists).returns(package_safelists)
     script.stubs(:bash).returns('')

@@ -53,7 +53,8 @@ module Travis
         # safe_yaml parses strings like 5.10 to 5.1
         VERSIONS = {
           '5.1' => '5.10',
-          '5.2' => '5.20'
+          '5.2' => '5.20',
+          '5.3' => '5.30'
         }
 
         def version
