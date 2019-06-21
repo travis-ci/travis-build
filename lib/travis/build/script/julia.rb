@@ -121,10 +121,12 @@ module Travis
               ext = 'mac64.dmg'
               nightlyext = ext
             end
-            case julia_version = Array(config[:julia]).first.to_s
-            when 'release'
+            julia_version = Array(config[:julia]).first.to_s
+            if julia_version == 'release'
               # CHANGEME on new minor releases (once or twice a year)
-              url = "julialang-s3.julialang.org/bin/#{osarch}/0.6/julia-0.6-latest-#{ext}"
+              julia_version = '1.0'
+            end
+            case julia_version
             when 'nightly'
               url = "julialangnightlies-s3.julialang.org/bin/#{osarch}/julia-latest-#{nightlyext}"
             when /^(\d+\.\d+)\.\d+$/
