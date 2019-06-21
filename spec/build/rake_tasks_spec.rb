@@ -51,7 +51,7 @@ describe Travis::Build::RakeTasks do
         /paulp/sbt-extras/master/sbt
         /sc-linux.tar.gz
         /sc-osx.zip
-        /travis-ci/casher/production/bin/casher
+        /travis-ci/casher/bash/bin/casher
         /travis-ci/gimme/v1.2.5/gimme
       ].each do |filepath|
         stub.get(filepath) do |*|
