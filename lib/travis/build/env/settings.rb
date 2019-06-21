@@ -21,7 +21,7 @@ module Travis
               else
                 nil
               end
-            end.compact!
+            end.compact
           end
       end
     end
