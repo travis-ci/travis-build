@@ -18,7 +18,7 @@ module Travis
         def setup_cache
           if data.cache?(:cargo)
             sh.fold 'cache.cargo' do
-              directory_cache.add "${TRAVIS_HOME}/.cargo", "target", "${TRAVIS_HOME}/.rustup"
+              directory_cache.add "${TRAVIS_HOME}/.cargo", "target", "${TRAVIS_HOME}/.rustup", "${TRAVIS_HOME}/.cache/sccache"
             end
           end
 
