@@ -278,11 +278,15 @@ module Travis
             end
 
             def casher_branch
-              if branch = data.cache[:branch]
-                branch
+              if defined_branch
+                defined_branch
               else
                 edge? ? 'master' : 'bash'
               end
+            end
+
+            def defined_branch
+              data.cache[:branch]
             end
 
             def edge?
@@ -308,6 +312,7 @@ module Travis
                   sh.cmd curl_cmd(flags, location, remote_location), cmd_opts
                 end
               else
+                sh.echo "Using #{defined_branch} casher", ansi: :yellow if defined_branch
                 sh.cmd curl_cmd(flags, location, (CASHER_URL % casher_branch)), cmd_opts
               end
             end
