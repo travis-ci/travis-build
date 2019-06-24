@@ -9,10 +9,10 @@ module Travis
         def export
           super
           sh.export 'TRAVIS_COMPILER', compiler
-          sh.export 'CXX', cxx
-          sh.export 'CXX_FOR_BUILD', cxx
-          sh.export 'CC', cc # some projects also need to compile some C, e.g. Rubinius. MK.
-          sh.export 'CC_FOR_BUILD', cc
+          sh.export 'CXX', "${CXX:-#{cxx}}"
+          sh.export 'CXX_FOR_BUILD', "${CXX_FOR_BUILD:-#{cxx}}"
+          sh.export 'CC', "${CC:-#{cc}}" # some projects also need to compile some C, e.g. Rubinius. MK.
+          sh.export 'CC_FOR_BUILD', "${CC_FOR_BUILD:-#{cc}}"
           if data.cache?(:ccache)
             sh.export 'PATH', "/usr/lib/ccache:$PATH"
           end
