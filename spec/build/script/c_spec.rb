@@ -16,7 +16,7 @@ describe Travis::Build::Script::C, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'sets CC' do
-    should include_sexp [:export, ['CC', 'gcc'], echo: true]
+    should include_sexp [:export, ['CC', "${CC:-gcc}"], echo: true]
   end
 
   it 'announces gcc --version' do
@@ -42,4 +42,3 @@ describe Travis::Build::Script::C, :sexp do
     end
   end
 end
-
