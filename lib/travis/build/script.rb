@@ -43,6 +43,7 @@ require 'travis/build/script/rust'
 require 'travis/build/script/scala'
 require 'travis/build/script/smalltalk'
 require 'travis/build/script/shared/directory_cache'
+require 'travis/build/script/shared/snapcraft'
 
 module Travis
   module Build
