@@ -11,6 +11,10 @@ describe Travis::Build::Env do
       repository: { slug: 'travis-ci/travis-ci' },
       env_vars: [
         { name: 'BAM', value: 'bam', public: true },
+        { name: 'FOODEV', value: 'foodev', public: true, branch: 'foo-(dev)' },
+        { name: 'FOOMASTER', value: 'foomaster', public: true, branch: 'master' },
+        { name: 'MULTIBRANCHVARIABLE', value: 'foodevvalue', public: true, branch: 'foo-(dev)' },
+        { name: 'MULTIBRANCHVARIABLE', value: 'footestvalue', public: true, branch: 'foo-(test)' },
         { name: 'BAZ', value: 'baz', public: false },
       ]
     }
@@ -88,6 +92,22 @@ describe Travis::Build::Env do
         expect(keys).to_not include('BAZ')
       end
     end
+    
+    describe 'for env jobs (pull requests) restricted to branch' do
+      it 'includes vars restricted to foo-(dev) branch' do
+        expect(keys).to include('FOODEV')
+      end
+      it 'does not include vars restricted to master branch' do
+        expect(keys).to_not include('FOOMASTER')
+      end
+      it 'includes values restricted to foo-(dev) branch' do
+        expect(vars.find {|var| var.key == 'MULTIBRANCHVARIABLE'}.value).to eq('foodevvalue')
+      end
+      it 'does not include vars restricted to foo-(test) branch' do
+        expect(vars.find {|var| var.key == 'MULTIBRANCHVARIABLE'}.value).to_not eq('footestvalue')
+      end
+    end
+    
   end
 
   it 'escapes TRAVIS_ vars' do
