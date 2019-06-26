@@ -7,7 +7,7 @@ module Travis
           cmds = Array(config[name])
           cmds.each_with_index do |command, ix|
             sh.cmd command.to_s, echo: true, fold: fold_for(name, cmds, ix)
-            result if script?
+            result
           end
         end
 
