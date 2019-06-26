@@ -3,6 +3,16 @@ WORKDIR /usr/src/app
 
 ARG GITHUB_OAUTH_TOKEN=notset
 
+# required for envsubst tool
+RUN ( \
+   apt-get update ; \
+   apt-get install -y --no-install-recommends  gettext-base ; \
+   rm -rf /var/lib/apt/lists/* ; \
+   groupadd -r travis && useradd -m -r -g travis travis ; \
+   mkdir -p /usr/src/app ; \
+   chown -R travis:travis /usr/src/app \
+)
+
 COPY . .
 
 RUN git describe --always --dirty --tags | tee VERSION
