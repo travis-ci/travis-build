@@ -49,6 +49,7 @@ require 'travis/build/appliances/no_world_writable_dirs'
 require 'travis/build/appliances/ensure_path_components'
 require 'travis/build/appliances/wait_for_network'
 require 'travis/build/appliances/resolvconf'
+require 'travis/build/appliances/maven_central_mirror'
 
 module Travis
   module Build

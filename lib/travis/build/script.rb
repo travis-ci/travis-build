@@ -328,6 +328,7 @@ module Travis
           apply :git_v2
           apply :set_docker_mtu
           apply :resolvconf
+          apply :maven_central_mirror
 
           check_deprecation
         end
