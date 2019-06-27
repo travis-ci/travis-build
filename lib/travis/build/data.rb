@@ -12,11 +12,12 @@ module Travis
       DEFAULTS = { }
 
       DEFAULT_CACHES = {
-        bundler:   false,
-        cocoapods: false,
-        composer:  false,
-        ccache:    false,
-        pip:       false
+        bundler:      false,
+        cocoapods:    false,
+        composer:     false,
+        ccache:       false,
+        pip:          false,
+        npm:          true
       }
 
       attr_reader :data, :language_default_p
