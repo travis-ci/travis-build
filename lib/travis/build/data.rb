@@ -17,7 +17,7 @@ module Travis
         composer:     false,
         ccache:       false,
         pip:          false,
-        npm_registry: true
+        npm:          true
       }
 
       attr_reader :data, :language_default_p
