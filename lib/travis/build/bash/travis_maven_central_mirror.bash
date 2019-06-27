@@ -8,5 +8,5 @@ travis_maven_central_mirror() {
       <mirrorOf>central</mirrorOf>
     </mirror>
   </mirrors>'); doc.write" > settings.xml
-  mv settings.xml $HOME/.m2/settings.xml
+  mv settings.xml ${HOME}/.m2/settings.xml
 }
