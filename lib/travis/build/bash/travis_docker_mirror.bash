@@ -3,10 +3,10 @@ travis_docker_mirror() {
   [[ -f /.dockerenv ]] && return
   sudo bash -c '[[ -f /etc/docker/daemon.json ]]' && return
   sudo bash <<-'EOPIPE'
-		echo '{
-		  "registry-mirrors": ["https://mirror.gcr.io"]
-		}' >/etc/docker/daemon.json
-	EOPIPE
+echo '{
+  "registry-mirrors": ["https://mirror.gcr.io"]
+}' >/etc/docker/daemon.json
+EOPIPE
   case "$TRAVIS_INIT" in
   upstart)
     sudo service docker restart &>/dev/null
