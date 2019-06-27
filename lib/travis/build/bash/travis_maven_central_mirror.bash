@@ -7,6 +7,6 @@ travis_maven_central_mirror() {
       <url>$google_mirror</url>
       <mirrorOf>central</mirrorOf>
     </mirror>
-  </mirrors>'); doc.write" > settings.xml
-  mv settings.xml ${HOME}/.m2/settings.xml
+  </mirrors>'); doc.write" >settings.xml
+  mv settings.xml "${HOME}"/.m2/settings.xml
 }
