@@ -79,7 +79,7 @@ module Travis
                   sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter3.5"'
                   sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u3.5"'
                   sh.cmd 'sudo add-apt-repository -y "ppa:ubuntugis/ppa"'
-                  sh.cmd 'sudo add-apt-repository -y "ppa:opencpu/jq"'
+                  sh.cmd 'sudo add-apt-repository -y "ppa:cran/travis"'
                 end
 
                 # Both c2d4u and c2d4u3.5 depend on this ppa for ffmpeg
@@ -428,7 +428,7 @@ module Travis
                   'if (!requireNamespace("BiocManager", quietly=TRUE))'\
                   '  install.packages("BiocManager");'\
                   "if (#{as_r_boolean(config[:bioc_use_devel])})"\
-                  ' BiocManager::install(version = "devel");'\
+                  ' BiocManager::install(version = "devel", ask = FALSE);'\
                   'cat(append = TRUE, file = "~/.Rprofile.site", "options(repos = BiocManager::repositories());")'
                 end
                 sh.cmd "Rscript -e '#{bioc_install_script}'", retry: true
@@ -601,12 +601,13 @@ module Travis
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true
-            normalized_r_version('devel')
+            config[:r] = 'release'
+            normalized_r_version('release')
           when 'bioc-release'
             config[:bioc_required] = true
             config[:bioc_use_devel] = false
             config[:r] = 'release'
-            normalized_r_version
+            normalized_r_version('release')
           else v
           end
         end

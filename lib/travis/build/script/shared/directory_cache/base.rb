@@ -143,7 +143,7 @@ module Travis
               urls << fetch_url(normalize_name(data.branch), true)
               urls << fetch_url(normalize_name(data.branch))
             end
-            if data.branch != data.repository[:default_branch]
+            if data.repository[:default_branch] && data.branch != data.repository[:default_branch]
               urls << fetch_url(uri_normalize_name(data.repository[:default_branch]), true)
               urls << fetch_url(uri_normalize_name(data.repository[:default_branch]))
               urls << fetch_url(normalize_name(data.repository[:default_branch]), true)
@@ -280,7 +280,7 @@ module Travis
               if branch = data.cache[:branch]
                 branch
               else
-                edge? ? 'master' : 'production'
+                edge? ? 'master' : 'bash'
               end
             end
 
@@ -299,7 +299,7 @@ module Travis
             def update_static_file(name, location, remote_location, assert = false)
               flags = "-sf #{debug_flags}"
               cmd_opts = {retry: true, assert: false, echo: 'Installing caching utilities'}
-              if casher_branch == 'production'
+              if casher_branch == 'bash'
                 static_file_location = "https://#{app_host}/files/#{name}".output_safe
                 sh.cmd curl_cmd(flags, location, static_file_location), cmd_opts
                 sh.if "$? -ne 0" do

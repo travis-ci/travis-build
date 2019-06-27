@@ -13,7 +13,7 @@ travis_setup_apt_proxy() {
     return
   fi
 
-  if ! curl --connect-timeout 5 -fsSL -o /dev/null \
+  if ! curl --connect-timeout 1 -fsSL -o /dev/null \
     "${TRAVIS_APT_PROXY}/__squignix_health__" &>/dev/null; then
     return
   fi
