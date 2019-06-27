@@ -26,7 +26,7 @@ module Travis
           def export(group)
             announce(group) if group.announce?
             group.vars.each do |var|
-              if var.type != 'settings' || var.branch.to_s.empty? || var.branch == data.job[:branch].to_s
+              if var.branch.to_s.empty? || var.branch == data.job[:branch].to_s
                 sh.export(var.key, var.value, echo: var.echo?, secure: var.secure?)
               end
             end
