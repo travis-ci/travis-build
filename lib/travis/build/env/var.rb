@@ -41,7 +41,7 @@ module Travis
           @value = value.to_s.tap { |value| value.taint if options[:secure] }
           @type = options[:type]
           @secure = !!options[:secure]
-          @branch = options[:branch].to_s
+          @branch = options[:branch].to_json
         end
 
         def valid?
