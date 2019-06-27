@@ -17,7 +17,7 @@ module Travis
           def env_vars
             data.env_vars.map do |var|
               if var[:branch].to_s.empty? || var[:branch] == job[:branch]
-                [var[:name], var[:value], secure: !var[:public]]
+                [var[:name], var[:value], secure: !var[:public], branch: var[:branch].to_s]
               else
                 nil
               end

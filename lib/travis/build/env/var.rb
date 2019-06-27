@@ -34,13 +34,14 @@ module Travis
           end
         end
 
-        attr_reader :key, :value, :type
+        attr_reader :key, :value, :type, :branch
 
         def initialize(key, value, options = {})
           @key = key.to_s
           @value = value.to_s.tap { |value| value.taint if options[:secure] }
           @type = options[:type]
           @secure = !!options[:secure]
+          @branch = options[:branch].to_s
         end
 
         def valid?

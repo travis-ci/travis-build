@@ -55,6 +55,28 @@ shared_examples_for 'a script with travis env vars sexp' do
     should_not include_sexp [:echo, 'Setting environment variables from .travis.yml', ansi: :yellow]
     store_example(name: 'secure settings env var') if data[:config][:language] == :ruby
   end
+  
+  it 'sets environment variables from settings with master branch' do
+    data[:config][:env] = nil
+    data[:config][:global_env] = nil
+    data[:env_vars] = ['name' => 'SETTINGS_VAR', 'value' => 'value', 'public' => false, 'branch' => 'master']
+
+    should include_sexp [:export, ['SETTINGS_VAR', 'value'], echo: true, secure: true]
+    should include_sexp [:echo, 'Setting environment variables from repository settings', ansi: :yellow]
+    should_not include_sexp [:echo, 'Setting environment variables from .travis.yml', ansi: :yellow]
+    store_example(name: 'secure settings env var') if data[:config][:language] == :ruby
+  end
+
+  it 'sets environment variables from settings with foodev branch' do
+    data[:config][:env] = nil
+    data[:config][:global_env] = nil
+    data[:env_vars] = ['name' => 'SETTINGS_VAR', 'value' => 'value', 'public' => false, 'branch' => 'foodev']
+
+    should_not include_sexp [:export, ['SETTINGS_VAR', 'value'], echo: true, secure: true]
+    should_not include_sexp [:echo, 'Setting environment variables from repository settings', ansi: :yellow]
+    should_not include_sexp [:echo, 'Setting environment variables from .travis.yml', ansi: :yellow]
+    store_example(name: 'secure settings env var') if data[:config][:language] == :ruby
+  end
 
   it 'sets environment variables from config' do
     data[:config][:global_env] = 'SECURE CONFIG_VAR=value'

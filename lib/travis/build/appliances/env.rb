@@ -3,7 +3,7 @@ require 'travis/build/appliances/base'
 module Travis
   module Build
     module Appliances
-      class Env < Base
+      class Env < Base  
         MSG = "Setting environment variables from %s"
 
         def apply
@@ -26,7 +26,9 @@ module Travis
           def export(group)
             announce(group) if group.announce?
             group.vars.each do |var|
-              sh.export(var.key, var.value, echo: var.echo?, secure: var.secure?)
+              if var.type != 'settings' || var.branch.to_s.empty? || var.branch == data.job[:branch].to_s
+                sh.export(var.key, var.value, echo: var.echo?, secure: var.secure?)
+              end
             end
           end
 
