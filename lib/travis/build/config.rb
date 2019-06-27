@@ -97,6 +97,7 @@ module Travis
             'TRAVIS_BUILD_LIBRATO_TOKEN', ENV.fetch('LIBRATO_TOKEN', '')
           ),
         },
+        maven_central_mirror: ENV.fetch('TRAVIS_MAVEN_CENTRAL_MIRROR', ''),
         network: {
           wait_retries: Integer(ENV.fetch(
             'TRAVIS_BUILD_NETWORK_WAIT_RETRIES',
