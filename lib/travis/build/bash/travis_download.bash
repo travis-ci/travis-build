@@ -3,12 +3,12 @@ travis_download() {
   local dst="${2}"
 
   if curl --version &>/dev/null; then
-    curl -fsSL --connect-timeout 5 "${src}" -o "${dst}" 2>/dev/null
+    curl -fsSL --connect-timeout 1 "${src}" -o "${dst}" 2>/dev/null
     return "${?}"
   fi
 
   if wget --version &>/dev/null; then
-    wget --connect-timeout 5 -q "${src}" -O "${dst}" 2>/dev/null
+    wget --connect-timeout 1 -q "${src}" -O "${dst}" 2>/dev/null
     return "${?}"
   fi
 
