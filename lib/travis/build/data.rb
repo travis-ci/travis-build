@@ -64,8 +64,8 @@ module Travis
         data[:cache_settings] || data[:cache_options] || {}
       end
 
-      def workspace_settings
-        data[:workspace_settings] || cache_options 
+      def workspace
+        data[:workspace] || cache_options 
       end
 
       def cache(input = config[:cache])
