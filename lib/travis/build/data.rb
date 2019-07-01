@@ -64,6 +64,10 @@ module Travis
         data[:cache_settings] || data[:cache_options] || {}
       end
 
+      def workspace
+        data[:workspace] || cache_options 
+      end
+
       def cache(input = config[:cache])
         case input
         when Hash           then input
@@ -216,6 +220,10 @@ module Travis
 
       def installation_token
         GithubApps.new(installation_id).access_token
+      end
+
+      def workspaces
+        config[:workspaces]
       end
     end
   end
