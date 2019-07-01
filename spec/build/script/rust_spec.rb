@@ -54,7 +54,7 @@ describe Travis::Build::Script::Rust, :sexp do
     let(:data)   { payload_for(:push, :rust, config: { cache: 'cargo' }, cache_options: options) }
 
     it 'caches desired directories' do
-      should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add ${TRAVIS_HOME}/.cargo target ${TRAVIS_HOME}/.rustup ${TRAVIS_HOME}/.cache/sccache', timing: true]
+      should include_sexp [:cmd, %r[rvm \$\(travis_internal_ruby\) --fuzzy do \$CASHER_DIR/bin/casher --name cache-linux-[0-9a-f]+--cargo-stable cache add \$\{TRAVIS_HOME\}/.cargo target \$\{TRAVIS_HOME\}/.rustup \$\{TRAVIS_HOME\}/.cache/sccache], timing: true]
     end
 
     it 'removes $HOME/.cargo/registry/src' do
