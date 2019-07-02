@@ -108,7 +108,7 @@ module Travis
                 directory_cache.add '$HOME/.npm'
               end
               sh.else do
-                directory_cache.add 'node_modules'
+                directory_cache.add '${TRAVIS_HOME}/.cache/node_modules'
               end
             end
           end
