@@ -16,11 +16,11 @@ describe Travis::Build::Script::Php, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'sets TRAVIS_PHP_VERSION' do
-    should include_sexp [:export, ['TRAVIS_PHP_VERSION', '5.5']]
+    should include_sexp [:export, ['TRAVIS_PHP_VERSION', '7.2']]
   end
 
   it 'sets up the php version' do
-    should include_sexp [:cmd, 'phpenv global 5.5 2>/dev/null', echo: true, timing: true]
+    should include_sexp [:cmd, 'phpenv global 7.2 2>/dev/null', echo: true, timing: true]
     should include_sexp [:cmd, 'phpenv rehash']
   end
 
@@ -146,7 +146,7 @@ describe Travis::Build::Script::Php, :sexp do
   describe 'when desired PHP version is not found' do
     let(:version) { '7.0.0beta2' }
     let(:data) { payload_for(:push, :php, config: { php: version }) }
-    let(:sexp) { sexp_find(sexp_filter(subject, [:if, "$? -ne 0"])[1], [:then]) }
+    let(:sexp) { sexp_find(sexp_filter(subject, [:if, "$? -ne 0"])[0], [:then]) }
 
     it 'installs PHP version on demand' do
       expect(sexp).to include_sexp [:raw, "archive_url=https://s3.amazonaws.com/travis-php-archives/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/php-#{version}.tar.bz2", assert: true]

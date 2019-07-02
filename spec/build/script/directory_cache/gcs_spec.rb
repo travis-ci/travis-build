@@ -63,8 +63,8 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
     let(:url) { "https://raw.githubusercontent.com/travis-ci/casher/#{branch}/bin/casher" }
     let(:cmd) { [:cmd,  "curl -sf  -o $CASHER_DIR/bin/casher #{url}", retry: true, echo: 'Installing caching utilities'] }
 
-    describe 'uses casher production in default mode' do
-      let(:branch) { 'production' }
+    describe 'uses casher bash in default mode' do
+      let(:branch) { 'bash' }
       let(:cmd) { [:cmd,  "curl -sf  -o $CASHER_DIR/bin/casher #{url}",retry: true, echo: "Installing caching utilities from the Travis CI server (https://#{Travis::Build.config.app_host.output_safe}/files/casher) failed, failing over to using GitHub (#{url})"] }
       it { should include_sexp [:export, ['CASHER_DIR', '${TRAVIS_HOME}/.casher'], echo: true] }
       it { should include_sexp [:mkdir, '$CASHER_DIR/bin', recursive: true] }
@@ -94,18 +94,18 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
   describe 'fetch' do
     let(:timeout) { cache_options[:fetch_timeout] }
     before { cache.fetch }
-    it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher fetch #{url_tgz}", timing: true] }
+    it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name example cache fetch #{url_tgz}", timing: true] }
   end
 
   describe 'add' do
     before { cache.add('/foo/bar') }
-    it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add /foo/bar'] }
+    it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name example cache add /foo/bar'] }
 
     context 'when multiple directories are given' do
       before { cache.setup_casher }
       let(:config) { { cache: { directories: ['/foo/bar', '/bar/baz'] } } }
 
-      it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add /foo/bar /bar/baz'] }
+      it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name example cache add /foo/bar /bar/baz'] }
     end
 
     context 'when more than ADD_DIR_MAX directories are given' do
@@ -113,14 +113,14 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
       let(:dirs) { ('dir000'...'dir999').to_a }
       let(:config) { { cache: { directories: dirs } } }
 
-      it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add #{dirs.take(Travis::Build::Script::DirectoryCache::S3::ADD_DIR_MAX).join(' ')}"] }
+      it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name example cache add #{dirs.take(Travis::Build::Script::DirectoryCache::S3::ADD_DIR_MAX).join(' ')}"] }
     end
   end
 
   describe 'push' do
     let(:timeout) { cache_options[:push_timeout] + test_time }
     before { cache.push }
-    it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher push #{push_url}", timing: true] }
+    it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name example cache push #{push_url}", timing: true] }
   end
 
   describe 'on a different branch' do
@@ -132,17 +132,17 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
 
     describe 'fetch' do
       before { cache.fetch }
-      it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fallback_url_tgz}", timing: true] }
+      it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name example cache fetch #{fetch_url_tgz} #{fallback_url_tgz}", timing: true] }
     end
 
     describe 'add' do
       before { cache.add('/foo/bar') }
-      it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add /foo/bar'] }
+      it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name example cache add /foo/bar'] }
     end
 
     describe 'push' do
       before { cache.push }
-      it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher push #{push_url}", timing: true] }
+      it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name example cache push #{push_url}", timing: true] }
     end
   end
 
@@ -154,17 +154,17 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
 
     describe 'fetch' do
       before { cache.fetch }
-      it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fallback_url_tgz}", timing: true] }
+      it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name example cache fetch #{fetch_url_tgz} #{fallback_url_tgz}", timing: true] }
     end
 
     describe 'add' do
       before { cache.add('/foo/bar') }
-      it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add /foo/bar'] }
+      it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name example cache add /foo/bar'] }
     end
 
     describe 'push' do
       before { cache.push }
-      it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher push #{push_url}", timing: true] }
+      it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name example cache push #{push_url}", timing: true] }
     end
   end
 
@@ -179,17 +179,17 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
 
     describe 'fetch' do
       before { cache.fetch }
-      it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{fallback_url_tgz}", timing: true] }
+      it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name example cache fetch #{fetch_url_tgz} #{fallback_url_tgz}", timing: true] }
     end
 
     describe 'add' do
       before { cache.add('/foo/bar') }
-      it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add /foo/bar'] }
+      it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name example cache add /foo/bar'] }
     end
 
     describe 'push' do
       before { cache.push }
-      it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher push #{push_url}", timing: true] }
+      it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name example cache push #{push_url}", timing: true] }
     end
   end
 
@@ -206,17 +206,17 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
 
     describe 'fetch' do
       before { cache.fetch }
-      it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher fetch #{fetch_url_tgz} #{branch_fallback_url_tgz} #{fallback_url_tgz}", timing: true] }
+      it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name example cache fetch #{fetch_url_tgz} #{branch_fallback_url_tgz} #{fallback_url_tgz}", timing: true] }
     end
 
     describe 'add' do
       before { cache.add('/foo/bar') }
-      it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add /foo/bar'] }
+      it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name example cache add /foo/bar'] }
     end
 
     describe 'push' do
       before { cache.push }
-      it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher push #{push_url}", timing: true] }
+      it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name example cache push #{push_url}", timing: true] }
     end
   end
 

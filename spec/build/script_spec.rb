@@ -33,12 +33,12 @@ describe Travis::Build::Script, :sexp do
     should include_sexp [:cmd, 'travis_disable_sudo']
   end
 
-  it 'runs casher fetch' do
-    should include_sexp [:cmd, /casher fetch/, :*]
+  it 'runs casher cache fetch' do
+    should include_sexp [:cmd, /casher --name \S+ cache fetch/, :*]
   end
 
-  it 'runs casher push' do
-    should include_sexp [:cmd, /casher push/, :*]
+  it 'runs casher cache push' do
+    should include_sexp [:cmd, /casher --name \S+ cache push/, :*]
   end
 
   describe 'does not explode' do

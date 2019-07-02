@@ -20,7 +20,7 @@ module Travis
 
           sh.echo 'D support for Travis-CI is community maintained.', ansi: :green
           sh.echo 'Please make sure to ping @MartinNowak and @wilzbach '\
-            'when filing issues under https://github.com/travis-ci/travis-ci/issues.', ansi: :green
+            'when filing issues under https://travis-ci.community/c/languages/d.', ansi: :green
 
           sh.echo 'DMD-related issues: https://issues.dlang.org', ansi: :green
           sh.echo 'LDC-related issues: https://github.com/ldc-developers/ldc/issues', ansi: :green

@@ -7,10 +7,11 @@ describe Travis::Build::Script::DirectoryCache, :sexp do
   let(:sexp)    { script.sexp }
   let(:script)  { Travis::Build.script(data) }
   let(:cache)   { script.directory_cache }
+  let(:default_cache_slug) { 'cache-linux-d5b6dcf6629e552946e7baf3fc0aca4de552e1cd76b596a2800194fe085a53f7--rvm-default--gemfile-Gemfile' }
 
   it_behaves_like 'compiled script' do
     let(:config) { { cache: { directories: ['foo'] } } }
-    let(:cmds)   { ['cache.1', 'cache.2', 'casher fetch', 'casher add', 'casher push'] }
+    let(:cmds)   { ['cache.1', 'cache.2', "casher --name #{default_cache_slug} cache fetch", "casher --name #{default_cache_slug} cache add", "casher --name #{default_cache_slug} cache push"] }
   end
 
   describe 'with timeout' do
@@ -51,28 +52,30 @@ describe Travis::Build::Script::DirectoryCache, :sexp do
       let(:config) { { cache: 'bundler', bundler_args: '--path=foo/bar' } }
       it { expect(sexp).to include_sexp [:cmd, 'bundle clean', echo: true] }
       it { expect(sexp).to include_sexp [:cmd, 'bundle install --path=foo/bar', assert: true, echo: true, timing: true, retry: true] }
-      it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add ./foo/bar', timing: true] }
+      it { expect(sexp).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name #{default_cache_slug} cache add ./foo/bar", timing: true] }
     end
 
     describe 'with implicit path' do
       let(:config) { { cache: 'bundler' } }
       it { expect(sexp).to include_sexp [:cmd, 'bundle install --jobs=3 --retry=3 --deployment --path=${BUNDLE_PATH:-vendor/bundle}', assert: true, echo: true, timing: true, retry: true] }
       it { expect(sexp).to include_sexp [:cmd, 'bundle clean', echo: true] }
-      it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add ${BUNDLE_PATH:-./vendor/bundle}', timing: true] }
+      it { expect(sexp).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name #{default_cache_slug} cache add ${BUNDLE_PATH:-./vendor/bundle}", timing: true] }
     end
 
     describe 'with implicit path, but gemfile in a subdirectory' do
       let(:config) { { cache: 'bundler', gemfile: 'foo/Gemfile' } }
+      let(:cache_slug) { 'cache-linux-d5b6dcf6629e552946e7baf3fc0aca4de552e1cd76b596a2800194fe085a53f7--rvm-default--gemfile-foo%2FGemfile' }
       it { expect(sexp).to include_sexp [:cmd, 'bundle install --jobs=3 --retry=3 --deployment --path=${BUNDLE_PATH:-vendor/bundle}', assert: true, echo: true, timing: true, retry: true] }
       it { expect(sexp).to include_sexp [:cmd, 'bundle clean', echo: true] }
-      it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add ${BUNDLE_PATH:-foo/vendor/bundle}', timing: true] }
+      it { expect(sexp).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name #{cache_slug} cache add ${BUNDLE_PATH:-foo/vendor/bundle}", timing: true] }
     end
 
     describe 'with explicit path, but gemfile in a subdirectory' do
       let(:config) { { cache: 'bundler', gemfile: 'foo/Gemfile', bundler_args: '--path=foo/bar' } }
+      let(:cache_slug) { 'cache-linux-d5b6dcf6629e552946e7baf3fc0aca4de552e1cd76b596a2800194fe085a53f7--rvm-default--gemfile-foo%2FGemfile' }
       it { expect(sexp).to include_sexp [:cmd, 'bundle clean', echo: true] }
       it { expect(sexp).to include_sexp [:cmd, 'bundle install --path=foo/bar', assert: true, echo: true, timing: true, retry: true] }
-      it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add foo/foo/bar', timing: true] }
+      it { expect(sexp).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name #{cache_slug} cache add foo/foo/bar", timing: true] }
     end
   end
 
