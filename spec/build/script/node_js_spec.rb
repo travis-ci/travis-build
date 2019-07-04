@@ -36,15 +36,15 @@ describe Travis::Build::Script::NodeJs, :sexp do
       end
 
       context 'add cache by default' do
-        it 'adds ${TRAVIS_HOME}/.cache/node_modules to directory cache' do
-          should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add ${TRAVIS_HOME}/.cache/node_modules', timing: true]
+        it 'adds node_modules to directory cache' do
+          should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name cache-#{CACHE_SLUG_EXTRAS}--node-0.9 cache add node_modules", timing: true]
         end
       end
 
       context 'when cache is set to false' do
         let(:data)   { payload_for(:push, :node_js, config: { node_js: '0.9', cache: { npm: false } }) }
         it 'does not cache npm' do
-          should_not include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher add ${TRAVIS_HOME}/.cache/node_modules', timing: true]
+          should_not include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name cache-#{CACHE_SLUG_EXTRAS}--node-0.9 cache add node_modules", timing: true]
         end
       end
 
