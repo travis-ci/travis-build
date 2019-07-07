@@ -589,7 +589,7 @@ module Travis
 
         def normalized_r_version(v=Array(config[:r]).first.to_s)
           case v
-          when 'release' then '3.6.0'
+          when 'release' then '3.6.1'
           when 'oldrel' then '3.5.3'
           when '3.0' then '3.0.3'
           when '3.1' then '3.1.3'
@@ -597,7 +597,7 @@ module Travis
           when '3.3' then '3.3.3'
           when '3.4' then '3.4.4'
           when '3.5' then '3.5.3'
-          when '3.6' then '3.6.0'
+          when '3.6' then '3.6.1'
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true
