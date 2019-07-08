@@ -43,6 +43,7 @@ require 'travis/build/script/rust'
 require 'travis/build/script/scala'
 require 'travis/build/script/smalltalk'
 require 'travis/build/script/shared/directory_cache'
+require 'travis/build/script/shared/workspace'
 
 module Travis
   module Build
@@ -328,6 +329,7 @@ module Travis
           apply :git_v2
           apply :set_docker_mtu
           apply :resolvconf
+          apply :maven_central_mirror
 
           check_deprecation
         end
@@ -454,6 +456,49 @@ module Travis
                 "If you wish to keep using this version beyond this date, " \
                 "please explicitly set the #{cfg[:name]} value in configuration.",
                 ansi: :yellow
+            end
+          end
+        end
+
+        def use_workspaces
+          return unless data.workspaces && data.workspaces.key?(:use)
+
+          ws_names = Array(data.workspaces[:use])
+
+          sh.fold "workspaces_use" do
+            ws_names.each do |name|
+              sh.echo "Fetching workspace #{name}", ansi: :green
+              ws = Travis::Build::Script::Workspace.new(sh, data, name, [], :use)
+              ws.install_casher
+              ws.fetch
+              ws.expand
+              sh.newline
+            end
+          end
+        end
+
+        def create_workspaces
+          return unless data.workspaces && data.workspaces.key?(:create)
+
+          # data.workspaces[:create] is expected to be either:
+          # 1. a hash with keys :name and :paths, or
+          # 2. an array of hashes with these keys
+          ws_config = Array([data.workspaces[:create]]).flatten
+
+          sh.fold "workspaces_create" do
+            sh.echo "Creating workspaces", ansi: :green
+            ws_config.each do |cfg|
+              unless cfg.key?(:name) && cfg.key?(:paths)
+                sh.echo "workspaces.create must be a hash with keys 'name' and 'paths', " \
+                  "or an array of such hashes", ansi: :yellow
+                next
+              end
+              sh.echo "Workspace: #{cfg[:name]}", ansi: :green
+              ws = Travis::Build::Script::Workspace.new(sh, data, cfg[:name], cfg[:paths], :create)
+              ws.install_casher
+              ws.compress
+              ws.upload
+              sh.newline
             end
           end
         end

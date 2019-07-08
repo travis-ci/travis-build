@@ -74,12 +74,10 @@ module Travis
                 sh.cmd "echo #{sparse_checkout} >> #{dir}/.git/info/sparse-checkout", assert: true, retry: true
                 sh.cmd "git -C #{dir} remote add origin #{data.source_url}", assert: true, retry: true
                 sh.cmd "git -C #{dir} pull origin #{branch} #{pull_args}", assert: false, retry: true
-                warn_github_status
                 sh.cmd "cat #{dir}/#{sparse_checkout} >> #{dir}/.git/info/sparse-checkout", assert: true, retry: true
                 sh.cmd "git -C #{dir} reset --hard", assert: true, timing: false
               else
                 git_clone
-                warn_github_status
               end
             end
             sh.else do
@@ -159,22 +157,6 @@ module Travis
 
           def config
             data.config
-          end
-
-          def warn_github_status
-            return unless github?
-
-            sh.if "$? -ne 0" do
-              sh.echo "Failed to clone from GitHub.", ansi: :red
-              sh.echo "Checking GitHub status (https://status.github.com/api/last-message.json):"
-              sh.raw "curl -sL https://status.github.com/api/last-message.json | jq -r .[]"
-              sh.raw "travis_terminate 1"
-            end
-          end
-
-          def github?
-            host = data.source_host.to_s.downcase
-            host == 'github.com' || host.end_with?('.github.com')
           end
       end
     end
