@@ -12,12 +12,13 @@ module Travis
         )
 
         def vars
-          env_vars.map do |key, value|
+          evs = env_vars.map do |key, value|
             value = value.to_s
             value = value.shellescape unless RUNTIME_VARS.include? key
             value = [BUILD_DIR, value].join('/') if key == :TRAVIS_BUILD_DIR
             Var.new(key, value, type: :builtin)
           end
+          Array(evs)
         end
 
         private

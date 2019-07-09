@@ -11,7 +11,7 @@ module Travis
     class Script
       class Julia < Script
         DEFAULTS = {
-          julia: 'release',
+          julia: '1',
           coveralls: false,
           codecov: false,
         }
@@ -123,14 +123,17 @@ module Travis
             end
             case julia_version = Array(config[:julia]).first.to_s
             when 'release'
-              # CHANGEME on new minor releases (once or twice a year)
-              url = "julialang-s3.julialang.org/bin/#{osarch}/0.6/julia-0.6-latest-#{ext}"
+              sh.failure "'release' is no longer a valid julia version specifier in .travis.yml," \
+                "please use '1' instead."
             when 'nightly'
               url = "julialangnightlies-s3.julialang.org/bin/#{osarch}/julia-latest-#{nightlyext}"
             when /^(\d+\.\d+)\.\d+$/
               url = "julialang-s3.julialang.org/bin/#{osarch}/#{$1}/julia-#{julia_version}-#{ext}"
             when /^(\d+\.\d+)$/
               url = "julialang-s3.julialang.org/bin/#{osarch}/#{$1}/julia-#{$1}-latest-#{ext}"
+            when '1'
+              # TODO: create a permalink to latest 1.y.z
+              url = "julialang-s3.julialang.org/bin/#{osarch}/1.1/julia-1.1-latest-#{ext}"
             else
               sh.failure "Unknown Julia version: #{julia_version}"
             end

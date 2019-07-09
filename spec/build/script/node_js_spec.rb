@@ -26,14 +26,30 @@ describe Travis::Build::Script::NodeJs, :sexp do
   end
 
   describe 'nvm install' do
+
     context 'when :node_js is set in config' do
-      let(:config) { { node_js: '0.9' } }
+      let(:options) { { fetch_timeout: 20, push_timeout: 30, type: 's3', s3: { bucket: 's3_bucket', secret_access_key: 's3_secret_access_key', access_key_id: 's3_access_key_id' } } }
+      let(:data)   { payload_for(:push, :node_js, config: { node_js: '0.9', cache: 'npm' }, cache_options: options) }
+
       it 'sets the version from config :node_js' do
         should include_sexp [:cmd, 'nvm install 0.9', echo: true, timing: true]
       end
 
+      context 'add cache by default' do
+        it 'adds node_modules to directory cache' do
+          should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name cache-#{CACHE_SLUG_EXTRAS}--node-0.9 cache add node_modules", timing: true]
+        end
+      end
+
+      context 'when cache is set to false' do
+        let(:data)   { payload_for(:push, :node_js, config: { node_js: '0.9', cache: { npm: false } }) }
+        it 'does not cache npm' do
+          should_not include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name cache-#{CACHE_SLUG_EXTRAS}--node-0.9 cache add node_modules", timing: true]
+        end
+      end
+
       context 'when nvm install fails' do
-        let(:sexp_if)      { sexp_filter(subject, [:if, '$? -ne 0'])[1] }
+        let(:sexp_if)      { sexp_filter(subject, [:if, '$? -ne 0'])[0] }
 
         it 'tries to use locally available version' do
           expect(sexp_if).to include_sexp [:cmd, 'nvm use 0.9', echo: true]
