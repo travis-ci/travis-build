@@ -84,6 +84,9 @@ shared_examples_for 'a bash script' do
       <<~BASH
         echo >/var/tmp/build.log &&
           cp /examples/#{bash_script_file.basename} ~/build.sh &&
+          echo "=====" &&
+          cat ~/build.sh &&
+          echo "=====" &&
           export TRAVIS_FILTERED=pty &&
           sudo rm -rf /etc/apt/sources.list.d &&
           bash ~/build.sh 2>&1 | tee /var/tmp/build.log
