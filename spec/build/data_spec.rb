@@ -71,7 +71,7 @@ describe Travis::Build::Data do
 
       it { is_expected.not_to be_cache(:bundler) }
       it { is_expected.not_to be_cache(:edge) }
-      it { expect(data.cache).to eq(bundler: false, cocoapods: false, composer: false, ccache: false, pip: false) }
+      it { expect(data.cache).to eq(bundler: false, cocoapods: false, composer: false, npm: false, ccache: false, pip: false) }
     end
   end
 
