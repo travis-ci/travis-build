@@ -14,7 +14,7 @@ module Travis
 
           attr_reader :sh
 
-          def initialize(sh, data, slug, start = Time.now, archive_type = 'cache')
+          def initialize(sh, *args)
             @sh = sh
           end
 
