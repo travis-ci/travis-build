@@ -110,7 +110,7 @@ module Travis
 
               sh.cmd 'sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xB4112585D386EB94'
               sh.cmd 'travis_apt_get_update'
-              sh.cmd "sudo apt-get install -y hhvm", timing: true, echo: true, assert: true
+              hhvm_install_cmd
             end
           end
         end
@@ -118,7 +118,7 @@ module Travis
         def install_hhvm_nightly
           sh.echo 'Installing HHVM nightly', ansi: :yellow
           sh.cmd 'travis_apt_get_update'
-          sh.cmd 'sudo apt-get install hhvm-nightly -y 2>&1 >/dev/null'
+          hhvm_install_cmd 'hhvm-nightly'
           sh.cmd 'test -d ${TRAVIS_HOME}/.phpenv/versions/hhvm-nightly || cp -r ${TRAVIS_HOME}/.phpenv/versions/hhvm{,-nightly}', echo: false
         end
 
@@ -134,6 +134,10 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
           # Ensure that the configured session storage directory exists if
           # specified in the ini file.
           sh.raw "grep session.save_path #{ini_file_path} | cut -d= -f2 | sudo xargs mkdir -m 01733 -p"
+        end
+
+        def hhvm_install_cmd(ver = 'hhvm')
+          sh.cmd "sudo apt-get install #{ver} -y 2>&1 >/dev/null", assert: true, timing: true, echo: true
         end
 
       end

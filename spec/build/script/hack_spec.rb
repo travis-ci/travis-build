@@ -10,7 +10,6 @@ describe Travis::Build::Script::Hack, :sexp do
 
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=hack'] }
-    # let(:cmds) { ['phpunit'] }
   end
 
   it_behaves_like 'a build script sexp'
@@ -22,19 +21,21 @@ describe Travis::Build::Script::Hack, :sexp do
   context 'with empty hack value' do
     before { data[:config][:hhvm] = nil }
     it "installs default hhvm" do
-      should include_sexp [:cmd, 'sudo apt-get install -y hhvm', assert: true, timing: true, echo: true]
+      should include_sexp [:cmd, 'sudo apt-get install hhvm -y 2>&1 >/dev/null', assert: true, timing: true, echo: true]
     end
   end
 
   HHVM_VERSIONS = %w(
     hhvm
+    hhvm-nightly
   )
 
   HHVM_VERSIONS.each do |ver|
     context "with HHVM version #{ver}" do
       before { data[:config][:hhvm] = ver }
-      it "installs default hhvm" do
-        should include_sexp [:cmd, "sudo apt-get install -y #{ver}", assert: true, timing: true, echo: true]
+      it "installs given hhvm #{ver}" do
+        store_example name: ver
+        should include_sexp [:cmd, "sudo apt-get install #{ver} -y 2>&1 >/dev/null", assert: true, timing: true, echo: true]
       end
     end
   end
