@@ -19,7 +19,6 @@ describe Travis::Build::Script::Hack, :sexp do
   end
 
   context 'with empty hack value' do
-    before { data[:config][:hhvm] = nil }
     it "installs default hhvm" do
       should include_sexp [:cmd, 'sudo apt-get install hhvm -y 2>&1 >/dev/null', assert: true, timing: true, echo: true]
     end
@@ -27,7 +26,7 @@ describe Travis::Build::Script::Hack, :sexp do
 
   HHVM_VERSIONS = %w(
     hhvm
-    hhvm-nightly
+    hhvm-3.15
   )
 
   HHVM_VERSIONS.each do |ver|
@@ -35,29 +34,42 @@ describe Travis::Build::Script::Hack, :sexp do
       before { data[:config][:hhvm] = ver }
       it "installs given hhvm #{ver}" do
         store_example name: ver
+        should include_sexp [:cmd, "echo \"deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc) main\" | sudo tee -a /etc/apt/sources.list >&/dev/null" ]
+        should include_sexp [:cmd, "sudo apt-get install hhvm -y 2>&1 >/dev/null", assert: true, timing: true, echo: true]
+      end
+    end
+  end
+
+  HHVM_SPECIAL_NAMES = %w(
+    hhvm-nightly
+    hhvm-dbg
+  )
+
+  HHVM_SPECIAL_NAMES.each do |ver|
+    context "with HHVM version #{ver}" do
+      before { data[:config][:hhvm] = ver }
+      it "installs given hhvm #{ver}" do
+        store_example name: ver
+        should include_sexp [:cmd, "echo \"deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc) main\" | sudo tee -a /etc/apt/sources.list >&/dev/null" ]
         should include_sexp [:cmd, "sudo apt-get install #{ver} -y 2>&1 >/dev/null", assert: true, timing: true, echo: true]
       end
     end
   end
 
-  # describe 'before_install' do
-  #   subject { sexp_filter(sexp, [:if, '-f composer.json'])[0] }
+  HHVM_LTS_VERSIONS = %w(
+    hhvm-4.12-lts
+  )
 
-  #   it 'runs composer self-update if composer.json exists' do
-  #     should include_sexp [:cmd, 'composer self-update', assert: true, echo: true, timing: true]
-  #   end
-  # end
-
-  # describe 'install' do
-  #   subject { sexp_filter(sexp, [:if, '-f composer.json'])[1] }
-
-  #   describe 'runs composer install if composer.json exists' do
-  #     it { should include_sexp [:cmd, 'composer install', assert: true, echo: true, timing: true] }
-  #   end
-
-  #   describe 'uses given composer_args' do
-  #     before { data[:config].update(composer_args: '--some --args') }
-  #     it { should include_sexp [:cmd, 'composer install --some --args', assert: true, echo: true, timing: true] }
-  #   end
-  # end
+  HHVM_LTS_VERSIONS.each do |ver|
+    context "with HHVM LTS version #{ver}" do
+      before { data[:config][:hhvm] = ver }
+      it "installs given hhvm #{ver}" do
+        md = Travis::Build::Script::Hack::VERSION_REGEXP.match(ver)
+        hhvm_version = md[1]
+        store_example name: ver
+        should include_sexp [:cmd, "echo \"deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc)-lts-#{hhvm_version} main\" | sudo tee -a /etc/apt/sources.list >&/dev/null" ]
+        should include_sexp [:cmd, "sudo apt-get install hhvm -y 2>&1 >/dev/null", assert: true, timing: true, echo: true]
+      end
+    end
+  end
 end

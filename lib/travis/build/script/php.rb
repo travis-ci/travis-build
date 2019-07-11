@@ -93,13 +93,6 @@ module Travis
           version.start_with?('hhvm')
         end
 
-        def hhvm_version
-          return unless hhvm?
-          if match_data = /-(\d+(?:\.\d+)*)$/.match(version)
-            match_data[1]
-          end
-        end
-
         def nightly?
           version.include?('nightly')
         end
