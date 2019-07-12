@@ -57,7 +57,7 @@ module Travis
             when 'windows'
               sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L --retry 7 -o julia-installer.exe '#{julia_url}'}
               sh.cmd 'chmod +x julia-installer.exe'
-              sh.cmd 'cmd //c ./julia-installer.exe //D=/c/julia'
+              sh.cmd './julia-installer.exe //D=/c/julia'
               sh.cmd 'export PATH="${PATH}:/c/julia/bin\"'
             else
               sh.failure "Operating system not supported: #{config[:os]}"
