@@ -122,9 +122,10 @@ module Travis
         private
 
           def julia_url
+            julia_arch = Array(config[:arch]).first
             case config[:os]
             when 'linux'
-              case config[:arch]
+              case julia_arch
               when 'arm64'
                 osarch = 'linux/aarch64'
                 ext = 'linux-aarch64.tar.gz'
@@ -139,7 +140,7 @@ module Travis
               ext = 'mac64.dmg'
               nightlyext = ext
             when 'windows'
-              case config[:arch]
+              case julia_arch
               when 'x64'
                 osarch = "winnt/x64"
                 ext = 'win64.exe'
