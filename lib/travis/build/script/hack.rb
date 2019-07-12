@@ -36,11 +36,7 @@ module Travis
         end
 
         def setup
-          if nightly?
-            sh.cmd "phpenv global hhvm-nightly 3>/dev/null", assert: true
-          else
-            sh.cmd "phpenv global hhvm 2>/dev/null", assert: true
-          end
+          sh.cmd "phpenv global hhvm 3>/dev/null", assert: true
           sh.mkdir "${TRAVIS_HOME}/.phpenv/versions/hhvm/etc/conf.d", recursive: true
 
           setup_php php_version
