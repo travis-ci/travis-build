@@ -24,12 +24,14 @@ describe Travis::Build::Script::Hack, :sexp do
     end
   end
 
-  HHVM_VERSIONS = %w(
-    hhvm
-    hhvm-3.15
-  )
+  HHVM_NUMERIC_VERSIONS = [
+    nil,
+    'hhvm',
+    'hhvm-3.15',
+    '3.15'
+  ]
 
-  HHVM_VERSIONS.each do |ver|
+  HHVM_NUMERIC_VERSIONS.each do |ver|
     context "with HHVM version #{ver}" do
       before { data[:config][:hhvm] = ver }
       it "installs given hhvm #{ver}" do
@@ -64,11 +66,27 @@ describe Travis::Build::Script::Hack, :sexp do
     context "with HHVM LTS version #{ver}" do
       before { data[:config][:hhvm] = ver }
       it "installs given hhvm #{ver}" do
-        md = Travis::Build::Script::Hack::VERSION_REGEXP.match(ver)
-        hhvm_version = md[1]
+        md = Travis::Build::Script::Hack::HHVM_VERSION_REGEXP.match(ver)
+        hhvm_version = md[:num]
         store_example name: ver
         should include_sexp [:cmd, "echo \"deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc)-lts-#{hhvm_version} main\" | sudo tee -a /etc/apt/sources.list >&/dev/null" ]
         should include_sexp [:cmd, "sudo apt-get install hhvm -y 2>&1 >/dev/null", assert: true, timing: true, echo: true]
+      end
+    end
+  end
+
+  UNRECOGNIZED_VERSIONS = %w(
+    foo
+    hhvm-bar
+  )
+
+  UNRECOGNIZED_VERSIONS.each do |ver|
+    context "with HHVM LTS version #{ver}" do
+      before { data[:config][:hhvm] = ver }
+
+      it 'warns and does not install hhvm' do
+        should include_sexp [:echo, /^Unsupported hhvm version given/]
+        should_not include_sexp [:cmd, "sudo apt-get install hhvm -y 2>&1 >/dev/null", assert: true, timing: true, echo: true]
       end
     end
   end

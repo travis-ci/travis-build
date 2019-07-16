@@ -7,22 +7,32 @@ module Travis
           php: '7.2',
         }
 
-        VALID_HHVM = %w(
-          hhvm
-          hhvm-dbg
-          hhvm-dev
-          hhvm-nightly
-          hhvm-nightly-dbg
-          hhvm-dev-nightly
-        )
+        HHVM_VERSION_REGEXP = /
+          (?:^hhvm$|^$) # 'hhvm' or empty
+          |
+          (hhvm-)? # optional 'hhvm-' prefix
+          ((?<num>\d+(\.\d+)*)(?<lts>-lts)?$ # numeric version with optional '-lts' suffix
+            |
+            (?<name> # any recognized name
+              dbg$|
+              dev$|
+              nightly$|
+              nightly-dbg$|
+              dev-nightly$
+            )
+          )
+        /x
 
-        VERSION_REGEXP = /hhvm-(\d+(\.\d+)*)(-lts)?/
+        attr_accessor :hhvm_version, :hhvm_package_name, :lts_p
 
         def configure
-          unless VALID_HHVM.include?(version) || version =~ VERSION_REGEXP
-            sh.echo "hhvm version given #{version}"
-            sh.failure "hhvm version must be one of: #{VALID_HHVM.join(", ")}, or " \
-              "match regular expression #{VERSION_REGEXP} (e.g., 3.27 or 3.30-lts)."
+          if md = HHVM_VERSION_REGEXP.match(version)
+            @hhvm_version = md[:num]
+            @hhvm_package_name = md[:name] ? md[0] : 'hhvm'
+            @lts_p = !!md[:lts]
+          else
+            sh.echo "Unsupported hhvm version given #{version}"
+            sh.failure ""
           end
 
           configure_hhvm
@@ -73,23 +83,9 @@ module Travis
           Array(config[:php] || DEFAULTS[:php]).first.to_s
         end
 
-        def hhvm_version
-          return unless hhvm?
-          if match_data = VERSION_REGEXP.match(version)
-            match_data[1]
-          else
-            version
-          end
-        end
-
-        def lts?
-          version.end_with? '-lts'
-        end
-
         def cache_slug
           super << "--hack-" << version
         end
-
 
         def configure_hhvm
           sh.if '"$(lsb_release -sc 2>/dev/null)" = "precise"' do
@@ -107,7 +103,7 @@ module Travis
               sh.echo "Updating HHVM", ansi: :yellow
               sh.raw 'sudo find /etc/apt -type f -exec sed -e "/hhvm\\.com/d" -i.bak {} \;'
 
-              if lts?
+              if lts_p
                 sh.cmd "echo \"deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc)-lts-#{hhvm_version} main\" | sudo tee -a /etc/apt/sources.list >&/dev/null"
                 sh.raw 'sudo apt-get purge hhvm >&/dev/null'
               else
@@ -137,8 +133,7 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
         end
 
         def hhvm_install_cmd
-          ver = VALID_HHVM.include?(version) ? version : 'hhvm'
-          sh.cmd "sudo apt-get install #{ver} -y 2>&1 >/dev/null", assert: true, timing: true, echo: true
+          sh.cmd "sudo apt-get install #{hhvm_package_name} -y 2>&1 >/dev/null", assert: true, timing: true, echo: true
         end
 
       end
