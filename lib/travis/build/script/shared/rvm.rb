@@ -100,7 +100,6 @@ module Travis
             sh.fold('rvm') do
               import_gpg_key
               sh.echo MSGS[:setup_ruby_head] % ruby_version, ansi: :yellow
-              sh.cmd "rvm get stable", assert: false if ruby_version == 'jruby-head'
               sh.export 'ruby_alias', "`rvm alias show #{ruby_version} 2>/dev/null`"
               sh.cmd "rvm alias delete #{ruby_version}"
               sh.cmd "rvm remove ${ruby_alias:-#{ruby_version}} --gems"
@@ -155,11 +154,6 @@ module Travis
                 sh.else do
                   sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy"
                 end
-              elsif ruby_version.start_with? 'jruby'
-                import_gpg_key
-                sh.echo "Updating RVM", ansi: :yellow
-                sh.cmd "rvm get stable"
-                sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy"
               else
                 sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy"
               end
