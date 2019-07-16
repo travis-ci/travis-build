@@ -54,7 +54,7 @@ describe Travis::Build::Script::R, :sexp do
   end
 
   it 'downloads and installs latest R' do
-    should include_sexp [:cmd, %r{^curl.*https://travis-ci\.rstudio\.org/R-3\.6\.0-\$\(lsb_release -cs\)\.xz},
+    should include_sexp [:cmd, %r{^curl.*https://travis-ci\.rstudio\.org/R-3\.6\.1-\$\(lsb_release -cs\)\.xz},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
@@ -253,7 +253,7 @@ describe Travis::Build::Script::R, :sexp do
     }
     it {
       data[:config][:r] = 'release'
-      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.6.0")
+      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-3.6.1")
     }
     it {
       data[:config][:r] = 'oldrel'
