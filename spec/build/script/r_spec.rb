@@ -10,23 +10,19 @@ describe Travis::Build::Script::R, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'normalizes bioc-devel correctly' do
-    pending('known to fail with certain random seeds (incl 58438)')
-    fail
     data[:config][:r] = 'bioc-devel'
-    should include_sexp [:export, ['TRAVIS_R_VERSION', 'devel']]
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.6.1']]
     should include_sexp [:cmd, %r{install.packages\(\"BiocManager"\)},
                          assert: true, echo: true, timing: true, retry: true]
-    should include_sexp [:cmd, %r{BiocManager::install\(version = \"devel\"\)},
+    should include_sexp [:cmd, %r{BiocManager::install\(version = \"devel\"},
                          assert: true, echo: true, timing: true, retry: true]
   end
 
   it 'normalizes bioc-release correctly' do
-    pending('known to fail with certain random seeds (incl 58438)')
-    fail
     data[:config][:r] = 'bioc-release'
     should include_sexp [:cmd, %r{install.packages\(\"BiocManager"\)},
                          assert: true, echo: true, timing: true, retry: true]
-    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.5.3']]
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '3.6.1']]
   end
 
   it 'r_packages works with a single package set' do
