@@ -67,8 +67,7 @@ describe Travis::Build::Script::Php, :sexp do
 
   describe 'installs php nightly' do
     before { data[:config][:php] = 'nightly' }
-    # expect(sexp).to include_sexp [:raw, "archive_url=https://s3.amazonaws.com/travis-php-archives/php-#{version}-archive.tar.bz2"]
-    xit { should include_sexp [:cmd, 'curl -s -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /', timing: true] }
+    it { should include_sexp [:cmd, 'curl -s -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /', echo: true, timing: true] }
   end
 
   context 'with php nightly' do

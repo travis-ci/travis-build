@@ -5,7 +5,11 @@ describe Travis::Build::Script::Scala, :sexp do
   let(:script) { described_class.new(data) }
   let(:sbt_path) { '/usr/local/bin/sbt'}
   let(:sbt_sha) { '4ad1b8a325f75c1a66f3fd100635da5eb28d9c91'}
-  let(:sbt_url) { "https://raw.githubusercontent.com/paulp/sbt-extras/#{sbt_sha}/sbt"}
+  let(:sbt_url) { "https://build.travis-ci.org/files/sbt"}
+
+  before do
+    Travis::Build.config.app_host = 'build.travis-ci.org'
+  end
 
   subject      { script.sexp }
   it           { store_example }
@@ -43,9 +47,7 @@ describe Travis::Build::Script::Scala, :sexp do
     let(:sexp) { sexp_find(subject, [:if, '-d project || -f build.sbt'], [:if, "$? -ne 0"]) }
 
     it "updates SBT" do
-      pending('known to fail with certain random seeds (incl 61830)')
-      fail
-      should include_sexp [:cmd, "curl -sf -o sbt.tmp #{sbt_url}", assert: true]
+      should include_sexp [:cmd, "curl -sf -o sbt.tmp #{sbt_url}"]
     end
 
     it 'sets JVM_OPTS' do
