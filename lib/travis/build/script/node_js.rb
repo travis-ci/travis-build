@@ -4,7 +4,7 @@ module Travis
   module Build
     class Script
       class NodeJs < Script
-        DEFAULT_VERSION = '0.10'
+        DEFAULT_VERSION = 'lts/*'
 
         YARN_REQUIRED_NODE_VERSION = '4'
 

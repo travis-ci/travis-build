@@ -84,11 +84,11 @@ describe Travis::Build::Script::NodeJs, :sexp do
         let(:sexp) { sexp_filter(subject, [:if, '-f .nvmrc'], [:else]) }
 
         it 'sets the version to 0.10' do
-          expect(sexp).to include_sexp [:cmd, 'nvm install 0.10', echo: true, timing: true]
+          expect(sexp).to include_sexp [:cmd, 'nvm install lts/*', echo: true, timing: true]
         end
 
         it 'sets TRAVIS_NODE_VERSION to 0.10' do
-          expect(sexp).to include_sexp [:export, ['TRAVIS_NODE_VERSION', '0.10']]
+          expect(sexp).to include_sexp [:export, ['TRAVIS_NODE_VERSION', 'lts/*']]
         end
       end
     end
