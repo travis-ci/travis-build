@@ -26,6 +26,11 @@ module Travis
         attr_accessor :hhvm_version, :hhvm_package_name, :lts_p
 
         def configure
+          unless config[:os] == 'linux'
+            sh.failure "Currently, Hack is supported only on Linux"
+            return
+          end
+
           if md = HHVM_VERSION_REGEXP.match(version)
             @hhvm_version = md[:num]
             @hhvm_package_name = md[:name] ? md[0] : 'hhvm'
@@ -33,6 +38,7 @@ module Travis
           else
             sh.echo "Unsupported hhvm version given #{version}"
             sh.failure ""
+            return
           end
 
           configure_hhvm
