@@ -4,7 +4,9 @@ module Travis
   module Build
     class Script
       class NodeJs < Script
-        DEFAULT_VERSION = 'lts/*'
+        DEFAULTS = {
+          node_js: 'lts/*',
+        }
 
         YARN_REQUIRED_NODE_VERSION = '4'
 
@@ -126,7 +128,7 @@ module Travis
         end
 
         def node_js_given_in_config?
-          !!config[:node_js]
+          !data.language_default_p
         end
 
         private

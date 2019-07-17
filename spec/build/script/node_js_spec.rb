@@ -87,7 +87,7 @@ describe Travis::Build::Script::NodeJs, :sexp do
           expect(sexp).to include_sexp [:cmd, 'nvm install lts/*', echo: true, timing: true]
         end
 
-        it 'sets TRAVIS_NODE_VERSION to 0.10' do
+        it 'sets TRAVIS_NODE_VERSION to lts/*' do
           expect(sexp).to include_sexp [:export, ['TRAVIS_NODE_VERSION', 'lts/*']]
         end
       end
@@ -160,6 +160,14 @@ describe Travis::Build::Script::NodeJs, :sexp do
     describe 'nvs install' do
       it "runs nvs add" do
         expect(subject).to include_sexp [:cmd, "nvs add 0.10", assert: true, echo: true, timing: true]
+      end
+    end
+
+    context 'when no node_js version is given' do
+      let(:config) { {} }
+
+      it "installs lts" do
+        expect(subject).to include_sexp [:cmd, "nvs add lts/*", assert: true, echo: true, timing: true]
       end
     end
   end
