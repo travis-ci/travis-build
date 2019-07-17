@@ -24,6 +24,17 @@ describe Travis::Build::Script::Hack, :sexp do
     end
   end
 
+  context 'on mac' do
+    before { data[:config][:os] = 'osx' }
+
+    it "fails" do
+      store_example name: 'mac'
+      should include_sexp [:echo, /Currently, Hack is supported only on Linux/]
+      should include_sexp [:raw, 'false']
+      should_not include_sexp [:cmd, "sudo apt-get install hhvm -y 2>&1 >/dev/null", assert: true, timing: true, echo: true]
+    end
+  end
+
   HHVM_NUMERIC_VERSIONS = [
     nil,
     'hhvm',
