@@ -44,16 +44,12 @@ module Travis
             'http://archive.ubuntu.com/ubuntu/'
           )
         },
-        apt_package_safelist: {
-          precise: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_PRECISE', ''),
-          trusty: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_TRUSTY', ''),
-          xenial: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_XENIAL', ''),
+        apt_package_safelist: Hash.new { |hash, dist| hash[dist] = \
+            ENV.fetch("TRAVIS_BUILD_APT_PACKAGE_SAFELIST_#{dist.upcase}", '')
         },
         apt_proxy: ENV.fetch('TRAVIS_BUILD_APT_PROXY', ''),
-        apt_source_alias_list: {
-          precise: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_PRECISE', ''),
-          trusty: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_TRUSTY', ''),
-          xenial: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_XENIAL', ''),
+        apt_source_alias_list: Hash.new { |hash, dist| hash[dist] = \
+            ENV.fetch("TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_#{dist.upcase}", '')
         },
         apt_source_alias_list_key_url_template: ENV.fetch(
           'TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_KEY_URL_TEMPLATE',
