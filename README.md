@@ -1,4 +1,4 @@
-# Travis Build [![Build Status](https://travis-ci.org/travis-ci/travis-build.svg?branch=master)](https://travis-ci.org/travis-ci/travis-build)
+# Travis Build [![Build Status](https://travis-ci.com/travis-ci/travis-build.svg?branch=master)](https://travis-ci.com/travis-ci/travis-build)
 
 Travis Build exposes an API that [Travis
 Workers](https://github.com/travis-ci/worker) and [Job
