@@ -19,7 +19,7 @@ module Travis
               sh.cmd 'echo -e "\ndeb http://download.rethinkdb.com/apt $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list > /dev/null'
               sh.cmd 'travis_apt_get_update', assert: false
               sh.cmd "package_version=`apt-cache show rethinkdb | grep -F \"Version: #{rethinkdb_version}\" | sort -r | head -n 1 | awk '{printf $2}'`"
-              sh.cmd "apt-get install -y -o Dpkg::Options::='--force-confnew' rethinkdb=$package_version", sudo: true, echo: true, timing: true
+              sh.cmd "apt-get install -y -o Dpkg::Options::='--force-confnew' --allow-unauthenticated rethinkdb=$package_version", sudo: true, echo: true, timing: true
               sh.echo "Installing RethinkDB default instance configuration"
               sh.cmd "cp /etc/rethinkdb/default.conf.sample /etc/rethinkdb/instances.d/default.conf", sudo: true
               sh.echo "Starting RethinkDB v#{rethinkdb_version}", ansi: :yellow
@@ -39,4 +39,3 @@ module Travis
     end
   end
 end
-
