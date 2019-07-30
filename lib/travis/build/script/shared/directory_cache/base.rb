@@ -9,7 +9,8 @@ module Travis
       module DirectoryCache
         class Base
           MSGS = {
-            config_missing: 'Worker %s config missing: %s'
+            config_missing: 'Worker %s config missing: %s',
+            cache_config_invalid: 'Cache configuration must be a single keyword (e.g., "bundler") or a map (e.g., "{"bundler": true}"). %s',
           }
 
           VALIDATE = {
@@ -67,7 +68,7 @@ module Travis
           end
 
           def valid?
-            validate
+            validate_backend_config
             msgs.empty?
           end
 
@@ -186,9 +187,15 @@ module Travis
               raise "#{__method__} must be overridden"
             end
 
-            def validate
+            def validate_backend_config
               VALIDATE.each { |key, msg| msgs << msg unless data_store_options[key] }
               sh.echo MSGS[:config_missing] % [ self.class.name.split('::').last.upcase, msgs.join(', ')], ansi: :red unless msgs.empty?
+            end
+
+            def validate_user_config
+              unless data.cache.is_a?(String) || data.cache.is_a?(Hash)
+                sh.echo MSGS[:cache_config_invalid] % [ data.cache ], ansi: :red
+              end
             end
 
             def run(command, args, options = {})
