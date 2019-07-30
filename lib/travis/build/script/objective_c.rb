@@ -60,6 +60,13 @@ module Travis
               end
             end
           end
+          sh.else do
+            if data.cache?(:cocoapods)
+              sh.echo "cocoapods caching configured but a podfile is not found. Caching may not work.", ansi: :yellow
+            else
+              sh.raw ':'
+            end
+          end
         end
 
         def install

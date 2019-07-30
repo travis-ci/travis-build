@@ -52,6 +52,13 @@ module Travis
               end
             end
           end
+          sh.else do
+            if data.cache?(:bundler)
+              sh.echo "bundler caching is configured but a Gemfile is not found. Caching may not work.", ansi: :yellow
+            else
+              sh.raw ':'
+            end
+          end
         end
 
         def install
