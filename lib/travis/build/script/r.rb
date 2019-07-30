@@ -122,9 +122,9 @@ module Travis
                 # output.
                 sh.cmd 'brew update >/dev/null', retry: true
 
-                # R-devel builds available at research.att.com
+                # R-devel builds available at mac.r-project.org
                 if r_version == 'devel'
-                  r_url = "https://r.research.att.com/el-capitan/R-devel/R-devel-el-capitan-signed.pkg"
+                  r_url = "https://mac.r-project.org/el-capitan/R-devel/R-devel-el-capitan.pkg"
 
                 # The latest release is the only one available in /bin/macosx
                 elsif r_version == r_latest

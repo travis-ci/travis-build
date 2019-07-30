@@ -75,7 +75,7 @@ describe Travis::Build::Script::R, :sexp do
   it 'downloads and installs R devel on OS X' do
     data[:config][:os] = 'osx'
     data[:config][:r] = 'devel'
-    should include_sexp [:cmd, %r{^curl.*r\.research\.att\.com/el-capitan/R-devel/R-devel-el-capitan-signed\.pkg},
+    should include_sexp [:cmd, %r{^curl.*mac\.r-project\.org/el-capitan/R-devel/R-devel-el-capitan\.pkg},
                          assert: true, echo: true, retry: true, timing: true]
   end
   it 'downloads and installs gfortran libraries on OS X' do
