@@ -340,8 +340,8 @@ module Travis
           return if packages.empty?
           packages = Array(packages)
           if config[:os] == 'linux'
-            if !config[:sudo] or config[:dist] == 'precise'
-              sh.echo "R binary packages not supported with 'sudo: false' or 'dist: precise', "\
+            if config[:dist] == 'precise'
+              sh.echo "R binary packages not supported for 'dist: precise', "\
                 ' falling back to source install'
               return r_install packages
             end
