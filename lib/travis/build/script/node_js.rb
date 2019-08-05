@@ -5,8 +5,17 @@ module Travis
     class Script
       class NodeJs < Script
         DEFAULTS = {
-          node_js: 'lts/*',
+          node_js: '0.10',
         }
+
+        DEPRECATIONS = [
+          {
+            name: 'Node.js',
+            current_default: '0.10',
+            new_default: 'lts/*',
+            cutoff_date: '2019-09-01',
+          }
+        ]
 
         YARN_REQUIRED_NODE_VERSION = '4'
 
