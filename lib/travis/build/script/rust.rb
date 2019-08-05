@@ -44,6 +44,9 @@ module Travis
               sh.cmd RUSTUP_CMD, echo: true, assert: true
             end
             sh.export 'PATH', "${TRAVIS_HOME}/.cargo/bin:$PATH"
+            if version.include? 'nightly'
+              sh.cmd 'rustup update', echo: true, assert: true
+            end
           end
         end
 
