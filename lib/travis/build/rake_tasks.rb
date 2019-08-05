@@ -278,7 +278,7 @@ module Travis
       end
 
       def file_update_tmate
-        latest_release = latest_release_for('tmate-io/tmate')
+        latest_release = '2.2.1'
         logger.info "Latest tmate release is #{latest_release}"
         fetch_githubusercontent_file(
           File.join(
