@@ -12,6 +12,7 @@ module Travis
       class Julia < Script
         DEFAULTS = {
           julia: '1',
+          arch: 'x64',
           coveralls: false,
           codecov: false,
         }
@@ -46,11 +47,18 @@ module Travis
               sh.cmd 'mkdir -p ~/julia'
               sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L --retry 7 '#{julia_url}' } \
                        '| tar -C ~/julia -x -z --strip-components=1 -f -'
+              sh.cmd 'export PATH="${PATH}:${TRAVIS_HOME}/julia/bin"'
             when 'osx'
               sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L --retry 7 -o julia.dmg '#{julia_url}'}
               sh.cmd 'mkdir juliamnt'
               sh.cmd 'hdiutil mount -readonly -mountpoint juliamnt julia.dmg'
               sh.cmd 'cp -a juliamnt/*.app/Contents/Resources/julia ~/'
+              sh.cmd 'export PATH="${PATH}:${TRAVIS_HOME}/julia/bin"'
+            when 'windows'
+              sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L --retry 7 -o julia-installer.exe '#{julia_url}'}
+              sh.cmd 'chmod +x julia-installer.exe'
+              sh.cmd %Q{powershell -c 'Start-Process -FilePath julia-installer.exe -ArgumentList "/S /D=C:\\julia" -NoNewWindow -Wait'}
+              sh.cmd 'export PATH="${PATH}:/c/julia/bin/"'
             else
               sh.failure "Operating system not supported: #{config[:os]}"
             end
@@ -114,9 +122,10 @@ module Travis
         private
 
           def julia_url
+            julia_arch = Array(config[:arch]).first
             case config[:os]
             when 'linux'
-              case config[:arch]
+              case julia_arch
               when 'arm64'
                 osarch = 'linux/aarch64'
                 ext = 'linux-aarch64.tar.gz'
@@ -129,6 +138,16 @@ module Travis
             when 'osx'
               osarch = 'mac/x64'
               ext = 'mac64.dmg'
+              nightlyext = ext
+            when 'windows'
+              case julia_arch
+              when 'x64'
+                osarch = "winnt/x64"
+                ext = 'win64.exe'
+              when 'x86'
+                osarch = "winnt/x86"
+                ext = 'win32.exe'
+              end
               nightlyext = ext
             end
             case julia_version = Array(config[:julia]).first.to_s
