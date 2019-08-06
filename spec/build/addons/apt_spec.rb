@@ -109,7 +109,7 @@ describe Travis::Build::Addons::Apt, :sexp do
 
     it 'defaults source safelist to empty hash' do
       expect(described_class.source_alias_lists)
-        .to eql({ precise: {}, trusty: {}, xenial: {}, unset: {} })
+        .to eql({ unset: {}, precise: {}, trusty: {}, xenial: {}, bionic: {} })
     end
   end
 
