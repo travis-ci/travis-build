@@ -186,9 +186,17 @@ module Travis
               when Array      then value.map { |v| option(key, v) }
               when Hash       then option(key, value[data.branch.to_sym])
               when true       then "--#{key}"
-              when nil, false then nil
+              when false      then dpl2? ? "--no-#{key}" : nil
+              when nil        then nil
               else "--%s=%p" % [key, value]
               end
+            end
+
+            def dpl2?
+              # this is not 100% accurate, but chances are low that people run
+              # into using false values (not supported in v1 anyway) while we
+              # release dpl v2 gradually.
+              !!config[:edge]
             end
 
             def cmd(cmd, *args)
