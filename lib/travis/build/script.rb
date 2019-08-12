@@ -316,6 +316,7 @@ module Travis
           apply :npm_registry
           apply :uninstall_oclint
           apply :rvm_use
+          apply :rm_etc_boto_cfg
           apply :rm_oraclejdk8_symlink
           apply :enable_i386
           apply :update_rubygems
