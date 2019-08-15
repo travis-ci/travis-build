@@ -24,9 +24,9 @@ travis_wait() {
   }
 
   if [[ "${result}" -eq 0 ]]; then
-    echo -e "\\n${ANSI_GREEN}The command ${cmd[*]} exited with ${result}.${ANSI_RESET}"
+    printf "\\n${ANSI_GREEN}The command %s exited with ${result}.${ANSI_RESET}\\n" "${cmd[*]}"
   else
-    echo -e "\\n${ANSI_RED}The command ${cmd[*]} exited with ${result}.${ANSI_RESET}"
+    printf "\\n${ANSI_RED}The command %s exited with ${result}.${ANSI_RESET}\\n" "${cmd[*]}"
   fi
 
   echo -e "\\n${ANSI_GREEN}Log:${ANSI_RESET}\\n"
