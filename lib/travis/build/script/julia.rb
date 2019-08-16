@@ -44,6 +44,17 @@ module Travis
               if config[:julia] == 'nightly' && config[:arch] == 'arm64'
                 sh.failure 'Nightly Julia binaries are not available for AArch64'
               end
+              if config[:arch] == 'x86'
+                # x86 builds still run on x64 images, so we need to ensure the environment
+                # is properly equipped to handle 32-bit binaries
+                if config[:dist] == 'precise'
+                  sh.cmd %Q{sudo sh -c 'echo "foreign-architecture i386" > /etc/dpkg/dpkg.cfg.d/multiarch'}
+                else
+                  sh.cmd 'sudo dpkg --add-architecture i386'
+                end
+                sh.cmd 'sudo apt-get update'
+                sh.cmd 'sudo apt-get install libc6:i386 libstdc++6:i386'
+              end
               sh.cmd 'mkdir -p ~/julia'
               sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L --retry 7 '#{julia_url}' } \
                        '| tar -C ~/julia -x -z --strip-components=1 -f -'
@@ -130,6 +141,10 @@ module Travis
                 osarch = 'linux/aarch64'
                 ext = 'linux-aarch64.tar.gz'
                 nightlyext = nil  # There are no nightlies for ARM
+              when 'x86'
+                osarch = 'linux/x86'
+                ext = 'linux-i686.tar.gz'
+                nightlyext = 'linux32.tar.gz'
               else
                 osarch = 'linux/x64'
                 ext = 'linux-x86_64.tar.gz'
