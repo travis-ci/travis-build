@@ -147,7 +147,13 @@ module Travis
                 sh.cmd "curl -fLo /tmp/R.pkg #{r_url}", retry: true
 
                 sh.echo 'Installing OS X binary package for R'
-                sh.cmd 'sudo installer -pkg "/tmp/R.pkg" -target /'
+                if r_version_less_than('3.2.0')
+                  # Old R installers would fail with:
+                  # "Certificate used to sign package is not trusted"
+                  sh.cmd 'sudo installer -pkg "/tmp/R.pkg" -target / -allowUntrusted'
+                else
+                  sh.cmd 'sudo installer -pkg "/tmp/R.pkg" -target /'
+                end
                 sh.rm '/tmp/R.pkg'
 
                 setup_fortran_osx if config[:fortran]
