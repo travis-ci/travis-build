@@ -73,18 +73,18 @@ module Travis
 
                 # Add marutter's c2d4u plus ppa dependencies as listed on launchpad
                 if r_version_less_than('3.5.0')
-                  sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter"'
-                  sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u"'
+                  sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter"', retry: true
+                  sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u"', retry: true
                 else
-                  sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter3.5"'
-                  sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u3.5"'
-                  sh.cmd 'sudo add-apt-repository -y "ppa:ubuntugis/ppa"'
-                  sh.cmd 'sudo add-apt-repository -y "ppa:cran/travis"'
+                  sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter3.5"', retry: true
+                  sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u3.5"', retry: true
+                  sh.cmd 'sudo add-apt-repository -y "ppa:ubuntugis/ppa"', retry: true
+                  sh.cmd 'sudo add-apt-repository -y "ppa:cran/travis"', retry: true
                 end
 
                 # Both c2d4u and c2d4u3.5 depend on this ppa for ffmpeg
                 sh.if "$(lsb_release -cs) = 'trusty'" do
-                  sh.cmd 'sudo add-apt-repository -y "ppa:kirillshkrogalev/ffmpeg-next"'
+                  sh.cmd 'sudo add-apt-repository -y "ppa:kirillshkrogalev/ffmpeg-next"', retry: true
                 end
 
                 # Update after adding all repositories. Retry several
