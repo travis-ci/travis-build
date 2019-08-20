@@ -29,6 +29,9 @@ travis_setup_env() {
   msys*)
     export TRAVIS_OS_NAME=windows
     ;;
+  freebsd*)
+    export TRAVIS_OS_NAME=unix
+    ;;
   *)
     export TRAVIS_OS_NAME=notset
     ;;
