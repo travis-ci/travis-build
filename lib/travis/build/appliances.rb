@@ -57,7 +57,12 @@ module Travis
     module Appliances
       def apply(name)
         app = appliance(name)
-        app.apply if app.apply?
+        if app.apply?
+          sh.raw "travis_time_start" if app.time?
+          app.apply
+          sh.raw "travis_time_finish #{name}" if app.time?
+        end
+        true # always return true
       end
 
       def appliance(name)

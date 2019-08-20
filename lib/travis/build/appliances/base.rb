@@ -19,6 +19,10 @@ module Travis
         def linux?
           config[:os] == 'linux'
         end
+
+        def time?
+          true
+        end
       end
     end
   end
