@@ -30,7 +30,7 @@ travis_setup_env() {
     export TRAVIS_OS_NAME=windows
     ;;
   freebsd*)
-    export TRAVIS_OS_NAME=unix
+    export TRAVIS_OS_NAME=freebsd
     ;;
   *)
     export TRAVIS_OS_NAME=notset
