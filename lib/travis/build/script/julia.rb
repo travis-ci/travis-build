@@ -40,20 +40,22 @@ module Travis
             sh.echo 'Installing Julia', ansi: :yellow
             sh.cmd 'CURL_USER_AGENT="Travis-CI $(curl --version | head -n 1)"'
             case config[:os]
-            when 'linux'
-              if config[:julia] == 'nightly' && config[:arch] == 'arm64'
-                sh.failure 'Nightly Julia binaries are not available for AArch64'
-              end
-              if config[:arch] == 'x86'
-                # x86 builds still run on x64 images, so we need to ensure the environment
-                # is properly equipped to handle 32-bit binaries
-                if config[:dist] == 'precise'
-                  sh.cmd %Q{sudo sh -c 'echo "foreign-architecture i386" > /etc/dpkg/dpkg.cfg.d/multiarch'}
-                else
-                  sh.cmd 'sudo dpkg --add-architecture i386'
+            when 'linux', 'freebsd'
+              if config[:os] == 'linux'
+                if config[:julia] == 'nightly' && config[:arch] == 'arm64'
+                  sh.failure 'Nightly Julia binaries are not available for AArch64'
                 end
-                sh.cmd 'sudo apt-get update'
-                sh.cmd 'sudo apt-get install libc6:i386 libstdc++6:i386'
+                if config[:arch] == 'x86'
+                  # x86 builds still run on x64 images, so we need to ensure the environment
+                  # is properly equipped to handle 32-bit binaries
+                  if config[:dist] == 'precise'
+                    sh.cmd %Q{sudo sh -c 'echo "foreign-architecture i386" > /etc/dpkg/dpkg.cfg.d/multiarch'}
+                  else
+                    sh.cmd 'sudo dpkg --add-architecture i386'
+                  end
+                  sh.cmd 'sudo apt-get update'
+                  sh.cmd 'sudo apt-get install libc6:i386 libstdc++6:i386'
+                end
               end
               sh.cmd 'mkdir -p ~/julia'
               sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L --retry 7 '#{julia_url}' } \
@@ -154,6 +156,10 @@ module Travis
               osarch = 'mac/x64'
               ext = 'mac64.dmg'
               nightlyext = ext
+            when 'freebsd'
+              osarch = 'freebsd/x64'
+              ext = 'freebsd-x86_64.tar.gz'
+              nightlyext = 'freebsd64.tar.gz'
             when 'windows'
               case julia_arch
               when 'x64'
