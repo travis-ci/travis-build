@@ -59,6 +59,7 @@ module Travis
           sh.fold 'p4.sync' do
             sh.cmd 'p4 client -S //depot/main -o | p4 client -i '
             sh.cmd 'p4 sync -p'
+            sh.cmd "cd #{data.slug}"
           end
         end
 
