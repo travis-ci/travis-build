@@ -32,7 +32,7 @@ travis_start_sauce_connect() {
     sc_tunnel_id_arg="-i ${TRAVIS_JOB_NUMBER}"
   fi
   echo 'Downloading Sauce Connect'
-  if ! travis_download "https://${TRAVIS_SAUCE_CONNECT_APP_HOST}/files/${sc_archive}"; then
+  if ! travis_download "https://${TRAVIS_SAUCE_CONNECT_APP_HOST}/files/${sc_archive} ${sc_archive}"; then
     # fall back to fetching from Sauce Labs
     case "${sc_platform}" in
     linux)
