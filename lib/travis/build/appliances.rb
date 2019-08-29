@@ -59,10 +59,10 @@ module Travis
         app = appliance(name)
         if app.apply?
           sh.raw "travis_time_start" if app.time?
-          app.apply
+          val = app.apply
           sh.raw "travis_time_finish #{name}" if app.time?
+          val
         end
-        app.apply if app.apply?
       end
 
       def appliance(name)
