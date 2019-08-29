@@ -40,7 +40,7 @@ travis_cmd() {
   done
 
   if [[ -n "${timing}" ]]; then
-    travis_time_start ${stage}
+    travis_time_start "${stage}"
   fi
 
   if [[ -n "${output}" ]]; then
@@ -65,7 +65,7 @@ ${ANSI_RED}For example, thi\$isanexample would be typed as thi\\\$isanexample. S
   fi
 
   if [[ -n "${timing}" ]]; then
-    travis_time_finish ${stage}
+    travis_time_finish "${stage}"
   fi
 
   if [[ -n "${assert}" ]]; then
