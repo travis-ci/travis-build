@@ -66,10 +66,10 @@ module Travis
           node :echo, msg, { assert: false, echo: false, timing: false }.merge(options)
         end
       end
-      
+
       def args_append(args, options = {})
         if args.last.is_a? Hash
-          [args.last.merge(options)] 
+          [args.last.merge(options)]
         else
           args
         end
