@@ -4,6 +4,10 @@ module SpecHelpers
   module Sexp
     INTEGRATION_MAGIC_COMMENT = "\n\n# TRAVIS-BUILD INTEGRATION EXAMPLE MAGIC COMMENT\n"
 
+    IGNORE_OPTS_FOR = {
+      :cmd => [:stage],
+    }
+
     def sexp_fold(fold, sexp)
       [:fold, fold, [:cmds, [sexp]]]
     end
@@ -40,6 +44,12 @@ module SpecHelpers
 
     def sexp_matches?(sexp, part)
       return false unless sexp[0] == part[0]
+      if IGNORE_OPTS_FOR.key?(sexp[0]) && sexp[2].is_a?(Hash) && !sexp[2].empty?
+        IGNORE_OPTS_FOR[sexp[0]].each { |drop| sexp[2].delete drop }
+        if sexp[2].empty?
+          sexp.pop
+        end
+      end
       return false unless sexp[2] == part[2] || [:any_options, :*].include?(part[2])
       lft, rgt = sexp[1], part[1]
       lft.is_a?(String) && rgt.is_a?(Regexp) ? lft =~ rgt : sexp == part
