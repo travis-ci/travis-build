@@ -62,7 +62,7 @@ module Travis
           app.apply
           sh.raw "travis_time_finish #{name}" if app.time?
         end
-        true # always return true
+        app.apply if app.apply?
       end
 
       def appliance(name)
