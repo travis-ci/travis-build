@@ -4,6 +4,11 @@ module SpecHelpers
   module Sexp
     INTEGRATION_MAGIC_COMMENT = "\n\n# TRAVIS-BUILD INTEGRATION EXAMPLE MAGIC COMMENT\n"
 
+    # list of options in the S expressions that will be ignored when matching
+    # for example, in
+    #     [:cmd, 'rm -rf /', {:echo => true, :timing => true, :stage=> 'foo'}]
+    # we will drop `:stage` from this S expression for the purpose of matching
+    # in our specs
     IGNORE_OPTS_FOR = {
       :cmd => [:stage],
     }
@@ -44,12 +49,7 @@ module SpecHelpers
 
     def sexp_matches?(sexp, part)
       return false unless sexp[0] == part[0]
-      if IGNORE_OPTS_FOR.key?(sexp[0]) && sexp[2].is_a?(Hash) && !sexp[2].empty?
-        IGNORE_OPTS_FOR[sexp[0]].each { |drop| sexp[2].delete drop }
-        if sexp[2].empty?
-          sexp.pop
-        end
-      end
+      drop_ignored_opts sexp
       return false unless sexp[2] == part[2] || [:any_options, :*].include?(part[2])
       lft, rgt = sexp[1], part[1]
       lft.is_a?(String) && rgt.is_a?(Regexp) ? lft =~ rgt : sexp == part
@@ -91,6 +91,14 @@ module SpecHelpers
       type = :build if described_class < Travis::Build::Script
 
       SpecHelpers.top.join("examples/#{type}-#{name_suffix}.bash.txt")
+    end
+
+    def drop_ignored_opts(sexp)
+      # note that we make modifications directly to `sexp`
+      if IGNORE_OPTS_FOR.key?(sexp[0]) && sexp[2].is_a?(Hash) && !sexp[2].empty?
+        IGNORE_OPTS_FOR[sexp[0]].each { |drop| sexp[2].delete drop }
+        sexp.pop if sexp[2].empty? # do not consider empty hash for matching
+      end
     end
   end
 end
