@@ -3,8 +3,8 @@ travis_result() {
   export TRAVIS_TEST_RESULT=$((${TRAVIS_TEST_RESULT:-0} | $((result != 0))))
 
   if [[ "${result}" -eq 0 ]]; then
-    echo -e "${ANSI_GREEN}The command \"${TRAVIS_CMD}\" exited with ${result}.${ANSI_RESET}\\n"
+    printf "${ANSI_GREEN}The command \"%s\" exited with ${result}.${ANSI_RESET}\\n" "${TRAVIS_CMD}"
   else
-    echo -e "${ANSI_RED}The command \"${TRAVIS_CMD}\" exited with ${result}.${ANSI_RESET}\\n"
+    printf "${ANSI_RED}The command \"%s\" exited with ${result}.${ANSI_RESET}\\n" "${TRAVIS_CMD}"
   fi
 }
