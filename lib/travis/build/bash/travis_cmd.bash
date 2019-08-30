@@ -1,5 +1,5 @@
 travis_cmd() {
-  local assert output display retry timing cmd result secure stage
+  local assert output display retry timing cmd result secure event
 
   cmd="${1}"
   export TRAVIS_CMD="${cmd}"
@@ -27,8 +27,8 @@ travis_cmd() {
       timing=true
       shift
       ;;
-    --stage)
-      stage="${2}"
+    --event)
+      event="${2}"
       shift 2
       ;;
     --secure)
@@ -40,7 +40,7 @@ travis_cmd() {
   done
 
   if [[ -n "${timing}" ]]; then
-    travis_time_start "${stage}"
+    travis_time_start "${event}"
   fi
 
   if [[ -n "${output}" ]]; then
@@ -65,7 +65,7 @@ ${ANSI_RED}For example, thi\$isanexample would be typed as thi\\\$isanexample. S
   fi
 
   if [[ -n "${timing}" ]]; then
-    travis_time_finish "${stage}"
+    travis_time_finish "${event}"
   fi
 
   if [[ -n "${assert}" ]]; then

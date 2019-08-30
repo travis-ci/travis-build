@@ -8,7 +8,7 @@ module Travis
       end
 
       attr_reader :stack
-      attr_accessor :options, :stage
+      attr_accessor :options, :event
 
       def initialize(trace_enabled = false)
         @stack = [Shell::Ast::Script.new]
@@ -47,7 +47,7 @@ module Travis
       def cmd(data, *args)
         # validate_non_empty_string!(:cmd, data)
         trace(data) {
-          node :cmd, data, *args_append(args, stage: stage)
+          node :cmd, data, *args_append(args, event: event)
         }
       end
 

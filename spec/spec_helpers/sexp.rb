@@ -6,11 +6,11 @@ module SpecHelpers
 
     # list of options in the S expressions that will be ignored when matching
     # for example, in
-    #     [:cmd, 'rm -rf /', {:echo => true, :timing => true, :stage=> 'foo'}]
-    # we will drop `:stage` from this S expression for the purpose of matching
+    #     [:cmd, 'rm -rf /', {:echo => true, :timing => true, :event=> 'foo'}]
+    # we will drop `:event` from this S expression for the purpose of matching
     # in our specs
     IGNORE_OPTS_FOR = {
-      :cmd => [:stage],
+      :cmd => [:event],
     }
 
     def sexp_fold(fold, sexp)
