@@ -28,6 +28,10 @@ module Travis
           true
         end
 
+        def time?
+          false
+        end
+
         private
 
           def validate_config
