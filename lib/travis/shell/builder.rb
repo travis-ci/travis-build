@@ -8,7 +8,7 @@ module Travis
       end
 
       attr_reader :stack
-      attr_accessor :options
+      attr_accessor :options, :event
 
       def initialize(trace_enabled = false)
         @stack = [Shell::Ast::Script.new]
@@ -47,7 +47,7 @@ module Travis
       def cmd(data, *args)
         # validate_non_empty_string!(:cmd, data)
         trace(data) {
-          node :cmd, data, *args
+          node :cmd, data, *args_append(args, event: event)
         }
       end
 
@@ -64,6 +64,14 @@ module Travis
           newline
         else
           node :echo, msg, { assert: false, echo: false, timing: false }.merge(options)
+        end
+      end
+
+      def args_append(args, options = {})
+        if args.last.is_a? Hash
+          [args.last.merge(options)]
+        else
+          args
         end
       end
 

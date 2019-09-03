@@ -55,13 +55,22 @@ require 'travis/build/appliances/maven_central_mirror'
 module Travis
   module Build
     module Appliances
+      attr_reader :app
+
       def apply(name)
-        app = appliance(name)
-        app.apply if app.apply?
+        @app = appliance(name)
+        with_timer(name) { app.apply } if app.apply?
       end
 
       def appliance(name)
         Appliances.const_get(name.to_s.camelize).new(self)
+      end
+
+      def with_timer(name)
+        sh.raw "travis_time_start" if app.time?
+        val = yield
+        sh.raw "travis_time_finish #{name}" if app.time?
+        val
       end
     end
   end
