@@ -82,7 +82,7 @@ module Travis
         def before_prepare
           sh.fold('apt') do
             add_apt_sources unless config_sources.empty?
-            if config[:update] || !config_packages.empty?
+            if config[:update] || !config_sources.empty? || !config_packages.empty?
               sh.cmd 'travis_apt_get_update', retry: true, echo: true, timing: true
             end
             add_apt_packages unless config_packages.empty?
