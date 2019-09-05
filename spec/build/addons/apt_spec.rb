@@ -217,6 +217,7 @@ describe Travis::Build::Addons::Apt, :sexp do
       let(:apt_config) { { sources: ['deadsnakes-xenial'] } }
 
       it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
+      it { should include_sexp [:cmd, 'travis_apt_get_update', retry: true, echo: true, timing: true] }
     end
 
     context 'with multiple sources, some safelisted' do
