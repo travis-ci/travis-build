@@ -5,6 +5,7 @@ module Travis
     module Appliances
       class WaitForNetwork < Base
         def apply
+          return unless Travis::Build.config.wait_for_network_check
           sh.raw bash('travis_wait_for_network')
           sh.cmd(
             "travis_wait_for_network #{wait_retries} #{check_urls.map(&:inspect).join(' ')}",
