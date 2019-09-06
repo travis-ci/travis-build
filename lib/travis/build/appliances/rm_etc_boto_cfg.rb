@@ -10,7 +10,7 @@ module Travis
         end
 
         def apply?
-          true
+          !windows?
         end
       end
     end
