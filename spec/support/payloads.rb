@@ -82,8 +82,8 @@ PAYLOAD_LANGUAGE_OVERRIDES = {
       'slug' => 'travis-ci-examples/node_js-example'
     },
     'job' => {
-      'commit' => 'baaf146',
-      'commit_range' => 'e2c19ee..baaf146'
+      'commit' => '313f61b',
+      'commit_range' => '313f61b..313f61a'
     }
   },
   ruby: {
@@ -100,8 +100,8 @@ PAYLOAD_LANGUAGE_OVERRIDES = {
       'slug' => 'travis-ci-examples/python-example'
     },
     'job' => {
-      'commit' => '637a1e8',
-      'commit_range' => '2777cf8..637a1e8'
+      'commit' => '313f61b',
+      'commit_range' => '313f61b..313f61a'
     },
     'config' => {
       'script' => 'py.test -v'
@@ -112,8 +112,8 @@ PAYLOAD_LANGUAGE_OVERRIDES = {
       'slug' => 'travis-ci-examples/go-example'
     },
     'job' => {
-      'commit' => '80f94a0',
-      'commit_range' => 'cf2a57e..80f94a0'
+      'commit' => '313f61b',
+      'commit_range' => '313f61b..313f61a'
     }
   }
 }
