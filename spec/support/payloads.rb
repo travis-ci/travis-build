@@ -74,4 +74,46 @@ PAYLOADS = {
       }
     }
   }
+}.freeze
+
+PAYLOAD_LANGUAGE_OVERRIDES = {
+  node_js: {
+    'repository' => {
+      'slug' => 'travis-ci-examples/node_js-example'
+    },
+    'job' => {
+      'commit' => 'baaf146',
+      'commit_range' => 'e2c19ee..baaf146'
+    }
+  },
+  ruby: {
+    'repository' => {
+      'slug' => 'travis-ci-examples/ruby-example'
+    },
+    'job' => {
+      'commit' => '9500504',
+      'commit_range' => '961e635..9500504'
+    }
+  },
+  python: {
+    'repository' => {
+      'slug' => 'travis-ci-examples/python-example'
+    },
+    'job' => {
+      'commit' => '637a1e8',
+      'commit_range' => '2777cf8..637a1e8'
+    },
+    'config' => {
+      'script' => 'py.test -v'
+    }
+  },
+  go: {
+    'repository' => {
+      'slug' => 'travis-ci-examples/go-example'
+    },
+    'job' => {
+      'commit' => '80f94a0',
+      'commit_range' => 'cf2a57e..80f94a0'
+    }
+  }
 }
