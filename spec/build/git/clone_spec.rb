@@ -5,7 +5,7 @@ describe Travis::Build::Git::Clone, :sexp do
   let(:script)   { Travis::Build::Script.new(payload) }
   subject(:sexp) { script.sexp }
 
-  let(:url)    { 'git://github.com/#{payload[:repository][:slug]}.git' }
+  let(:url)    { "git://github.com/#{payload[:repository][:slug]}.git" }
   let(:dir)    { payload[:repository][:slug] }
   let(:depth)  { Travis::Build::Git::DEFAULTS[:git][:depth] }
   let(:branch) { payload[:job][:branch] || 'master' }
