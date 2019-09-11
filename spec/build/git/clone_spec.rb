@@ -130,12 +130,14 @@ describe Travis::Build::Git::Clone, :sexp do
     let(:clone) { [:cmd, cmd, echo: true, retry: true, timing: true] }
 
     describe 'with no depth specified' do
+      before { payload[:repository][:source_url] =  "git://github.com/#{payload[:repository][:slug]}.git" }
       it { should include_sexp clone }
     end
 
     describe 'with a custom depth' do
       let(:depth) { 1 }
       before { payload[:config][:git]['depth'] = depth }
+      before { payload[:repository][:source_url] =  "git://github.com/#{payload[:repository][:slug]}.git" }
       it { should include_sexp clone }
     end
 
@@ -143,6 +145,7 @@ describe Travis::Build::Git::Clone, :sexp do
       let(:depth) { false }
       let(:args) { " --branch=#{branch.shellescape}" }
       before { payload[:config][:git]['depth'] = depth }
+      before { payload[:repository][:source_url] =  "git://github.com/#{payload[:repository][:slug]}.git" }
       it { should include_sexp clone }
     end
 
@@ -153,6 +156,7 @@ describe Travis::Build::Git::Clone, :sexp do
 
     describe 'escapes the branch name' do
       before { payload[:job][:branch] = 'foo->bar' }
+      before { payload[:repository][:source_url] =  "git://github.com/#{payload[:repository][:slug]}.git" }
       it { should include_sexp clone }
     end
 
@@ -161,6 +165,7 @@ describe Travis::Build::Git::Clone, :sexp do
         payload[:config][:git].merge!({ quiet: true })
       end
       let(:args) { "--depth=#{depth} --branch=#{branch.shellescape} --quiet" }
+      before { payload[:repository][:source_url] =  "git://github.com/#{payload[:repository][:slug]}.git" }
       it { should include_sexp clone }
     end
   end
