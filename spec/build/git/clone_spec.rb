@@ -5,7 +5,7 @@ describe Travis::Build::Git::Clone, :sexp do
   let(:script)   { Travis::Build::Script.new(payload) }
   subject(:sexp) { script.sexp }
 
-  let(:url)    { "git://github.com/travis-ci/travis-ci.git" }
+  let(:url)    { "git://github.com/#{payload[:repository][:slug]}.git" }
   let(:dir)    { payload[:repository][:slug] }
   let(:depth)  { Travis::Build::Git::DEFAULTS[:git][:depth] }
   let(:branch) { payload[:job][:branch] || 'master' }
@@ -177,7 +177,7 @@ describe Travis::Build::Git::Clone, :sexp do
 
   let(:cd)            { [:cd,  payload[:repository][:slug], echo: true] }
   let(:fetch_ref)     { [:cmd, %r(git fetch origin \+[\w/]+:), assert: true, echo: true, retry: true, timing: true] }
-  let(:checkout_push) { [:cmd, 'git checkout -qf 313f61b', assert: true, echo: true] }
+  let(:checkout_push) { [:cmd, "git checkout -qf #{payload[:job][:commit]}", assert: true, echo: true] }
   let(:checkout_tag)  { [:cmd, 'git checkout -qf v1.0.0', assert: true, echo: true] }
   let(:checkout_pull) { [:cmd, 'git checkout -qf FETCH_HEAD', assert: true, echo: true] }
 
