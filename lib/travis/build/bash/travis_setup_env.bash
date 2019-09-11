@@ -45,10 +45,14 @@ travis_setup_env() {
   if [[ "${TRAVIS_OS_NAME}" == linux ]]; then
     TRAVIS_DIST="$(lsb_release -sc 2>/dev/null || echo notset)"
     export TRAVIS_DIST
-    if command -v systemctl >/dev/null 2>&1; then
-      export TRAVIS_INIT=systemd
+    if [[ -z "${TRAVIS_BUILD_IMAGE_INIT}" ]]; then
+      if command -v systemctl >/dev/null 2>&1; then
+        export TRAVIS_INIT=systemd
+      else
+        export TRAVIS_INIT=upstart
+      fi
     else
-      export TRAVIS_INIT=upstart
+      export TRAVIS_INIT="${TRAVIS_BUILD_IMAGE_INIT}"
     fi
   fi
 
