@@ -13,6 +13,7 @@ describe Travis::Build::Git::Clone, :sexp do
   let(:oauth_token) { 'abcdef01234' }
   let(:netrc)  { /echo -e "machine #{host}\\n  login #{oauth_token}\\n" > \$HOME\/\.netrc/ }
   let(:host)   { 'github.com' }
+  before { payload[:repository][:source_url] =  "git://github.com/#{payload[:repository][:slug]}.git" }
 
   before :each do
     payload[:config][:git] = { strategy: 'clone' }
