@@ -79,7 +79,8 @@ PAYLOADS = {
 PAYLOAD_LANGUAGE_OVERRIDES = {
   node_js: {
     'repository' => {
-      'slug' => 'travis-ci-examples/node_js-example'
+      'slug' => 'travis-ci-examples/node_js-example',
+      'source_url' => 'git://github.com/travis-ci-examples/node_js-example.git',
     },
     'job' => {
       'commit' => 'baaf146',
@@ -88,7 +89,8 @@ PAYLOAD_LANGUAGE_OVERRIDES = {
   },
   ruby: {
     'repository' => {
-      'slug' => 'travis-ci-examples/ruby-example'
+      'slug' => 'travis-ci-examples/ruby-example',
+      'source_url' => 'git://github.com/travis-ci-examples/ruby-example.git',
     },
     'job' => {
       'commit' => '9500504',
@@ -97,7 +99,8 @@ PAYLOAD_LANGUAGE_OVERRIDES = {
   },
   python: {
     'repository' => {
-      'slug' => 'travis-ci-examples/python-example'
+      'slug' => 'travis-ci-examples/python-example',
+      'source_url' => 'git://github.com/travis-ci-examples/python-example.git',
     },
     'job' => {
       'commit' => '637a1e8',
@@ -109,7 +112,8 @@ PAYLOAD_LANGUAGE_OVERRIDES = {
   },
   go: {
     'repository' => {
-      'slug' => 'travis-ci-examples/go-example'
+      'slug' => 'travis-ci-examples/go-example',
+      'source_url' => 'git://github.com/travis-ci-examples/go-example',
     },
     'job' => {
       'commit' => '80f94a0',
