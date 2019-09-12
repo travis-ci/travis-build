@@ -71,5 +71,15 @@ module Travis
         '/user/installing-dependencies'
       end
     end
+
+    class PkgConfigError < CompilationError
+      def initialize(msg = "\\`pkg\\` should be a list.")
+        super
+      end
+
+      def doc_path
+        '/user/installing-dependencies'
+      end
+    end
   end
 end
