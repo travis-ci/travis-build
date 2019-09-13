@@ -1,3 +1,4 @@
+require 'travis/build/appliances/agent'
 require 'travis/build/appliances/check_unsupported'
 require 'travis/build/appliances/checkout'
 require 'travis/build/appliances/clean_up_path'

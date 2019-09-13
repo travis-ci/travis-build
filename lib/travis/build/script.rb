@@ -287,6 +287,7 @@ module Travis
         end
 
         def configure
+          apply :agent
           apply :check_unsupported
           apply :set_x
           apply :show_system_info
