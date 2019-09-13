@@ -29,12 +29,12 @@ describe Travis::Build::Addons::Pkg, :sexp do
   context 'with multiple packages' do
     let(:pkg_config) { { packages: ['git', 'curl'] } }
 
-    it { should include_sexp [:cmd, "sudo pkg install -y git curl", echo: true, timing: true, assert: true] }
+    it { should include_sexp [:cmd, "su -m root -c 'pkg install git curl'", echo: true, timing: true, assert: true] }
   end
 
   context 'with single packages' do
     let(:pkg_config) { { packages: ['git'] } }
 
-    it { should include_sexp [:cmd, "sudo pkg install -y git", echo: true, timing: true, assert: true] }
+    it { should include_sexp [:cmd, "su -m root -c 'pkg install git'", echo: true, timing: true, assert: true] }
   end
 end
