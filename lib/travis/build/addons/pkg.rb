@@ -40,7 +40,7 @@ module Travis
           sh.echo "Installing #{config_pkg.count} packages", ansi: :yellow
 
           packages = config_pkg.map{|v| Shellwords.escape(v)}.join(' ')
-          sh.cmd ["sudo pkg install", "-y", packages].join(' '), echo: true, timing: true, assert: true
+          sh.cmd "su -m root -c 'pkg install -y #{packages.join(' ')}'", echo: true, timing: true, assert: true
         end
 
         def config_pkg
