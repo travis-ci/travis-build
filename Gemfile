@@ -14,6 +14,7 @@ gem 'activesupport', '~> 4.0'
 gem 'addressable', '~> 2.3'
 gem 'codeclimate-test-reporter', require: false, group: %i[development test]
 gem 'coder'
+gem 'connection_pool'
 gem 'faraday'
 gem 'faraday_middleware'
 gem 'jemalloc', git: gh('joshk/jemalloc-rb')
