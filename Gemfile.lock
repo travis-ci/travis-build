@@ -203,6 +203,7 @@ DEPENDENCIES
   addressable (~> 2.3)
   codeclimate-test-reporter
   coder
+  connection_pool
   faraday
   faraday_middleware
   jemalloc!
@@ -231,4 +232,4 @@ DEPENDENCIES
   travis-support!
 
 BUNDLED WITH
-   1.16.6
+   1.17.2
