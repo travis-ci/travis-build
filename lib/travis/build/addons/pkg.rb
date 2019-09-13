@@ -29,7 +29,20 @@ module Travis
         end
 
         def before_configure
-          # keeping empty for now
+        sh.echo "Configuring default pkg options", ansi: :yellow
+        tmp_dest = "${TRAVIS_TMPDIR}/99-travis-pkg-conf"
+        sh.file tmp_dest, <<~PKG_CONF
+          ASSUME_ALWAYS_YES=YES
+          FETCH_RETRY=5
+          FETCH_TIMEOUT=30
+        PKG_CONF
+        sh.cmd %Q{su -m root -c "mv #{tmp_test} ${TRAVIS_ROOT}/usr/local/etc/pkg.conf"}
+        if config[:branch].to_s.downcase != 'quarterly'
+          sed_find = 'pkg+http://pkg.FreeBSD.org/\([^/]*\)/quarterly'
+          sed_replace = 'pkg+http://pkg.FreeBSD.org/\1/' + config[:branch]
+          sed_cmd = %Q{sed -i'' -e 's,#{sed_find},#{sed_replace},' /etc/pkg/FreeBSD.conf}
+          sh.cmd %Q{su -m root -c "#{sed_cmd}"}
+        end
         end
 
         def config
