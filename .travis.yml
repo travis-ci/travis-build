@@ -1,7 +1,7 @@
 language: ruby
 sudo: required
 dist: xenial
-rvm: 2.5.3
+rvm: 2.4.2
 
 cache:
   bundler: true

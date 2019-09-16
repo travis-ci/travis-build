@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Travis::Build::Addons::Rethinkdb, :sexp do
   let(:script) { stub('script') }
-  let(:config) { '2.5.3' }
+  let(:config) { '2.4.2' }
   let(:data)   { payload_for(:push, :ruby, config: { addons: { rethinkdb: config } }) }
   let(:sh)     { Travis::Shell::Builder.new }
   let(:addon)  { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
@@ -16,7 +16,7 @@ describe Travis::Build::Addons::Rethinkdb, :sexp do
   end
 
   it 'sets TRAVIS_RETHINKDB_VERSION' do
-    should include_sexp [:export,  ['TRAVIS_RETHINKDB_VERSION', '2.5.3']]
+    should include_sexp [:export,  ['TRAVIS_RETHINKDB_VERSION', '2.4.2']]
   end
 
   it 'sets TRAVIS_RETHINKDB_PACKAGE_VERSION' do
