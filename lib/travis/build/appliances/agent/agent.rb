@@ -30,8 +30,8 @@ module Agent
       5.times(&method(:work))
       puts 'starting watcher'
       @watcher = Watcher.new(queue)
-      puts 'stopped watching'
       watcher.tap(&:start)
+      puts 'stopped watching'
       sleep PAUSE
       workers.each(&:stop)
     end
