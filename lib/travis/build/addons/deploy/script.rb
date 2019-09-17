@@ -309,7 +309,7 @@ module Travis
             end
 
             def compact(hash)
-              hash.map { |_, value| value.nil? }.to_h
+              hash.reject { |_, value| value.nil? }.to_h
             end
         end
       end
