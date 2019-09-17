@@ -154,12 +154,13 @@ module Travis
             end
 
             def deploy_data
-              {
+              compact(
                 job_id: data.job[:id],
                 provider: provider,
+                strategy: config[:strategy],
                 status: '$TRAVIS_TEST_RESULT',
                 edge: config[:edge]
-              }
+              )
             end
 
             def event(name, payload)
@@ -305,6 +306,10 @@ module Travis
 
             def owner_name
               data.slug.split('/').first
+            end
+
+            def compact(hash)
+              hash.map { |_, value| value.nil? }.to_h
             end
         end
       end
