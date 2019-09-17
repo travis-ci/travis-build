@@ -45,6 +45,9 @@ _travis_terminate_agent() {
   wait "$pid"
 
   [ -z ${TRAVIS_AGENT_DEBUG+x} ] && return
+  echo
+  travis_fold start agent.debug
   echo 'cat /tmp/travis/agent.log'
   cat /tmp/travis/agent.log
+  travis_fold end agent.debug
 }
