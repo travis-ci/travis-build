@@ -64,3 +64,4 @@ deploy:
     branch: master
     condition: $INTEGRATION_SPECS == 1
     repo: travis-ci/travis-build
+  edge: true
