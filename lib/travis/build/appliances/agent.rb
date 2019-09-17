@@ -11,14 +11,12 @@ module Travis
 
         TTL = 3 * 60 * 60
 
-        # pass in from Scheduler
-        URL = 'https://travis-hub-staging.herokuapp.com/jobs/%s'
-
         def apply?
           linux? && Travis::Rollout.matches?(:agent, owner: owner_name)
         end
 
         def apply
+          logger.info "Starting agent for job_id=#{job_id} owner_name=#{owner_name}"
           export
           install
           start
@@ -40,7 +38,7 @@ module Travis
           end
 
           def start
-            sh.raw "TRAVIS_AGENT_REFRESH_JWT=#{token}~/.travis/agent > /tmp/travis/agent.log 2>&1 &"
+            sh.raw "TRAVIS_AGENT_REFRESH_JWT=#{token} ~/.travis/agent > /tmp/travis/agent.log 2>&1 &"
             sh.raw 'echo $! > /tmp/travis/agent.pid'
           end
 
@@ -49,7 +47,7 @@ module Travis
           end
 
           def agent
-            str = File.read(path) % { url: URL % job_id }
+            str = File.read(path) % { url: "#{ENV['HUB_URL']}/jobs/#{job_id}" }
             str.untaint
           end
 
@@ -79,6 +77,10 @@ module Travis
 
           def owner_name
             data.slug.split('/').first
+          end
+
+          def logger
+            Build.logger
           end
 
           def redis
