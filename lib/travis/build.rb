@@ -1,4 +1,5 @@
 require 'travis/support'
+require 'travis/support/redis_pool'
 
 module Travis
   module Build
@@ -58,6 +59,10 @@ module Travis
           name = lang.split('_').map { |w| w.capitalize }.join
           Script.const_get(name, false) rescue Script::Ruby
         end
+      end
+
+      def redis
+        @redis = Travis::RedisPool.new(config.redis.to_h)
       end
 
       def logger

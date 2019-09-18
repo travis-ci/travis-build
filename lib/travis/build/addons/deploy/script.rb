@@ -140,8 +140,31 @@ module Travis
                 script.stages.run_stage(:custom, :before_deploy)
                 sh.fold("dpl_#{index}") { install }
                 cmd(run_command, echo: false, assert: false, timing: true)
+                sh.raw store_event(event('deploy:finished', deploy_data)) if store_events?
                 script.stages.run_stage(:custom, :after_deploy)
               end
+            end
+
+            def store_events?
+              linux? && Travis::Rollout.matches?(:agent, owner: owner_name)
+            end
+
+            def store_event(event)
+              %(echo "#{event.gsub('"', '\"')}" > /tmp/travis/events/event.1)
+            end
+
+            def deploy_data
+              compact(
+                job_id: data.job[:id],
+                provider: provider,
+                strategy: config[:strategy],
+                status: '$TRAVIS_TEST_RESULT',
+                edge: config[:edge]
+              )
+            end
+
+            def event(name, payload)
+              JSON.dump(event: name, payload: payload, datetime: Time.now)
             end
 
             def install
@@ -275,6 +298,18 @@ module Travis
               (last_deploy && last_deploy[:edge] && config.nil?) ||
               (last_deploy.nil? && config && config[:edge]) ||
               (last_deploy && config && last_deploy[:edge] != config[:edge])
+            end
+
+            def linux?
+              script.config[:os] == 'linux'
+            end
+
+            def owner_name
+              data.slug.split('/').first
+            end
+
+            def compact(hash)
+              hash.reject { |_, value| value.nil? }.to_h
             end
         end
       end

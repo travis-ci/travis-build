@@ -2,6 +2,9 @@ language: ruby
 dist: xenial
 rvm: 2.5.3
 
+services:
+  - redis
+
 cache:
   bundler: true
 
@@ -61,3 +64,4 @@ deploy:
     branch: master
     condition: $INTEGRATION_SPECS == 1
     repo: travis-ci/travis-build
+  edge: true
