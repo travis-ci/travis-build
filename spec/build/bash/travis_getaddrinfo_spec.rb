@@ -9,7 +9,7 @@ describe 'travis_getaddrinfo', integration: true do
     result = run_script(
       'travis_getaddrinfo',
       'travis_getaddrinfo www.google.com',
-      image: 'ruby:2.5.3',
+      image: 'ruby:2.4.2',
     )
     expect(result[:truth]).to be true
     response = result[:out].read.strip.split($NL).first
