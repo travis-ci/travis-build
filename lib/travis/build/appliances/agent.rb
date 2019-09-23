@@ -12,22 +12,17 @@ module Travis
         TTL = 3 * 60 * 60
 
         def apply?
-          linux? && Travis::Rollout.matches?(:agent, owner: owner_name)
+          linux? && Travis::Rollout.matches?(:agent, uid: owner_name, owner: owner_name)
         end
 
         def apply
           logger.info "Starting agent for job_id=#{job_id} owner_name=#{owner_name}"
-          export
           install
           start
           store_key
         end
 
         private
-
-          def export
-            sh.export :TRAVIS_AGENT_DEBUG, 'true', echo: false
-          end
 
           def install
             sh.raw <<~sh
