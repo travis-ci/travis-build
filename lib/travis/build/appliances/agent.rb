@@ -17,17 +17,12 @@ module Travis
 
         def apply
           logger.info "Starting agent for job_id=#{job_id} owner_name=#{owner_name}"
-          export
           install
           start
           store_key
         end
 
         private
-
-          def export
-            sh.export :TRAVIS_AGENT_DEBUG, 'true', echo: false
-          end
 
           def install
             sh.raw <<~sh
