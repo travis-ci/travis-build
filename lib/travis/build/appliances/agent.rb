@@ -12,7 +12,7 @@ module Travis
         TTL = 3 * 60 * 60
 
         def apply?
-          linux? && Travis::Rollout.matches?(:agent, uid: owner_name, owner: owner_name)
+          linux?
         end
 
         def apply
