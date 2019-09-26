@@ -146,7 +146,7 @@ module Travis
             end
 
             def store_events?
-              linux? && Travis::Rollout.matches?(:agent, uid: owner_name, owner: owner_name)
+              linux?
             end
 
             def store_event(event)
