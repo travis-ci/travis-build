@@ -12,7 +12,7 @@ module Travis
         TTL = 3 * 60 * 60
 
         def apply?
-          linux?
+          ENV['TRAVIS_AGENT'] && linux?
         end
 
         def apply
