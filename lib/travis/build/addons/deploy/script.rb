@@ -146,7 +146,7 @@ module Travis
             end
 
             def store_events?
-              linux?
+              ENV['TRAVIS_AGENT'] && linux?
             end
 
             def store_event(event)
