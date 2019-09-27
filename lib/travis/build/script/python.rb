@@ -12,7 +12,7 @@ module Travis
             name: 'Python',
             current_default: DEFAULTS[:python],
             new_default: '3.7',
-            cutoff_date: '2019-08-01',
+            cutoff_date: '2019-10-15',
           }
         ]
 

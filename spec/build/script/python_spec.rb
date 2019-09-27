@@ -7,10 +7,9 @@ describe Travis::Build::Script::Python, :sexp do
   it           { store_example }
   it           { store_example(integration: true) }
 
-  # test is run on trusty which does not support Python 3.7
-  # it_behaves_like 'a bash script', integration: true do
-  #   let(:bash_script_file) { bash_script_path(integration: true) }
-  # end
+  it_behaves_like 'a bash script', integration: true do
+    let(:bash_script_file) { bash_script_path(integration: true) }
+  end
 
   it_behaves_like 'a bash script'
 
