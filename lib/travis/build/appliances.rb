@@ -1,3 +1,4 @@
+require 'travis/build/appliances/agent'
 require 'travis/build/appliances/check_unsupported'
 require 'travis/build/appliances/checkout'
 require 'travis/build/appliances/clean_up_path'
@@ -8,6 +9,7 @@ require 'travis/build/appliances/deprecations'
 require 'travis/build/appliances/disable_sudo'
 require 'travis/build/appliances/disable_initramfs'
 require 'travis/build/appliances/disable_ssh_roaming'
+require 'travis/build/appliances/disable_windows_defender'
 require 'travis/build/appliances/enable_i386'
 require 'travis/build/appliances/env'
 require 'travis/build/appliances/etc_hosts_pinning'
@@ -29,6 +31,7 @@ require 'travis/build/appliances/home_paths'
 require 'travis/build/appliances/put_localhost_first'
 require 'travis/build/appliances/update_apt_keys'
 require 'travis/build/appliances/fix_hhvm_source'
+require 'travis/build/appliances/rm_etc_boto_cfg'
 require 'travis/build/appliances/rm_oraclejdk8_symlink'
 require 'travis/build/appliances/rvm_use'
 require 'travis/build/appliances/services'
@@ -54,13 +57,22 @@ require 'travis/build/appliances/maven_central_mirror'
 module Travis
   module Build
     module Appliances
+      attr_reader :app
+
       def apply(name)
-        app = appliance(name)
-        app.apply if app.apply?
+        @app = appliance(name)
+        with_timer(name) { app.apply } if app.apply?
       end
 
       def appliance(name)
         Appliances.const_get(name.to_s.camelize).new(self)
+      end
+
+      def with_timer(name)
+        sh.raw "travis_time_start" if app.time?
+        val = yield
+        sh.raw "travis_time_finish #{name}" if app.time?
+        val
       end
     end
   end

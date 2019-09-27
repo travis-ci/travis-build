@@ -287,6 +287,7 @@ module Travis
         end
 
         def configure
+          apply :agent
           apply :check_unsupported
           apply :set_x
           apply :show_system_info
@@ -316,6 +317,7 @@ module Travis
           apply :npm_registry
           apply :uninstall_oclint
           apply :rvm_use
+          apply :rm_etc_boto_cfg
           apply :rm_oraclejdk8_symlink
           apply :enable_i386
           apply :update_rubygems
@@ -330,6 +332,7 @@ module Travis
           apply :set_docker_mtu
           apply :resolvconf
           apply :maven_central_mirror
+          apply :disable_windows_defender
 
           check_deprecation
         end

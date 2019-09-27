@@ -85,7 +85,7 @@ MESSAGE
           sh.echo 'Please file any issues using the following link',
             ansi: :green
           sh.echo '  https://travis-ci.community/c/languages/dart', ansi: :green
-          sh.echo 'and mention \`@nex3\` and \`@a14n\`' \
+          sh.echo 'and mention \`@athomas\` and \`@a14n\`' \
             ' in the issue', ansi: :green
 
           sh.export 'PUB_ENVIRONMENT', 'travis'

@@ -13,6 +13,7 @@ module Travis
           precise
           trusty
           xenial
+          bionic
         ).freeze
 
         attr_reader :safelisted, :disallowed_while_sudo
@@ -81,6 +82,9 @@ module Travis
         def before_prepare
           sh.fold('apt') do
             add_apt_sources unless config_sources.empty?
+            if config[:update] || !config_sources.empty? || !config_packages.empty?
+              sh.cmd 'travis_apt_get_update', retry: true, echo: true, timing: true
+            end
             add_apt_packages unless config_packages.empty?
           end
         end
@@ -206,7 +210,6 @@ module Travis
                 stop_postgresql
               end
 
-              sh.cmd 'travis_apt_get_update', retry: true, echo: true, timing: true
               sh.raw bash('travis_apt_get_options')
               command = 'sudo -E apt-get -yq --no-install-suggests --no-install-recommends ' \
                 "$(travis_apt_get_options) install #{safelisted.join(' ')}"

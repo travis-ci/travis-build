@@ -9,13 +9,6 @@ module Travis
           rust: 'stable',
         }
 
-        CARGO_CACHE_DIRS = %W(
-          ${TRAVIS_HOME}/.cargo
-          target
-          ${TRAVIS_HOME}/.rustup
-          ${TRAVIS_HOME}/.cache/sccache
-        )
-
         CARGO_CACHE_CLEANUP_DIRS = %W(
           $HOME/.cargo/registry/src
         )
@@ -27,9 +20,9 @@ module Travis
         end
 
         def setup_cache
-          if data.cache?(:cargo)
+          if data.cache?(:cargo) && !cache_dirs.empty?
             sh.fold 'cache.cargo' do
-              directory_cache.add CARGO_CACHE_DIRS
+              directory_cache.add cache_dirs
             end
           end
 
@@ -44,6 +37,9 @@ module Travis
               sh.cmd RUSTUP_CMD, echo: true, assert: true
             end
             sh.export 'PATH', "${TRAVIS_HOME}/.cargo/bin:$PATH"
+            if version.include? 'nightly'
+              sh.cmd 'rustup update', echo: true
+            end
           end
         end
 
@@ -77,6 +73,27 @@ module Travis
 
           def version
             Array(config[:rust]).first.to_s
+          end
+
+          def cache_dirs
+            case config[:os]
+            when 'linux'
+              %W(
+                ${TRAVIS_HOME}/.cargo
+                target
+                ${TRAVIS_HOME}/.rustup
+                ${TRAVIS_HOME}/.cache/sccache
+              )
+            when 'osx'
+              %W(
+                ${TRAVIS_HOME}/.cargo
+                target
+                ${TRAVIS_HOME}/.rustup
+                ${TRAVIS_HOME}/Library/Caches/Mozilla.sccache
+              )
+            else
+              []
+            end
           end
       end
     end

@@ -58,6 +58,8 @@ shared_examples_for 'a build script sexp' do
   it_behaves_like 'rvm use'
   it_behaves_like 'uninstalls oclint'
   it_behaves_like 'setup filter'
+  it_behaves_like 'remove /etc/boto.cfg'
+  it_behaves_like 'disables Windows Defender'
 
   it 'calls travis_result' do
     should include_sexp [:raw, 'travis_result $?']

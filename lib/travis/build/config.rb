@@ -48,12 +48,14 @@ module Travis
           precise: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_PRECISE', ''),
           trusty: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_TRUSTY', ''),
           xenial: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_XENIAL', ''),
+          bionic: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_BIONIC', ''),
         },
         apt_proxy: ENV.fetch('TRAVIS_BUILD_APT_PROXY', ''),
         apt_source_alias_list: {
           precise: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_PRECISE', ''),
           trusty: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_TRUSTY', ''),
           xenial: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_XENIAL', ''),
+          bionic: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_BIONIC', ''),
         },
         apt_source_alias_list_key_url_template: ENV.fetch(
           'TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_KEY_URL_TEMPLATE',
@@ -111,6 +113,7 @@ module Travis
             )
           ).split(',').map { |s| URI.unescape(s.strip) }
         },
+        redis: { url: 'redis://localhost:6379' },
         sentry_dsn: ENV.fetch(
           'TRAVIS_BUILD_SENTRY_DSN', ENV.fetch('SENTRY_DSN', '')
         ),
@@ -128,6 +131,7 @@ module Travis
             bash
             csharp
             go
+            julia
             node_js
             powershell
             rust
@@ -138,7 +142,8 @@ module Travis
         ).split(/,/),
         dump_backtrace: ENV.fetch(
           'TRAVIS_BUILD_DUMP_BACKTRACE', ENV.fetch('DUMP_BACKTRACE', 'false')
-        ).to_bool
+        ).to_bool,
+        wait_for_network_check: ENV.fetch('TRAVIS_WAIT_FOR_NETWORK_CHECK', 'true').to_bool
       )
 
       default(

@@ -23,15 +23,18 @@ __travis_go_fetch_godep() {
 
   mkdir -p "${TRAVIS_HOME}/gopath/bin"
 
-  if [[ "${TRAVIS_OS_NAME}" == osx ]]; then
+  case "${TRAVIS_OS_NAME}" in
+  osx)
     travis_download \
       "https://${TRAVIS_APP_HOST}/files/godep_darwin_amd64" "${godep}" ||
       travis_cmd go\ get\ github.com/tools/godep --echo -retry --timing --assert
-  elif [[ "${TRAVIS_OS_NAME}" == linux ]]; then
+    ;;
+  linux)
     travis_download \
       "https://${TRAVIS_APP_HOST}/files/godep_linux_amd64" "${godep}" ||
       travis_cmd go\ get\ github.com/tools/godep --echo -retry --timing --assert
-  fi
+    ;;
+  esac
 
   chmod +x "${godep}"
 }

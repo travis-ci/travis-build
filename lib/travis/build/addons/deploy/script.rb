@@ -140,8 +140,31 @@ module Travis
                 script.stages.run_stage(:custom, :before_deploy)
                 sh.fold("dpl_#{index}") { install }
                 cmd(run_command, echo: false, assert: false, timing: true)
+                sh.raw store_event(event('deploy:finished', deploy_data)) if store_events?
                 script.stages.run_stage(:custom, :after_deploy)
               end
+            end
+
+            def store_events?
+              ENV['TRAVIS_AGENT'] && linux?
+            end
+
+            def store_event(event)
+              %(echo "#{event.gsub('"', '\"')}" > /tmp/travis/events/event.1)
+            end
+
+            def deploy_data
+              compact(
+                job_id: data.job[:id],
+                provider: provider,
+                strategy: config[:strategy],
+                status: '$TRAVIS_TEST_RESULT',
+                edge: config[:edge]
+              )
+            end
+
+            def event(name, payload)
+              JSON.dump(event: name, payload: payload, datetime: Time.now)
             end
 
             def install
@@ -186,9 +209,17 @@ module Travis
               when Array      then value.map { |v| option(key, v) }
               when Hash       then option(key, value[data.branch.to_sym])
               when true       then "--#{key}"
-              when nil, false then nil
+              when false      then dpl2? ? "--no-#{key}" : nil
+              when nil        then nil
               else "--%s=%p" % [key, value]
               end
+            end
+
+            def dpl2?
+              # this is not 100% accurate, but chances are low that people run
+              # into using false values (not supported in v1 anyway) while we
+              # release dpl v2 gradually.
+              !!config[:edge]
             end
 
             def cmd(cmd, *args)
@@ -267,6 +298,18 @@ module Travis
               (last_deploy && last_deploy[:edge] && config.nil?) ||
               (last_deploy.nil? && config && config[:edge]) ||
               (last_deploy && config && last_deploy[:edge] != config[:edge])
+            end
+
+            def linux?
+              script.config[:os] == 'linux'
+            end
+
+            def owner_name
+              data.slug.split('/').first
+            end
+
+            def compact(hash)
+              hash.reject { |_, value| value.nil? }.to_h
             end
         end
       end
