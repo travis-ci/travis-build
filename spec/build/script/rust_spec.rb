@@ -28,6 +28,10 @@ describe Travis::Build::Script::Rust, :sexp do
     should include_sexp [:cmd, 'cargo --version', assert: true, echo: true]
   end
 
+  it 'runs rustup update' do
+    should include_sexp [:cmd, 'rustup update', echo: true, timing: true, assert: true]
+  end
+
   it 'runs cargo test' do
     should include_sexp [:cmd, 'cargo test --verbose', echo: true, timing: true]
   end
