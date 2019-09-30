@@ -23,7 +23,7 @@ docker push "${quay_image}:${TRAVIS_COMMIT:0:7}"
 
 if [[ "${TRAVIS_BRANCH}" == "master" ]]; then
   docker tag "${local_image}" "${quay_image}:latest"
-  docker push "${quay_image}:${TRAVIS_BRANCH}"
+  docker push "${quay_image}:latest"
 fi
 
 exit 0
