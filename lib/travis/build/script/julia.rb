@@ -70,7 +70,7 @@ module Travis
             when 'windows'
               sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L --retry 7 -o julia-installer.exe '#{julia_url}'}
               sh.cmd 'chmod +x julia-installer.exe'
-              if Gem::Version.new(config[:julia]) >= Gem::Version.new('1.4') || config[:julia] == 'nightly'
+              if config[:julia] == 'nightly' || Gem::Version.new(config[:julia]) >= Gem::Version.new('1.4')
                 sh.cmd %Q{powershell -c 'Start-Process -FilePath julia-installer.exe -ArgumentList "/VERYSILENT /DIR=C:\\julia" -NoNewWindow -Wait'}
               else
                 sh.cmd %Q{powershell -c 'Start-Process -FilePath julia-installer.exe -ArgumentList "/S /D=C:\\julia" -NoNewWindow -Wait'}
