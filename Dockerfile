@@ -19,7 +19,6 @@ ENV PORT 4000
 
 COPY --from=builder /app /app
 COPY --from=builder /usr/local/bundle/config /usr/local/bundle/config
-RUN rm -rf .git
 
 HEALTHCHECK --interval=5s CMD script/healthcheck
 EXPOSE 4000/tcp
