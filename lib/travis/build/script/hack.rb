@@ -12,6 +12,7 @@ module Travis
           unless hhvm?
             sh.terminate 2, "Hack requires HHVM, but HHVM is not configured with \`hhvm:\`. Terminating.", ansi: :red
           end
+          super
         end
 
         def announce
