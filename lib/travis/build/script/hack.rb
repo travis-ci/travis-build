@@ -25,10 +25,10 @@ module Travis
 
         def script
           sh.cmd 'hh_client', echo: true, timing: true
-          sh.if "test -x vendor/bin/hacktest" do
+          sh.if "-x vendor/bin/hacktest" do
             sh.cmd 'vendor/bin/hacktest tests/', echo: true, timing: true
           end
-          sh.if '!(hhvm --version | grep -q -- -dev) && test -x vendor/bin/hhast-lint' do
+          sh.if '!(hhvm --version | grep -q -- -dev) && -x vendor/bin/hhast-lint' do
             sh.cmd 'vendor/bin/hhast-lint'
           end
         end
