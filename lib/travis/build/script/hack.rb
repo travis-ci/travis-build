@@ -36,6 +36,10 @@ module Travis
         def cache_slug
           super << '--hhvm-' << hhvm_version
         end
+
+        def version
+          Array(config[:hhvm]).first.to_s
+        end
       end
     end
   end
