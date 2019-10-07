@@ -120,6 +120,8 @@ module Travis
           return unless hhvm?
           if match_data = /-(\d+(?:\.\d+)*)$/.match(version)
             match_data[1]
+          else
+            ''
           end
         end
 
@@ -152,7 +154,7 @@ module Travis
               sh.raw 'sudo find /etc/apt -type f -exec sed -e "/hhvm\\.com/d" -i.bak {} \;'
 
               if hhvm_version
-                sh.raw "echo \"deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc)-lts-#{hhvm_version} main\" | sudo tee -a /etc/apt/sources.list >&/dev/null"
+                sh.raw "echo \"deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc)-#{hhvm_version} main\" | sudo tee -a /etc/apt/sources.list >&/dev/null"
                 sh.raw 'sudo apt-get purge hhvm >&/dev/null'
               else
                 # use latest
