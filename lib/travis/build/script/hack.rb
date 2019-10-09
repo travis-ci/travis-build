@@ -15,11 +15,6 @@ module Travis
           super
         end
 
-        def announce
-          super
-          sh.cmd 'hhvm --version'
-        end
-
         def install
           sh.cmd 'composer install', echo: true, timing: true
         end
