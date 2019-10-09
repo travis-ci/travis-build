@@ -58,17 +58,17 @@ module Travis
                 end
               end
               sh.cmd 'mkdir -p ~/julia'
-              sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L --retry 7 '#{julia_url}' } \
+              sh.cmd %Q{curl -A "$CURL_USER_AGENT" -S -L --retry 7 '#{julia_url}' } \
                        '| tar -C ~/julia -x -z --strip-components=1 -f -'
               sh.cmd 'export PATH="${PATH}:${TRAVIS_HOME}/julia/bin"'
             when 'osx'
-              sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L --retry 7 -o julia.dmg '#{julia_url}'}
+              sh.cmd %Q{curl -A "$CURL_USER_AGENT" -S -L --retry 7 -o julia.dmg '#{julia_url}'}
               sh.cmd 'mkdir juliamnt'
               sh.cmd 'hdiutil mount -readonly -mountpoint juliamnt julia.dmg'
               sh.cmd 'cp -a juliamnt/*.app/Contents/Resources/julia ~/'
               sh.cmd 'export PATH="${PATH}:${TRAVIS_HOME}/julia/bin"'
             when 'windows'
-              sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L --retry 7 -o julia-installer.exe '#{julia_url}'}
+              sh.cmd %Q{curl -A "$CURL_USER_AGENT" -S -L --retry 7 -o julia-installer.exe '#{julia_url}'}
               sh.cmd 'chmod +x julia-installer.exe'
               sh.cmd %Q{powershell -c 'Start-Process -FilePath julia-installer.exe -ArgumentList "/S /D=C:\\julia" -NoNewWindow -Wait'}
               sh.cmd 'export PATH="${PATH}:/c/julia/bin/"'
