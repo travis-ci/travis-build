@@ -15,6 +15,13 @@ module Travis
           super
         end
 
+        def setup
+          setup_hhvm
+          setup_php_on_demand php_version
+          sh.cmd "phpenv rehash", assert: false, echo: false, timing: false
+          composer_self_update
+        end
+
         def install
           sh.cmd 'composer install', echo: true, timing: true
         end
@@ -34,7 +41,11 @@ module Travis
         end
 
         def version
-          Array(config[:hhvm]).first.to_s
+          Array(config[:hhvm]).first
+        end
+
+        def php_version
+          Array(config[:php]).first
         end
       end
     end

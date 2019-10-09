@@ -39,27 +39,9 @@ module Travis
           end
 
           if hhvm?
-            if nightly?
-              sh.cmd "phpenv global hhvm-nightly 3>/dev/null", assert: true
-            else
-              sh.cmd "phpenv global hhvm 2>/dev/null", assert: true
-            end
-            sh.mkdir "${TRAVIS_HOME}/.phpenv/versions/hhvm/etc/conf.d", recursive: true
+            setup_hhvm
           else
-            sh.cmd "phpenv global #{version} 2>/dev/null", assert: false
-            sh.if "$? -ne 0" do
-              install_php_on_demand(version)
-            end
-            unless php_5_3_or_older?
-              sh.else do
-                sh.fold "pearrc" do
-                  sh.echo "Writing ${TRAVIS_HOME}/.pearrc", ansi: :yellow
-                  overwrite_pearrc(version)
-                  sh.cmd "pear config-show", echo: true
-                end
-              end
-            end
-            sh.cmd "phpenv global #{version}", assert: true
+            setup_php_on_demand version
           end
           sh.cmd "phpenv rehash", assert: false, echo: false, timing: false
           composer_self_update
@@ -244,6 +226,32 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
           ).gsub("__VERSION__", version)
 
           sh.cmd "echo '<?php error_reporting(0); echo serialize(#{pear_config}) ?>' | php > ${TRAVIS_HOME}/.pearrc", echo: false
+        end
+
+        def setup_hhvm
+          if nightly?
+            sh.cmd "phpenv global hhvm-nightly 3>/dev/null", assert: true
+          else
+            sh.cmd "phpenv global hhvm 2>/dev/null", assert: true
+          end
+          sh.mkdir "${TRAVIS_HOME}/.phpenv/versions/hhvm/etc/conf.d", recursive: true
+        end
+
+        def setup_php_on_demand(ver)
+          sh.cmd "phpenv global #{ver} 2>/dev/null", assert: false
+          sh.if "$? -ne 0" do
+            install_php_on_demand(ver)
+          end
+          unless php_5_3_or_older?
+            sh.else do
+              sh.fold "pearrc" do
+                sh.echo "Writing ${TRAVIS_HOME}/.pearrc", ansi: :yellow
+                overwrite_pearrc(ver)
+                sh.cmd "pear config-show", echo: true
+              end
+            end
+          end
+          sh.cmd "phpenv global #{ver}", assert: true
         end
       end
     end
