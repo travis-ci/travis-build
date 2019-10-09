@@ -139,9 +139,9 @@ describe Travis::Build::Script::Php, :sexp do
     before { data[:config][:php] = 'hhvm-3.12' }
     it { should include_sexp [:cmd, 'travis_apt_get_update'] }
     it { should include_sexp [:cmd, 'sudo apt-get install -y hhvm', timing: true, assert: true, echo: true] }
-    it { should include_sexp [:raw, "echo \"deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc)-lts-3.12 main\" | sudo tee -a /etc/apt/sources.list >&/dev/null"] }
+    it { should include_sexp [:raw, "echo \"deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc)-3.12 main\" | sudo tee -a /etc/apt/sources.list >&/dev/null"] }
   end
-  
+
   describe 'when desired PHP version is not found' do
     let(:version) { '7.0.0beta2' }
     let(:data) { payload_for(:push, :php, config: { php: version }) }
