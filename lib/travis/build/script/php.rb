@@ -29,14 +29,7 @@ module Travis
         def setup
           super
 
-          if php_5_3_or_older?
-            sh.if "$(lsb_release -sc 2>/dev/null) != precise" do
-              sh.echo "PHP #{version} is supported only on Precise.", ansi: :red
-              sh.echo "See https://docs.travis-ci.com/user/reference/trusty#PHP-images on how to test PHP 5.3 on Precise.", ansi: :red
-              sh.echo "Terminating.", ansi: :red
-              sh.failure
-            end
-          end
+          reject_old_php
 
           if hhvm?
             setup_hhvm
@@ -252,6 +245,17 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
             end
           end
           sh.cmd "phpenv global #{ver}", assert: true
+        end
+
+        def reject_old_php
+          if php_5_3_or_older?
+            sh.if "$(lsb_release -sc 2>/dev/null) != precise" do
+              sh.echo "PHP #{version} is supported only on Precise.", ansi: :red
+              sh.echo "See https://docs.travis-ci.com/user/reference/trusty#PHP-images on how to test PHP 5.3 on Precise.", ansi: :red
+              sh.echo "Terminating.", ansi: :red
+              sh.failure
+            end
+          end
         end
       end
     end
