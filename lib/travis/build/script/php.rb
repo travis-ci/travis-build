@@ -31,9 +31,15 @@ module Travis
 
           reject_old_php
 
-          if hhvm?
+          case self
+          when Travis::Build::Script::Php
+            if hhvm?
+              setup_hhvm
+            else
+              setup_php_on_demand version
+            end
+          when Travis::Build::Script::Hack
             setup_hhvm
-          else
             setup_php_on_demand version
           end
           sh.cmd "phpenv rehash", assert: false, echo: false, timing: false

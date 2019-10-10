@@ -15,13 +15,6 @@ module Travis
           super
         end
 
-        def setup
-          setup_hhvm
-          setup_php_on_demand php_version
-          sh.cmd "phpenv rehash", assert: false, echo: false, timing: false
-          composer_self_update
-        end
-
         def install
           sh.cmd 'composer install', echo: true, timing: true
         end
