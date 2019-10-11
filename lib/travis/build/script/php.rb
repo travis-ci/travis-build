@@ -42,8 +42,8 @@ module Travis
 
           case self
           when Travis::Build::Script::Hack
-            setup_hhvm
             setup_php_on_demand version
+            setup_hhvm
           when Travis::Build::Script::Php
             if hhvm?
               setup_hhvm
