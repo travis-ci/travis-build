@@ -8,13 +8,6 @@ module Travis
           hhvm: 'hhvm-4.25'
         }
 
-        def configure
-          unless hhvm?
-            sh.terminate 1, "Hack requires HHVM, but HHVM is not configured with \`hhvm:\`. Terminating.", ansi: :red
-          end
-          super
-        end
-
         def install
           sh.cmd 'composer install', echo: true, timing: true
         end

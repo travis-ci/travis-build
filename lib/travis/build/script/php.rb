@@ -18,7 +18,16 @@ module Travis
 
         def configure
           super
-          configure_hhvm if hhvm?
+          case self
+          when Travis::Build::Script::Hack
+            unless config.key?(:hhvm)
+              sh.terminate 1, "Hack requires HHVM, but HHVM is not configured with \`hhvm:\`. Terminating.", ansi: :red
+              return
+            end
+            configure_hhvm hhvm_version_raw if hhvm_version_raw
+          when Travis::Build::Script::Php
+            configure_hhvm version if hhvm?
+          end
         end
 
         def export
@@ -32,15 +41,15 @@ module Travis
           reject_old_php
 
           case self
+          when Travis::Build::Script::Hack
+            setup_hhvm
+            setup_php_on_demand version
           when Travis::Build::Script::Php
             if hhvm?
               setup_hhvm
             else
               setup_php_on_demand version
             end
-          when Travis::Build::Script::Hack
-            setup_hhvm
-            setup_php_on_demand version
           end
           sh.cmd "phpenv rehash", assert: false, echo: false, timing: false
           composer_self_update
@@ -93,34 +102,40 @@ module Travis
           Array(config[:php]).first.to_s
         end
 
-        def hhvm?
-          version.start_with?('hhvm')
+        def hhvm?(ver = version)
+          ver.start_with?('hhvm') || config.key?(:hhvm)
         end
 
         def hhvm_version
           return unless hhvm?
-          if match_data = /-(\d+(?:\.\d+)*)$/.match(version)
+          v = case self
+          when Travis::Build::Script::Hack
+            hhvm_version_raw
+          when Travis::Build::Script::Php
+            version
+          end
+          if match_data = /-(\d+(?:\.\d+)*)$/.match(v)
             match_data[1]
           else
             ''
           end
         end
 
-        def nightly?
-          version.include?('nightly')
+        def nightly?(ver = version)
+          ver.include?('nightly')
         end
 
         def composer_args
           config[:composer_args]
         end
 
-        def configure_hhvm
+        def configure_hhvm(ver)
           sh.if '"$(lsb_release -sc 2>/dev/null)" = "precise"' do
             sh.echo "HHVM is no longer supported on Ubuntu Precise. Please consider using Trusty with \\`dist: trusty\\`.", ansi: :yellow
             sh.raw "travis_terminate 1"
           end
 
-          if nightly?
+          if nightly?(ver) && hhvm?(ver)
             install_hhvm_nightly
           elsif hhvm?
             update_hhvm
@@ -139,7 +154,7 @@ module Travis
                 sh.raw 'sudo apt-get purge hhvm >&/dev/null'
               else
                 # use latest
-                sh.cmd 'echo "deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list'
+                sh.raw 'echo "deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list'
               end
 
               sh.cmd 'sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xB4112585D386EB94'
@@ -196,7 +211,7 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
         end
 
         def php_5_3_or_older?
-          !hhvm? && !nightly? && Gem::Version.new(version) < Gem::Version.new('5.4')
+          Gem::Version.new(version) < Gem::Version.new('5.4')
         rescue
           false
         end
