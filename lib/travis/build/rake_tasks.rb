@@ -26,6 +26,7 @@ module Travis
         "mvdan/sh/releases/download/#{SHFMT_VERSION}",
         "shfmt_#{SHFMT_VERSION}_%<uname>s_%<arch>s"
       )
+      TMATE_ARCHES = %w(amd64 armv7l)
 
       def fetch_githubusercontent_file(from, host: 'raw.githubusercontent.com',
                                        to: nil, mode: 0o755)
@@ -280,14 +281,17 @@ module Travis
       def file_update_tmate
         latest_release = '2.2.1'
         logger.info "Latest tmate release is #{latest_release}"
-        fetch_githubusercontent_file(
-          File.join(
-            'tmate-io/tmate/releases/download',
-            latest_release,
-            "tmate-#{latest_release}-static-linux-amd64.tar.gz"
-          ),
-          host: 'github.com', to: 'tmate-static-linux-amd64.tar.gz'
-        )
+
+        TMATE_ARCHES.each do |arch|
+          fetch_githubusercontent_file(
+            File.join(
+              'tmate-io/tmate/releases/download',
+              latest_release,
+              "tmate-#{latest_release}-static-linux-#{arch}.tar.gz"
+            ),
+            host: 'github.com', to: "tmate-static-linux-#{arch}.tar.gz"
+          )
+        end
       end
 
       def file_update_rustup
