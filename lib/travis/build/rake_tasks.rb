@@ -279,7 +279,7 @@ module Travis
       end
 
       def file_update_tmate
-        latest_release = '2.2.1'
+        latest_release = latest_release_for('tmate-io/tmate')
         logger.info "Latest tmate release is #{latest_release}"
 
         TMATE_ARCHES.each do |arch|
