@@ -26,7 +26,7 @@ module Travis
         "mvdan/sh/releases/download/#{SHFMT_VERSION}",
         "shfmt_#{SHFMT_VERSION}_%<uname>s_%<arch>s"
       )
-      TMATE_ARCHES = %w(amd64 armv7l)
+      TMATE_ARCHES = %w(amd64 arm64v8)
 
       def fetch_githubusercontent_file(from, host: 'raw.githubusercontent.com',
                                        to: nil, mode: 0o755)
