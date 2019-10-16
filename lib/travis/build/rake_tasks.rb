@@ -277,16 +277,17 @@ module Travis
         fetch_githubusercontent_file 'sormuras/bach/master/install-jdk.sh'
       end
 
-      def file_update_tmate
-        latest_release = '2.2.1'
+      def file_update_tmate(arch)
+        latest_release = latest_release_for('tmate-io/tmate')
         logger.info "Latest tmate release is #{latest_release}"
+
         fetch_githubusercontent_file(
           File.join(
             'tmate-io/tmate/releases/download',
             latest_release,
-            "tmate-#{latest_release}-static-linux-amd64.tar.gz"
+            "tmate-#{latest_release}-static-linux-#{arch}.tar.xz"
           ),
-          host: 'github.com', to: 'tmate-static-linux-amd64.tar.gz'
+          host: 'github.com', to: "tmate-static-linux-#{arch}.tar.xz"
         )
       end
 
@@ -373,9 +374,14 @@ module Travis
       desc 'update install-jdk.sh'
       file('public/files/install-jdk.sh') { file_update_install_jdk_sh }
 
-      desc 'update tmate'
-      file 'public/files/tmate-static-linux-amd64.tar.gz' do
-        file_update_tmate
+      desc 'update tmate for amd64'
+      file 'public/files/tmate-static-linux-amd64.tar.xz' do
+        file_update_tmate 'amd64'
+      end
+
+      desc 'update tmate for arm64v8'
+      file 'public/files/tmate-static-linux-arm64v8.tar.xz' do
+        file_update_tmate 'arm64v8'
       end
 
       desc 'update rustup'
@@ -434,7 +440,8 @@ module Travis
         'public/files/sbt',
         'public/files/sc-linux.tar.gz',
         'public/files/sc-osx.zip',
-        'public/files/tmate-static-linux-amd64.tar.gz',
+        'public/files/tmate-static-linux-amd64.tar.xz',
+        'public/files/tmate-static-linux-arm64v8.tar.xz',
         'public/version-aliases/ghc.json',
       ]
 

@@ -25,6 +25,7 @@ describe Travis::Build::RakeTasks do
     Faraday::Adapter::Test::Stubs.new do |stub|
       %w[
         creationix/nvm
+        tmate-io/tmate
         tools/godep
         travis-ci/gimme
       ].each do |repo_slug|
@@ -34,17 +35,13 @@ describe Travis::Build::RakeTasks do
       end
 
       [
+        ['tmate-io/tmate', 'tmate-v1.2.5-static-linux-amd64.tar.xz'],
         ['tools/godep', 'godep_darwin_amd64'],
         ['tools/godep', 'godep_linux_amd64']
       ].each do |repo_slug, file_basename|
         stub.get("/#{repo_slug}/releases/download/v1.2.5/#{file_basename}") do |*|
           [200, { 'Content-Type' => 'application/octet-stream' }, "\xb1"]
         end
-      end
-
-      # Pin tmate version to 2.2.1, the last release with static assets
-      stub.get("/tmate-io/tmate/releases/download/2.2.1/tmate-2.2.1-static-linux-amd64.tar.gz") do |*|
-        [200, { 'Content-Type' => 'application/octet-stream' }, "\xb1"]
       end
 
       %w[
@@ -181,7 +178,7 @@ describe Travis::Build::RakeTasks do
     public/files/sbt
     public/files/sc-linux.tar.gz
     public/files/sc-osx.zip
-    public/files/tmate-static-linux-amd64.tar.gz
+    public/files/tmate-static-linux-amd64.tar.xz
     public/version-aliases/ghc.json
   ].each do |filename|
     it "can fetch #{filename}" do
