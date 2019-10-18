@@ -32,6 +32,7 @@ module Travis
           bioc_check: false,
           bioc_use_devel: false,
           disable_homebrew: false,
+          disable_openmp: true,
           use_devtools: false,
           r: 'release'
         }
@@ -151,6 +152,7 @@ module Travis
                 sh.rm '/tmp/R.pkg'
 
                 setup_fortran_osx if config[:fortran]
+                disable_openmp if config[:disable_openmp]
 
               else
                 sh.failure "Operating system not supported: #{config[:os]}"
@@ -571,6 +573,13 @@ module Travis
           sh.cmd "sudo ruby uninstall --force"
           sh.cmd "rm uninstall"
           sh.cmd "hash -r"
+        end
+
+        # Removes the -fopenmp flag from R config when compiling packages
+        # Default true because xcode compilers do not support openmp
+        # Enabling OpenMP only makes sense icw/ llvm or CRAN's custom clang
+        def disable_openmp
+          sh.cmd 'sed -i.bak "s/-fopenmp//g" $(R RHOME)/etc/Makeconf'
         end
 
         # Abstract out version check
