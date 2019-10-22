@@ -26,8 +26,8 @@ Acquire::http::Proxy::download.oracle.com "DIRECT";
 Acquire::https::Proxy::download.oracle.com "DIRECT";
 Acquire::http::Proxy::*.java.net "DIRECT";
 Acquire::https::Proxy::*.java.net "DIRECT";
-Acquire::http::Proxy::*.postgresql.org "DIRECT";
-Acquire::https::Proxy::*.postgresql.org "DIRECT";
+Acquire::http::Proxy::apt.postgresql.org "DIRECT";
+Acquire::https::Proxy::apt.postgresql.org "DIRECT";
 EOCONF
   ) | sudo tee "${dest_dir}/99-travis-apt-proxy" &>/dev/null
 }

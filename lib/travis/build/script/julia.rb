@@ -70,7 +70,11 @@ module Travis
             when 'windows'
               sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L --retry 7 -o julia-installer.exe '#{julia_url}'}
               sh.cmd 'chmod +x julia-installer.exe'
-              sh.cmd %Q{powershell -c 'Start-Process -FilePath julia-installer.exe -ArgumentList "/S /D=C:\\julia" -NoNewWindow -Wait'}
+              if config[:julia] == 'nightly' || Gem::Version.new(config[:julia]) >= Gem::Version.new('1.4')
+                sh.cmd %Q{powershell -c 'Start-Process -FilePath julia-installer.exe -ArgumentList "/VERYSILENT /DIR=C:\\julia" -NoNewWindow -Wait'}
+              else
+                sh.cmd %Q{powershell -c 'Start-Process -FilePath julia-installer.exe -ArgumentList "/S /D=C:\\julia" -NoNewWindow -Wait'}
+              end
               sh.cmd 'export PATH="${PATH}:/c/julia/bin/"'
             else
               sh.failure "Operating system not supported: #{config[:os]}"
@@ -183,7 +187,7 @@ module Travis
               url = "julialang-s3.julialang.org/bin/#{osarch}/#{$1}/julia-#{$1}-latest-#{ext}"
             when '1'
               # TODO: create a permalink to latest 1.y.z
-              url = "julialang-s3.julialang.org/bin/#{osarch}/1.1/julia-1.1-latest-#{ext}"
+              url = "julialang-s3.julialang.org/bin/#{osarch}/1.2/julia-1.2-latest-#{ext}"
             else
               sh.failure "Unknown Julia version: #{julia_version}"
             end

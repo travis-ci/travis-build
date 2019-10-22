@@ -17,7 +17,7 @@ env:
 
 stages:
 - test
-- ':ship: it to Quay.io'
+- ':ship: it to quay.io'
 
 jobs:
   allow_failures:
@@ -26,7 +26,7 @@ jobs:
   - stage: test
     env:
     script: ./script/validate-example-payloads-with-docker
-  - stage: ':ship: it to Quay.io'
+  - stage: ':ship: it to quay.io'
     env:
     script: ./script/docker-build-and-push
     if: NOT type IN (pull_request) AND branch = master
