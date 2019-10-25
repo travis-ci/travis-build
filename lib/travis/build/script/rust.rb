@@ -41,6 +41,12 @@ module Travis
               sh.cmd 'rustup update', echo: true
             end
           end
+
+          sh.fold('cargo-audit-install') do
+            sh.echo 'Installing Cargo Audit', ansi: :yellow
+            sh.cmd 'cargo install --force cargo-audit', echo: true
+            sh.cmd 'cargo generate-lockfile'
+          end
         end
 
         def announce
@@ -49,12 +55,14 @@ module Travis
           sh.cmd 'rustc --version',  assert: true
           sh.cmd 'rustup --version', assert: true
           sh.cmd 'cargo --version',  assert: true
+          sh.cmd 'cargo audit --version', assert: true
           sh.newline
         end
 
         def script
           sh.cmd 'cargo build --verbose'
           sh.cmd 'cargo test --verbose'
+          sh.cmd 'cargo audit'
         end
 
         def cache_slug
