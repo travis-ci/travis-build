@@ -11,7 +11,7 @@ describe Travis::Build::Script::R, :sexp do
 
   it 'normalizes bioc-devel correctly' do
     data[:config][:r] = 'bioc-devel'
-    should include_sexp [:export, ['TRAVIS_R_VERSION', '4.0.0']]
+    should include_sexp [:export, ['TRAVIS_R_VERSION', 'devel']]
     should include_sexp [:cmd, %r{install.packages\(\"BiocManager"\)},
                          assert: true, echo: true, timing: true, retry: true]
     should include_sexp [:cmd, %r{BiocManager::install\(version = \"devel\"},
