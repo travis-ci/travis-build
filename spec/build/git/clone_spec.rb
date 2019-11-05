@@ -135,35 +135,35 @@ describe Travis::Build::Git::Clone, :sexp do
   describe 'autocrlf option' do
     context 'when autocrlf is not given' do
       it "preserves the default" do
-        should_not include_sexp [:cmd, /git config --global core\.autocrlf/] }
+        should_not include_sexp [:cmd, /git config --global core\.autocrlf/]
       end
     end
 
     context 'when autocrlf is set to "true"' do
       before { payload[:config][:git]['autocrlf'] = 'true' }
 
-      it { should include_sexp [:cmd, "git config --global core.autocrlf true", assert: true, echo: true, timing: true]}
+      it { should include_sexp [:cmd, "git config --global core.autocrlf true", assert: true, echo: true, timing: true] }
       it { store_example(name: 'git autocrlf true') }
     end
 
     context 'when autocrlf is set to "false"' do
       before { payload[:config][:git]['autocrlf'] = false }
 
-      it { should include_sexp [:cmd, "git config --global core.autocrlf false", assert: true, echo: true, timing: true]}
+      it { should include_sexp [:cmd, "git config --global core.autocrlf false", assert: true, echo: true, timing: true] }
       it { store_example(name: 'git autocrlf false') }
     end
 
     context 'when autocrlf is set to "input"' do
       before { payload[:config][:git]['autocrlf'] = 'input' }
 
-      it { should include_sexp [:cmd, "git config --global core.autocrlf input", assert: true, echo: true, timing: true]}
+      it { should include_sexp [:cmd, "git config --global core.autocrlf input", assert: true, echo: true, timing: true] }
       it { store_example(name: 'git autocrlf input') }
     end
 
     context 'when autocrlf is set to "invlaid"' do
       before { payload[:config][:git]['autocrlf'] = 'invlaid' }
 
-      it { should include_sexp [:cmd, "git config --global core.autocrlf invlaid", assert: true, echo: true, timing: true]}
+      it { should include_sexp [:cmd, "git config --global core.autocrlf invlaid", assert: true, echo: true, timing: true] }
       it { store_example(name: 'git autocrlf invlaid') }
     end
   end
