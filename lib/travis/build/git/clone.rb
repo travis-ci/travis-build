@@ -66,6 +66,9 @@ module Travis
           end
 
           def clone_or_fetch
+            if autocrlf
+              sh.cmd "git config --global core.autocrlf #{autocrlf}"
+            end
             sh.if "! -d #{dir}/.git" do
               if sparse_checkout
                 sh.echo "Cloning with sparse checkout specified with #{sparse_checkout}", ansi: :yellow
@@ -129,6 +132,10 @@ module Travis
             else
               ""
             end
+          end
+
+          def autocrlf
+            config[:git][:autocrlf]
           end
 
           def branch
