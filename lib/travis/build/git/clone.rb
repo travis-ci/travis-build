@@ -66,8 +66,8 @@ module Travis
           end
 
           def clone_or_fetch
-            if autocrlf
-              sh.cmd "git config --global core.autocrlf #{autocrlf}"
+            if autocrlf_key_given?
+              sh.cmd "git config --global core.autocrlf #{config[:git][:autocrlf].to_s}"
             end
             sh.if "! -d #{dir}/.git" do
               if sparse_checkout
@@ -134,8 +134,8 @@ module Travis
             end
           end
 
-          def autocrlf
-            config[:git][:autocrlf]
+          def autocrlf_key_given?
+            config[:git].key?(:autocrlf)
           end
 
           def branch
