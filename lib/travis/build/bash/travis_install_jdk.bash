@@ -3,11 +3,14 @@ travis_install_jdk() {
   jdk="$1"
   vendor="$2"
   version="$3"
-  if [ ${TRAVIS_CPU_ARCH} == 'arm64' ];then
+  case "${TRAVIS_CPU_ARCH}" in
+  "arm64"|"s390x"|"ppc64le")
     travis_install_jdk_compiled $version
-  else
+  ;;
+  *)
     travis_install_jdk_ext_provider "$jdk" "$vendor" "$version"
-  fi
+  ;;
+  esac
 }
 
 travis_install_jdk_ext_provider(){
