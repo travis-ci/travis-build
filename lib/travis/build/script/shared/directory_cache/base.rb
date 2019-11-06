@@ -133,18 +133,30 @@ module Travis
 
           def fetch_urls
             urls = [
+              fetch_url(uri_normalize_name(group), true, true),
+              fetch_url(uri_normalize_name(group), false, true),
+              fetch_url(normalize_name(group), true, true),
+              fetch_url(normalize_name(group), false, true),
               fetch_url(uri_normalize_name(group), true),
               fetch_url(uri_normalize_name(group)),
               fetch_url(normalize_name(group), true),
               fetch_url(normalize_name(group))
             ]
             if data.pull_request
+              urls << fetch_url(uri_normalize_name(data.branch), true, true)
+              urls << fetch_url(uri_normalize_name(data.branch), false, true)
+              urls << fetch_url(normalize_name(data.branch), true, true)
+              urls << fetch_url(normalize_name(data.branch), false, true)
               urls << fetch_url(uri_normalize_name(data.branch), true)
               urls << fetch_url(uri_normalize_name(data.branch))
               urls << fetch_url(normalize_name(data.branch), true)
               urls << fetch_url(normalize_name(data.branch))
             end
             if data.repository[:default_branch] && data.branch != data.repository[:default_branch]
+              urls << fetch_url(uri_normalize_name(data.repository[:default_branch]), true, true)
+              urls << fetch_url(uri_normalize_name(data.repository[:default_branch]), false, true)
+              urls << fetch_url(normalize_name(data.repository[:default_branch]), true, true)
+              urls << fetch_url(normalize_name(data.repository[:default_branch]), false, true)
               urls << fetch_url(uri_normalize_name(data.repository[:default_branch]), true)
               urls << fetch_url(uri_normalize_name(data.repository[:default_branch]))
               urls << fetch_url(normalize_name(data.repository[:default_branch]), true)
@@ -158,15 +170,15 @@ module Travis
             run('push', Shellwords.escape(push_url.to_s), assert: false, timing: true)
           end
 
-          def fetch_url(branch = group, extras = false)
-            prefix = prefixed(branch, extras)
+          def fetch_url(branch = group, extras = false, arch = false)
+            prefix = prefixed(branch, extras, arch)
             if prefix
               url('GET', prefix, expires: fetch_timeout)
             end
           end
 
           def push_url(branch = group)
-            prefix = prefixed(uri_normalize_name(branch), true)
+            prefix = prefixed(uri_normalize_name(branch), true, true)
             if prefix
               url('PUT', prefix, expires: push_timeout)
             end
@@ -241,10 +253,16 @@ module Travis
               )
             end
 
-            def prefixed(branch, extras = false)
+            def prefixed(branch, extras = false, arch = false)
               slug_local = slug.dup
               if ! extras
                 slug_local = slug.gsub(/^cache(.+?)(?=--)/,'cache')
+              end
+              if arch
+                # injecting the job's `arch` value into `Script#cache_slug` is
+                # logically more natural, but doing so will require some serious
+                # code reorganization
+                slug_local = slug.gsub(/^cache/, "cache-#{data.config[:arch]}")
               end
 
               case aws_signature_version
