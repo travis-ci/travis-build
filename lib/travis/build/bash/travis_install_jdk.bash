@@ -65,6 +65,8 @@ fi
 " > /home/travis/.bash_profile.d/travis-java.bash
   sudo chmod 644 /home/travis/.bash_profile.d/travis-java.bash
   sudo chown travis:travis /home/travis/.bash_profile.d/travis-java.bash
+  export JAVA_HOME="/usr/local/lib/openjdk${JAVA_VERSION}"
+  export PATH="${JAVA_HOME}/bin:${PATH}"
 }
 
 
