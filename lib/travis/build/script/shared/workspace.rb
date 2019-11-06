@@ -15,7 +15,7 @@ module Travis
           @paths = Array(paths)
           @type = type
           @directory_cache = cache_class.new(@sh, @data, name, Time.now, 'workspace')
-          @directory_cache.define_singleton_method :prefixed do |branch, extras|
+          @directory_cache.define_singleton_method :prefixed do |branch, extras, arch|
             parts = case aws_signature_version
             when '2'
               [ 'workspaces', data.build[:id], name ]
