@@ -28,7 +28,7 @@ module Travis
             sh.if '"$TRAVIS_DIST" != precise && "$TRAVIS_DIST" != trusty' do
               sh.cmd 'rm -rf /var/lib/mysql', sudo: true, echo: false, timing: false
             end
-            sh.cmd "apt-get install -y -o Dpkg::Options::='--force-confnew' $PACKAGES", sudo: true, echo: true, timing: true
+            sh.cmd "apt-get install -y -o Debug::pkgProblemResolver=yes -o Dpkg::Options::='--force-confnew' $PACKAGES", sudo: true, echo: true, timing: true
             sh.echo "Starting MariaDB v#{mariadb_version}", ansi: :yellow
             sh.if '"$TRAVIS_INIT" == upstart' do
               sh.cmd "service mysql start", sudo: true, assert: false, echo: true, timing: true
