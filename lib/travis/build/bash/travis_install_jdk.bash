@@ -14,7 +14,7 @@ travis_install_jdk() {
   esac
 }
 
-travis_install_jdk_ext_provider(){
+travis_install_jdk_ext_provider() {
   local url vendor version license jdk certlink
   jdk="$1"
   vendor="$2"
