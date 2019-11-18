@@ -35,6 +35,7 @@ module Travis
             sh.cmd "sudo mkdir -p -m 0755 /nix/"
             sh.cmd "sudo chown $USER /nix/"
             # Set nix config dir and make config Hydra compatible
+            sh.cmd "sudo mkdir -p -m 0755 /etc/nix"
             sh.cmd "echo 'build-max-jobs = 4' | sudo tee /etc/nix/nix.conf > /dev/null"
           end
         end
