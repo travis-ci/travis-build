@@ -19,7 +19,7 @@ module Travis
 
         DEFAULTS = {
           haxe: 'stable',
-          neko: '2.2.0'
+          neko: '2.3.0'
         }
 
         def export
