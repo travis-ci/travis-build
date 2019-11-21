@@ -171,7 +171,7 @@ module Travis
               nil
             end
 
-            haxeorg_stable || github_stable || "3.4.7"
+            haxeorg_stable || github_stable || "4.0.2"
           end
 
           def haxe_version
