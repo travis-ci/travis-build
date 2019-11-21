@@ -184,16 +184,21 @@ module Travis
           end
 
           def neko_url
-            version = Array(config[:neko]).first
+            haxe_ver = haxe_version
+            neko_ver = Array(config[:neko]).first
             file = case config[:os]
             when 'linux'
-              "neko-#{version}-linux64.tar.gz"
+              "neko-#{neko_ver}-linux64.tar.gz"
             when 'osx'
-              "neko-#{version}-osx64.tar.gz"
+              "neko-#{neko_ver}-osx64.tar.gz"
             when 'windows'
-              "neko-#{version}-win.zip"
+              if haxe_ver == "development" || haxe_ver.to_i >= 4
+                "neko-#{neko_ver}-win64.zip"
+              else
+                "neko-#{neko_ver}-win.zip"
+              end
             end
-            "https://github.com/HaxeFoundation/neko/releases/download/v#{version.to_s.gsub(".", "-")}/#{file}"
+            "https://github.com/HaxeFoundation/neko/releases/download/v#{neko_ver.to_s.gsub(".", "-")}/#{file}"
           end
 
           def haxe_url
