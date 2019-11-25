@@ -46,10 +46,10 @@ module Travis
             # Install dependencies
             case config[:os]
             when 'linux'
-              sh.cmd 'travis_apt_get_update', retry: true
-              sh.cmd 'sudo apt-get install libgc1c2 -qq', retry: true # required by neko
+              sh.cmd 'travis_apt_get_update', retry: true, echo: true, timing: true
+              sh.cmd 'sudo apt-get install libgc1c2 -qq', retry: true, echo: true, timing: true # required by neko
             when 'windows'
-              sh.cmd 'choco install vcredist2013 -y', assert: true, echo: true
+              # pass
             when 'osx'
               # pass
             end
