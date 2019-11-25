@@ -73,9 +73,9 @@ module Travis
             when 'windows'
               neko_path = '/c/neko'
               sh.cmd %Q{curl -s -L --retry 3 '#{neko_url}' -o neko.zip}, assert: true, echo: true, timing: true
-              sh.cmd %Q{unzip -q neko.zip}, assert: true, echo: true
-              sh.cmd %Q{rm neko.zip}, assert: true, echo: true
-              sh.cmd %Q{mv neko-*-win* #{neko_path}}, assert: true, echo: true
+              sh.cmd %Q{unzip -q neko.zip}, assert: true, echo: true, timing: true
+              sh.cmd %Q{rm neko.zip}, assert: true, echo: true, timing: true
+              sh.cmd %Q{mv neko-*-win* #{neko_path}}, assert: true, echo: true, timing: true
 
               # NEKOPATH is required by `nekotools boot ...`
               sh.cmd %Q{export NEKOPATH="#{neko_path}"}
@@ -107,18 +107,18 @@ module Travis
 
               sh.cmd %Q{export HAXE_STD_PATH="#{haxe_path}/std"}
               sh.cmd %Q{mkdir -p #{haxe_path}/lib}
-              sh.cmd %Q{haxelib setup #{haxe_path}/lib}
+              sh.cmd %Q{haxelib setup #{haxe_path}/lib}, assert: true, echo: true, timing: true
             when 'windows'
               haxe_path = '/c/haxe'
               sh.cmd %Q{curl -s -L --retry 3 '#{haxe_url}' -o haxe.zip}, assert: true, echo: true, timing: true
-              sh.cmd %Q{unzip -q haxe.zip}, assert: true, echo: true
-              sh.cmd %Q{rm haxe.zip}, assert: true, echo: true
-              sh.cmd %Q{mv haxe* /c/haxe}, assert: true, echo: true
+              sh.cmd %Q{unzip -q haxe.zip}, assert: true, echo: true, timing: true
+              sh.cmd %Q{rm haxe.zip}, assert: true, echo: true, timing: true
+              sh.cmd %Q{mv haxe* /c/haxe}, assert: true, echo: true, timing: true
 
               sh.cmd %Q{export HAXE_STD_PATH="/c/haxe/std"}
               sh.cmd %Q{export "PATH=/c/haxe:$PATH"}
               sh.cmd %Q{mkdir -p /c/haxe/lib}
-              sh.cmd %Q{haxelib setup /c/haxe/lib}
+              sh.cmd %Q{haxelib setup /c/haxe/lib}, assert: true, echo: true, timing: true
             end
           end
         end
