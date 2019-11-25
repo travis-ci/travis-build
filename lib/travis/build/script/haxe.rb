@@ -75,7 +75,7 @@ module Travis
               sh.cmd %Q{curl -s -L --retry 3 '#{neko_url}' -o neko.zip}, assert: true, echo: true, timing: true
               sh.cmd %Q{unzip -q neko.zip}, assert: true, echo: true
               sh.cmd %Q{rm neko.zip}, assert: true, echo: true
-              sh.cmd %Q{mv neko-*-win #{neko_path}}, assert: true, echo: true
+              sh.cmd %Q{mv neko-*-win* #{neko_path}}, assert: true, echo: true
 
               # NEKOPATH is required by `nekotools boot ...`
               sh.cmd %Q{export NEKOPATH="#{neko_path}"}
@@ -110,7 +110,7 @@ module Travis
               sh.cmd %Q{haxelib setup #{haxe_path}/lib}
             when 'windows'
               haxe_path = '/c/haxe'
-              sh.cmd %Q{curl -s -L --retry 3 'https://haxe.org/website-content/downloads/3.4.7/downloads/haxe-3.4.7-win.zip' -o haxe.zip}, assert: true, echo: true, timing: true
+              sh.cmd %Q{curl -s -L --retry 3 '#{haxe_url}' -o haxe.zip}, assert: true, echo: true, timing: true
               sh.cmd %Q{unzip -q haxe.zip}, assert: true, echo: true
               sh.cmd %Q{rm haxe.zip}, assert: true, echo: true
               sh.cmd %Q{mv haxe* /c/haxe}, assert: true, echo: true
@@ -221,7 +221,7 @@ module Travis
               when 'osx'
                 "haxe-#{haxe_ver}-osx.tar.gz"
               when 'windows'
-                "haxe-#{haxe_ver}-win.zip"
+                "haxe-#{haxe_ver}-win64.zip"
               end
               "https://haxe.org/website-content/downloads/#{haxe_ver}/downloads/#{file}"
             end
