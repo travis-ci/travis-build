@@ -12,7 +12,7 @@ module Travis
       class Julia < Script
         DEFAULTS = {
           julia: '1',
-          arch: 'x64',
+          arch: 'amd64',
           coveralls: false,
           codecov: false,
         }
@@ -166,12 +166,12 @@ module Travis
               nightlyext = 'freebsd64.tar.gz'
             when 'windows'
               case julia_arch
-              when 'x64'
-                osarch = "winnt/x64"
-                ext = 'win64.exe'
               when 'x86'
                 osarch = "winnt/x86"
                 ext = 'win32.exe'
+              else
+                osarch = "winnt/x64"
+                ext = 'win64.exe'
               end
               nightlyext = ext
             end
