@@ -7,6 +7,10 @@ travis_terminate() {
   "_travis_terminate_${TRAVIS_OS_NAME}" "${@}"
 }
 
+exit() {
+  travis_terminate "${1:-$?}"
+}
+
 _travis_terminate_linux() {
   _travis_terminate_unix "${@}"
 }
@@ -29,11 +33,13 @@ _travis_terminate_unix() {
   awk 'NR==FNR{a[$1]++;next};!($1 in a)' "${TRAVIS_TMPDIR}"/pids_{before,after} |
     xargs kill &>/dev/null || true
   pkill -9 -P "${$}" &>/dev/null || true
+  declare -F exit &>/dev/null && unset -f exit || true
   exit "${1}"
 }
 
 _travis_terminate_windows() {
   # TODO: find all child processes and exit via ... powershell?
+  declare -F exit &>/dev/null && unset -f exit || true
   exit "${1}"
 }
 
