@@ -12,7 +12,7 @@ module Travis
       class Julia < Script
         DEFAULTS = {
           julia: '1',
-          arch: 'x64',
+          arch: 'amd64',
           coveralls: false,
           codecov: false,
         }
@@ -147,11 +147,11 @@ module Travis
                 osarch = 'linux/aarch64'
                 ext = 'linux-aarch64.tar.gz'
                 nightlyext = nil  # There are no nightlies for ARM
-              when 'x86'
+              when 'x86', 'i386'
                 osarch = 'linux/x86'
                 ext = 'linux-i686.tar.gz'
                 nightlyext = 'linux32.tar.gz'
-              else
+              when 'x64', 'amd64'
                 osarch = 'linux/x64'
                 ext = 'linux-x86_64.tar.gz'
                 nightlyext = 'linux64.tar.gz'
@@ -166,10 +166,10 @@ module Travis
               nightlyext = 'freebsd64.tar.gz'
             when 'windows'
               case julia_arch
-              when 'x64'
+              when 'x64', 'amd64'
                 osarch = "winnt/x64"
                 ext = 'win64.exe'
-              when 'x86'
+              when 'x86', 'i386'
                 osarch = "winnt/x86"
                 ext = 'win32.exe'
               end
