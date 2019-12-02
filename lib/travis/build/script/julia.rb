@@ -45,7 +45,7 @@ module Travis
                 if config[:julia] == 'nightly' && config[:arch] == 'arm64'
                   sh.failure 'Nightly Julia binaries are not available for AArch64'
                 end
-                if config[:arch] == 'x86'
+                if config[:arch] == 'x86' || config[:arch] == 'i386'
                   # x86 builds still run on x64 images, so we need to ensure the environment
                   # is properly equipped to handle 32-bit binaries
                   if config[:dist] == 'precise'
