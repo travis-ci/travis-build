@@ -8,7 +8,14 @@ travis_terminate() {
 }
 
 exit() {
-  travis_terminate "${1:-$?}"
+  local code="${1:-$?}"
+  # Should work as normal `exit` in subshells of the main shell.
+  # In unrelated shells, this code won't be imported.
+  if [ $$ -ne $BASHPID ]; then
+    _travis_terminate_exit "$code"
+  else
+    travis_terminate "$code"
+  fi
 }
 
 _travis_terminate_linux() {
@@ -33,16 +40,18 @@ _travis_terminate_unix() {
   awk 'NR==FNR{a[$1]++;next};!($1 in a)' "${TRAVIS_TMPDIR}"/pids_{before,after} |
     xargs kill &>/dev/null || true
   pkill -9 -P "${$}" &>/dev/null || true
-  # shellcheck disable=SC2015 # handling error of either command is intended
-  declare -F exit &>/dev/null && unset -f exit || true
-  exit "${1}"
+  _travis_terminate_exit "$1"
 }
 
 _travis_terminate_windows() {
   # TODO: find all child processes and exit via ... powershell?
+  _travis_terminate_exit "$1"
+}
+
+_travis_terminate_exit() {
   # shellcheck disable=SC2015 # handling error of either command is intended
   declare -F exit &>/dev/null && unset -f exit || true
-  exit "${1}"
+  exit "$1"
 }
 
 _travis_terminate_agent() {
