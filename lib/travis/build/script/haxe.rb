@@ -211,7 +211,7 @@ module Travis
               when 'osx'
                 "mac/haxe_latest.tar.gz"
               when 'windows'
-                "windows/haxe_latest.zip"
+                "windows64/haxe_latest.zip"
               end
               "https://build.haxe.org/builds/haxe/#{file}"
             else
