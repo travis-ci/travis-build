@@ -12,7 +12,7 @@ module Travis
       class Julia < Script
         DEFAULTS = {
           julia: '1',
-          arch: 'x64',
+          arch: 'amd64',
           coveralls: false,
           codecov: false,
         }
@@ -45,7 +45,7 @@ module Travis
                 if config[:julia] == 'nightly' && config[:arch] == 'arm64'
                   sh.failure 'Nightly Julia binaries are not available for AArch64'
                 end
-                if config[:arch] == 'x86'
+                if config[:arch] == 'x86' || config[:arch] == 'i386'
                   # x86 builds still run on x64 images, so we need to ensure the environment
                   # is properly equipped to handle 32-bit binaries
                   if config[:dist] == 'precise'
@@ -147,11 +147,11 @@ module Travis
                 osarch = 'linux/aarch64'
                 ext = 'linux-aarch64.tar.gz'
                 nightlyext = nil  # There are no nightlies for ARM
-              when 'x86'
+              when 'x86', 'i386'
                 osarch = 'linux/x86'
                 ext = 'linux-i686.tar.gz'
                 nightlyext = 'linux32.tar.gz'
-              else
+              when 'x64', 'amd64'
                 osarch = 'linux/x64'
                 ext = 'linux-x86_64.tar.gz'
                 nightlyext = 'linux64.tar.gz'
@@ -166,10 +166,10 @@ module Travis
               nightlyext = 'freebsd64.tar.gz'
             when 'windows'
               case julia_arch
-              when 'x64'
+              when 'x64', 'amd64'
                 osarch = "winnt/x64"
                 ext = 'win64.exe'
-              when 'x86'
+              when 'x86', 'i386'
                 osarch = "winnt/x86"
                 ext = 'win32.exe'
               end
