@@ -138,9 +138,9 @@ module Travis
       end
 
       def source_ssh?
+        return false if prefer_https?
         repo_private? && !installation? or
-        repo_private? && custom_ssh_key? or
-        prefer_https?
+          repo_private? && custom_ssh_key?
       end
 
       def source_host

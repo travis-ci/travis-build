@@ -29,7 +29,7 @@ jobs:
   - stage: ':ship: it to quay.io'
     env:
     script: ./script/docker-build-and-push
-    if: NOT type IN (pull_request) AND branch = master
+    if: type = cron OR commit_message =~ /ship:docker/ OR env(SHIP_DOCKER) = true
 
 before_script:
 - eval "$(script/handle-docker-config)"
