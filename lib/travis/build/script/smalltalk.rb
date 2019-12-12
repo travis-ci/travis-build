@@ -216,10 +216,18 @@ module Travis
               sh.cmd 'sudo ln -f -s /lib/i386-linux-gnu/libpam.so.0 /lib/libpam.so.0'
               sh.cmd 'sudo ln -f -s /usr/lib/i386-lin-gnu/libstdc++.so.6 /usr/lib/i386-linux-gnu/libstdc++.so'
             end
-            sh.if '$(uname -m) != ppc64le && $(lsb_release -cs) = trusty' do
+            sh.elif '$(lsb_release -cs) = trusty' do
               sh.cmd 'sudo dpkg --add-architecture i386'
               gemstone_install_linux_dependencies
               sh.cmd 'sudo ln -f -s /usr/lib/i386-lin-gnu/libstdc++.so.6 /usr/lib/i386-linux-gnu/libstdc++.so'
+            end
+            sh.elif '$(lsb_release -cs) = xenial || $(lsb_release -cs) = bionic' do
+              sh.cmd 'sudo dpkg --add-architecture i386'
+              gemstone_install_linux_dependencies
+            end
+            sh.else do
+              sh.echo 'Unsupported Linux distribution: $(lsb_release -cs)', ansi: :red
+              sh.raw 'travis_assert 1' # Let the build fail
             end
           end
 

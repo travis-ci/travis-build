@@ -130,8 +130,10 @@ module Travis
           %w(
             bash
             csharp
+            generic
             go
             julia
+            minimal
             node_js
             powershell
             rust
