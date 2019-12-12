@@ -225,6 +225,10 @@ module Travis
               sh.cmd 'sudo dpkg --add-architecture i386'
               gemstone_install_linux_dependencies
             end
+            sh.else do
+              sh.echo 'Unsupported Linux distribution: $(lsb_release -cs)', ansi: :red
+              sh.raw 'travis_assert 1' # Let the build fail
+            end
           end
 
           def gemstone_install_linux_dependencies
