@@ -104,7 +104,7 @@ module Travis
                   'build-essential gcc g++ libblas-dev liblapack-dev '\
                   'libncurses5-dev libreadline-dev libjpeg-dev '\
                   'libpcre3-dev libpng-dev zlib1g-dev libbz2-dev liblzma-dev libicu-dev '\
-                  'cdbs qpdf texinfo libssh2-1-dev '\
+                  'cdbs qpdf texinfo libssh2-1-dev devscripts'\
                   "#{optional_apt_pkgs}", retry: true
 
                 r_filename = "R-#{r_version}-$(lsb_release -cs).xz"
