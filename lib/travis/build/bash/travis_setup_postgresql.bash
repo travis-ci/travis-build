@@ -13,6 +13,9 @@ travis_setup_postgresql() {
     xenial)
       version='9.6'
       ;;
+    bionic)
+      version='10'
+      ;;
     *)
       echo -e "${ANSI_RED}Unrecognized operating system.${ANSI_CLEAR}"
       ;;
