@@ -12,7 +12,7 @@ module Travis
           end
 
           def repo_id
-            data.repository[:github_id]
+            data.repository[:vcs_id] || data.repository[:github_id]
           end
 
           def repo_slug
