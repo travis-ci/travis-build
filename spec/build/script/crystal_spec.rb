@@ -26,7 +26,7 @@ describe Travis::Build::Script::Crystal, :sexp do
   context "versions" do
     it "installs latest linux release by default" do
       data[:config][:os] = "linux"
-      should include_sexp [:cmd, "sudo apt-get install -y crystal libgmp-dev"]
+      should include_sexp [:cmd, "sudo snap install crystal --classic --channel=latest/stable"]
     end
 
     it "installs latest macOS release by default" do
@@ -37,13 +37,13 @@ describe Travis::Build::Script::Crystal, :sexp do
     it "installs latest linux release when explicitly asked for" do
       data[:config][:os] = "linux"
       data[:config][:crystal] = "latest"
-      should include_sexp [:cmd, "sudo apt-get install -y crystal libgmp-dev"]
+      should include_sexp [:cmd, "sudo snap install crystal --classic --channel=latest/stable"]
     end
 
     it "installs linux nightly when specified" do
       data[:config][:os] = "linux"
       data[:config][:crystal] = "nightly"
-      should include_sexp [:cmd, "sudo snap install crystal --classic --edge"]
+      should include_sexp [:cmd, "sudo snap install crystal --classic --channel=latest/edge"]
     end
 
     it 'throws a error with a non-release version on macOS' do
