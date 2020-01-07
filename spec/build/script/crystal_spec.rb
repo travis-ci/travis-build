@@ -23,6 +23,11 @@ describe Travis::Build::Script::Crystal, :sexp do
       echo: true, timing: true]
   end
 
+  describe '#cache_slug' do
+    subject { described_class.new(data).cache_slug }
+    it { is_expected.to eq("cache-#{CACHE_SLUG_EXTRAS}-crystal") }
+  end
+
   context "versions" do
     it "installs latest linux release by default" do
       data[:config][:os] = "linux"

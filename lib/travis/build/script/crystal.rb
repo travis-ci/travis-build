@@ -56,6 +56,18 @@ module Travis
           sh.cmd "crystal spec"
         end
 
+        def setup_cache
+          if data.cache?(:shards) && !cache_dirs.empty?
+            sh.fold 'cache.shards' do
+              directory_cache.add cache_dirs
+            end
+          end
+        end
+
+        def cache_slug
+          super << '-crystal'
+        end
+
         private
 
         def validate_version
@@ -70,6 +82,21 @@ module Travis
           end
           sh.cmd %Q(sudo apt-get install -y gcc pkg-config git tzdata libpcre3-dev libevent-dev libyaml-dev libgmp-dev libssl-dev libxml2-dev)
           sh.cmd %Q(sudo snap install crystal --classic #{options})
+        end
+
+        def cache_dirs
+          case config[:os]
+          when 'linux'
+            %W(
+              ${TRAVIS_HOME}/.cache/shards
+            )
+          when 'osx'
+            %W(
+              ${TRAVIS_HOME}/.cache/shards
+            )
+          else
+            []
+          end
         end
       end
     end
