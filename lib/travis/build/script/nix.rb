@@ -49,13 +49,7 @@ module Travis
             sh.cmd "wget --retry-connrefused --waitretry=1 -O /tmp/nix-install https://nixos.org/releases/nix/#{version}/install"
             sh.cmd "yes | sh /tmp/nix-install"
 
-            if config[:os] == 'linux'
-              # single-user install (linux)
-              sh.cmd 'source ${TRAVIS_HOME}/.nix-profile/etc/profile.d/nix.sh'
-            else
-              # multi-user install (macos)
-              sh.cmd 'source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
-            end
+            sh.cmd 'source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
           end
         end
 
