@@ -58,14 +58,17 @@ module Travis
           end
 
           def git_clone
+            Travis::Build.logger.info "XXX GIT CLONE  #{git_cmd} clone #{clone_args} #{data.source_url} #{dir}"
             sh.cmd "#{git_cmd} clone #{clone_args} #{data.source_url} #{dir}", assert: false, retry: true
           end
 
            def git_fetch
+            Travis::Build.logger.info "GIT  FETCH XXXX #{git_cmd} -C #{dir} fetch origin#{fetch_args}"
             sh.cmd "#{git_cmd} -C #{dir} fetch origin#{fetch_args}", assert: true, retry: true
           end
 
           def clone_or_fetch
+            Travis::Build.logger.info "XXXXX CLONE OR FETCH"
             if autocrlf_key_given?
               sh.cmd "git config --global core.autocrlf #{config[:git][:autocrlf].to_s}"
             end
