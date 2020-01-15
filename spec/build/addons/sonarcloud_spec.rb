@@ -12,7 +12,7 @@ describe Travis::Build::Addons::Sonarcloud, :sexp do
   before       { addon.before_before_script }
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['curl -sSLo "${TRAVIS_HOME}/.sonarscanner/sonar-scanner.zip" "http://repo1.maven.org/maven2/org/sonarsource/scanner/cli/sonar-scanner-cli/3.0.3.778/sonar-scanner-cli-3.0.3.778.zip"'] }
+    let(:code) { ['curl -sSLo "${TRAVIS_HOME}/.sonarscanner/sonar-scanner.zip" "https://repo1.maven.org/maven2/org/sonarsource/scanner/cli/sonar-scanner-cli/3.0.3.778/sonar-scanner-cli-3.0.3.778.zip"'] }
   end
 
   describe 'scanner and build wrapper installation' do
