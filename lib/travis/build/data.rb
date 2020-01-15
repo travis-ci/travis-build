@@ -66,7 +66,7 @@ module Travis
       end
 
       def workspace
-        data[:workspace] || cache_options 
+        data[:workspace] || cache_options
       end
 
       def cache(input = config[:cache])
@@ -160,7 +160,7 @@ module Travis
       end
 
       def github_id
-        repository.fetch(:github_id)
+        repository[:vcs_id] || repository.fetch(:github_id)
       end
 
       def repo_private?
