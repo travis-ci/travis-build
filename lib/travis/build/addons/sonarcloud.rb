@@ -11,7 +11,7 @@ module Travis
         SCANNER_CLI_VERSION = "3.0.3.778"
         SCANNER_HOME = "${TRAVIS_HOME}/.sonarscanner"
         CACHE_DIR = "${TRAVIS_HOME}/.sonar/cache"
-        SCANNER_CLI_REPO = "http://repo1.maven.org/maven2"
+        SCANNER_CLI_REPO = "https://repo1.maven.org/maven2"
         BUILD_WRAPPER_LINUX = "build-wrapper-linux-x86"
         BUILD_WRAPPER_MACOSX = "build-wrapper-macosx-x86"
 
