@@ -10,6 +10,7 @@ require 'faraday_middleware'
 require 'minitar'
 require 'rake'
 require 'rubygems'
+require 'tmpdir'
 
 module Travis
   module Build
