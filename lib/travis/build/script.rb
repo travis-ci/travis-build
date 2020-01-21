@@ -332,6 +332,7 @@ module Travis
           apply :set_docker_mtu
           apply :resolvconf
           apply :maven_central_mirror
+          apply :maven_https
           apply :disable_windows_defender
 
           check_deprecation
