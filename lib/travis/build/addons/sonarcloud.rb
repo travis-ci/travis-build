@@ -12,7 +12,7 @@ module Travis
         CACHE_DIR = "${TRAVIS_HOME}/.sonar/cache"
         BUILD_WRAPPER_LINUX = "build-wrapper-linux-x86"
         BUILD_WRAPPER_MACOSX = "build-wrapper-macosx-x86"
-        SCANNER_LOCAL_COPY_URL = "https://#{Travis::Build.config.app_host.to_s.strip}/files/sonar-scanner.zip"
+        SCANNER_LOCAL_COPY_URL = "https://#{Travis::Build.config.app_host.to_s.strip}/files/sonar-scanner.zip".output_safe
 
         SKIP_MSGS = {
           branch_disabled: 'this branch is not master or it does not match declared branches',
