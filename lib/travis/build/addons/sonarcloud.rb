@@ -27,10 +27,6 @@ module Travis
           @unfolded_warnings.each { |x| sh.echo x, echo: false, ansi: :yellow }
         end
 
-        def sonar_cloud_cli_version
-          ENV['TRAVIS_BUILD_SONAR_CLOUD_CLI_VERSION']
-        end
-
         def folded
           sh.echo "SonarCloud addon", echo: false, ansi: :yellow
           sh.echo "addon hash: #{addon_hash}", echo: false
@@ -75,8 +71,9 @@ module Travis
   unzip "#{SCANNER_HOME}/sonar-scanner.zip" -d "#{SCANNER_HOME}"
 SH
           sh.raw(scr, echo: false)
-          sh.export 'SONAR_SCANNER_HOME', "#{SCANNER_HOME}/sonar-scanner-#{sonar_cloud_cli_version}", echo: true
-          sh.export 'PATH', %{"$PATH:#{SCANNER_HOME}/sonar-scanner-#{sonar_cloud_cli_version}/bin"}, echo: false
+          sh.mv "#{SCANNER_HOME}/sonar-scanner-*", "#{SCANNER_HOME}/sonar-scanner"
+          sh.export 'SONAR_SCANNER_HOME', "#{SCANNER_HOME}/sonar-scanner", echo: true
+          sh.export 'PATH', %{"$PATH:#{SCANNER_HOME}/sonar-scanner/bin"}, echo: false
         end
 
         def install_build_wrapper
