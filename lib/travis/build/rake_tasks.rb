@@ -327,6 +327,17 @@ module Travis
         dest.chmod(0o644)
       end
 
+      def file_update_sonar_scanner(version: ENV['TRAVIS_BUILD_SONAR_CLOUD_CLI_VERSION'] || '3.0.3.778')
+        conn = build_faraday_conn(host: 'repo1.maven.org')
+        response = conn.get("/maven2/org/sonarsource/scanner/cli/sonar-scanner-cli/#{version}/sonar-scanner-cli-#{version}.zip")
+        raise 'Could not fetch SonarCloud scanner CLI archive' unless response.success?
+
+        dest = top + "public/files/sonar-scanner.zip"
+        dest.dirname.mkpath
+        dest.write(response.body)
+        dest.chmod(0o644)
+      end
+
       def tmpbin_path
         @tmpbin_path ||= %W[
           #{tmpbin}
@@ -426,6 +437,11 @@ module Travis
         'public/version-aliases/ghc.json'
       ]
 
+      desc 'update sonar-scanner.zip'
+      file 'public/files/sonar-scanner.zip' do
+        file_update_sonar_scanner
+      end
+
       desc 'update static files'
       multitask update_static_files: Rake::FileList[
         'tmp/sc_data.json',
@@ -440,6 +456,7 @@ module Travis
         'public/files/sbt',
         'public/files/sc-linux.tar.gz',
         'public/files/sc-osx.zip',
+        'public/files/sonar-scanner.zip',
         'public/files/tmate-static-linux-amd64.tar.xz',
         'public/files/tmate-static-linux-arm64v8.tar.xz',
         'public/version-aliases/ghc.json',
