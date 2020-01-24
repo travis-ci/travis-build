@@ -42,9 +42,6 @@ module Travis
             case config[:os]
             when 'linux', 'freebsd'
               if config[:os] == 'linux'
-                if config[:julia] == 'nightly' && config[:arch] == 'arm64'
-                  sh.failure 'Nightly Julia binaries are not available for AArch64'
-                end
                 if config[:arch] == 'x86' || config[:arch] == 'i386'
                   # x86 builds still run on x64 images, so we need to ensure the environment
                   # is properly equipped to handle 32-bit binaries
@@ -146,7 +143,7 @@ module Travis
               when 'arm64'
                 osarch = 'linux/aarch64'
                 ext = 'linux-aarch64.tar.gz'
-                nightlyext = nil  # There are no nightlies for ARM
+                nightlyext = 'linuxaarch64.tar.gz'
               when 'x86', 'i386'
                 osarch = 'linux/x86'
                 ext = 'linux-i686.tar.gz'
