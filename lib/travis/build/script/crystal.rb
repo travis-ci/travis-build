@@ -13,9 +13,9 @@ module Travis
             when 'linux'
               validate_version
               if config[:crystal] == 'nightly'
-                snap_install_crystal '--channel=latest/edge'
+                linux_nightly
               else
-                snap_install_crystal '--channel=latest/stable'
+                linux_latest
               end
             when 'osx'
               if config[:crystal] && config[:crystal] != "latest"
@@ -76,12 +76,48 @@ module Travis
           end
         end
 
-        def snap_install_crystal(options)
-          sh.if '"$TRAVIS_DIST" == precise || "$TRAVIS_DIST" == trusty' do
-            sh.failure "Crystal will only be supported on Xenial or later releases"
+        def linux_latest
+          sh.if "-n $(command -v snap)" do
+            snap_install_crystal '--channel=latest/stable'
           end
+          sh.else do
+            apt_install_crystal
+          end
+        end
+
+        def linux_nightly
+          sh.if "-n $(command -v snap)" do
+            snap_install_crystal '--channel=latest/edge'
+          end
+          sh.else do
+            sh.failure "Crystal nightlies will only be supported via snap. Use Xenial or later releases."
+          end
+        end
+
+        def snap_install_crystal(options)
           sh.cmd %Q(sudo apt-get install -y gcc pkg-config git tzdata libpcre3-dev libevent-dev libyaml-dev libgmp-dev libssl-dev libxml2-dev)
           sh.cmd %Q(sudo snap install crystal --classic #{options})
+        end
+
+        def apt_install_crystal
+          version = {
+            url: "https://dist.crystal-lang.org/apt",
+            key: {
+              url: "https://dist.crystal-lang.org/rpm/RPM-GPG-KEY",
+              fingerprint: "5995C83CD754BE448164192909617FD37CC06B54"
+            },
+            package: "crystal"
+          }
+
+          sh.cmd %Q(curl -sSL '#{version[:key][:url]}' > "${TRAVIS_HOME}/crystal_repository_key.asc")
+          sh.if %Q("$(gpg --with-fingerprint "${TRAVIS_HOME}/crystal_repository_key.asc" | grep "Key fingerprint" | cut -d "=" -f2 | tr -d " ")" != "#{version[:key][:fingerprint]}") do
+            sh.failure "The repository key needed to install Crystal did not have the expected fingerprint. Your build was aborted."
+          end
+          sh.cmd %q(sudo sh -c "apt-key add '${TRAVIS_HOME}/crystal_repository_key.asc'")
+
+          sh.cmd %Q(sudo sh -c 'echo "deb #{version[:url]} crystal main" > /etc/apt/sources.list.d/crystal-nightly.list')
+          sh.cmd 'travis_apt_get_update'
+          sh.cmd %Q(sudo apt-get install -y #{version[:package]} libgmp-dev)
         end
 
         def cache_dirs

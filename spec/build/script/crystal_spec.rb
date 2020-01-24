@@ -29,9 +29,13 @@ describe Travis::Build::Script::Crystal, :sexp do
   end
 
   context "versions" do
+    let(:with_snap) { sexp_find(subject, [:if, '-n $(command -v snap)'], [:then]) }
+    let(:without_snap) { sexp_find(subject, [:if, '-n $(command -v snap)'], [:else]) }
+
     it "installs latest linux release by default" do
       data[:config][:os] = "linux"
-      should include_sexp [:cmd, "sudo snap install crystal --classic --channel=latest/stable"]
+      expect(with_snap).to include_sexp [:cmd, "sudo snap install crystal --classic --channel=latest/stable"]
+      expect(without_snap).to include_sexp [:cmd, "sudo apt-get install -y crystal libgmp-dev"]
     end
 
     it "installs latest macOS release by default" do
@@ -42,13 +46,14 @@ describe Travis::Build::Script::Crystal, :sexp do
     it "installs latest linux release when explicitly asked for" do
       data[:config][:os] = "linux"
       data[:config][:crystal] = "latest"
-      should include_sexp [:cmd, "sudo snap install crystal --classic --channel=latest/stable"]
+      expect(with_snap).to include_sexp [:cmd, "sudo snap install crystal --classic --channel=latest/stable"]
     end
 
     it "installs linux nightly when specified" do
       data[:config][:os] = "linux"
       data[:config][:crystal] = "nightly"
-      should include_sexp [:cmd, "sudo snap install crystal --classic --channel=latest/edge"]
+      expect(with_snap).to include_sexp [:cmd, "sudo snap install crystal --classic --channel=latest/edge"]
+      expect(without_snap).to include_sexp [:echo, "Crystal nightlies will only be supported via snap. Use Xenial or later releases."]
     end
 
     it 'throws a error with a non-release version on macOS' do
