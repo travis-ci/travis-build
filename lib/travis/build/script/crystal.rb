@@ -125,6 +125,7 @@ module Travis
           when 'linux'
             %W(
               ${TRAVIS_HOME}/.cache/shards
+              ${TRAVIS_HOME}/snap/crystal/common/.cache/shards
             )
           when 'osx'
             %W(
