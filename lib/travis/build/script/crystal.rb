@@ -96,7 +96,7 @@ module Travis
 
         def snap_install_crystal(options)
           sh.cmd %Q(sudo apt-get install -y gcc pkg-config git tzdata libpcre3-dev libevent-dev libyaml-dev libgmp-dev libssl-dev libxml2-dev)
-          sh.cmd %Q(sudo snap install crystal --classic #{options})
+          sh.cmd %Q(sudo snap install crystal --classic #{options}), echo: true
         end
 
         def apt_install_crystal
