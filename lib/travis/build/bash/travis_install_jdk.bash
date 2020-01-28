@@ -54,4 +54,7 @@ travis_install_jdk_package() {
     fi
     sudo apt-get -yqq --no-install-suggests --no-install-recommends install "$PACKAGE" || true
   fi
+  # `realpath` is preinstalled in Ubuntu Xenial+ and OSX 10.11+ Homebrew
+  travis_cmd 'export JAVA_HOME="$(realpath -Pm "$(which javac)/../../")"' --echo
+  # no need to alter PATH because `adoptopenjdk` installs executables with `update-alternatives`
 }
