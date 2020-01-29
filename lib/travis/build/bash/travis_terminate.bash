@@ -39,10 +39,13 @@ _travis_terminate_windows() {
 
 _travis_terminate_agent() {
   [ ! -f /tmp/travis/agent.pid ] && return
-  sleep 1
   pid=$(cat /tmp/travis/agent.pid)
+
   kill "$pid" &>/dev/null
-  wait "$pid"
+  counter=500
+  while test $((counter--)) -ne 0 -a -f /tmp/travis/agent.pid; do
+    sleep 0.1
+  done
 
   [ -z ${TRAVIS_AGENT_DEBUG+x} ] && return
   echo

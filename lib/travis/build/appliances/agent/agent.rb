@@ -12,6 +12,7 @@ def err(*strs)
 end
 
 module Agent
+  PID = '/tmp/travis/agent.pid'
   DIR = '/tmp/travis/events'
   PAUSE = 0.2
 
@@ -34,6 +35,8 @@ module Agent
       puts 'stopped watching'
       sleep PAUSE
       workers.each(&:stop)
+      puts 'removing pid'
+      FileUtils.rm_rf(PID)
     end
 
     private
@@ -69,6 +72,8 @@ module Agent
 
     def stop
       @stop = true
+      sleep(PAUSE)
+      watch
     end
 
     def watch
