@@ -25,7 +25,7 @@ describe Travis::Build::Script::Crystal, :sexp do
 
   describe '#cache_slug' do
     subject { described_class.new(data).cache_slug }
-    it { is_expected.to eq("cache-#{CACHE_SLUG_EXTRAS}-crystal") }
+    it { is_expected.to eq("cache-#{CACHE_SLUG_EXTRAS}-crystal-latest") }
   end
 
   context "versions" do

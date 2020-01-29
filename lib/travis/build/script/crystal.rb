@@ -2,6 +2,9 @@ module Travis
   module Build
     class Script
       class Crystal < Script
+        DEFAULTS = {
+          crystal: 'latest',
+        }
 
         def configure
           super
@@ -12,13 +15,13 @@ module Travis
             case config[:os]
             when 'linux'
               validate_version
-              if config[:crystal] == 'nightly'
+              if crystal_config_version == 'nightly'
                 linux_nightly
               else
                 linux_latest
               end
             when 'osx'
-              if config[:crystal] && config[:crystal] != "latest"
+              if crystal_config_version != "latest"
                 sh.failure %Q(Specifying Crystal version is not yet supported by the macOS environment)
               end
               sh.cmd %q(brew update)
@@ -65,14 +68,18 @@ module Travis
         end
 
         def cache_slug
-          super << '-crystal'
+          super << '-crystal-' << crystal_config_version
         end
 
         private
 
+        def crystal_config_version
+          Array(config[:crystal]).first.to_s
+        end
+
         def validate_version
-          if config[:crystal] != 'latest' && config[:crystal] != 'nightly' && !config[:crystal].nil?
-            sh.failure %Q("#{config[:crystal]}" is an invalid version of Crystal.\nView valid versions of Crystal at https://docs.travis-ci.com/user/languages/crystal/)
+          if crystal_config_version != 'latest' && crystal_config_version != 'nightly'
+            sh.failure %Q("#{crystal_config_version}" is an invalid version of Crystal.\nView valid versions of Crystal at https://docs.travis-ci.com/user/languages/crystal/)
           end
         end
 
