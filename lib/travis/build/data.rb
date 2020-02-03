@@ -163,6 +163,14 @@ module Travis
         repository[:vcs_id] || repository.fetch(:github_id)
       end
 
+      def vcs_type
+        repository[:vcs_type]
+      end
+
+      def github?
+        vcs_type == 'GithubRepository'
+      end
+
       def repo_private?
         repository[:private]
       end

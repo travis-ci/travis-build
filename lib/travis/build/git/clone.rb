@@ -102,7 +102,7 @@ module Travis
           end
 
           def checkout_ref
-            return 'FETCH_HEAD' if data.pull_request
+            return 'FETCH_HEAD' if data.pull_request && data.github?
             return tag if data.tag
             data.commit
           end
