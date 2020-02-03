@@ -27,7 +27,7 @@ module Travis
 
       def checkout
         disable_interactive_auth
-        enable_longpaths
+        enable_longpaths if config[:os] == 'windows'
         install_ssh_key if install_ssh_key?
         write_netrc if write_netrc?
         sh.newline
@@ -47,9 +47,7 @@ module Travis
         end
 
         def enable_longpaths
-          if config[:os] == 'windows'
-            sh.cmd 'git config --system core.longpaths true', echo: false
-          end
+          sh.cmd 'git config --system core.longpaths true', echo: false
         end
 
         def install_ssh_key?
