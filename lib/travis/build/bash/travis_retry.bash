@@ -5,7 +5,10 @@ travis_retry() {
     [[ "${result}" -ne 0 ]] && {
       echo -e "\\n${ANSI_RED}The command \"${*}\" failed. Retrying, ${count} of 3.${ANSI_RESET}\\n" >&2
     }
-    "${@}" && { result=0 && break; } || result="${?}"
+    # run the command in a way that doesn't disable setting `errexit`
+    "${@}"
+    result="${?}"
+    if [[ $result -eq 0 ]]; then break; fi
     count="$((count + 1))"
     sleep 1
   done
