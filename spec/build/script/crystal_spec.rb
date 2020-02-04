@@ -23,10 +23,19 @@ describe Travis::Build::Script::Crystal, :sexp do
       echo: true, timing: true]
   end
 
+  describe '#cache_slug' do
+    subject { described_class.new(data).cache_slug }
+    it { is_expected.to eq("cache-#{CACHE_SLUG_EXTRAS}-crystal-latest") }
+  end
+
   context "versions" do
+    let(:with_snap) { sexp_find(subject, [:if, '-n $(command -v snap)'], [:then]) }
+    let(:without_snap) { sexp_find(subject, [:if, '-n $(command -v snap)'], [:else]) }
+
     it "installs latest linux release by default" do
       data[:config][:os] = "linux"
-      should include_sexp [:cmd, "sudo apt-get install -y crystal libgmp-dev"]
+      expect(with_snap).to include_sexp [:cmd, "sudo snap install crystal --classic --channel=latest/stable", {echo: true}]
+      expect(without_snap).to include_sexp [:cmd, "sudo apt-get install -y crystal libgmp-dev"]
     end
 
     it "installs latest macOS release by default" do
@@ -37,13 +46,14 @@ describe Travis::Build::Script::Crystal, :sexp do
     it "installs latest linux release when explicitly asked for" do
       data[:config][:os] = "linux"
       data[:config][:crystal] = "latest"
-      should include_sexp [:cmd, "sudo apt-get install -y crystal libgmp-dev"]
+      expect(with_snap).to include_sexp [:cmd, "sudo snap install crystal --classic --channel=latest/stable", {echo: true}]
     end
 
     it "installs linux nightly when specified" do
       data[:config][:os] = "linux"
       data[:config][:crystal] = "nightly"
-      should include_sexp [:cmd, "sudo snap install crystal --classic --edge"]
+      expect(with_snap).to include_sexp [:cmd, "sudo snap install crystal --classic --channel=latest/edge", {echo: true}]
+      expect(without_snap).to include_sexp [:echo, "Crystal nightlies will only be supported via snap. Use Xenial or later releases."]
     end
 
     it 'throws a error with a non-release version on macOS' do

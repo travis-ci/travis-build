@@ -2,6 +2,9 @@ module Travis
   module Build
     class Script
       class Crystal < Script
+        DEFAULTS = {
+          crystal: 'latest',
+        }
 
         def configure
           super
@@ -12,13 +15,13 @@ module Travis
             case config[:os]
             when 'linux'
               validate_version
-              if config[:crystal] == 'nightly'
+              if crystal_config_version == 'nightly'
                 linux_nightly
               else
                 linux_latest
               end
             when 'osx'
-              if config[:crystal] && config[:crystal] != "latest"
+              if crystal_config_version != "latest"
                 sh.failure %Q(Specifying Crystal version is not yet supported by the macOS environment)
               end
               sh.cmd %q(brew update)
@@ -56,15 +59,54 @@ module Travis
           sh.cmd "crystal spec"
         end
 
+        def setup_cache
+          if data.cache?(:shards) && !cache_dirs.empty?
+            sh.fold 'cache.shards' do
+              directory_cache.add cache_dirs
+            end
+          end
+        end
+
+        def cache_slug
+          super << '-crystal-' << crystal_config_version
+        end
+
         private
 
+        def crystal_config_version
+          Array(config[:crystal]).first.to_s
+        end
+
         def validate_version
-          if config[:crystal] != 'latest' && config[:crystal] != 'nightly' && !config[:crystal].nil?
-            sh.failure %Q("#{config[:crystal]}" is an invalid version of Crystal.\nView valid versions of Crystal at https://docs.travis-ci.com/user/languages/crystal/)
+          if crystal_config_version != 'latest' && crystal_config_version != 'nightly'
+            sh.failure %Q("#{crystal_config_version}" is an invalid version of Crystal.\nView valid versions of Crystal at https://docs.travis-ci.com/user/languages/crystal/)
           end
         end
 
         def linux_latest
+          sh.if "-n $(command -v snap)" do
+            snap_install_crystal '--channel=latest/stable'
+          end
+          sh.else do
+            apt_install_crystal
+          end
+        end
+
+        def linux_nightly
+          sh.if "-n $(command -v snap)" do
+            snap_install_crystal '--channel=latest/edge'
+          end
+          sh.else do
+            sh.failure "Crystal nightlies will only be supported via snap. Use Xenial or later releases."
+          end
+        end
+
+        def snap_install_crystal(options)
+          sh.cmd %Q(sudo apt-get install -y gcc pkg-config git tzdata libpcre3-dev libevent-dev libyaml-dev libgmp-dev libssl-dev libxml2-dev 2>&1 > /dev/null), echo: true
+          sh.cmd %Q(sudo snap install crystal --classic #{options}), echo: true
+        end
+
+        def apt_install_crystal
           version = {
             url: "https://dist.crystal-lang.org/apt",
             key: {
@@ -85,14 +127,21 @@ module Travis
           sh.cmd %Q(sudo apt-get install -y #{version[:package]} libgmp-dev)
         end
 
-        def linux_nightly
-          sh.if '"$TRAVIS_DIST" == precise || "$TRAVIS_DIST" == trusty' do
-            sh.failure "Crystal nightlies will only be supported on Xenial or later releases"
+        def cache_dirs
+          case config[:os]
+          when 'linux'
+            %W(
+              ${TRAVIS_HOME}/.cache/shards
+              ${TRAVIS_HOME}/snap/crystal/common/.cache/shards
+            )
+          when 'osx'
+            %W(
+              ${TRAVIS_HOME}/.cache/shards
+            )
+          else
+            []
           end
-          sh.cmd %Q(sudo apt-get install -y gcc pkg-config git tzdata libpcre3-dev libevent-dev libyaml-dev libgmp-dev libssl-dev libxml2-dev)
-          sh.cmd %Q(sudo snap install crystal --classic --edge)
         end
-
       end
     end
   end
