@@ -275,6 +275,14 @@ describe Travis::Build::Addons::Apt, :sexp do
       it { should include_sexp [:cmd, apt_sources_append_command('foobar'), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
       it { should_not include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
+
+      context 'with config gives `sources` as a hash' do
+        let(:apt_config) { { sources: {
+                "sourceline": "deb https://packagecloud.io/chef/stable/ubuntu/ xenial main"
+              } } }
+
+        it { should include_sexp [:cmd, apt_sources_append_command(apt_config[:sources][:sourceline]), echo: true, assert: true, timing: true] }
+      end
     end
   end
 

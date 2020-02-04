@@ -226,7 +226,7 @@ module Travis
           end
 
           def config_sources
-            @config_sources ||= Array(config[:sources]).flatten.compact.map do |src|
+            @config_sources ||= Array([config[:sources]]).flatten.compact.map do |src|
               src.is_a?(String) ? { name: src } : src
             end
           rescue TypeError => e
