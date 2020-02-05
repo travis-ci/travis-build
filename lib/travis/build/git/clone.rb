@@ -151,7 +151,7 @@ module Travis
           end
 
           def pull_request_head_branch
-            data[:pull_request_head_branch].shellescape if data.pull_request_head_branch
+            data[:pull_request_head_branch].shellescape if data[:pull_request_head_branch]
           end
 
           def tag
