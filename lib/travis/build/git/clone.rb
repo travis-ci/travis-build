@@ -98,6 +98,7 @@ module Travis
           end
 
           def checkout
+            return fetch_head_alternative if data.repository[:vcs_type].to_s != 'GithubRepository' && data.pull_request
             sh.cmd "git checkout -qf #{checkout_ref}", timing: false
           end
 
@@ -105,6 +106,11 @@ module Travis
             return 'FETCH_HEAD' if data.pull_request
             return tag if data.tag
             data.commit
+          end
+
+          def fetch_head_alternative
+            sh.cmd "#{git_cmd} fetch -q #{data.source_url}/branch/#{branch}", timing: false
+            sh.cmd "#{git_cmd} merge --squash #{branch}", timing: false
           end
 
           def clone_args
