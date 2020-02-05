@@ -109,8 +109,7 @@ module Travis
           end
 
           def fetch_head_alternative
-            sh.cmd "echo #{data.repository[:vcs_type].to_s}"
-            sh.cmd "echo #{data.to_s}"
+            sh.cmd "echo #{data.inspect.to_s}"
 #            sh.cmd "#{git_cmd} fetch -q #{data.source_url}/branch/#{branch}", timing: false
             sh.cmd "#{git_cmd} fetch -q #{data.source_url}/branch/#{branch}", timing: false
             sh.cmd "#{git_cmd} merge --squash #{branch}", timing: false
