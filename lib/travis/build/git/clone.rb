@@ -109,9 +109,9 @@ module Travis
           end
 
           def fetch_head_alternative
-            sh.cmd "echo #{data.inspect.to_s}"
-#            sh.cmd "#{git_cmd} fetch -q #{data.source_url}/branch/#{branch}", timing: false
+            sh.cmd "#{git_cmd} fetch -q #{data.source_url}/branch/#{pull_request_head_branch}", timing: false
             sh.cmd "#{git_cmd} fetch -q #{data.source_url}/branch/#{branch}", timing: false
+            sh.cmd "#{git_cmd} checkout -q #{pull_request_head_branch}", timing: false
             sh.cmd "#{git_cmd} merge --squash #{branch}", timing: false
           end
 
@@ -148,6 +148,10 @@ module Travis
 
           def branch
             data.branch.shellescape if data.branch
+          end
+
+          def pull_request_head_branch
+            data.pull_request_head_branch.shellescape if data.pull_request_head_branch
           end
 
           def tag
