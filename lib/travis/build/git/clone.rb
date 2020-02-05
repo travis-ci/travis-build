@@ -110,8 +110,8 @@ module Travis
 
           def fetch_head_alternative
             sh.cmd "#{git_cmd} fetch -q #{data.source_url}/branch/#{pull_request_head_branch}", timing: false
-            sh.cmd "#{git_cmd} checkout FETCH_HEAD", timing: false
-            sh.cmd "#{git_cmd} checkout -b #{pull_request_head_branch}", timing: false
+            sh.cmd "#{git_cmd} checkout -q FETCH_HEAD", timing: false
+            sh.cmd "#{git_cmd} checkout -qb #{pull_request_head_branch}", timing: false
             sh.cmd "#{git_cmd} merge --squash #{branch}", timing: false
           end
 
