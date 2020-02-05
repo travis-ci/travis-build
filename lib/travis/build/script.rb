@@ -325,6 +325,8 @@ module Travis
           apply :deprecate_xcode_64
           apply :update_heroku
           apply :shell_session_update
+          apply :maven_central_mirror
+          apply :maven_https
 
           check_deprecation
         end
