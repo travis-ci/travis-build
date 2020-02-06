@@ -98,7 +98,7 @@ module Travis
           end
 
           def checkout
-            return fetch_head_alternative if data.repository[:vcs_type].to_s != '' && data.repository[:vcs_type].to_s != 'GithubRepository' && data.pull_request
+            return fetch_head_alternative if vcs_pull_request?
             sh.cmd "git checkout -qf #{checkout_ref}", timing: false
           end
 
@@ -176,6 +176,10 @@ module Travis
 
           def config
             data.config
+          end
+
+          def vcs_pull_request?
+            data.repository[:vcs_type].to_s != '' && data.repository[:vcs_type].to_s != 'GithubRepository' && data.pull_request
           end
       end
     end
