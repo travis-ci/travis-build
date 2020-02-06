@@ -86,6 +86,7 @@ describe Travis::Build::Git::Clone, :sexp do
   let(:checkout_push) { [:cmd, "git checkout -qf #{payload[:job][:commit]}", assert: true, echo: true] }
   let(:checkout_tag)  { [:cmd, 'git checkout -qf v1.0.0', assert: true, echo: true] }
   let(:checkout_pull) { [:cmd, 'git checkout -qf FETCH_HEAD', assert: true, echo: true] }
+  let(:checkout_pull_fetch_head_alternative) { [:cmd, "git merge --squash #{payload[:job][:branch]}", assert: true, echo: true] }
 
   it { should include_sexp cd }
 
@@ -122,6 +123,13 @@ describe Travis::Build::Git::Clone, :sexp do
   describe 'checks out the given commit for a pull request' do
     before { payload[:job][:pull_request] = true }
     it { should include_sexp checkout_pull }
+  end
+
+  describe 'checks out the given commit for a pull request' do
+    before { payload[:job][:pull_request] = true }
+    before { payload[:job][:pull_request_head_branch] = "#{payload[:job][:branch]}_new" }
+    before { payload[:repository][:vcs_type] = 'BitbucketRepository' }
+    it { should include_sexp checkout_pull_fetch_head_alternative }
   end
 
   context "When sparse_checkout is requested" do
