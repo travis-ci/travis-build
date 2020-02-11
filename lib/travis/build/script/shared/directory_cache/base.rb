@@ -302,7 +302,7 @@ module Travis
               if casher_branch == 'production'
                 static_file_location = "https://#{app_host}/files/#{name}".output_safe
                 app_host_flags = flags
-                if Travis::Build.config.ssl.verify == false
+                if Travis::Build.config&.ssl&.verify == false
                   app_host_flags += '-k'
                 end
                 sh.cmd curl_cmd(app_host_flags, location, static_file_location), cmd_opts
