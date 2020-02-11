@@ -79,7 +79,7 @@ module Travis
                   sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter3.5"'
                   sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u3.5"'
                   sh.cmd 'sudo add-apt-repository -y "ppa:ubuntugis/ppa"'
-                  sh.cmd 'sudo add-apt-repository -y "ppa:opencpu/jq"'
+                  sh.cmd 'sudo add-apt-repository -y "ppa:cran/travis"'
                 end
 
                 # Both c2d4u and c2d4u3.5 depend on this ppa for ffmpeg
@@ -104,7 +104,7 @@ module Travis
                   'build-essential gcc g++ libblas-dev liblapack-dev '\
                   'libncurses5-dev libreadline-dev libjpeg-dev '\
                   'libpcre3-dev libpng-dev zlib1g-dev libbz2-dev liblzma-dev libicu-dev '\
-                  'cdbs qpdf texinfo libssh2-1-dev '\
+                  'cdbs qpdf texinfo libssh2-1-dev devscripts '\
                   "#{optional_apt_pkgs}", retry: true
 
                 r_filename = "R-#{r_version}-$(lsb_release -cs).xz"
@@ -122,9 +122,9 @@ module Travis
                 # output.
                 sh.cmd 'brew update >/dev/null', retry: true
 
-                # R-devel builds available at research.att.com
+                # R-devel builds available at mac.r-project.org
                 if r_version == 'devel'
-                  r_url = "https://r.research.att.com/el-capitan/R-devel/R-devel-el-capitan-signed.pkg"
+                  r_url = "https://mac.r-project.org/el-capitan/R-devel/R-devel-el-capitan.pkg"
 
                 # The latest release is the only one available in /bin/macosx
                 elsif r_version == r_latest
@@ -340,8 +340,8 @@ module Travis
           return if packages.empty?
           packages = Array(packages)
           if config[:os] == 'linux'
-            if !config[:sudo] or config[:dist] == 'precise'
-              sh.echo "R binary packages not supported with 'sudo: false' or 'dist: precise', "\
+            if config[:dist] == 'precise'
+              sh.echo "R binary packages not supported for 'dist: precise', "\
                 ' falling back to source install'
               return r_install packages
             end
@@ -428,7 +428,7 @@ module Travis
                   'if (!requireNamespace("BiocManager", quietly=TRUE))'\
                   '  install.packages("BiocManager");'\
                   "if (#{as_r_boolean(config[:bioc_use_devel])})"\
-                  ' BiocManager::install(version = "devel");'\
+                  ' BiocManager::install(version = "devel", ask = FALSE);'\
                   'cat(append = TRUE, file = "~/.Rprofile.site", "options(repos = BiocManager::repositories());")'
                 end
                 sh.cmd "Rscript -e '#{bioc_install_script}'", retry: true
@@ -589,23 +589,25 @@ module Travis
 
         def normalized_r_version(v=Array(config[:r]).first.to_s)
           case v
-          when 'release' then '3.5.3'
-          when 'oldrel' then '3.4.4'
+          when 'release' then '3.6.2'
+          when 'oldrel' then '3.5.3'
           when '3.0' then '3.0.3'
           when '3.1' then '3.1.3'
           when '3.2' then '3.2.5'
           when '3.3' then '3.3.3'
           when '3.4' then '3.4.4'
           when '3.5' then '3.5.3'
+          when '3.6' then '3.6.2'
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true
+            config[:r] = 'devel'
             normalized_r_version('devel')
           when 'bioc-release'
             config[:bioc_required] = true
             config[:bioc_use_devel] = false
             config[:r] = 'release'
-            normalized_r_version
+            normalized_r_version('release')
           else v
           end
         end
