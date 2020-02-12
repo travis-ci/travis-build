@@ -303,7 +303,7 @@ module Travis
                 static_file_location = "https://#{app_host}/files/#{name}".output_safe
                 app_host_flags = flags
                 if Travis::Build.config&.ssl&.verify == false
-                  app_host_flags += '-k'
+                  app_host_flags += ' -k '
                 end
                 sh.cmd curl_cmd(app_host_flags, location, static_file_location), cmd_opts
                 sh.if "$? -ne 0" do
