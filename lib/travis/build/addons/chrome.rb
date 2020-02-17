@@ -54,7 +54,7 @@ module Travis
 
           def export_source_url
             sh.if "$(uname) = 'Linux'" do
-              pkg_url = "http://dl.google.com/dl/linux/direct/google-chrome-#{version}_current_amd64.deb"
+              pkg_url = "https://dl.google.com/dl/linux/direct/google-chrome-#{version}_current_amd64.deb"
               sh.export 'CHROME_SOURCE_URL', pkg_url
             end
             sh.elif "$(uname) = 'Darwin'" do

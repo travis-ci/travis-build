@@ -3,9 +3,18 @@ module Travis
     class Script
       class Php < Script
         DEFAULTS = {
-          php:      '5.5',
+          php:      '7.2',
           composer: '--no-interaction --prefer-source'
         }
+
+        DEPRECATIONS = [
+          {
+            name: 'PHP',
+            current_default: DEFAULTS[:php],
+            new_default: '7.2',
+            cutoff_date: '2019-03-12',
+          }
+        ]
 
         def configure
           super
@@ -25,7 +34,7 @@ module Travis
               sh.echo "PHP #{version} is supported only on Precise.", ansi: :red
               sh.echo "See https://docs.travis-ci.com/user/reference/trusty#PHP-images on how to test PHP 5.3 on Precise.", ansi: :red
               sh.echo "Terminating.", ansi: :red
-              sh.raw "travis_terminate 1"
+              sh.failure
             end
           end
 
@@ -35,7 +44,7 @@ module Travis
             else
               sh.cmd "phpenv global hhvm 2>/dev/null", assert: true
             end
-            sh.mkdir "$HOME/.phpenv/versions/hhvm/etc/conf.d", recursive: true
+            sh.mkdir "${TRAVIS_HOME}/.phpenv/versions/hhvm/etc/conf.d", recursive: true
           else
             sh.cmd "phpenv global #{version} 2>/dev/null", assert: false
             sh.if "$? -ne 0" do
@@ -44,7 +53,7 @@ module Travis
             unless php_5_3_or_older?
               sh.else do
                 sh.fold "pearrc" do
-                  sh.echo "Writing $HOME/.pearrc", ansi: :yellow
+                  sh.echo "Writing ${TRAVIS_HOME}/.pearrc", ansi: :yellow
                   overwrite_pearrc(version)
                   sh.cmd "pear config-show", echo: true
                 end
@@ -151,7 +160,7 @@ module Travis
               end
 
               sh.cmd 'sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xB4112585D386EB94'
-              sh.cmd 'sudo apt-get update -qq'
+              sh.cmd 'travis_apt_get_update'
               sh.cmd "sudo apt-get install -y hhvm", timing: true, echo: true, assert: true
             end
           end
@@ -159,9 +168,9 @@ module Travis
 
         def install_hhvm_nightly
           sh.echo 'Installing HHVM nightly', ansi: :yellow
-          sh.cmd 'sudo apt-get update -qq'
+          sh.cmd 'travis_apt_get_update'
           sh.cmd 'sudo apt-get install hhvm-nightly -y 2>&1 >/dev/null'
-          sh.cmd 'test -d $HOME/.phpenv/versions/hhvm-nightly || cp -r $HOME/.phpenv/versions/hhvm{,-nightly}', echo: false
+          sh.cmd 'test -d ${TRAVIS_HOME}/.phpenv/versions/hhvm-nightly || cp -r ${TRAVIS_HOME}/.phpenv/versions/hhvm{,-nightly}', echo: false
         end
 
         def fix_hhvm_php_ini
@@ -232,7 +241,7 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
             ]
           ).gsub("__VERSION__", version)
 
-          sh.cmd "echo '<?php error_reporting(0); echo serialize(#{pear_config}) ?>' | php > $HOME/.pearrc", echo: false
+          sh.cmd "echo '<?php error_reporting(0); echo serialize(#{pear_config}) ?>' | php > ${TRAVIS_HOME}/.pearrc", echo: false
         end
       end
     end

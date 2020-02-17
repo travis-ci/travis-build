@@ -5,10 +5,11 @@ module Travis
         def apply
           return unless apply?
 
-          sh.newline
-          sh.echo messages
-          sh.newline
+          sh.fold 'ssh_key' do
+            sh.echo messages
+          end
 
+          sh.mkdir '~/.ssh', recursive: true, echo: false
           sh.file '~/.ssh/id_rsa', key.value
           sh.chmod 600, '~/.ssh/id_rsa', echo: false
           sh.raw 'eval `ssh-agent` &> /dev/null'
@@ -20,8 +21,9 @@ module Travis
         end
 
         private
+
           def apply?
-            !data.prefer_https?
+            data.ssh_key?
           end
 
           def key
@@ -29,7 +31,7 @@ module Travis
           end
 
           def messages
-            msgs = ["Installing an SSH key#{" from: #{source}" if key.source}"]
+            msgs = ["Installing SSH key#{" from: #{source}" if key.source}"]
             msgs << "Key fingerprint: #{key.fingerprint}" if key.fingerprint
             msgs
           end

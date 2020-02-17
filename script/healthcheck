@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'net/http'
+require 'uri'
+Net::HTTP.get(
+  URI("http://localhost:#{ENV.fetch('PORT', '4000')}/uptime")
+)

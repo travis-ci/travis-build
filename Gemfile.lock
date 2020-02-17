@@ -12,45 +12,57 @@ GIT
     jemalloc (1.4.5)
 
 GIT
+  remote: https://github.com/travis-ci/travis-github_apps
+  revision: fb865ee510534006f15553f4ef3746c2610a4668
+  specs:
+    travis-github_apps (0.2.0)
+      activesupport (>= 3.2)
+      faraday
+      faraday_middleware
+      jwt
+      redis
+
+GIT
   remote: https://github.com/travis-ci/travis-rollout
-  revision: 643477fb44ea35d483ed24cc89ced459719c6e6c
-  ref: sf-refactor
+  revision: c79c6d0c76da98ed50b9a3edb30399d7aba8a7e2
   specs:
     travis-rollout (0.0.1)
 
 GIT
   remote: https://github.com/travis-ci/travis-support
-  revision: 113cff17fe383bb72fcfae3a97a8ce98c228342f
+  revision: 77f8dad236002e6103cfdb796308e1a11d8d441e
   specs:
     travis-support (0.0.1)
 
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (4.2.8)
+    activesupport (4.2.11)
       i18n (~> 0.7)
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
-    addressable (2.5.1)
-      public_suffix (~> 2.0, >= 2.0.2)
-    atomic (1.1.99)
+    addressable (2.5.2)
+      public_suffix (>= 2.0.2, < 4.0)
+    ast (2.4.0)
+    atomic (1.1.101)
     avl_tree (1.1.3)
-    backports (3.7.0)
+    backports (3.11.4)
     codeclimate-test-reporter (1.0.8)
       simplecov (<= 0.13)
     coder (0.4.0)
-    coderay (1.1.1)
-    connection_pool (2.2.1)
+    coderay (1.1.2)
+    concurrent-ruby (1.1.4)
+    connection_pool (2.2.2)
     diff-lcs (1.3)
     docile (1.1.5)
-    ethon (0.10.1)
+    ethon (0.11.0)
       ffi (>= 1.3.0)
-    faraday (0.14.0)
+    faraday (0.15.4)
       multipart-post (>= 1.2, < 3)
-    faraday_middleware (0.11.0.1)
+    faraday_middleware (0.12.2)
       faraday (>= 0.7.4, < 1.0)
-    ffi (1.9.18)
+    ffi (1.9.25)
     gh (0.14.0)
       addressable
       backports
@@ -59,10 +71,12 @@ GEM
       net-http-persistent (>= 2.7)
       net-http-pipeline
     hashr (2.0.1)
-    highline (1.7.8)
-    hitimes (1.2.4)
-    i18n (0.8.1)
-    json (2.0.4)
+    highline (1.7.10)
+    hitimes (1.3.0)
+    i18n (0.9.5)
+      concurrent-ruby (~> 1.0)
+    jaro_winkler (1.5.1)
+    json (2.1.0)
     jwt (1.5.6)
     launchy (2.4.3)
       addressable (~> 2.3)
@@ -71,62 +85,85 @@ GEM
       rb-inotify (~> 0.9, >= 0.9.7)
       ruby_dep (~> 1.2)
     metaclass (0.0.4)
-    method_source (0.8.2)
+    method_source (0.9.0)
     metriks (0.9.9.6)
       atomic (~> 1.0)
       avl_tree (~> 1.1.2)
       hitimes (~> 1.1)
-    minitest (5.10.1)
-    mocha (0.10.5)
+    minitar (0.6.1)
+    minitest (5.11.3)
+    mocha (1.7.0)
       metaclass (~> 0.0.1)
-    multi_json (1.12.1)
+    msgpack (1.2.4)
+    multi_json (1.13.1)
     multipart-post (2.0.0)
     net-http-persistent (3.0.0)
       connection_pool (~> 2.2)
     net-http-pipeline (1.0.1)
-    pry (0.10.4)
+    optimist (3.0.0)
+    parallel (1.12.1)
+    parallel_tests (2.23.0)
+      parallel
+    parser (2.5.1.2)
+      ast (~> 2.4.0)
+    powerpack (0.1.2)
+    pry (0.11.3)
       coderay (~> 1.1.0)
-      method_source (~> 0.8.1)
-      slop (~> 3.4)
-    public_suffix (2.0.5)
-    puma (3.8.2)
+      method_source (~> 0.9.0)
+    public_suffix (3.0.3)
+    puma (3.12.0)
     pusher-client (0.6.2)
       json
       websocket (~> 1.0)
-    rack (1.6.9)
+    rack (1.6.11)
     rack-protection (1.5.5)
       rack
     rack-ssl (1.4.1)
       rack
-    rack-test (0.6.3)
-      rack (>= 1.0)
-    rake (12.0.0)
-    rb-fsevent (0.9.8)
-    rb-inotify (0.9.8)
-      ffi (>= 0.5.0)
-    rerun (0.11.0)
+    rack-test (1.1.0)
+      rack (>= 1.0, < 3)
+    rainbow (3.0.0)
+    rake (12.3.1)
+    rb-fsevent (0.10.3)
+    rb-inotify (0.9.10)
+      ffi (>= 0.5.0, < 2)
+    rbtrace (0.4.11)
+      ffi (>= 1.0.6)
+      msgpack (>= 0.4.3)
+      optimist (>= 3.0.0)
+    redis (4.1.0)
+    rerun (0.13.0)
       listen (~> 3.0)
-    rspec (3.5.0)
-      rspec-core (~> 3.5.0)
-      rspec-expectations (~> 3.5.0)
-      rspec-mocks (~> 3.5.0)
-    rspec-core (3.5.4)
-      rspec-support (~> 3.5.0)
-    rspec-expectations (3.5.0)
+    rspec (3.8.0)
+      rspec-core (~> 3.8.0)
+      rspec-expectations (~> 3.8.0)
+      rspec-mocks (~> 3.8.0)
+    rspec-core (3.8.0)
+      rspec-support (~> 3.8.0)
+    rspec-expectations (3.8.1)
       diff-lcs (>= 1.2.0, < 2.0)
-      rspec-support (~> 3.5.0)
-    rspec-mocks (3.5.0)
+      rspec-support (~> 3.8.0)
+    rspec-mocks (3.8.0)
       diff-lcs (>= 1.2.0, < 2.0)
-      rspec-support (~> 3.5.0)
-    rspec-support (3.5.0)
+      rspec-support (~> 3.8.0)
+    rspec-support (3.8.0)
+    rubocop (0.59.2)
+      jaro_winkler (~> 1.5.1)
+      parallel (~> 1.10)
+      parser (>= 2.5, != 2.5.1.1)
+      powerpack (~> 0.1)
+      rainbow (>= 2.2.2, < 4.0)
+      ruby-progressbar (~> 1.7)
+      unicode-display_width (~> 1.0, >= 1.0.1)
+    ruby-progressbar (1.10.0)
     ruby_dep (1.5.0)
-    sentry-raven (2.7.2)
+    sentry-raven (2.7.4)
       faraday (>= 0.7.6, < 1.0)
     simplecov (0.13.0)
       docile (~> 1.1.0)
       json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
-    simplecov-html (0.10.0)
+    simplecov-html (0.10.2)
     sinatra (1.4.8)
       rack (~> 1.5)
       rack-protection (~> 1.4)
@@ -138,10 +175,9 @@ GEM
       rack-test
       sinatra (~> 1.4.0)
       tilt (>= 1.3, < 3)
-    slop (3.6.0)
     thread_safe (0.3.6)
     tilt (2.0.8)
-    travis (1.8.8)
+    travis (1.8.9)
       backports
       faraday (~> 0.9)
       faraday_middleware (~> 0.9, >= 0.9.1)
@@ -150,13 +186,14 @@ GEM
       launchy (~> 2.1)
       pusher-client (~> 0.4)
       typhoeus (~> 0.6, >= 0.6.8)
-    travis-config (1.0.13)
-      hashr (~> 2.0.0)
+    travis-config (1.1.3)
+      hashr (~> 2.0)
     typhoeus (0.8.0)
       ethon (>= 0.8.0)
-    tzinfo (1.2.3)
+    tzinfo (1.2.5)
       thread_safe (~> 0.1)
-    websocket (1.2.4)
+    unicode-display_width (1.4.0)
+    websocket (1.2.8)
 
 PLATFORMS
   ruby
@@ -169,24 +206,29 @@ DEPENDENCIES
   faraday
   faraday_middleware
   jemalloc!
-  jwt
+  jwt (~> 1.5)
   metriks (= 0.9.9.6)
   metriks-librato_metrics!
-  mocha (~> 0.10.0)
+  minitar
+  mocha
+  parallel_tests
   pry
   puma
   rack-ssl (~> 1.4)
   rake
+  rbtrace
   rerun
   rspec (~> 3.0)
+  rubocop
   sentry-raven
   simplecov
   sinatra (~> 1.4)
   sinatra-contrib
   travis
   travis-config
+  travis-github_apps!
   travis-rollout!
   travis-support!
 
 BUNDLED WITH
-   1.15.4
+   1.16.6

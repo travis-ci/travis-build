@@ -3,10 +3,11 @@ require 'spec_helper'
 describe Travis::Build::Env do
   let(:payload) do
     {
+      host: 'travis-ci.com',
       pull_request: '100',
       config: { env: ['FOO=foo', 'SECURE BAR=bar'] },
       build: { id: '1', number: '1' },
-      job: { id: '1', number: '1.1', branch: 'foo-(dev)', commit: '313f61b', commit_range: '313f61b..313f61a', commit_message: 'the commit message', os: 'linux' },
+      job: { id: '1', number: '1.1', branch: 'foo-(dev)', commit: '03148a8', commit_range: '03148a8..f9da1fd', commit_message: 'the commit message', os: 'linux' },
       repository: { slug: 'travis-ci/travis-ci' },
       env_vars: [
         { name: 'BAM', value: 'bam', public: true },
@@ -22,7 +23,7 @@ describe Travis::Build::Env do
 
   it 'includes travis env vars' do
     travis_vars = vars.select { |v| v.key =~ /^TRAVIS_/ }
-    expect(travis_vars.length).to eq(23)
+    expect(travis_vars.length).to eq(25)
   end
 
   describe 'config env vars' do
@@ -94,13 +95,21 @@ describe Travis::Build::Env do
   end
 
   describe 'TRAVIS_BUILD_DIR' do
-    it 'does not escape $HOME' do
-      expect(vars.find {|var| var.key == 'TRAVIS_BUILD_DIR'}.value).to eq('$HOME/build/travis-ci/travis-ci')
+    it "does not escape #{Travis::Build::BUILD_DIR}" do
+      expect(vars.find {|var| var.key == 'TRAVIS_BUILD_DIR'}.value).
+        to eq("#{Travis::Build::BUILD_DIR}/#{payload[:repository][:slug]}")
     end
 
     it 'escapes the repository slug' do
       payload[:repository][:slug] = 'travis-ci/travis-ci ci'
-      expect(vars.find {|var| var.key == 'TRAVIS_BUILD_DIR'}.value).to eq('$HOME/build/travis-ci/travis-ci\ ci')
+      expect(vars.find {|var| var.key == 'TRAVIS_BUILD_DIR'}.value).
+        to eq("#{Travis::Build::BUILD_DIR}/travis-ci/travis-ci\\ ci")
+    end
+  end
+  describe '*_URL env vars' do
+    it 'are set to correct value' do
+      expect(vars.find {|var| var.key == 'TRAVIS_BUILD_WEB_URL'}.value).to eq('https://travis-ci.com/travis-ci/travis-ci/builds/1')
+      expect(vars.find {|var| var.key == 'TRAVIS_JOB_WEB_URL'}.value).to eq('https://travis-ci.com/travis-ci/travis-ci/jobs/1')
     end
   end
 end

@@ -3,8 +3,9 @@ require 'travis/support'
 module Travis
   module Build
     autoload :Config, 'travis/build/config'
+    autoload :Bash, 'travis/build/bash'
 
-    HOME_DIR  = '$HOME'
+    HOME_DIR  = '${HOME}'
     BUILD_DIR = File.join(HOME_DIR, 'build')
 
     def config
@@ -13,10 +14,23 @@ module Travis
 
     module_function :config
 
+    def top
+      @top ||= Pathname.new(
+        `git rev-parse --show-toplevel 2>/dev/null`.strip
+      )
+    end
+
+    module_function :top
+
     class << self
       def version
-        @version ||= `git rev-parse HEAD 2>/dev/null || \\
-                        echo "${HEROKU_SLUG_COMMIT:-unknown}"`.strip
+        return @version if @version
+        @version ||= `git describe --always --dirty --tags 2>/dev/null`.strip
+        @version = nil unless $?.success?
+        @version ||= ENV.fetch('HEROKU_SLUG_COMMIT', nil)
+        @version ||= top.join('VERSION').read if top.join('VERSION').exist?
+        @version ||= 'unknown'
+        @version
       end
 
       def self.register(key)
@@ -56,6 +70,7 @@ module Travis
 end
 
 require 'core_ext/hash/deep_symbolize_keys'
+require 'core_ext/string/output_safe'
 require 'travis/shell'
 require 'travis/build/data'
 require 'travis/build/env'

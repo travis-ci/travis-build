@@ -28,19 +28,29 @@ module Travis
           end
 
           def show_travis_build_version
-            if ENV['HEROKU_SLUG_COMMIT']
-              sh.echo "travis-build version: #{ENV['HEROKU_SLUG_COMMIT']}".untaint
-            end
+            return if heroku_slug_commit.empty?
+            sh.echo "travis-build version: #{heroku_slug_commit}"
           end
 
           def show_system_info_file
             sh.if "-f #{info_file}" do
               sh.cmd "cat #{info_file}"
             end
+            sh.if "-f #{secondary_info_file}" do
+              sh.cmd "cat #{secondary_info_file}"
+            end
           end
 
           def info_file
             '/usr/share/travis/system_info'
+          end
+
+          def secondary_info_file
+            '/usr/local/travis/system_info'
+          end
+
+          def heroku_slug_commit
+            @heroku_slug_commit ||= ENV['HEROKU_SLUG_COMMIT'].to_s.output_safe
           end
       end
     end

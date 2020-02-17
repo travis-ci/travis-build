@@ -1,0 +1,34 @@
+inherit_from: .rubocop_todo.yml
+
+AllCops:
+  TargetRubyVersion: 2.5
+  Include:
+  - '**/Gemfile'
+  - '**/Rakefile'
+  - '**/config.ru'
+  - '**/lib/core_ext/**/*.rb'
+  - '**/lib/travis/build/rake_tasks.rb'
+  - '**/script/{build-s3-index-html,compile}'
+  Exclude:
+  - 'tmp/**/*'
+  - 'public/files/**/*'
+
+Metrics/AbcSize:
+  Max: 50
+
+Metrics/MethodLength:
+  Max: 50
+
+Metrics/ModuleLength:
+  Max: 500
+
+Style/ModuleFunction:
+  Exclude:
+  - '**/lib/travis/build/rake_tasks.rb'
+
+Style/Documentation:
+  Enabled: false
+
+Style/MixinUsage:
+  Exclude:
+  - Rakefile

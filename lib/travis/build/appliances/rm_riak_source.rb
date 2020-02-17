@@ -7,7 +7,7 @@ module Travis
         def apply
           command = <<-EOF
           if [[ -d /var/lib/apt/lists && -n $(command -v apt-get) ]]; then
-            grep -l -i -r basho /etc/apt/sources.list.d | xargs sudo rm -vf
+            grep -l -i -r basho /etc/apt/sources.list.d | xargs sudo rm -f
           fi
           EOF
           sh.cmd command, echo: false

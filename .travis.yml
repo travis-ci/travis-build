@@ -1,69 +1,62 @@
 language: ruby
+sudo: required
+dist: xenial
+rvm: 2.4.2
 
 cache:
   bundler: true
 
-dist: trusty
-
-sudo: false
-
-rvm: 2.3.4
-
 env:
   global:
   - COVERAGE=1
-  - RUBYOPT=-W0
   matrix:
   - INTEGRATION_SPECS=0
   - INTEGRATION_SPECS=1
 
 stages:
-  - "test"
-  - ":ship: it to Quay.io"
+- test
+- ':ship: it to Quay.io'
 
 jobs:
   allow_failures:
-    - script: ./script/docker-build-and-push
-    - script: "bundle exec rake update_static_files"
+  - script: ./script/docker-build-and-push
   include:
-    - stage: "test"
-      sudo: required
-      dist: trusty
-      env:
-      script: ./script/validate-example-payloads-with-docker
-    - stage: "test update_static_files Rake task"
-      script: "bundle exec rake update_static_files"
-    - stage: ":ship: it to Quay.io"
-      sudo: required
-      dist: trusty
-      env:
-      script: ./script/docker-build-and-push
-      if: (NOT type IN (pull_request)) AND (branch = master)
+  - stage: test
+    env:
+    script: ./script/validate-example-payloads-with-docker
+  - stage: ':ship: it to Quay.io'
+    env:
+    script: ./script/docker-build-and-push
+    if: NOT type IN (pull_request) AND branch = master
 
 before_script:
-  - bundle exec rake clean assets:precompile
-  # specific to enterprise-2.2 branch given the lack of the
-  # `assert_examples` rake task
-  - unset DOCKER_HOST
+- eval "$(script/handle-docker-config)"
+- bundle exec rake clean assets:precompile
 
 script:
-  - bundle exec rake spec
-  - ./script/validate-bash-syntax
+- bundle exec rspec spec
+- bundle exec rake shfmt
+- bundle exec rake assert_clean
+- bundle exec rake shellcheck
+- bundle exec rake assert_examples
 
 after_success: bundle exec codeclimate-test-reporter
 
-before_deploy: ruby script/build_s3_index_html.rb
+after_failure: bundle exec rake dump_examples_logs
+
+before_deploy:
+- sudo pip install -U -I Pygments
+- ./script/build-s3-index-html
 
 deploy:
   provider: s3
   access_key_id:
-    secure: "fXt5NG5UGDvpnRFvUUk9J//iSo+Vh28oEUJvjZqiUZ9GRHp5TrIS5vL4bPlD/1RrJRp7BVVj1+4ThXZRzrMhF5xazK8k4ANaUhMdjmRa6arXtqBcXIyUvu//5e80nlXekqMKaW7f5wrLNiKZB+ck7ayGlI1NYLNQ5nCWC6Xxe6s="
+    secure: fXt5NG5UGDvpnRFvUUk9J//iSo+Vh28oEUJvjZqiUZ9GRHp5TrIS5vL4bPlD/1RrJRp7BVVj1+4ThXZRzrMhF5xazK8k4ANaUhMdjmRa6arXtqBcXIyUvu//5e80nlXekqMKaW7f5wrLNiKZB+ck7ayGlI1NYLNQ5nCWC6Xxe6s=
   secret_access_key:
-    secure: "Jn9clQh78C2c1zoueTkn0r5kSCHrbb7bMojb8/Ne+6zg0pD/3w25mrhEC4y9b3M/lHoKArOPj4dn03ZErJleM8aOMNMIa6ck8GKP+7EoFlZ/1/C5733HazlldTWDd2+wTOYfSIGOM+mHDP5tmK0S7pr1zEm+/++UExuGZXiCSSI="
+    secure: Jn9clQh78C2c1zoueTkn0r5kSCHrbb7bMojb8/Ne+6zg0pD/3w25mrhEC4y9b3M/lHoKArOPj4dn03ZErJleM8aOMNMIa6ck8GKP+7EoFlZ/1/C5733HazlldTWDd2+wTOYfSIGOM+mHDP5tmK0S7pr1zEm+/++UExuGZXiCSSI=
   bucket: travis-build-examples
   local_dir: examples
   skip_cleanup: true
-  endpoint: travis-build-examples.s3-website-us-east-1.amazonaws.com
   region: us-east-1
   on:
     branch: master

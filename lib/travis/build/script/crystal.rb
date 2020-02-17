@@ -14,14 +14,14 @@ module Travis
               version = select_apt_version
               return unless version
 
-              sh.cmd %Q(curl -sSL '#{version[:key][:url]}' > "$HOME/crystal_repository_key.asc")
-              sh.if %Q("$(gpg --with-fingerprint "$HOME/crystal_repository_key.asc" | grep "Key fingerprint" | cut -d "=" -f2 | tr -d " ")" != "#{version[:key][:fingerprint]}") do
+              sh.cmd %Q(curl -sSL '#{version[:key][:url]}' > "${TRAVIS_HOME}/crystal_repository_key.asc")
+              sh.if %Q("$(gpg --with-fingerprint "${TRAVIS_HOME}/crystal_repository_key.asc" | grep "Key fingerprint" | cut -d "=" -f2 | tr -d " ")" != "#{version[:key][:fingerprint]}") do
                 sh.failure "The repository key needed to install Crystal did not have the expected fingerprint. Your build was aborted."
               end
-              sh.cmd %q(sudo sh -c "apt-key add '$HOME/crystal_repository_key.asc'")
+              sh.cmd %q(sudo sh -c "apt-key add '${TRAVIS_HOME}/crystal_repository_key.asc'")
 
               sh.cmd %Q(sudo sh -c 'echo "deb #{version[:url]} crystal main" > /etc/apt/sources.list.d/crystal-nightly.list')
-              sh.cmd %q(sudo sh -c 'apt-get update')
+              sh.cmd 'travis_apt_get_update'
               sh.cmd %Q(sudo apt-get install -y #{version[:package]} libgmp-dev)
             when 'osx'
               if config[:crystal] && config[:crystal] != "latest"
@@ -40,7 +40,7 @@ module Travis
 
           sh.echo 'Crystal for Travis-CI is not officially supported, but is community maintained.', ansi: :green
           sh.echo 'Please file any issues using the following link', ansi: :green
-          sh.echo '  https://github.com/travis-ci/travis-ci/issues/new?labels=community:crystal', ansi: :green
+          sh.echo '  https://travis-ci.community/c/languages/crystal', ansi: :green
           sh.echo 'and mention \`@jhass\`, \`@matiasgarciaisaia\`, \`@waj\` and \`@will\` in the issue', ansi: :green
         end
 
@@ -49,7 +49,7 @@ module Travis
 
           sh.cmd 'crystal --version'
           sh.cmd 'shards --version'
-          sh.echo ''
+          sh.newline
         end
 
         def install

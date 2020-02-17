@@ -11,6 +11,15 @@ module Travis
         def setup
           super
 
+          if user_provided_gemfile
+            sh.if user_provided_gemfile? do
+              sh.echo "Using #{user_provided_gemfile}"
+            end
+            sh.else do
+              sh.failure "#{user_provided_gemfile} not found, cannot continue"
+            end
+          end
+
           sh.if gemfile? do
             sh.export 'BUNDLE_GEMFILE', "$PWD/#{config[:gemfile]}"
           end
@@ -26,7 +35,7 @@ module Travis
 
           sh.if gemfile? do
             sh.if gemfile_lock? do
-              sh.echo ''
+              sh.newline
               if data.cache?(:bundler)
                 sh.fold 'cache.bundler' do
                   directory_cache.add(bundler_path(false))
@@ -35,7 +44,7 @@ module Travis
             end
             sh.else do
               # Cache bundler if it has been explicitly enabled
-              sh.echo ''
+              sh.newline
               if data.cache?(:bundler, false)
                 sh.fold 'cache.bundler' do
                   directory_cache.add(bundler_path(false))
@@ -59,6 +68,10 @@ module Travis
               sh.cmd bundler_install, fold: "install.bundler", retry: true
             end
           end
+          sh.else do
+            sh.echo 'No Gemfile found, skipping bundle install'
+          end
+          sh.newline
         end
 
         def prepare_cache
@@ -70,6 +83,14 @@ module Travis
         end
 
         private
+
+          def user_provided_gemfile
+            raw_data[:config] && raw_data[:config][:gemfile]
+          end
+
+          def user_provided_gemfile?
+            "-f #{user_provided_gemfile}"
+          end
 
           def gemfile?
             "-f ${BUNDLE_GEMFILE:-#{config[:gemfile]}}"

@@ -33,12 +33,12 @@ module Travis
               end
             end
 
-            sh.file "travis_debug.sh", template('travis_debug.sh')
+            sh.file "travis_debug.sh", bash('travis_debug', encode: true), decode: true
             sh.chmod '+x', "travis_debug.sh", echo: false
 
-            sh.mkdir "#{HOME_DIR}/.ssh", echo: false, recursive: true
-            sh.cmd "cat /dev/zero | ssh-keygen -q -f #{HOME_DIR}/.ssh/tmate -N '' &> /dev/null", echo: false
-            sh.file "#{HOME_DIR}/.tmate.conf", template("tmate.conf", identity: "#{HOME_DIR}/.ssh/tmate")
+            sh.mkdir "${TRAVIS_HOME}/.ssh", echo: false, recursive: true
+            sh.cmd "cat /dev/zero | ssh-keygen -q -f ${TRAVIS_HOME}/.ssh/tmate -N '' &> /dev/null", echo: false
+            sh.file "${TRAVIS_HOME}/.tmate.conf", template("tmate.conf.erb", identity: "${TRAVIS_HOME}/.ssh/tmate")
 
             sh.export 'PATH', "${PATH}:#{install_dir}", echo: false
 
@@ -46,9 +46,11 @@ module Travis
           sh.raw '}'
 
           sh.raw 'function travis_debug() {'
+            sh.cmd 'rm ${TRAVIS_HOME}/.netrc'
             sh.raw 'travis_debug_install'
             sh.echo "Preparing debug sessions."
             sh.raw 'TRAVIS_CMD=travis_debug'
+            sh.raw 'export TRAVIS_DEBUG_MODE=true'
             sh.raw 'travis_debug.sh "$@"'
           sh.raw '}'
         end
@@ -62,7 +64,7 @@ module Travis
 
         private
           def install_dir
-            "#{HOME_DIR}/.debug"
+            "${TRAVIS_HOME}/.debug"
           end
 
           # XXX the following does not apply to OSX

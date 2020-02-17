@@ -25,7 +25,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
   context "when after_success is also present" do
     let(:scripts) { { after_success: ["echo hello"], before_deploy: ['./before_deploy_1.sh', './before_deploy_2.sh'], after_deploy: ['./after_deploy_1.sh', './after_deploy_2.sh'] } }
 
-    it { store_example "integration-after_success_and_deploy" }
+    it { store_example(name: 'after success and deploy') }
   end
 
   describe 'deploys if conditions apply' do
@@ -36,13 +36,25 @@ describe Travis::Build::Addons::Deploy, :sexp do
     it { expect(sexp).to include_sexp [:cmd, './before_deploy_2.sh', assert: true, echo: true, timing: true] }
     it "installs dpl < 1.9 if travis_internal_ruby returns 1.9*" do
       expect(
-        sexp_find(sexp, [:if, "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*"], [:then])
+        sexp_filter(
+          sexp_filter(
+            sexp,
+            [:if, "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*"]
+          )[0],
+          [:if, "-e $HOME/.rvm/scripts/rvm"]
+        )[0]
       ).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl -v '< 1.9' ", echo: true, assert: true, timing: true]
     end
 
     it "installs latest dpl if travis_internal_ruby does not return 1.9*" do
       expect(
-        sexp_find(sexp, [:if, "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*"], [:else])
+        sexp_filter(
+          sexp_filter(
+            sexp,
+            [:if, "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*"]
+          )[0],
+          [:if, "-e $HOME/.rvm/scripts/rvm"]
+        )[1]
       ).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl", echo: true, assert: true, timing: true]
     end
     it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl', echo: true, assert: true, timing: true] }
@@ -107,7 +119,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
 
     it { should match_sexp [:if, '($TRAVIS_BRANCH = master)'] }
     it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
-    it { store_example "edge"}
+    it { store_example(name: 'edge') }
   end
 
   context 'when a mix of edge and release dpl are tested' do
@@ -116,7 +128,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
 
     it { should match_sexp [:if, '($TRAVIS_BRANCH = master)'] }
     it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
-    it { store_example "edge"}
+    it { store_example(name: 'edge') }
   end
 
   describe 'on tags' do
@@ -137,7 +149,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
     # it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=nodejitsu --user=foo --api_key=bar --fold', assert: true, timing: true] }
     it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider="nodejitsu" --user="foo" --api_key="bar" --fold; if [ $? -ne 0 ]; then echo "failed to deploy"; travis_terminate 2; fi', timing: true] }
     it { should_not include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
-    it { store_example "multiple-providers" }
+    it { store_example(name: 'multiple providers') }
 
     context 'when dpl switches from release to edge' do
       let(:heroku)    { { provider: 'heroku', password: 'foo', email: 'user@host', on: { condition: '$FOO = foo' } } }
@@ -162,7 +174,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
       let(:second_deploy) { sexp_find(subject, [:fold, "dpl_1"]) }
 
       it { expect(second_deploy).to_not include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
-      it { store_example "identical-edges" }
+      it { store_example(name: 'identical edges') }
     end
 
     context 'when edge dpl definitions change' do
@@ -193,7 +205,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
     let(:sexp)   { sexp_filter(subject, [:if, '($TRAVIS_BRANCH = master) && ($FOO = foo)'], [:else])[1] }
 
     let(:is_pull_request)  { [:echo, 'Skipping a deployment with the heroku provider because the current build is a pull request.', ansi: :yellow] }
-    let(:not_permitted)    { [:echo, 'Skipping a deployment with the heroku provider because this branch is not permitted', ansi: :yellow] }
+    let(:not_permitted)    { [:echo, 'Skipping a deployment with the heroku provider because this branch is not permitted: master', ansi: :yellow] }
     let(:custom_condition) { [:echo, 'Skipping a deployment with the heroku provider because a custom condition was not met', ansi: :yellow] }
 
     # it { p subject; p sexp; expect(sexp_find(sexp, [:if, '(! (-z $TRAVIS_PULL_REQUEST))'])).to include_sexp is_pull_request }
@@ -201,7 +213,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
     # it { expect(sexp_find(sexp, [:if, '(! ($FOO = foo))'])).to include_sexp custom_condition }
     it { expect(sexp_find(sexp, [:if, ' ! ($TRAVIS_BRANCH = master)'])).to include_sexp not_permitted }
     it { expect(sexp_find(sexp, [:if, ' ! ($FOO = foo)'])).to include_sexp custom_condition }
-    it { store_example "custom-condition-fails" }
+    it { store_example(name: 'custom condition fails') }
   end
 
   describe 'deploy with compound condition fails' do
@@ -229,4 +241,3 @@ describe Travis::Build::Addons::Deploy, :sexp do
     end
   end
 end
-

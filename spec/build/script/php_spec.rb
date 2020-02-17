@@ -6,6 +6,8 @@ describe Travis::Build::Script::Php, :sexp do
   subject(:sexp) { script.sexp }
   it             { store_example }
 
+  it_behaves_like 'a bash script'
+
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=php'] }
     let(:cmds) { ['phpunit'] }
@@ -14,11 +16,11 @@ describe Travis::Build::Script::Php, :sexp do
   it_behaves_like 'a build script sexp'
 
   it 'sets TRAVIS_PHP_VERSION' do
-    should include_sexp [:export, ['TRAVIS_PHP_VERSION', '5.5']]
+    should include_sexp [:export, ['TRAVIS_PHP_VERSION', '7.2']]
   end
 
   it 'sets up the php version' do
-    should include_sexp [:cmd, 'phpenv global 5.5 2>/dev/null', echo: true, timing: true]
+    should include_sexp [:cmd, 'phpenv global 7.2 2>/dev/null', echo: true, timing: true]
     should include_sexp [:cmd, 'phpenv rehash']
   end
 
@@ -34,6 +36,35 @@ describe Travis::Build::Script::Php, :sexp do
     should include_sexp [:cmd, 'phpunit', echo: true, timing: true]
   end
 
+  context "with minimal config" do
+    before do
+      data[:config][:language] = 'php'; data[:config].delete(:php)
+      described_class.send :remove_const, :DEPRECATIONS
+      described_class.const_set("DEPRECATIONS", [
+        {
+          name: 'PHP',
+          current_default: '5.5',
+          new_default: '7.3',
+          cutoff_date: '2018-03-15',
+        }
+      ])
+    end
+
+    context "before default change cutoff date" do
+      before do
+        DateTime.stubs(:now).returns(DateTime.parse("2018-01-01"))
+      end
+      it { should include_sexp [:echo, /Using the default PHP version/, ansi: :yellow] }
+    end
+
+    context "after default change cutoff date" do
+      before do
+        DateTime.stubs(:now).returns(DateTime.parse("2019-01-01"))
+      end
+      it { should_not include_sexp [:echo, /Using the default PHP version/, ansi: :yellow] }
+    end
+  end
+
   describe 'installs php nightly' do
     before { data[:config][:php] = 'nightly' }
     # expect(sexp).to include_sexp [:raw, "archive_url=https://s3.amazonaws.com/travis-php-archives/php-#{version}-archive.tar.bz2"]
@@ -43,36 +74,38 @@ describe Travis::Build::Script::Php, :sexp do
   context 'with php nightly' do
     describe 'writes ~/.pearrc if necessary' do
       before { data[:config][:php] = 'nightly' }
-      it { should include_sexp [:echo, 'Writing $HOME/.pearrc', ansi: :yellow] }
+      it { should include_sexp [:echo, 'Writing ${TRAVIS_HOME}/.pearrc', ansi: :yellow] }
     end
   end
 
   context 'with unrecognized php version' do
     describe 'writes ~/.pearrc if necessary' do
       before { data[:config][:php] = 'foobar' }
-      it { should include_sexp [:echo, 'Writing $HOME/.pearrc', ansi: :yellow] }
+      it { should include_sexp [:echo, 'Writing ${TRAVIS_HOME}/.pearrc', ansi: :yellow] }
     end
   end
 
   context 'with php 5.4' do
     describe 'writes ~/.pearrc if necessary' do
       before { data[:config][:php] = '5.4' }
-      it { should include_sexp [:echo, 'Writing $HOME/.pearrc', ansi: :yellow] }
+      it { should include_sexp [:echo, 'Writing ${TRAVIS_HOME}/.pearrc', ansi: :yellow] }
     end
   end
 
   context 'with php 5.3' do
     before { data[:config][:php] = '5.3' }
-    after { store_example "5.3" }
+    after { store_example(name: '5.3') }
     describe 'does not write ~/.pearrc' do
-      it { should_not include_sexp [:echo, 'Writing $HOME/.pearrc', ansi: :yellow] }
+      it { should_not include_sexp [:echo, 'Writing ${TRAVIS_HOME}/.pearrc', ansi: :yellow] }
     end
 
     describe 'when running on non-Precise image' do
       let(:sexp) { sexp_find(sexp_filter(subject, [:if, "$(lsb_release -sc 2>/dev/null) != precise"])[0], [:then]) }
 
       it "terminates early" do
-        expect(sexp).to include_sexp [:raw, "travis_terminate 1", assert: true]
+        # These are the last commands of sh.failure
+        expect(sexp).to include_sexp [:raw, "set -e", assert: true]
+        expect(sexp).to include_sexp [:raw, "false", assert: true]
       end
     end
   end
@@ -98,14 +131,14 @@ describe Travis::Build::Script::Php, :sexp do
 
   describe 'installs hhvm-nightly' do
     before { data[:config][:php] = 'hhvm-nightly' }
-    it { should include_sexp [:cmd, 'sudo apt-get update -qq'] }
+    it { should include_sexp [:cmd, 'travis_apt_get_update'] }
     it { should include_sexp [:cmd, 'sudo apt-get install hhvm-nightly -y 2>&1 >/dev/null'] }
-    it { store_example "hhvm-nightly" }
+    it { store_example(name: 'hhvm-nightly') }
   end
 
   describe 'installs specific hhvm version' do
     before { data[:config][:php] = 'hhvm-3.12' }
-    it { should include_sexp [:cmd, 'sudo apt-get update -qq'] }
+    it { should include_sexp [:cmd, 'travis_apt_get_update'] }
     it { should include_sexp [:cmd, 'sudo apt-get install -y hhvm', timing: true, assert: true, echo: true] }
     it { should include_sexp [:raw, "echo \"deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc)-lts-3.12 main\" | sudo tee -a /etc/apt/sources.list >&/dev/null"] }
   end
