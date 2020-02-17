@@ -1,29 +1,26 @@
-FROM ubuntu:latest
-#FROM armv7/armhf-ubuntu
-#FROM ppc64le/ubuntu:latest
 
-LABEL maintainer Travis CI GmbH <support+travis-app-docker-images@travis-ci.com>
+FROM ruby:2.5.3 as builder
+WORKDIR /app
 
-RUN apt-get -qq update && apt-get -qq upgrade -y && apt-get -qq install apt-utils
+ARG GITHUB_OAUTH_TOKEN=notset
 
-RUN apt-get -qq install -y wget git ruby ruby-dev build-essential clang libffi-dev
+COPY . .
 
-RUN gem install ffi
+RUN git describe --always --dirty --tags | tee VERSION
+RUN bundle install --frozen --deployment --without='development test' --clean
+RUN bundle exec rake assets:precompile GITHUB_OAUTH_TOKEN=$GITHUB_OAUTH_TOKEN
+RUN tar -cjf public.tar.bz2 public && rm -rf public
 
-RUN gem install bundler
+FROM ruby:2.5.3-slim
+LABEL maintainer Travis CI GmbH <support+travis-build-docker-images@travis-ci.com>
+WORKDIR /app
 
-RUN bundle config --global frozen 1
+ENV TRAVIS_BUILD_DUMP_BACKTRACE true
+ENV PORT 4000
 
-RUN mkdir -p /usr/src/app
+COPY --from=builder /app /app
+COPY --from=builder /usr/local/bundle/config /usr/local/bundle/config
 
-WORKDIR /usr/src/app
-
-COPY Gemfile      /usr/src/app
-
-COPY Gemfile.lock /usr/src/app
-
-RUN bundle install
-
-COPY . /usr/src/app
-
-CMD bundle exec je puma -I lib -p ${PORT:-4000} -t ${PUMA_MIN_THREADS:-8}:${PUMA_MAX_THREADS:-12} -w ${PUMA_WORKERS:-2}
+HEALTHCHECK --interval=5s CMD script/healthcheck
+EXPOSE 4000/tcp
+CMD ["script/server"]
