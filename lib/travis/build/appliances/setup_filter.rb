@@ -106,7 +106,11 @@ module Travis
           end
 
           def secrets
-            @secrets ||= env.groups.flat_map(&:vars).select(&:secure?).map(&:value)
+            @secrets ||= env_secrets.concat(data.secrets).uniq
+          end
+
+          def env_secrets
+            env.groups.flat_map(&:vars).select(&:secure?).map(&:value)
           end
 
           def env
