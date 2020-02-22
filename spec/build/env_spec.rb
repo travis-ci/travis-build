@@ -92,7 +92,7 @@ describe Travis::Build::Env do
         expect(keys).to_not include('BAZ')
       end
     end
-    
+
     describe 'for env jobs (pull requests) restricted to branch' do
       it 'includes vars restricted to foo-(dev) branch' do
         expect(keys).to include('FOODEV')
@@ -107,7 +107,7 @@ describe Travis::Build::Env do
         expect(vars.find {|var| var.key == 'MULTIBRANCHVARIABLE'}.value).to_not eq('footestvalue')
       end
     end
-    
+
   end
 
   it 'escapes TRAVIS_ vars' do

@@ -10,6 +10,7 @@ require 'travis/build/appliances'
 require 'travis/build/errors'
 require 'travis/build/git'
 require 'travis/build/helpers'
+require 'travis/build/perforce'
 require 'travis/build/stages'
 
 require 'travis/build/script/android'
