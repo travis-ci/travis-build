@@ -9,6 +9,8 @@ module Travis
         YARN_REQUIRED_NODE_VERSION = '4'
 
         NPM_CI_CMD_VERSION = '5.8.0'
+        # See https://github.com/yarnpkg/yarn/releases/tag/v0.19.0.
+        YARN_FROZEN_LOCKFILE_OPTION_VERSION = '0.19.0'
 
         def export
           super
@@ -61,7 +63,12 @@ module Travis
                 npm_install config[:npm_args]
               end
               sh.else do
-                sh.cmd "yarn", retry: true, fold: 'install'
+                sh.if yarn_supports_frozen_lockfile? do
+                  sh.cmd "yarn --frozen-lockfile", retry: true, fold: 'install'
+                end
+                sh.else do
+                  sh.cmd "yarn", retry: true, fold: 'install'
+                end
               end
             end
             sh.else do
@@ -252,6 +259,10 @@ module Travis
 
           def packages_locked?
             "$(travis_vers2int `npm -v`) -ge $(travis_vers2int #{NPM_CI_CMD_VERSION}) && (-f npm-shrinkwrap.json || -f package-lock.json)"
+          end
+
+          def yarn_supports_frozen_lockfile?
+            "$(travis_vers2int `yarn -v`) -ge $(travis_vers2int #{YARN_FROZEN_LOCKFILE_OPTION_VERSION})"
           end
       end
     end
