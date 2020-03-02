@@ -184,6 +184,10 @@ module Travis
           sh.raw "travis_rel=$(sw_vers -productVersion)"
           sh.raw "travis_rel_version=${travis_rel%*.*}"
         end
+        sh.elif "$(uname) = 'FreeBSD'" do
+          sh.raw "travis_host_os=freebsd"
+          sh.raw "travis_rel_version=$(uname -r | rev | cut -c9- | rev)"
+        end
         lang = 'python' if lang.start_with?('py')
         "archive_url=https://#{lang_archive_prefix(lang, bucket)}/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/#{file_name}"
       end
