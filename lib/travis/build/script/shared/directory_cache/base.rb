@@ -59,7 +59,6 @@ module Travis
           attr_reader :sh, :data, :slug, :start, :msgs, :archive_type
 
           def initialize(sh, data, slug, start = Time.now, archive_type = 'cache')
-            puts "gce.initialize: #{sh.to_s} #{data.to_s} #{slug} #{data.github_id}"
             @sh = sh
             @data = data
             @slug = slug
@@ -168,7 +167,6 @@ module Travis
           end
 
           def push
-            puts "gcs.push: #{push_url.to_s} #{Shellwords.escape(push_url.to_s)}"
             run('push', Shellwords.escape(push_url.to_s), assert: false, timing: true)
           end
 
@@ -181,9 +179,7 @@ module Travis
 
           def push_url(branch = group)
             prefix = prefixed(uri_normalize_name(branch), true, true)
-            puts "gcs.push_url: #{prefix}"
             if prefix
-              puts "gcs.push_url 222: #{url('PUT', prefix, expires: push_timeout)}"
               url('PUT', prefix, expires: push_timeout)
             end
           end
@@ -278,12 +274,10 @@ module Travis
 
               args.map!(&:to_s)
               return if args.any? {|part| part.empty?}
-              puts "gce.prefixed: #{'/' << args.join('/') << '.tgz'}"
               '/' << args.join('/') << '.tgz'
             end
 
             def url(verb, path, options = {})
-              puts "gce.url: #{verb}, #{path}, #{options.to_s}, #{signature(verb, path, options).to_uri.to_s.output_safe}"
               signature(verb, path, options).to_uri.to_s.output_safe
             end
 
