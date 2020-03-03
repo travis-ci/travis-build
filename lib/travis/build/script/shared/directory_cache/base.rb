@@ -274,7 +274,7 @@ module Travis
 
               args.map!(&:to_s)
               return if args.any? {|part| part.empty?}
-              
+
               '/' << args.join('/') << '.tgz'
             end
 
