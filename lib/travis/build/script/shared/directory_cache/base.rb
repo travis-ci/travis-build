@@ -179,6 +179,7 @@ module Travis
           end
 
           def push_url(branch = group)
+            puts "gcs.push_url: #{branch}"
             prefix = prefixed(uri_normalize_name(branch), true, true)
             if prefix
               url('PUT', prefix, expires: push_timeout)
@@ -352,6 +353,7 @@ module Travis
             end
 
             def uri_normalize_name(branch)
+              puts "gcs.uri_normalize_name: #{branch} #{URI.encode(branch)}"
               URI.encode(branch)
             end
 
