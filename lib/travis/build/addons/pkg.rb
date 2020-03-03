@@ -36,7 +36,7 @@ module Travis
             FETCH_RETRY=5
             FETCH_TIMEOUT=30
           PKG_CONF
-          sh.cmd %Q{su -m root -c "mv #{tmp_test} ${TRAVIS_ROOT}/usr/local/etc/pkg.conf"}
+          sh.cmd %Q{su -m root -c "mv #{tmp_dest} ${TRAVIS_ROOT}/usr/local/etc/pkg.conf"}
           if config[:branch].to_s.downcase != 'quarterly'
             sed_find = 'pkg+http://pkg.FreeBSD.org/\([^/]*\)/quarterly'
             sed_replace = 'pkg+http://pkg.FreeBSD.org/\1/' + config[:branch]
