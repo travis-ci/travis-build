@@ -167,6 +167,7 @@ module Travis
           end
 
           def push
+            puts "gcs.push: #{push_url.to_s} #{Shellwords.escape(push_url.to_s)}"
             run('push', Shellwords.escape(push_url.to_s), assert: false, timing: true)
           end
 
