@@ -277,7 +277,7 @@ module Travis
 
               args.map!(&:to_s)
               return if args.any? {|part| part.empty?}
-
+              puts "gce.prefixed: #{slug_local}, #{branch}, #{args.to_s}"
               '/' << args.join('/') << '.tgz'
             end
 
