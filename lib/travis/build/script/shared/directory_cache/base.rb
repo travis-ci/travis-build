@@ -59,6 +59,7 @@ module Travis
           attr_reader :sh, :data, :slug, :start, :msgs, :archive_type
 
           def initialize(sh, data, slug, start = Time.now, archive_type = 'cache')
+            puts "gce.initialize: #{sh} #{data} #{slug}"
             @sh = sh
             @data = data
             @slug = slug
