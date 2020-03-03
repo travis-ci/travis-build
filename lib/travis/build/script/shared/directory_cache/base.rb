@@ -282,6 +282,7 @@ module Travis
             end
 
             def url(verb, path, options = {})
+              path.gsub!('{', '%7B').gsub('}', '%7D')
               puts "gce.url: #{verb}, #{path}, #{options.to_s}, #{signature(verb, path, options).to_uri.to_s.output_safe}"
               signature(verb, path, options).to_uri.to_s.output_safe
             end
