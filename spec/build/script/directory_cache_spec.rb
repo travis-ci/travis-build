@@ -91,6 +91,12 @@ describe Travis::Build::Script::DirectoryCache, :sexp do
 
         it { expect(file_name).to eq "cache-#{CACHE_SLUG_EXTRAS}--rvm-default--gemfile-Gemfile.tgz" }
       end
+
+      context 'when looking for cache with extra information and arch name' do
+        let(:file_name) { URI(cache.fetch_url('foo', true, true)).path.split('/').last }
+
+        it { expect(file_name).to eq "cache-#{data[:config][:arch]}-#{CACHE_SLUG_EXTRAS}--rvm-default--gemfile-Gemfile.tgz" }
+      end
     end
   end
 
@@ -99,12 +105,12 @@ describe Travis::Build::Script::DirectoryCache, :sexp do
       let(:config) { { cache: 'bundler' } }
       let(:file_name) { URI(cache.push_url).path.split('/').last }
 
-      it { expect(file_name).to eq "cache-#{CACHE_SLUG_EXTRAS}--rvm-default--gemfile-Gemfile.tgz" }
+      it { expect(file_name).to eq "cache-#{data[:config][:arch]}-#{CACHE_SLUG_EXTRAS}--rvm-default--gemfile-Gemfile.tgz" }
 
       context 'and "os: osx"' do
         let(:config) { { cache: 'bundler', os: 'osx' } }
 
-        it { expect(file_name).to eq "cache-#{CACHE_SLUG_EXTRAS.gsub('linux','osx')}--rvm-default--gemfile-Gemfile.tgz" }
+        it { expect(file_name).to eq "cache-#{data[:config][:arch]}-#{CACHE_SLUG_EXTRAS.gsub('linux','osx')}--rvm-default--gemfile-Gemfile.tgz" }
       end
     end
   end

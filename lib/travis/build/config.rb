@@ -113,6 +113,7 @@ module Travis
             )
           ).split(',').map { |s| URI.unescape(s.strip) }
         },
+        redis: { url: 'redis://localhost:6379' },
         sentry_dsn: ENV.fetch(
           'TRAVIS_BUILD_SENTRY_DSN', ENV.fetch('SENTRY_DSN', '')
         ),
@@ -129,8 +130,10 @@ module Travis
           %w(
             bash
             csharp
+            generic
             go
             julia
+            minimal
             node_js
             powershell
             rust

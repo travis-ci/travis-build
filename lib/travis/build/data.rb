@@ -66,7 +66,7 @@ module Travis
       end
 
       def workspace
-        data[:workspace] || cache_options 
+        data[:workspace] || cache_options
       end
 
       def cache(input = config[:cache])
@@ -121,6 +121,10 @@ module Travis
         !!job[:secure_env_removed]
       end
 
+      def secrets
+        Array(data[:secrets])
+      end
+
       def disable_sudo?
         !!data[:paranoid]
       end
@@ -138,9 +142,9 @@ module Travis
       end
 
       def source_ssh?
+        return false if prefer_https?
         repo_private? && !installation? or
-        repo_private? && custom_ssh_key? or
-        prefer_https?
+          repo_private? && custom_ssh_key?
       end
 
       def source_host
@@ -160,7 +164,7 @@ module Travis
       end
 
       def github_id
-        repository.fetch(:github_id)
+        repository[:vcs_id] || repository.fetch(:github_id)
       end
 
       def repo_private?
@@ -221,6 +225,10 @@ module Travis
 
       def installation_token
         GithubApps.new(installation_id).access_token
+      rescue RuntimeError => e
+        if e.message =~ /Failed to obtain token from GitHub/
+          raise Travis::Build::GithubAppsTokenFetchError.new
+        end
       end
 
       def workspaces

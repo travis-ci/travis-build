@@ -3,6 +3,7 @@ travis_terminate() {
     return
   fi
 
+  _travis_terminate_agent
   "_travis_terminate_${TRAVIS_OS_NAME}" "${@}"
 }
 
@@ -34,4 +35,22 @@ _travis_terminate_unix() {
 _travis_terminate_windows() {
   # TODO: find all child processes and exit via ... powershell?
   exit "${1}"
+}
+
+_travis_terminate_agent() {
+  [ ! -f /tmp/travis/agent.pid ] && return
+  pid=$(cat /tmp/travis/agent.pid)
+
+  kill "$pid" &>/dev/null
+  counter=500
+  while test $((counter--)) -ne 0 -a -f /tmp/travis/agent.pid; do
+    sleep 0.1
+  done
+
+  [ -z ${TRAVIS_AGENT_DEBUG+x} ] && return
+  echo
+  travis_fold start agent.debug
+  echo 'cat /tmp/travis/agent.log'
+  cat /tmp/travis/agent.log
+  travis_fold end agent.debug
 }

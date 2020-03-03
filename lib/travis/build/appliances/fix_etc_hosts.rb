@@ -5,7 +5,7 @@ module Travis
     module Appliances
       class FixEtcHosts < Base
         def apply
-          sh.raw %(sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'.bak' /etc/hosts)
+          sh.raw %(sudo sed -e 's/^\\(127\\.0\\.0\\.1.*\\)$/\\1 '`hostname`'/' -i'.bak' /etc/hosts 2> /dev/null)
         end
 
         def apply?

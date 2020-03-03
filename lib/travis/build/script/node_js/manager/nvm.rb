@@ -51,7 +51,7 @@ module Travis
 
           def install_version(ver)
             sh.fold "nvm.install" do
-              sh.cmd "nvm install #{ver}", assert: false, timing: true
+              sh.cmd "nvm install #{ver}#{devnull}", assert: false, timing: true
               sh.if '$? -ne 0' do
                 sh.echo "Failed to install #{ver}. Remote repository may not be reachable.", ansi: :red
                 sh.echo "Using locally available version #{ver}, if applicable."
@@ -62,6 +62,14 @@ module Travis
                 end
               end
               sh.export 'TRAVIS_NODE_VERSION', ver, echo: false
+            end
+          end
+
+          def devnull
+            if node_js.version.start_with? '0'
+              ' 2>/dev/null'
+            else
+              ''
             end
           end
 

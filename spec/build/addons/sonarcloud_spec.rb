@@ -12,12 +12,11 @@ describe Travis::Build::Addons::Sonarcloud, :sexp do
   before       { addon.before_before_script }
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['curl -sSLo "${TRAVIS_HOME}/.sonarscanner/sonar-scanner.zip" "http://repo1.maven.org/maven2/org/sonarsource/scanner/cli/sonar-scanner-cli/3.0.3.778/sonar-scanner-cli-3.0.3.778.zip"'] }
   end
 
   describe 'scanner and build wrapper installation' do
-    it { should include_sexp [:export, ['SONAR_SCANNER_HOME', '${TRAVIS_HOME}/.sonarscanner/sonar-scanner-3.0.3.778'], {:echo=>true}] }
-    it { should include_sexp [:export, ['PATH', "\"$PATH:${TRAVIS_HOME}/.sonarscanner/sonar-scanner-3.0.3.778/bin\""]] }
+    it { should include_sexp [:export, ['SONAR_SCANNER_HOME', '${TRAVIS_HOME}/.sonarscanner/sonar-scanner'], {:echo=>true}] }
+    it { should include_sexp [:export, ['PATH', "\"$PATH:${TRAVIS_HOME}/.sonarscanner/sonar-scanner/bin\""]] }
     it { should include_sexp [:mkdir, "$sq_build_wrapper_dir", {:recursive=>true}] }
     it { should include_sexp [:export, ['PATH', "\"$PATH:$sq_build_wrapper_dir/build-wrapper-linux-x86\""]] }
   end
@@ -25,8 +24,8 @@ describe Travis::Build::Addons::Sonarcloud, :sexp do
   describe 'skip build wrapper installation with java' do
     let(:data) { super().merge(config: { :language => 'java' })}
 
-    it { should include_sexp [:export, ['SONAR_SCANNER_HOME', '${TRAVIS_HOME}/.sonarscanner/sonar-scanner-3.0.3.778'], {:echo=>true}] }
-    it { should include_sexp [:export, ['PATH', "\"$PATH:${TRAVIS_HOME}/.sonarscanner/sonar-scanner-3.0.3.778/bin\""]] }
+    it { should include_sexp [:export, ['SONAR_SCANNER_HOME', '${TRAVIS_HOME}/.sonarscanner/sonar-scanner'], {:echo=>true}] }
+    it { should include_sexp [:export, ['PATH', "\"$PATH:${TRAVIS_HOME}/.sonarscanner/sonar-scanner/bin\""]] }
     it { should_not include_sexp [:mkdir, "$sq_build_wrapper_dir", {:recursive=>true}] }
     it { should_not include_sexp [:export, ['PATH', "\"$PATH:$sq_build_wrapper_dir/build-wrapper-linux-x86\""]] }
   end
@@ -34,8 +33,8 @@ describe Travis::Build::Addons::Sonarcloud, :sexp do
   describe 'skip build wrapper with invalid OS' do
     let(:data) { super().merge(config: { :language => 'unkown' })}
 
-    it { should include_sexp [:export, ['SONAR_SCANNER_HOME', '${TRAVIS_HOME}/.sonarscanner/sonar-scanner-3.0.3.778'], {:echo=>true}] }
-    it { should include_sexp [:export, ['PATH', "\"$PATH:${TRAVIS_HOME}/.sonarscanner/sonar-scanner-3.0.3.778/bin\""]] }
+    it { should include_sexp [:export, ['SONAR_SCANNER_HOME', '${TRAVIS_HOME}/.sonarscanner/sonar-scanner'], {:echo=>true}] }
+    it { should include_sexp [:export, ['PATH', "\"$PATH:${TRAVIS_HOME}/.sonarscanner/sonar-scanner/bin\""]] }
     it { should include_sexp [:echo, "Can't install SonarSource build wrapper for platform: $TRAVIS_OS_NAME.", {:ansi=>:red}] }
     it { should_not include_sexp [:export, ['PATH', "\"$PATH:$sq_build_wrapper_dir/build-wrapper-linux-x86\""]] }
   end

@@ -138,17 +138,17 @@ module Travis
                 next
               end
 
-              if source = source_alias_lists[config_dist][src]
+              if source = source_alias_lists[config_dist][src[:name]]
                 if source.respond_to?(:[]) && source['sourceline']
                   safelisted << source.clone
                 else
-                  sh.echo "'sourceline' is missing in the alias #{src}", ansi: :yellow
-                  sh.echo Shellwords.escape(src.inspect)
+                  sh.echo "'sourceline' is missing in the alias #{src[:name]}", ansi: :yellow
+                  sh.echo Shellwords.escape(src[:name].inspect)
                 end
               elsif !data.disable_sudo? || skip_safelist?
                 add_to_safelisted src
               elsif source.nil?
-                disallowed << src
+                disallowed << src[:name]
               end
             end
 
@@ -178,18 +178,16 @@ module Travis
           end
 
           def add_to_safelisted(src)
-            if src.respond_to?(:has_key?)
-              if src.has_key?(:sourceline)
-                safelisted << {
-                  'sourceline' => src[:sourceline],
-                  'key_url' => src[:key_url]
-                }
-              else
-                sh.echo "'sourceline' key missing:", ansi: :yellow
-                sh.echo Shellwords.escape(src.inspect)
-              end
+            if src.has_key?(:sourceline)
+              safelisted << {
+                'sourceline' => src[:sourceline],
+                'key_url' => src[:key_url]
+              }
+            elsif src.keys == [:key_url]
+              sh.echo "'sourceline' key missing:", ansi: :yellow
+              sh.echo Shellwords.escape(src.inspect)
             else
-              disallowed_while_sudo << src
+              disallowed_while_sudo << src[:name]
             end
           end
 
@@ -228,7 +226,9 @@ module Travis
           end
 
           def config_sources
-            @config_sources ||= Array(config[:sources]).flatten.compact
+            @config_sources ||= Array([config[:sources]]).flatten.compact.map do |src|
+              src.is_a?(String) ? { name: src } : src
+            end
           rescue TypeError => e
             if e.message =~ /no implicit conversion of Symbol into Integer/
               raise Travis::Build::AptSourcesConfigError.new

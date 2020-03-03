@@ -20,10 +20,10 @@ describe Travis::Build::Script::Haxe, :sexp do
   end
 
   it 'announces haxe -version' do
-    should include_sexp [:cmd, /haxe -version/, echo: true]
+    should include_sexp [:cmd, /haxe -version/, assert: true, echo: true]
   end
 
   it 'announces neko -version' do
-    should include_sexp [:cmd, /neko -version/, echo: true]
+    should include_sexp [:cmd, /neko -version/, assert: true, echo: true]
   end
 end

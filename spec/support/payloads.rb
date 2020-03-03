@@ -8,6 +8,7 @@ PAYLOADS = {
     'host' => 'travis-ci.com',
     'config' => {
       'os' => 'linux',
+      'arch' => 'amd64',
       'env' => ['FOO=foo', 'SECURE BAR=bar']
     },
     'repository' => {

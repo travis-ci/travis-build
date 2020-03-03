@@ -277,16 +277,17 @@ module Travis
         fetch_githubusercontent_file 'sormuras/bach/master/install-jdk.sh'
       end
 
-      def file_update_tmate
-        latest_release = '2.2.1'
+      def file_update_tmate(arch)
+        latest_release = latest_release_for('tmate-io/tmate')
         logger.info "Latest tmate release is #{latest_release}"
+
         fetch_githubusercontent_file(
           File.join(
             'tmate-io/tmate/releases/download',
             latest_release,
-            "tmate-#{latest_release}-static-linux-amd64.tar.gz"
+            "tmate-#{latest_release}-static-linux-#{arch}.tar.xz"
           ),
-          host: 'github.com', to: 'tmate-static-linux-amd64.tar.gz'
+          host: 'github.com', to: "tmate-static-linux-#{arch}.tar.xz"
         )
       end
 
@@ -323,6 +324,17 @@ module Travis
         dest = top + 'public/version-aliases/ghc.json'
         dest.dirname.mkpath
         dest.write(JSON.pretty_generate(out))
+        dest.chmod(0o644)
+      end
+
+      def file_update_sonar_scanner(version: ENV['TRAVIS_BUILD_SONAR_CLOUD_CLI_VERSION'] || '3.0.3.778')
+        conn = build_faraday_conn(host: 'repo1.maven.org')
+        response = conn.get("/maven2/org/sonarsource/scanner/cli/sonar-scanner-cli/#{version}/sonar-scanner-cli-#{version}.zip")
+        raise 'Could not fetch SonarCloud scanner CLI archive' unless response.success?
+
+        dest = top + "public/files/sonar-scanner.zip"
+        dest.dirname.mkpath
+        dest.write(response.body)
         dest.chmod(0o644)
       end
 
@@ -373,9 +385,14 @@ module Travis
       desc 'update install-jdk.sh'
       file('public/files/install-jdk.sh') { file_update_install_jdk_sh }
 
-      desc 'update tmate'
-      file 'public/files/tmate-static-linux-amd64.tar.gz' do
-        file_update_tmate
+      desc 'update tmate for amd64'
+      file 'public/files/tmate-static-linux-amd64.tar.xz' do
+        file_update_tmate 'amd64'
+      end
+
+      desc 'update tmate for arm64v8'
+      file 'public/files/tmate-static-linux-arm64v8.tar.xz' do
+        file_update_tmate 'arm64v8'
       end
 
       desc 'update rustup'
@@ -420,6 +437,11 @@ module Travis
         'public/version-aliases/ghc.json'
       ]
 
+      desc 'update sonar-scanner.zip'
+      file 'public/files/sonar-scanner.zip' do
+        file_update_sonar_scanner
+      end
+
       desc 'update static files'
       multitask update_static_files: Rake::FileList[
         'tmp/sc_data.json',
@@ -434,7 +456,9 @@ module Travis
         'public/files/sbt',
         'public/files/sc-linux.tar.gz',
         'public/files/sc-osx.zip',
-        'public/files/tmate-static-linux-amd64.tar.gz',
+        'public/files/sonar-scanner.zip',
+        'public/files/tmate-static-linux-amd64.tar.xz',
+        'public/files/tmate-static-linux-arm64v8.tar.xz',
         'public/version-aliases/ghc.json',
       ]
 

@@ -40,8 +40,8 @@ describe Travis::Build::Git, :sexp do
     let(:https) { "https://github.com/#{payload[:repository][:slug]}.git" }
     let(:cmd)   { [:cmd, /git clone.* #{send(protocol)}/] }
 
-    it 'clones via ssh' do
-      expect(sexp_find(subject, cmd)).to_not be_nil
+    it "clones via #{protocol}" do
+      expect(sexp_find(subject, cmd)).to_not match_array([])
     end
   end
 

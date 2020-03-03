@@ -33,26 +33,26 @@ describe Travis::Build::Script::Python, :sexp do
   it 'sets up the python version (pypy)' do
     data[:config][:python] = 'pypy'
     should include_sexp [:cmd,  'source ~/virtualenv/pypy/bin/activate', assert: true, echo: true, timing: true]
-    should include_sexp [:cmd,  "curl -sSf -o pypy.tar.bz2 ${archive_url}", echo: true, timing: true]
+    should include_sexp [:cmd,  "curl -sSf --retry 5 -o pypy.tar.bz2 ${archive_url}", echo: true, timing: true]
   end
 
   it 'sets up the python version (pypy-5.3.1)' do
     data[:config][:python] = 'pypy-5.3.1'
     should include_sexp [:cmd,  'source ~/virtualenv/pypy-5.3.1/bin/activate', assert: true, echo: true, timing: true]
-    should include_sexp [:cmd,  "curl -sSf -o pypy-5.3.1.tar.bz2 ${archive_url}", echo: true, timing: true]
+    should include_sexp [:cmd,  "curl -sSf --retry 5 -o pypy-5.3.1.tar.bz2 ${archive_url}", echo: true, timing: true]
     should include_sexp [:cmd,  "rm pypy-5.3.1.tar.bz2"]
   end
 
   it 'sets up the python version (pypy3.3-5.2-alpha1)' do
     data[:config][:python] = 'pypy3.3-5.2-alpha1'
     should include_sexp [:cmd,  'source ~/virtualenv/pypy3.3-5.2-alpha1/bin/activate', assert: true, echo: true, timing: true]
-    should include_sexp [:cmd,  "curl -sSf -o pypy3.3-5.2-alpha1.tar.bz2 ${archive_url}", echo: true, timing: true]
+    should include_sexp [:cmd,  "curl -sSf --retry 5 -o pypy3.3-5.2-alpha1.tar.bz2 ${archive_url}", echo: true, timing: true]
     should include_sexp [:cmd,  "rm pypy3.3-5.2-alpha1.tar.bz2"]
   end
 
   it 'sets up the python version (pypy3)' do
     data[:config][:python] = 'pypy3'
-    should include_sexp [:cmd,  "curl -sSf -o pypy3.tar.bz2 ${archive_url}", echo: true, timing: true]
+    should include_sexp [:cmd,  "curl -sSf --retry 5 -o pypy3.tar.bz2 ${archive_url}", echo: true, timing: true]
     should include_sexp [:cmd,  'source ~/virtualenv/pypy3/bin/activate', assert: true, echo: true, timing: true]
   end
 

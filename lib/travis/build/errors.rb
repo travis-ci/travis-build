@@ -81,5 +81,13 @@ module Travis
         '/user/installing-dependencies'
       end
     end
+    
+    class GithubAppsTokenFetchError < CompilationError
+      def initialize(msg = "Unable to fetch GitHub Apps Token. GitHub may be unavailable. " \
+        "Check https://githubstatus.com. If GitHub is available, restart may resolve the "  \
+        "temporary problem.")
+        super
+      end
+    end
   end
 end

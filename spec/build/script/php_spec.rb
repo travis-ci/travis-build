@@ -67,7 +67,7 @@ describe Travis::Build::Script::Php, :sexp do
 
   describe 'installs php nightly' do
     before { data[:config][:php] = 'nightly' }
-    it { should include_sexp [:cmd, 'curl -s -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /', echo: true, timing: true] }
+    it { should include_sexp [:cmd, 'curl -sSf --retry 5 -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /', echo: true, timing: true] }
   end
 
   context 'with php nightly' do
@@ -141,7 +141,7 @@ describe Travis::Build::Script::Php, :sexp do
     it { should include_sexp [:cmd, 'sudo apt-get install -y hhvm', timing: true, assert: true, echo: true] }
     it { should include_sexp [:raw, "echo \"deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc)-lts-3.12 main\" | sudo tee -a /etc/apt/sources.list >&/dev/null"] }
   end
-  
+
   describe 'when desired PHP version is not found' do
     let(:version) { '7.0.0beta2' }
     let(:data) { payload_for(:push, :php, config: { php: version }) }
@@ -149,7 +149,7 @@ describe Travis::Build::Script::Php, :sexp do
 
     it 'installs PHP version on demand' do
       expect(sexp).to include_sexp [:raw, "archive_url=https://s3.amazonaws.com/travis-php-archives/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/php-#{version}.tar.bz2", assert: true]
-      expect(sexp).to include_sexp [:cmd, "curl -s -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /", echo: true, timing: true]
+      expect(sexp).to include_sexp [:cmd, "curl -sSf --retry 5 -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /", echo: true, timing: true]
     end
   end
 

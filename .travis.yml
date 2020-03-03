@@ -2,6 +2,9 @@ language: ruby
 dist: xenial
 rvm: 2.5.3
 
+services:
+  - redis
+
 cache:
   bundler: true
 
@@ -14,7 +17,7 @@ env:
 
 stages:
 - test
-- ':ship: it to Quay.io'
+- ':ship: it to quay.io'
 
 jobs:
   allow_failures:
@@ -23,10 +26,10 @@ jobs:
   - stage: test
     env:
     script: ./script/validate-example-payloads-with-docker
-  - stage: ':ship: it to Quay.io'
+  - stage: ':ship: it to quay.io'
     env:
     script: ./script/docker-build-and-push
-    if: NOT type IN (pull_request) AND branch = master
+    if: type = cron OR commit_message =~ /ship:docker/ OR env(SHIP_DOCKER) = true
 
 before_script:
 - eval "$(script/handle-docker-config)"
@@ -61,3 +64,4 @@ deploy:
     branch: master
     condition: $INTEGRATION_SPECS == 1
     repo: travis-ci/travis-build
+  edge: true

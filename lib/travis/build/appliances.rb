@@ -1,3 +1,4 @@
+require 'travis/build/appliances/agent'
 require 'travis/build/appliances/check_unsupported'
 require 'travis/build/appliances/checkout'
 require 'travis/build/appliances/clean_up_path'
@@ -52,6 +53,7 @@ require 'travis/build/appliances/ensure_path_components'
 require 'travis/build/appliances/wait_for_network'
 require 'travis/build/appliances/resolvconf'
 require 'travis/build/appliances/maven_central_mirror'
+require 'travis/build/appliances/maven_https'
 
 module Travis
   module Build

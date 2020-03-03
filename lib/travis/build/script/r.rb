@@ -104,7 +104,7 @@ module Travis
                   'build-essential gcc g++ libblas-dev liblapack-dev '\
                   'libncurses5-dev libreadline-dev libjpeg-dev '\
                   'libpcre3-dev libpng-dev zlib1g-dev libbz2-dev liblzma-dev libicu-dev '\
-                  'cdbs qpdf texinfo libssh2-1-dev '\
+                  'cdbs qpdf texinfo libssh2-1-dev devscripts '\
                   "#{optional_apt_pkgs}", retry: true
 
                 r_filename = "R-#{r_version}-$(lsb_release -cs).xz"
@@ -589,7 +589,7 @@ module Travis
 
         def normalized_r_version(v=Array(config[:r]).first.to_s)
           case v
-          when 'release' then '3.6.1'
+          when 'release' then '3.6.2'
           when 'oldrel' then '3.5.3'
           when '3.0' then '3.0.3'
           when '3.1' then '3.1.3'
@@ -597,12 +597,12 @@ module Travis
           when '3.3' then '3.3.3'
           when '3.4' then '3.4.4'
           when '3.5' then '3.5.3'
-          when '3.6' then '3.6.1'
+          when '3.6' then '3.6.2'
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true
-            config[:r] = 'release'
-            normalized_r_version('release')
+            config[:r] = 'devel'
+            normalized_r_version('devel')
           when 'bioc-release'
             config[:bioc_required] = true
             config[:bioc_use_devel] = false

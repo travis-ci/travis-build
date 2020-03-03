@@ -12,7 +12,7 @@ module Travis
       class Julia < Script
         DEFAULTS = {
           julia: '1',
-          arch: 'x64',
+          arch: 'amd64',
           coveralls: false,
           codecov: false,
         }
@@ -42,10 +42,7 @@ module Travis
             case config[:os]
             when 'linux', 'freebsd'
               if config[:os] == 'linux'
-                if config[:julia] == 'nightly' && config[:arch] == 'arm64'
-                  sh.failure 'Nightly Julia binaries are not available for AArch64'
-                end
-                if config[:arch] == 'x86'
+                if config[:arch] == 'x86' || config[:arch] == 'i386'
                   # x86 builds still run on x64 images, so we need to ensure the environment
                   # is properly equipped to handle 32-bit binaries
                   if config[:dist] == 'precise'
@@ -58,19 +55,23 @@ module Travis
                 end
               end
               sh.cmd 'mkdir -p ~/julia'
-              sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L --retry 7 '#{julia_url}' } \
+              sh.cmd %Q{curl -A "$CURL_USER_AGENT" -sSf -L --retry 7 '#{julia_url}' } \
                        '| tar -C ~/julia -x -z --strip-components=1 -f -'
               sh.cmd 'export PATH="${PATH}:${TRAVIS_HOME}/julia/bin"'
             when 'osx'
-              sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L --retry 7 -o julia.dmg '#{julia_url}'}
+              sh.cmd %Q{curl -A "$CURL_USER_AGENT" -sSf -L --retry 7 -o julia.dmg '#{julia_url}'}
               sh.cmd 'mkdir juliamnt'
               sh.cmd 'hdiutil mount -readonly -mountpoint juliamnt julia.dmg'
               sh.cmd 'cp -a juliamnt/*.app/Contents/Resources/julia ~/'
               sh.cmd 'export PATH="${PATH}:${TRAVIS_HOME}/julia/bin"'
             when 'windows'
-              sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L --retry 7 -o julia-installer.exe '#{julia_url}'}
+              sh.cmd %Q{curl -A "$CURL_USER_AGENT" -sSf -L --retry 7 -o julia-installer.exe '#{julia_url}'}
               sh.cmd 'chmod +x julia-installer.exe'
-              sh.cmd %Q{powershell -c 'Start-Process -FilePath julia-installer.exe -ArgumentList "/S /D=C:\\julia" -NoNewWindow -Wait'}
+              if config[:julia] == 'nightly' || Gem::Version.new(config[:julia]) >= Gem::Version.new('1.4')
+                sh.cmd %Q{powershell -c 'Start-Process -FilePath julia-installer.exe -ArgumentList "/VERYSILENT /DIR=C:\\julia" -NoNewWindow -Wait'}
+              else
+                sh.cmd %Q{powershell -c 'Start-Process -FilePath julia-installer.exe -ArgumentList "/S /D=C:\\julia" -NoNewWindow -Wait'}
+              end
               sh.cmd 'export PATH="${PATH}:/c/julia/bin/"'
             else
               sh.failure "Operating system not supported: #{config[:os]}"
@@ -142,12 +143,12 @@ module Travis
               when 'arm64'
                 osarch = 'linux/aarch64'
                 ext = 'linux-aarch64.tar.gz'
-                nightlyext = nil  # There are no nightlies for ARM
-              when 'x86'
+                nightlyext = 'linuxaarch64.tar.gz'
+              when 'x86', 'i386'
                 osarch = 'linux/x86'
                 ext = 'linux-i686.tar.gz'
                 nightlyext = 'linux32.tar.gz'
-              else
+              when 'x64', 'amd64'
                 osarch = 'linux/x64'
                 ext = 'linux-x86_64.tar.gz'
                 nightlyext = 'linux64.tar.gz'
@@ -162,10 +163,10 @@ module Travis
               nightlyext = 'freebsd64.tar.gz'
             when 'windows'
               case julia_arch
-              when 'x64'
+              when 'x64', 'amd64'
                 osarch = "winnt/x64"
                 ext = 'win64.exe'
-              when 'x86'
+              when 'x86', 'i386'
                 osarch = "winnt/x86"
                 ext = 'win32.exe'
               end
@@ -183,7 +184,7 @@ module Travis
               url = "julialang-s3.julialang.org/bin/#{osarch}/#{$1}/julia-#{$1}-latest-#{ext}"
             when '1'
               # TODO: create a permalink to latest 1.y.z
-              url = "julialang-s3.julialang.org/bin/#{osarch}/1.1/julia-1.1-latest-#{ext}"
+              url = "julialang-s3.julialang.org/bin/#{osarch}/1.3/julia-1.3-latest-#{ext}"
             else
               sh.failure "Unknown Julia version: #{julia_version}"
             end

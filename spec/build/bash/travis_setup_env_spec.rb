@@ -37,6 +37,7 @@ describe 'travis_setup_env', integration: true do
       'TRAVIS_OS_NAME' => /linux/,
       'TRAVIS_TEST_RESULT' => nil,
       'TRAVIS_TMPDIR' => /.+/,
+      'TRAVIS_CPU_ARCH' => /(amd64|386)/,
       'USER' => /^travis$/
     }.each do |env_var, expected_value|
       expect(env.key?(env_var)).to be true

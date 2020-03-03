@@ -23,8 +23,8 @@ module Travis
 
             sh.if "-z $(command -v tmate)" do
               sh.if "$(uname) = 'Linux'" do
-                sh.cmd "wget -q -O tmate.tar.gz #{static_build_linux_url}", echo: false, retry: true
-                sh.cmd "tar --strip-components=1 -xf tmate.tar.gz", echo: false
+                sh.cmd "wget -q -O tmate.tar.xz #{static_build_linux_url}", echo: false, retry: true
+                sh.cmd "tar --strip-components=1 -xf tmate.tar.xz", echo: false
               end
               sh.else do
                 sh.echo "We are setting up the debug environment. This may take a while..."
@@ -69,7 +69,11 @@ module Travis
 
           # XXX the following does not apply to OSX
           def static_build_linux_url
-            "https://#{app_host}/files/tmate-static-linux-amd64.tar.gz"
+            if config[:arch] == 'arm64'
+              "https://#{app_host}/files/tmate-static-linux-arm64v8.tar.xz"
+            else
+              "https://#{app_host}/files/tmate-static-linux-amd64.tar.xz"
+            end
           end
       end
     end

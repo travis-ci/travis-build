@@ -8,12 +8,11 @@ module Travis
       class Sonarcloud < Base
         SUPER_USER_SAFE = true
         DEFAULT_SQ_HOST_URL = "https://sonarcloud.io"
-        SCANNER_CLI_VERSION = "3.0.3.778"
         SCANNER_HOME = "${TRAVIS_HOME}/.sonarscanner"
         CACHE_DIR = "${TRAVIS_HOME}/.sonar/cache"
-        SCANNER_CLI_REPO = "http://repo1.maven.org/maven2"
         BUILD_WRAPPER_LINUX = "build-wrapper-linux-x86"
         BUILD_WRAPPER_MACOSX = "build-wrapper-macosx-x86"
+        SCANNER_LOCAL_COPY_URL = "https://#{Travis::Build.config.app_host.to_s.strip}/files/sonar-scanner.zip".output_safe
 
         SKIP_MSGS = {
           branch_disabled: 'this branch is not master or it does not match declared branches',
@@ -68,12 +67,13 @@ module Travis
           scr = <<SH
   rm -rf "#{SCANNER_HOME}"
   mkdir -p "#{SCANNER_HOME}"
-  curl -sSLo "#{SCANNER_HOME}/sonar-scanner.zip" "#{SCANNER_CLI_REPO}/org/sonarsource/scanner/cli/sonar-scanner-cli/#{SCANNER_CLI_VERSION}/sonar-scanner-cli-#{SCANNER_CLI_VERSION}.zip"
+  curl -sSLo "#{SCANNER_HOME}/sonar-scanner.zip" "#{SCANNER_LOCAL_COPY_URL}"
   unzip "#{SCANNER_HOME}/sonar-scanner.zip" -d "#{SCANNER_HOME}"
 SH
           sh.raw(scr, echo: false)
-          sh.export 'SONAR_SCANNER_HOME', "#{SCANNER_HOME}/sonar-scanner-#{SCANNER_CLI_VERSION}", echo: true
-          sh.export 'PATH', %{"$PATH:#{SCANNER_HOME}/sonar-scanner-#{SCANNER_CLI_VERSION}/bin"}, echo: false
+          sh.mv "#{SCANNER_HOME}/sonar-scanner-*", "#{SCANNER_HOME}/sonar-scanner"
+          sh.export 'SONAR_SCANNER_HOME', "#{SCANNER_HOME}/sonar-scanner", echo: true
+          sh.export 'PATH', %{"$PATH:#{SCANNER_HOME}/sonar-scanner/bin"}, echo: false
         end
 
         def install_build_wrapper
