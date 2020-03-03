@@ -59,7 +59,7 @@ module Travis
           attr_reader :sh, :data, :slug, :start, :msgs, :archive_type
 
           def initialize(sh, data, slug, start = Time.now, archive_type = 'cache')
-            puts "gce.initialize: #{sh} #{data} #{slug}"
+            puts "gce.initialize: #{sh.to_s} #{data.to_s} #{slug} #{data.github_id}"
             @sh = sh
             @data = data
             @slug = slug
@@ -278,7 +278,7 @@ module Travis
 
               args.map!(&:to_s)
               return if args.any? {|part| part.empty?}
-              puts "gce.prefixed: #{slug_local}, #{branch}, #{args.to_s}"
+              puts "gce.prefixed: #{'/' << args.join('/') << '.tgz'}"
               '/' << args.join('/') << '.tgz'
             end
 
