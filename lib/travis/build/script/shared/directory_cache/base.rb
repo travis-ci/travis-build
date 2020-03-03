@@ -271,9 +271,9 @@ module Travis
 
               case aws_signature_version
               when '2'
-                args = [data.github_id, branch, slug_local].compact
+                args = [CGI.escape(data.github_id.to_s), branch, slug_local].compact
               else
-                args = [data_store_options.fetch(:bucket, ''), data.github_id, branch, slug_local].compact
+                args = [data_store_options.fetch(:bucket, ''), CGI.escape(data.github_id.to_s), branch, slug_local].compact
               end
 
               args.map!(&:to_s)
