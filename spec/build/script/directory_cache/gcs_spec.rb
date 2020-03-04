@@ -126,7 +126,7 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
     it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name example cache push #{push_url}", timing: true] }
   end
 
-  describe 'push with {} in repository id' do
+  describe 'push with {123-456} in repository id' do
     let(:timeout) { cache_options[:push_timeout] + test_time }
     before { cache_custom_id.push }
     it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name example cache push #{push_url_custom_id}", timing: true] }
