@@ -22,6 +22,7 @@ require 'travis/build/addons/sonarcloud'
 require 'travis/build/addons/sonarqube'
 require 'travis/build/addons/browserstack'
 require 'travis/build/addons/srcclr'
+require 'travis/build/addons/pkg'
 
 module Travis
   module Build
