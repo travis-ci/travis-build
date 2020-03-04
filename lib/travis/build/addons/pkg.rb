@@ -25,7 +25,7 @@ module Travis
         end
 
         def before_configure?
-          # keeping empty for now
+          config
         end
 
         def before_configure
@@ -37,7 +37,7 @@ module Travis
             FETCH_TIMEOUT=30
           PKG_CONF
           sh.cmd %Q{su -m root -c "mv #{tmp_dest} ${TRAVIS_ROOT}/usr/local/etc/pkg.conf"}
-          if config[:branch].to_s.downcase != 'quarterly'
+          if config[:branch] && config[:branch].to_s.downcase != 'quarterly'
             sed_find = 'pkg+http://pkg.FreeBSD.org/\([^/]*\)/quarterly'
             sed_replace = 'pkg+http://pkg.FreeBSD.org/\1/' + config[:branch]
             sed_cmd = %Q{sed -i'' -e 's,#{sed_find},#{sed_replace},' /etc/pkg/FreeBSD.conf}
