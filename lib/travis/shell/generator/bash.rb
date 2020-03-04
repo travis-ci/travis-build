@@ -35,7 +35,7 @@ module Travis
 
         def handle_export(data, options = {})
           key, value, options = handle_secure_vars(*data, options)
-          handle_cmd("export #{key}=#{value}", options)
+          handle_cmd("export #{key}=#{doublequote(value)}", options)
         end
         alias handle_set handle_export
 

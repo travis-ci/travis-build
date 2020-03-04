@@ -27,6 +27,11 @@ module Travis
           def escape(code)
             Shellwords.escape(Coder.force_encoding(code.to_s))
           end
+
+          # Format as a single argument but allow shell syntax inside
+          def doublequote(str)
+            '"' + str.gsub('"','\\"') + '"'
+          end
         end
       end
     end
