@@ -18,22 +18,25 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
   let(:fetch_signature_tgz)    { master_fetch_signature_tgz }
   let(:push_signature)         { "NKjp5aeeVJXqJI6FovroSWDsg4w%3D" }
 
-  let(:test_time)     { 10 }
-  let(:timeout)       { cache_options[:push_timeout] + test_time }
-  let(:url_tgz)       { signed_url_for(branch, fetch_signature_tgz, 'tgz') }
-  let(:fetch_url_tgz) { url_tgz }
-  let(:push_url)      { signed_url_for(branch, push_signature, 'tgz', timeout) }
+  let(:test_time)                { 10 }
+  let(:timeout)                  { cache_options[:push_timeout] + test_time }
+  let(:url_tgz)                  { signed_url_for(branch, fetch_signature_tgz, 'tgz') }
+  let(:fetch_url_tgz)            { url_tgz }
+  let(:push_url)                 { signed_url_for(branch, push_signature, 'tgz', timeout) }
+  let(:push_url_custom_id)       { "https://s3_bucket.storage.googleapis.com/\\%7B123-456\\%7D/master/example.tgz\\?Expires\\=40\\&GoogleAccessId\\=google_access_key_id\\&Signature\\=bdVWdLC\\%2BntSxDFVDmu9TySm9cFg\\%3D" }
 
-  let(:gcs_options)   { { bucket: 's3_bucket', secret_access_key: 'google_secret_access_key', access_key_id: 'google_access_key_id', aws_signature_version: '2' } }
-  let(:cache_options) { { fetch_timeout: 20, push_timeout: 30, type: 'gcs', gcs: gcs_options } }
-  let(:data)          { PAYLOADS[:push].deep_merge(paranoid: disable_sudo, config: config, cache_options: cache_options, job: { branch: branch, pull_request: pull_request }) }
-  let(:config)        { {} }
-  let(:disable_sudo)  { false }
-  let(:pull_request)  { nil }
-  let(:branch)        { 'master' }
-  let(:sh)            { Travis::Shell::Builder.new }
-  let(:cache)         { described_class.new(sh, Travis::Build::Data.new(data), 'example', test_time) }
-  let(:subject)       { sh.to_sexp }
+  let(:gcs_options)    { { bucket: 's3_bucket', secret_access_key: 'google_secret_access_key', access_key_id: 'google_access_key_id', aws_signature_version: '2' } }
+  let(:cache_options)  { { fetch_timeout: 20, push_timeout: 30, type: 'gcs', gcs: gcs_options } }
+  let(:data)           { PAYLOADS[:push].deep_merge(paranoid: disable_sudo, config: config, cache_options: cache_options, job: { branch: branch, pull_request: pull_request }) }
+  let(:data_custom_id) { PAYLOADS[:push].deep_merge(paranoid: disable_sudo, config: config, cache_options: cache_options, repository: {github_id: '{123-456}'}, job: { branch: branch, pull_request: pull_request }) }
+  let(:config)         { {} }
+  let(:disable_sudo)   { false }
+  let(:pull_request)   { nil }
+  let(:branch)         { 'master' }
+  let(:sh)             { Travis::Shell::Builder.new }
+  let(:cache)          { described_class.new(sh, Travis::Build::Data.new(data), 'example', test_time) }
+  let(:cache_custom_id){ described_class.new(sh, Travis::Build::Data.new(data_custom_id), 'example', test_time) }
+  let(:subject)        { sh.to_sexp }
 
   let(:key_pair) { described_class::KeyPair.new(gcs_options[:access_key_id], [:secret_access_key]) }
 
@@ -121,6 +124,12 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
     let(:timeout) { cache_options[:push_timeout] + test_time }
     before { cache.push }
     it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name example cache push #{push_url}", timing: true] }
+  end
+
+  describe 'push with {} in repository id' do
+    let(:timeout) { cache_options[:push_timeout] + test_time }
+    before { cache_custom_id.push }
+    it { should include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do $CASHER_DIR/bin/casher --name example cache push #{push_url_custom_id}", timing: true] }
   end
 
   describe 'on a different branch' do
