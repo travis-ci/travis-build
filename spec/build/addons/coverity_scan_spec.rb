@@ -10,7 +10,7 @@ describe Travis::Build::Addons::CoverityScan, :sexp do
   before       { addon.script }
 
   # it_behaves_like 'compiled script' do
-  #   let(:code) { ['CODECLIMATE_REPO_TOKEN=1234'] }
+  #   let(:code) { ['CODECLIMATE_REPO_TOKEN="1234"'] }
   # end
 
   xit 'needs specs!'

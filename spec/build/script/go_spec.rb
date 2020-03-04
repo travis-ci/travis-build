@@ -18,7 +18,7 @@ describe Travis::Build::Script::Go, :sexp do
   it_behaves_like 'a bash script'
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=go'] }
+    let(:code) { ['TRAVIS_LANGUAGE="go"'] }
     let(:code) { ['go test'] }
   end
 

@@ -14,7 +14,7 @@ describe Travis::Build::Script::Python, :sexp do
   it_behaves_like 'a bash script'
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=python'] }
+    let(:code) { ['TRAVIS_LANGUAGE="python"'] }
     let(:cmds) { ['pip install'] }
   end
 

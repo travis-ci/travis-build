@@ -15,7 +15,7 @@ describe Travis::Build::Script::NodeJs, :sexp do
   it_behaves_like 'a bash script'
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=node_js'] }
+    let(:code) { ['TRAVIS_LANGUAGE="node_js"'] }
     let(:cmds) { ['npm test'] }
   end
 

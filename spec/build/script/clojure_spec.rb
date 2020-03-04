@@ -9,7 +9,7 @@ describe Travis::Build::Script::Clojure, :sexp do
   it_behaves_like 'a bash script'
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=clojure'] }
+    let(:code) { ['TRAVIS_LANGUAGE="clojure"'] }
     let(:cmds) { ['lein test'] }
   end
 

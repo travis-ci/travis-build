@@ -9,7 +9,7 @@ describe Travis::Build::Script::Elixir, :sexp do
   it_behaves_like 'a bash script'
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=elixir'] }
+    let(:code) { ['TRAVIS_LANGUAGE="elixir"'] }
   end
 
   it_behaves_like 'a build script sexp'

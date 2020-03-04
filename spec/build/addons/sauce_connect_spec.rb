@@ -15,7 +15,7 @@ describe Travis::Build::Addons::SauceConnect, :sexp do
   end
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['sauce_connect', 'TRAVIS_SAUCE_CONNECT=true'] }
+    let(:code) { ['sauce_connect', 'TRAVIS_SAUCE_CONNECT="true"'] }
   end
 
   shared_examples_for 'starts sauce connect' do

@@ -12,7 +12,7 @@ describe Travis::Build::Addons::CodeClimate, :sexp do
   let(:export_repo_token) { [:export, ['CODECLIMATE_REPO_TOKEN', '1234']] }
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['CODECLIMATE_REPO_TOKEN=1234'] }
+    let(:code) { ['CODECLIMATE_REPO_TOKEN="1234"'] }
   end
 
   describe 'with a token' do
