@@ -29,8 +29,8 @@ module Travis
           end
 
           # Format as a single argument but allow shell syntax inside
-          def doublequote(str)
-            '"' + str.gsub('"','\\"') + '"'
+          def doublequote(code)
+            '"' + Coder.force_encoding(code.to_s).gsub('"','\\"') + '"'
           end
         end
       end
