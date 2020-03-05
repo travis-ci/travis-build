@@ -30,7 +30,9 @@ module Travis
 
           # Format as a single argument but allow shell syntax inside
           def doublequote(code)
-            '"' + Coder.force_encoding(code.to_s).gsub('"','\\"') + '"'
+            # since Bash syntax is permitted, it's caller's duty to
+            # escape any doublequotes inside if necessary
+            '"' + Coder.force_encoding(code.to_s) + '"'
           end
         end
       end
