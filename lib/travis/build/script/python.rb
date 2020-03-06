@@ -123,8 +123,17 @@ module Travis
             sh.if "$? != 0" do
               sh.failure "Unable to download #{version} archive. The archive may not exist. Please consider a different version."
             end
-            sh.cmd "sudo tar xjf #{archive_filename} --directory /", echo: true, assert: true, timing: true
+            sh.cmd "sudo #{tar_extract} #{archive_filename} --directory /", echo: true, assert: true, timing: true
             sh.cmd "rm #{archive_filename}", echo: false
+          end
+
+          def tar_extract
+            case config[:os]
+            when 'freebsd'
+              "tar xPjf"
+            else
+              "tar xjf"
+            end
           end
 
           def setup_path(version = 'nightly')
