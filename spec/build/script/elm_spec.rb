@@ -7,7 +7,7 @@ describe Travis::Build::Script::Elm, :sexp do
   it           { store_example }
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=elm'] }
+    let(:code) { ['TRAVIS_LANGUAGE="elm"'] }
     let(:cmds) { ['elm-test'] }
   end
 

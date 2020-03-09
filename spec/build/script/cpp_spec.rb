@@ -9,7 +9,7 @@ describe Travis::Build::Script::Cpp, :sexp do
   it_behaves_like 'a bash script'
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=cpp'] }
+    let(:code) { ['TRAVIS_LANGUAGE="cpp"'] }
     let(:cmds) { ['make test'] }
   end
 

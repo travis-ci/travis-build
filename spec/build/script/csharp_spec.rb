@@ -9,7 +9,7 @@ describe Travis::Build::Script::Csharp, :sexp do
   it_behaves_like 'a bash script'
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=csharp'] }
+    let(:code) { ['TRAVIS_LANGUAGE="csharp"'] }
   end
 
   it_behaves_like 'a build script sexp'

@@ -9,7 +9,7 @@ describe Travis::Build::Script::Perl6, :sexp do
   it_behaves_like 'a bash script'
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=perl6'] }
+    let(:code) { ['TRAVIS_LANGUAGE="perl6"'] }
   end
 
   it_behaves_like 'a build script sexp'

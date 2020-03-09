@@ -134,12 +134,12 @@ describe Travis::Shell::Generator::Bash, :include_node_helpers do
   describe :export do
     it 'generates an export command' do
       @sexp = [:export, ['FOO', 'foo'], echo: true]
-      expect(code).to eql("travis_cmd export\\ FOO\\=foo --echo")
+      expect(code).to eql("travis_cmd export\\ FOO\\=\\\"foo\\\" --echo")
     end
 
     it 'adds --display FOO=[secure] if the given value is tainted' do
       @sexp = [:export, ['FOO', 'foo'], echo: true, secure: true]
-      expect(code).to eql("travis_cmd export\\ FOO\\=foo --echo --display export\\ FOO\\=\\[secure\\] --secure")
+      expect(code).to eql("travis_cmd export\\ FOO\\=\\\"foo\\\" --echo --display export\\ FOO\\=\\[secure\\] --secure")
     end
   end
 

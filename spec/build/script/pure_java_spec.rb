@@ -9,7 +9,7 @@ describe Travis::Build::Script::PureJava, :sexp do
   it_behaves_like 'a bash script'
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=java'] }
+    let(:code) { ['TRAVIS_LANGUAGE="java"'] }
     let(:cmds) { ['gradlew check'] }
   end
 

@@ -9,7 +9,7 @@ describe Travis::Build::Script::Php, :sexp do
   it_behaves_like 'a bash script'
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=php'] }
+    let(:code) { ['TRAVIS_LANGUAGE="php"'] }
     let(:cmds) { ['phpunit'] }
   end
 

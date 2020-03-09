@@ -73,7 +73,7 @@ SH
           sh.raw(scr, echo: false)
           sh.mv "#{SCANNER_HOME}/sonar-scanner-*", "#{SCANNER_HOME}/sonar-scanner"
           sh.export 'SONAR_SCANNER_HOME', "#{SCANNER_HOME}/sonar-scanner", echo: true
-          sh.export 'PATH', %{"$PATH:#{SCANNER_HOME}/sonar-scanner/bin"}, echo: false
+          sh.export 'PATH', "$PATH:#{SCANNER_HOME}/sonar-scanner/bin", echo: false
         end
 
         def install_build_wrapper
@@ -106,7 +106,7 @@ SH
             sh.cmd "unzip -o $sq_build_wrapper_dir/#{build_wrapper}.zip -d $sq_build_wrapper_dir", echo: false
           end
 
-          sh.export 'PATH', "\"$PATH:$sq_build_wrapper_dir/#{build_wrapper}\"", echo: false
+          sh.export 'PATH', "$PATH:$sq_build_wrapper_dir/#{build_wrapper}", echo: false
         end
 
         def run
