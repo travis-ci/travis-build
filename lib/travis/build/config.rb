@@ -44,7 +44,10 @@ module Travis
             'http://archive.ubuntu.com/ubuntu/'
           )
         },
-        apt_package_safelist: {
+        # safe list and alias list are env variables set at the deployment level, pointing to a lists kept in github repository;  
+        # whenever adding a new distribution and relevant new env variable, configure nnew env var to point to that list
+        # lists are in form of json file with specified structure
+        apt_package_safelist: { 
           precise: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_PRECISE', ''),
           trusty: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_TRUSTY', ''),
           xenial: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_XENIAL', ''),

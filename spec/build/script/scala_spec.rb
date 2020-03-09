@@ -17,7 +17,7 @@ describe Travis::Build::Script::Scala, :sexp do
   it_behaves_like 'a bash script'
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=scala'] }
+    let(:code) { ['TRAVIS_LANGUAGE="scala"'] }
     let(:cmds) { ['sbt ++2.12.8 test'] }
   end
 

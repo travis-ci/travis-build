@@ -10,7 +10,7 @@ describe Travis::Build::Script::Rust, :sexp do
   it_behaves_like 'a bash script'
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=rust'] }
+    let(:code) { ['TRAVIS_LANGUAGE="rust"'] }
     let(:cmds) { ['cargo build --verbose'] }
   end
 

@@ -9,7 +9,7 @@ describe Travis::Build::Script::Haskell, :sexp do
   it_behaves_like 'a bash script'
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=haskell'] }
+    let(:code) { ['TRAVIS_LANGUAGE="haskell"'] }
     let(:cmds) { ['cabal test'] }
   end
 

@@ -16,27 +16,27 @@ describe Travis::Build::Addons::Sonarcloud, :sexp do
 
   describe 'scanner and build wrapper installation' do
     it { should include_sexp [:export, ['SONAR_SCANNER_HOME', '${TRAVIS_HOME}/.sonarscanner/sonar-scanner'], {:echo=>true}] }
-    it { should include_sexp [:export, ['PATH', "\"$PATH:${TRAVIS_HOME}/.sonarscanner/sonar-scanner/bin\""]] }
+    it { should include_sexp [:export, ['PATH', "$PATH:${TRAVIS_HOME}/.sonarscanner/sonar-scanner/bin"]] }
     it { should include_sexp [:mkdir, "$sq_build_wrapper_dir", {:recursive=>true}] }
-    it { should include_sexp [:export, ['PATH', "\"$PATH:$sq_build_wrapper_dir/build-wrapper-linux-x86\""]] }
+    it { should include_sexp [:export, ['PATH', "$PATH:$sq_build_wrapper_dir/build-wrapper-linux-x86"]] }
   end
 
   describe 'skip build wrapper installation with java' do
     let(:data) { super().merge(config: { :language => 'java' })}
 
     it { should include_sexp [:export, ['SONAR_SCANNER_HOME', '${TRAVIS_HOME}/.sonarscanner/sonar-scanner'], {:echo=>true}] }
-    it { should include_sexp [:export, ['PATH', "\"$PATH:${TRAVIS_HOME}/.sonarscanner/sonar-scanner/bin\""]] }
+    it { should include_sexp [:export, ['PATH', "$PATH:${TRAVIS_HOME}/.sonarscanner/sonar-scanner/bin"]] }
     it { should_not include_sexp [:mkdir, "$sq_build_wrapper_dir", {:recursive=>true}] }
-    it { should_not include_sexp [:export, ['PATH', "\"$PATH:$sq_build_wrapper_dir/build-wrapper-linux-x86\""]] }
+    it { should_not include_sexp [:export, ['PATH', "$PATH:$sq_build_wrapper_dir/build-wrapper-linux-x86"]] }
   end
 
   describe 'skip build wrapper with invalid OS' do
     let(:data) { super().merge(config: { :language => 'unkown' })}
 
     it { should include_sexp [:export, ['SONAR_SCANNER_HOME', '${TRAVIS_HOME}/.sonarscanner/sonar-scanner'], {:echo=>true}] }
-    it { should include_sexp [:export, ['PATH', "\"$PATH:${TRAVIS_HOME}/.sonarscanner/sonar-scanner/bin\""]] }
+    it { should include_sexp [:export, ['PATH', "$PATH:${TRAVIS_HOME}/.sonarscanner/sonar-scanner/bin"]] }
     it { should include_sexp [:echo, "Can't install SonarSource build wrapper for platform: $TRAVIS_OS_NAME.", {:ansi=>:red}] }
-    it { should_not include_sexp [:export, ['PATH', "\"$PATH:$sq_build_wrapper_dir/build-wrapper-linux-x86\""]] }
+    it { should_not include_sexp [:export, ['PATH', "$PATH:$sq_build_wrapper_dir/build-wrapper-linux-x86"]] }
   end
 
   describe 'new pull request analysis' do
