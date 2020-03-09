@@ -27,13 +27,6 @@ module Travis
           def escape(code)
             Shellwords.escape(Coder.force_encoding(code.to_s))
           end
-
-          # Format as a single argument but allow shell syntax inside
-          def doublequote(code)
-            # since Bash syntax is permitted, it's caller's duty to
-            # escape any doublequotes inside if necessary
-            '"' + Coder.force_encoding(code.to_s) + '"'
-          end
         end
       end
     end
