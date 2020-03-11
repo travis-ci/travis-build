@@ -52,11 +52,11 @@ module Travis
       end
 
       def set(name, value, options = {})
-        node :set, [name, value], { assert: false, echo: true, timing: false }.merge(options)
+        node :set, [name, value], { assert: false, raw: false, echo: true, timing: false }.merge(options)
       end
 
       def export(name, value, options = {})
-        node :export, [name, value], { assert: false, echo: true, timing: false }.merge(options)
+        node :export, [name, value], { assert: false, raw: false, echo: true, timing: false }.merge(options)
       end
 
       def echo(msg = '', options = {})
