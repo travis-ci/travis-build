@@ -3,13 +3,13 @@ module Travis
     class Script
       class Elm < NodeJs
         # Default NodeJS version to install
-        DEFAULT_NODE_VERSION = '10.13.0'
+        DEFAULT_NODE_VERSION = '13.11.0'
 
         DEFAULTS = {
           elm: 'elm0.19.0',
         }
 
-        ELM_TEST_REQUIRED_NODE_VERSION = '6.0.0'
+        ELM_TEST_REQUIRED_NODE_VERSION = '8.0.0'
 
         def export
           super
