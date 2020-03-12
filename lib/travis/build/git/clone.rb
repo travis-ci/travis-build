@@ -6,7 +6,6 @@ module Travis
     class Git
       class Clone < Struct.new(:sh, :data)
         def apply
-          Travis::Build.logger.info "CLONE APPLY #{data.inspect}"
           sh.fold 'git.checkout' do
             sh.export 'GIT_LFS_SKIP_SMUDGE', '1' if lfs_skip_smudge?
             clone_or_fetch
@@ -67,7 +66,6 @@ module Travis
           end
 
           def clone_or_fetch
-            Travis::Build.logger.info "XXXXXXX #{pull_request_base_slug}"
             if autocrlf_key_given?
               sh.cmd "git config --global core.autocrlf #{config[:git][:autocrlf].to_s}"
             end
