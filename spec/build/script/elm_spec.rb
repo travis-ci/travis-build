@@ -93,18 +93,18 @@ describe Travis::Build::Script::Elm, :sexp do
   context "given 'elm_test: elm0.18.0'" do
     it "sets TRAVIS_ELM_* environment variables correctly" do
       data[:config][:elm_test] = 'elm0.18.0'
-      should include_sexp [:export, ['TRAVIS_ELM_VERSION', 'elm0.19.0']]
+      should include_sexp [:export, ['TRAVIS_ELM_VERSION', 'latest-0.19.1']]
       should include_sexp [:export, ['TRAVIS_ELM_TEST_VERSION', 'elm0.18.0']]
-      should include_sexp [:export, ['TRAVIS_ELM_FORMAT_VERSION', 'elm0.19.0']]
+      should include_sexp [:export, ['TRAVIS_ELM_FORMAT_VERSION', 'latest-0.19.1']]
     end
   end
 
   context "given 'elm_test: latest-0.18.0'" do
     it "sets TRAVIS_ELM_* environment variables correctly" do
       data[:config][:elm_test] = 'latest-0.18.0'
-      should include_sexp [:export, ['TRAVIS_ELM_VERSION', 'elm0.19.0']]
+      should include_sexp [:export, ['TRAVIS_ELM_VERSION', 'latest-0.19.1']]
       should include_sexp [:export, ['TRAVIS_ELM_TEST_VERSION', 'latest-0.18.0']]
-      should include_sexp [:export, ['TRAVIS_ELM_FORMAT_VERSION', 'elm0.19.0']]
+      should include_sexp [:export, ['TRAVIS_ELM_FORMAT_VERSION', 'latest-0.19.1']]
     end
   end
 
