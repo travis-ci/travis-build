@@ -164,7 +164,7 @@ module Travis
           end
 
           def pull_request_base_branch
-            data.job[:pull_request_based_ref=].shellescape if data.job[:pull_request_based_ref=]
+            data.job[:pull_request_base_ref=].shellescape if data.job[:pull_request_base_ref=]
           end
 
           def pull_request_base_slug
