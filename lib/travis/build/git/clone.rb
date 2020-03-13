@@ -112,8 +112,12 @@ module Travis
           def fetch_head_alternative
             sh.cmd "#{git_cmd} fetch -q #{data.source_url}/branch/#{pull_request_head_branch}", timing: false
             sh.cmd "#{git_cmd} checkout -q FETCH_HEAD", timing: false
-            sh.cmd "#{git_cmd} checkout -qb #{pull_request_head_branch}", timing: false
-            sh.cmd "#{git_cmd} merge --squash #{branch}", timing: false
+            if pull_request_head_slug != pull_request_base_slug
+              puts "FORK SUUPORT"
+            else
+              sh.cmd "#{git_cmd} checkout -qb #{pull_request_head_branch}", timing: false
+              sh.cmd "#{git_cmd} merge --squash #{branch}", timing: false
+            end
           end
 
           def clone_args
@@ -157,6 +161,10 @@ module Travis
 
           def pull_request_base_slug
             data.job[:pull_request_base_slug].shellescape if data.job[:pull_request_base_slug]
+          end
+
+          def pull_request_head_slug
+            data.job[:pull_request_head_slug].shellescape if data.job[:pull_request_head_slug]
           end
 
           def tag
