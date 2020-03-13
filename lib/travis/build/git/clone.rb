@@ -66,6 +66,7 @@ module Travis
           end
 
           def clone_or_fetch
+            sh.cmd "echo \"Data job values #{data.job.inspect}\" ",
             if autocrlf_key_given?
               sh.cmd "git config --global core.autocrlf #{config[:git][:autocrlf].to_s}"
             end
