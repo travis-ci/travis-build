@@ -109,7 +109,6 @@ module Travis
           end
 
           def fetch_head_alternative
-
             sh.cmd "#{git_cmd} fetch -q #{data.source_url}/branch/#{pull_request_base_branch}", timing: false  #update branch to pull_request_base_branch
             sh.cmd "#{git_cmd} checkout -q FETCH_HEAD", timing: false
 
@@ -165,7 +164,7 @@ module Travis
           end
 
           def pull_request_base_branch
-            data.job[:pull_request_base_ref=].shellescape if data.job[:pull_request_base_ref=]
+            data.job[:pull_request_base_ref].shellescape if data.job[:pull_request_base_ref]
           end
 
           def pull_request_base_slug
