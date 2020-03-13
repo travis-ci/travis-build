@@ -109,7 +109,6 @@ module Travis
           end
 
           def fetch_head_alternative
-
             sh.cmd "#{git_cmd} fetch -q #{data.source_url}/branch/#{pull_request_base_branch}", timing: false  #update branch to pull_request_base_branch
             sh.cmd "#{git_cmd} checkout -q FETCH_HEAD", timing: false
 
@@ -125,8 +124,9 @@ module Travis
           end
 
           def clone_args
+            branch_name = vcs_pull_request? && data.pull_request ? pull_request_base_branch : branch
             args = depth_flag
-            args << " --branch=#{tag || branch}" unless data.ref
+            args << " --branch=#{tag || branch_name}" unless data.ref
             args << " --quiet" if quiet?
             args
           end
@@ -164,7 +164,7 @@ module Travis
           end
 
           def pull_request_base_branch
-            data.job[:pull_request_base_ref=].shellescape if data.job[:pull_request_base_ref=]
+            data.job[:pull_request_base_ref].shellescape if data.job[:pull_request_base_ref]
           end
 
           def pull_request_base_slug
