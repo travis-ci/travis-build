@@ -16,3 +16,4 @@ coverage/
 /.docker/
 vendor/
 /.idea/
+.history

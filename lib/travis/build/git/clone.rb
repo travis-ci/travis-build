@@ -109,10 +109,19 @@ module Travis
           end
 
           def fetch_head_alternative
-            sh.cmd "#{git_cmd} fetch -q #{data.source_url}/branch/#{pull_request_head_branch}", timing: false
+
+            sh.cmd "#{git_cmd} fetch -q #{data.source_url}/branch/#{pull_request_base_branch}", timing: false  #update branch to pull_request_base_branch
             sh.cmd "#{git_cmd} checkout -q FETCH_HEAD", timing: false
-            sh.cmd "#{git_cmd} checkout -qb #{pull_request_head_branch}", timing: false
-            sh.cmd "#{git_cmd} merge --squash #{branch}", timing: false
+
+            if pull_request_base_slug && pull_request_head_slug != pull_request_base_slug
+              sh.cmd "#{git_cmd} remote add -t #{pull_request_head_branch} upstream git@#{data.source_host}:#{pull_request_head_slug}.git", timing: false
+              sh.cmd "#{git_cmd} fetch upstream"
+              sh.cmd "#{git_cmd} merge upstream/#{pull_request_head_branch}"
+
+            else
+              sh.cmd "#{git_cmd} checkout -qb #{pull_request_head_branch}", timing: false
+              sh.cmd "#{git_cmd} merge --squash #{branch}", timing: false
+            end
           end
 
           def clone_args
@@ -152,6 +161,18 @@ module Travis
 
           def pull_request_head_branch
             data.job[:pull_request_head_branch].shellescape if data.job[:pull_request_head_branch]
+          end
+
+          def pull_request_base_branch
+            data.job[:pull_request_base_ref=].shellescape if data.job[:pull_request_base_ref=]
+          end
+
+          def pull_request_base_slug
+            data.job[:pull_request_base_slug].shellescape if data.job[:pull_request_base_slug]
+          end
+
+          def pull_request_head_slug
+            data.job[:pull_request_head_slug].shellescape if data.job[:pull_request_head_slug]
           end
 
           def tag
