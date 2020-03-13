@@ -125,8 +125,9 @@ module Travis
           end
 
           def clone_args
+            branch_name = vcs_pull_request? ? pull_request_base_branch : branch
             args = depth_flag
-            args << " --branch=#{tag || branch}" unless data.ref
+            args << " --branch=#{tag || branch_name}" unless data.ref
             args << " --quiet" if quiet?
             args
           end
