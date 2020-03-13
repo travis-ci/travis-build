@@ -115,7 +115,7 @@ module Travis
             sh.cmd "#{git_cmd} checkout -q FETCH_HEAD", timing: false
 
             if pull_request_base_slug && pull_request_head_slug != pull_request_base_slug
-              sh.cmd "#{git_cmd} remote add upstream git@#{data.source_host}/#{pull_request_head_slug}", timing: false
+              sh.cmd "#{git_cmd} remote add upstream git@#{data.source_host}/#{pull_request_head_slug}.git", timing: false
               sh.cmd "#{git_cmd} fetch upstream"
             else
               sh.cmd "#{git_cmd} checkout -qb #{pull_request_head_branch}", timing: false
