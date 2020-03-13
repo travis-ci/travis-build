@@ -110,10 +110,12 @@ module Travis
           end
 
           def fetch_head_alternative
-            sh.cmd "#{git_cmd} fetch -q #{data.source_url}/branch/#{pull_request_head_branch}", timing: false
+            source_url = pull_request_base_slug ? "#{data.source_host}/#{pull_request_base_slug}" : data.source_url
+            sh.cmd "#{git_cmd} fetch -q #{source_url}/branch/#{pull_request_head_branch}", timing: false  #update branch to pull_request_base_branch
             sh.cmd "#{git_cmd} checkout -q FETCH_HEAD", timing: false
+
             if pull_request_head_slug != pull_request_base_slug
-              puts "FORK SUUPORT"
+              puts "FORK SUUPORR"
             else
               sh.cmd "#{git_cmd} checkout -qb #{pull_request_head_branch}", timing: false
               sh.cmd "#{git_cmd} merge --squash #{branch}", timing: false
