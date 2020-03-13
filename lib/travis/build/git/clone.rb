@@ -66,7 +66,6 @@ module Travis
           end
 
           def clone_or_fetch
-            puts "#{data.job.inspect}",
             if autocrlf_key_given?
               sh.cmd "git config --global core.autocrlf #{config[:git][:autocrlf].to_s}"
             end
@@ -111,7 +110,7 @@ module Travis
 
           def fetch_head_alternative
 
-            sh.cmd "#{git_cmd} fetch -q #{data.source_url}/branch/#{pull_request_head_branch}", timing: false  #update branch to pull_request_base_branch
+            sh.cmd "#{git_cmd} fetch -q #{data.source_url}/branch/#{pull_request_base_branch}", timing: false  #update branch to pull_request_base_branch
             sh.cmd "#{git_cmd} checkout -q FETCH_HEAD", timing: false
 
             if pull_request_base_slug && pull_request_head_slug != pull_request_base_slug
@@ -162,6 +161,10 @@ module Travis
 
           def pull_request_head_branch
             data.job[:pull_request_head_branch].shellescape if data.job[:pull_request_head_branch]
+          end
+
+          def pull_request_base_branch
+            data.job[:pull_request_based_ref=].shellescape if data.job[:pull_request_based_ref=]
           end
 
           def pull_request_base_slug
