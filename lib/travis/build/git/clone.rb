@@ -111,7 +111,7 @@ module Travis
 
           def fetch_head_alternative
 
-            sh.cmd "#{git_cmd} fetch -q #{source_url}/branch/#{pull_request_head_branch}", timing: false  #update branch to pull_request_base_branch
+            sh.cmd "#{git_cmd} fetch -q #{data.source_url}/branch/#{pull_request_head_branch}", timing: false  #update branch to pull_request_base_branch
             sh.cmd "#{git_cmd} checkout -q FETCH_HEAD", timing: false
 
             if pull_request_base_slug && pull_request_head_slug != pull_request_base_slug
