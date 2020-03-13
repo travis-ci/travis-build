@@ -124,7 +124,6 @@ module Travis
           end
 
           def clone_args
-            puts "XXXX #{data.job}"
             branch_name = vcs_pull_request? && data.pull_request ? pull_request_base_branch : branch
             args = depth_flag
             args << " --branch=#{tag || branch_name}" unless data.ref
