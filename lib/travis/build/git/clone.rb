@@ -59,9 +59,10 @@ module Travis
 
           def git_clone
             sh.cmd "#{git_cmd} clone #{clone_args} #{data.source_url} #{dir}", assert: false, retry: true
-            sh.if "$? -ne 0" do
-              return unless vcs_pull_request?
-              sh.cmd "#{git_cmd} clone #{clone_args(true)} #{data.source_url} #{dir}", assert: false, retry: true
+            if vcs_pull_request?
+              sh.if "$? -ne 0" do
+                sh.cmd "#{git_cmd} clone #{clone_args(true)} #{data.source_url} #{dir}", assert: false, retry: true
+              end
             end
           end
 
