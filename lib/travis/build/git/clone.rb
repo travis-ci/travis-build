@@ -132,6 +132,7 @@ module Travis
             args = depth_flag
             args << " --branch=#{tag || branch_name}" unless data.ref || skip_branch
             args << " --quiet" if quiet?
+            args << "--single-branch" if skip_branch
             args
           end
 
