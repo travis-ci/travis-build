@@ -59,6 +59,11 @@ module Travis
 
           def git_clone
             sh.cmd "#{git_cmd} clone #{clone_args} #{data.source_url} #{dir}", assert: false, retry: true
+            if vcs_pull_request?
+              sh.if "$? -ne 0" do
+                sh.cmd "#{git_cmd} clone #{clone_args(true)} #{data.source_url} #{dir}", assert: false, retry: true
+              end
+            end
           end
 
            def git_fetch
@@ -123,11 +128,12 @@ module Travis
             end
           end
 
-          def clone_args
-            branch_name = vcs_pull_request? && data.pull_request ? pull_request_base_branch : branch
+          def clone_args(skip_branch = false)
+            branch_name = vcs_pull_request? ? pull_request_base_branch : branch
             args = depth_flag
-            args << " --branch=#{tag || branch_name}" unless data.ref
+            args << " --branch=#{tag || branch_name}" unless data.ref || skip_branch
             args << " --quiet" if quiet?
+            args << "--single-branch" if skip_branch
             args
           end
 
