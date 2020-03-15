@@ -121,7 +121,7 @@ module Travis
               sh.cmd "ssh-keyscan bitbucket.org >> ~/.ssh/known_hosts"
               sh.cmd "ssh-keyscan bitbucket.com >> ~/.ssh/known_hosts"
               sh.cmd "#{git_cmd} remote add -t #{pull_request_head_branch} upstream #{pull_request_head_url}", timing: false
-              sh.cmd "#{git_cmd} fetch upstream -q"
+              sh.cmd "#{git_cmd} fetch upstream"
               sh.cmd "#{git_cmd} merge upstream/#{pull_request_head_branch}"
 
             else
