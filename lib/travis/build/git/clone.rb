@@ -118,10 +118,9 @@ module Travis
             sh.cmd "#{git_cmd} checkout -q FETCH_HEAD", timing: false
 
             if pull_request_base_slug && pull_request_head_slug != pull_request_base_slug
-              sh.cmd "#{git_cmd} remote add -t #{pull_request_head_branch} upstream git@#{data.source_host}:#{pull_request_head_slug}.git", timing: false
-              sh.cmd "#{git_cmd} fetch upstream"
-              sh.cmd "#{git_cmd} merge upstream/#{pull_request_head_branch}"
-
+              sh.cmd "#{git_cmd} remote add -t #{pull_request_head_branch} upstream #{pull_request_head_url}", timing: false
+              sh.cmd "#{git_cmd} fetch upstream", assert: true, retry: true
+              sh.cmd "#{git_cmd} merge --squash upstream/#{pull_request_head_branch}", assert: true, retry: true
             else
               sh.cmd "#{git_cmd} checkout -qb #{pull_request_head_branch}", timing: false
               sh.cmd "#{git_cmd} merge --squash #{branch}", timing: false
@@ -133,7 +132,7 @@ module Travis
             args = depth_flag
             args << " --branch=#{tag || branch_name}" unless data.ref || skip_branch
             args << " --quiet" if quiet?
-            args << "--single-branch" if skip_branch
+            args << " --single-branch" if skip_branch
             args
           end
 
@@ -179,6 +178,10 @@ module Travis
 
           def pull_request_head_slug
             data.job[:pull_request_head_slug].shellescape if data.job[:pull_request_head_slug]
+          end
+
+          def pull_request_head_url
+            data.job[:pull_request_head_url].shellescape if data.job[:pull_request_head_url]
           end
 
           def tag
