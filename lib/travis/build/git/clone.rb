@@ -59,6 +59,11 @@ module Travis
 
           def git_clone
             sh.cmd "#{git_cmd} clone #{clone_args} #{data.source_url} #{dir}", assert: false, retry: true
+            if vcs_pull_request?
+              sh.if "$? -ne 0" do
+                sh.cmd "#{git_cmd} clone #{clone_args(true)} #{data.source_url} #{dir}", assert: false, retry: true
+              end
+            end
           end
 
            def git_fetch
@@ -109,16 +114,25 @@ module Travis
           end
 
           def fetch_head_alternative
-            sh.cmd "#{git_cmd} fetch -q #{data.source_url}/branch/#{pull_request_head_branch}", timing: false
+            sh.cmd "#{git_cmd} fetch -q #{data.source_url}/branch/#{pull_request_base_branch}", timing: false  #update branch to pull_request_base_branch
             sh.cmd "#{git_cmd} checkout -q FETCH_HEAD", timing: false
-            sh.cmd "#{git_cmd} checkout -qb #{pull_request_head_branch}", timing: false
-            sh.cmd "#{git_cmd} merge --squash #{branch}", timing: false
+
+            if pull_request_base_slug && pull_request_head_slug != pull_request_base_slug
+              sh.cmd "#{git_cmd} remote add -t #{pull_request_head_branch} upstream #{pull_request_head_url}", timing: false
+              sh.cmd "#{git_cmd} fetch upstream", assert: true, retry: true
+              sh.cmd "#{git_cmd} merge --squash upstream/#{pull_request_head_branch}", assert: true, retry: true
+            else
+              sh.cmd "#{git_cmd} checkout -qb #{pull_request_head_branch}", timing: false
+              sh.cmd "#{git_cmd} merge --squash #{branch}", timing: false
+            end
           end
 
-          def clone_args
+          def clone_args(skip_branch = false)
+            branch_name = vcs_pull_request? ? pull_request_base_branch : branch
             args = depth_flag
-            args << " --branch=#{tag || branch}" unless data.ref
+            args << " --branch=#{tag || branch_name}" unless data.ref || skip_branch
             args << " --quiet" if quiet?
+            args << " --single-branch" if skip_branch
             args
           end
 
@@ -152,6 +166,22 @@ module Travis
 
           def pull_request_head_branch
             data.job[:pull_request_head_branch].shellescape if data.job[:pull_request_head_branch]
+          end
+
+          def pull_request_base_branch
+            data.job[:pull_request_base_ref].shellescape if data.job[:pull_request_base_ref]
+          end
+
+          def pull_request_base_slug
+            data.job[:pull_request_base_slug].shellescape if data.job[:pull_request_base_slug]
+          end
+
+          def pull_request_head_slug
+            data.job[:pull_request_head_slug].shellescape if data.job[:pull_request_head_slug]
+          end
+
+          def pull_request_head_url
+            data.job[:pull_request_head_url].shellescape if data.job[:pull_request_head_url]
           end
 
           def tag

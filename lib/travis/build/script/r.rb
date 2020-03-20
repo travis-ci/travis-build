@@ -120,7 +120,9 @@ module Travis
               when 'osx'
                 # We want to update, but we don't need the 800+ lines of
                 # output.
-                sh.cmd 'brew update >/dev/null', retry: true
+                unless config[:disable_homebrew]
+                  sh.cmd 'brew update >/dev/null', retry: true
+                end
 
                 # R-devel builds available at mac.r-project.org
                 if r_version == 'devel'
