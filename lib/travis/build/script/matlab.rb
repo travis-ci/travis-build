@@ -4,7 +4,7 @@ module Travis
       class Matlab < Script
         MATLAB_INSTALLER_LOCATION = 'https://ssd.mathworks.com/supportfiles/ci/ephemeral-matlab/v0/install.sh'.freeze
         MATLAB_START = 'matlab -batch'.freeze
-        MATLAB_COMMAND = "results = assertSuccess(runtests('IncludeSubfolders',true))".freeze
+        MATLAB_COMMAND = "assertSuccess(runtests('IncludeSubfolders',true));".freeze
 
         DEFAULTS = {
           matlab: 'latest'
