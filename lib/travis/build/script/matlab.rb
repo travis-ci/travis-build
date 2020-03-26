@@ -3,10 +3,8 @@ module Travis
     class Script
       class Matlab < Script
         MATLAB_INSTALLER_LOCATION = 'https://ssd.mathworks.com/supportfiles/ci/ephemeral-matlab/v0/install.sh'.freeze
-        MATLAB_EXECUTABLE = 'matlab -batch'.freeze
-        MATLAB_COMMAND = "results = runtests('IncludeSubfolders',true," \
-                            "'IncludeReferencedProjects',true), " \
-                            'assert(all(~[results.Failed]))'.freeze
+        MATLAB_START = 'matlab -batch'.freeze
+        MATLAB_COMMAND = "results = assertSuccess(runtests('IncludeSubfolders',true))".freeze
 
         DEFAULTS = {
           matlab: 'latest'
@@ -29,7 +27,7 @@ module Travis
         def script
           super
           # By default, invoke the default MATLAB 'runtests' command
-          sh.cmd "#{MATLAB_EXECUTABLE} \"#{MATLAB_COMMAND}\""
+          sh.cmd "#{MATLAB_START} \"#{MATLAB_COMMAND}\""
         end
       end
     end

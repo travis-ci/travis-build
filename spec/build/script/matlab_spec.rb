@@ -4,7 +4,7 @@ describe Travis::Build::Script::Matlab, :sexp do
   let(:data)        { payload_for(:push, :matlab) }
   let(:script)      { described_class.new(data)   }
   let(:installer)   { Travis::Build::Script::Matlab::MATLAB_INSTALLER_LOCATION }
-  let(:executable)  { Travis::Build::Script::Matlab::MATLAB_EXECUTABLE }
+  let(:start)       { Travis::Build::Script::Matlab::MATLAB_START }
   let(:command)     { Travis::Build::Script::Matlab::MATLAB_COMMAND }
 
   subject           { script.sexp }
@@ -24,7 +24,7 @@ describe Travis::Build::Script::Matlab, :sexp do
   end
 
   it 'runs the default MATLAB command' do
-    should include_sexp [:cmd, "#{executable} \"#{command}\"",
+    should include_sexp [:cmd, "#{start} \"#{command}\"",
                          echo: true, timing: true]
   end
 end
