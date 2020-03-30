@@ -378,6 +378,7 @@ module Travis
       end
 
       def create_ghc_pr
+        push_ghc_update_branch
         octokit.create_pull_request(
           "travis-ci/travis-build",
           "master",
