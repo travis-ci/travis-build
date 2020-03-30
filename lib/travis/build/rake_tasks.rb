@@ -10,6 +10,7 @@ require 'faraday_middleware'
 require 'minitar'
 require 'rake'
 require 'rubygems'
+require 'octokit'
 
 module Travis
   module Build
@@ -26,6 +27,8 @@ module Travis
         "mvdan/sh/releases/download/#{SHFMT_VERSION}",
         "shfmt_#{SHFMT_VERSION}_%<uname>s_%<arch>s"
       )
+
+      GHC_UPDATE_PR_TITLE = 'Update ghc versions'
 
       def fetch_githubusercontent_file(from, host: 'raw.githubusercontent.com',
                                        to: nil, mode: 0o755)
@@ -345,6 +348,45 @@ module Travis
         ].join(':')
       end
 
+      def octokit
+        @octokit ||= Octokit::Client.new(access_token: ENV['GITHUB_OAUTH_TOKEN'])
+      end
+
+      def ghc_update_pr_exists?
+        !octokit.pull_requests("travis-ci/travis-build").select {|pr| pr.title =~ %r[#{GHC_UPDATE_PR_TITLE}]}.empty?
+      end
+
+      def configure_git
+        sh "git config --local user.name \"Travis CI\""
+        sh "git config --local user.email \"support@travis-ci.com\""
+        sh "git config credential.helper \"store --file=.git/credentials\""
+        sh "echo \"https://${GITHUB_OAUTH_TOKEN}:@github.com\" > .git/credentials 2>/dev/null"
+      end
+
+      def create_ghc_update_git_commit
+        sh "git branch -D ghc-json-update" do |ok, res|
+          # ignore command failure
+        end
+        sh "git checkout -b ghc-json-update"
+        sh "git add public/version-aliases/ghc.json"
+        sh "git commit -m \"Update ghc.json\""
+        sh "git checkout -"
+      end
+
+      def push_ghc_update_branch
+        sh "git push origin ghc-json-update"
+      end
+
+      def create_ghc_pr
+        octokit.create_pull_request(
+          "travis-ci/travis-build",
+          "master",
+          "ghc-json-update",
+          "Update ghc.json",
+          "#{Time.now.utc} Update ghc.json"
+        )
+      end
+
       extend Rake::DSL
       extend self
 
@@ -404,6 +446,38 @@ module Travis
       desc 'update ghc versions'
       file 'public/version-aliases/ghc.json' => 'tmp/ghc-versions.html' do
         file_update_ghc_versions
+      end
+
+      desc 'remove tmp/ghc-versions.html'
+      task :rm_ghc_versions do
+        FileUtils.rm_f 'tmp/ghc-versions.html'
+      end
+
+      desc 'refresh ghc.json'
+      task :ghc_json => [
+        :rm_ghc_versions,
+        'public/version-aliases/ghc.json'
+      ]
+
+      desc "create PR for updating ghc.json"
+      task :create_ghc_json_pr => :ghc_json do
+        next if ghc_update_pr_exists?
+
+        sh "git diff --exit-code public/version-aliases/ghc.json" do |ok, res|
+          if ok
+            logger.info "ghc.json is up to date"
+            next
+          end
+        end
+
+        if ghc_update_pr_exists?
+          logger.info "ghc.json update PR already exists"
+          next
+        end
+
+        configure_git
+        create_ghc_update_git_commit
+        create_ghc_pr
       end
 
       desc 'update sauce connect data'

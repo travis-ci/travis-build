@@ -41,3 +41,5 @@ gem 'travis-config'
 gem 'travis-github_apps', git: gh('travis-ci/travis-github_apps')
 gem 'travis-rollout', git: gh('travis-ci/travis-rollout')
 gem 'travis-support', git: gh('travis-ci/travis-support')
+
+gem "octokit", "~> 4.18"
