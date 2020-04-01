@@ -38,7 +38,7 @@ gem 'sinatra', '~> 1.4'
 gem 'sinatra-contrib'
 gem 'travis'
 gem 'travis-config'
-gem 'travis-github_apps', git: gh('travis-ci/travis-github_apps')
+gem 'travis-github_apps', git: gh('travis-ci/travis-github_apps'), branch: 'pm_per_repo_token'
 gem 'travis-rollout', git: gh('travis-ci/travis-rollout')
 gem 'travis-support', git: gh('travis-ci/travis-support')
 
