@@ -35,6 +35,7 @@ before_install:
 - "gem install bundler -v 1.17.3"
 
 before_script:
+- bundle install
 - eval "$(script/handle-docker-config)"
 - bundle exec rake clean assets:precompile
 
