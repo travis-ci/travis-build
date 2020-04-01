@@ -12,10 +12,10 @@ GIT
     jemalloc (1.4.5)
 
 GIT
-  remote: https://github.com/travis-ci/travis-github_apps
-  revision: fb865ee510534006f15553f4ef3746c2610a4668
+  remote: https://github.com/travis-ci/travis-github_apps/tree/pm_per_repo_token
+  revision: 58cf50a79b52893639995305998ad128d0d06a07
   specs:
-    travis-github_apps (0.2.0)
+    travis-github_apps (0.2.1)
       activesupport (>= 3.2)
       faraday
       faraday_middleware
