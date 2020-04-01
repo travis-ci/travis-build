@@ -32,7 +32,6 @@ jobs:
     if: type = cron OR commit_message =~ /ship:docker/ OR env(SHIP_DOCKER) = true
 
 before_script:
-- gem install bundler
 - eval "$(script/handle-docker-config)"
 - bundle exec rake clean assets:precompile
 
