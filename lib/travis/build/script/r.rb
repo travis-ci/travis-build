@@ -556,12 +556,18 @@ module Travis
             sh.cmd 'curl -fLo /tmp/gfortran.tar.bz2 http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2', retry: true
             sh.cmd 'sudo tar fvxz /tmp/gfortran.tar.bz2 -C /'
             sh.rm '/tmp/gfortran.tar.bz2'
-          else
+          elsif r_version_less_than('3.7')
             sh.cmd "curl -fLo /tmp/gfortran61.dmg #{repos[:CRAN]}/contrib/extra/macOS/gfortran-6.1-ElCapitan.dmg", retry: true
             sh.cmd 'sudo hdiutil attach /tmp/gfortran61.dmg -mountpoint /Volumes/gfortran'
             sh.cmd 'sudo installer -pkg "/Volumes/gfortran/gfortran-6.1-ElCapitan/gfortran.pkg" -target /'
             sh.cmd 'sudo hdiutil detach /Volumes/gfortran'
             sh.rm '/tmp/gfortran61.dmg'
+          else
+            sh.cmd "curl -fLo /tmp/gfortran82.dmg https://github.com/fxcoudert/gfortran-for-macOS/releases/download/8.2/gfortran-8.2-Mojave.dmg", retry: true
+            sh.cmd 'sudo hdiutil attach /tmp/gfortran82.dmg -mountpoint /Volumes/gfortran'
+            sh.cmd 'sudo installer -pkg "/Volumes/gfortran/gfortran-8.2-Mojave/gfortran.pkg" -target /'
+            sh.cmd 'sudo hdiutil detach /Volumes/gfortran'
+            sh.rm '/tmp/gfortran82.dmg'
           end
         end
 
