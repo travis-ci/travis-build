@@ -31,10 +31,8 @@ jobs:
     script: ./script/docker-build-and-push
     if: type = cron OR commit_message =~ /ship:docker/ OR env(SHIP_DOCKER) = true
 
-before_install:
-- "gem install bundler -v 1.17.3"
-
 before_script:
+- "gem install bundler -v 1.17.3"
 - eval "$(script/handle-docker-config)"
 - bundle install
 - bundle exec rake clean assets:precompile
