@@ -124,16 +124,12 @@ module Travis
             (config[:elm_format] || elm_version_tagged).to_s
           end
 
-          def version_prefix
-            if elm_version =~ /^elm/ || elm_version =~ /^latest-/
-              ""
-            else
-              "latest-"
-            end
-          end
-
           def elm_version_tagged
-            version_prefix + elm_version
+            if elm_version =~ /^(elm|latest-)/
+              elm_version
+            else
+              "latest-#{elm_version}"
+            end
           end
 
           def npm_install_global(package_name, package_version)
