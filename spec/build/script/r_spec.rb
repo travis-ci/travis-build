@@ -75,7 +75,7 @@ describe Travis::Build::Script::R, :sexp do
   it 'downloads and installs R devel on OS X' do
     data[:config][:os] = 'osx'
     data[:config][:r] = 'devel'
-    should include_sexp [:cmd, %r{^curl.*mac\.r-project\.org/el-capitan/R-devel/R-devel-el-capitan\.pkg},
+    should include_sexp [:cmd, %r{^curl.*mac\.r-project\.org/high-sierra/R-4.0-branch/R-4.0-branch\.pkg},
                          assert: true, echo: true, retry: true, timing: true]
   end
   it 'downloads and installs gfortran libraries on OS X' do
@@ -91,6 +91,14 @@ describe Travis::Build::Script::R, :sexp do
     data[:config][:r] = 'release'
     data[:config][:fortran] = true
     should include_sexp [:cmd, %r{^curl.*\/tmp\/gfortran61.dmg https?:\/\/.*\/macOS\/gfortran-6.1-ElCapitan.dmg},
+                         assert: true, echo: true, retry: true, timing: true]
+  end
+  
+  it 'downloads and installs Coudert gfortran on OS X for R 3.4' do
+    data[:config][:os] = 'osx'
+    data[:config][:r] = 'devel'
+    data[:config][:fortran] = true
+    should include_sexp [:cmd, %r{^curl.*\/tmp\/gfortran82.dmg https?:\/\/.*\/download\/8.2\/gfortran-8.2-Mojave.dmg},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
