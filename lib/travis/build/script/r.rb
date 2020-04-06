@@ -126,7 +126,7 @@ module Travis
 
                 # R-devel builds available at mac.r-project.org
                 if r_version == 'devel'
-                  r_url = "https://mac.r-project.org/high-sierra/R-4.0-branch/R-4.0-branch.pkg"
+                  r_url = "https://mac.r-project.org/high-sierra/R-devel/R-devel.pkg"
 
                 # The latest release is the only one available in /bin/macosx
                 elsif r_version == r_latest
