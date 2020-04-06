@@ -226,7 +226,7 @@ module Travis
       def installation_token
         puts "installation_id: #{installation_id}, github_id: #{github_id}"
         at = GithubApps.new(installation_id, {}, github_id).access_token
-        puts "at: #{at} "
+        puts "Access token: #{at} "
         return at
       rescue RuntimeError => e
         if e.message =~ /Failed to obtain token from GitHub/
