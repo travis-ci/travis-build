@@ -13,7 +13,7 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-github_apps
-  revision: c14bc87d0be21e7f81018eb7907c4149cb2241bc
+  revision: cc5d5f0145970b6a9cc2d2c8f4c1eb76b5d47917
   branch: pm_per_repo_token
   specs:
     travis-github_apps (0.2.1)
