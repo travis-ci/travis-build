@@ -203,6 +203,10 @@ module Travis
         data[:repository] || {}
       end
 
+      def allowed_repositories
+        data[:allowed_repositories] << github_id || github_id
+      end
+
       def token
         installation? ? installation_token : data[:oauth_token]
       end
@@ -224,8 +228,8 @@ module Travis
       end
 
       def installation_token
-        puts "installation_id: #{installation_id}, github_id: #{github_id}"
-        at = GithubApps.new(installation_id, {}, github_id).access_token
+        puts "installation_id: #{installation_id}, allowed_repositories: #{allowed_repositories}"
+        at = GithubApps.new(installation_id, {}, allowed_repositories).access_token
         puts "Access token: #{at} "
         return at
       rescue RuntimeError => e
