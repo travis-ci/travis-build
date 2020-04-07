@@ -204,7 +204,8 @@ module Travis
       end
 
       def allowed_repositories
-        data[:allowed_repositories] << github_id || github_id
+        return data[:allowed_repositories] << github_id if data[:allowed_repositories]
+        github_id
       end
 
       def token
