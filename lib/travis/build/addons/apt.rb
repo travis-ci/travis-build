@@ -1,5 +1,6 @@
 require 'travis/build/addons/base'
 require 'shellwords'
+require 'travis/build/helpers/http/middleware'
 
 module Travis
   module Build
@@ -30,7 +31,6 @@ module Travis
           private
 
           def load_package_safelists(dists = SUPPORTED_DISTS)
-            require 'faraday'
             loaded = { unset: [] }.merge(Hash[dists.map { |dist| [dist.to_sym, []] }])
             dists.each do |dist|
               response = fetch_package_safelist(dist)
@@ -43,7 +43,6 @@ module Travis
           end
 
           def load_source_alias_lists(dists = SUPPORTED_DISTS)
-            require 'faraday'
             loaded = { unset: {} }.merge(Hash[dists.map { |dist| [dist.to_sym, {}] }])
             dists.each do |dist|
               response = fetch_source_alias_list(dist)
@@ -56,12 +55,22 @@ module Travis
             loaded
           end
 
+          def faraday(url)
+            Faraday.new( url: url) do |c|
+              c.use Travis::Build::Http::Middleware
+              c.response :logger
+              c.adapter Faraday.default_adapter
+            end
+          end
+
           def fetch_package_safelist(dist)
-            Faraday.get(package_safelist_url(dist)).body.to_s
+            url = URI.parse(package_safelist_url(dist))
+            faraday(url).get(url.path).body.to_s
           end
 
           def fetch_source_alias_list(dist)
-            Faraday.get(source_alias_list_url(dist)).body.to_s
+            url = URI.parse(source_alias_list_url(dist))
+            faraday(url).get(url.path).body.to_s
           end
 
           def package_safelist_url(dist)
