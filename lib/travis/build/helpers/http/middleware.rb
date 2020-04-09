@@ -1,3 +1,5 @@
+require 'travis/api/build/metriks'
+
 module Travis
   module Build
     module Http
@@ -5,6 +7,7 @@ module Travis
         MSG = "GitHub request failed url=%s rate_limit=%s github_request_id=%s status=%s"
 
         def call(request_env)
+          logger.info "Using #{self}"
            @app.call(request_env).on_complete do |response_env|
             rate_limit = rate_limit_info(response_env[:response_headers])
             meter(rate_limit[:remaining])

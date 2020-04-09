@@ -58,6 +58,7 @@ module Travis
           def faraday(url)
             Faraday.new( url: URI.parse(url).host ) do |c|
               c.use Travis::Build::Http::Middleware
+              c.response :logger
               c.adapter Faraday.default_adapter
             end
           end
