@@ -125,7 +125,7 @@ module Travis
               sh.cmd "#{git_cmd} fetch origin #{pull_request_head_branch}", timing: false
               sh.cmd "#{git_cmd} branch #{pull_request_head_branch} FETCH_HEAD", timing: false
               sh.cmd "#{git_cmd} checkout #{branch}", timing: false
-              sh.cmd "#{git_cmd} merge #{pull_request_head_branch} -m 'Travis build'", timing: false
+              sh.cmd "#{git_cmd} merge #{pull_request_head_branch} -m 'Travis CI build'", timing: false
             end
           end
 
