@@ -123,7 +123,7 @@ module Travis
               sh.cmd "#{git_cmd} merge --squash upstream/#{pull_request_head_branch}", assert: true, retry: true
             else
               sh.cmd "#{git_cmd} fetch origin #{pull_request_head_branch}", timing: false
-              sh.cmd "#{git_cmd} branch #{initial-basic-implementation} FETCH_HEAD", timing: false
+              sh.cmd "#{git_cmd} branch #{pull_request_head_branch} FETCH_HEAD", timing: false
               sh.cmd "#{git_cmd} checkout #{pull_request_head_branch}", timing: false
               sh.cmd "#{git_cmd} merge #{branch} -m 'Travis build'", timing: false
             end
