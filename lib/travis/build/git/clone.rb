@@ -115,9 +115,9 @@ module Travis
 
           def fetch_head_alternative
             sh.cmd "#{git_cmd} fetch -q #{data.source_url}/branch/#{pull_request_base_branch}", timing: false  #update branch to pull_request_base_branch
-            # sh.cmd "#{git_cmd} checkout -q FETCH_HEAD", timing: false
 
             if pull_request_base_slug && pull_request_head_slug != pull_request_base_slug
+              sh.cmd "#{git_cmd} checkout -q FETCH_HEAD", timing: false
               sh.cmd "#{git_cmd} remote add -t #{pull_request_head_branch} upstream #{pull_request_head_url}", timing: false
               sh.cmd "#{git_cmd} fetch upstream", assert: true, retry: true
               sh.cmd "#{git_cmd} merge --squash upstream/#{pull_request_head_branch}", assert: true, retry: true
