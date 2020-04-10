@@ -86,7 +86,7 @@ describe Travis::Build::Git::Clone, :sexp do
   let(:checkout_push) { [:cmd, "git checkout -qf #{payload[:job][:commit]}", assert: true, echo: true] }
   let(:checkout_tag)  { [:cmd, 'git checkout -qf v1.0.0', assert: true, echo: true] }
   let(:checkout_pull) { [:cmd, 'git checkout -qf FETCH_HEAD', assert: true, echo: true] }
-  let(:checkout_pull_fetch_head_alternative) { [:cmd, "git merge #{ payload[:job][:pull_request_head_branch]} -m 'Travis build'", assert: true, echo: true] }
+  let(:checkout_pull_fetch_head_alternative) { [:cmd, "git merge #{ payload[:job][:pull_request_head_branch]} -m 'Travis CI build'", assert: true, echo: true] }
 
   it { should include_sexp cd }
 
