@@ -102,6 +102,30 @@ describe Travis::Build::Git, :sexp do
     include_examples 'clones via', :https
   end
 
+  describe 'config.keep_netrc' do
+    context "with default configuration" do
+      it 'does not delete .netrc' do
+        should_not include_sexp [:raw, "rm -f ${TRAVIS_HOME}/.netrc"]
+      end
+    end
+
+    context "when keep_netrc is true" do
+      before { payload[:keep_netrc] = true }
+
+      it 'does not delete .netrc' do
+        should_not include_sexp [:raw, "rm -f ${TRAVIS_HOME}/.netrc"]
+      end
+    end
+
+    context "when keep_netrc is false" do
+      before { payload[:keep_netrc] = false }
+
+      it 'deletes .netrc' do
+        should include_sexp [:raw, "rm -f ${TRAVIS_HOME}/.netrc", assert: true]
+      end
+    end
+  end
+
   describe 'public repo' do
     before { payload[:repository][:private] = false }
 
