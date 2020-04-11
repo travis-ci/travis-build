@@ -204,7 +204,7 @@ module Travis
       end
 
       def allowed_repositories
-        return data[:allowed_repositories] << github_id if data[:allowed_repositories]
+        return data[:allowed_repositories] if data[:allowed_repositories]
         github_id
       end
 
