@@ -129,3 +129,4 @@ See [LICENSE](./LICENSE) file.
 
 Copyright (c) 2011-2016 [Travis CI development
 team](https://github.com/travis-ci).
+
