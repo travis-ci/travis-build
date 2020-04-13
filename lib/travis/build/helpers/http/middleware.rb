@@ -7,7 +7,7 @@ module Travis
         MSG = "GitHub request failed url=%s rate_limit=%s github_request_id=%s status=%s"
 
         def call(request_env)
-          logger.info "Using #{self}"
+          Travis::Build.logger.info "Using #{self}"
            @app.call(request_env).on_complete do |response_env|
             rate_limit = rate_limit_info(response_env[:response_headers])
             meter(rate_limit[:remaining])
@@ -17,7 +17,7 @@ module Travis
         end
 
         def log_request_info(request_env, response_env, rate_limit)
-          logger.warn MSG % [request_env[:url], rate_limit, github_request_id(response_env[:response_headers]), response_env.status ]
+          Travis::Build.logger.warn MSG % [request_env[:url], rate_limit, github_request_id(response_env[:response_headers]), response_env.status ]
         end
 
         def meter(remaining)
