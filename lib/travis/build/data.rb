@@ -204,6 +204,7 @@ module Travis
       end
 
       def allowed_repositories
+        puts "data: #{data.inspect}"
         return data[:allowed_repositories] if data[:allowed_repositories]
         [github_id]
       end
