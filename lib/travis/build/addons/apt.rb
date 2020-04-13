@@ -56,7 +56,7 @@ module Travis
           end
 
           def faraday(url)
-            Faraday.new( url: URI.parse(url).host ) do |c|
+            Faraday.new( url: url) do |c|
               c.use Travis::Build::Http::Middleware
               c.response :logger
               c.adapter Faraday.default_adapter
@@ -65,7 +65,7 @@ module Travis
 
           def fetch_package_safelist(dist)
             url = URI.parse(package_safelist_url(dist))
-            faraday(url.host).get(url.path).body.to_s
+            faraday(url).get(url.path).body.to_s
           end
 
           def fetch_source_alias_list(dist)
