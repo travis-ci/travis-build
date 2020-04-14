@@ -204,7 +204,6 @@ module Travis
       end
 
       def allowed_repositories
-        puts "data: #{data.inspect}"
         return data[:allowed_repositories] if data[:allowed_repositories]
         [github_id]
       end
@@ -230,9 +229,9 @@ module Travis
       end
 
       def installation_token
-        puts "installation_id: #{installation_id}, allowed_repositories: #{allowed_repositories}"
         GithubApps.new(installation_id, {}, allowed_repositories).access_token
       rescue RuntimeError => e
+        puts "EMESSAGE: #{e.message}"
         if e.message =~ /Failed to obtain token from GitHub/
           raise Travis::Build::GithubAppsTokenFetchError.new
         end
