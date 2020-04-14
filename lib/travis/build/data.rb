@@ -231,7 +231,6 @@ module Travis
       def installation_token
         GithubApps.new(installation_id, {}, allowed_repositories).access_token
       rescue RuntimeError => e
-        puts "EMESSAGE: #{e.message}"
         if e.message =~ /Failed to obtain token from GitHub/
           raise Travis::Build::GithubAppsTokenFetchError.new
         end
