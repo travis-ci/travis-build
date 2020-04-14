@@ -67,7 +67,7 @@ module Travis
             when 'windows'
               sh.cmd %Q{curl -A "$CURL_USER_AGENT" -sSf -L --retry 7 -o julia-installer.exe '#{julia_url}'}
               sh.cmd 'chmod +x julia-installer.exe'
-              if config[:julia] == 'nightly' || Gem::Version.new(config[:julia]) >= Gem::Version.new('1.4')
+              if uses_inno_setup?
                 sh.cmd %Q{powershell -c 'Start-Process -FilePath julia-installer.exe -ArgumentList "/VERYSILENT /DIR=C:\\julia" -NoNewWindow -Wait'}
               else
                 sh.cmd %Q{powershell -c 'Start-Process -FilePath julia-installer.exe -ArgumentList "/S /D=C:\\julia" -NoNewWindow -Wait'}
@@ -189,6 +189,12 @@ module Travis
               sh.failure "Unknown Julia version: #{julia_version}"
             end
             "https://#{url}"
+          end
+
+          def uses_inno_setup?
+            return false unless config[:os] == 'windows'
+            ver = Array(config[:julia]).first.to_s
+            ver == 'nightly' || ver == '1' || Gem::Version.new(ver) >= Gem::Version.new('1.4')
           end
       end
     end
