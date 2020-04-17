@@ -28,7 +28,7 @@ module Travis
         return @version if @version
         @version ||= `git describe --always --dirty --tags 2>/dev/null`.strip
         @version = nil unless $?.success?
-        @version ||= ENV.fetch('HEROKU_SLUG_COMMIT', nil)
+        @version ||= ENV.fetch('BUILD_SLUG_COMMIT', nil)
         @version ||= top.join('VERSION').read if top.join('VERSION').exist?
         @version ||= 'unknown'
         @version
