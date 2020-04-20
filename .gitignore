@@ -2,6 +2,7 @@
 *~
 *#
 \#*
+bin/*
 .bundle/*
 /tmp/
 play/*.sh
