@@ -26,4 +26,12 @@ describe Travis::Build::Script::Workspace, :sexp do
       ]
     end
   end
+
+  describe 'when workspace.create is not a conformant hash' do
+    let(:config) { { workspaces: { use: "${TRAVIS_OS_NAME}", create: [ "foo" ] } } }
+    it "interprets the env var" do
+      expect { store_example }.to_not raise_error
+      should include_sexp :echo, %r[workspace\.create must be be a hash with keys 'name' and 'paths']
+    end
+  end
 end

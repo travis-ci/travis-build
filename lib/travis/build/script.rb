@@ -497,7 +497,7 @@ module Travis
           sh.fold "workspaces_create" do
             sh.echo "Creating workspaces", ansi: :green
             ws_config.each do |cfg|
-              unless cfg.key?(:name) && cfg.key?(:paths)
+              unless cfg.respond_to?(:key?) && cfg.key?(:name) && cfg.key?(:paths)
                 sh.echo "workspaces.create must be a hash with keys 'name' and 'paths', " \
                   "or an array of such hashes", ansi: :yellow
                 next
