@@ -7,7 +7,7 @@ describe Travis::Build::Env do
       pull_request: '100',
       config: { env: ['FOO=foo', 'SECURE BAR=bar'] },
       build: { id: '1', number: '1' },
-      job: { id: '1', number: '1.1', branch: 'foo-(dev)', commit: '03148a8', commit_range: '03148a8..f9da1fd', commit_message: 'the commit message', os: 'linux' },
+      job: { id: '1', number: '1.1', branch: branch, commit: '03148a8', commit_range: '03148a8..f9da1fd', commit_message: 'the commit message', os: 'linux' },
       repository: { slug: 'travis-ci/travis-ci' },
       env_vars: [
         { name: 'BAM', value: 'bam', public: true },
@@ -15,6 +15,7 @@ describe Travis::Build::Env do
         { name: 'FOOMASTER', value: 'foomaster', public: true, branch: 'master' },
         { name: 'MULTIBRANCHVARIABLE', value: 'foodevvalue', public: true, branch: 'foo-(dev)' },
         { name: 'MULTIBRANCHVARIABLE', value: 'footestvalue', public: true, branch: 'foo-(test)' },
+        { name: 'MULTIBRANCHVARIABLE', value: 'defaultvalue', public: true },
         { name: 'BAZ', value: 'baz', public: false },
       ]
     }
@@ -24,6 +25,7 @@ describe Travis::Build::Env do
   let(:env)  { described_class.new(data) }
   let(:vars) { env.groups.flat_map(&:vars) }
   let(:keys) { vars.map(&:key) }
+  let(:branch) { 'foo-(dev)' }
 
   it 'includes travis env vars' do
     travis_vars = vars.select { |v| v.key =~ /^TRAVIS_/ }
@@ -77,11 +79,11 @@ describe Travis::Build::Env do
       end
 
       it 'marks secure vars as secure' do
-        expect(vars.last).to be_secure
+        expect(vars.select {|v| v.secure?}).to_not be_empty
       end
 
       it 'taints secure var values' do
-        expect(vars.last.value).to be_tainted
+        expect(vars.select {|v| v.secure?}.map {|x| x.value.tainted?}.uniq).to eq [true]
       end
     end
 
@@ -92,7 +94,7 @@ describe Travis::Build::Env do
         expect(keys).to_not include('BAZ')
       end
     end
-    
+
     describe 'for env jobs (pull requests) restricted to branch' do
       it 'includes vars restricted to foo-(dev) branch' do
         expect(keys).to include('FOODEV')
@@ -101,13 +103,31 @@ describe Travis::Build::Env do
         expect(keys).to_not include('FOOMASTER')
       end
       it 'includes values restricted to foo-(dev) branch' do
-        expect(vars.find {|var| var.key == 'MULTIBRANCHVARIABLE'}.value).to eq('foodevvalue')
+        expect(vars.select {|var| var.key == 'MULTIBRANCHVARIABLE'}.last.value).to eq('foodevvalue')
       end
       it 'does not include vars restricted to foo-(test) branch' do
-        expect(vars.find {|var| var.key == 'MULTIBRANCHVARIABLE'}.value).to_not eq('footestvalue')
+        expect(vars.select {|var| var.key == 'MULTIBRANCHVARIABLE'}.last.value).to_not eq('footestvalue')
       end
     end
-    
+
+    context 'on master branch builds' do
+      let(:branch) { 'master' }
+
+      describe 'for env jobs (pull requests) restricted to branch' do
+        it 'includes vars restricted to foo-(dev) branch' do
+          expect(keys).to_not include('FOODEV')
+        end
+        it 'does includes vars restricted to master branch' do
+          expect(keys).to include('FOOMASTER')
+        end
+        it 'includes values restricted to foo-(dev) branch' do
+          expect(vars.select {|var| var.key == 'MULTIBRANCHVARIABLE'}.last.value).to eq('defaultvalue')
+        end
+        it 'does not include vars restricted to foo-(test) branch' do
+          expect(vars.select {|var| var.key == 'MULTIBRANCHVARIABLE'}.last.value).to_not eq('foodevvalue')
+        end
+      end
+    end
   end
 
   it 'escapes TRAVIS_ vars' do
