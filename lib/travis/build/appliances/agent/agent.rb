@@ -51,7 +51,7 @@ module Agent
 
       def stop(sig)
         puts "[stop] received signal #{sig}"
-        watcher.stop
+        watcher&.stop
       rescue => e
         err e.message, e.backtrace
         exit

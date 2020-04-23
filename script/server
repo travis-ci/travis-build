@@ -17,6 +17,11 @@ main() {
     tar -xf public.tar.bz2
   fi
 
+  if [[ -f BUILD_SLUG_COMMIT ]]; then
+    export BUILD_SLUG_COMMIT
+    BUILD_SLUG_COMMIT=$(cat ./BUILD_SLUG_COMMIT)
+  fi
+
   if [[ "${RACK_ENV}" == development ]] &&
     [[ ! -f /.dockerenv ]] &&
     [[ ! "${DISABLE_RERUN}" ]]; then
