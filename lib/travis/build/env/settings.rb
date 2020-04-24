@@ -15,7 +15,9 @@ module Travis
         private
 
           def env_vars
-            data.env_vars.map do |var|
+            branch_specific, default = data.env_vars.partition { |v| v[:branch] == job[:branch]}
+
+            (default + branch_specific).map do |var|
               if var[:branch].to_s.empty? || var[:branch] == job[:branch]
                 [var[:name], var[:value], secure: !var[:public]]
               else
