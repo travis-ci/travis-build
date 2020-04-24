@@ -282,15 +282,18 @@ MESSAGE
 
           def archive_url
             url_end = ''
-            # support of "dev" or "stable"
-            if ["stable", "dev"].include?(task[:dart])
+            # support of "stable", "dev", or "beta"
+            if ["stable", "dev", "beta"].include?(task[:dart])
               url_end = "#{task[:dart]}/release/latest"
             # support of "stable/release/1.15.0" or "be/raw/110749"
             elsif task[:dart].include?("/")
               url_end = task[:dart]
-            # support of dev versions like "1.16.0-dev.2.0" or "1.16.0-dev.2.0"
-            elsif task[:dart].include?("-dev")
+            # support of dev versions like "1.16.0-dev.2.0" or "1.16.0-2.0.dev"
+            elsif task[:dart].include?("dev")
               url_end = "dev/release/#{task[:dart]}"
+            # support of dev versions like "1.16.0-2.0.beta"
+            elsif task[:dart].include?(".beta")
+              url_end = "beta/release/#{task[:dart]}"
             # support of stable versions like "1.14.0" or "1.14.1"
             else
               url_end = "stable/release/#{task[:dart]}"
