@@ -566,13 +566,14 @@ module Travis
         end
 
         # Uninstalls the preinstalled homebrew
-        # See FAQ: https://docs.brew.sh/FAQ#how-do-i-uninstall-old-versions-of-a-formula
+        # See FAQ: https://docs.brew.sh/FAQ#how-do-i-uninstall-homebrew
         def disable_homebrew
           return unless (config[:os] == 'osx')
-          sh.cmd "curl -fsSOL https://raw.githubusercontent.com/Homebrew/install/master/uninstall"
-          sh.cmd "sudo ruby uninstall --force"
-          sh.cmd "rm uninstall"
+          sh.cmd "curl -fsSOL https://raw.githubusercontent.com/Homebrew/install/master/uninstall.sh"
+          sh.cmd "sudo /bin/bash uninstall.sh --force"
+          sh.cmd "rm uninstall.sh"
           sh.cmd "hash -r"
+          sh.cmd "git config --global --unset protocol.version"
         end
 
         # Abstract out version check
