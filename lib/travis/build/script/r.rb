@@ -566,13 +566,14 @@ module Travis
         end
 
         # Uninstalls the preinstalled homebrew
-        # See FAQ: https://docs.brew.sh/FAQ#how-do-i-uninstall-old-versions-of-a-formula
+        # See FAQ: https://docs.brew.sh/FAQ#how-do-i-uninstall-homebrew
         def disable_homebrew
           return unless (config[:os] == 'osx')
-          sh.cmd "curl -fsSOL https://raw.githubusercontent.com/Homebrew/install/master/uninstall"
-          sh.cmd "sudo ruby uninstall --force"
-          sh.cmd "rm uninstall"
+          sh.cmd "curl -fsSOL https://raw.githubusercontent.com/Homebrew/install/master/uninstall.sh"
+          sh.cmd "sudo /bin/bash uninstall.sh --force"
+          sh.cmd "rm uninstall.sh"
           sh.cmd "hash -r"
+          sh.cmd "git config --global --unset protocol.version"
         end
 
         # Abstract out version check
@@ -591,8 +592,8 @@ module Travis
 
         def normalized_r_version(v=Array(config[:r]).first.to_s)
           case v
-          when 'release' then '3.6.2'
-          when 'oldrel' then '3.5.3'
+          when 'release' then '4.0.0'
+          when 'oldrel' then '3.6.2'
           when '3.0' then '3.0.3'
           when '3.1' then '3.1.3'
           when '3.2' then '3.2.5'
@@ -600,6 +601,7 @@ module Travis
           when '3.4' then '3.4.4'
           when '3.5' then '3.5.3'
           when '3.6' then '3.6.2'
+          when '4.0' then '4.0.0'
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true
