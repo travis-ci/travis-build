@@ -126,7 +126,7 @@ module Travis
 
                 # R-devel builds available at mac.r-project.org
                 if r_version == 'devel'
-                  r_url = "https://mac.r-project.org/el-capitan/R-devel/R-devel-el-capitan.pkg"
+                  r_url = "https://mac.r-project.org/high-sierra/R-devel/R-devel.pkg"
 
                 # The latest release is the only one available in /bin/macosx
                 elsif r_version == r_latest
@@ -556,12 +556,18 @@ module Travis
             sh.cmd 'curl -fLo /tmp/gfortran.tar.bz2 http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2', retry: true
             sh.cmd 'sudo tar fvxz /tmp/gfortran.tar.bz2 -C /'
             sh.rm '/tmp/gfortran.tar.bz2'
-          else
+          elsif r_version_less_than('3.7')
             sh.cmd "curl -fLo /tmp/gfortran61.dmg #{repos[:CRAN]}/contrib/extra/macOS/gfortran-6.1-ElCapitan.dmg", retry: true
             sh.cmd 'sudo hdiutil attach /tmp/gfortran61.dmg -mountpoint /Volumes/gfortran'
             sh.cmd 'sudo installer -pkg "/Volumes/gfortran/gfortran-6.1-ElCapitan/gfortran.pkg" -target /'
             sh.cmd 'sudo hdiutil detach /Volumes/gfortran'
             sh.rm '/tmp/gfortran61.dmg'
+          else
+            sh.cmd "curl -fLo /tmp/gfortran82.dmg https://github.com/fxcoudert/gfortran-for-macOS/releases/download/8.2/gfortran-8.2-Mojave.dmg", retry: true
+            sh.cmd 'sudo hdiutil attach /tmp/gfortran82.dmg -mountpoint /Volumes/gfortran'
+            sh.cmd 'sudo installer -pkg "/Volumes/gfortran/gfortran-8.2-Mojave/gfortran.pkg" -target /'
+            sh.cmd 'sudo hdiutil detach /Volumes/gfortran'
+            sh.rm '/tmp/gfortran82.dmg'
           end
         end
 
@@ -573,7 +579,7 @@ module Travis
           sh.cmd "sudo /bin/bash uninstall.sh --force"
           sh.cmd "rm uninstall.sh"
           sh.cmd "hash -r"
-          sh.cmd "git config --global --unset protocol.version"
+          sh.cmd "git config --global --unset protocol.version || true"
         end
 
         # Abstract out version check
@@ -593,14 +599,14 @@ module Travis
         def normalized_r_version(v=Array(config[:r]).first.to_s)
           case v
           when 'release' then '4.0.0'
-          when 'oldrel' then '3.6.2'
+          when 'oldrel' then '3.6.3'
           when '3.0' then '3.0.3'
           when '3.1' then '3.1.3'
           when '3.2' then '3.2.5'
           when '3.3' then '3.3.3'
           when '3.4' then '3.4.4'
           when '3.5' then '3.5.3'
-          when '3.6' then '3.6.2'
+          when '3.6' then '3.6.3'
           when '4.0' then '4.0.0'
           when 'bioc-devel'
             config[:bioc_required] = true
