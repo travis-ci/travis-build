@@ -126,7 +126,7 @@ module Travis
 
                 # R-devel builds available at mac.r-project.org
                 if r_version == 'devel'
-                  r_url = "https://mac.r-project.org/el-capitan/R-devel/R-devel-el-capitan.pkg"
+                  r_url = "https://mac.r-project.org/high-sierra/R-devel/R-devel.pkg"
 
                 # The latest release is the only one available in /bin/macosx
                 elsif r_version == r_latest
@@ -573,7 +573,7 @@ module Travis
           sh.cmd "sudo /bin/bash uninstall.sh --force"
           sh.cmd "rm uninstall.sh"
           sh.cmd "hash -r"
-          sh.cmd "git config --global --unset protocol.version"
+          sh.cmd "git config --global --unset protocol.version || true"
         end
 
         # Abstract out version check
@@ -593,14 +593,14 @@ module Travis
         def normalized_r_version(v=Array(config[:r]).first.to_s)
           case v
           when 'release' then '4.0.0'
-          when 'oldrel' then '3.6.2'
+          when 'oldrel' then '3.6.3'
           when '3.0' then '3.0.3'
           when '3.1' then '3.1.3'
           when '3.2' then '3.2.5'
           when '3.3' then '3.3.3'
           when '3.4' then '3.4.4'
           when '3.5' then '3.5.3'
-          when '3.6' then '3.6.2'
+          when '3.6' then '3.6.3'
           when '4.0' then '4.0.0'
           when 'bioc-devel'
             config[:bioc_required] = true
