@@ -82,7 +82,7 @@ describe Travis::Build::Script::R, :sexp do
     data[:config][:os] = 'osx'
     data[:config][:r] = '3.3'
     data[:config][:fortran] = true
-    should include_sexp [:cmd, %r{^curl.*\/tmp\/gfortran.tar.bz2 https?:\/\/.*\/gfortran-4.8.2-darwin13.tar.bz2},
+    should include_sexp [:cmd, %r{^curl.*/tmp/gfortran.tar.bz2 https?://.*/gfortran-4\.8\.2-darwin13\.tar\.bz2},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
@@ -90,15 +90,15 @@ describe Travis::Build::Script::R, :sexp do
     data[:config][:os] = 'osx'
     data[:config][:r] = 'release'
     data[:config][:fortran] = true
-    should include_sexp [:cmd, %r{^curl.*\/tmp\/gfortran61.dmg https?:\/\/.*\/macOS\/gfortran-6.1-ElCapitan.dmg},
+    should include_sexp [:cmd, %r{^curl.*/tmp/gfortran82.dmg https?://.*/download/8\.2/gfortran-8\.2-Mojave\.dmg},
                          assert: true, echo: true, retry: true, timing: true]
   end
-  
+
   it 'downloads and installs Coudert gfortran on OS X for R 3.4' do
     data[:config][:os] = 'osx'
     data[:config][:r] = 'devel'
     data[:config][:fortran] = true
-    should include_sexp [:cmd, %r{^curl.*\/tmp\/gfortran82.dmg https?:\/\/.*\/download\/8.2\/gfortran-8.2-Mojave.dmg},
+    should include_sexp [:cmd, %r{^curl.*/tmp/gfortran82.dmg https?://.*/download/8\.2/gfortran-8\.2-Mojave\.dmg},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
