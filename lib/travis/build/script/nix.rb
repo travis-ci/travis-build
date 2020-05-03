@@ -9,7 +9,7 @@ module Travis
     class Script
       class Nix < Script
         DEFAULTS = {
-          nix: '2.0.4'
+          nix: '2.3.4'
         }
 
         def export
