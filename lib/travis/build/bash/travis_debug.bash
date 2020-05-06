@@ -8,6 +8,7 @@ export ANSI_YELLOW="\033[33;1m"
 export ANSI_BLUE="\033[34;1m"
 export ANSI_RESET="\033[0m"
 export ANSI_CLEAR="\033[0K"
+export TMATE_SOCKET='/tmp/tmate.sock'
 
 travis_debug_warn() {
   echo -e "${ANSI_YELLOW}travis_debug: $1${ANSI_RESET}" 1>&2
@@ -15,7 +16,7 @@ travis_debug_warn() {
 
 main() {
   local QUIET TMATE TMATE_MSG
-  export TMATE="tmate -S /tmp/tmate.sock"
+  export TMATE="tmate -S ${TMATE_SOCKET}"
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -38,6 +39,7 @@ main() {
 
   "
   echo -en "${TMATE_MSG}" >"${TRAVIS_HOME}/.travis/debug_help"
+  echo "alias tmate='/usr/bin/tmate -S ${TMATE_SOCKET}' >> ${TRAVIS_HOME}/.bashrc"
   sync
   $TMATE new-session -d "cat ${TRAVIS_HOME}/.travis/debug_help; /bin/bash -l"
   $TMATE wait tmate-ready
