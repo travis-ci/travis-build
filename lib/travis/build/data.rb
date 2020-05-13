@@ -229,7 +229,7 @@ module Travis
       end
 
       def installation_token
-        GithubApps.new(installation_id, {debug: true}, allowed_repositories).access_token
+        GithubApps.new(installation_id, {}, allowed_repositories).access_token
       rescue RuntimeError => e
         if e.message =~ /Failed to obtain token from GitHub/
           raise Travis::Build::GithubAppsTokenFetchError.new
