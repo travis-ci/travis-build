@@ -24,7 +24,7 @@ module Travis
               sh.cmd "cp /etc/rethinkdb/default.conf.sample /etc/rethinkdb/instances.d/default.conf", sudo: true
               sh.cmd "sleep 5", echo: false
               sh.echo "Starting RethinkDB v#{rethinkdb_version}", ansi: :yellow
-              sh.cmd "service rethinkdb start", sudo: true, assert: false, echo: true, timing: true
+              sh.cmd "service rethinkdb restart", sudo: true, assert: false, echo: true, timing: true
               sh.export 'TRAVIS_RETHINKDB_VERSION', rethinkdb_version, echo: false
               sh.export 'TRAVIS_RETHINKDB_PACKAGE_VERSION', '$package_version', echo: false
               sh.cmd "rethinkdb --version", assert: false, echo: true
