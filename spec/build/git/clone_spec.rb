@@ -176,18 +176,18 @@ describe Travis::Build::Git::Clone, :sexp do
     end
   end
 
-  describe 'git.symlink option' do
+  describe 'git.symlinks option' do
     context 'when it does not exist' do
-      it { should_not include_sexp [:cmd, /^git config --global core\.symlink/]}
+      it { should_not include_sexp [:cmd, /^git config --global core\.symlinks/]}
     end
 
     context 'when it is set to true' do
-      before { payload[:config][:git]['symlink'] = true }
+      before { payload[:config][:git]['symlinks'] = true }
       it { should include_sexp [:cmd, /^git config --global core\.symlinks true/]}
     end
 
     context 'when it is set to false' do
-      before { payload[:config][:git]['symlink'] = false }
+      before { payload[:config][:git]['symlinks'] = false }
       it { should include_sexp [:cmd, /^git config --global core\.symlinks false/]}
     end
   end

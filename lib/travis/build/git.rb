@@ -100,8 +100,8 @@ module Travis
         end
 
         def config_symlink
-          if config[:git].key? :symlink
-            sh.cmd "git config --global core.symlinks #{!!config[:git][:symlink]}", echo: false, assert: false, timing: false
+          if config[:git].key? :symlinks
+            sh.cmd "git config --global core.symlinks #{!!config[:git][:symlinks]}", echo: false, assert: false, timing: false
           end
         end
 
