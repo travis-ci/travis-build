@@ -90,6 +90,27 @@ describe Travis::Build::Script::Cpp, :sexp do
     should include_sexp [:cmd, 'gcc --version', echo: true]
   end
 
+  describe 'clang++-7 given as compiler' do
+    before :each do
+      data[:config][:compiler] = 'clang++-7'
+    end
+
+    it { store_example( name: 'clang++-7' )}
+
+    it 'sets CC to clang-7' do
+      should include_sexp [:export, ['CC', 'clang-7'], echo: true]
+    end
+
+    it 'sets CXX to clang++-7' do
+      should include_sexp [:export, ['CXX', 'clang++-7'], echo: true]
+    end
+  end
+
+  it 'runs gcc --version' do
+    data[:config][:compiler] = 'gcc'
+    should include_sexp [:cmd, 'gcc --version', echo: true]
+  end
+
   it 'runs ./configure && make && make test' do
     should include_sexp [:cmd, './configure && make && make test', echo: true, timing: true]
   end

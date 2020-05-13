@@ -6,6 +6,9 @@ module Travis
           compiler: 'g++'
         }
 
+        GCC_REGEXP   = /^g(?:cc|\+\+)(-\d+(\.\d+)*)?/i
+        CLANG_REGEXP = /^clang(?:\+\+)?(-\d+(\.\d+)*)?/i
+
         def export
           super
           sh.export 'TRAVIS_COMPILER', compiler
@@ -16,6 +19,11 @@ module Travis
           if data.cache?(:ccache)
             sh.export 'PATH', "/usr/lib/ccache:$PATH"
           end
+        end
+
+        def configure
+          super
+          install_compiler(cc)
         end
 
         def announce
@@ -52,10 +60,10 @@ module Travis
 
           def cxx
             case compiler
-            when /^gcc/i, /^g\+\+/i then
-              'g++'
-            when /^clang/i, /^clang\+\+/i then
-              'clang++'
+            when GCC_REGEXP then
+              "g++#{$1}"
+            when CLANG_REGEXP then
+              "clang++#{$1}"
             else
               'g++'
             end
@@ -63,14 +71,48 @@ module Travis
 
           def cc
             case compiler
-            when /^gcc/i, /^g\+\+/i then
-              'gcc'
-            when /^clang/i, /^clang\+\+/i then
-              'clang'
+            when GCC_REGEXP then
+              "gcc#{$1}"
+            when CLANG_REGEXP then
+              "clang#{$1}"
             else
               'gcc'
             end
           end
+
+          def install_compiler(compiler)
+            pkgs = [ compiler, 'libstdc++6' ]
+
+            case compiler
+            when GCC_REGEXP
+              apt_repo_command = "sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test"
+            when CLANG_REGEXP
+              sh.if "$(command -v lsb_release) && $(lsb_release -cs) = trusty" do
+                sh.cmd "sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test"
+              end
+              apt_key_command = "wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -"
+              apt_repo_command = "echo \"deb https://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)#{$1} main\"  | sudo tee /etc/apt/sources.list.d/llvm.list >/dev/null"
+            else
+              sh.echo "Unknown compiler: #{compiler}", ansi: :yellow
+              return
+            end
+
+            sh.if "! $(command -v #{compiler})" do
+              sh.newline
+              sh.fold "compiler.install" do
+                sh.echo "#{compiler} is not found. Installing"
+                sh.if "$(command -v lsb_release) && $(lsb_release -cs) = trusty && #{compiler} =~ ^clang" do
+                  sh.cmd "sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test"
+                end
+
+                sh.cmd apt_key_command if apt_key_command
+                sh.cmd apt_repo_command
+                sh.cmd "sudo apt-get update >& /dev/null"
+                sh.cmd "sudo apt-get install -y #{pkgs.join(' ')}"
+              end
+            end
+          end
+
       end
     end
   end
