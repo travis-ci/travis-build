@@ -75,12 +75,18 @@ module Travis
                 if r_version_less_than('3.5.0')
                   sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter"'
                   sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u"'
-                else
+                elsif r_version_less_than('4.0.0')
                   sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter3.5"'
                   sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u3.5"'
-                  sh.cmd 'sudo add-apt-repository -y "ppa:ubuntugis/ppa"'
-                  sh.cmd 'sudo add-apt-repository -y "ppa:cran/travis"'
+                else
+                  sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter4.0"'
+                  # not yet available:
+                  # sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u4.0"'
                 end
+
+                # Extra PPAs that do not depend on R version
+                sh.cmd 'sudo add-apt-repository -y "ppa:ubuntugis/ppa"'
+                sh.cmd 'sudo add-apt-repository -y "ppa:cran/travis"'
 
                 # Both c2d4u and c2d4u3.5 depend on this ppa for ffmpeg
                 sh.if "$(lsb_release -cs) = 'trusty'" do
@@ -122,6 +128,7 @@ module Travis
                 # output.
                 unless config[:disable_homebrew]
                   sh.cmd 'brew update >/dev/null', retry: true
+                  sh.cmd 'brew install checkbashisms || true'
                 end
 
                 # R-devel builds available at mac.r-project.org
