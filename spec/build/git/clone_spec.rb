@@ -175,4 +175,20 @@ describe Travis::Build::Git::Clone, :sexp do
       it { store_example(name: 'git autocrlf invlaid') }
     end
   end
+
+  describe 'git.symlinks option' do
+    context 'when it does not exist' do
+      it { should_not include_sexp [:cmd, /^git config --global core\.symlinks/]}
+    end
+
+    context 'when it is set to true' do
+      before { payload[:config][:git]['symlinks'] = true }
+      it { should include_sexp [:cmd, /^git config --global core\.symlinks true/]}
+    end
+
+    context 'when it is set to false' do
+      before { payload[:config][:git]['symlinks'] = false }
+      it { should include_sexp [:cmd, /^git config --global core\.symlinks false/]}
+    end
+  end
 end

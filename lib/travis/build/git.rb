@@ -35,6 +35,7 @@ module Travis
         if use_tarball?
           download_tarball
         else
+          config_symlink
           clone_or_fetch
           submodules
         end
@@ -111,6 +112,11 @@ module Travis
           config[:git][:clone]
         end
 
+        def config_symlink
+          if config[:git].key? :symlinks
+            sh.cmd "git config --global core.symlinks #{!!config[:git][:symlinks]}", echo: false, assert: false, timing: false
+          end
+        end
 
         def dir
           data.slug
