@@ -22,6 +22,7 @@ module Travis
               sh.cmd "apt-get install -y -o Dpkg::Options::='--force-confnew' rethinkdb=$package_version", sudo: true, echo: true, timing: true
               sh.echo "Installing RethinkDB default instance configuration"
               sh.cmd "cp /etc/rethinkdb/default.conf.sample /etc/rethinkdb/instances.d/default.conf", sudo: true
+              sh.cmd "sleep 2", echo: false
               sh.echo "Starting RethinkDB v#{rethinkdb_version}", ansi: :yellow
               sh.cmd "service rethinkdb start", sudo: true, assert: false, echo: true, timing: true
               sh.export 'TRAVIS_RETHINKDB_VERSION', rethinkdb_version, echo: false
