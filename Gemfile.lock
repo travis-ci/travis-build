@@ -13,9 +13,9 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-github_apps
-  revision: 889a18e7a44d0b64159fb71d2dc745567d9da73c
+  revision: c96dc9330849ff3e2ccd7c9d00005a1a96c1a4b6
   specs:
-    travis-github_apps (0.2.0)
+    travis-github_apps (0.2.1)
       activesupport (>= 3.2)
       faraday
       faraday_middleware
