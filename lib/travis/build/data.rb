@@ -148,7 +148,7 @@ module Travis
       end
 
       def force_private?
-        !source_host.include? 'github.com'
+        !source_host&.include? 'github.com'
       end
 
       def source_host
