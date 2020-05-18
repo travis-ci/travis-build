@@ -144,7 +144,12 @@ module Travis
       def source_ssh?
         return false if prefer_https?
         repo_private? && !installation? or
-          repo_private? && custom_ssh_key?
+          repo_private? && custom_ssh_key? or
+            force_private? && !installation?
+      end
+
+      def force_private?
+        source_host.exclude? 'github.com'
       end
 
       def source_host
