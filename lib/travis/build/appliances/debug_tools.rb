@@ -26,10 +26,18 @@ module Travis
                 sh.cmd "wget -q -O tmate.tar.xz #{static_build_linux_url}", echo: false, retry: true
                 sh.cmd "tar --strip-components=1 -xf tmate.tar.xz", echo: false
               end
-              sh.else do
+              sh.if "$(uname) = 'FreeBSD'" do
+                sh.echo "Setting up the debug environment."
+                sh.cmd "env ALWAYS_ASSUME_YES=YES pkg install tmate", sudo: true, echo: true, assert: true
+              end
+              sh.if "$(name) = 'Darwin'" do
                 sh.echo "We are setting up the debug environment. This may take a while..."
                 sh.cmd "brew update &> /dev/null", echo: false, retry: true
                 sh.cmd "brew install tmate &> /dev/null", echo: false, retry: true
+              end
+              sh.else do
+                sh.echo "This OS does not support running in debug mode.", ansi: :red
+                sh.cmd "return"
               end
             end
 
