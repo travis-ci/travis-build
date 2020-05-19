@@ -1,4 +1,8 @@
 travis_find_jdk_path() {
+  if [[ $(uname) = "FreeBSD" ]]; then
+    return
+  fi
+
   local vendor version jdkpath result jdk
   jdk="$1"
   vendor="$2"

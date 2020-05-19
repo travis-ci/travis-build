@@ -1,4 +1,8 @@
 travis_setup_java() {
+  if [[ $(uname) = "FreeBSD" ]]; then
+    return
+  fi
+
   local jdkpath jdk vendor version
   jdk="$1"
   vendor="$2"
