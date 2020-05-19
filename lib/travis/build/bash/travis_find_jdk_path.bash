@@ -1,5 +1,5 @@
 travis_find_jdk_path() {
-  if [[ $(uname) = "FreeBSD" ]]; then
+  if [[ $(uname) == "FreeBSD" ]]; then
     return
   fi
 

@@ -1,5 +1,5 @@
 travis_setup_java() {
-  if [[ $(uname) = "FreeBSD" ]]; then
+  if [[ $(uname) == "FreeBSD" ]]; then
     return
   fi
 
