@@ -250,7 +250,7 @@ module Travis
         end
 
         def header
-          sh.raw '#!/bin/bash'
+          sh.raw '#!/usr/bin/env bash'
           sh.export 'TRAVIS_ROOT', root, echo: false, assert: false
           sh.export 'TRAVIS_HOME', home_dir, echo: false, assert: false
           sh.export 'TRAVIS_BUILD_DIR', build_dir, echo: false, assert: false
