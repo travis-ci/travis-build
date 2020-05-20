@@ -11,9 +11,15 @@ cache:
 env:
   global:
   - COVERAGE=1
+  - PATH=/snap/bin:$PATH
   matrix:
   - INTEGRATION_SPECS=0
   - INTEGRATION_SPECS=1
+
+addons:
+  snaps:
+  - name: docker
+    channel: latest/beta
 
 stages:
 - test
