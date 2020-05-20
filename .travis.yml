@@ -75,3 +75,4 @@ deploy:
     script: ./script/docker-build-and-push
     on:
       branch: master
+      condition: $INTEGRATION_SPECS == 1
