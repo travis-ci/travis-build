@@ -12,6 +12,7 @@ module Travis
         SUPPORTED_DISTS = %w(
           xenial
           bionic
+          focal
         ).freeze
 
         def before_prepare?

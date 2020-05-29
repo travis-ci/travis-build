@@ -14,6 +14,7 @@ module Travis
           trusty
           xenial
           bionic
+          focal
         ).freeze
 
         attr_reader :safelisted, :disallowed_while_sudo

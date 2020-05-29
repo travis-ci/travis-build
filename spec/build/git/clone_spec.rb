@@ -86,7 +86,7 @@ describe Travis::Build::Git::Clone, :sexp do
   let(:checkout_push) { [:cmd, "git checkout -qf #{payload[:job][:commit]}", assert: true, echo: true] }
   let(:checkout_tag)  { [:cmd, 'git checkout -qf v1.0.0', assert: true, echo: true] }
   let(:checkout_pull) { [:cmd, 'git checkout -qf FETCH_HEAD', assert: true, echo: true] }
-  let(:checkout_pull_fetch_head_alternative) { [:cmd, "git merge --squash #{payload[:job][:branch]}", assert: true, echo: true] }
+  let(:checkout_pull_fetch_head_alternative) { [:cmd, "git merge #{ payload[:job][:pull_request_head_branch]} -m 'Travis CI build'", assert: true, echo: true] }
 
   it { should include_sexp cd }
 
@@ -173,6 +173,22 @@ describe Travis::Build::Git::Clone, :sexp do
 
       it { should include_sexp [:cmd, "git config --global core.autocrlf invlaid", assert: true, echo: true, timing: true] }
       it { store_example(name: 'git autocrlf invlaid') }
+    end
+  end
+
+  describe 'git.symlinks option' do
+    context 'when it does not exist' do
+      it { should_not include_sexp [:cmd, /^git config --global core\.symlinks/]}
+    end
+
+    context 'when it is set to true' do
+      before { payload[:config][:git]['symlinks'] = true }
+      it { should include_sexp [:cmd, /^git config --global core\.symlinks true/]}
+    end
+
+    context 'when it is set to false' do
+      before { payload[:config][:git]['symlinks'] = false }
+      it { should include_sexp [:cmd, /^git config --global core\.symlinks false/]}
     end
   end
 end

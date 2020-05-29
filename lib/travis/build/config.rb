@@ -44,14 +44,15 @@ module Travis
             'http://archive.ubuntu.com/ubuntu/'
           )
         },
-        # safe list and alias list are env variables set at the deployment level, pointing to a lists kept in github repository;  
+        # safe list and alias list are env variables set at the deployment level, pointing to a lists kept in github repository;
         # whenever adding a new distribution and relevant new env variable, configure nnew env var to point to that list
         # lists are in form of json file with specified structure
-        apt_package_safelist: { 
+        apt_package_safelist: {
           precise: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_PRECISE', ''),
           trusty: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_TRUSTY', ''),
           xenial: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_XENIAL', ''),
           bionic: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_BIONIC', ''),
+          focal: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_FOCAL', ''),
         },
         apt_proxy: ENV.fetch('TRAVIS_BUILD_APT_PROXY', ''),
         apt_source_alias_list: {
@@ -59,6 +60,7 @@ module Travis
           trusty: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_TRUSTY', ''),
           xenial: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_XENIAL', ''),
           bionic: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_BIONIC', ''),
+          focal: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_FOCAL', ''),
         },
         apt_source_alias_list_key_url_template: ENV.fetch(
           'TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_KEY_URL_TEMPLATE',
@@ -116,7 +118,12 @@ module Travis
             )
           ).split(',').map { |s| URI.unescape(s.strip) }
         },
-        redis: { url: 'redis://localhost:6379' },
+        redis: {
+          url: 'redis://localhost:6379',
+          reconnect_attempts: 5,
+          reconnect_delay: 1,
+          reconnect_delay_max: 10.0,
+        },
         sentry_dsn: ENV.fetch(
           'TRAVIS_BUILD_SENTRY_DSN', ENV.fetch('SENTRY_DSN', '')
         ),
