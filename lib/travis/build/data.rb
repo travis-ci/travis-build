@@ -207,6 +207,10 @@ module Travis
         data[:repository] || {}
       end
 
+      def allowed_repositories
+        data[:allowed_repositories] || [github_id]
+      end
+
       def token
         installation? ? installation_token : data[:oauth_token]
       end
@@ -219,6 +223,10 @@ module Travis
         data[:prefer_https]
       end
 
+      def keep_netrc?
+        data.key?(:keep_netrc) ? data[:keep_netrc] : true
+      end
+
       def installation?
         !!installation_id
       end
@@ -228,7 +236,7 @@ module Travis
       end
 
       def installation_token
-        GithubApps.new(installation_id).access_token
+        GithubApps.new(installation_id, {}, allowed_repositories).access_token
       rescue RuntimeError => e
         if e.message =~ /Failed to obtain token from GitHub/
           raise Travis::Build::GithubAppsTokenFetchError.new
