@@ -11,9 +11,15 @@ cache:
 env:
   global:
   - COVERAGE=1
+  - PATH=/snap/bin:$PATH
   matrix:
   - INTEGRATION_SPECS=0
   - INTEGRATION_SPECS=1
+
+addons:
+  snaps:
+  - name: docker
+    channel: latest/beta
 
 stages:
 - test
@@ -29,7 +35,7 @@ jobs:
   - stage: ':ship: it to quay.io'
     env:
     script: ./script/docker-build-and-push
-    if: type = cron OR commit_message =~ /ship:docker/ OR env(SHIP_DOCKER) = true
+    if: (branch = master and type = push ) OR commit_message =~ /ship:docker/ OR env(SHIP_DOCKER) = true
 
 before_script:
 - "gem install bundler -v 1.17.3"
