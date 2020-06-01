@@ -1,6 +1,6 @@
 language: ruby
 dist: xenial
-rvm: 2.5.3
+rvm: 2.5.8
 
 services:
   - redis
