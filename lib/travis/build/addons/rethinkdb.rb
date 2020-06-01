@@ -6,6 +6,7 @@ module Travis
     class Addons
       class Rethinkdb < Base
         SUPER_USER_SAFE = true
+        DEFAULT_RETHINKDB_PORT=29015
 
         def after_prepare
           sh.fold 'rethinkdb' do
@@ -22,7 +23,7 @@ module Travis
               sh.cmd "apt-get install -y -o Dpkg::Options::='--force-confnew' rethinkdb=$package_version", sudo: true, echo: true, timing: true
               sh.echo "Installing RethinkDB default instance configuration"
               sh.cmd "cp /etc/rethinkdb/default.conf.sample /etc/rethinkdb/instances.d/default.conf", sudo: true
-              sh.cmd "sleep 5", echo: false
+              sh.cmd "travis_wait_for_port #{DEFAULT_RETHINKDB_PORT}", echo: false
               sh.echo "Starting RethinkDB v#{rethinkdb_version}", ansi: :yellow
               sh.cmd "service rethinkdb restart", sudo: true, assert: false, echo: true, timing: true
               sh.export 'TRAVIS_RETHINKDB_VERSION', rethinkdb_version, echo: false
@@ -40,4 +41,3 @@ module Travis
     end
   end
 end
-
