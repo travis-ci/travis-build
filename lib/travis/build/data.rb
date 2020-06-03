@@ -208,6 +208,7 @@ module Travis
       end
 
       def token
+        # CHANGE FOR DEPLOY
         installation? ? installation_token : data[:oauth_token]
       end
 
