@@ -111,5 +111,19 @@ describe Travis::Build::Script::Cpp, :sexp do
     it 'sets CXX to clang++' do
       should include_sexp [:export, ['CXX', '${CXX:-c++}'], echo: true]
     end
+
+    context 'with compiler=g++' do
+      before :each do
+        data[:config] = { os: 'freebsd', compiler: 'g++' }
+      end
+
+      it 'sets CC to gcc' do
+        should include_sexp [:export, ['CC', '${CC:-gcc}'], echo: true]
+      end
+
+      it 'sets CXX to g++' do
+        should include_sexp [:export, ['CXX', '${CXX:-g++}'], echo: true]
+      end
+    end
   end
 end
