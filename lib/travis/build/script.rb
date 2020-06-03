@@ -4,7 +4,6 @@ require 'core_ext/object/false'
 require 'erb'
 require 'rbconfig'
 require 'date'
-require 'byebug'
 
 require 'travis/build/addons'
 require 'travis/build/appliances'

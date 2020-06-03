@@ -98,4 +98,18 @@ describe Travis::Build::Script::Cpp, :sexp do
     subject { described_class.new(data).cache_slug }
     it { is_expected.to eq("cache-#{CACHE_SLUG_EXTRAS}--compiler-gpp") }
   end
+
+  context 'for FreeBSD' do
+    before :each do
+      data[:config][:os] = 'freebsd'
+    end
+
+    it 'sets CC to c' do
+      should include_sexp [:export, ['CC', '${CC:-cc}'], echo: true]
+    end
+
+    it 'sets CXX to clang++' do
+      should include_sexp [:export, ['CXX', '${CXX:-c++}'], echo: true]
+    end
+  end
 end
