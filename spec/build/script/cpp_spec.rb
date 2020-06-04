@@ -105,11 +105,13 @@ describe Travis::Build::Script::Cpp, :sexp do
     end
 
     it 'sets CC to c' do
-      should include_sexp [:export, ['CC', '${CC:-cc}'], echo: true]
+      should     include_sexp [:export, ['CC', '${CC:-cc}'],  echo: true]
+      should_not include_sexp [:export, ['CC', '${CC:-gcc}'], echo: true]
     end
 
     it 'sets CXX to clang++' do
-      should include_sexp [:export, ['CXX', '${CXX:-c++}'], echo: true]
+      should     include_sexp [:export, ['CXX', '${CXX:-c++}'], echo: true]
+      should_not include_sexp [:export, ['CXX', '${CXX:-g++}'], echo: true]
     end
 
     context 'with compiler=g++' do
@@ -118,11 +120,13 @@ describe Travis::Build::Script::Cpp, :sexp do
       end
 
       it 'sets CC to gcc' do
-        should include_sexp [:export, ['CC', '${CC:-gcc}'], echo: true]
+        should     include_sexp [:export, ['CC', '${CC:-gcc}'], echo: true]
+        should_not include_sexp [:export, ['CC', '${CC:-cc}'],  echo: true]
       end
 
       it 'sets CXX to g++' do
-        should include_sexp [:export, ['CXX', '${CXX:-g++}'], echo: true]
+        should     include_sexp [:export, ['CXX', '${CXX:-g++}'], echo: true]
+        should_not include_sexp [:export, ['CXX', '${CXX:-c++}'], echo: true]
       end
     end
   end
