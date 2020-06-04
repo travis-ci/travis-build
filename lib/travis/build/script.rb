@@ -84,7 +84,7 @@ module Travis
 
       class << self
         def defaults(key)
-          if self::DEFAULTS.key? key.to_sym
+          if key && self::DEFAULTS.key?(key.to_sym)
             Git::DEFAULTS.merge self::DEFAULTS[key.to_sym]
           elsif self::DEFAULTS[:default]
             Git::DEFAULTS.merge self::DEFAULTS[:default]
