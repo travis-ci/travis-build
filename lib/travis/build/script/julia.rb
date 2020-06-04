@@ -25,6 +25,34 @@ module Travis
           sh.export 'JULIA_PROJECT', "@."
         end
 
+        def configure
+          super
+
+          sh.fold 'Julia-install' do
+            sh.with_options({ assert: true,  echo: true,  timing: true  }) do
+              sh.echo 'Installing Julia', ansi: :yellow
+              sh.cmd 'CURL_USER_AGENT="Travis-CI $(curl --version | head -n 1)"'
+              case config[:os]
+              when 'linux'
+                if config[:julia] == 'nightly' && config[:arch] == 'arm64'
+                  sh.failure 'Nightly Julia binaries are not available for AArch64'
+                end
+                sh.cmd 'mkdir -p ~/julia'
+                sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L --retry 7 '#{julia_url}' } \
+                         '| tar -C ~/julia -x -z --strip-components=1 -f -'
+              when 'osx'
+                sh.cmd %Q{curl -A "$CURL_USER_AGENT" -s -L --retry 7 -o julia.dmg '#{julia_url}'}
+                sh.cmd 'mkdir juliamnt'
+                sh.cmd 'hdiutil mount -readonly -mountpoint juliamnt julia.dmg'
+                sh.cmd 'cp -a juliamnt/*.app/Contents/Resources/julia ~/'
+              else
+                sh.failure "Operating system not supported: #{config[:os]}"
+              end
+              sh.cmd 'export PATH="${PATH}:${TRAVIS_HOME}/julia/bin"'
+            end
+          end
+        end
+
         def setup
           super
 
@@ -35,6 +63,13 @@ module Travis
           sh.echo '  https://travis-ci.community/c/languages/julia', ansi: :green
           sh.echo 'and mention \`@ararslan\`, \`@staticfloat\`' \
             ' and \`@StefanKarpinski\` in the issue', ansi: :green
+
+          # Extract the package name from the repository slug (org/pkgname.jl)
+          m = /(\w+?)\/(\w+?)(?:\.jl)?$/.match(data[:repository][:slug])
+          if m != nil
+            sh.export 'JL_PKG', m[2]
+            sh.echo 'Package name determined from repository url to be ${JL_PKG}',
+                    ansi: :green
 
           sh.fold 'Julia-install' do
             sh.echo 'Installing Julia', ansi: :yellow
@@ -87,43 +122,48 @@ module Travis
           sh.newline
         end
 
-        def script
-          sh.echo 'Executing the default test script', ansi: :green
+        def install
+          super
 
-          # Extract the package name from the repository slug (org/pkgname.jl)
-          m = /(\w+?)\/(\w+?)(?:\.jl)?$/.match(data[:repository][:slug])
-          if m != nil
-            sh.export 'JL_PKG', m[2]
+          # required for old package manager.
+          # can be removed once v0.6 no longer supported.
+          sh.if '-a .git/shallow' do
+            sh.cmd 'git fetch --unshallow'
           end
-          sh.echo 'Package name determined from repository url to be ${JL_PKG}',
-            ansi: :green
+
           # Check if the repository is using new Pkg
           sh.if "-f Project.toml || -f JuliaProject.toml" do
-            sh.if '-a .git/shallow' do
-              sh.cmd 'git fetch --unshallow'
-            end
-            # build
-            sh.cmd 'julia --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; Pkg.clone(pwd()); Pkg.build(\"${JL_PKG}\"); else using Pkg; if VERSION >= v\"1.1.0-rc1\"; Pkg.build(verbose=true); else Pkg.build(); end; end"', assert: true
-            # run tests
-            sh.cmd 'julia --check-bounds=yes --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; Pkg.test(\"${JL_PKG}\", coverage=true); else using Pkg; Pkg.test(coverage=true); end"', assert: true
-            # coverage
+            sh.cmd 'julia --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; Pkg.clone(pwd()); Pkg.build(\"${JL_PKG}\"); else using Pkg; Pkg.build(); end"'
+          end
+          sh.else do
+            sh.cmd 'julia --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; Pkg.clone(pwd()); Pkg.build(\"${JL_PKG}\")"'
+          end
+        end
+
+        def script
+          # Check if the repository is using new Pkg
+          sh.if "-f Project.toml || -f JuliaProject.toml" do
+            sh.cmd 'julia --check-bounds=yes --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; Pkg.test(\"${JL_PKG}\", coverage=true); else using Pkg; Pkg.test(coverage=true); end"'
+          end
+          sh.else do
+            sh.cmd 'julia --check-bounds=yes --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; Pkg.test(\"${JL_PKG}\", coverage=true)"'
+          end
+        end
+
+        def after_success
+          super
+
+          # coverage
+          # Check if the repository is using new Pkg
+          sh.if "-f Project.toml || -f JuliaProject.toml" do
             if config[:codecov]
               sh.cmd 'julia --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; cd(Pkg.dir(\"${JL_PKG}\")); else using Pkg; end; Pkg.add(\"Coverage\"); using Coverage; Codecov.submit(process_folder())"'
             end
             if config[:coveralls]
               sh.cmd 'julia --color=yes -e "if VERSION < v\"0.7.0-DEV.5183\"; cd(Pkg.dir(\"${JL_PKG}\")); else using Pkg; end; Pkg.add(\"Coverage\"); using Coverage; Coveralls.submit(process_folder())"'
             end
-
           end
           sh.else do
-            sh.if '-a .git/shallow' do
-              sh.cmd 'git fetch --unshallow'
-            end
-            # build
-            sh.cmd 'julia --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; Pkg.clone(pwd()); if VERSION >= v\"1.1.0-rc1\"; Pkg.build(\"${JL_PKG}\"; verbose=true); else Pkg.build(\"${JL_PKG}\"); end"', assert: true
-            # run tests
-            sh.cmd 'julia --check-bounds=yes --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; Pkg.test(\"${JL_PKG}\", coverage=true)"', assert: true
-            # coverage
             if config[:codecov]
               sh.cmd 'julia --color=yes -e "VERSION >= v\"0.7.0-DEV.5183\" && using Pkg; cd(Pkg.dir(\"${JL_PKG}\")); Pkg.add(\"Coverage\"); using Coverage; Codecov.submit(process_folder())"'
             end
