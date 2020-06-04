@@ -84,4 +84,14 @@ describe Travis::Build::Data do
     it { expect(data.installation?).to be true }
     it { expect(data.token).to eq 'access_token' }
   end
+
+  describe 'source_ssh' do
+    let(:config) { { prefer_https: false, repository: { installation_id: 0, vcs_type: 'GithubRepository', source_host: 'test.ghe.com', source_url: 'https://github.com/foo/bar', vcs_id: 123 } } }
+    let(:data) { Travis::Build::Data.new(config) }
+
+    before { Travis::GithubApps.any_instance.stubs(:access_token).returns 'access_token' }
+
+    it { expect(data.source_ssh?).to be true }
+    it { expect(data.token).to eq 'access_token' }
+  end
 end
