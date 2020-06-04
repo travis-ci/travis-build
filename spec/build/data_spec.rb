@@ -76,7 +76,7 @@ describe Travis::Build::Data do
   end
 
   describe 'installation' do
-    let(:config) { { repository: { installation_id: 1, source_url: 'https://github.com/foo/bar' } } }
+    let(:config) { { repository: { installation_id: 1, source_url: 'https://github.com/foo/bar', vcs_id: 123 } } }
     let(:data) { Travis::Build::Data.new(config) }
 
     before { Travis::GithubApps.any_instance.stubs(:access_token).returns 'access_token' }

@@ -1,6 +1,6 @@
 language: ruby
 dist: xenial
-rvm: 2.5.3
+rvm: 2.5.8
 
 services:
   - redis
@@ -32,7 +32,9 @@ jobs:
     if: type = cron OR commit_message =~ /ship:docker/ OR env(SHIP_DOCKER) = true
 
 before_script:
+- "gem install bundler -v 1.17.3"
 - eval "$(script/handle-docker-config)"
+- bundle install
 - bundle exec rake clean assets:precompile
 
 script:

@@ -143,7 +143,7 @@ module Travis
 
       def source_ssh?
         return false if prefer_https?
-        (repo_private? || force_private?) && !installation? or
+        repo_private? && !installation? or
           repo_private? && custom_ssh_key?
       end
 
@@ -207,7 +207,12 @@ module Travis
         data[:repository] || {}
       end
 
+      def allowed_repositories
+        data[:allowed_repositories] || [github_id]
+      end
+
       def token
+        # CHANGE FOR DEPLOY
         installation? ? installation_token : data[:oauth_token]
       end
 
@@ -232,7 +237,7 @@ module Travis
       end
 
       def installation_token
-        GithubApps.new(installation_id).access_token
+        GithubApps.new(installation_id, {}, allowed_repositories).access_token
       rescue RuntimeError => e
         if e.message =~ /Failed to obtain token from GitHub/
           raise Travis::Build::GithubAppsTokenFetchError.new
