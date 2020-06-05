@@ -41,4 +41,27 @@ describe Travis::Build::Script::C, :sexp do
       end
     end
   end
+
+  context "for FreeBSD" do
+    let(:data) { payload_for(:push, :c, config: { os: 'freebsd', cache: 'ccache' }) }
+    it "exports CC=cc" do
+      should     include_sexp [:export, ['CC', "${CC:-cc}"],  echo: true]
+      should_not include_sexp [:export, ['CC', "${CC:-gcc}"], echo: true]
+    end
+
+    describe '#cache_slug' do
+      subject { described_class.new(data).cache_slug }
+
+      let(:data) { payload_for(:push, :c, config: { os: 'freebsd', cache: 'ccache' }) }
+      it { should eq("cache-#{CACHE_SLUG_EXTRAS_FREEBSD}--compiler-cc") }
+    end
+
+    context 'when compiler is explicitly given' do
+      let(:data) { payload_for(:push, :c, config: { os: 'freebsd', compiler: 'gcc', cache: 'ccache' }) }
+      it "exports CC=cc" do
+        should     include_sexp [:export, ['CC', "${CC:-gcc}"], echo: true]
+        should_not include_sexp [:export, ['CC', "${CC:-cc}"],  echo: true]
+      end
+    end
+  end
 end

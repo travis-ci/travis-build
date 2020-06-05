@@ -3,7 +3,8 @@ module Travis
     class Script
       class Cpp < Script
         DEFAULTS = {
-          compiler: 'g++'
+          default: { compiler: 'g++', cc: 'gcc', cxx: 'g++' },
+          freebsd: { compiler: 'c++', cc: 'cc',  cxx: 'c++' },
         }
 
         def export
@@ -57,7 +58,7 @@ module Travis
             when /^clang/i, /^clang\+\+/i then
               'clang++'
             else
-              'g++'
+              config[:cxx]
             end
           end
 
@@ -68,7 +69,7 @@ module Travis
             when /^clang/i, /^clang\+\+/i then
               'clang'
             else
-              'gcc'
+              config[:cc]
             end
           end
       end
