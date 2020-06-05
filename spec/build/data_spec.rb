@@ -85,13 +85,35 @@ describe Travis::Build::Data do
     it { expect(data.token).to eq 'access_token' }
   end
 
-  describe 'source_ssh for GHE' do
-    let(:config) { { oauth_token: 'access_token', prefer_https: false, repository: { vcs_type: 'GithubRepository', source_host: 'test.ghe.com', source_url: 'https://github.com/foo/bar', vcs_id: 123 } } }
-    let(:data) { Travis::Build::Data.new(config) }
+  describe 'source_ssh' do
+    describe 'source_ssh for GHE force_private' do
+      let(:config) { { oauth_token: 'access_token', prefer_https: false, repository: { vcs_type: 'GithubRepository', source_host: 'test.ghe.com', vcs_id: 123 } } }
+      let(:data) { Travis::Build::Data.new(config) }
 
-    before { Travis::GithubApps.any_instance.stubs(:access_token).returns 'access_token' }
+      before { Travis::GithubApps.any_instance.stubs(:access_token).returns 'access_token' }
 
-    it { expect(data.source_ssh?).to be true }
-    it { expect(data.token).to eq 'access_token' }
+      it { expect(data.source_ssh?).to be true }
+      it { expect(data.token).to eq 'access_token' }
+    end
+
+    describe 'source_ssh for private' do
+      let(:config) { { oauth_token: 'access_token', prefer_https: false, repository: { private: true, vcs_id: 123 } } }
+      let(:data) { Travis::Build::Data.new(config) }
+
+      before { Travis::GithubApps.any_instance.stubs(:access_token).returns 'access_token' }
+
+      it { expect(data.source_ssh?).to be true }
+      it { expect(data.token).to eq 'access_token' }
+    end
+
+    describe 'source_ssh is false for public' do
+      let(:config) { { oauth_token: 'access_token', repository: { installation_id: 1, vcs_id: 123 } } }
+      let(:data) { Travis::Build::Data.new(config) }
+
+      before { Travis::GithubApps.any_instance.stubs(:access_token).returns 'access_token' }
+
+      it { expect(data.source_ssh?).to be nil }
+      it { expect(data.token).to eq 'access_token' }
+    end
   end
 end
