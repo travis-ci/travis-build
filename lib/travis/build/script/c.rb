@@ -3,7 +3,8 @@ module Travis
     class Script
       class C < Script
         DEFAULTS = {
-          compiler: 'gcc'
+          default: { compiler: 'gcc' },
+          freebsd: { compiler: 'cc' },
         }
 
         def export
