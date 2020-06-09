@@ -143,12 +143,16 @@ module Travis
 
       def source_ssh?
         return false if prefer_https?
-        repo_private? && !installation? or
-          repo_private? && custom_ssh_key?
+        ((repo_private? || force_private?) && !installation?) ||
+          (repo_private? && custom_ssh_key?)
       end
 
       def force_private?
-        !source_host&.include? 'github.com'
+        github? && !source_host&.include?('github.com')
+      end
+
+      def github?
+        repository[:vcs_type] == 'GithubRepository'
       end
 
       def source_host
