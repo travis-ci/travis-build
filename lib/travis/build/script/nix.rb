@@ -43,10 +43,8 @@ module Travis
         def setup
           super
 
-          version = config[:nix] == "latest" ? config[:nix] : "nix-#{config[:nix]}"
-
           sh.fold 'nix.install' do
-            sh.cmd "wget --retry-connrefused --waitretry=1 -O /tmp/nix-install https://nixos.org/releases/nix/#{version}/install"
+            sh.cmd "wget --retry-connrefused --waitretry=1 -O /tmp/nix-install https://releases.nixos.org/nix/nix-#{config[:nix]}/install"
             sh.cmd "yes | sh /tmp/nix-install --daemon"
 
             sh.cmd 'source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
