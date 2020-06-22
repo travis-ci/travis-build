@@ -32,8 +32,6 @@ module Travis
           if config[:os] == 'linux'
             sh.cmd "sudo mount -o remount,exec /run"
             sh.cmd "sudo mount -o remount,exec /run/user"
-            sh.cmd "sudo mkdir -p -m 0755 /nix/"
-            sh.cmd "sudo chown $USER /nix/"
             sh.cmd "echo 'build-max-jobs = 4' | sudo tee /tmp/nix.conf > /dev/null"
           end
         end
