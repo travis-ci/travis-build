@@ -9,7 +9,7 @@ module Travis
     class Script
       class Nix < Script
         DEFAULTS = {
-          nix: '2.0.4'
+          nix: '2.3.6'
         }
 
         def export
@@ -32,30 +32,18 @@ module Travis
           if config[:os] == 'linux'
             sh.cmd "sudo mount -o remount,exec /run"
             sh.cmd "sudo mount -o remount,exec /run/user"
-            sh.cmd "sudo mkdir -p -m 0755 /nix/"
-            sh.cmd "sudo chown $USER /nix/"
-            # Set nix config dir and make config Hydra compatible
-            sh.cmd "sudo mkdir -p -m 0755 /etc/nix"
-            sh.cmd "echo 'build-max-jobs = 4' | sudo tee /etc/nix/nix.conf > /dev/null"
+            sh.cmd "echo 'build-max-jobs = 4' | sudo tee /tmp/nix.conf > /dev/null"
           end
         end
 
         def setup
           super
 
-          version = config[:nix]
-
           sh.fold 'nix.install' do
-            sh.cmd "wget --retry-connrefused --waitretry=1 -O /tmp/nix-install https://nixos.org/releases/nix/nix-#{version}/install"
-            sh.cmd "yes | sh /tmp/nix-install"
+            sh.cmd "wget --retry-connrefused --waitretry=1 -O /tmp/nix-install https://releases.nixos.org/nix/nix-#{config[:nix]}/install"
+            sh.cmd "yes | sh /tmp/nix-install --daemon --nix-extra-conf-file /tmp/nix.conf"
 
-            if config[:os] == 'linux'
-              # single-user install (linux)
-              sh.cmd 'source ${TRAVIS_HOME}/.nix-profile/etc/profile.d/nix.sh'
-            else
-              # multi-user install (macos)
-              sh.cmd 'source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
-            end
+            sh.cmd 'source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
           end
         end
 
