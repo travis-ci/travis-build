@@ -182,4 +182,10 @@ describe Travis::Build::Script::Python, :sexp do
     data[:config][:virtualenv] = { 'system_site_packages' => true }
     should include_sexp [:cmd,  'source ~/virtualenv/python3.6_with_system_site_packages/bin/activate', assert: true, echo: true, timing: true]
   end
+
+  it 'errors if requested system site package for non-preinstalled version' do
+    data[:config][:virtualenv] = { 'system_site_packages' => true }
+    branch = sexp_find(subject, [:if, '! -f ~/virtualenv/python3.6_with_system_site_packages/bin/activate'])
+    expect(branch).to include_sexp [:echo, "system_site_packages is only valid for distro-provided versions", {:ansi=>:red}]
+  end
 end

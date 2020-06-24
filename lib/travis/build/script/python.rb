@@ -29,9 +29,14 @@ module Travis
         def configure
           super
           sh.if "! -f #{virtualenv_activate}" do
-            sh.echo "#{version} is not installed; attempting download", ansi: :yellow
-            install_python_archive version
-            setup_path version
+            if system_site_packages
+              sh.echo "system_site_packages is only valid for distro-provided versions", ansi: :red
+              sh.raw "travis_terminate 1"
+            else
+              sh.echo "#{version} is not installed; attempting download", ansi: :yellow
+              install_python_archive version
+              setup_path version
+            end
           end
         end
 
