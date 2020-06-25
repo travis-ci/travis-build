@@ -618,8 +618,8 @@ module Travis
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true
-            config[:r] = 'devel'
-            normalized_r_version('devel')
+            config[:r] = 'release'
+            normalized_r_version('release')
           when 'bioc-release'
             config[:bioc_required] = true
             config[:bioc_use_devel] = false
