@@ -46,7 +46,7 @@ module Travis
           # Needed when restoring an archive from another OS with a different filesystem hierarchy.
           sh.raw "tar -tf \"#{archive}\" | grep -v '/$' | xargs -d '\\n' dirname | sort | uniq | "+
                      "xargs -d '\\n' $(if [[ $TRAVIS_OS_NAME != 'windows' ]]; then echo 'sudo'; fi) install -o \"${USER}\" -g \"$(id -gn)\" -d"
-          sh.cmd "tar -xPzf #{archive}"
+          sh.cmd "tar -xPf #{archive}"
         end
 
         # for creating workspace
