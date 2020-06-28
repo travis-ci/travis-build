@@ -44,7 +44,8 @@ module Travis
           # For any directories where `tar` would directly place files,
           # create missing ones and give the user permissions for existing ones.
           # Needed when restoring an archive from another OS with a different filesystem hierarchy.
-          sh.raw "tar -tf \"#{archive}\" | grep -v '/$' | xargs -d '\\n' dirname | sort | uniq | xargs -d '\\n' sudo install -o \"${USER}\" -g \"$(id -gn)\" -d"
+          sh.raw "tar -tf \"#{archive}\" | grep -v '/$' | xargs -d '\\n' dirname | sort | uniq | "+
+                     "xargs -d '\\n' $(if [[ $TRAVIS_OS_NAME != 'windows' ]]; then echo 'sudo'; fi) install -o \"${USER}\" -g \"$(id -gn)\" -d"
           sh.cmd "tar -xPzf #{archive}"
         end
 
