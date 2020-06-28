@@ -40,7 +40,12 @@ module Travis
         end
 
         def expand
-          sh.cmd "tar -xPzf ${CASHER_DIR}/#{name}-fetch.tgz"
+          archive = "${CASHER_DIR}/#{name}-fetch.tgz"
+          # For any directories where `tar` would directly place files,
+          # create missing ones and give the user permissions for existing ones.
+          # Needed when restoring an archive from another OS with a different filesystem hierarchy.
+          sh.raw "tar -tf \"#{archive}\" | grep -v '/$' | xargs -d '\\n' dirname | sort | uniq | xargs -d '\\n' sudo install -o \"${USER}\" -g \"$(id -gn)\" -d"
+          sh.cmd "tar -xPzf #{archive}"
         end
 
         # for creating workspace
