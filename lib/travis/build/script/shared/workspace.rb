@@ -58,7 +58,7 @@ module Travis
                      "awk 'index($0,a)!=1{a=$0;printf(\"%s%c\",$0,0)} BEGIN{a=\"\\n\"}' | " +
                      # `install` is more convenient than `mkdir -p` since it can set UID/GID as the same time.
                      # It only sets UID/GID on the leaf entry
-                     "xargs -0 echo $([[ $TRAVIS_OS_NAME != 'windows' ]] && echo 'sudo') install -o \"${USER}\" -g \"$(id -gn)\" -d"
+                     "xargs -0 echo $([[ $TRAVIS_OS_NAME != 'windows' ]] && echo 'sudo') install -o \"${USER}\" -g \"$(id -g)\" -d"
           sh.cmd "tar -xPf #{archive}"
         end
 
