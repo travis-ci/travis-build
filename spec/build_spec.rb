@@ -28,6 +28,7 @@ describe Travis::Build do
       PureJava: ['java', 'java-anything'],
       Python: ['python'],
       R: ['r'],
+      Raku: ['raku'],
       Ruby: ['ruby'],
       Rust: ['rust'],
       Scala: ['scala'],
