@@ -5,6 +5,7 @@ module Travis
     module Appliances
       class AptGetUpdate < Base
         def apply
+          disable_redirect
           use_mirror
           use_proxy
           update if update?
@@ -84,6 +85,14 @@ module Travis
 
           def apt_config
             (data[:config][:addons] && data[:config][:addons][:apt]) || data[:config][:apt]
+          end
+
+          def disable_redirect
+            sh.if '"$TRAVIS_OS_NAME" == linux' do
+              config = 'Acquire::http::AllowRedirect \"false\";'
+              file = '/etc/apt/apt.conf.d/99-noredirect'
+              sh.cmd "sudo sh -c 'echo \"#{config}\" >#{file}'", echo: false
+            end
           end
       end
     end

@@ -8,6 +8,9 @@ travis_temporary_hacks() {
 
 _travis_temporary_hacks_linux() {
   for troublesome_source in \
+    computology_apt-backport.list \
+    heroku-toolbelt.list \
+    rabbitmq_rabbitmq-server.list \
     rabbitmq-source.list \
     travis_ci_zeromq3.list \
     neo4j.list; do
