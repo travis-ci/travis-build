@@ -42,6 +42,9 @@ module Travis
               if [ $? -ne 0 ]; then
                 echo "Download from %{url} failed. Trying %{fallback_url} ..."
                 curl -sf -o ~/filter.rb %{fallback_url}
+                if [ $? -ne 0 ]; then
+                  echo "Download from %{fallback_url} failed."
+                fi
               fi
           ),
           pty: %(
