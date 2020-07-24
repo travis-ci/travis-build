@@ -80,8 +80,7 @@ module Travis
                   sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u3.5"'
                 else
                   sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter4.0"'
-                  # not yet available:
-                  # sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u4.0"'
+                  sh.cmd 'sudo add-apt-repository -y "ppa:c2d4u.team/c2d4u4.0+"'
                 end
 
                 # Extra PPAs that do not depend on R version
