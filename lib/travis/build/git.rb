@@ -34,7 +34,7 @@ module Travis
           clone_or_fetch
           submodules
         end
-
+        delete_netrc if delete_netrc?
         rm_key
       end
 
@@ -42,6 +42,25 @@ module Travis
 
         def disable_interactive_auth
           sh.export 'GIT_ASKPASS', 'echo', :echo => false
+        end
+        def netrc
+          @netrc ||= Netrc.new(sh, data)
+        end
+
+        def write_netrc?
+          data.installation? && !data.custom_ssh_key? or data.prefer_https?
+        end
+
+        def write_netrc
+          netrc.apply
+        end
+
+        def delete_netrc?
+          !data.keep_netrc?
+        end
+
+        def delete_netrc
+          netrc.delete
         end
 
         def install_ssh_key
