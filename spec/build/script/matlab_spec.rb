@@ -19,7 +19,7 @@ describe Travis::Build::Script::Matlab, :sexp do
   context 'it uses the MATLAB installer' do
     it 'by discreetly downloading/piping it to a shell' do
       should include_sexp [:raw, "wget -qO- --retry-connrefused #{installer} "\
-                           '| sudo -E bash']
+                           '| sudo -E bash', assert: true]
     end
   end
 
