@@ -16,7 +16,7 @@ module Travis
                     echo: false
         end
 
-        def configure
+        def setup
           super
           # Invoke the ephemeral MATLAB installer that will make a MATLAB available
           # on the system PATH
