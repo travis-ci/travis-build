@@ -20,8 +20,8 @@ describe Travis::Build::Git::Clone, :sexp do
 
   describe 'when the repository is not yet cloned' do
     let(:args) { "--depth=#{depth} --branch=#{branch.shellescape}" }
-    let(:cmd)  { "git clone #{args} #{url} #{dir}" }
-    subject    { sexp_find(sexp, [:if, "! -d #{dir}/.git"]) }
+    let(:cmd)  { "git clone #{args} #{url} #{dir.shellescape}" }
+    subject    { sexp_find(sexp, [:if, "! -d #{dir.shellescape}/.git"]) }
 
     let(:clone) { [:cmd, cmd, echo: true, retry: true, timing: true] }
 
@@ -49,6 +49,11 @@ describe Travis::Build::Git::Clone, :sexp do
 
     describe 'escapes the branch name' do
       before { payload[:job][:branch] = 'foo->bar' }
+      it { should include_sexp clone }
+    end
+
+    describe 'escapes repo name' do
+      before { payload[:repository][:slug] = 'With Space' }
       it { should include_sexp clone }
     end
 

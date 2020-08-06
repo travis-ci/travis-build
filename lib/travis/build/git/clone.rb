@@ -66,7 +66,7 @@ module Travis
             end
           end
 
-           def git_fetch
+          def git_fetch
             sh.cmd "#{git_cmd} -C #{dir} fetch origin#{fetch_args}", assert: true, retry: true
           end
 
@@ -203,7 +203,7 @@ module Travis
           end
 
           def dir
-            data.slug
+            data.slug.shellescape
           end
 
           def config
