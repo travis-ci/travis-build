@@ -32,7 +32,7 @@ shared_examples_for 'starts services' do
           [:cmd, 'sudo systemctl start mongodb', echo: true, timing: true]
         )
         expect(
-          sexp_find(subject, [:if, '"$TRAVIS_DIST" == precise'], [:elif])
+          sexp_find(subject, [:elif, '"$TRAVIS_DIST" == precise'], [:elif])
         ).to include_sexp(
           [:cmd, 'sudo service mongod start', echo: true, timing: true]
         )
