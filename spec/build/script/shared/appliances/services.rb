@@ -27,7 +27,7 @@ shared_examples_for 'starts services' do
           .to include_sexp(
             [:cmd, 'sudo service mongodb start', echo: true, timing: true]
           )
-        expect(sexp_find(subject, [::elif, '"$TRAVIS_DIST" == focal']))
+        expect(sexp_find(subject, [:elif, '"$TRAVIS_DIST" == focal']))
         .to include_sexp(
           [:cmd, 'sudo systemctl start mongodb', echo: true, timing: true]
         )
