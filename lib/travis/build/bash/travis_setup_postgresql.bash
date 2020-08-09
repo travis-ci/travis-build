@@ -18,7 +18,7 @@ travis_setup_postgresql() {
       ;;
     focal)
       version='12'
-      ;; 
+      ;;
     *)
       echo -e "${ANSI_RED}Unrecognized operating system.${ANSI_CLEAR}"
       ;;
