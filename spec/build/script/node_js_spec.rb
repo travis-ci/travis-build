@@ -68,7 +68,7 @@ describe Travis::Build::Script::NodeJs, :sexp do
       context 'when node given is < 1.0' do
         let(:node_js) { '0.8' }
         it 'sends nvm install STDERR to /dev/null' do
-          should include_sexp [:cmd, 'nvm install 0.8 2>/dev/null', echo: true, timing: true]
+          should include_sexp [:cmd, 'nvm install 0.8 2>install.err.log', echo: true, timing: true]
         end
       end
     end
