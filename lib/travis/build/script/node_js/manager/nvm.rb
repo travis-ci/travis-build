@@ -4,6 +4,8 @@ module Travis
     class NodeJs
       class Manager
         class Nvm < Base
+          INSTALL_STDERR_LOG = 'install.err.log'
+
           def initialize(node_js)
             super
           end
@@ -51,9 +53,12 @@ module Travis
 
           def install_version(ver)
             sh.fold "nvm.install" do
-              sh.cmd "nvm install #{ver}#{devnull}", assert: false, timing: true
+              sh.cmd "nvm install #{ver}#{stderrlog}", assert: false, timing: true
               sh.if '$? -ne 0' do
                 sh.echo "Failed to install #{ver}. Remote repository may not be reachable.", ansi: :red
+                sh.if "-f #{INSTALL_STDERR_LOG}" do
+                  sh.cmd "tail #{INSTALL_STDERR_LOG}", echo: true
+                end
                 sh.echo "Using locally available version #{ver}, if applicable."
                 sh.cmd "nvm use #{ver}", assert: false, timing: false
                 sh.if '$? -ne 0' do
@@ -65,9 +70,9 @@ module Travis
             end
           end
 
-          def devnull
+          def stderrlog
             if node_js.version.start_with? '0'
-              ' 2>/dev/null'
+              " 2>#{INSTALL_STDERR_LOG}"
             else
               ''
             end
