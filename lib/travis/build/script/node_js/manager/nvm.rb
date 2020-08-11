@@ -59,6 +59,8 @@ module Travis
                 sh.if "-s #{INSTALL_STDERR_LOG}" do
                   sh.cmd "tail #{INSTALL_STDERR_LOG}", echo: true
                 end
+                sh.echo
+                sh.echo '\`nvm install\` failed', ansi: :red
                 sh.terminate
               end
               sh.export 'TRAVIS_NODE_VERSION', ver, echo: false
