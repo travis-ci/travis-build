@@ -56,7 +56,7 @@ module Travis
               sh.cmd "nvm install #{ver}#{stderrlog}", assert: false, timing: true
               sh.if '$? -ne 0' do
                 sh.echo "Failed to install #{ver}. Remote repository may not be reachable.", ansi: :red
-                sh.if "-f #{INSTALL_STDERR_LOG}" do
+                sh.if "-s #{INSTALL_STDERR_LOG}" do
                   sh.cmd "tail #{INSTALL_STDERR_LOG}", echo: true
                 end
                 sh.cmd "false", assert: true, echo: false, timing: false
