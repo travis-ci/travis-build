@@ -53,7 +53,8 @@ describe Travis::Build::Script::NodeJs, :sexp do
         let(:sexp_if)      { sexp_filter(subject, [:if, '$? -ne 0'])[0] }
 
         it 'tries to use locally available version' do
-          expect(sexp_if).to include_sexp [:cmd, 'nvm use 8', echo: true]
+          expect(sexp_if).to_not include_sexp [:cmd, 'nvm use 8', echo: true]
+          expect(sexp_if).to  include_sexp [:cmd, 'false', assert: true]
         end
 
         context 'when nvm use fails' do
