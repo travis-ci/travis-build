@@ -59,7 +59,7 @@ module Travis
                 sh.if "-s #{INSTALL_STDERR_LOG}" do
                   sh.cmd "tail #{INSTALL_STDERR_LOG}", echo: true
                 end
-                sh.cmd "false", assert: true, echo: false, timing: false
+                sh.terminate
               end
               sh.export 'TRAVIS_NODE_VERSION', ver, echo: false
             end
