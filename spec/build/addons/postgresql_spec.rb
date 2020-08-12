@@ -18,7 +18,7 @@ describe Travis::Build::Addons::Postgresql, :sexp do
   it_behaves_like 'compiled script' do
     let(:code) { [
       'service postgresql start ${version}',
-      'systemctl start postgresql@${version}-main',
+      'systemctl --no-block start postgresql@${version}-main',
       'sudo -u postgres createuser -s -p "${port}" travis',
       'sudo -u postgres createdb -O travis -p "${port}" travis',
       'export PATH="/usr/lib/postgresql/${version}/bin:$PATH"',

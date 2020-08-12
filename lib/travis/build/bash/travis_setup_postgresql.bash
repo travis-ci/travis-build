@@ -26,7 +26,7 @@ travis_setup_postgresql() {
     start_cmd="sudo service postgresql start ${version}"
     stop_cmd="sudo service postgresql stop"
   elif [[ "${TRAVIS_INIT}" == systemd ]]; then
-    start_cmd="sudo systemctl start postgresql@${version}-main"
+    start_cmd="sudo systemctl --no-block start postgresql@${version}-main"
     stop_cmd="sudo systemctl stop postgresql"
   fi
 
