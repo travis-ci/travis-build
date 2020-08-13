@@ -13,6 +13,7 @@ module Travis
           precise
           trusty
           xenial
+          bionic
         ).freeze
 
         class << self
