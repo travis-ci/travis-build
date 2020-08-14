@@ -4,6 +4,7 @@ describe Travis::Build::Script::Matlab, :sexp do
   let(:data)        { payload_for(:push, :matlab) }
   let(:script)      { described_class.new(data)   }
   let(:installer)   { Travis::Build::Script::Matlab::MATLAB_INSTALLER_LOCATION }
+  let(:helper)      { Travis::Build::Script::Matlab::MATLAB_DEPS_LOCATION }
   let(:start)       { Travis::Build::Script::Matlab::MATLAB_START }
   let(:command)     { Travis::Build::Script::Matlab::MATLAB_COMMAND }
 
@@ -16,8 +17,13 @@ describe Travis::Build::Script::Matlab, :sexp do
     should include_sexp [:export, %w[TRAVIS_MATLAB_VERSION latest]]
   end
 
-  context 'it uses the MATLAB installer' do
-    it 'by discreetly downloading/piping it to a shell' do
+  it 'configures runtime dependencies' do
+    should include_sexp [:raw, "wget -qO- --retry-connrefused #{helper} "\
+                         '| sudo -E bash', assert: true]
+  end
+
+  context 'it sets up MATLAB' do
+    it 'by calling the ephemeral installer script' do
       should include_sexp [:raw, "wget -qO- --retry-connrefused #{installer} "\
                            '| sudo -E bash', assert: true]
     end

@@ -3,6 +3,7 @@ module Travis
     class Script
       class Matlab < Script
         MATLAB_INSTALLER_LOCATION = 'https://ssd.mathworks.com/supportfiles/ci/ephemeral-matlab/v0/install.sh'.freeze
+        MATLAB_DEPS_LOCATION = 'https://ssd.mathworks.com/supportfiles/ci/matlab-deps/v0/install.sh'.freeze
         MATLAB_START = 'matlab -batch'.freeze
         MATLAB_COMMAND = "assertSuccess(runtests('IncludeSubfolders',true));".freeze
 
@@ -18,6 +19,11 @@ module Travis
 
         def setup
           super
+
+          # Execute helper script to install runtime dependencies
+          sh.raw "wget -qO- --retry-connrefused #{MATLAB_DEPS_LOCATION}" \
+                 ' | sudo -E bash'
+
           # Invoke the ephemeral MATLAB installer that will make a MATLAB available
           # on the system PATH
           sh.raw "wget -qO- --retry-connrefused #{MATLAB_INSTALLER_LOCATION}" \
