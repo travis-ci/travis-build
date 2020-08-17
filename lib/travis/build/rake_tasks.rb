@@ -17,9 +17,9 @@ module Travis
     module RakeTasks
       SHELLCHECK_VERSION = 'v0.5.0'
       SHELLCHECK_URL = File.join(
-        'https://www.googleapis.com',
-        '/download/storage/v1/b/shellcheck/o',
-        "shellcheck-#{SHELLCHECK_VERSION}.linux.x86_64.tar.xz?alt=media"
+        'https://github.com',
+        '/koalaman/shellcheck/releases/download',
+        "/#{SHELLCHECK_VERSION}/shellcheck-#{SHELLCHECK_VERSION}.linux.x86_64.tar.xz?alt=media"
       )
       SHFMT_VERSION = 'v2.5.1'
       SHFMT_URL = File.join(

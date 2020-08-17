@@ -29,7 +29,7 @@ module Travis
                   sh.cmd "sudo service #{name.shellescape} start", assert: false, echo: true, timing: true
                 end
                 sh.elif '"$TRAVIS_INIT" == systemd' do
-                  sh.cmd "sudo systemctl start #{name.shellescape}", assert: false, echo: true, timing: true
+                  sh.cmd "sudo systemctl --no-block start #{name.shellescape}", assert: false, echo: true, timing: true
                 end
               end
               sh.raw 'sleep 3'

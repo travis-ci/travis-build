@@ -17,7 +17,7 @@ shared_examples_for 'starts services' do
     describe 'redis' do
       let(:services) { [:redis] }
       it { should include_sexp [:cmd, 'sudo service redis-server start', echo: true, timing: true] }
-      it { should include_sexp [:cmd, 'sudo systemctl start redis-server', echo: true, timing: true] }
+      it { should include_sexp [:cmd, 'sudo systemctl --no-block start redis-server', echo: true, timing: true] }
     end
 
     describe 'mongodb' do
@@ -55,7 +55,7 @@ shared_examples_for 'starts services' do
           )
         expect(sexp_find(subject, [:elif, '"$TRAVIS_INIT" == systemd']))
           .to include_sexp(
-            [:cmd, 'sudo systemctl start travis_daemon', echo: true, timing: true]
+            [:cmd, 'sudo systemctl --no-block start travis_daemon', echo: true, timing: true]
           )
       end
     end
