@@ -102,6 +102,7 @@ module Travis
         end
 
         def snap_install_crystal(options)
+          sh.cmd 'travis_apt_get_update'
           sh.cmd %Q(sudo apt-get install -y gcc pkg-config git tzdata libpcre3-dev libevent-dev libyaml-dev libgmp-dev libssl-dev libxml2-dev 2>&1 > /dev/null), echo: true
           sh.cmd %Q(sudo snap install crystal --classic #{options}), echo: true
         end
