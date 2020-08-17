@@ -113,7 +113,7 @@ module Travis
                   "#{optional_apt_pkgs}", retry: true
 
                 r_filename = "r-#{r_version}_1_amd64.deb"
-                os_version = "$(lsb_release -ds | perl -a -e '$F[1] =~ tr/[.]//d; print $F[1]')"
+                os_version = "$(lsb_release -rs | tr -d '.')"
                 r_url = "https://cdn.rstudio.com/r/ubuntu-#{os_version}/pkgs/#{r_filename}"
                 sh.cmd "curl -fLo /tmp/#{r_filename} #{r_url}", retry: true
                 sh.cmd "sudo apt-get install gdebi-core"
