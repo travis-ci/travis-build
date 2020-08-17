@@ -56,15 +56,12 @@ module Travis
               sh.cmd "nvm install #{ver}#{stderrlog}", assert: false, timing: true
               sh.if '$? -ne 0' do
                 sh.echo "Failed to install #{ver}. Remote repository may not be reachable.", ansi: :red
-                sh.if "-f #{INSTALL_STDERR_LOG}" do
+                sh.if "-s #{INSTALL_STDERR_LOG}" do
                   sh.cmd "tail #{INSTALL_STDERR_LOG}", echo: true
                 end
-                sh.echo "Using locally available version #{ver}, if applicable."
-                sh.cmd "nvm use #{ver}", assert: false, timing: false
-                sh.if '$? -ne 0' do
-                  sh.echo "Unable to use #{ver}", ansi: :red
-                  sh.cmd "false", assert: true, echo: false, timing: false
-                end
+                sh.echo
+                sh.echo '\`nvm install\` failed', ansi: :red
+                sh.terminate
               end
               sh.export 'TRAVIS_NODE_VERSION', ver, echo: false
             end
