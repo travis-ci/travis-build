@@ -50,7 +50,7 @@ describe Travis::Build::Script::R, :sexp do
   end
 
   it 'downloads and installs latest R' do
-    should include_sexp [:cmd, %r{^curl.*https://travis-ci\.rstudio\.org/R-4\.0\.0-\$\(lsb_release -cs\)\.xz},
+    should include_sexp [:cmd, %r{^curl.*https://cdn.rstudio.com/r/ubuntu-.*/pkgs/r-4\.0\.0_1_amd64\.deb},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
@@ -104,19 +104,19 @@ describe Travis::Build::Script::R, :sexp do
 
   it 'downloads and installs R 3.1' do
     data[:config][:r] = '3.1'
-    should include_sexp [:cmd, %r{^curl.*https://travis-ci\.rstudio\.org/R-3\.1\.3-\$\(lsb_release -cs\)\.xz},
+    should include_sexp [:cmd, %r{^curl.*https://cdn.rstudio.com/r/ubuntu-.*/pkgs/r-3\.1\.3_1_amd64\.deb},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
   it 'downloads and installs R 3.2' do
     data[:config][:r] = '3.2'
-    should include_sexp [:cmd, %r{^curl.*https://travis-ci\.rstudio\.org/R-3\.2\.5-\$\(lsb_release -cs\)\.xz},
+    should include_sexp [:cmd, %r{^curl.*https://cdn.rstudio.com/r/ubuntu-.*/pkgs/r-3\.2\.5_1_amd64\.deb},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
   it 'downloads and installs R devel' do
     data[:config][:r] = 'devel'
-    should include_sexp [:cmd, %r{^curl.*https://travis-ci\.rstudio\.org/R-devel-\$\(lsb_release -cs\)\.xz},
+    should include_sexp [:cmd, %r{^curl.*https://cdn.rstudio.com/r/ubuntu-.*/pkgs/r-devel_1_amd64\.deb},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
