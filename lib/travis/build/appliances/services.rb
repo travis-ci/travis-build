@@ -47,7 +47,7 @@ module Travis
           end
           sh.elif '"$TRAVIS_DIST" == focal' do
             sh.cmd 'sudo systemctl start mongodb', echo: true, timing: true
-          end 
+          end
           sh.elif '"$TRAVIS_INIT" == upstart' do
             sh.cmd 'sudo service mongod start', echo: true, timing: true
           end
