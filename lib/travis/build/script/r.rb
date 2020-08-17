@@ -67,6 +67,9 @@ module Travis
               sh.echo 'Installing R', ansi: :yellow
               case config[:os]
               when 'linux'
+              if config[:arch] == 'arm64'
+                sh.failure 'ARM architecture not supported'
+              end
                 # This key is added implicitly by the marutter PPA below
                 #sh.cmd 'apt-key adv --keyserver ha.pool.sks-keyservers.net '\
                   #'--recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9', sudo: true
