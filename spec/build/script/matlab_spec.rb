@@ -18,14 +18,14 @@ describe Travis::Build::Script::Matlab, :sexp do
   end
 
   it 'configures runtime dependencies' do
-    should include_sexp [:raw, "wget -qO- --retry-connrefused #{helper} "\
-                         '| sudo -E bash', assert: true]
+    should include_sexp [:raw, "wget -qO- --retry-connrefused #{helper}"\
+                         ' | sudo -E bash -s -- $TRAVIS_MATLAB_VERSION', assert: true]
   end
 
   context 'it sets up MATLAB' do
     it 'by calling the ephemeral installer script' do
-      should include_sexp [:raw, "wget -qO- --retry-connrefused #{installer} "\
-                           '| sudo -E bash', assert: true]
+      should include_sexp [:raw, "wget -qO- --retry-connrefused #{installer}"\
+                           ' | sudo -E bash -s -- --release $TRAVIS_MATLAB_VERSION', assert: true]
     end
   end
 

@@ -13,27 +13,32 @@ module Travis
 
         def export
           super
-          sh.export 'TRAVIS_MATLAB_VERSION', config[:matlab].to_s.shellescape,
+          sh.export 'TRAVIS_MATLAB_VERSION', release.shellescape,
                     echo: false
         end
 
         def setup
           super
-
           # Execute helper script to install runtime dependencies
           sh.raw "wget -qO- --retry-connrefused #{MATLAB_DEPS_LOCATION}" \
-                 ' | sudo -E bash'
+                 ' | sudo -E bash -s -- $TRAVIS_MATLAB_VERSION'
 
           # Invoke the ephemeral MATLAB installer that will make a MATLAB available
           # on the system PATH
           sh.raw "wget -qO- --retry-connrefused #{MATLAB_INSTALLER_LOCATION}" \
-                 ' | sudo -E bash'
+                 ' | sudo -E bash -s -- --release $TRAVIS_MATLAB_VERSION'
         end
 
         def script
           super
           # By default, invoke the default MATLAB 'runtests' command
           sh.cmd "#{MATLAB_START} \"#{MATLAB_COMMAND}\""
+        end
+
+        private
+  
+        def release
+          Array(config[:matlab]).first.to_s
         end
       end
     end
