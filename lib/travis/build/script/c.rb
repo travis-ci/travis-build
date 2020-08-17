@@ -3,14 +3,15 @@ module Travis
     class Script
       class C < Script
         DEFAULTS = {
-          compiler: 'gcc'
+          default: { compiler: 'gcc' },
+          freebsd: { compiler: 'cc' },
         }
 
         def export
           super
           sh.export 'TRAVIS_COMPILER', compiler
-          sh.export 'CC', compiler
-          sh.export 'CC_FOR_BUILD', compiler
+          sh.export 'CC', "${CC:-#{compiler}}"
+          sh.export 'CC_FOR_BUILD', "${CC_FOR_BUILD:-#{compiler}}"
           if data.cache?(:ccache)
             sh.export 'PATH', "/usr/lib/ccache:$PATH"
           end
