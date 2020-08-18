@@ -120,7 +120,7 @@ module Travis
                 r_url = "https://cdn.rstudio.com/r/ubuntu-#{os_version}/pkgs/#{r_filename}"
                 sh.cmd "curl -fLo /tmp/#{r_filename} #{r_url}", retry: true
                 sh.cmd "sudo apt-get install -y gdebi-core"
-                sh.cmd "sudo gdebi r-#{r_version}_1_amd64.deb"
+                sh.cmd "sudo gdebi --non-interactive r-#{r_version}_1_amd64.deb"
                 sh.export 'PATH', "/opt/R/#{r_version}/bin:$PATH", echo: false
                 sh.rm "/tmp/#{r_filename}"
 
