@@ -55,7 +55,7 @@ module Travis
           precise: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_SAFELIST_PRECISE', ''),
           trusty: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_SAFELIST_TRUSTY', ''),
           xenial: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_SAFELIST_XENIAL', ''),
-          bionic: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_BIONIC', ''),
+          bionic: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_SAFELIST_BIONIC', ''),
         },
         apt_source_safelist_key_url_template: ENV.fetch(
           'TRAVIS_BUILD_APT_SOURCE_SAFELIST_KEY_URL_TEMPLATE',
