@@ -36,7 +36,7 @@ module Travis
         end
 
         def key_url(repo)
-          tmpl = Travis::Build.config.apt_source_safelist_key_url_template.to_s.output_safe
+          tmpl = Travis::Build.config.apt_source_alias_list_key_url_template.to_s.output_safe
           format(
             tmpl.to_s,
             source_alias: repo,
