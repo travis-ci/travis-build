@@ -13,8 +13,7 @@ module Travis
 
         def export
           super
-          sh.export 'TRAVIS_MATLAB_VERSION', release.shellescape,
-                    echo: false
+          sh.export 'TRAVIS_MATLAB_VERSION', release.shellescape, echo: false
         end
 
         def setup
