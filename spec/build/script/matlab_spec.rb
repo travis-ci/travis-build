@@ -7,6 +7,7 @@ describe Travis::Build::Script::Matlab, :sexp do
   let(:helper)      { Travis::Build::Script::Matlab::MATLAB_DEPS_LOCATION }
   let(:start)       { Travis::Build::Script::Matlab::MATLAB_START }
   let(:command)     { Travis::Build::Script::Matlab::MATLAB_COMMAND }
+  let(:notice)      { Travis::Build::Script::Matlab::MATLAB_NOTICE }
 
   subject           { script.sexp }
   it                { store_example }
@@ -15,6 +16,10 @@ describe Travis::Build::Script::Matlab, :sexp do
 
   it 'sets TRAVIS_MATLAB_VERSION to the latest version of MATLAB' do
     should include_sexp [:export, %w[TRAVIS_MATLAB_VERSION latest]]
+  end
+
+  it 'prints the support notice in green' do
+    should include_sexp [:echo, notice, ansi: :green]
   end
 
   it 'configures runtime dependencies' do
