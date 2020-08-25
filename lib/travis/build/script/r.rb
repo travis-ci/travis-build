@@ -67,6 +67,9 @@ module Travis
               sh.echo 'Installing R', ansi: :yellow
               case config[:os]
               when 'linux'
+              if config[:arch] == 'arm64'
+                sh.failure 'ARM architecture not supported'
+              end
                 # This key is added implicitly by the marutter PPA below
                 #sh.cmd 'apt-key adv --keyserver ha.pool.sks-keyservers.net '\
                   #'--recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9', sudo: true
@@ -112,12 +115,13 @@ module Travis
                   'cdbs qpdf texinfo libssh2-1-dev devscripts '\
                   "#{optional_apt_pkgs}", retry: true
 
-                r_filename = "R-#{r_version}-$(lsb_release -cs).xz"
-                r_url = "https://travis-ci.rstudio.org/#{r_filename}"
+                r_filename = "r-#{r_version}_1_amd64.deb"
+                os_version = "$(lsb_release -rs | tr -d '.')"
+                r_url = "https://cdn.rstudio.com/r/ubuntu-#{os_version}/pkgs/#{r_filename}"
                 sh.cmd "curl -fLo /tmp/#{r_filename} #{r_url}", retry: true
-                sh.cmd "tar xJf /tmp/#{r_filename} -C ~"
-                sh.export 'PATH', "${TRAVIS_HOME}/R-bin/bin:$PATH", echo: false
-                sh.export 'LD_LIBRARY_PATH', "${TRAVIS_HOME}/R-bin/lib:$LD_LIBRARY_PATH", echo: false
+                sh.cmd "sudo apt-get install -y gdebi-core"
+                sh.cmd "sudo gdebi --non-interactive /tmp/#{r_filename}"
+                sh.export 'PATH', "/opt/R/#{r_version}/bin:$PATH", echo: false
                 sh.rm "/tmp/#{r_filename}"
 
                 sh.cmd "sudo mkdir -p /usr/local/lib/R/site-library $R_LIBS_USER"
