@@ -25,17 +25,14 @@ describe Travis::Build::Script::Crystal, :sexp do
 
   describe '#cache_slug' do
     subject { described_class.new(data).cache_slug }
-    it { is_expected.to eq("cache-#{CACHE_SLUG_EXTRAS}-crystal-latest") }
+    it { is_expected.to eq("cache-#{CACHE_SLUG_EXTRAS}-crystal-stable") }
   end
 
   context "versions" do
-    let(:with_snap) { sexp_find(subject, [:if, '-n $(command -v snap)'], [:then]) }
-    let(:without_snap) { sexp_find(subject, [:if, '-n $(command -v snap)'], [:else]) }
-
     it "installs latest linux release by default" do
       data[:config][:os] = "linux"
-      expect(with_snap).to include_sexp [:cmd, "sudo snap install crystal --classic --channel=latest/stable", {echo: true}]
-      expect(without_snap).to include_sexp [:cmd, "sudo apt-get install -y crystal libgmp-dev"]
+      should include_sexp [:cmd, %q(echo "deb https://dl.bintray.com/crystal/deb all stable" | sudo tee /etc/apt/sources.list.d/crystal.list)]
+      should include_sexp [:cmd, "sudo apt-get install -y crystal"]
     end
 
     it "installs latest macOS release by default" do
@@ -43,17 +40,38 @@ describe Travis::Build::Script::Crystal, :sexp do
       should include_sexp [:cmd, "brew install crystal-lang"]
     end
 
-    it "installs latest linux release when explicitly asked for" do
+    it "installs latest stable linux release (with crystal: latest)" do
       data[:config][:os] = "linux"
       data[:config][:crystal] = "latest"
-      expect(with_snap).to include_sexp [:cmd, "sudo snap install crystal --classic --channel=latest/stable", {echo: true}]
+      should include_sexp [:cmd, %q(echo "deb https://dl.bintray.com/crystal/deb all stable" | sudo tee /etc/apt/sources.list.d/crystal.list)]
+      should include_sexp [:cmd, "sudo apt-get install -y crystal"]
     end
 
-    it "installs linux nightly when specified" do
-      data[:config][:os] = "linux"
-      data[:config][:crystal] = "nightly"
-      expect(with_snap).to include_sexp [:cmd, "sudo snap install crystal --classic --channel=latest/edge", {echo: true}]
-      expect(without_snap).to include_sexp [:echo, "Crystal nightlies will only be supported via snap. Use Xenial or later releases."]
+    %w(stable unstable nightly).each do |channel|
+      it "installs latest stable linux release (with crystal: #{channel})" do
+        data[:config][:os] = "linux"
+        data[:config][:crystal] = channel
+        should include_sexp [:cmd, %Q(echo "deb https://dl.bintray.com/crystal/deb all #{channel}" | sudo tee /etc/apt/sources.list.d/crystal.list)]
+        should include_sexp [:cmd, "sudo apt-get install -y crystal"]
+      end
+
+      %w(0.35 1.0.1).each do |version|
+        it "installs specific channel/version linux release (with crystal: #{channel}/#{version})" do
+          data[:config][:os] = "linux"
+          data[:config][:crystal] = "#{channel}/#{version}"
+          should include_sexp [:cmd, %Q(echo "deb https://dl.bintray.com/crystal/deb all #{channel}" | sudo tee /etc/apt/sources.list.d/crystal.list)]
+          should include_sexp [:cmd, %Q(sudo apt-get install -y crystal="#{version}*")]
+        end
+      end
+    end
+
+    %w(0.35 1.0.1).each do |version|
+      it "installs specific stable version release (with crystal: #{version})" do
+        data[:config][:os] = "linux"
+        data[:config][:crystal] = version
+        should include_sexp [:cmd, %Q(echo "deb https://dl.bintray.com/crystal/deb all stable" | sudo tee /etc/apt/sources.list.d/crystal.list)]
+        should include_sexp [:cmd, %Q(sudo apt-get install -y crystal="#{version}*")]
+      end
     end
 
     it 'throws a error with a non-release version on macOS' do
