@@ -1,5 +1,6 @@
+#!/bin/bash
 # shellcheck disable=SC1117
-
+set -o
 travis_setup_env() {
   export ANSI_RED="\033[31;1m"
   export ANSI_GREEN="\033[32;1m"
