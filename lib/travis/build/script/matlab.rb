@@ -29,7 +29,7 @@ module Travis
             sh.echo message, ansi: :green
           end
 
-          sh.fold 'Setup MATLAB' do
+          sh.fold 'matlab_install' do
             # Execute helper script to install runtime dependencies
             sh.raw "wget -qO- --retry-connrefused #{MATLAB_DEPS_LOCATION}" \
                   ' | sudo -E bash -s -- $TRAVIS_MATLAB_VERSION'
