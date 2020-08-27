@@ -53,14 +53,15 @@ describe Travis::Build::Script::NodeJs, :sexp do
         let(:sexp_if)      { sexp_filter(subject, [:if, '$? -ne 0'])[0] }
 
         it 'tries to use locally available version' do
-          expect(sexp_if).to include_sexp [:cmd, 'nvm use 8', echo: true]
+          expect(sexp_if).to_not include_sexp [:cmd, 'nvm use 8', echo: true]
+          expect(sexp_if).to  include_sexp [:raw, 'travis_terminate 2', assert: true]
         end
 
         context 'when nvm use fails' do
           let(:sexp) { sexp_filter(sexp_if, [:if, '$? -ne 0'], [:then]) }
 
           it 'errors the build' do
-            expect(sexp).to include_sexp [:cmd, 'false', assert: true]
+            expect(sexp).to include_sexp [:raw, 'travis_terminate 2', assert: true]
           end
         end
       end
@@ -68,7 +69,7 @@ describe Travis::Build::Script::NodeJs, :sexp do
       context 'when node given is < 1.0' do
         let(:node_js) { '0.8' }
         it 'sends nvm install STDERR to /dev/null' do
-          should include_sexp [:cmd, 'nvm install 0.8 2>/dev/null', echo: true, timing: true]
+          should include_sexp [:cmd, 'nvm install 0.8 2>install.err.log', echo: true, timing: true]
         end
       end
     end
