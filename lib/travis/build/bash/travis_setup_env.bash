@@ -1,4 +1,6 @@
+#!/bin/bash
 # shellcheck disable=SC1117
+set -o errexit
 
 travis_setup_env() {
   export ANSI_RED="\033[31;1m"
