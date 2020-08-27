@@ -7,11 +7,10 @@ module Travis
         MATLAB_START = 'matlab -batch'.freeze
         MATLAB_COMMAND = "assertSuccess(runtests('IncludeSubfolders',true));".freeze
 
-        MATLAB_NOTICE = <<~NOTICE.strip.freeze
-          The MATLAB language is maintained by MathWorks. 
-          If you have any questions or suggestions, please contact MathWorks at
-          continuous-integration@mathworks.com.
-        NOTICE
+        MATLAB_NOTICE = [
+          'The MATLAB language is maintained by MathWorks.',
+          'If you have any questions or suggestions, please contact MathWorks at continuous-integration@mathworks.com.',
+        ]
 
         DEFAULTS = {
           matlab: 'latest'
@@ -26,8 +25,10 @@ module Travis
           super
 
           # Echo support notice
-          sh.echo MATLAB_NOTICE, ansi: :green
-          
+          MATLAB_NOTICE.each do |message|
+            sh.echo message, ansi: :green
+          end
+
           # Execute helper script to install runtime dependencies
           sh.raw "wget -qO- --retry-connrefused #{MATLAB_DEPS_LOCATION}" \
                  ' | sudo -E bash -s -- $TRAVIS_MATLAB_VERSION'
@@ -45,7 +46,7 @@ module Travis
         end
 
         private
-  
+
         def release
           Array(config[:matlab]).first.to_s
         end
