@@ -29,14 +29,16 @@ module Travis
             sh.echo message, ansi: :green
           end
 
-          # Execute helper script to install runtime dependencies
-          sh.raw "wget -qO- --retry-connrefused #{MATLAB_DEPS_LOCATION}" \
-                 ' | sudo -E bash -s -- $TRAVIS_MATLAB_VERSION'
+          sh.fold 'Setup MATLAB' do
+            # Execute helper script to install runtime dependencies
+            sh.raw "wget -qO- --retry-connrefused #{MATLAB_DEPS_LOCATION}" \
+                  ' | sudo -E bash -s -- $TRAVIS_MATLAB_VERSION'
 
-          # Invoke the ephemeral MATLAB installer that will make a MATLAB available
-          # on the system PATH
-          sh.raw "wget -qO- --retry-connrefused #{MATLAB_INSTALLER_LOCATION}" \
-                 ' | sudo -E bash -s -- --release $TRAVIS_MATLAB_VERSION'
+            # Invoke the ephemeral MATLAB installer that will make a MATLAB available
+            # on the system PATH
+            sh.raw "wget -qO- --retry-connrefused #{MATLAB_INSTALLER_LOCATION}" \
+                  ' | sudo -E bash -s -- --release $TRAVIS_MATLAB_VERSION'
+          end
         end
 
         def script
