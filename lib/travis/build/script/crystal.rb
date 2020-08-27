@@ -83,8 +83,8 @@ module Travis
           # - <channel>/x.y (where <channel> = stable, unstable, nightly)
           # - <channel>/x.y.z (where <channel> = stable, unstable, nightly)
           return if crystal_config == "latest"
-          return if crystal_config =~ /\A(stable|unstable|nightly)(\/(\d+)(\.\d+)(\.\d+)?)?\z/
-          return if crystal_config =~ /\A(\d+)(\.\d+)(\.\d+)?\z/
+          return if crystal_config =~ /\A(stable|unstable|nightly)(\/(\d+)(\.\d+)(\.\d+)?)?/
+          return if crystal_config =~ /\A(\d+)(\.\d+)(\.\d+)?/
 
           sh.failure %Q("#{crystal_config}" is an invalid version of Crystal.\nView valid versions of Crystal at https://docs.travis-ci.com/user/languages/crystal/)
         end
@@ -93,7 +93,7 @@ module Travis
           config = crystal_config
           config = "stable" if config == "latest"
 
-          if config =~ /\A(\d+)(\.\d+)(\.\d+)?\z/
+          if config =~ /\A(\d+)(\.\d+)(\.\d+)?/
             crystal_channel = "stable"
             crystal_version = config
           else

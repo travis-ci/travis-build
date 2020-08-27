@@ -55,7 +55,7 @@ describe Travis::Build::Script::Crystal, :sexp do
         should include_sexp [:cmd, "sudo apt-get install -y crystal"]
       end
 
-      %w(0.35 1.0.1).each do |version|
+      %w(0.35 1.0.1 1.1.0-pre3).each do |version|
         it "installs specific channel/version linux release (with crystal: #{channel}/#{version})" do
           data[:config][:os] = "linux"
           data[:config][:crystal] = "#{channel}/#{version}"
@@ -65,7 +65,7 @@ describe Travis::Build::Script::Crystal, :sexp do
       end
     end
 
-    %w(0.35 1.0.1).each do |version|
+    %w(0.35 1.0.1 1.1.0-pre3).each do |version|
       it "installs specific stable version release (with crystal: #{version})" do
         data[:config][:os] = "linux"
         data[:config][:crystal] = version
@@ -85,9 +85,12 @@ describe Travis::Build::Script::Crystal, :sexp do
       should include_sexp [:echo, "Operating system not supported: \"invalid\""]
     end
 
-    it 'throws a error with a invalid version' do
-      data[:config][:crystal] = "foo"
-      should include_sexp [:echo, "\"foo\" is an invalid version of Crystal.\nView valid versions of Crystal at https://docs.travis-ci.com/user/languages/crystal/"]
+    %w(foo wrong1.0.0 notstable).each do |invalid_version|
+      # wrong1.0.0 and notstable were choosed to check valid values as suffix
+      it "throws a error with a invalid version (with crystal: #{invalid_version}" do
+        data[:config][:crystal] = invalid_version
+        should include_sexp [:echo, "\"#{invalid_version}\" is an invalid version of Crystal.\nView valid versions of Crystal at https://docs.travis-ci.com/user/languages/crystal/"]
+      end
     end
   end
 end
