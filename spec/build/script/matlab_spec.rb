@@ -19,7 +19,9 @@ describe Travis::Build::Script::Matlab, :sexp do
   end
 
   it 'prints the support notice in green' do
-    should include_sexp [:echo, notice, ansi: :green]
+    notice.each do |message|
+      should include_sexp [:echo, message, ansi: :green]
+    end
   end
 
   it 'configures runtime dependencies' do
