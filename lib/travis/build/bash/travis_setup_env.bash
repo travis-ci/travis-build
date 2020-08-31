@@ -55,7 +55,7 @@ travis_setup_env() {
   export TRAVIS_TEST_RESULT=
   export TRAVIS_CMD=
 
-  TRAVIS_TMPDIR="$(mktemp -d 2>/dev/null || mktemp -d -t 'travis_tmp')"
+  TRAVIS_TMPDIR="$(mktemp -d 2>/dev/null || mktemp -d -t travis_tmp.XXXX)"
   mkdir -p "${TRAVIS_TMPDIR}"
   export TRAVIS_TMPDIR
 
