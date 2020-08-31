@@ -11,7 +11,7 @@ describe Travis::Build::Script::R, :sexp do
 
   it 'normalizes bioc-devel correctly' do
     data[:config][:r] = 'bioc-devel'
-    should include_sexp [:export, ['TRAVIS_R_VERSION', '4.0.0']]
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '4.0.2']]
     should include_sexp [:cmd, %r{install.packages\(\"BiocManager"\)},
                          assert: true, echo: true, timing: true, retry: true]
     should include_sexp [:cmd, %r{BiocManager::install\(version = \"devel\"},
@@ -22,7 +22,7 @@ describe Travis::Build::Script::R, :sexp do
     data[:config][:r] = 'bioc-release'
     should include_sexp [:cmd, %r{install.packages\(\"BiocManager"\)},
                          assert: true, echo: true, timing: true, retry: true]
-    should include_sexp [:export, ['TRAVIS_R_VERSION', '4.0.0']]
+    should include_sexp [:export, ['TRAVIS_R_VERSION', '4.0.2']]
   end
 
   it 'r_packages works with a single package set' do
@@ -50,7 +50,7 @@ describe Travis::Build::Script::R, :sexp do
   end
 
   it 'downloads and installs latest R' do
-    should include_sexp [:cmd, %r{^curl.*https://cdn.rstudio.com/r/ubuntu-.*/pkgs/r-4\.0\.0_1_amd64\.deb},
+    should include_sexp [:cmd, %r{^curl.*https://cdn.rstudio.com/r/ubuntu-.*/pkgs/r-4\.0\.2_1_amd64\.deb},
                          assert: true, echo: true, retry: true, timing: true]
   end
 
@@ -257,7 +257,7 @@ describe Travis::Build::Script::R, :sexp do
     }
     it {
       data[:config][:r] = 'release'
-      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-4.0.0")
+      should eq("cache-#{CACHE_SLUG_EXTRAS}--R-4.0.2")
     }
     it {
       data[:config][:r] = 'oldrel'
