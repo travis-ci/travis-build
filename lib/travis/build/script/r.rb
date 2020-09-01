@@ -67,9 +67,13 @@ module Travis
               sh.echo 'Installing R', ansi: :yellow
               case config[:os]
               when 'linux'
-              if config[:arch] == 'arm64'
-                sh.failure 'ARM architecture not supported'
-              end
+                if config[:arch] == 'arm64'
+                  sh.failure 'ARM architecture not supported'
+                end
+                if config[:dist] == 'trusty'
+                  sh.failure '"dist: trusty" is no longer supported for "language: r"'
+                end
+
                 # This key is added implicitly by the marutter PPA below
                 #sh.cmd 'apt-key adv --keyserver ha.pool.sks-keyservers.net '\
                   #'--recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9', sudo: true
@@ -89,11 +93,6 @@ module Travis
                 # Extra PPAs that do not depend on R version
                 sh.cmd 'sudo add-apt-repository -y "ppa:ubuntugis/ppa"'
                 sh.cmd 'sudo add-apt-repository -y "ppa:cran/travis"'
-
-                # Both c2d4u and c2d4u3.5 depend on this ppa for ffmpeg
-                sh.if "$(lsb_release -cs) = 'trusty'" do
-                  sh.cmd 'sudo add-apt-repository -y "ppa:kirillshkrogalev/ffmpeg-next"'
-                end
 
                 # Update after adding all repositories. Retry several
                 # times to work around flaky connection to Launchpad PPAs.
@@ -608,7 +607,7 @@ module Travis
 
         def normalized_r_version(v=Array(config[:r]).first.to_s)
           case v
-          when 'release' then '4.0.0'
+          when 'release' then '4.0.2'
           when 'oldrel' then '3.6.3'
           when '3.0' then '3.0.3'
           when '3.1' then '3.1.3'
@@ -617,7 +616,7 @@ module Travis
           when '3.4' then '3.4.4'
           when '3.5' then '3.5.3'
           when '3.6' then '3.6.3'
-          when '4.0' then '4.0.0'
+          when '4.0' then '4.0.2'
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true
