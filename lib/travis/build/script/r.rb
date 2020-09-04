@@ -120,7 +120,7 @@ module Travis
                 sh.cmd "curl -fLo /tmp/#{r_filename} #{r_url}", retry: true
                 sh.cmd "sudo apt-get install -y gdebi-core"
                 sh.cmd "sudo gdebi --non-interactive /tmp/#{r_filename}"
-                sh.export 'PATH', "/opt/R/#{r_version}/bin:$PATH", echo: false
+                sh.export 'PATH', "/opt/R/#{r_version}/bin:$PATH"
                 sh.rm "/tmp/#{r_filename}"
 
                 sh.cmd "sudo mkdir -p /usr/local/lib/R/site-library $R_LIBS_USER"
