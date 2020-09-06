@@ -327,7 +327,7 @@ module Travis
           sh.echo "Installing R packages: #{packages.join(', ')}"
           pkg_arg = packages_as_arg(packages)
           install_script =
-            "install.packages(#{pkg_arg});"\
+            "install.packages(#{pkg_arg}, lib = Sys.getenv(\"R_LIBS_USER\"));"\
             "if (!all(#{pkg_arg} %in% installed.packages())) {"\
             ' q(status = 1, save = "no")'\
             '}'
@@ -343,7 +343,7 @@ module Travis
 
           sh.echo "Installing R packages from GitHub: #{packages.join(', ')}"
           pkg_arg = packages_as_arg(packages)
-          install_script = "remotes::install_github(#{pkg_arg})"
+          install_script = "remotes::install_github(#{pkg_arg}, lib = Sys.getenv(\"R_LIBS_USER\"))"
           sh.cmd "Rscript -e '#{install_script}'"
         end
 
@@ -389,7 +389,7 @@ module Travis
 
           install_script =
             'deps <- remotes::dev_package_deps(dependencies = NA);'\
-            'remotes::install_deps(dependencies = TRUE);'\
+            'remotes::install_deps(dependencies = TRUE, lib = Sys.getenv("R_LIBS_USER"));'\
             'if (!all(deps$package %in% installed.packages())) {'\
             ' message("missing: ", paste(setdiff(deps$package, installed.packages()), collapse=", "));'\
             ' q(status = 1, save = "no")'\
@@ -437,9 +437,9 @@ module Travis
                   'cat(append = TRUE, file = "~/.Rprofile.site", "options(repos = BiocInstaller::biocinstallRepos());")'
                 else
                   'if (!requireNamespace("BiocManager", quietly=TRUE))'\
-                  '  install.packages("BiocManager");'\
+                  '  install.packages("BiocManager", lib = Sys.getenv("R_LIBS_USER"));'\
                   "if (#{as_r_boolean(config[:bioc_use_devel])})"\
-                  ' BiocManager::install(version = "devel", ask = FALSE);'\
+                  ' BiocManager::install(version = "devel", ask = FALSE, lib = Sys.getenv("R_LIBS_USER"));'\
                   'cat(append = TRUE, file = "~/.Rprofile.site", "options(repos = BiocManager::repositories());")'
                 end
                 sh.cmd "Rscript -e '#{bioc_install_script}'", retry: true
@@ -447,7 +447,7 @@ module Travis
                 if r_version_less_than("3.5.0")
                   'BiocInstaller::biocLite("BiocCheck")'
                 else
-                  'BiocManager::install("BiocCheck")'
+                  'BiocManager::install("BiocCheck", lib = Sys.getenv("R_LIBS_USER"))'
                 end
                if config[:bioc_check]
                  sh.cmd "Rscript -e '#{bioc_install_bioccheck}'"
@@ -466,7 +466,7 @@ module Travis
                 r_install ['remotes']
             else
               remotes_check = '!requireNamespace("remotes", quietly = TRUE)'
-              remotes_install = 'install.packages("remotes")'
+              remotes_install = 'install.packages("remotes", lib = Sys.getenv("R_LIBS_USER"))'
               sh.cmd "Rscript -e 'if (#{remotes_check}) #{remotes_install}'",
                      retry: true
             end
@@ -483,7 +483,7 @@ module Travis
                 r_install ['devtools']
             else
               devtools_check = '!requireNamespace("devtools", quietly = TRUE)'
-              devtools_install = 'install.packages("devtools")'
+              devtools_install = 'install.packages("devtools", lib = Sys.getenv("R_LIBS_USER"))'
               sh.cmd "Rscript -e 'if (#{devtools_check}) #{devtools_install}'",
                      retry: true
             end
