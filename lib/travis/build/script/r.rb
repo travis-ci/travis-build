@@ -181,7 +181,6 @@ module Travis
                 config[:r_build_args] = config[:r_build_args] + " --no-manual"
               end
 
-              setup_bioc if needs_bioc?
               setup_pandoc if config[:pandoc]
 
               # Removes preinstalled homebrew
@@ -204,6 +203,8 @@ module Travis
           sh.if '! -e DESCRIPTION' do
             sh.failure "No DESCRIPTION file found, user must supply their own install and script steps"
           end
+
+          setup_bioc if needs_bioc?
 
           sh.fold "R-dependencies" do
             sh.echo 'Installing package dependencies', ansi: :yellow
