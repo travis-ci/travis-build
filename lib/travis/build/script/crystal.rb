@@ -3,7 +3,7 @@ module Travis
     class Script
       class Crystal < Script
         DEFAULTS = {
-          crystal: 'latest',
+          crystal: 'stable',
         }
 
         def configure
@@ -14,14 +14,10 @@ module Travis
 
             case config[:os]
             when 'linux'
-              validate_version
-              if crystal_config_version == 'nightly'
-                linux_nightly
-              else
-                linux_latest
-              end
+              validate_crystal_config
+              apt_install_crystal
             when 'osx'
-              if crystal_config_version != "latest"
+              if crystal_config != "latest" && crystal_config != "stable"
                 sh.failure %Q(Specifying Crystal version is not yet supported by the macOS environment)
               end
               sh.cmd %q(brew update)
@@ -68,63 +64,53 @@ module Travis
         end
 
         def cache_slug
-          super << '-crystal-' << crystal_config_version
+          super << '-crystal-' << crystal_config
         end
 
         private
 
-        def crystal_config_version
+        def crystal_config
           Array(config[:crystal]).first.to_s
         end
 
-        def validate_version
-          if crystal_config_version != 'latest' && crystal_config_version != 'nightly'
-            sh.failure %Q("#{crystal_config_version}" is an invalid version of Crystal.\nView valid versions of Crystal at https://docs.travis-ci.com/user/languages/crystal/)
-          end
-        end
+        def validate_crystal_config
+          # - stable
+          # - latest (same as stable, backward compatibility)
+          # - unstable
+          # - nightly
+          # - x.y (from stable channel)
+          # - x.y.z (from stable channel)
+          # - <channel>/x.y (where <channel> = stable, unstable, nightly)
+          # - <channel>/x.y.z (where <channel> = stable, unstable, nightly)
+          return if crystal_config == "latest"
+          return if crystal_config =~ /\A(stable|unstable|nightly)(\/(\d+)(\.\d+)(\.\d+)?)?/
+          return if crystal_config =~ /\A(\d+)(\.\d+)(\.\d+)?/
 
-        def linux_latest
-          sh.if "-n $(command -v snap)" do
-            snap_install_crystal '--channel=latest/stable'
-          end
-          sh.else do
-            apt_install_crystal
-          end
-        end
-
-        def linux_nightly
-          sh.if "-n $(command -v snap)" do
-            snap_install_crystal '--channel=latest/edge'
-          end
-          sh.else do
-            sh.failure "Crystal nightlies will only be supported via snap. Use Xenial or later releases."
-          end
-        end
-
-        def snap_install_crystal(options)
-          sh.cmd %Q(sudo apt-get install -y gcc pkg-config git tzdata libpcre3-dev libevent-dev libyaml-dev libgmp-dev libssl-dev libxml2-dev 2>&1 > /dev/null), echo: true
-          sh.cmd %Q(sudo snap install crystal --classic #{options}), echo: true
+          sh.failure %Q("#{crystal_config}" is an invalid version of Crystal.\nView valid versions of Crystal at https://docs.travis-ci.com/user/languages/crystal/)
         end
 
         def apt_install_crystal
-          version = {
-            url: "https://dist.crystal-lang.org/apt",
-            key: {
-              url: "https://dist.crystal-lang.org/rpm/RPM-GPG-KEY",
-              fingerprint: "5995C83CD754BE448164192909617FD37CC06B54"
-            },
-            package: "crystal"
-          }
+          config = crystal_config
+          config = "stable" if config == "latest"
 
-          sh.cmd %Q(curl -sSL '#{version[:key][:url]}' > "${TRAVIS_HOME}/crystal_repository_key.asc")
-          sh.if %Q("$(gpg --with-fingerprint "${TRAVIS_HOME}/crystal_repository_key.asc" | grep "Key fingerprint" | cut -d "=" -f2 | tr -d " ")" != "#{version[:key][:fingerprint]}") do
-            sh.failure "The repository key needed to install Crystal did not have the expected fingerprint. Your build was aborted."
+          if config =~ /\A(\d+)(\.\d+)(\.\d+)?/
+            crystal_channel = "stable"
+            crystal_version = config
+          else
+            crystal_channel, crystal_version = config.split('/')
+            crystal_version ||= "latest"
           end
-          sh.cmd %q(sudo sh -c "apt-key add '${TRAVIS_HOME}/crystal_repository_key.asc'")
 
-          sh.cmd %Q(sudo sh -c 'echo "deb #{version[:url]} crystal main" > /etc/apt/sources.list.d/crystal-nightly.list')
+          # Add repo metadata signign key (shared bintray signing key)
+          sh.cmd %q(sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 379CE192D401AB61)
+          sh.cmd %Q(echo "deb https://dl.bintray.com/crystal/deb all #{crystal_channel}" | sudo tee /etc/apt/sources.list.d/crystal.list)
+
           sh.cmd 'travis_apt_get_update'
-          sh.cmd %Q(sudo apt-get install -y #{version[:package]} libgmp-dev)
+          if crystal_version == "latest"
+            sh.cmd %Q(sudo apt-get install -y crystal)
+          else
+            sh.cmd %Q(sudo apt-get install -y crystal="#{crystal_version}*")
+          end
         end
 
         def cache_dirs
@@ -132,7 +118,6 @@ module Travis
           when 'linux'
             %W(
               ${TRAVIS_HOME}/.cache/shards
-              ${TRAVIS_HOME}/snap/crystal/common/.cache/shards
             )
           when 'osx'
             %W(

@@ -28,6 +28,7 @@ require 'travis/build/script/generic'
 require 'travis/build/script/haskell'
 require 'travis/build/script/haxe'
 require 'travis/build/script/julia'
+require 'travis/build/script/matlab'
 require 'travis/build/script/nix'
 require 'travis/build/script/node_js'
 require 'travis/build/script/elm'
@@ -83,8 +84,14 @@ module Travis
       private_constant :TRAVIS_FUNCTIONS
 
       class << self
-        def defaults
-          Git::DEFAULTS.merge(self::DEFAULTS)
+        def defaults(key)
+          if key && self::DEFAULTS.key?(key.to_sym)
+            Git::DEFAULTS.merge self::DEFAULTS[key.to_sym]
+          elsif self::DEFAULTS[:default]
+            Git::DEFAULTS.merge self::DEFAULTS[:default]
+          else
+            Git::DEFAULTS.merge self::DEFAULTS
+          end
         end
       end
 
@@ -106,7 +113,7 @@ module Travis
         raw_config = @raw_data[:config]
         lang_sym = raw_config.fetch(:language,"").to_sym
         @data = Data.new({
-          config: self.class.defaults,
+          config: self.class.defaults(raw_config[:os]),
           language_default_p: !raw_config[lang_sym]
         }.deep_merge(self.raw_data))
         @options = {}

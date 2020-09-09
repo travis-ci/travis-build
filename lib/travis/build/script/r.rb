@@ -67,6 +67,13 @@ module Travis
               sh.echo 'Installing R', ansi: :yellow
               case config[:os]
               when 'linux'
+                if config[:arch] == 'arm64'
+                  sh.failure 'ARM architecture not supported'
+                end
+                if config[:dist] == 'trusty'
+                  sh.failure '"dist: trusty" is no longer supported for "language: r"'
+                end
+
                 # This key is added implicitly by the marutter PPA below
                 #sh.cmd 'apt-key adv --keyserver ha.pool.sks-keyservers.net '\
                   #'--recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9', sudo: true
@@ -80,18 +87,12 @@ module Travis
                   sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u3.5"'
                 else
                   sh.cmd 'sudo add-apt-repository -y "ppa:marutter/rrutter4.0"'
-                  # not yet available:
-                  # sh.cmd 'sudo add-apt-repository -y "ppa:marutter/c2d4u4.0"'
+                  sh.cmd 'sudo add-apt-repository -y "ppa:c2d4u.team/c2d4u4.0+"'
                 end
 
                 # Extra PPAs that do not depend on R version
                 sh.cmd 'sudo add-apt-repository -y "ppa:ubuntugis/ppa"'
                 sh.cmd 'sudo add-apt-repository -y "ppa:cran/travis"'
-
-                # Both c2d4u and c2d4u3.5 depend on this ppa for ffmpeg
-                sh.if "$(lsb_release -cs) = 'trusty'" do
-                  sh.cmd 'sudo add-apt-repository -y "ppa:kirillshkrogalev/ffmpeg-next"'
-                end
 
                 # Update after adding all repositories. Retry several
                 # times to work around flaky connection to Launchpad PPAs.
@@ -113,12 +114,13 @@ module Travis
                   'cdbs qpdf texinfo libssh2-1-dev devscripts '\
                   "#{optional_apt_pkgs}", retry: true
 
-                r_filename = "R-#{r_version}-$(lsb_release -cs).xz"
-                r_url = "https://travis-ci.rstudio.org/#{r_filename}"
+                r_filename = "r-#{r_version}_1_amd64.deb"
+                os_version = "$(lsb_release -rs | tr -d '.')"
+                r_url = "https://cdn.rstudio.com/r/ubuntu-#{os_version}/pkgs/#{r_filename}"
                 sh.cmd "curl -fLo /tmp/#{r_filename} #{r_url}", retry: true
-                sh.cmd "tar xJf /tmp/#{r_filename} -C ~"
-                sh.export 'PATH', "${TRAVIS_HOME}/R-bin/bin:$PATH", echo: false
-                sh.export 'LD_LIBRARY_PATH', "${TRAVIS_HOME}/R-bin/lib:$LD_LIBRARY_PATH", echo: false
+                sh.cmd "sudo apt-get install -y gdebi-core"
+                sh.cmd "sudo gdebi --non-interactive /tmp/#{r_filename}"
+                sh.export 'PATH', "/opt/R/#{r_version}/bin:$PATH", echo: false
                 sh.rm "/tmp/#{r_filename}"
 
                 sh.cmd "sudo mkdir -p /usr/local/lib/R/site-library $R_LIBS_USER"
@@ -179,7 +181,6 @@ module Travis
                 config[:r_build_args] = config[:r_build_args] + " --no-manual"
               end
 
-              setup_bioc if needs_bioc?
               setup_pandoc if config[:pandoc]
 
               # Removes preinstalled homebrew
@@ -202,6 +203,8 @@ module Travis
           sh.if '! -e DESCRIPTION' do
             sh.failure "No DESCRIPTION file found, user must supply their own install and script steps"
           end
+
+          setup_bioc if needs_bioc?
 
           sh.fold "R-dependencies" do
             sh.echo 'Installing package dependencies', ansi: :yellow
@@ -605,7 +608,7 @@ module Travis
 
         def normalized_r_version(v=Array(config[:r]).first.to_s)
           case v
-          when 'release' then '4.0.0'
+          when 'release' then '4.0.2'
           when 'oldrel' then '3.6.3'
           when '3.0' then '3.0.3'
           when '3.1' then '3.1.3'
@@ -614,12 +617,12 @@ module Travis
           when '3.4' then '3.4.4'
           when '3.5' then '3.5.3'
           when '3.6' then '3.6.3'
-          when '4.0' then '4.0.0'
+          when '4.0' then '4.0.2'
           when 'bioc-devel'
             config[:bioc_required] = true
             config[:bioc_use_devel] = true
-            config[:r] = 'devel'
-            normalized_r_version('devel')
+            config[:r] = 'release'
+            normalized_r_version('release')
           when 'bioc-release'
             config[:bioc_required] = true
             config[:bioc_use_devel] = false
