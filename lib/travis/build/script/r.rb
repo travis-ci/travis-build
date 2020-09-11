@@ -189,6 +189,24 @@ module Travis
           end
         end
 
+        def setup
+          super
+
+          setup_bioc if needs_bioc?
+
+          sh.fold "R-packages" do
+            sh.echo 'Installing requested packages', ansi: :yellow
+
+            # Install any declared packages
+            apt_install config[:apt_packages]
+            brew_install config[:brew_packages]
+            r_binary_install config[:r_binary_packages]
+            r_install config[:r_packages]
+            r_install config[:bioc_packages]
+            r_github_install config[:r_github_packages]
+          end
+        end
+
         def announce
           super
           sh.fold 'R-session-info' do
@@ -204,19 +222,8 @@ module Travis
             sh.failure "No DESCRIPTION file found, user must supply their own install and script steps"
           end
 
-          setup_bioc if needs_bioc?
-
           sh.fold "R-dependencies" do
             sh.echo 'Installing package dependencies', ansi: :yellow
-
-            # Install any declared packages
-            apt_install config[:apt_packages]
-            brew_install config[:brew_packages]
-            r_binary_install config[:r_binary_packages]
-            r_install config[:r_packages]
-            r_install config[:bioc_packages]
-            r_github_install config[:r_github_packages]
-
             # Install dependencies for the package we're testing.
             install_deps
           end
