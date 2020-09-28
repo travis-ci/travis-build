@@ -16,9 +16,12 @@ module Travis
           }
         ]
 
-        PIP_20_3_MSG = "Pip version 20.3 introduces changes to the dependency resolver that may affect your software. " \
+        PIP_20_3_MSG = [
+          "Pip version 20.3 introduces changes to the dependency resolver that may affect your software.",
+          "We advise you to consider testing the upcoming changes, which may be introduced in a future Travis CI build image update.",
           "See https://pip.pypa.io/en/latest/user_guide/#changes-to-the-pip-dependency-resolver-in-20-2-2020 for more information."
-        PIP_20_2_MSG = "You can test the new dependency resolver with the \\\`--use-feature=2020-resolver\\\` flag."
+        ]
+        PIP_20_2_MSG = "With pip 20.2, you can test the new dependency resolver with the \\\`--use-feature=2020-resolver\\\` flag."
 
         REQUIREMENTS_MISSING = 'Could not locate requirements.txt. Override the install: key in your .travis.yml to install dependencies.'
         SCRIPT_MISSING       = 'Please override the script: key in your .travis.yml to run tests.'
@@ -154,7 +157,7 @@ module Travis
 
           def warn_pip_20_3
             sh.if pip_version_before_20_3? do
-              sh.echo PIP_20_3_MSG, ansi: :yellow
+              PIP_20_3_MSG.each { |l| sh.echo l, ansi: :yellow }
 
               sh.if pip_version_at_least_20_2? do
                 sh.echo PIP_20_2_MSG, ansi: :yellow
