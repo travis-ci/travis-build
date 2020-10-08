@@ -91,7 +91,7 @@ module Travis
                 end
 
                 # Extra PPAs that do not depend on R version
-                sh.cmd 'sudo add-apt-repository -y "ppa:ubuntugis/ppa"'
+                sh.cmd 'sudo add-apt-repository -y "ppa:ubuntugis/ubuntugis-unstable"'
                 sh.cmd 'sudo add-apt-repository -y "ppa:cran/travis"'
 
                 # Update after adding all repositories. Retry several
