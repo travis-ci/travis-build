@@ -69,7 +69,7 @@ module Travis
 
           # XXX the following does not apply to OSX
           def static_build_linux_url
-            if config[:arch] == 'arm64'
+            if config[:arch] =~ /^arm64\b/
               "https://#{app_host}/files/tmate-static-linux-arm64v8.tar.xz"
             else
               "https://#{app_host}/files/tmate-static-linux-amd64.tar.xz"
