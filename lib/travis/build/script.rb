@@ -482,7 +482,7 @@ module Travis
 
           sh.fold "workspaces_use" do
             ws_names.each do |name|
-              sh.echo "Fetching workspace #{name}", ansi: :green
+              sh.echo "Fetching workspace #{shesc(name)}", ansi: :green
               ws = Travis::Build::Script::Workspace.new(sh, data, name, [], :use)
               ws.install_casher
               ws.fetch
@@ -508,7 +508,7 @@ module Travis
                   "or an array of such hashes", ansi: :yellow
                 next
               end
-              sh.echo "Workspace: #{cfg[:name]}", ansi: :green
+              sh.echo "Workspace: #{shesc(cfg[:name])}", ansi: :green
               ws = Travis::Build::Script::Workspace.new(sh, data, cfg[:name], cfg[:paths], :create)
               ws.install_casher
               ws.compress
