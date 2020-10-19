@@ -2,7 +2,7 @@ module Travis
   module Build
     class Script
       class Matlab < Script
-        MATLAB_INSTALLER_LOCATION = 'https://ssd.mathworks.com/supportfiles/ci/ephemeral-matlab/v0/install.sh'.freeze
+        MATLAB_INSTALLER_LOCATION = 'https://ssd.mathworks.com/supportfiles/ci/ephemeral-matlab/v0/ci-install.sh'.freeze
         MATLAB_DEPS_LOCATION = 'https://ssd.mathworks.com/supportfiles/ci/matlab-deps/v0/install.sh'.freeze
         MATLAB_START = 'matlab -batch'.freeze
         MATLAB_COMMAND = "assertSuccess(runtests('IncludeSubfolders',true));".freeze
