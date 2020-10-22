@@ -30,9 +30,13 @@ module Travis
           end
 
           sh.fold 'matlab_install' do
+            sh.echo 'Installing MATLAB system dependencies', ansi: :yellow
+
             # Execute helper script to install runtime dependencies
             sh.raw "wget -qO- --retry-connrefused #{MATLAB_DEPS_LOCATION}" \
                   ' | sudo -E bash -s -- $TRAVIS_MATLAB_VERSION'
+
+            sh.echo 'Setting up MATLAB', ansi: :yellow
 
             # Invoke the ephemeral MATLAB installer that will make a MATLAB available
             # on the system PATH
