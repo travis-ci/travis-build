@@ -340,7 +340,7 @@ module Travis
           apply :update_heroku
           apply :shell_session_update
           apply :git_v2
-          apply :set_docker_mtu
+          apply :set_docker_mtu_and_registry_mirrors
           apply :resolvconf
           apply :maven_central_mirror
           apply :maven_https
