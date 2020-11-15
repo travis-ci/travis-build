@@ -240,14 +240,14 @@ module Travis
                 build_gem_locally_from(src, branch)
               end
 
-              command = "gem install"
+              command = "gem install --pre"
               if install_local?(edge)
                 command << " $TRAVIS_BUILD_DIR/dpl-*.gem"
               else
                 command << " dpl"
               end
-              command << " -v '< 1.9' " if want_pre_19
-              command << " --pre" if edge
+              command << " -v '~> 1'" unless edge
+              command << " -v '< 1.9'" if want_pre_19
               command
             end
 

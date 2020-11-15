@@ -19,7 +19,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
   it { store_example }
 
   it_behaves_like 'compiled script' do
-    let(:cmds) { ['ruby -S gem install dpl', 'ruby -S dpl'] }
+    let(:cmds) { ['ruby -S gem install --pre dpl', 'ruby -S dpl'] }
   end
 
   context "when after_success is also present" do
@@ -43,7 +43,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
           )[0],
           [:if, "-e $HOME/.rvm/scripts/rvm"]
         )[0]
-      ).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl -v '< 1.9' ", echo: true, assert: true, timing: true]
+      ).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install --pre dpl -v '~> 1' -v '< 1.9'", echo: true, assert: true, timing: true]
     end
 
     it "installs latest dpl if travis_internal_ruby does not return 1.9*" do
@@ -55,9 +55,9 @@ describe Travis::Build::Addons::Deploy, :sexp do
           )[0],
           [:if, "-e $HOME/.rvm/scripts/rvm"]
         )[1]
-      ).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl", echo: true, assert: true, timing: true]
+      ).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install --pre dpl -v '~> 1'", echo: true, assert: true, timing: true]
     end
-    it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl', echo: true, assert: true, timing: true] }
+    it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install --pre dpl -v \'~> 1\'', echo: true, assert: true, timing: true] }
     # it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=heroku --password=foo --email=user@host --fold', assert: true, timing: true] }
     # it { expect(sexp).to include_sexp terminate_on_failure }
     it { expect(sexp).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=\"heroku\" --password=\"foo\" --email=\"user@host\" --fold; if [ $? -ne 0 ]; then echo \"failed to deploy\"; travis_terminate 2; fi", {:timing=>true}] }
