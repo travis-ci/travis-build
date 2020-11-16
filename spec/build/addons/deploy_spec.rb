@@ -122,6 +122,14 @@ describe Travis::Build::Addons::Deploy, :sexp do
     it { store_example(name: 'edge') }
   end
 
+  context 'when dpl v2 is selected' do
+    let(:config) { { provider: 'heroku', edge: true } }
+
+    it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install --pre dpl', echo: true, assert: true, timing: true] }
+    it { store_example(name: 'edge') }
+  end
+
+
   context 'when a mix of edge and release dpl are tested' do
     let(:data)   { super().merge(branch: 'staging') }
     let(:config) { { provider: 'heroku', edge: { source: 'svenvfuchs/dpl', branch: 'foo' } } }
