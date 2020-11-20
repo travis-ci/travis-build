@@ -21,8 +21,8 @@ else
 fi
 
 if curl --connect-timeout 1 -fsSL -o /dev/null \
-  "https://registry.travis-ci.com" &>/dev/null; then
-  echo '[{"op":"add","path":"/registry-mirrors","value":["https://registry.travis-ci.com"]}]' > registry.jsonpatch
+  "#{registry_url}" &>/dev/null; then
+  echo '[{"op":"add","path":"/registry-mirrors","value":["#{registry_url}"]}]' > registry.jsonpatch
   sudo jsonpatch /etc/docker/daemon.json registry.jsonpatch > daemon.json
   sudo mv daemon.json /etc/docker/daemon.json   
 fi
@@ -30,6 +30,10 @@ fi
 sudo service docker restart
             EOF
           end
+        end
+
+        def registry_url
+          Travis::Build.config.registry_url.to_s.strip.output_safe || 'https://registry.travis-ci.com'
         end
       end
     end
