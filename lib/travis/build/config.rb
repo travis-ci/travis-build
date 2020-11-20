@@ -105,6 +105,7 @@ module Travis
           ),
         },
         maven_central_mirror: ENV.fetch('TRAVIS_MAVEN_CENTRAL_MIRROR', ''),
+        registry_url: ENV.fetch('TRAVIS_BUILD_REGISTRY_URL', 'https://registry.travis-ci.com'),
         network: {
           wait_retries: Integer(ENV.fetch(
             'TRAVIS_BUILD_NETWORK_WAIT_RETRIES',

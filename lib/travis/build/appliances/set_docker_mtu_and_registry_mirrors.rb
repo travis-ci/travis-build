@@ -4,6 +4,9 @@ module Travis
   module Build
     module Appliances
       class SetDockerMtuAndRegistryMirrors < Base
+        
+        REGISTRY_URL = Travis::Build.config.registry_url.output_safe.freeze
+
         def apply?
           linux?
         end
@@ -21,8 +24,8 @@ else
 fi
 
 if curl --connect-timeout 1 -fsSL -o /dev/null \
-  "https://registry.travis-ci.com" &>/dev/null; then
-  echo '[{"op":"add","path":"/registry-mirrors","value":["https://registry.travis-ci.com"]}]' > registry.jsonpatch
+  "#{REGISTRY_URL}" &>/dev/null; then
+  echo '[{"op":"add","path":"/registry-mirrors","value":["#{REGISTRY_URL}"]}]' > registry.jsonpatch
   sudo jsonpatch /etc/docker/daemon.json registry.jsonpatch > daemon.json
   sudo mv daemon.json /etc/docker/daemon.json   
 fi
