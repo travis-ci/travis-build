@@ -30,6 +30,10 @@ describe Travis::Build::Script::Dart, :sexp do
     should_not include_sexp [:echo, "Installing Content Shell", ansi: :yellow]
   end
 
+  it "runs `dart pub get`" do
+    should include_sexp [:cmp, "dart", "pub", 'get']
+  end
+
   it "runs tests by default" do
     should include_sexp [:cmd,
       "pub global run test_runner --disable-ansi --skip-browser-tests",
