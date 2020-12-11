@@ -121,6 +121,9 @@ module Travis
 
           def use_ruby_version_file
             sh.fold('rvm') do
+              sh.if '-n $(grep "^3" .ruby-version)' do
+                sh.cmd 'rvm get head'
+              end
               sh.cmd 'rvm use $(< .ruby-version) --install --binary --fuzzy'
             end
           end
@@ -156,6 +159,9 @@ module Travis
                   sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy"
                 end
               else
+                if ruby_version.start_with? '3'
+                  sh.cmd "rvm get head"
+                end
                 sh.cmd "rvm use #{ruby_version} --install --binary --fuzzy"
               end
             end
