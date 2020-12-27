@@ -211,7 +211,7 @@ module Travis
               when true       then "--#{key}"
               when false      then dpl2? ? "--no-#{key}" : nil
               when nil        then nil
-              else "--%s=%p" % [key, value]
+              else "--%s=%s" % [key, Shellwords.escape(value)]
               end
             end
 
