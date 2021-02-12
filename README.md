@@ -119,7 +119,7 @@ docker-compose run -e RACK_ENV=development -p 4000:4000 web
 ```
 
 to build and run it. This will create a container with the contents of the `travis-build`
-repository in the `/usr/src/app` directory, and start you off in that directory.
+repository in the `/app` directory, and start you off in that directory.
 From there, you can run the commands listed in the [Use as addon for Travis CLI](#addon)
 section to make the compile command available to Travis CLI within the container.
 
