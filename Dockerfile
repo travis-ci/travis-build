@@ -14,6 +14,14 @@ RUN tar -cjf public.tar.bz2 public && rm -rf public
 
 FROM ruby:2.5.8-slim
 LABEL maintainer Travis CI GmbH <support+travis-build-docker-images@travis-ci.com>
+
+RUN ( \
+   apt-get update ; \
+   # update to deb 10.8
+   apt-get upgrade -y ; \
+   rm -rf /var/lib/apt/lists/* \
+)
+
 WORKDIR /app
 
 ENV TRAVIS_BUILD_DUMP_BACKTRACE true
