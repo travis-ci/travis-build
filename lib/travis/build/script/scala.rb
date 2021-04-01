@@ -11,7 +11,7 @@ module Travis
         }
 
         SBT_PATH = '/usr/local/bin/sbt'
-        SBT_SHA  = '4d558c88ae6ae240e7a5eedc0cf33cc9e7bd0e58'
+        SBT_SHA  = '6db3d3d1c38082dd4c49cce9933738d9bff50065'
         SBT_URL  = "https://raw.githubusercontent.com/paulp/sbt-extras/#{SBT_SHA}/sbt"
 
         def configure
