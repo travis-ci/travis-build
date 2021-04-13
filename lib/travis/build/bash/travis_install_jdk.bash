@@ -52,10 +52,10 @@ travis_install_jdk_package() {
     if dpkg-query -l adoptopenjdk* >/dev/null 2>&1; then
       dpkg-query -l adoptopenjdk* | grep adoptopenjdk | awk '{print $2}' | xargs sudo dpkg -P
     fi
-    wget -qO - https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | sudo apt-key add -
+    wget -nv -O - https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | sudo apt-key add -
     sudo add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/
-    sudo apt-get update -yqq
-    sudo apt-get -yqq --no-install-suggests --no-install-recommends install "$PACKAGE" || true
+    sudo apt-get update -yq
+    sudo apt-get -yq --no-install-suggests --no-install-recommends install "$PACKAGE" || true
     sudo update-java-alternatives -s "$PACKAGE"*
   fi
 }
