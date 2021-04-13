@@ -54,8 +54,8 @@ travis_install_jdk_package() {
     fi
     wget -nv -O - https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | sudo apt-key add -
     sudo add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/
-    sudo apt-get update -y
-    sudo apt-get -y --no-install-suggests --no-install-recommends install "$PACKAGE" || true
+    sudo apt-get update -yq
+    sudo apt-get -yq --no-install-suggests --no-install-recommends install "$PACKAGE" || true
     sudo update-java-alternatives -s "$PACKAGE"*
   fi
 }
