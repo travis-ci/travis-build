@@ -59,10 +59,11 @@ module Travis
                        '| tar -C ~/julia -x -z --strip-components=1 -f -'
               sh.cmd 'export PATH="${PATH}:${TRAVIS_HOME}/julia/bin"'
             when 'osx'
-              sh.cmd %Q{curl -A "$CURL_USER_AGENT" -sSf -L --retry 7 -o julia.dmg '#{julia_url}'}
-              sh.cmd 'mkdir juliamnt'
-              sh.cmd 'hdiutil mount -readonly -mountpoint juliamnt julia.dmg'
-              sh.cmd 'cp -a juliamnt/*.app/Contents/Resources/julia ~/'
+              sh.cmd %Q{curl -A "$CURL_USER_AGENT" -sSf -L --retry 7 -o /tmp/julia.dmg '#{julia_url}'}
+              sh.cmd 'sudo hdiutil attach -readonly -mountpoint /Volumes/juliamnt /tmp/julia.dmg'
+              sh.cmd 'cp -a /Volumes/juliamnt/*.app/Contents/Resources/julia ~/'
+              sh.cmd 'sudo hdiutil detach /Volumes/juliamnt'
+              sh.rm '/tmp/julia.dmg'
               sh.cmd 'export PATH="${PATH}:${TRAVIS_HOME}/julia/bin"'
             when 'windows'
               sh.cmd %Q{curl -A "$CURL_USER_AGENT" -sSf -L --retry 7 -o julia-installer.exe '#{julia_url}'}
