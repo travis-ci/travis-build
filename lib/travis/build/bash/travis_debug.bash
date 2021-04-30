@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # shellcheck disable=SC1117
 set -o errexit
 
@@ -39,9 +39,9 @@ main() {
 
   "
   echo -en "${TMATE_MSG}" >"${TRAVIS_HOME}/.travis/debug_help"
-  echo "alias tmate='/usr/bin/tmate -S ${TMATE_SOCKET}' >> ${TRAVIS_HOME}/.bashrc"
+  echo "alias tmate='$(command -v tmate) -S ${TMATE_SOCKET}' >> ${TRAVIS_HOME}/.bashrc"
   sync
-  $TMATE new-session -d "cat ${TRAVIS_HOME}/.travis/debug_help; /bin/bash -l"
+  $TMATE new-session -d "cat ${TRAVIS_HOME}/.travis/debug_help; $(command -v bash) -l"
   $TMATE wait tmate-ready
 
   echo -e "${ANSI_YELLOW}Use the following SSH command to access the interactive debugging environment:${ANSI_RESET}"
