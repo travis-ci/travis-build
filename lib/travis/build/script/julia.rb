@@ -60,9 +60,9 @@ module Travis
               sh.cmd 'export PATH="${PATH}:${TRAVIS_HOME}/julia/bin"'
             when 'osx'
               sh.cmd %Q{curl -A "$CURL_USER_AGENT" -sSf -L --retry 7 -o julia.dmg '#{julia_url}'}
-              sh.cmd 'mkdir juliamnt'
-              sh.cmd 'hdiutil mount -readonly -mountpoint juliamnt julia.dmg'
-              sh.cmd 'cp -a juliamnt/*.app/Contents/Resources/julia ~/'
+              sh.cmd 'mkdir /tmp/juliamnt'
+              sh.cmd 'hdiutil mount -readonly -mountpoint /tmp/juliamnt julia.dmg'
+              sh.cmd 'cp -a /tmp/juliamnt/*.app/Contents/Resources/julia ~/'
               sh.cmd 'export PATH="${PATH}:${TRAVIS_HOME}/julia/bin"'
             when 'windows'
               sh.cmd %Q{curl -A "$CURL_USER_AGENT" -sSf -L --retry 7 -o julia-installer.exe '#{julia_url}'}
