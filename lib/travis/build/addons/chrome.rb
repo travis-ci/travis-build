@@ -22,8 +22,8 @@ module Travis
             sh.echo "Installing Google Chrome #{version}", ansi: :yellow
 
             sh.if '$(uname) = "Linux"' do
-              sh.if "$(lsb_release -cs) = 'precise'" do
-                sh.echo "Google Chrome addon is not supported on Precise", ansi: :yellow
+              sh.if "$(lsb_release -cs) =~ ^precise|trusty$" do
+                sh.echo "Google Chrome addon is not supported on Precise or Trusty. Please use Xenial or later.", ansi: :yellow
               end
               sh.else do
                 sh.cmd "wget#{WGET_FLAGS} -O /tmp/$(basename $CHROME_SOURCE_URL) $CHROME_SOURCE_URL", echo: true, timing: true, retry: true
