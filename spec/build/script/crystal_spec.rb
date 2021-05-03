@@ -31,7 +31,7 @@ describe Travis::Build::Script::Crystal, :sexp do
   context "versions" do
     it "installs latest linux release by default" do
       data[:config][:os] = "linux"
-      should include_sexp [:cmd, %q(echo "deb https://dl.bintray.com/crystal/deb all stable" | sudo tee /etc/apt/sources.list.d/crystal.list)]
+      should include_sexp [:cmd, %q(echo "deb http://download.opensuse.org/repositories/devel:/languages:/crystal/Debian_10/ /" | sudo tee /etc/apt/sources.list.d/crystal.list)]
       should include_sexp [:cmd, "sudo apt-get install -y crystal"]
     end
 
@@ -43,7 +43,7 @@ describe Travis::Build::Script::Crystal, :sexp do
     it "installs latest stable linux release (with crystal: latest)" do
       data[:config][:os] = "linux"
       data[:config][:crystal] = "latest"
-      should include_sexp [:cmd, %q(echo "deb https://dl.bintray.com/crystal/deb all stable" | sudo tee /etc/apt/sources.list.d/crystal.list)]
+      should include_sexp [:cmd, %q(echo "deb http://download.opensuse.org/repositories/devel:/languages:/crystal/Debian_10/ /" | sudo tee /etc/apt/sources.list.d/crystal.list)]
       should include_sexp [:cmd, "sudo apt-get install -y crystal"]
     end
 
@@ -51,7 +51,7 @@ describe Travis::Build::Script::Crystal, :sexp do
       it "installs latest stable linux release (with crystal: #{channel})" do
         data[:config][:os] = "linux"
         data[:config][:crystal] = channel
-        should include_sexp [:cmd, %Q(echo "deb https://dl.bintray.com/crystal/deb all #{channel}" | sudo tee /etc/apt/sources.list.d/crystal.list)]
+        should include_sexp [:cmd, %Q(echo "deb http://download.opensuse.org/repositories/devel:/languages:/crystal/Debian_10/ /" | sudo tee /etc/apt/sources.list.d/crystal.list)]
         should include_sexp [:cmd, "sudo apt-get install -y crystal"]
       end
 
@@ -59,7 +59,7 @@ describe Travis::Build::Script::Crystal, :sexp do
         it "installs specific channel/version linux release (with crystal: #{channel}/#{version})" do
           data[:config][:os] = "linux"
           data[:config][:crystal] = "#{channel}/#{version}"
-          should include_sexp [:cmd, %Q(echo "deb https://dl.bintray.com/crystal/deb all #{channel}" | sudo tee /etc/apt/sources.list.d/crystal.list)]
+          should include_sexp [:cmd, %Q(echo "deb http://download.opensuse.org/repositories/devel:/languages:/crystal/Debian_10/ /" | sudo tee /etc/apt/sources.list.d/crystal.list)]
           should include_sexp [:cmd, %Q(sudo apt-get install -y crystal="#{version}*")]
         end
       end
@@ -69,7 +69,7 @@ describe Travis::Build::Script::Crystal, :sexp do
       it "installs specific stable version release (with crystal: #{version})" do
         data[:config][:os] = "linux"
         data[:config][:crystal] = version
-        should include_sexp [:cmd, %Q(echo "deb https://dl.bintray.com/crystal/deb all stable" | sudo tee /etc/apt/sources.list.d/crystal.list)]
+        should include_sexp [:cmd, %Q(echo "deb http://download.opensuse.org/repositories/devel:/languages:/crystal/Debian_10/ /" | sudo tee /etc/apt/sources.list.d/crystal.list)]
         should include_sexp [:cmd, %Q(sudo apt-get install -y crystal="#{version}*")]
       end
     end
