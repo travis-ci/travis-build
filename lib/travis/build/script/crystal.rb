@@ -101,9 +101,9 @@ module Travis
             crystal_version ||= "latest"
           end
 
-          # Add repo metadata signign key (shared bintray signing key)
-          sh.cmd %q(sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 379CE192D401AB61)
-          sh.cmd %Q(echo "deb https://dl.bintray.com/crystal/deb all #{crystal_channel}" | sudo tee /etc/apt/sources.list.d/crystal.list)
+          # Add repo metadata signign key
+          sh.cmd %q(curl -fsSL https://download.opensuse.org/repositories/devel:languages:crystal/Debian_10/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/crystal.gpg > /dev/null)
+          sh.cmd %Q(echo "deb http://download.opensuse.org/repositories/devel:/languages:/crystal/Debian_10/ /" | sudo tee /etc/apt/sources.list.d/crystal.list)
 
           sh.cmd 'travis_apt_get_update'
           if crystal_version == "latest"
