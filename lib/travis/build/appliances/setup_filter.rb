@@ -101,7 +101,7 @@ module Travis
 
           def exports
             values = secrets.map { |value| Shellwords.escape(value) }
-            values = values.map.with_index { |value, ix| "export SECRET_#{ix}=#{value}" }
+            values = values.map.with_index { |value, ix| "export SECRET_#{ix}=#{quotize_env(value)}" }
             values.join(' ')
           end
 
@@ -119,6 +119,21 @@ module Travis
 
           def info(msg, *args)
             Travis::Build.logger.info(MSGS[msg] % args)
+          end
+
+          def quotize_env(value)
+            if value.include?('=')
+              var_name = "#{value.split('=').first}="
+              value = value.split('=', 2).last
+            else
+              var_name = ''
+            end
+
+            if (value[0] == '"' && value[-1] == '"') || (value[0] == "'" && value[-1] == "'")
+              "#{var_name}#{value}"
+            else
+              "#{var_name}'#{value}'"
+            end
           end
       end
     end
