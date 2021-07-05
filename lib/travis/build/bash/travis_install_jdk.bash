@@ -1,4 +1,21 @@
-travis_install_jdk() {
+  travis_install_jdk() {
+  local url vendor version license jdk certlink
+  jdk="$1"
+  vendor="$2"
+  version="$3"
+
+  ARCH=$(uname -m)
+  case "${ARCH}" in
+  "arm64" | "s390x" | "ppc64le")
+    travis_install_jdk_package "$version"
+    ;;
+  *)
+    travis_install_jdk_ext_provider "$jdk" "$vendor" "$version"
+    ;;
+  esac
+}
+
+travis_install_jdk_ext_provider() {
   local url vendor version license jdk certlink
   jdk="$1"
   vendor="$2"
