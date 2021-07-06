@@ -19,7 +19,7 @@ env:
 addons:
   snaps:
   - name: docker
-    channel: latest/beta
+    channel: latest/stable
 
 stages:
 - test
