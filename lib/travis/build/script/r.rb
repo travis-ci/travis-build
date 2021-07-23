@@ -608,7 +608,7 @@ module Travis
 
         def normalized_r_version(v=Array(config[:r]).first.to_s)
           case v
-          when 'release' then '4.0.2'
+          when 'release' then '4.1.0'
           when 'oldrel' then '3.6.3'
           when '3.0' then '3.0.3'
           when '3.1' then '3.1.3'
