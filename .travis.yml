@@ -28,11 +28,11 @@ jobs:
     env:
     script: ./script/validate-example-payloads-with-docker
   - stage: ':ship: it to quay.io'
+    env:
     addons:
     - snaps:
       - name: docker
         channel: latest/stable
-    env:
     script: ./script/docker-build-and-push
     if: (branch = master and type = push ) OR commit_message =~ /ship:docker/ OR env(SHIP_DOCKER) = true
 
