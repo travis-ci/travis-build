@@ -25,7 +25,7 @@ gem 'minitar'
 gem 'mocha', require: false, group: %i[development test]
 gem 'parallel_tests', require: false, group: %i[development test]
 gem 'pry', require: false, group: %i[development test]
-gem 'puma'
+gem 'puma', '~> 4'
 gem 'rack', '>= 2.1.4'
 gem 'rack-ssl', '~> 1.4'
 gem 'rack-test'
