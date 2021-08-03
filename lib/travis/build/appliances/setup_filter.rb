@@ -100,10 +100,10 @@ module Travis
           end
 
           def exports
-            puts values.inspect
             values = secrets.map { |value| Shellwords.escape(value) }
             puts values.inspect
             values = values.map.with_index { |value, ix| "export SECRET_#{ix}=#{quotize_env(value)}" }
+            puts values.inspect
             values.join(' ')
           end
 
