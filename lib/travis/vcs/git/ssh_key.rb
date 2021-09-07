@@ -1,6 +1,6 @@
 module Travis
-  module Build
-    class Git
+  module Vcs
+    class Git < Base
       class SshKey < Struct.new(:sh, :data)
         def apply
           sh.fold 'ssh_key' do

@@ -8,7 +8,7 @@ require 'date'
 require 'travis/build/addons'
 require 'travis/build/appliances'
 require 'travis/build/errors'
-require 'travis/build/git'
+require 'travis/vcs'
 require 'travis/build/helpers'
 require 'travis/build/stages'
 
@@ -86,11 +86,11 @@ module Travis
       class << self
         def defaults(key)
           if key && self::DEFAULTS.key?(key.to_sym)
-            Git::DEFAULTS.merge self::DEFAULTS[key.to_sym]
+            Travis::Vcs.defaults.merge self::DEFAULTS[key.to_sym]
           elsif self::DEFAULTS[:default]
-            Git::DEFAULTS.merge self::DEFAULTS[:default]
+            Travis::Vcs.defaults.merge self::DEFAULTS[:default]
           else
-            Git::DEFAULTS.merge self::DEFAULTS
+            Travis::Vcs.defaults.merge self::DEFAULTS
           end
         end
       end

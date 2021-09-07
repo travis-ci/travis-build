@@ -1,6 +1,6 @@
 module Travis
-  module Build
-    class Git
+  module Vcs
+    class Git < Base
       class Tarball < Struct.new(:sh, :data)
         def apply
           sh.fold 'git.tarball' do
