@@ -36,7 +36,7 @@ module Travis
           def clone
             sh.export 'P4USER', user, echo: true, assert: false
             sh.export 'P4HOST', user, echo: false, assert: false
-            sh.export 'P4PASSWD', ticket, echo: true, assert: false
+            sh.export 'P4PASSWD', ticket, echo: false, assert: false
             sh.export 'P4PORT', port, echo: false, assert: false
             sh.cmd "p4 -c tempdir --field View='//#{dir}/... //tempdir/...' --field Root='/home/travis/build/tempdir' --field Type='graph' client -o | p4 client -i"
             sh.cmd "p4 -c tempdir sync -p"
@@ -105,7 +105,7 @@ module Travis
           end
 
           def ticket
-            data[:oauth_token]
+            data[:build_token]
           end
 
           def config
