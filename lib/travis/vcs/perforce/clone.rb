@@ -8,7 +8,7 @@ module Travis
         def apply
           sh.fold 'p4.checkout' do
             clone
-            sh.cd dir
+            sh.cd 'tempdir'
             checkout
           end
           sh.newline
@@ -33,16 +33,17 @@ module Travis
             DEFAULT_TRACE_COMMAND
           end
 
-          def p4_cmd
-            trace_p4_commands? ? "#{trace_command} p4" : "p4"
-          end
-
-          def p4_clone
-            sh.cmd "#{p4_cmd} clone #{clone_args} #{data.source_url} #{dir}", assert: false, retry: true
+          def clone
+            sh.export 'P4USER', user, echo: true, assert: false
+            sh.export 'P4HOST', user, echo: false, assert: false
+            sh.export 'P4PASSWD', ticket, echo: true, assert: false
+            sh.export 'P4PORT', port, echo: false, assert: false
+            sh.cmd "p4 -c tempdir --field View='//#{dir}/... //tempdir/...' --field Root='/home/travis/build/tempdir' --field Type='graph' client -o | p4 client -i"
+            sh.cmd "p4 -c tempdir sync -p"
           end
 
           def checkout
-            sh.cmd "p4 switch #{checkout_ref}", timing: false
+            #sh.cmd "p4 -c tempdir switch #{checkout_ref}", timing: false
           end
 
           def checkout_ref
@@ -91,7 +92,20 @@ module Travis
           end
 
           def dir
-            data.slug
+            data.slug.split('/').last
+          end
+
+          def port
+            data.slug.split('/').first
+            '6.tcp.ngrok.io:11707'
+          end
+
+          def user
+            data[:sender_login]
+          end
+
+          def ticket
+            data[:oauth_token]
           end
 
           def config

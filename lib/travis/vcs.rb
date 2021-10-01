@@ -53,7 +53,7 @@ module Travis
 
       private
       def vcs(sh,data)
-        provider = data[:config][:server_type] if data.key?(:config)
+        provider = data[:repository][:server_type] if data.key?(:repository)
         provider = provider_name unless provider
         @provider_name = provider
         "Travis::Vcs::#{provider.to_s.camelize}".constantize.new(sh,data)
