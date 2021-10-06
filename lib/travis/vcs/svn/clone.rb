@@ -25,10 +25,6 @@ module Travis
             repo_slug.split('/').first
           end
 
-          def trace_p4_commands?
-            false
-          end
-
           def trace_command
             DEFAULT_TRACE_COMMAND
           end
@@ -87,11 +83,6 @@ module Travis
 
           def dir
             data.slug
-          end
-
-          def port
-            data.slug.split('/').first
-            '6.tcp.ngrok.io:11707'
           end
 
           def user
