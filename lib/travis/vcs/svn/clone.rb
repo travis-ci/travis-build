@@ -8,7 +8,7 @@ module Travis
         def apply
           sh.fold 'svn.checkout' do
             clone
-            sh.cd dir
+            sh.cd repository_name
             checkout
           end
           sh.newline
@@ -30,7 +30,7 @@ module Travis
           end
 
           def clone
-            sh.cmd "svn co #{data.source_url}#{clone_args} #{dir}", assert: false, retry: true
+            sh.cmd "svn co #{host}#{clone_args} #{repository_name}", assert: false, retry: true
           end
 
           def checkout
@@ -53,12 +53,16 @@ module Travis
             config[:svn].key?(:autocrlf)
           end
 
-          def host
-            config[:svn].host
-          end
-
           def remote
             config[:svn].remote
+          end
+
+          def host
+            URI(repo_slug)&.host
+          end
+
+          def repository_name
+            URI(repo_slug)&.path.split('/').last
           end
 
           def branch
@@ -81,16 +85,8 @@ module Travis
             config[:svn][:sparse_checkout]
           end
 
-          def dir
-            data.slug
-          end
-
           def user
             data[:sender_login]
-          end
-
-          def ticket
-            data[:build_token]
           end
 
           def config
