@@ -22,15 +22,19 @@ module Travis
           end
 
           def host
-            URI(repo_slug)&.host
+            URI(source_host)&.host
           end
 
           def repository_name
-            URI(repo_slug)&.path.split('/').last
+            repo_slug&.path.split('/').last
           end
 
           def repo_slug
             data.repository[:slug].to_s
+          end
+        
+          def source_host
+            data.repository[:source_host]
           end
       end
     end
