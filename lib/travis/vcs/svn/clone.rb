@@ -22,7 +22,7 @@ module Travis
           end
 
           def source_host
-            data.repository[:source_host]
+            data.repository[:source_url]
           end
 
           def owner_login
