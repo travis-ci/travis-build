@@ -21,6 +21,10 @@ module Travis
             data.repository[:slug].to_s
           end
 
+          def source_host
+            data.repository[:source_host]
+          end
+
           def owner_login
             repo_slug.split('/').first
           end
@@ -58,11 +62,11 @@ module Travis
           end
 
           def host
-            URI(repo_slug)&.host
+            URI(source_host)&.host
           end
 
           def repository_name
-            URI(repo_slug)&.path.split('/').last
+            repo_slug&.split('/').last
           end
 
           def branch
