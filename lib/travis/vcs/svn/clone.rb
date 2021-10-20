@@ -54,11 +54,11 @@ module Travis
           end
 
           def autocrlf_key_given?
-            config[:svn].key?(:autocrlf)
+            config[:git].key?(:autocrlf)
           end
 
           def remote
-            config[:svn].remote
+            config[:git].remote
           end
 
           def host
@@ -78,15 +78,15 @@ module Travis
           end
 
           def quiet?
-            config[:svn][:quiet]
+            config[:git][:quiet]
           end
 
           def lfs_skip_smudge?
-            config[:svn][:lfs_skip_smudge] == true
+            config[:git][:lfs_skip_smudge] == true
           end
 
           def sparse_checkout
-            config[:svn][:sparse_checkout]
+            config[:git][:sparse_checkout]
           end
 
           def user
