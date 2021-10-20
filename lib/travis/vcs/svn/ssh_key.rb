@@ -11,7 +11,8 @@ module Travis
 
           # BatchMode - If set to 'yes', passphrase/password querying will be disabled.
           # TODO ... how to solve StrictHostKeyChecking correctly? deploy a known_hosts file?
-          sh.file '~/.ssh/config', "Host #{host}\n\tBatchMode yes\n\tStrictHostKeyChecking no\nSendEnv REPO_NAME", append: true
+          sh.file '~/.ssh/config', "Host #{host}\n\tBatchMode yes\n\tStrictHostKeyChecking no\n\tSendEnv REPO_NAME", append: true
+          puts host
           sh.export 'REPO_NAME', repository_name, echo: false
         end
 
@@ -26,7 +27,7 @@ module Travis
           end
 
           def repository_name
-            repo_slug&.path.split('/').last
+            repo_slug&.split('/').last
           end
 
           def repo_slug
