@@ -1,7 +1,9 @@
 require 'travis/vcs/base.rb'
 require 'travis/vcs/git.rb'
 require 'travis/vcs/perforce.rb'
+require 'travis/vcs/svn.rb'
 require 'travis/build/errors.rb'
+
 module Travis
   module Vcs
     class <<self
