@@ -1,6 +1,7 @@
 language: ruby
 dist: xenial
 rvm: 2.5.8
+group: edge
 
 services:
   - redis
@@ -15,11 +16,6 @@ env:
   matrix:
   - INTEGRATION_SPECS=0
   - INTEGRATION_SPECS=1
-
-addons:
-  snaps:
-  - name: docker
-    channel: latest/stable
 
 stages:
 - test
