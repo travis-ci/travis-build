@@ -13,6 +13,7 @@ module Travis
           # TODO ... how to solve StrictHostKeyChecking correctly? deploy a known_hosts file?
           sh.file '~/.ssh/config', "Host #{host}\n\tBatchMode yes\n\tStrictHostKeyChecking no\n\tSendEnv REPO_NAME", append: true
           sh.export 'REPO_NAME', repository_name, echo: false
+          sh.export 'SVN_SSH', 'ssh -l svn', echo: false if assembla?
         end
 
         private
@@ -35,6 +36,10 @@ module Travis
         
           def source_host
             data.repository[:source_host]
+          end
+
+          def assembla?
+            @assembla ||= host.include? 'assembla'
           end
       end
     end
