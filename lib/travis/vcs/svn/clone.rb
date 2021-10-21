@@ -45,14 +45,22 @@ module Travis
             sh.cmd "svn update -r #{checkout_ref}", timing: false
           end
 
-          def checkout_ref
-            return tag if data.tag
-            data.commit
+          def checkout_ref            
+            ref = if data.tag
+                    tag
+                  else
+                    data.commit
+                  end
+            ref = ref.split('@')[1] if ref.include?('@')
           end
 
           def clone_args
             args = ""
-            args << "/branches/#{branch}" if branch
+            if branch && branch == 'trunk'
+              args << "/#{branch}"
+            else
+              args << "/branches/#{branch}" if branch
+            end
             args << " --quiet" if quiet?
             args
           end
