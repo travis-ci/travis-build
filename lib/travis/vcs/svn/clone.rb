@@ -61,16 +61,7 @@ module Travis
             else
               args << "/branches/#{branch}" if branch
             end
-            args << " --quiet" if quiet?
             args
-          end
-
-          def autocrlf_key_given?
-            config[:git].key?(:autocrlf)
-          end
-
-          def remote
-            config[:git].remote
           end
 
           def host
@@ -87,18 +78,6 @@ module Travis
 
           def tag
             data.tag.shellescape if data.tag
-          end
-
-          def quiet?
-            config[:git][:quiet]
-          end
-
-          def lfs_skip_smudge?
-            config[:git][:lfs_skip_smudge] == true
-          end
-
-          def sparse_checkout
-            config[:git][:sparse_checkout]
           end
 
           def user
