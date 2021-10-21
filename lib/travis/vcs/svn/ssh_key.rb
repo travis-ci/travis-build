@@ -11,7 +11,7 @@ module Travis
 
           # BatchMode - If set to 'yes', passphrase/password querying will be disabled.
           # TODO ... how to solve StrictHostKeyChecking correctly? deploy a known_hosts file?
-          sh.file '~/.ssh/config', "Host #{host}\n\tBatchMode yes\n\tStrictHostKeyChecking no\n\tSendEnv REPO_NAME", append: true
+          sh.file '~/.ssh/config', "Host #{source_host}\n\tBatchMode yes\n\tStrictHostKeyChecking no\n\tSendEnv REPO_NAME", append: true
           sh.export 'REPO_NAME', repository_name, echo: false
           sh.export 'SVN_SSH', 'ssh -l svn', echo: false if assembla?
         end
@@ -20,10 +20,6 @@ module Travis
 
           def key
             data[:build_token]
-          end
-
-          def host
-            URI(source_host)&.host
           end
 
           def repository_name
@@ -39,7 +35,7 @@ module Travis
           end
 
           def assembla?
-            @assembla ||= host.include? 'assembla'
+            @assembla ||= source_host.include? 'assembla'
           end
       end
     end
