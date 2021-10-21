@@ -21,8 +21,12 @@ module Travis
             data.repository[:slug].to_s
           end
 
-          def source_host
+          def source_url
             data.repository[:source_url]
+          end
+
+          def source_host
+            data.repository[:source_host]
           end
 
           def owner_login
@@ -34,7 +38,7 @@ module Travis
           end
 
           def clone
-            sh.cmd "svn co #{host}#{clone_args} #{repository_name}", assert: false, retry: true
+            sh.cmd "svn co #{source_url}#{clone_args} #{repository_name}", assert: false, retry: true
           end
 
           def checkout
