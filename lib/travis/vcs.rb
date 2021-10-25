@@ -48,6 +48,8 @@ module Travis
       end
 
       def defaults
+        puts "DEFAULTS"
+        puts provider_name
         "Travis::Vcs::#{provider_name.to_s.camelize}".constantize.defaults
       rescue NameError
         raise Travis::Build::UnknownServiceTypeError.new provider_name
@@ -55,6 +57,7 @@ module Travis
 
       private
       def vcs(sh,data)
+        puts "vcs run"
         provider = data[:repository][:server_type] if data.key?(:repository)
         provider = provider_name unless provider
         @provider_name = provider
