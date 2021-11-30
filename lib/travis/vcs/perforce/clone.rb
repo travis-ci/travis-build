@@ -39,7 +39,7 @@ module Travis
             sh.export 'P4PASSWD', ticket, echo: false, assert: false
             sh.export 'P4PORT', port, echo: false, assert: false
             sh.cmd 'p4 trust -y'
-            sh.cmd "p4 client -S //#{dir}/#{checkout_ref}-o | p4 -c tempdir client -i"
+            sh.cmd "p4 client -S //#{dir}/#{checkout_ref}-o | p4 client -i"
             sh.cmd "p4 sync"
           end
 
