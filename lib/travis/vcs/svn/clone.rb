@@ -22,6 +22,12 @@ module Travis
           end
 
           def source_url
+            if assembla?
+              return "svn+ssh://#{data.repository[:source_host]}" unless data.repository[:source_host].start_with?('svn+ssh://')
+
+              return data.repository[:source_host]
+            end
+
             data.repository[:source_url]
           end
 

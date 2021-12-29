@@ -39,8 +39,12 @@ module Travis
             sh.export 'P4PASSWD', ticket, echo: false, assert: false
             sh.export 'P4PORT', port, echo: false, assert: false
             sh.cmd 'p4 trust -y'
-            sh.cmd "p4 client -S //#{dir}/#{checkout_ref}-o | p4 client -i"
-            sh.cmd "p4 sync"
+            sh.cmd "p4 #{p4_opt} client -S //#{dir}/#{checkout_ref} -o | p4 #{p4_opt} client -i"
+            sh.cmd "p4 #{p4_opt} sync -p"
+          end
+
+          def p4_opt
+            '-v ssl.client.trust.name=1'
           end
 
           def checkout
