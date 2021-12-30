@@ -33,7 +33,7 @@ module Travis
       end
 
       def self.clone_cmd(endpoint, source)
-        "scn co #{endpoint}/#{source} #{source}"
+        "svn co #{endpoint}/#{source} #{source}"
       end
 
       def self.checkout_cmd(branch)

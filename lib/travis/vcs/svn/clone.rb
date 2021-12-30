@@ -22,6 +22,12 @@ module Travis
           end
 
           def source_url
+            if assembla?
+              return "svn+ssh://#{data.repository[:source_host]}" unless data.repository[:source_host].start_with?('svn+ssh://')
+
+              return data.repository[:source_host]
+            end
+
             data.repository[:source_url]
           end
 
@@ -45,13 +51,15 @@ module Travis
             sh.cmd "svn update -r #{checkout_ref}", timing: false
           end
 
-          def checkout_ref            
+          def checkout_ref
             ref = if data.tag
                     tag
                   else
                     data.commit
                   end
             ref = ref.split('@')[1] if ref.include?('@')
+
+            ref
           end
 
           def clone_args

@@ -13,7 +13,9 @@ module Travis
           # TODO ... how to solve StrictHostKeyChecking correctly? deploy a known_hosts file?
           sh.file '~/.ssh/config', "Host #{source_host}\n\tBatchMode yes\n\tStrictHostKeyChecking no\n\tSendEnv REPO_NAME", append: true
           sh.export 'REPO_NAME', repository_name, echo: false
-          sh.export 'SVN_SSH', '"ssh -l svn"', echo: false if assembla?
+
+      	  #TODO why it's not reading the config
+          sh.export 'SVN_SSH', '"ssh -o SendEnv=REPO_NAME -o StrictHostKeyChecking=no -l svn"', echo: false if assembla?
         end
 
         private
