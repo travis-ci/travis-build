@@ -51,13 +51,15 @@ module Travis
             sh.cmd "svn update -r #{checkout_ref}", timing: false
           end
 
-          def checkout_ref            
+          def checkout_ref
             ref = if data.tag
                     tag
                   else
                     data.commit
                   end
             ref = ref.split('@')[1] if ref.include?('@')
+
+            ref
           end
 
           def clone_args
