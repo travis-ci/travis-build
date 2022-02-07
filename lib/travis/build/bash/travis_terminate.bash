@@ -14,6 +14,10 @@ _travis_terminate_osx() {
   _travis_terminate_unix "${@}"
 }
 
+_travis_terminate_freebsd() {
+  _travis_terminate_unix "${@}"
+}
+
 _travis_terminate_unix() {
   set +e
   [[ "${TRAVIS_FILTERED}" == redirect_io && -e /dev/fd/9 ]] &&
