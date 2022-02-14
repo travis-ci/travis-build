@@ -81,6 +81,17 @@ module Travis
         '/user/installing-dependencies'
       end
     end
+
+
+    class YumConfigError < CompilationError
+      def initialize(msg = "\\`yum\\` should be a list.")
+        super
+      end
+
+      def doc_path
+        '/user/installing-dependencies'
+      end
+    end
     
     class GithubAppsTokenFetchError < CompilationError
       def initialize(msg = "Unable to fetch GitHub Apps Token. GitHub may be unavailable. " \
