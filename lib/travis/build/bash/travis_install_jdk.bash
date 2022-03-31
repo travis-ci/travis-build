@@ -27,7 +27,7 @@ travis_install_jdk_ext_provider() {
   mkdir -p ~/bin
   url="https://$TRAVIS_APP_HOST/files/install-jdk.sh"
   if ! travis_download "$url" ~/bin/install-jdk.sh; then
-    url="https://raw.githubusercontent.com/sormuras/bach/releases/11/install-jdk.sh"
+    url="https://raw.githubusercontent.com/travis-ci/bach/releases/11/install-jdk.sh"
     travis_download "$url" ~/bin/install-jdk.sh || {
       echo "${ANSI_RED}Could not acquire install-jdk.sh. Stopping build.${ANSI_RESET}" >/dev/stderr
       travis_terminate 2
