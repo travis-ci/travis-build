@@ -24,8 +24,8 @@ describe Travis::Build::Addons::Rethinkdb, :sexp do
   end
 
   it { should include_sexp [:cmd, "service rethinkdb stop", sudo: true] }
-  it { should include_sexp [:cmd, "sudo apt-key adv --keyserver pgp.mit.edu --recv-keys \"539A 3A8C 6692 E6E3 F69B 3FE8 1D85 E93F 801B B43F\"", echo: true] }
-  it { should include_sexp [:cmd, 'echo -e "\ndeb https://download.rethinkdb.com/repository/ubuntu-$(lsb_release -cs)/ $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list > /dev/null'] }
+  it { should include_sexp [:cmd, "sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys \"539A 3A8C 6692 E6E3 F69B 3FE8 1D85 E93F 801B B43F\"", echo: true] }
+  it { should include_sexp [:cmd, 'echo -e "\ndeb https://download.rethinkdb.com/repository/ubuntu-$(lsb_release -cs)/ $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list.d/rethinkdb.list > /dev/null'] }
   it { should include_sexp [:cmd, 'travis_apt_get_update'] }
   it { should include_sexp [:cmd, "apt-get install -y -o Dpkg::Options::='--force-confnew' rethinkdb=$package_version", sudo: true, echo: true, timing: true] }
   it { should include_sexp [:cmd, "cp /etc/rethinkdb/default.conf.sample /etc/rethinkdb/instances.d/default.conf", sudo: true] }
