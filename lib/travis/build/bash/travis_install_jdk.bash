@@ -47,11 +47,11 @@ travis_install_jdk_package() {
   local JAVA_VERSION
   JAVA_VERSION="$1"
   sudo apt-get update -yqq
-  PACKAGE="adoptopenjdk-${JAVA_VERSION}-hotspot"
+  PACKAGE="temurin-${JAVA_VERSION}-jdk"
   if ! dpkg -s "$PACKAGE" >/dev/null 2>&1; then
-    if dpkg-query -l adoptopenjdk* >/dev/null 2>&1; then
-      dpkg-query -l adoptopenjdk* | grep adoptopenjdk | awk '{print $2}' | xargs sudo dpkg -P
-    fi
+    if dpkg-query -l temurin* >/dev/null 2>&1; then
+      dpkg-query -l temurin* | grep temurin | awk '{print $2}' | xargs sudo dpkg -P
+    fi    
     wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | sudo apt-key add -
     sudo add-apt-repository --yes https://packages.adoptium.net/artifactory/deb
     sudo apt-get update -yqq
