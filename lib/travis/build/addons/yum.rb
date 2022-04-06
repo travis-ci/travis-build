@@ -41,7 +41,7 @@ module Travis
             retries=5
             timeout=30
           YUM_CONF
-          sh.cmd %Q{su -m root -c "mv #{tmp_dest} ${TRAVIS_ROOT}/usr/local/etc/yum.conf"}
+          sh.cmd %Q{sudo mv #{tmp_dest} ${TRAVIS_ROOT}/usr/local/etc/yum.conf}
         end
 
         def config
@@ -52,7 +52,7 @@ module Travis
           sh.echo "Installing #{config_yum.count} packages", ansi: :yellow
 
           packages = config_yum.map{|v| Shellwords.escape(v)}.join(' ')
-          sh.cmd "su -m root -c 'yum install -y #{packages}'", echo: true, timing: true, assert: true
+          sh.cmd "sudo yum install -y #{packages}", echo: true, timing: true, assert: true
         end
 
         def config_yum
