@@ -56,6 +56,10 @@ travis_install_jdk_package() {
     sudo add-apt-repository --yes https://packages.adoptium.net/artifactory/deb
     sudo apt-get update -yqq
     sudo apt-get -yqq --no-install-suggests --no-install-recommends install "$PACKAGE" || true
+    travis_cmd "export JAVA_HOME=/usr/lib/jvm/temurin-${JAVA_VERSION}-jdk-${TRAVIS_CPU_ARCH}" --echo
+    travis_cmd 'export PATH="$JAVA_HOME/bin:$PATH"' --echo
+    echo $PATH
+    echo $JAVA_HOME
     sudo update-java-alternatives -s "$PACKAGE"*
   fi
 }
