@@ -1,7 +1,9 @@
 require 'travis/vcs/base.rb'
 require 'travis/vcs/git.rb'
 require 'travis/vcs/perforce.rb'
+require 'travis/vcs/svn.rb'
 require 'travis/build/errors.rb'
+
 module Travis
   module Vcs
     class <<self
@@ -45,7 +47,8 @@ module Travis
         vcs(sh,data).checkout
       end
 
-      def defaults
+      def defaults(server_type)
+        @provider_name = server_type
         "Travis::Vcs::#{provider_name.to_s.camelize}".constantize.defaults
       rescue NameError
         raise Travis::Build::UnknownServiceTypeError.new provider_name

@@ -35,11 +35,16 @@ module Travis
 
           def clone
             sh.export 'P4USER', user, echo: true, assert: false
-            sh.export 'P4HOST', user, echo: false, assert: false
+            sh.export 'P4CHARSET', 'utf8', echo: false, assert: false
             sh.export 'P4PASSWD', ticket, echo: false, assert: false
             sh.export 'P4PORT', port, echo: false, assert: false
-            sh.cmd "p4 -c tempdir --field View='//#{dir}/... //tempdir/...' --field Root='/home/travis/build/tempdir' --field Type='graph' client -o | p4 client -i"
-            sh.cmd "p4 -c tempdir sync -p"
+            sh.cmd 'p4 trust -y'
+            sh.cmd "p4 #{p4_opt} client -S //#{dir}/#{checkout_ref} -o | p4 #{p4_opt} client -i"
+            sh.cmd "p4 #{p4_opt} sync -p"
+          end
+
+          def p4_opt
+            '-v ssl.client.trust.name=1'
           end
 
           def checkout
@@ -96,8 +101,7 @@ module Travis
           end
 
           def port
-            data.slug.split('/').first
-            '6.tcp.ngrok.io:11707'
+            data[:repository][:source_url]&.split('/').first
           end
 
           def user
