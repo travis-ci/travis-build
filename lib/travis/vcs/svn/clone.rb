@@ -35,6 +35,10 @@ module Travis
             data.repository[:source_host]
           end
 
+          def assembla?
+            @assembla ||= source_host.include? 'assembla'
+          end
+
           def owner_login
             repo_slug.split('/').first
           end
