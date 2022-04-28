@@ -4,7 +4,7 @@ travis_find_jdk_path() {
   vendor="$2"
   version="$3"
   if [[ "$vendor" == "openjdk" ]]; then
-    apt_glob="/usr/lib/jvm/java-1.${version}.*openjdk*"
+    apt_glob="/usr/lib/jvm/temurin-${version}.*jdk*"
   elif [[ "$vendor" == "oracle" ]]; then
     apt_glob="/usr*/lib/jvm/java-${version}-oracle"
   fi
