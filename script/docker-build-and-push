@@ -15,8 +15,8 @@ docker-compose build "${app_name}"
 docker login -u="${QUAY_ROBOT_HANDLE}" -p="${QUAY_ROBOT_TOKEN}" quay.io
 docker images
 
-docker tag "${local_image}" "${quay_image}:${TRAVIS_BRANCH}"
-docker push "${quay_image}:${TRAVIS_BRANCH}"
+docker tag "${local_image}" "${quay_image}:${TRAVIS_COMMIT:0:7}-${TRAVIS_BRANCH}"
+docker push "${quay_image}:${TRAVIS_COMMIT:0:7}-${TRAVIS_BRANCH}"
 
 docker tag "${local_image}" "${quay_image}:${TRAVIS_COMMIT:0:7}"
 docker push "${quay_image}:${TRAVIS_COMMIT:0:7}"
