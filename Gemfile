@@ -36,7 +36,7 @@ gem 'rspec', '~> 3.0', group: %i[development test]
 gem 'rubocop', require: false, group: %i[development test]
 gem 'sentry-raven'
 gem 'simplecov', require: false, group: %i[development test]
-gem 'sinatra'
+gem 'sinatra', '~> 2.2'
 gem 'sinatra-contrib'
 gem 'travis'
 gem 'travis-config'
