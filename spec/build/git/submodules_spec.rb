@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Travis::Build::Git::Clone, :sexp do
+describe Travis::Vcs::Git::Clone, :sexp do
   let(:payload) { payload_for(:push, :ruby) }
   let(:script)  { Travis::Build::Script.new(payload) }
   subject       { script.sexp }

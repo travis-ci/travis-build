@@ -89,5 +89,11 @@ module Travis
         super
       end
     end
+
+    class UnknownServiceTypeError < StandardError
+      def initialize(_type)
+        super
+      end
+    end
   end
 end
