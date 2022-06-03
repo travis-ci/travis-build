@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Travis::Build::Git::SshKey, :sexp do
+describe Travis::Vcs::Git::SshKey, :sexp do
   let(:payload) { payload_for(:push, :ruby) }
   let(:script)  { Travis::Build::Script.new(payload) }
   subject       { script.sexp }

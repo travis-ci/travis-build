@@ -16,9 +16,7 @@ module Travis
     module_function :config
 
     def top
-      @top ||= Pathname.new(
-        `git rev-parse --show-toplevel 2>/dev/null`.strip
-      )
+      ::Travis::Vcs::Git::top
     end
 
     module_function :top
@@ -26,7 +24,7 @@ module Travis
     class << self
       def version
         return @version if @version
-        @version ||= `git describe --always --dirty --tags 2>/dev/null`.strip
+        @version ||= ::Travis::Vcs::Git::version
         @version = nil unless $?.success?
         @version ||= ENV.fetch('BUILD_SLUG_COMMIT', nil)
         @version ||= top.join('VERSION').read if top.join('VERSION').exist?

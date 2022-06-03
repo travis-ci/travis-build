@@ -1,6 +1,6 @@
 module Travis
-  module Build
-    class Git
+  module Vcs
+    class Svn < Base
       class Netrc < Struct.new(:sh, :data)
         def apply
           sh.echo "Using ${TRAVIS_HOME}/#{netrc_filename} to clone repository."

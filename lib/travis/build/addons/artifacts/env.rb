@@ -1,5 +1,6 @@
 require 'core_ext/hash/deep_symbolize_keys'
 require 'active_support/core_ext/hash/slice'
+require 'travis/vcs.rb'
 
 module Travis
   module Build
@@ -7,7 +8,7 @@ module Travis
       class Artifacts < Base
         class Env
           DEFAULT = {
-            paths: '$(git ls-files -o | tr "\n" ":")',
+            paths: ::Travis::Vcs::paths,
             log_format: 'multiline'
           }
 
