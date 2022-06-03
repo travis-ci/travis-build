@@ -330,7 +330,7 @@ module Travis
         dest.chmod(0o644)
       end
 
-      def file_update_sonar_scanner(version: ENV['TRAVIS_BUILD_SONAR_CLOUD_CLI_VERSION'] || '3.0.3.778')
+      def file_update_sonar_scanner(version: ENV['TRAVIS_BUILD_SONAR_CLOUD_CLI_VERSION'] || '4.7.0.2747')
         conn = build_faraday_conn(host: 'repo1.maven.org')
         response = conn.get("/maven2/org/sonarsource/scanner/cli/sonar-scanner-cli/#{version}/sonar-scanner-cli-#{version}.zip")
         raise 'Could not fetch SonarCloud scanner CLI archive' unless response.success?
