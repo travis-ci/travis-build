@@ -47,17 +47,17 @@ travis_install_jdk_package() {
   local JAVA_VERSION
   JAVA_VERSION="$1"
   sudo apt-get update -yqq
-  PACKAGE="temurin-${JAVA_VERSION}-jdk"
+  if [[ "$JAVA_VERSION" == "8" ]]; then
+    JAVA_VERSION="1.8.0"
+  fi
+  PACKAGE="java-${JAVA_VERSION}-amazon-corretto-jdk"
   if ! dpkg -s "$PACKAGE" >/dev/null 2>&1; then
-    if dpkg-query -l temurin* >/dev/null 2>&1; then
-      dpkg-query -l temurin* | grep temurin | awk '{print $2}' | xargs sudo dpkg -P
-    fi
-    wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | sudo apt-key add -
-    sudo add-apt-repository --yes https://packages.adoptium.net/artifactory/deb
+    wget -O- https://apt.corretto.aws/corretto.key | sudo apt-key add -
+    sudo add-apt-repository 'deb https://apt.corretto.aws stable main'
     sudo apt-get update -yqq
     sudo apt-get -yqq --no-install-suggests --no-install-recommends install "$PACKAGE" || true
-    travis_cmd "export JAVA_HOME=/usr/lib/jvm/temurin-${JAVA_VERSION}-jdk-${TRAVIS_CPU_ARCH}" --echo
-    travis_cmd "export PATH=\"$JAVA_HOME/bin:$PATH\"" --echo
+    travis_cmd "export JAVA_HOME=/usr/lib/jvm/java-${JAVA_VERSION}-amazon-corretto" --echo
+    travis_cmd 'export PATH="$JAVA_HOME/bin:$PATH"' --echo
     sudo update-java-alternatives -s "$PACKAGE"*
   fi
 }
