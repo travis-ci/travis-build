@@ -52,9 +52,6 @@ travis_install_jdk_package() {
   fi
   PACKAGE="java-${JAVA_VERSION}-amazon-corretto-jdk"
   if ! dpkg -s "$PACKAGE" >/dev/null 2>&1; then
-    if dpkg-query -l temurin* >/dev/null 2>&1; then
-      dpkg-query -l temurin* | grep temurin | awk '{print $2}' | xargs sudo dpkg -P
-    fi    
     wget -O- https://apt.corretto.aws/corretto.key | sudo apt-key add -
     sudo add-apt-repository 'deb https://apt.corretto.aws stable main'
     sudo apt-get update -yqq
