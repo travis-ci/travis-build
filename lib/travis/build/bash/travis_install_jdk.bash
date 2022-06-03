@@ -58,8 +58,6 @@ travis_install_jdk_package() {
     sudo apt-get -yqq --no-install-suggests --no-install-recommends install "$PACKAGE" || true
     travis_cmd "export JAVA_HOME=/usr/lib/jvm/java-${JAVA_VERSION}-amazon-corretto" --echo
     travis_cmd 'export PATH="$JAVA_HOME/bin:$PATH"' --echo
-    echo $PATH
-    echo $JAVA_HOME
     sudo update-java-alternatives -s "$PACKAGE"*
   fi
 }
