@@ -1,29 +1,52 @@
-require 'travis/build/git/clone'
-require 'travis/build/git/ssh_key'
-require 'travis/build/git/submodules'
-require 'travis/build/git/tarball'
-
+require 'travis/vcs/base'
+require 'travis/vcs/git/clone'
+require 'travis/vcs/git/ssh_key'
+require 'travis/vcs/git/submodules'
+require 'travis/vcs/git/tarball'
 module Travis
-  module Build
-    class Git
-      DEFAULTS = {
-        git: {
-          depth: 50,
-          submodules: true,
-          strategy: 'clone',
-          quiet: false,
-          lfs_skip_smudge: false,
-          sparse_checkout: false,
-          clone: true
+  module Vcs
+    class Git < Base
+        DEFAULTS = {
+          git: {
+            depth: 50,
+            submodules: true,
+            strategy: 'clone',
+            quiet: false,
+            lfs_skip_smudge: false,
+            sparse_checkout: false,
+            clone: true
+          }
         }
-      }
-
-      attr_reader :sh, :data
-
-      def initialize(sh, data)
-        @sh = sh
-        @data = data
+      def self.top
+        @top ||= Pathname.new(
+          `git rev-parse --show-toplevel 2>/dev/null`.strip
+        )
       end
+
+      def self.version
+        @version ||= `git describe --always --dirty --tags 2>/dev/null`.strip
+      end
+
+      def self.paths
+        @paths ||= '$(git ls-files -o | tr "\n" ":")'
+      end
+
+      def self.clone_cmd(endpoint, source)
+        "git clone #{endpoint}/#{source} #{source}"
+      end
+
+      def self.checkout_cmd(branch)
+        "git checkout #{branch}"
+      end
+
+      def self.revision_cmd
+        @rev ||= 'git rev-parse HEAD'
+      end
+
+      def self.defaults
+        DEFAULTS
+      end
+
 
       def checkout
         disable_interactive_auth

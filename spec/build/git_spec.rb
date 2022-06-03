@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Travis::Build::Git, :sexp do
+describe Travis::Vcs::Git, :sexp do
   let(:netrc_inst)  { /echo -e "machine #{host}\\n  login travis-ci\\n  password access_token\\n" > \${TRAVIS_HOME}\/\.netrc/ }
   let(:netrc_oauth) { /echo -e "machine #{host}\\n  login oauth_token\\n" > \${TRAVIS_HOME}\/\.netrc/ }
   let(:host)        { 'github.com' }

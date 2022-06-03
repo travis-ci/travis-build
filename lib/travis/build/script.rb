@@ -8,7 +8,7 @@ require 'date'
 require 'travis/build/addons'
 require 'travis/build/appliances'
 require 'travis/build/errors'
-require 'travis/build/git'
+require 'travis/vcs'
 require 'travis/build/helpers'
 require 'travis/build/stages'
 
@@ -84,13 +84,13 @@ module Travis
       private_constant :TRAVIS_FUNCTIONS
 
       class << self
-        def defaults(key)
+        def defaults(key, server_type)
           if key && self::DEFAULTS.key?(key.to_sym)
-            Git::DEFAULTS.merge self::DEFAULTS[key.to_sym]
+            Travis::Vcs.defaults(server_type).merge self::DEFAULTS[key.to_sym]
           elsif self::DEFAULTS[:default]
-            Git::DEFAULTS.merge self::DEFAULTS[:default]
+            Travis::Vcs.defaults(server_type).merge self::DEFAULTS[:default]
           else
-            Git::DEFAULTS.merge self::DEFAULTS
+            Travis::Vcs.defaults(server_type).merge self::DEFAULTS
           end
         end
       end
@@ -111,9 +111,10 @@ module Travis
       def initialize(data)
         @raw_data = data.deep_symbolize_keys
         raw_config = @raw_data[:config]
+        server_type = @raw_data.dig(:repository, :server_type) || 'git'
         lang_sym = raw_config.fetch(:language,"").to_sym
         @data = Data.new({
-          config: self.class.defaults(raw_config[:os]),
+          config: self.class.defaults(raw_config[:os], server_type),
           language_default_p: !raw_config[lang_sym]
         }.deep_merge(self.raw_data))
         @options = {}

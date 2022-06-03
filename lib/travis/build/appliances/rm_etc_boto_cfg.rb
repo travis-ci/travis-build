@@ -1,5 +1,4 @@
 require 'travis/build/appliances/base'
-require 'travis/build/git'
 
 module Travis
   module Build
