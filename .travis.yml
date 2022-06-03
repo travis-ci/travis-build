@@ -1,3 +1,4 @@
+#
 language: ruby
 dist: xenial
 rvm: 2.5.8
@@ -10,53 +11,53 @@ cache:
 
 env:
   global:
-  - COVERAGE=1
-  - PATH=/snap/bin:$PATH
+    - COVERAGE=1
+    - PATH=/snap/bin:$PATH
   matrix:
-  - INTEGRATION_SPECS=0
-  - INTEGRATION_SPECS=1
+    - INTEGRATION_SPECS=0
+    - INTEGRATION_SPECS=1
 
 addons:
   snaps:
-  - name: docker
-    channel: latest/beta
+    - name: docker
+      channel: latest/beta
 
 stages:
-- test
-- ':ship: it to quay.io'
+  - test
+  - ":ship: it to quay.io"
 
 jobs:
   allow_failures:
-  - script: ./script/docker-build-and-push
+    - script: ./script/docker-build-and-push
   include:
-  - stage: test
-    env:
-    script: ./script/validate-example-payloads-with-docker
-  - stage: ':ship: it to quay.io'
-    env:
-    script: ./script/docker-build-and-push
-    if: (branch = master and type = push ) OR commit_message =~ /ship:docker/ OR env(SHIP_DOCKER) = true
+    - stage: test
+      env:
+      script: ./script/validate-example-payloads-with-docker
+    - stage: ":ship: it to quay.io"
+      env:
+      script: ./script/docker-build-and-push
+      if: (branch = master and type = push ) OR commit_message =~ /ship:docker/ OR env(SHIP_DOCKER) = true
 
 before_script:
-- "gem install bundler -v 1.17.3"
-- eval "$(script/handle-docker-config)"
-- bundle install
-- bundle exec rake clean assets:precompile
+  - "gem install bundler -v 1.17.3"
+  - eval "$(script/handle-docker-config)"
+  - bundle install
+  - bundle exec rake clean assets:precompile
 
 script:
-- bundle exec rspec spec
-- bundle exec rake shfmt
-- bundle exec rake assert_clean
-- bundle exec rake shellcheck
-- bundle exec rake assert_examples
+  - bundle exec rspec spec
+  - bundle exec rake shfmt
+  - bundle exec rake assert_clean
+  - bundle exec rake shellcheck
+  - bundle exec rake assert_examples
 
 after_success: bundle exec codeclimate-test-reporter
 
 after_failure: bundle exec rake dump_examples_logs
 
 before_deploy:
-- sudo pip install -U -I Pygments
-- ./script/build-s3-index-html
+  - sudo pip install -U -I Pygments
+  - ./script/build-s3-index-html
 
 deploy:
   provider: s3
