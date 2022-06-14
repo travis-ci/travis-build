@@ -117,7 +117,7 @@ module Travis
           end
 
           def assembla?
-            @assembla ||= source_host.include? 'assembla'
+            @assembla ||= data[:repository][:source_url].include? 'assembla'
           end
       end
     end
