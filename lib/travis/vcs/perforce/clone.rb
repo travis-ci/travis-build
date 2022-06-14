@@ -97,7 +97,7 @@ module Travis
           end
 
           def dir
-            assembla? 'depot' : data.slug.split('/').last
+            assembla? ? 'depot' : data.slug.split('/').last
           end
 
           def port
