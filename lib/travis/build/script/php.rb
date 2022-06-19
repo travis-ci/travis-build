@@ -221,23 +221,23 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
         def overwrite_pearrc(version)
           pear_config = %q(
             [
-              'preferred_state' => "stable",
-              'temp_dir'     => "/tmp/pear/install",
-              'download_dir' => "/tmp/pear/install",
-              'bin_dir'      => "/home/travis/.phpenv/versions/__VERSION__/bin",
-              'php_dir'      => "/home/travis/.phpenv/versions/__VERSION__/share/pear",
-              'doc_dir'      => "/home/travis/.phpenv/versions/__VERSION__/docs",
-              'data_dir'     => "/home/travis/.phpenv/versions/__VERSION__/data",
-              'cfg_dir'      => "/home/travis/.phpenv/versions/__VERSION__/cfg",
-              'www_dir'      => "/home/travis/.phpenv/versions/__VERSION__/www",
-              'man_dir'      => "/home/travis/.phpenv/versions/__VERSION__/man",
-              'test_dir'     => "/home/travis/.phpenv/versions/__VERSION__/tests",
-              '__channels'   => [
-                '__uri' => [],
-                'doc.php.net' => [],
-                'pecl.php.net' => []
+              "preferred_state" => "stable",
+              "temp_dir"     => "/tmp/pear/install",
+              "download_dir" => "/tmp/pear/install",
+              "bin_dir"      => "/home/travis/.phpenv/versions/__VERSION__/bin",
+              "php_dir"      => "/home/travis/.phpenv/versions/__VERSION__/share/pear",
+              "doc_dir"      => "/home/travis/.phpenv/versions/__VERSION__/docs",
+              "data_dir"     => "/home/travis/.phpenv/versions/__VERSION__/data",
+              "cfg_dir"      => "/home/travis/.phpenv/versions/__VERSION__/cfg",
+              "www_dir"      => "/home/travis/.phpenv/versions/__VERSION__/www",
+              "man_dir"      => "/home/travis/.phpenv/versions/__VERSION__/man",
+              "test_dir"     => "/home/travis/.phpenv/versions/__VERSION__/tests",
+              "__channels"   => [
+                "__uri" => [],
+                "doc.php.net" => [],
+                "pecl.php.net" => []
               ],
-              'auto_discover' => 1
+              "auto_discover" => 1
             ]
           ).gsub("__VERSION__", version)
 
