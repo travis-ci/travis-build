@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Travis::Build::Addons::Mariadb, :sexp do
   let(:script) { stub('script') }
-  let(:config) { '10.0' }
+  let(:config) { '10.6' }
   let(:data)   { payload_for(:push, :ruby, config: { addons: { mariadb: config } }) }
   let(:sh)     { Travis::Shell::Builder.new }
   let(:addon)  { described_class.new(script, sh, Travis::Build::Data.new(data), config) }
