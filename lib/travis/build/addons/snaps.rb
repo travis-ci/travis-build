@@ -13,6 +13,7 @@ module Travis
           xenial
           bionic
           focal
+          jammy
         ).freeze
 
         def before_prepare?
