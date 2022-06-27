@@ -97,7 +97,7 @@ module Travis
           end
 
           def dir
-            data.slug.split('/').last
+            assembla? ? 'depot' : data.slug.split('/').last
           end
 
           def port
@@ -114,6 +114,10 @@ module Travis
 
           def config
             data.config
+          end
+
+          def assembla?
+            @assembla ||= data[:repository][:source_url].include? 'assembla'
           end
       end
     end
