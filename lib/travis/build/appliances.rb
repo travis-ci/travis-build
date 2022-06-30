@@ -55,6 +55,7 @@ require 'travis/build/appliances/resolvconf'
 require 'travis/build/appliances/maven_central_mirror'
 require 'travis/build/appliances/maven_https'
 require 'travis/build/appliances/vault_connect'
+require 'travis/build/appliances/vault_keys'
 
 module Travis
   module Build

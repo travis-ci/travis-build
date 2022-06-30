@@ -1,6 +1,5 @@
 require 'travis/build/appliances/base'
-require "travis/services/vault/connect"
-require "travis/services/vault"
+require 'travis/services/vault'
 
 module Travis
   module Build
