@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Vault::BuildPaths do
+describe Travis::Vault::BuildPaths do
   describe '#build' do
     subject(:build) { described_class.new(secrets).build }
 

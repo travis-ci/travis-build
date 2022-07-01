@@ -10,7 +10,7 @@ module Travis
         end
 
         def apply
-          ::Vault::Keys.get(@vault, self)
+          Travis::Vault::Keys.get(@vault, self)
         end
       end
     end
