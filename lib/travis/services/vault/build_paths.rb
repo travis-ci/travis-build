@@ -5,7 +5,7 @@ module Vault
     end
 
     def build
-      secrets.map { |secret| format_paths(secret) }.flatten.uniq
+      secrets.map { |secret| format_paths(secret) }.flatten.reverse.uniq { |path| path.split('/').last }
     end
 
     private
@@ -14,11 +14,11 @@ module Vault
       return secret if secret.is_a?(String)
       return [] if secret[:namespace].blank?
 
-      namespace_name = secret[:namespace].find { |el| el[:name] }
+      namespace_name = (secret[:namespace].find { |el| el.is_a?(Hash) && el[:name] } || {})[:name]
 
       return secret[:namespace] if namespace_name.blank?
 
-      paths = secret[:namespace].reject { |el| el[:name] }
+      paths = secret[:namespace].reject { |el| el.is_a?(Hash) && el[:name] }
       paths.map { |path| "#{namespace_name}/#{path}" }
     end
 

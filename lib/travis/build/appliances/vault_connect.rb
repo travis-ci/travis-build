@@ -13,7 +13,9 @@ module Travis
         end
 
         def apply
-          ::Vault::Connect.call(@vault)
+          ENV['VAULT_ADDR'] = @vault[:api_url]
+          ENV['VAULT_TOKEN'] = @vault[:token]
+          ::Vault::Connect.call
           sh.echo *SUCCESS_MESSAGE
         rescue ::Vault::ConnectionError, ArgumentError => _e
           sh.echo *ERROR_MESSAGE
