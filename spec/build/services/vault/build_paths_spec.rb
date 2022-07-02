@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe Travis::Vault::BuildPaths do
-  describe '#build' do
-    subject(:build) { described_class.new(secrets).build }
+  describe '#call' do
+    subject(:call) { described_class.new(secrets).call }
 
     context 'when everything is valid - some duplicates' do
       let(:secrets) do

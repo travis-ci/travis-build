@@ -5,7 +5,7 @@ module Travis
         @secrets = secrets
       end
 
-      def build
+      def call
         secrets.map { |secret| format_paths(secret) }.flatten.reverse.uniq { |path| path.split('/').last }
       end
 

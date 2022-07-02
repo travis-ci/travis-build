@@ -10,7 +10,7 @@ module Travis
             http.request(req)
           end
 
-          JSON.parse(result.body)['data']
+          result.code == '200' ? JSON.parse(result.body)['data'].to_json : nil
         end
       end
     end
