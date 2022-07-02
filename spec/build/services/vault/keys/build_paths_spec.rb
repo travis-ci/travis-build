@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Travis::Vault::BuildPaths do
+describe Travis::Vault::Keys::BuildPaths do
   describe '#call' do
     subject(:call) { described_class.new(secrets).call }
 
