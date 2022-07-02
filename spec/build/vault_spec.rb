@@ -17,7 +17,7 @@ describe "compiling", :sexp do
         ],
         "vault": {
           "api_url": "http://127.0.0.1:8200",
-          "token": "hvs.yOgBBXDy7fWVKgxyOkttAEFV",
+          "token": "hvs.Pgfcl9Nr0AozXCLQF5Wtb64C",
           "secrets": [
             "root_3/dev_1/mash/dash"
           ]

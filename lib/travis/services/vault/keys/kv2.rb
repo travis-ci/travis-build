@@ -2,7 +2,7 @@ module Travis
   module Vault
     class Keys
       class KV2
-        def self.get(path)
+        def self.resolve(path)
           target = URI("#{ENV['VAULT_ADDR']}/v1/secret/data/#{path}")
           req = Net::HTTP::Get.new(target)
           req['X-Vault-Token'] = ENV['VAULT_TOKEN']

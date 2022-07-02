@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe Travis::Vault::Keys::KV2 do
-  describe '.get' do
-    subject { described_class.get(path) }
+  describe '.resolve' do
+    subject { described_class.resolve(path) }
     after do
       ENV['VAULT_ADDR'] = nil
       ENV['VAULT_TOKEN'] = nil
@@ -31,7 +31,7 @@ describe Travis::Vault::Keys::KV2 do
       before do
         stub_request(:get, 'https://myvault.org/v1/secret/data/path/to/variable').
           with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby', 'X-Vault-Token' => 'my-token' }).
-          to_return(status: 400, body: '<html></html>')
+          to_return(status: 404, body: '<html></html>')
       end
 
       it 'does not explode' do
