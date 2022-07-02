@@ -30,7 +30,7 @@ module Travis
       delegate :export, :echo, to: 'appliance.sh'
 
       def warn_message(path)
-        ["Value for #{path} is blank.", ansi: :yellow]
+        ["The value fetched for #{path} is blank.", ansi: :yellow]
       end
 
       def version
@@ -38,7 +38,7 @@ module Travis
       end
 
       def paths
-        BuildPaths.new(vault[:secrets].reject { |secret| secret.is_a?(Hash) && secret[:kv_api_ver] }).call
+        @paths ||= BuildPaths.new(vault[:secrets].reject { |secret| secret.is_a?(Hash) && secret[:kv_api_ver] }).call
       end
     end
   end

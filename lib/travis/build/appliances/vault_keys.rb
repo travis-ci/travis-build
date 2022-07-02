@@ -10,7 +10,7 @@ module Travis
         end
 
         def apply
-          Travis::Vault::Keys.resolve(@vault, self)
+          Travis::Vault::Keys.new(@vault, self).resolve
         end
       end
     end

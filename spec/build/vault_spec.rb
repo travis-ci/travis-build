@@ -19,7 +19,7 @@ describe "compiling", :sexp do
           "api_url": "http://127.0.0.1:8200",
           "token": "hvs.Pgfcl9Nr0AozXCLQF5Wtb64C",
           "secrets": [
-            "root_3/dev_1/mash/dash"
+            "my/x-something"
           ]
         },
         "cache": "bundler",
