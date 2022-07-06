@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "integration vault tests", :sexp do
+describe "integration vault tests" do
   after(:each) do
     ENV['VAULT_ADDR'] = nil
     ENV['VAULT_TOKEN'] = nil
