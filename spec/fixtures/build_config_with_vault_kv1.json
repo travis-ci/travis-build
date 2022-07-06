@@ -15,12 +15,11 @@
       "api_url": "https://myvault.org",
       "token": "hvs.Pgfcl9Nr0AozXCLQF5Wtb6FSD",
       "secrets": [
+        { "kv_api_ver": "kv1" },
         {
           "namespace": [
-            {
-              "name": "your"
-            },
-            "aaa/bbb"
+            {"name": "your"},
+             "aaa/bbb"
           ]
         },
         "my/x-something"
