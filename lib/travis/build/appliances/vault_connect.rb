@@ -20,6 +20,8 @@ module Travis
 
           Travis::Vault::Connect.call
           sh.echo *SUCCESS_MESSAGE
+          sh.export('VAULT_ADDR', @vault[:api_url], echo: true, secure: true)
+          sh.export('VAULT_TOKEN', @vault[:token], echo: true, secure: true)
         rescue Travis::Vault::ConnectionError, ArgumentError, URI::InvalidURIError => _e
           sh.echo *ERROR_MESSAGE
           sh.terminate

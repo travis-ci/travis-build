@@ -74,8 +74,10 @@ describe Travis::Build::Appliances::VaultConnect do
           instance.stubs(:sh).returns(sh)
         end
 
-        it 'writes the success message in the console and does not terminates the job' do
+        it 'writes the success message, export vault config variables in the console and does not terminates the job' do
           sh.expects(:echo).with('Connected to Vault instance.', ansi: :green)
+          sh.expects(:export).with('VAULT_ADDR', 'https://api_url.com', echo: true, secure: true)
+          sh.expects(:export).with('VAULT_TOKEN', 'my_token', echo: true, secure: true)
           sh.expects(:terminate).never
 
           apply
