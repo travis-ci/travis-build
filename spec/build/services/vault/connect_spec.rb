@@ -15,7 +15,7 @@ describe Travis::Vault::Connect do
         ENV['VAULT_TOKEN'] = 'my-token'
 
         stub_request(:get, 'https://myvault.org/v1/auth/token/lookup-self').
-          with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby', 'X-Vault-Token' => 'my-token' }).
+          with(headers: { 'X-Vault-Token' => 'my-token' }).
           to_return(status: 200)
       end
 
@@ -28,7 +28,7 @@ describe Travis::Vault::Connect do
         ENV['VAULT_TOKEN'] = 'my-token'
 
         stub_request(:get, 'https://myvault.org/v1/auth/token/lookup-self').
-          with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby', 'X-Vault-Token' => 'my-token' }).
+          with(headers: { 'X-Vault-Token' => 'my-token' }).
           to_return(status: 403)
       end
 
@@ -38,15 +38,6 @@ describe Travis::Vault::Connect do
     context 'the endpoint is not correctly defined' do
       before do
         ENV['VAULT_ADDR'] = 'https:://myvault.org'
-        ENV['VAULT_TOKEN'] = 'my-token'
-      end
-
-      it { expect { call }.to raise_error(ArgumentError) }
-    end
-
-    context 'the endpoint is not correctly defined - second type of error' do
-      before do
-        ENV['VAULT_ADDR'] = '!https://myvault.org'
         ENV['VAULT_TOKEN'] = 'my-token'
       end
 

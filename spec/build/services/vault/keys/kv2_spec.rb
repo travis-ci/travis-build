@@ -18,7 +18,7 @@ describe Travis::Vault::Keys::KV2 do
     context 'when the response code is 200' do
       before do
         stub_request(:get, 'https://myvault.org/v1/secret/data/path/to/variable').
-          with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby', 'X-Vault-Token' => 'my-token' }).
+          with(headers: { 'X-Vault-Token' => 'my-token' }).
           to_return(status: 200, body: { data: { data: { my_data: { a: '123' } } } }.to_json)
       end
 
@@ -30,7 +30,7 @@ describe Travis::Vault::Keys::KV2 do
     context 'when the response code is not 200' do
       before do
         stub_request(:get, 'https://myvault.org/v1/secret/data/path/to/variable').
-          with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby', 'X-Vault-Token' => 'my-token' }).
+          with(headers: { 'X-Vault-Token' => 'my-token' }).
           to_return(status: 404, body: '<html></html>')
       end
 
