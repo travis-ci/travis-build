@@ -7,6 +7,8 @@ require 'travis/build'
 require 'pathname'
 require 'webmock/rspec'
 
+WebMock.allow_net_connect!
+
 Dir["{spec/spec_helpers,spec/support,spec/**/shared}/**/*.rb"].each do |f|
   load(f)
 end
