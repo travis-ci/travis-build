@@ -9,14 +9,14 @@ describe Travis::Vault::Keys::BuildPaths do
         [
           {
             namespace: [
-              {name: 'ns1'},
+              { name: 'ns1' },
               'project_id/secret_key',
               'project_id/secret_key2'
             ]
           },
           {
             namespace: [
-              {name: 'ns2'},
+              { name: 'ns2' },
               'project_id2/secret_key',
               'project_id2/secret_key2'
             ]
@@ -39,14 +39,14 @@ describe Travis::Vault::Keys::BuildPaths do
         [
           {
             namespace: [
-              {name: 'ns1'},
+              { name: 'ns1' },
               'project_id/secret_key_a',
               'project_id/secret_key_b'
             ]
           },
           {
             namespace: [
-              {name: 'ns2'},
+              { name: 'ns2' },
               'project_id2/secret_key_c',
               'project_id2/secret_key2_d'
             ]
@@ -68,14 +68,14 @@ describe Travis::Vault::Keys::BuildPaths do
         [
           {
             collection: [
-              {name: 'ns1'},
+              { name: 'ns1' },
               'project_id/secret_key_a',
               'project_id/secret_key_b'
             ]
           },
           {
             namespace: [
-              {name: 'ns2'},
+              { name: 'ns2' },
               'project_id2/secret_key_c',
               'project_id2/secret_key2_d'
             ]
@@ -96,7 +96,7 @@ describe Travis::Vault::Keys::BuildPaths do
           },
           {
             namespace: [
-              {name: 'ns2'},
+              { name: 'ns2' },
               'project_id2/secret_key_c',
               'project_id2/secret_key2_d'
             ]
@@ -110,4 +110,3 @@ describe Travis::Vault::Keys::BuildPaths do
     end
   end
 end
-

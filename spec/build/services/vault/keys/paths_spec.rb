@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Travis::Vault::Keys::Paths do
   describe '.call' do
-    let(:call) { described_class.call(vault) }
+    subject(:call) { described_class.call(vault) }
 
     let(:build_paths) { stub(call: nil) }
 

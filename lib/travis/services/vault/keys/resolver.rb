@@ -9,11 +9,11 @@ module Travis
         end
 
         def call
-          return [] if paths.blank?
+          return if paths.blank?
 
           paths.each do |path|
             if (value = Keys.const_get(version.upcase).resolve(path))
-              key_name = path.split('/').last
+              key_name = path.split('/').last.upcase
               export(key_name, value, echo: true, secure: true)
             else
               echo *(warn_message(path))
