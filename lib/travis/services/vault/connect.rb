@@ -1,10 +1,12 @@
+require 'travis/services/vault/config'
+
 module Travis
   module Vault
     class Connect
       def self.call
         conn = Faraday.new(
-          url: ENV['VAULT_ADDR'],
-          headers: {'X-Vault-Token' => ENV['VAULT_TOKEN']}
+          url: Travis::Vault::Config.instance.api_url,
+          headers: {'X-Vault-Token' => Travis::Vault::Config.instance.token}
         )
         response = conn.get('/v1/auth/token/lookup-self')
         raise ConnectionError if response.status != 200

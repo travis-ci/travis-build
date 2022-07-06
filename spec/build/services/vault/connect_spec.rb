@@ -4,15 +4,19 @@ describe Travis::Vault::Connect do
   describe '#call' do
     subject(:call) { described_class.call }
 
-    context 'the endpoint returns 200' do
-      after do
-        ENV['VAULT_ADDR'] = nil
-        ENV['VAULT_TOKEN'] = nil
+    after do
+      Travis::Vault::Config.instance.tap do |i|
+        i.api_url = nil
+        i.token = nil
       end
+    end
 
+    context 'the endpoint returns 200' do
       before do
-        ENV['VAULT_ADDR'] = 'https://myvault.org'
-        ENV['VAULT_TOKEN'] = 'my-token'
+        Travis::Vault::Config.instance.tap do |i|
+          i.api_url = 'https://myvault.org'
+          i.token = 'my-token'
+        end
 
         stub_request(:get, 'https://myvault.org/v1/auth/token/lookup-self').
           with(headers: { 'X-Vault-Token' => 'my-token' }).
@@ -24,8 +28,10 @@ describe Travis::Vault::Connect do
 
     context 'the endpoint returns not-200' do
       before do
-        ENV['VAULT_ADDR'] = 'https://myvault.org'
-        ENV['VAULT_TOKEN'] = 'my-token'
+        Travis::Vault::Config.instance.tap do |i|
+          i.api_url = 'https://myvault.org'
+          i.token = 'my-token'
+        end
 
         stub_request(:get, 'https://myvault.org/v1/auth/token/lookup-self').
           with(headers: { 'X-Vault-Token' => 'my-token' }).
@@ -37,8 +43,10 @@ describe Travis::Vault::Connect do
 
     context 'the endpoint is not correctly defined' do
       before do
-        ENV['VAULT_ADDR'] = 'https:://myvault.org'
-        ENV['VAULT_TOKEN'] = 'my-token'
+        Travis::Vault::Config.instance.tap do |i|
+          i.api_url = 'https:://myvault.org'
+          i.token = 'my-token'
+        end
       end
 
       it { expect { call }.to raise_error(URI::InvalidURIError) }

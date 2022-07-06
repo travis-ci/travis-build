@@ -1,11 +1,6 @@
 require 'spec_helper'
 
 describe "integration vault tests" do
-  after(:each) do
-    ENV['VAULT_ADDR'] = nil
-    ENV['VAULT_TOKEN'] = nil
-  end
-
   before do
     stub_request(:get, 'https://myvault.org/v1/secret/your/aaa/bbb').
       with(headers: { 'X-Vault-Token' => 'hvs.Pgfcl9Nr0AozXCLQF5Wtb6FSD' }).
@@ -22,6 +17,13 @@ describe "integration vault tests" do
     stub_request(:get, 'https://myvault.org/v1/secret/data/my/x-something').
       with(headers: { 'X-Vault-Token' => 'hvs.Pgfcl9Nr0AozXCLQF5Wtb6FSD' }).
       to_return(status: 404, body: '<html></html>')
+  end
+
+  after do
+    Travis::Vault::Config.instance.tap do |i|
+      i.api_url = nil
+      i.token = nil
+    end
   end
 
   context 'when authenticated' do

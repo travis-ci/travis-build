@@ -13,14 +13,18 @@ module Travis
         end
 
         def apply
-          ENV['VAULT_ADDR'] = @vault[:api_url]
-          ENV['VAULT_TOKEN'] = @vault[:token]
+          Travis::Vault::Config.instance.tap do |i|
+            i.api_url = @vault[:api_url]
+            i.token = @vault[:token]
+          end
+
           Travis::Vault::Connect.call
           sh.echo *SUCCESS_MESSAGE
         rescue Travis::Vault::ConnectionError, ArgumentError, URI::InvalidURIError => _e
           sh.echo *ERROR_MESSAGE
           sh.terminate
         end
+
       end
     end
   end

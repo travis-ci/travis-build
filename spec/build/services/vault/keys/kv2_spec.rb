@@ -3,14 +3,19 @@ require 'spec_helper'
 describe Travis::Vault::Keys::KV2 do
   describe '.resolve' do
     subject { described_class.resolve(path) }
-    after do
-      ENV['VAULT_ADDR'] = nil
-      ENV['VAULT_TOKEN'] = nil
-    end
 
     before do
-      ENV['VAULT_ADDR'] = 'https://myvault.org'
-      ENV['VAULT_TOKEN'] = 'my-token'
+      Travis::Vault::Config.instance.tap do |i|
+        i.api_url = 'https://myvault.org'
+        i.token = 'my-token'
+      end
+    end
+
+    after do
+      Travis::Vault::Config.instance.tap do |i|
+        i.api_url = nil
+        i.token = nil
+      end
     end
 
     let(:path) { 'path/to/variable' }

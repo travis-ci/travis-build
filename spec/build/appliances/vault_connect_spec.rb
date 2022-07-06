@@ -3,9 +3,11 @@ require 'spec_helper'
 describe Travis::Build::Appliances::VaultConnect do
   let(:instance) { described_class.new }
 
-  after(:each) do
-    ENV['VAULT_TOKEN'] = nil
-    ENV['VAULT_ADDR'] = nil
+  after do
+    Travis::Vault::Config.instance.tap do |i|
+      i.api_url = nil
+      i.token = nil
+    end
   end
 
   describe '#apply?' do
@@ -56,9 +58,9 @@ describe Travis::Build::Appliances::VaultConnect do
         Travis::Vault::Connect.stubs(:call)
         instance.stubs(:sh).returns(Travis::Shell::Builder.new)
       end
-      it { expect { apply }.to change { ENV['VAULT_TOKEN'] }.from(nil).to('my_token') }
+      it { expect { apply }.to change { Travis::Vault::Config.instance.token }.from(nil).to('my_token') }
 
-      it { expect { apply }.to change { ENV['VAULT_ADDR'] }.from(nil).to('https://api_url.com') }
+      it { expect { apply }.to change { Travis::Vault::Config.instance.api_url }.from(nil).to('https://api_url.com') }
     end
 
     describe 'connection to the vault' do

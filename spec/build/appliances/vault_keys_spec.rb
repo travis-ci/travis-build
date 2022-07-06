@@ -3,9 +3,11 @@ require 'spec_helper'
 describe Travis::Build::Appliances::VaultKeys do
   let(:instance) { described_class.new }
 
-  after(:each) do
-    ENV['VAULT_TOKEN'] = nil
-    ENV['VAULT_ADDR'] = nil
+  after do
+    Travis::Vault::Config.instance.tap do |i|
+      i.api_url = nil
+      i.token = nil
+    end
   end
 
   describe '#apply?' do
