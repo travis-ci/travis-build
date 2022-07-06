@@ -7,7 +7,10 @@ module Travis
         end
 
         def call
-          secrets.map { |secret| format_paths(secret) }.flatten.reverse.uniq { |path| path.split('/').last }
+          secrets.map { |secret| format_paths(secret) }
+                 .flatten
+                 .reverse
+                 .uniq { |path| path.split('/').last }
         end
 
         private
@@ -16,7 +19,7 @@ module Travis
           return secret if secret.is_a?(String)
           return [] if secret[:namespace].blank?
 
-          namespace_name = (secret[:namespace].find { |el| el.is_a?(Hash) && el[:name] } || {})[:name]
+          namespace_name = secret[:namespace].find { |el| el.try(:dig, :name) }&.dig(:name)
 
           return secret[:namespace] if namespace_name.blank?
 

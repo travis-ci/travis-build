@@ -14,7 +14,9 @@ module Travis
       end
 
       def resolve
-        Resolver.new(Paths.call(vault), Version.call(vault), appliance).call
+        paths = Paths.call(vault)
+        version = Version.call(vault)
+        Resolver.new(paths, version, appliance).call
       end
 
       private
