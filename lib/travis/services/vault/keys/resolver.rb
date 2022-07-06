@@ -2,17 +2,18 @@ module Travis
   module Vault
     class Keys
       class Resolver
-        def initialize(paths, version, appliance)
+        def initialize(paths, version, appliance, faraday_connection)
           @paths = paths
           @version = version
           @appliance = appliance
+          @faraday_connection = faraday_connection
         end
 
         def call
           return if paths.blank?
 
           paths.each do |path|
-            if (value = Keys.const_get(version.upcase).resolve(path))
+            if (value = Keys.const_get(version.upcase).resolve(path, faraday_connection))
               key_name = path.split('/').last.upcase
               export(key_name, value, echo: true, secure: true)
             else
@@ -23,7 +24,7 @@ module Travis
 
         private
 
-        attr_reader :paths, :version, :appliance
+        attr_reader :paths, :version, :appliance, :faraday_connection
 
         delegate :export, :echo, to: 'appliance.sh'
 

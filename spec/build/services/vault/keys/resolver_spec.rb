@@ -4,7 +4,10 @@ describe Travis::Vault::Keys::Resolver do
   describe '#call' do
     subject(:call) { instance.call }
 
-    let(:instance) { described_class.new(paths, 'kv2', appliance) }
+    let(:instance) { described_class.new(paths, 'kv2', appliance, faraday_connection) }
+
+
+    let(:faraday_connection) { stub('faraday_connection') }
 
     let(:sh) { stub('sh') }
 

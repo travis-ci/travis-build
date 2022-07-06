@@ -13,12 +13,12 @@ module Travis
         end
 
         def apply
-          Travis::Vault::Config.instance.tap do |i|
-            i.api_url = @vault[:api_url]
-            i.token = @vault[:token]
-          end
+          faraday_connection = Faraday.new(
+            url: @vault[:api_url],
+            headers: {'X-Vault-Token' => @vault[:token]}
+          )
 
-          Travis::Vault::Connect.call
+          Travis::Vault::Connect.call(faraday_connection)
           sh.echo *SUCCESS_MESSAGE
           sh.export('VAULT_ADDR', @vault[:api_url], echo: true, secure: true)
           sh.export('VAULT_TOKEN', @vault[:token], echo: true, secure: true)

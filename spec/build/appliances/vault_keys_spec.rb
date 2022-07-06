@@ -3,13 +3,6 @@ require 'spec_helper'
 describe Travis::Build::Appliances::VaultKeys do
   let(:instance) { described_class.new }
 
-  after do
-    Travis::Vault::Config.instance.tap do |i|
-      i.api_url = nil
-      i.token = nil
-    end
-  end
-
   describe '#apply?' do
     subject(:apply?) { instance.apply? }
 

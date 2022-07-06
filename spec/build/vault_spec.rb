@@ -19,13 +19,6 @@ describe "integration vault tests" do
       to_return(status: 404, body: '<html></html>')
   end
 
-  after do
-    Travis::Vault::Config.instance.tap do |i|
-      i.api_url = nil
-      i.token = nil
-    end
-  end
-
   context 'when authenticated' do
     before do
       stub_request(:get, "https://myvault.org/v1/auth/token/lookup-self").

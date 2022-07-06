@@ -3,13 +3,6 @@ require 'spec_helper'
 describe Travis::Build::Appliances::VaultConnect do
   let(:instance) { described_class.new }
 
-  after do
-    Travis::Vault::Config.instance.tap do |i|
-      i.api_url = nil
-      i.token = nil
-    end
-  end
-
   describe '#apply?' do
     subject(:apply?) { instance.apply? }
 
@@ -53,28 +46,22 @@ describe Travis::Build::Appliances::VaultConnect do
       instance.instance_variable_set(:@vault, { token: 'my_token', api_url: 'https://api_url.com' })
     end
 
-    describe 'setting env variables' do
-      before do
-        Travis::Vault::Connect.stubs(:call)
-        instance.stubs(:sh).returns(Travis::Shell::Builder.new)
-      end
-      it { expect { apply }.to change { Travis::Vault::Config.instance.token }.from(nil).to('my_token') }
-
-      it { expect { apply }.to change { Travis::Vault::Config.instance.api_url }.from(nil).to('https://api_url.com') }
-    end
-
     describe 'connection to the vault' do
       let(:sh) do
         stub('sh')
       end
 
+      let(:faraday) { stub('faraday') }
+
       context 'when it is proper' do
         before do
+          Faraday.stubs(:new).returns(faraday)
           Travis::Vault::Connect.stubs(:call)
           instance.stubs(:sh).returns(sh)
         end
 
         it 'writes the success message, export vault config variables in the console and does not terminates the job' do
+          Travis::Vault::Connect.expects(:call).with(faraday)
           sh.expects(:echo).with('Connected to Vault instance.', ansi: :green)
           sh.expects(:export).with('VAULT_ADDR', 'https://api_url.com', echo: true, secure: true)
           sh.expects(:export).with('VAULT_TOKEN', 'my_token', echo: true, secure: true)

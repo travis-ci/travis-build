@@ -2,20 +2,13 @@ require 'spec_helper'
 
 describe Travis::Vault::Keys::KV1 do
   describe '.resolve' do
-    subject { described_class.resolve(path) }
+    subject { described_class.resolve(path, faraday_connection) }
 
-    before do
-      Travis::Vault::Config.instance.tap do |i|
-        i.api_url = 'https://myvault.org'
-        i.token = 'my-token'
-      end
-    end
-
-    after do
-      Travis::Vault::Config.instance.tap do |i|
-        i.api_url = nil
-        i.token = nil
-      end
+    let(:faraday_connection)  do
+      Faraday.new(
+        url: 'https://myvault.org',
+        headers: {'X-Vault-Token' => 'my-token'}
+      )
     end
 
     let(:path) { 'path/to/variable' }

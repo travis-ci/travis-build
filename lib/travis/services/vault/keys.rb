@@ -14,14 +14,18 @@ module Travis
       end
 
       def resolve
+        faraday_connection = Faraday.new(
+          url: vault[:api_url],
+          headers: {'X-Vault-Token' => vault[:token]}
+        )
         paths = Paths.call(vault)
         version = Version.call(vault)
-        Resolver.new(paths, version, appliance).call
+        Resolver.new(paths, version, appliance, faraday_connection).call
       end
 
       private
 
-      attr_reader :vault, :appliance
+      attr_reader :vault, :appliance, :faraday_connection
     end
   end
 end
