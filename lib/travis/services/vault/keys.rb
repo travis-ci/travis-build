@@ -8,6 +8,9 @@ require 'travis/services/vault/keys/resolver'
 module Travis
   module Vault
     class Keys
+
+      attr_reader :vault, :appliance, :faraday_connection
+
       def initialize(vault, appliance)
         @vault = vault
         @appliance = appliance
@@ -22,10 +25,6 @@ module Travis
         version = Version.call(vault)
         Resolver.new(paths, version, appliance, faraday_connection).call
       end
-
-      private
-
-      attr_reader :vault, :appliance, :faraday_connection
     end
   end
 end

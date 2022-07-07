@@ -2,6 +2,11 @@ module Travis
   module Vault
     class Keys
       class Resolver
+
+        attr_reader :paths, :version, :appliance, :faraday_connection
+
+        delegate :export, :echo, to: 'appliance.sh'
+
         def initialize(paths, version, appliance, faraday_connection)
           @paths = paths
           @version = version
@@ -23,10 +28,6 @@ module Travis
         end
 
         private
-
-        attr_reader :paths, :version, :appliance, :faraday_connection
-
-        delegate :export, :echo, to: 'appliance.sh'
 
         def warn_message(path)
           ["The value fetched for #{path} is blank.", ansi: :yellow]

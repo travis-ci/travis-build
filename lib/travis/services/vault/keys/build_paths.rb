@@ -2,6 +2,9 @@ module Travis
   module Vault
     class Keys
       class BuildPaths
+
+        attr_reader :secrets
+
         def initialize(secrets)
           @secrets = secrets
         end
@@ -26,8 +29,6 @@ module Travis
           paths = secret[:namespace].reject { |el| el.is_a?(Hash) && el[:name] }
           paths.map { |path| "#{namespace_name}/#{path}" }
         end
-
-        attr_reader :secrets
       end
     end
   end

@@ -5,7 +5,9 @@ module Travis
     class Keys
       class Paths
         def self.call(vault)
-          BuildPaths.new(vault[:secrets].reject { |secret| secret.is_a?(Hash) && secret[:kv_api_ver] }).call
+          paths = vault[:secrets].reject { |secret| secret.is_a?(Hash) && secret[:kv_api_ver] }
+
+          BuildPaths.new(paths).call
         end
       end
     end

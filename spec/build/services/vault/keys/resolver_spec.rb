@@ -6,7 +6,6 @@ describe Travis::Vault::Keys::Resolver do
 
     let(:instance) { described_class.new(paths, 'kv2', appliance, faraday_connection) }
 
-
     let(:faraday_connection) { stub('faraday_connection') }
 
     let(:sh) { stub('sh') }
