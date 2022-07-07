@@ -3,6 +3,12 @@ require 'spec_helper'
 describe Travis::Build::Appliances::VaultKeys do
   let(:instance) { described_class.new }
 
+  describe '#vault' do
+    it do
+      expect(instance.respond_to?(:vault)).to be(true)
+    end
+  end
+
   describe '#apply?' do
     subject(:apply?) { instance.apply? }
 
@@ -44,12 +50,8 @@ describe Travis::Build::Appliances::VaultKeys do
 
     let(:vault_keys) { stub(:vault_keys) }
 
-    before do
-      instance.instance_variable_set(:@vault, { token: 'my_token', api_url: 'https://api_url.com' })
-    end
-
     it do
-      Travis::Vault::Keys.expects(:new).with({ token: 'my_token', api_url: 'https://api_url.com' }, instance).returns(vault_keys)
+      Travis::Vault::Keys.expects(:new).with(instance).returns(vault_keys)
       vault_keys.expects(:resolve)
 
       apply

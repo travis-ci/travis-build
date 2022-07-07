@@ -55,13 +55,12 @@ describe Travis::Build::Appliances::VaultConnect do
 
       context 'when it is proper' do
         before do
-          Faraday.stubs(:new).returns(faraday)
           Travis::Vault::Connect.stubs(:call)
           instance.stubs(:sh).returns(sh)
         end
 
         it 'writes the success message, export vault config variables in the console and does not terminates the job' do
-          Travis::Vault::Connect.expects(:call).with(faraday)
+          Travis::Vault::Connect.expects(:call).with({ token: 'my_token', api_url: 'https://api_url.com' })
           sh.expects(:echo).with('Connected to Vault instance.', ansi: :green)
           sh.expects(:export).with('VAULT_ADDR', 'https://api_url.com', echo: true, secure: true)
           sh.expects(:export).with('VAULT_TOKEN', 'my_token', echo: true, secure: true)

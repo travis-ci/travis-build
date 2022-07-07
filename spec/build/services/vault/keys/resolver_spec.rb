@@ -4,13 +4,13 @@ describe Travis::Vault::Keys::Resolver do
   describe '#call' do
     subject(:call) { instance.call }
 
-    let(:instance) { described_class.new(paths, 'kv2', appliance, faraday_connection) }
-
-    let(:faraday_connection) { stub('faraday_connection') }
+    let(:instance) { described_class.new(paths, 'kv2', appliance) }
 
     let(:sh) { stub('sh') }
 
-    let(:appliance) { stub(sh: sh) }
+    let(:vault) { stub('vault') }
+
+    let(:appliance) { stub(sh: sh, vault: vault) }
 
     context 'when paths are empty' do
       let(:paths) { [] }
@@ -26,11 +26,8 @@ describe Travis::Vault::Keys::Resolver do
       let(:paths) { ['path/to/something/secret_thing'] }
 
       context 'when path returns value from Vault' do
-        before do
-          Travis::Vault::Keys::KV2.expects(:resolve).returns('secret_value')
-        end
-
         it do
+          Travis::Vault::Keys::KV2.expects(:resolve).with(paths.first, vault).returns('secret_value')
           sh.expects(:echo).never
           sh.expects(:export).with('SECRET_THING', 'secret_value', echo: true, secure: true)
 
@@ -39,11 +36,9 @@ describe Travis::Vault::Keys::Resolver do
       end
 
       context 'when path does not returns value from Vault' do
-        before do
-          Travis::Vault::Keys::KV2.expects(:resolve).returns(nil)
-        end
 
         it do
+          Travis::Vault::Keys::KV2.expects(:resolve).with(paths.first, vault).returns(nil)
           sh.expects(:export).never
           sh.expects(:echo).with('The value fetched for path/to/something/secret_thing is blank.', ansi: :yellow)
 

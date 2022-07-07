@@ -7,18 +7,17 @@ module Travis
 
         delegate :export, :echo, to: 'appliance.sh'
 
-        def initialize(paths, version, appliance, faraday_connection)
+        def initialize(paths, version, appliance)
           @paths = paths
           @version = version
           @appliance = appliance
-          @faraday_connection = faraday_connection
         end
 
         def call
           return if paths.blank?
 
           paths.each do |path|
-            if (value = Keys.const_get(version.upcase).resolve(path, faraday_connection))
+            if (value = Keys.const_get(version.upcase).resolve(path, appliance.vault))
               key_name = path.split('/').last.upcase
               export(key_name, value, echo: true, secure: true)
             else

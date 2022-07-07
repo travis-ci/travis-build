@@ -2,13 +2,13 @@ require 'spec_helper'
 
 describe Travis::Vault::Keys::KV2 do
   describe '.resolve' do
-    subject { described_class.resolve(path, faraday_connection) }
+    subject { described_class.resolve(path, vault) }
 
-    let(:faraday_connection)  do
-      Faraday.new(
-        url: 'https://myvault.org',
-        headers: {'X-Vault-Token' => 'my-token'}
-      )
+    let(:vault) do
+      {
+        api_url: 'https://myvault.org',
+        token: 'my-token'
+      }
     end
 
     let(:path) { 'path/to/variable' }

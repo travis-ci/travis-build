@@ -9,21 +9,16 @@ module Travis
   module Vault
     class Keys
 
-      attr_reader :vault, :appliance, :faraday_connection
+      attr_reader :appliance, :faraday_connection
 
-      def initialize(vault, appliance)
-        @vault = vault
+      def initialize(appliance)
         @appliance = appliance
       end
 
       def resolve
-        faraday_connection = Faraday.new(
-          url: vault[:api_url],
-          headers: {'X-Vault-Token' => vault[:token]}
-        )
-        paths = Paths.call(vault)
-        version = Version.call(vault)
-        Resolver.new(paths, version, appliance, faraday_connection).call
+        paths = Paths.call(appliance.vault)
+        version = Version.call(appliance.vault)
+        Resolver.new(paths, version, appliance).call
       end
     end
   end
