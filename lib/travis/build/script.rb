@@ -351,6 +351,8 @@ module Travis
         end
 
         def setup_filter
+          apply :vault_connect
+          apply :vault_keys
           apply :no_world_writable_dirs
           apply :setup_filter
         end
