@@ -46,3 +46,4 @@ gem 'travis-rollout', git: gh('travis-ci/travis-rollout')
 gem 'travis-support', git: gh('travis-ci/travis-support')
 
 gem "octokit", "~> 4.18"
+gem 'rest-client'

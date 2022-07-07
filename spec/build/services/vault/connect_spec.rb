@@ -32,6 +32,13 @@ describe Travis::Vault::Connect do
     end
 
     context 'the endpoint is not correctly defined' do
+      let(:vault) do
+        {
+          api_url: '!https://myvault.org',
+          token: 'my-token'
+        }
+      end
+
       it { expect { call }.to raise_error(Travis::Vault::ConnectionError) }
     end
   end
