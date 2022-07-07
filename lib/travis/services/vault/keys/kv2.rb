@@ -5,10 +5,10 @@ module Travis
         def self.resolve(path, vault)
           faraday_connection = Faraday.new(
             url: vault[:api_url],
-            headers: { 'X-Vault-Token' => vault[:token] }
+            headers: { 'X-Vault-Token': vault[:token] }
           )
           response = faraday_connection.get("/v1/secret/data/#{path}")
-          response.status == 200 ? JSON.parse(response.body).dig('data', 'data').to_json : nil
+          JSON.parse(response.body).dig('data', 'data').to_json if response.status == 200
         end
       end
     end

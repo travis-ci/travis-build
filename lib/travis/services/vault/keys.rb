@@ -9,7 +9,7 @@ module Travis
   module Vault
     class Keys
 
-      attr_reader :appliance, :faraday_connection
+      attr_reader :appliance
 
       def initialize(appliance)
         @appliance = appliance

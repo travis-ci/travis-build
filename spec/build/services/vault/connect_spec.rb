@@ -14,7 +14,7 @@ describe Travis::Vault::Connect do
     context 'the endpoint returns 200' do
       before do
         stub_request(:get, 'https://myvault.org/v1/auth/token/lookup-self').
-          with(headers: { 'X-Vault-Token' => 'my-token' }).
+          with(headers: { 'X-Vault-Token': 'my-token' }).
           to_return(status: 200)
       end
 
@@ -24,7 +24,7 @@ describe Travis::Vault::Connect do
     context 'the endpoint returns not-200' do
       before do
         stub_request(:get, 'https://myvault.org/v1/auth/token/lookup-self').
-          with(headers: { 'X-Vault-Token' => 'my-token' }).
+          with(headers: { 'X-Vault-Token': 'my-token' }).
           to_return(status: 403)
       end
 

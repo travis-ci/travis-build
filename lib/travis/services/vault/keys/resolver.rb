@@ -3,7 +3,7 @@ module Travis
     class Keys
       class Resolver
 
-        attr_reader :paths, :version, :appliance, :faraday_connection
+        attr_reader :paths, :version, :appliance
 
         delegate :export, :echo, to: 'appliance.sh'
 
