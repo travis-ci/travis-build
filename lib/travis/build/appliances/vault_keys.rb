@@ -9,7 +9,7 @@ module Travis
         attr_reader :vault
 
         def apply?
-          @vault = config[:vault]
+          @vault = config[:vault] if config.dig(:vault, :secrets).present?
         end
 
         def apply

@@ -8,13 +8,13 @@ describe Travis::Build::Appliances::VaultConnect do
 
     context 'when there is a vault in a config' do
       before do
-        instance.stubs(:config).returns(vault: { secures: [] })
+        instance.stubs(:config).returns(vault: { secrets: %w[aaa/bbb] })
       end
 
       it 'sets @vault variable to vault value' do
         apply?
 
-        expect(instance.instance_variable_get(:@vault)).to eq({ secures: [] })
+        expect(instance.instance_variable_get(:@vault)).to eq({ secrets: %w[aaa/bbb] })
       end
 
       it 'returns truthy value' do
@@ -22,9 +22,9 @@ describe Travis::Build::Appliances::VaultConnect do
       end
     end
 
-    context 'when there is no a vault in a config' do
+    context 'when there is no a vault secrets in a config' do
       before do
-        instance.stubs(:config).returns({})
+        instance.stubs(:config).returns({ secrets: [] })
       end
 
       it 'sets @vault variable nil' do

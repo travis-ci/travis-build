@@ -9,7 +9,7 @@ module Travis
         SUCCESS_MESSAGE = ['Connected to Vault instance.', ansi: :green].freeze
 
         def apply?
-          @vault = config[:vault]
+          @vault = config[:vault] if config.dig(:vault, :secrets).present?
         end
 
         def apply
