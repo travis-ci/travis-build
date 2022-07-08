@@ -27,9 +27,9 @@ describe Travis::Vault::Keys::Resolver do
 
       context 'when path returns value from Vault' do
         it do
-          Travis::Vault::Keys::KV2.expects(:resolve).with(paths.first, vault).returns('secret_value')
+          Travis::Vault::Keys::KV2.expects(:resolve).with(paths.first, vault).returns({ my_key: 'MySecretValue' }.to_json)
           sh.expects(:echo).never
-          sh.expects(:export).with('SECRET_THING', 'secret_value', echo: true, secure: true)
+          sh.expects(:export).with('SECRET_THING', "'{\"my_key\":\"MySecretValue\"}'", echo: true, secure: true)
 
           call
         end
