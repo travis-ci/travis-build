@@ -51,8 +51,6 @@ describe Travis::Build::Appliances::VaultConnect do
         stub('sh')
       end
 
-      let(:faraday) { stub('faraday') }
-
       context 'when it is proper' do
         before do
           Travis::Vault::Connect.stubs(:call)

@@ -21,7 +21,7 @@ describe Travis::Vault::Keys::KV2 do
       end
 
       it do
-        is_expected.to eq({ 'my_data' => { 'a' => '123' } }.to_json)
+        is_expected.to eq({ 'my_data' => { 'a' => '123' } })
       end
     end
 

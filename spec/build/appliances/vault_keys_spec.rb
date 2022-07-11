@@ -30,7 +30,7 @@ describe Travis::Build::Appliances::VaultKeys do
 
     context 'when there is no a vault in a config' do
       before do
-        instance.stubs(:config).returns({secrets: []})
+        instance.stubs(:config).returns({ secrets: [] })
       end
 
       it 'sets @vault variable nil' do
@@ -50,11 +50,30 @@ describe Travis::Build::Appliances::VaultKeys do
 
     let(:vault_keys) { stub(:vault_keys) }
 
-    it do
-      Travis::Vault::Keys.expects(:new).with(instance).returns(vault_keys)
-      vault_keys.expects(:resolve)
+    context 'a normal scenario' do
+      it do
+        Travis::Vault::Keys.expects(:new).with(instance).returns(vault_keys)
+        vault_keys.expects(:resolve)
 
-      apply
+        apply
+      end
+    end
+
+    context 'when #resolve raises an error' do
+      before do
+        Travis::Vault::Keys.stubs(:new).with(instance).returns(vault_keys)
+        vault_keys.stubs(:resolve).raises(Travis::Vault::RootKeyError)
+        instance.stubs(:sh).returns(sh)
+      end
+
+      let(:sh) { stub('sh') }
+
+      it do
+        sh.expects(:echo).with('Too many keys in fetched data. Probably you provided the root key. Terminating for security reasons.', ansi: :red)
+        sh.expects(:terminate)
+
+        apply
+      end
     end
   end
 end
