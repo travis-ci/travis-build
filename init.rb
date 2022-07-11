@@ -74,7 +74,7 @@ module Travis
         end
 
         def set_up_config(match_data)
-          @build = build(match_data[:build])
+          @build = build(match_data[:build].to_i)
           @job_number = match_data[:job].to_i - 1
           @compile_config = @build.jobs[@job_number].config
         end

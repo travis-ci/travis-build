@@ -1,7 +1,6 @@
 require 'base64'
 require 'travis/build/appliances/base'
 require 'travis/build/appliances/agent/jwt'
-require 'travis/build/git'
 
 module Travis
   module Build

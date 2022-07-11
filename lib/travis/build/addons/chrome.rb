@@ -60,9 +60,9 @@ module Travis
             sh.elif "$(uname) = 'Darwin'" do
               case version
               when 'stable'
-                pkg_url = "https://dl.google.com/chrome/mac/stable/GGRO/googlechrome.dmg"
+                pkg_url = "https://dl.google.com/chrome/mac/universal/stable/GGRO/googlechrome.dmg"
               when 'beta'
-                pkg_url = "https://dl.google.com/chrome/mac/beta/googlechrome.dmg"
+                pkg_url = "https://dl.google.com/chrome/mac/universal/beta/googlechromebeta.dmg "
               end
               sh.export 'CHROME_SOURCE_URL', pkg_url
             end
