@@ -13,7 +13,8 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-github_apps
-  revision: c96dc9330849ff3e2ccd7c9d00005a1a96c1a4b6
+  revision: 296843980230194dc0b44fa7244e49ca071d83bf
+  branch: ga-ext_access
   specs:
     travis-github_apps (0.2.1)
       activesupport (>= 3.2)
@@ -138,7 +139,7 @@ GEM
       ffi (>= 1.0.6)
       msgpack (>= 0.4.3)
       optimist (>= 3.0.0)
-    redis (4.1.4)
+    redis (4.7.1)
     rerun (0.13.0)
       listen (~> 3.0)
     rspec (3.8.0)
