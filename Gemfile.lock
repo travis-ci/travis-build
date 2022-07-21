@@ -200,7 +200,7 @@ GEM
       hashr (~> 2.0)
     typhoeus (0.8.0)
       ethon (>= 0.8.0)
-    tzinfo (1.2.7)
+    tzinfo (1.2.10)
       thread_safe (~> 0.1)
     unicode-display_width (1.4.0)
     websocket (1.2.8)
