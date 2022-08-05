@@ -12,10 +12,28 @@ travis_install_jdk() {
   "s390x" | "ppc64le")
     travis_install_jdk_package_adoptopenjdk "$version"
     ;;
-  *)
-    travis_install_jdk_package_bellsoft "$version"
+  "amd64" | "arm64")
+    case "${TRAVIS_DIST}" in
+    "trusty")
+      travis_jdk_trusty "$version"
+      ;;
+    *)
+      travis_install_jdk_package_bellsoft "$version"
+      ;;
+    esac
     ;;
   esac
+}
+
+# Trusty image issues with new jdk provider
+travis_jdk_trusty() {
+  local JAVA_VERSION
+  JAVA_VERSION="$1"
+  sudo apt-get update -yqq
+  PACKAGE="java-${JAVA_VERSION}-openjdk-amd64"
+  sudo apt install openjdk-"$JAVA_VERSION"-jdk
+  travis_cmd "export JAVA_HOME=/usr/lib/jvm/$PACKAGE" --echo
+  travis_cmd "export PATH=$JAVA_HOME/bin:$PATH" --echo
 }
 
 travis_install_jdk_package_adoptopenjdk() {
