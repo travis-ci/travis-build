@@ -12,7 +12,7 @@ travis_install_jdk() {
   "s390x" | "ppc64le")
     travis_install_jdk_package_adoptopenjdk "$version"
     ;;
-  "amd64" | "arm64")
+  "amd64")
     case "${TRAVIS_DIST}" in
     "trusty")
       travis_jdk_trusty "$version"
@@ -21,6 +21,9 @@ travis_install_jdk() {
       travis_install_jdk_package_bellsoft "$version"
       ;;
     esac
+    ;;
+  "arm64")
+    travis_install_jdk_package_bellsoft "$version"
     ;;
   esac
 }
