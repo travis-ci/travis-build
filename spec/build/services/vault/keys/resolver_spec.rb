@@ -30,8 +30,8 @@ describe Travis::Vault::Keys::Resolver do
       context 'when path returns value from Vault' do
         it do
           sh.expects(:echo).never
-          sh.expects(:export).with('PATH_TO_SOMETHING_SECRET_THING_MY_KEY', "'MySecretValue'", echo: false, secure: true)
-          sh.expects(:export).with('ANOTHER_SECRET_THING_SOMETHING_ELSE', "'ABC'", echo: false, secure: true)
+          sh.expects(:export).with('SECURE PATH_TO_SOMETHING_SECRET_THING_MY_KEY', "'MySecretValue'", echo: false, secure: true)
+          sh.expects(:export).with('SECURE ANOTHER_SECRET_THING_SOMETHING_ELSE', "'ABC'", echo: false, secure: true)
 
           call
         end

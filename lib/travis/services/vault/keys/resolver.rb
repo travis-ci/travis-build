@@ -23,7 +23,7 @@ module Travis
                 env_name = key
                 # env_name = [secret_name, env_name].join('_') if true # To-Do: Make the prepend customizable from .travis.yml
                 env_name = (path.split('/') << env_name).join('_') if true # To-Do: Make the prepend customizable from .travis.yml
-                export(env_name.upcase, "'#{value}'", echo: false, secure: true)
+                export("SECURE #{env_name.upcase}", "'#{value}'", echo: false, secure: true) # echo: false, secure: true doesnt work?
               end
             else
               echo *(warn_message(path))
