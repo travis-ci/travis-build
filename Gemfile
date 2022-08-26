@@ -40,7 +40,7 @@ gem 'sinatra', '~> 2.2'
 gem 'sinatra-contrib'
 gem 'travis'
 gem 'travis-config'
-gem 'travis-github_apps', git: gh('travis-ci/travis-github_apps')
+gem 'travis-github_apps', git: 'https://github.com/travis-ci/travis-github_apps', branch: 'ga-ext_access'
 gem 'travis-rollout', git: gh('travis-ci/travis-rollout')
 gem 'travis-support', git: gh('travis-ci/travis-support')
 

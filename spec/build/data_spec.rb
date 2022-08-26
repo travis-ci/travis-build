@@ -115,5 +115,37 @@ describe Travis::Build::Data do
       it { expect(data.source_ssh?).to be nil }
       it { expect(data.token).to eq 'access_token' }
     end
+
+    describe 'source_ssh is true for public enterprise repository' do
+      let(:config) { {oauth_token: 'access_token', prefer_https: false, repository: { installation_id: 1, private: false, vcs_id: 123} } }
+      let(:data) { Travis::Build::Data.new(config) }
+
+      before {
+        Travis::GithubApps.any_instance.stubs(:access_token).returns 'access_token'
+        ENV['TRAVIS_ENTERPRISE'] = 'true'
+      }
+      after {
+        ENV['TRAVIS_ENTERPRISE'] = nil
+      }
+      it { expect(data.installation?).to be true }
+      it { expect(data.source_ssh?).to be false }
+      it { expect(data.token).to eq 'access_token' }
+    end
+
+    describe 'source_ssh is true for public enterprise repository if custom key is present' do
+      let(:config) { {oauth_token: 'access_token', prefer_https: false, repository: { installation_id: 1, private: false, vcs_id: 123}, ssh_key: { value: TEST_PRIVATE_KEY, source: 'repository_settings' } } }
+      let(:data) { Travis::Build::Data.new(config) }
+
+      before {
+        Travis::GithubApps.any_instance.stubs(:access_token).returns 'access_token'
+        ENV['TRAVIS_ENTERPRISE'] = 'true'
+      }
+      after {
+        ENV['TRAVIS_ENTERPRISE'] = nil
+      }
+      it { expect(data.installation?).to be true }
+      it { expect(data.source_ssh?).to be true }
+      it { expect(data.token).to eq 'access_token' }
+    end
   end
 end
