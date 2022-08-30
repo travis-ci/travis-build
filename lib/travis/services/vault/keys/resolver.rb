@@ -4,7 +4,9 @@ module Travis
       class Resolver
         attr_reader :paths, :version, :appliance
 
-        delegate :export, :echo, to: 'appliance.sh'
+        delegate :data, to: :appliance
+        delegate :vault, to: :appliance
+        delegate :export, :echo, to: :'appliance.sh'
 
         def initialize(paths, version, appliance)
           @paths = paths
@@ -15,20 +17,26 @@ module Travis
         def call
           return if paths.blank?
 
+          vault_secrets = []
+
           paths.each do |path|
-            secret_data = Keys.const_get(version.upcase).resolve(path, appliance.vault)
+            secret_data = Keys.const_get(version.upcase).resolve(path, vault)
             if secret_data.present?
               secret_name = path.split('/').last
+              values = []
               secret_data.each do |key, value|
                 env_name = key
                 env_name = [secret_name, env_name].join('_') if true # To-Do: Make the prepend customizable from .travis.yml
                 env_name = (path.split('/') << env_name).join('_') if false # To-Do: Make the prepend customizable from .travis.yml
                 export(env_name.upcase, %("#{value}"), echo: false, secure: true)
+                vault_secrets << value
               end
             else
               echo *(warn_message(path))
             end
           end
+
+          data.vault_secrets = vault_secrets
         end
 
         private

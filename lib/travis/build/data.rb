@@ -125,6 +125,14 @@ module Travis
         Array(data[:secrets])
       end
 
+      def vault_secrets=(v_secrets)
+        data[:vault_secrets] = Array(v_secrets)
+      end
+
+      def vault_secrets
+        Array(data[:vault_secrets])
+      end
+
       def disable_sudo?
         !!data[:paranoid]
       end
