@@ -35,7 +35,7 @@ module Travis
             end
           end
 
-          data.vault_secrets = vault_secrets if vault_secrets.present?
+          data.vault_secrets = vault_secrets.uniq if vault_secrets.present?
         end
 
         private

@@ -21,10 +21,11 @@ describe Travis::Vault::Keys::Resolver do
     end
 
     context 'when paths are not empty' do
-      let(:paths) { %w[path/to/something/secret_thing another/secret_thing] }
+      let(:paths) { %w[path/to/something/secret_thing another/secret_thing another/secret_thing] }
 
       before do
         Travis::Vault::Keys::KV2.stubs(:resolve).with(paths.first, vault).returns({ my_key: 'MySecretValue' })
+        Travis::Vault::Keys::KV2.stubs(:resolve).with(paths[1], vault).returns({ something_else: 'ABC' })
         Travis::Vault::Keys::KV2.stubs(:resolve).with(paths.last, vault).returns({ something_else: 'ABC' })
       end
 
@@ -32,7 +33,7 @@ describe Travis::Vault::Keys::Resolver do
         it do
           sh.expects(:echo).never
           sh.expects(:export).with('SECRET_THING_MY_KEY', %("MySecretValue"), echo: false, secure: true)
-          sh.expects(:export).with('SECRET_THING_SOMETHING_ELSE', %("ABC"), echo: false, secure: true)
+          sh.expects(:export).with('SECRET_THING_SOMETHING_ELSE', %("ABC"), echo: false, secure: true).twice
           data.expects(:vault_secrets=).with(%w[MySecretValue ABC])
 
           call
