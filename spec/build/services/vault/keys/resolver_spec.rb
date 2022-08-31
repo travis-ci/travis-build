@@ -4,7 +4,8 @@ describe Travis::Vault::Keys::Resolver do
   describe '#call' do
     let(:sh) { stub('sh') }
     let(:vault) { stub('vault') }
-    let(:appliance) { stub(sh: sh, vault: vault) }
+    let(:data) { stub('data') }
+    let(:appliance) { stub(sh: sh, vault: vault, data: data) }
     let(:instance) { described_class.new(paths, 'kv2', appliance) }
 
     subject(:call) { instance.call }
@@ -32,6 +33,7 @@ describe Travis::Vault::Keys::Resolver do
           sh.expects(:echo).never
           sh.expects(:export).with('SECRET_THING_MY_KEY', %("MySecretValue"), echo: false, secure: true)
           sh.expects(:export).with('SECRET_THING_SOMETHING_ELSE', %("ABC"), echo: false, secure: true)
+          data.expects(:vault_secrets=).with(%w[MySecretValue ABC])
 
           call
         end
@@ -51,6 +53,7 @@ describe Travis::Vault::Keys::Resolver do
         sh.expects(:export).never
         sh.expects(:echo).with('The value fetched for path/to/something/secret_thing is blank.', ansi: :yellow)
         sh.expects(:echo).with('The value fetched for another/secret_thing is blank.', ansi: :yellow)
+        data.expects(:vault_secrets=).never
 
         call
       end

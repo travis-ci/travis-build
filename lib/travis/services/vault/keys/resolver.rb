@@ -23,7 +23,6 @@ module Travis
             secret_data = Keys.const_get(version.upcase).resolve(path, vault)
             if secret_data.present?
               secret_name = path.split('/').last
-              values = []
               secret_data.each do |key, value|
                 env_name = key
                 env_name = [secret_name, env_name].join('_') if true # To-Do: Make the prepend customizable from .travis.yml
@@ -36,7 +35,7 @@ module Travis
             end
           end
 
-          data.vault_secrets = vault_secrets
+          data.vault_secrets = vault_secrets if vault_secrets.present?
         end
 
         private
