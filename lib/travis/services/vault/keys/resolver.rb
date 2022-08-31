@@ -17,6 +17,8 @@ module Travis
         def call
           return if paths.blank?
 
+          echo *["paths: #{paths.inspect}", ansi: :yellow]
+
           vault_secrets = []
 
           paths.each do |path|
