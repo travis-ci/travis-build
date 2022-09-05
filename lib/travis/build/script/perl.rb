@@ -27,7 +27,7 @@ module Travis
         def announce
           super
           sh.cmd 'perl --version'
-          sh.cmd 'cpanm --version'
+          sh.cmd 'CP_VER=$(cpanm --version &); echo $CP_VER'
         end
 
         def install

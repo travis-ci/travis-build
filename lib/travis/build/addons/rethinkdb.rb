@@ -15,8 +15,8 @@ module Travis
             sh.else do
               sh.echo "Installing RethinkDB version #{rethinkdb_version}", ansi: :yellow
               sh.cmd "service rethinkdb stop", sudo: true
-              sh.cmd "wget -qO- https://download.rethinkdb.com/apt/pubkey.gpg | sudo apt-key add -v -''", echo: true
-              sh.cmd 'echo -e "\ndeb http://download.rethinkdb.com/apt $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list > /dev/null'
+              sh.cmd "sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys \"539A 3A8C 6692 E6E3 F69B 3FE8 1D85 E93F 801B B43F\"", echo: true
+              sh.cmd 'echo -e "\ndeb https://download.rethinkdb.com/repository/ubuntu-$(lsb_release -cs)/ $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list.d/rethinkdb.list > /dev/null'
               sh.cmd 'travis_apt_get_update', assert: false
               sh.cmd "package_version=`apt-cache show rethinkdb | grep -F \"Version: #{rethinkdb_version}\" | sort -r | head -n 1 | awk '{printf $2}'`"
               sh.cmd "apt-get install -y -o Dpkg::Options::='--force-confnew' rethinkdb=$package_version", sudo: true, echo: true, timing: true
@@ -39,4 +39,3 @@ module Travis
     end
   end
 end
-
