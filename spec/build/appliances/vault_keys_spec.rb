@@ -3,6 +3,10 @@ require 'spec_helper'
 describe Travis::Build::Appliances::VaultKeys do
   let(:instance) { described_class.new }
 
+  before do
+    described_class.already_invoked = nil
+  end
+
   describe '#vault' do
     it do
       expect(instance.respond_to?(:vault)).to be(true)

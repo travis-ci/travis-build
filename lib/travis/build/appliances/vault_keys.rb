@@ -9,12 +9,19 @@ module Travis
 
         attr_reader :vault
 
+        class << self
+          attr_accessor :already_invoked
+        end
+
         def apply?
+          return false if self.class.already_invoked
+
           @vault = config[:vault] if config.dig(:vault, :secrets).present?
         end
 
         def apply
           Travis::Vault::Keys.new(self).resolve
+          self.class.already_invoked = true
         rescue Travis::Vault::RootKeyError
           sh.echo *ERROR_MESSAGE
           sh.terminate

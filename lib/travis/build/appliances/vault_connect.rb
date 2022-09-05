@@ -8,7 +8,13 @@ module Travis
         ERROR_MESSAGE = ["Failed to connect to the Vault instance. Please verify if:\n* The Vault Token is correct (encrypted, not plain text). \n* The Vault Token is not expired. \n* The Vault can accept connections from the Travis CI build job environments (https://docs.travis-ci.com/user/ip-addresses/).", ansi: :red].freeze
         SUCCESS_MESSAGE = ['Connected to Vault instance.', ansi: :green].freeze
 
+        class << self
+          attr_accessor :already_invoked
+        end
+
         def apply?
+          return false if self.class.already_invoked
+
           @vault = config[:vault] if (config.dig(:vault, :secrets) || []).flatten.any? { |el| el.is_a?(String) }
         end
 
@@ -17,6 +23,7 @@ module Travis
           sh.echo *SUCCESS_MESSAGE
           sh.export('VAULT_ADDR', @vault[:api_url], echo: true, secure: true)
           sh.export('VAULT_TOKEN', @vault[:token], echo: true, secure: true)
+          self.class.already_invoked = true
         rescue Travis::Vault::ConnectionError, ArgumentError, URI::InvalidURIError => _e
           sh.echo *ERROR_MESSAGE
           sh.terminate

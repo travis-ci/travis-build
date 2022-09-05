@@ -3,6 +3,10 @@ require 'spec_helper'
 describe Travis::Build::Appliances::VaultConnect do
   let(:instance) { described_class.new }
 
+  before do
+    described_class.already_invoked = nil
+  end
+
   describe '#apply?' do
     subject(:apply?) { instance.apply? }
 
