@@ -16,6 +16,12 @@ travis_setup_postgresql() {
     bionic)
       version='10'
       ;;
+    focal)
+      version='12'
+      ;;
+    jammy)
+      version='14'
+      ;;
     *)
       echo -e "${ANSI_RED}Unrecognized operating system.${ANSI_CLEAR}"
       ;;

@@ -49,6 +49,8 @@ module Travis
           trusty: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_TRUSTY', ''),
           xenial: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_XENIAL', ''),
           bionic: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_BIONIC', ''),
+          focal: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_FOCAL', ''),
+          jammy: ENV.fetch('TRAVIS_BUILD_APT_PACKAGE_SAFELIST_JAMMY', ''),
         },
         apt_proxy: ENV.fetch('TRAVIS_BUILD_APT_PROXY', ''),
         apt_source_safelist: {
@@ -56,6 +58,8 @@ module Travis
           trusty: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_SAFELIST_TRUSTY', ''),
           xenial: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_SAFELIST_XENIAL', ''),
           bionic: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_SAFELIST_BIONIC', ''),
+          focal: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_FOCAL', ''),
+          jammy: ENV.fetch('TRAVIS_BUILD_APT_SOURCE_ALIAS_LIST_JAMMY', ''),
         },
         apt_source_safelist_key_url_template: ENV.fetch(
           'TRAVIS_BUILD_APT_SOURCE_SAFELIST_KEY_URL_TEMPLATE',
@@ -84,7 +88,7 @@ module Travis
         go_version: ENV.fetch('TRAVIS_BUILD_GO_VERSION', '1.11.x'),
         internal_ruby_regex: ENV.fetch(
           'TRAVIS_BUILD_INTERNAL_RUBY_REGEX',
-          '^ruby-(2\.[0-4]\.[0-9]|1\.9\.3)'
+          '^ruby-(2\.[6-7]\.[0-9]|1\.9\.3)'
         ),
         lang_archive_host: ENV.fetch('TRAVIS_LANGUAGE_ARCHIVE_HOST', 's3'),
         librato: {

@@ -14,6 +14,8 @@ module Travis
           trusty
           xenial
           bionic
+          focal
+          jammy
         ).freeze
 
         class << self
