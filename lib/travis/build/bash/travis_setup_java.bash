@@ -32,7 +32,7 @@ travis_setup_java() {
     export JAVA_HOME="$jdkpath"
     export PATH="$JAVA_HOME/bin:$PATH"
     if [[ -f ~/.bash_profile.d/travis_jdk.bash ]]; then
-      sed -i ",export JAVA_HOME=,s,=.\\+,=\"$JAVA_HOME\"," ~/.bash_profile.d/travis_jdk.bash
+      sed -i "/export JAVA_HOME=/s,=.\\+,=\"$JAVA_HOME\"," ~/.bash_profile.d/travis_jdk.bash
     fi
   fi
 }
