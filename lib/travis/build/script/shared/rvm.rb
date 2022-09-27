@@ -122,7 +122,7 @@ module Travis
           def use_ruby_version_file
             sh.fold('rvm') do
               sh.if '-n $(grep "^3" .ruby-version)' do
-                sh.if "$(command -v sw_vers)" do
+                sh.if '$(uname) = "Darwin"' do
                   sh.echo "Installing Ruby (skipping rvm update)", ansi: :yellow
                 end 
                 sh.else do
