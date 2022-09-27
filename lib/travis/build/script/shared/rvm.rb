@@ -122,7 +122,12 @@ module Travis
           def use_ruby_version_file
             sh.fold('rvm') do
               sh.if '-n $(grep "^3" .ruby-version)' do
-                sh.cmd 'rvm get head'
+                sh.if "$(command -v sw_vers)" do
+                  sh.echo "Skipping rvm update on macOS", ansi: :yellow
+                end 
+                sh.else do
+                  sh.cmd 'rvm get head'  
+                end                
               end
               sh.cmd 'rvm use $(< .ruby-version) --install --binary --fuzzy'
             end
@@ -161,7 +166,7 @@ module Travis
               else
                 if ruby_version.start_with? '3'
                   sh.if "$(command -v sw_vers)" do
-                    sh.echo "Skiping rvm get head on macOS", ansi: :yellow
+                    sh.echo "Skipping rvm update on macOS", ansi: :yellow
                   end
                   sh.else do
                     sh.cmd "rvm get head"
