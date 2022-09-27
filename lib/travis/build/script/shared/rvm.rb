@@ -165,8 +165,8 @@ module Travis
                 end
               else
                 if ruby_version.start_with? '3'
-                  sh.if "$(command -v sw_vers)" do
-                    sh.echo "Skipping rvm update on macOS", ansi: :yellow
+                  sh.if '$(uname) = "Darwin"' do
+                    sh.echo "Installing Ruby (skipping rvm update)", ansi: :yellow
                   end
                   sh.else do
                     sh.cmd "rvm get head"
