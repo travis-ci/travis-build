@@ -123,7 +123,7 @@ module Travis
             sh.fold('rvm') do
               sh.if '-n $(grep "^3" .ruby-version)' do
                 sh.if "$(command -v sw_vers)" do
-                  sh.echo "Skipping rvm update on macOS", ansi: :yellow
+                  sh.echo "Installing Ruby (skipping rvm update)", ansi: :yellow
                 end 
                 sh.else do
                   sh.cmd 'rvm get head'  
