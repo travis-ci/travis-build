@@ -4,7 +4,7 @@ describe Travis::Build::Script::Scala, :sexp do
   let(:data)   { payload_for(:push, :scala) }
   let(:script) { described_class.new(data) }
   let(:sbt_path) { '/usr/local/bin/sbt'}
-  let(:sbt_sha) { '4ad1b8a325f75c1a66f3fd100635da5eb28d9c91'}
+  let(:sbt_sha) { '4d558c88ae6ae240e7a5eedc0cf33cc9e7bd0e58'}
   let(:sbt_url) { "https://build.travis-ci.org/files/sbt"}
 
   before do

@@ -42,8 +42,8 @@ describe Travis::Build::Script::Perl, :sexp do
     should include_sexp [:cmd, 'perl --version', echo: true]
   end
 
-  it 'announces cpanm --version' do
-    should include_sexp [:cmd, 'cpanm --version', echo: true]
+  it 'announces CP_VER=$(cpanm --version &); echo $CP_VER' do
+    should include_sexp [:cmd, 'CP_VER=$(cpanm --version &); echo $CP_VER', echo: true]
   end
 
   it 'installs' do

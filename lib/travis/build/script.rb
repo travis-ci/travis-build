@@ -28,6 +28,7 @@ require 'travis/build/script/generic'
 require 'travis/build/script/haskell'
 require 'travis/build/script/haxe'
 require 'travis/build/script/julia'
+require 'travis/build/script/matlab'
 require 'travis/build/script/nix'
 require 'travis/build/script/node_js'
 require 'travis/build/script/elm'
@@ -339,7 +340,7 @@ module Travis
           apply :update_heroku
           apply :shell_session_update
           apply :git_v2
-          apply :set_docker_mtu
+          apply :set_docker_mtu_and_registry_mirrors
           apply :resolvconf
           apply :maven_central_mirror
           apply :maven_https
@@ -481,7 +482,7 @@ module Travis
 
           sh.fold "workspaces_use" do
             ws_names.each do |name|
-              sh.echo "Fetching workspace #{name}", ansi: :green
+              sh.echo "Fetching workspace #{shesc(name)}", ansi: :green
               ws = Travis::Build::Script::Workspace.new(sh, data, name, [], :use)
               ws.install_casher
               ws.fetch
@@ -507,7 +508,7 @@ module Travis
                   "or an array of such hashes", ansi: :yellow
                 next
               end
-              sh.echo "Workspace: #{cfg[:name]}", ansi: :green
+              sh.echo "Workspace: #{shesc(cfg[:name])}", ansi: :green
               ws = Travis::Build::Script::Workspace.new(sh, data, cfg[:name], cfg[:paths], :create)
               ws.install_casher
               ws.compress
