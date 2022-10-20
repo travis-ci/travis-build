@@ -1,8 +1,8 @@
 require 'shellwords'
 
 module Travis
-  module Build
-    class Git
+  module Vcs
+    class Git < Base
       class Submodules < Struct.new(:sh, :data)
         def apply
           sh.if '-f .gitmodules' do

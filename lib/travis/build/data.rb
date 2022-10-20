@@ -100,7 +100,7 @@ module Travis
       def ssh_key
         @ssh_key ||= if ssh_key = data[:ssh_key]
           SshKey.new(ssh_key[:value], ssh_key[:source], ssh_key[:encoded])
-        elsif data[:config] && source_key = data[:config][:source_key]
+        elsif source_key = data[:config][:source_key]
           SshKey.new(source_key, nil, true)
         end
       end
@@ -123,6 +123,14 @@ module Travis
 
       def secrets
         Array(data[:secrets])
+      end
+
+      def vault_secrets=(v_secrets)
+        data[:vault_secrets] = Array(v_secrets)
+      end
+
+      def vault_secrets
+        Array(data[:vault_secrets])
       end
 
       def disable_sudo?

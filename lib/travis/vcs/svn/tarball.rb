@@ -1,9 +1,9 @@
 module Travis
-  module Build
-    class Git
+  module Vcs
+    class Svn < Base
       class Tarball < Struct.new(:sh, :data)
         def apply
-          sh.fold 'git.tarball' do
+          sh.fold 'svn.tarball' do
             mkdir
             download
             extract
