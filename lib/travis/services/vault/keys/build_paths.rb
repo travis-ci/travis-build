@@ -22,8 +22,7 @@ module Travis
         def format_paths(secret)
           return secret if secret.is_a?(String)
           return [] if secret[:namespace].blank?
-
-          namespace_name = secret[:namespace].find { |el| el.try(:dig, :name) }&.dig(:name)
+          namespace_name = secret[:namespace].find { |el| el.is_a?(Hash) && el&.dig(:name) }&.dig(:name)
 
           return secret[:namespace] if namespace_name.blank?
 
