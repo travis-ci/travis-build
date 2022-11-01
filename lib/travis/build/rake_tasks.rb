@@ -237,9 +237,9 @@ module Travis
       end
 
       def file_update_gimme
-        latest_release = latest_release_for('travis-ci/gimme')
+        latest_release = latest_release_for('urfave/gimme')
         logger.info "Latest gimme release is #{latest_release}"
-        fetch_githubusercontent_file "travis-ci/gimme/#{latest_release}/gimme"
+        fetch_githubusercontent_file "urfave/gimme/#{latest_release}/gimme"
       end
 
       def file_update_godep_for_darwin

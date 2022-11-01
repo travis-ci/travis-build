@@ -72,13 +72,13 @@ describe 'travis_prepare_go', integration: true do
     expect(result[:out].read).to include('no ~/.gvm yay')
   end
 
-  context 'when gimme>=1.5.3 is already installed' do
+  context 'when gimme>=1.7.0 is already installed' do
     it 'bootstraps the default go and warms the known version cache' do
       result = run_script(
         'travis_prepare_go',
         <<~BASH
           #{script_header}
-          GIMME_VERSION=v1.5.3
+          GIMME_VERSION=v1.7.0
           apk add --no-cache curl grep
 
           travis_prepare_go "${GIMME_URL}" "1.7.6"
@@ -93,7 +93,7 @@ describe 'travis_prepare_go', integration: true do
     end
   end
 
-  context 'when gimme<1.5.3 is already installed' do
+  context 'when gimme<1.7.0 is already installed' do
     it 'updates gimme, bootstraps the default go, and warms the known version cache' do
       result = run_script(
         'travis_prepare_go',

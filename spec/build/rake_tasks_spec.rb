@@ -27,7 +27,7 @@ describe Travis::Build::RakeTasks do
         creationix/nvm
         tmate-io/tmate
         tools/godep
-        travis-ci/gimme
+        urfave/gimme
       ].each do |repo_slug|
         stub.get("/repos/#{repo_slug}/releases") do |*|
           releases_response('v1.2.3', 'v1.2.5')
@@ -52,14 +52,14 @@ describe Travis::Build::RakeTasks do
         /sc-linux.tar.gz
         /sc-osx.zip
         /travis-ci/casher/bash/bin/casher
-        /travis-ci/gimme/v1.2.5/gimme
+        /urfave/gimme/v1.2.5/gimme
       ].each do |filepath|
         stub.get(filepath) do |*|
           [200, { 'Content-Type' => 'application/octet-stream' }, "\xa1"]
         end
       end
 
-      stub.get('/travis-ci/gimme/master/.testdata/sample-binary-linux') do |*|
+      stub.get('/urfave/gimme/main/.testdata/sample-versions.txt') do |*|
         [
           200,
           { 'Content-Type' => 'text/plain' },

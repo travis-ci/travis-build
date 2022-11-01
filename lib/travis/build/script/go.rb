@@ -77,7 +77,7 @@ module Travis
 
         private def gimme_url
           cleaned = URI.parse(gimme_config[:url]).to_s.output_safe
-          return cleaned if cleaned =~ %r{^https://raw\.githubusercontent\.com/travis-ci/gimme}
+          return cleaned if cleaned =~ %r{^https://raw\.githubusercontent\.com/urfave/gimme}
           DEFAULTS[:gimme_config][:url]
         rescue URI::InvalidURIError => e
           warn e
