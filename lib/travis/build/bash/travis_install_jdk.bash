@@ -10,6 +10,7 @@ travis_install_jdk() {
   vm="hotspot"
 
   if [[ "$vendor" == "openj9" ]]; then
+    vm="openj9"
     travis_install_jdk_package_adoptopenjdk "$version" "$vm"
   else
     case "${TRAVIS_CPU_ARCH}" in
