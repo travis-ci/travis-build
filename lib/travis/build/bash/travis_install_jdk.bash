@@ -1,31 +1,37 @@
 travis_install_jdk() {
   # shellcheck disable=SC2034
-  local url vendor version license jdk certlink
+  local url vendor version license jdk certlink vm
   # shellcheck disable=SC2034
   jdk="$1"
   # shellcheck disable=SC2034
   vendor="$2"
   # shellcheck disable=SC2034
   version="$3"
+  vm="hotspot"
 
-  case "${TRAVIS_CPU_ARCH}" in
-  "s390x" | "ppc64le")
-    travis_install_jdk_package_adoptopenjdk "$version"
-    ;;
-  "amd64")
-    case "${TRAVIS_DIST}" in
-    "trusty")
-      travis_jdk_trusty "$version"
+  if [[ "$vendor" == "openj9" ]]; then
+    travis_install_jdk_package_adoptopenjdk "$version" "$vm"
+  else
+    case "${TRAVIS_CPU_ARCH}" in
+    "s390x" | "ppc64le")
+      travis_install_jdk_package_adoptopenjdk "$version" "$vm"
       ;;
-    *)
+    "amd64")
+      case "${TRAVIS_DIST}" in
+      "trusty")
+        travis_jdk_trusty "$version"
+        ;;
+      *)
+        travis_install_jdk_package_bellsoft "$version"
+        ;;
+      esac
+      ;;
+    "arm64")
       travis_install_jdk_package_bellsoft "$version"
       ;;
     esac
-    ;;
-  "arm64")
-    travis_install_jdk_package_bellsoft "$version"
-    ;;
-  esac
+  fi
+
 }
 
 # Trusty image issues with new jdk provider
@@ -43,7 +49,7 @@ travis_install_jdk_package_adoptopenjdk() {
   local JAVA_VERSION
   JAVA_VERSION="$1"
   sudo apt-get update -yqq
-  PACKAGE="adoptopenjdk-${JAVA_VERSION}-hotspot"
+  PACKAGE="adoptopenjdk-${JAVA_VERSION}-${vm}"
   if ! dpkg -s "$PACKAGE" >/dev/null 2>&1; then
     if dpkg-query -l adoptopenjdk* >/dev/null 2>&1; then
       dpkg-query -l adoptopenjdk* | grep adoptopenjdk | awk '{print $2}' | xargs sudo dpkg -P
