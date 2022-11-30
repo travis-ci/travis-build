@@ -1,49 +1,45 @@
 travis_install_jdk() {
+  # shellcheck disable=SC2034
   local url vendor version license jdk certlink
+  # shellcheck disable=SC2034
   jdk="$1"
+  # shellcheck disable=SC2034
   vendor="$2"
+  # shellcheck disable=SC2034
   version="$3"
 
   case "${TRAVIS_CPU_ARCH}" in
-  "arm64" | "s390x" | "ppc64le")
-    travis_install_jdk_package "$version"
+  "s390x" | "ppc64le")
+    travis_install_jdk_package_adoptopenjdk "$version"
     ;;
-  *)
-    travis_install_jdk_ext_provider "$jdk" "$vendor" "$version"
+  "amd64")
+    case "${TRAVIS_DIST}" in
+    "trusty")
+      travis_jdk_trusty "$version"
+      ;;
+    *)
+      travis_install_jdk_package_bellsoft "$version"
+      ;;
+    esac
+    ;;
+  "arm64")
+    travis_install_jdk_package_bellsoft "$version"
     ;;
   esac
 }
 
-travis_install_jdk_ext_provider() {
-  local url vendor version license jdk certlink
-  jdk="$1"
-  vendor="$2"
-  version="$3"
-  if [[ "$vendor" == openjdk ]]; then
-    license=GPL
-  elif [[ "$vendor" == oracle ]]; then
-    license=BCL
-  fi
-  mkdir -p ~/bin
-  url="https://$TRAVIS_APP_HOST/files/install-jdk.sh"
-  if ! travis_download "$url" ~/bin/install-jdk.sh; then
-    url="https://raw.githubusercontent.com/sormuras/bach/releases/11/install-jdk.sh"
-    travis_download "$url" ~/bin/install-jdk.sh || {
-      echo "${ANSI_RED}Could not acquire install-jdk.sh. Stopping build.${ANSI_RESET}" >/dev/stderr
-      travis_terminate 2
-    }
-  fi
-  chmod +x ~/bin/install-jdk.sh
-  travis_cmd "export JAVA_HOME=~/$jdk" --echo
-  # shellcheck disable=SC2016
-  travis_cmd 'export PATH="$JAVA_HOME/bin:$PATH"' --echo
-  [[ "$TRAVIS_OS_NAME" == linux && "$vendor" == openjdk ]] && certlink=" --cacerts"
-  # shellcheck disable=2088
-  travis_cmd "~/bin/install-jdk.sh --target \"$JAVA_HOME\" --workspace \"$TRAVIS_HOME/.cache/install-jdk\" --feature \"$version\" --license \"$license\"$certlink" --echo --assert
+# Trusty image issues with new jdk provider
+travis_jdk_trusty() {
+  local JAVA_VERSION
+  JAVA_VERSION="$1"
+  sudo apt-get update -yqq
+  PACKAGE="java-${JAVA_VERSION}-openjdk-amd64"
+  sudo apt install openjdk-"$JAVA_VERSION"-jdk
+  travis_cmd "export JAVA_HOME=/usr/lib/jvm/$PACKAGE" --echo
+  travis_cmd "export PATH=$JAVA_HOME/bin:$PATH" --echo
 }
 
-travis_install_jdk_package() {
-
+travis_install_jdk_package_adoptopenjdk() {
   local JAVA_VERSION
   JAVA_VERSION="$1"
   sudo apt-get update -yqq
@@ -56,6 +52,25 @@ travis_install_jdk_package() {
     sudo add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/
     sudo apt-get update -yqq
     sudo apt-get -yqq --no-install-suggests --no-install-recommends install "$PACKAGE" || true
+    sudo update-java-alternatives -s "$PACKAGE"*
+  fi
+}
+
+travis_install_jdk_package_bellsoft() {
+  local JAVA_VERSION
+  JAVA_VERSION="$1"
+  sudo apt-get update -yqq
+  if [[ "$JAVA_VERSION" == "8" ]]; then
+    JAVA_VERSION="1.8.0"
+  fi
+  PACKAGE="bellsoft-java${JAVA_VERSION}"
+  if ! dpkg -s "$PACKAGE" >/dev/null 2>&1; then
+    wget -qO - https://download.bell-sw.com/pki/GPG-KEY-bellsoft | sudo apt-key add -
+    sudo add-apt-repository "deb [arch=$TRAVIS_CPU_ARCH] https://apt.bell-sw.com/ stable main"
+    sudo apt-get update -yqq
+    sudo apt-get -yqq --no-install-suggests --no-install-recommends install "$PACKAGE" || true
+    travis_cmd "export JAVA_HOME=/usr/lib/jvm/bellsoft-java${JAVA_VERSION}-${TRAVIS_CPU_ARCH}" --echo
+    travis_cmd "export PATH=$JAVA_HOME/bin:$PATH" --echo
     sudo update-java-alternatives -s "$PACKAGE"*
   fi
 }

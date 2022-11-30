@@ -54,6 +54,7 @@ module Travis
                 sh.echo "Updating leiningen to #{version}", ansi: :yellow
                 sh.cmd "env LEIN_ROOT=true curl -L -o /usr/local/bin/lein https://raw.githubusercontent.com/technomancy/leiningen/#{version}/bin/lein", echo: true, assert: true, sudo: true
                 sh.cmd "rm -rf ${TRAVIS_HOME}/.lein", echo: false
+                sh.chmod "+x", "/usr/local/bin/lein", sudo: true
                 sh.cmd "lein self-install", echo: true, assert: true
               end
             end
