@@ -9,7 +9,7 @@ travis_install_jdk() {
   version="$3"
   vm="hotspot"
 
-  if [[ "$vendor" == "openj9" ]]; then
+  if [[ "$vendor" == "eclipse" ]]; then
     vm="openj9"
     travis_install_jdk_package_adoptopenjdk "$version" "$vm"
   else
