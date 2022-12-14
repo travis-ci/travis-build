@@ -1,9 +1,9 @@
 require 'shellwords'
-require 'travis/build/git/netrc'
+require 'travis/vcs/git/netrc'
 
 module Travis
-  module Build
-    class Git
+  module Vcs
+    class Git < Base
       class Clone < Struct.new(:sh, :data)
         def apply
           sh.fold 'git.checkout' do

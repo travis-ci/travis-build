@@ -267,10 +267,10 @@ module Travis
               sh.echo "Building dpl gem locally with source #{source} and branch #{branch}", ansi: :yellow
               cmd("gem uninstall -aIx dpl >& /dev/null",                echo: false, assert: !allow_failure, timing: false)
               sh.cmd("pushd /tmp >& /dev/null",                             echo: false, assert: !allow_failure, timing: true)
-              sh.cmd("git clone https://github.com/#{source} #{source}",    echo: true,  assert: !allow_failure, timing: true)
+              sh.cmd(::Travis::Vcs::Git::clone_cmd('https://github.com',source),    echo: true,  assert: !allow_failure, timing: true)
               sh.cmd("pushd #{source} >& /dev/null",                        echo: false, assert: !allow_failure, timing: true)
-              sh.cmd("git checkout #{branch}",                              echo: true,  assert: !allow_failure, timing: true)
-              sh.cmd("git rev-parse HEAD",                                echo: true,  assert: !allow_failure, timing: true)
+              sh.cmd(::Travis::Vcs::Git::checkout_cmd(branch),                              echo: true,  assert: !allow_failure, timing: true)
+              sh.cmd(::Travis::Vcs::Git::revision_cmd,                                echo: true,  assert: !allow_failure, timing: true)
               cmd("gem build dpl.gemspec",                                  echo: true,  assert: !allow_failure, timing: true)
               sh.raw "for f in dpl-*.gemspec; do"
               sh.raw "  base=${f%*.gemspec}"
