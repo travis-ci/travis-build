@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Travis::Build::Git::Clone, :sexp do
+describe Travis::Vcs::Git::Clone, :sexp do
   let(:payload) { payload_for(:push, :ruby, oauth_token: 'secret') }
   let(:script)  { Travis::Build::Script.new(payload) }
   subject       { sexp_find(script.sexp, [:fold, 'git.tarball']) }

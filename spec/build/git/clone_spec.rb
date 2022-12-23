@@ -1,13 +1,13 @@
 require 'spec_helper'
 
-describe Travis::Build::Git::Clone, :sexp do
+describe Travis::Vcs::Git::Clone, :sexp do
   let(:payload)  { payload_for(:push, :ruby) }
   let(:script)   { Travis::Build::Script.new(payload) }
   subject(:sexp) { script.sexp }
 
   let(:url)    { "https://github.com/#{payload[:repository][:slug]}.git" }
   let(:dir)    { payload[:repository][:slug] }
-  let(:depth)  { Travis::Build::Git::DEFAULTS[:git][:depth] }
+  let(:depth)  { Travis::Vcs::Git::DEFAULTS[:git][:depth] }
   let(:branch) { payload[:job][:branch] || 'master' }
 
   let(:oauth_token) { 'abcdef01234' }

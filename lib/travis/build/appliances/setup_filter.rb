@@ -1,5 +1,4 @@
 require 'travis/build/appliances/base'
-require 'travis/build/git'
 require 'travis/rollout'
 
 module Travis
@@ -64,7 +63,7 @@ module Travis
 
         def apply?
           sh.echo 'Secret environment variables are not obfuscated on Windows, please refer to our documentation: https://docs.travis-ci.com/user/best-practices-security', ansi: 'yellow' if windows?
-          enabled? and secrets.any? and !windows?
+          enabled? && secrets.any? && !windows?
         end
 
         def apply
@@ -106,7 +105,7 @@ module Travis
           end
 
           def secrets
-            @secrets ||= env_secrets.concat(data.secrets).uniq
+            @secrets ||= env_secrets.concat(data.secrets).concat(data.vault_secrets).uniq
           end
 
           def env_secrets

@@ -9,7 +9,8 @@ PAYLOADS = {
     'config' => {
       'os' => 'linux',
       'arch' => 'amd64',
-      'env' => ['FOO=foo', 'SECURE BAR=bar']
+      'env' => ['FOO=foo', 'SECURE BAR=bar'],
+      'server_type' => 'git'
     },
     'repository' => {
       'github_id' => 42,
@@ -39,7 +40,8 @@ PAYLOADS = {
     'host' => 'travis-ci.com',
     'config' => {
       'os' => 'linux',
-      'env' => ['FOO=foo', 'SECURE BAR=bar']
+      'env' => ['FOO=foo', 'SECURE BAR=bar'],
+      'server_type' => 'git'
     },
     'repository' => {
       'github_id' => 42,

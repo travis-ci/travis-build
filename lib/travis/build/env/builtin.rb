@@ -47,6 +47,7 @@ module Travis
               TRAVIS_COMMIT_MESSAGE: '$(test -d .git && git log --format=%B -n 1 | head -c 32768)',
               TRAVIS_COMMIT_RANGE:    job[:commit_range],
               TRAVIS_REPO_SLUG:       repository[:slug],
+              TRAVIS_REPO_PRIVATE:    repository[:private],
               TRAVIS_OSX_IMAGE:       config[:osx_image],
               TRAVIS_LANGUAGE:        config[:language],
               TRAVIS_TAG:             job[:tag],
