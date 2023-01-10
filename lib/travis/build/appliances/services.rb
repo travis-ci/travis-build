@@ -10,7 +10,8 @@ module Travis
           'memcache'     => 'memcached',
           'neo4j-server' => 'neo4j',
           'rabbitmq'     => 'rabbitmq-server',
-          'redis'        => 'redis-server'
+          'redis'        => 'redis-server',
+          'cri-dockerd'  => 'cri_dockerd'
         }
 
         def apply
@@ -20,7 +21,9 @@ module Travis
           sh.else do
             sh.fold 'services' do
               services.each do |name|
+                puts "SVC: #{name.inspect}"
                 service_apply_method = "apply_#{name}"
+                puts "meth: #{service_apply_method}"
                 if respond_to?(service_apply_method)
                   send(service_apply_method)
                   next
@@ -53,6 +56,16 @@ module Travis
           end
           sh.elif '"$TRAVIS_INIT" == systemd' do
             sh.cmd 'sudo systemctl start mongod', echo: true, timing: true
+          end
+        end
+
+        def apply_cri_dockerd
+          sh.if '"$TRAVIS_OS_NAME" != linux' do
+            sh.echo "Addon cri-dockerd is not supported on #{data[:config][:os]}", ansi: :red
+          end
+          sh.else do
+            sh.raw bash('travis_setup_cri-dockerd'), echo: false, timing: false
+            sh.cmd "travis_setup_cri-dockerd", echo: true, timing: true
           end
         end
 
