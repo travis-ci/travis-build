@@ -22,5 +22,5 @@ travis_setup_cri-dockerd() {
     rm -f crictl-${crictl_version}-linux-amd64.tar.gz;
     echo runtime-endpoint: unix:///run/containerd/containerd.sock > /etc/crictl.yaml;
     echo image-endpoint: unix:///run/containerd/containerd.sock >> /etc/crictl.yaml;
-";
+"
 }

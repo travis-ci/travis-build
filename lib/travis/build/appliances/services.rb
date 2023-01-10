@@ -21,9 +21,7 @@ module Travis
           sh.else do
             sh.fold 'services' do
               services.each do |name|
-                puts "SVC: #{name.inspect}"
                 service_apply_method = "apply_#{name}"
-                puts "meth: #{service_apply_method}"
                 if respond_to?(service_apply_method)
                   send(service_apply_method)
                   next
