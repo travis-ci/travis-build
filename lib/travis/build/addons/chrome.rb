@@ -27,6 +27,7 @@ module Travis
               end
               sh.else do
                 sh.cmd "wget#{WGET_FLAGS} -O /tmp/$(basename $CHROME_SOURCE_URL) $CHROME_SOURCE_URL", echo: true, timing: true, retry: true
+                sh.cmd "sudo apt update && sudo apt install -y libu2f-udev"
                 sh.cmd "sudo dpkg -i /tmp/$(basename $CHROME_SOURCE_URL)"
               end
             end
