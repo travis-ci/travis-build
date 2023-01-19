@@ -28,8 +28,9 @@ module Travis
               sh.else do
                 sh.cmd "wget#{WGET_FLAGS} -O /tmp/$(basename $CHROME_SOURCE_URL) $CHROME_SOURCE_URL", echo: true, timing: true, retry: true
                 # sh.cmd "sudo apt -qq update && sudo apt install -y libu2f-udev"
-                sh.cmd "sudo dpkg -i /tmp/$(basename $CHROME_SOURCE_URL)"
-                sh.cmd "sudo apt -qq update && sudo apt-get -f install"
+                sh.cmd "sudo apt -qq update && sudo apt-get install /tmp/$(basename $CHROME_SOURCE_URL)"
+                # sh.cmd "sudo dpkg -i /tmp/$(basename $CHROME_SOURCE_URL)"
+                # sh.cmd "sudo apt -qq update && sudo apt-get -f install"
               end
             end
             sh.elif '$(uname) = "Darwin"' do
