@@ -66,6 +66,7 @@ module Travis
         travis_internal_ruby
         travis_jigger
         travis_jinfo_file
+        travis_key
         travis_nanoseconds
         travis_remove_from_path
         travis_result
