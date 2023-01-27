@@ -29,7 +29,6 @@ module Travis
           sh.newline
 
           npm_disable_prefix
-          npm_disable_spinner
           npm_disable_progress
           npm_disable_strict_ssl unless npm_strict_ssl?
           install_yarn_when_locked
