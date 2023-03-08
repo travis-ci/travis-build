@@ -21,6 +21,6 @@ describe Travis::Build::Addons::TensorFlow, :sexp do
     let(:config) { '2.11' }
 
     it { should include_sexp [:echo, 'Installing TenserFlow version: 2.11', { ansi: :yellow }] }
-    it { should include_sexp [:cmd, "pip install 'tensorflow==2.11' --force-reinstall"] }
+    it { should include_sexp [:cmd, "pip install --trusted-host pip.cache.staging.travis-ci.com -i http://pip.cache.staging.travis-ci.com/root/pypi/+simple/ 'tensorflow==2.11' --force-reinstall"] }
   end
 end
