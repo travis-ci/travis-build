@@ -15,7 +15,7 @@ module Travis
               return
             end
             sh.echo "Installing TenserFlow version: #{version}", ansi: :yellow
-            sh.cmd "pip install --trusted-host pip.cache.staging.travis-ci.com -i http://pip.cache.staging.travis-ci.com/root/pypi/+simple/ 'tensorflow==#{version}' --force-reinstall", sudo: false
+            sh.cmd "pip install --trusted-host pip.cache.travis-ci.com -i http://pip.cache.travis-ci.com/root/pypi/+simple/ 'tensorflow==#{version}' --force-reinstall", sudo: false
           end
         end
 
