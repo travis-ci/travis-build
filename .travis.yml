@@ -57,6 +57,7 @@ after_failure: bundle exec rake dump_examples_logs
 before_deploy:
 - sudo pip install -U -I Pygments
 - ./script/build-s3-index-html
+- "gem install bundler -v 1.17.3" 
 
 deploy:
   provider: s3
