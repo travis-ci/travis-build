@@ -9,9 +9,9 @@ module Travis
         }
 
         CONFIG = %w(
-          rvm_remote_server_url3=https://s3.amazonaws.com/travis-rubies/binaries
-          rvm_remote_server_type3=rubies
-          rvm_remote_server_verify_downloads3=1
+          rvm_remote_server_url=https://s3.amazonaws.com/travis-rubies/binaries
+          rvm_remote_server_type=rubies
+          rvm_remote_server_verify_downloads=1
         )
 
         RVM_VERSION_ALIASES = {
