@@ -21,8 +21,9 @@ describe Travis::Build::Addons::Blender, :sexp do
     let(:config) { '3.4.1' }
 
     it { should include_sexp [:echo, 'Installing Blender version: 3.4.1', { ansi: :yellow }] }
-    it { should include_sexp [:cmd, 'curl https://ftp.halifax.rwth-aachen.de/blender/release/Blender3.4/blender-3.4.1-linux-x64.tar.xz --output blender-3.4.1-linux-x64.tar.xz'] }
-    it { should include_sexp [:cmd, 'tar -xf blender-3.4.1-linux-x64.tar'] }
-    it { should include_sexp [:cmd, 'alias blender=$(pwd)/blender-3.4.1-linux-x64/blender'] }
+    it { should include_sexp [:cmd, 'CURL_USER_AGENT="Travis-CI $(curl --version | head -n 1)"'] }
+    it { should include_sexp [:cmd, 'mkdir ~/blender'] }
+    it { should include_sexp [:cmd, 'curl -A "$CURL_USER_AGENT" -sSf -L --retry 7  https://ftp.halifax.rwth-aachen.de/blender/release/Blender3.4/blender-3.4.1-linux-x64.tar.xz | tar xf - -J -C ~/blender --strip-components 1'] }
+    it { should include_sexp [:cmd, 'alias blender=~/blender/blender'] }
   end
 end

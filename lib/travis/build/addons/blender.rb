@@ -15,9 +15,11 @@ module Travis
               return
             end
             sh.echo "Installing Blender version: #{version}", ansi: :yellow
-            sh.cmd "curl https://ftp.halifax.rwth-aachen.de/blender/release/Blender#{version[/\d+\.\d+/]}/blender-#{version}-linux-x64.tar.xz --output blender-#{version}-linux-x64.tar.xz"
-            sh.cmd "tar -xf blender-#{version}-linux-x64.tar", sudo: false
-            sh.cmd "alias blender=$(pwd)/blender-#{version}-linux-x64/blender"
+            sh.cmd 'CURL_USER_AGENT="Travis-CI $(curl --version | head -n 1)"'
+            sh.cmd 'mkdir ~/blender'
+            sh.cmd "curl -A \"$CURL_USER_AGENT\" -sSf -L --retry 7  https://ftp.halifax.rwth-aachen.de/blender/release/Blender#{version[/\d+\.\d+/]}/blender-#{version}-linux-x64.tar.xz" \
+            ' | tar xf - -J -C ~/blender --strip-components 1'
+            sh.cmd 'alias blender=~/blender/blender'
           end
         end
 
