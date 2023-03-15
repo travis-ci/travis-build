@@ -20,14 +20,11 @@ module Travis
               return
             end
             sh.echo "Installing Blender version: #{version}", ansi: :yellow
-            sh.cmd 'CURL_USER_AGENT="Travis-CI $(curl --version | head -n 1)"'
-            sh.echo 'creating a dir fro blender'
-            sh.cmd 'mkdir ~/blender'
-            sh.echo 'performing curl:'
+            sh.cmd 'CURL_USER_AGENT="Travis-CI $(curl --version | head -n 1)"', echo: true
+            sh.cmd 'mkdir ${TRAVIS_HOME}/blender', echo: true
             sh.cmd "curl -A \"$CURL_USER_AGENT\" -sSf -L --retry 7  https://ftp.halifax.rwth-aachen.de/blender/release/Blender#{version[/\d+\.\d+/]}/blender-#{version}-linux-x64.tar.xz" \
-            ' | tar xf - -J -C ~/blender --strip-components 1'
-            sh.echo 'making an alias..'
-            sh.cmd 'alias blender=~/blender/blender'
+            ' | tar xf - -J -C ${TRAVIS_HOME}/blender --strip-components 1', echo: true
+            sh.cmd "echo 'alias blender=${TRAVIS_HOME}/blender/blender' >> ${TRAVIS_HOME}/.bashrc", echo: true
           end
         end
 
