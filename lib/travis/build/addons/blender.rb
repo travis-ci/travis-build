@@ -9,6 +9,11 @@ module Travis
 
         def after_prepare
           sh.fold 'blender' do
+            if data.config[:os] != 'linux'
+              sh.echo 'Blender is only available for linux', ansi: :red
+              return
+            end
+
             if version.nil?
               sh.echo "Blender: Invalid version '#{raw_version}' given. Valid versions are: #{ALLOWED_VERSIONS.join(', ')}",
                       ansi: :red
