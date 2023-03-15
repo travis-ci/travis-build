@@ -24,7 +24,7 @@ module Travis
             sh.cmd 'mkdir ${TRAVIS_HOME}/blender', echo: true
             sh.cmd "curl -A \"$CURL_USER_AGENT\" -sSf -L --retry 7  https://ftp.halifax.rwth-aachen.de/blender/release/Blender#{version[/\d+\.\d+/]}/blender-#{version}-linux-x64.tar.xz" \
             ' | tar xf - -J -C ${TRAVIS_HOME}/blender --strip-components 1', echo: true
-            sh.cmd "echo 'alias blender=${TRAVIS_HOME}/blender/blender' >> ${TRAVIS_HOME}/.bashrc", echo: true
+            sh.cmd 'PATH=$PATH:${TRAVIS_HOME}/blender', echo: true
           end
         end
 

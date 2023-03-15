@@ -24,6 +24,6 @@ describe Travis::Build::Addons::Blender, :sexp do
     it { should include_sexp [:cmd, 'CURL_USER_AGENT="Travis-CI $(curl --version | head -n 1)"', { echo: true }] }
     xit { should include_sexp [:cmd, 'mkdir ${TRAVIS_HOME}/blender'], { echo: true } }
     it { should include_sexp [:cmd, 'curl -A "$CURL_USER_AGENT" -sSf -L --retry 7  https://ftp.halifax.rwth-aachen.de/blender/release/Blender3.4/blender-3.4.1-linux-x64.tar.xz | tar xf - -J -C ${TRAVIS_HOME}/blender --strip-components 1', { echo: true }] }
-    it { should include_sexp [:cmd, "echo 'alias blender=${TRAVIS_HOME}/blender/blender' >> ${TRAVIS_HOME}/.bashrc", { echo: true }] }
+    it { should include_sexp [:cmd, 'PATH=$PATH:${TRAVIS_HOME}/blender', { echo: true }] }
   end
 end
