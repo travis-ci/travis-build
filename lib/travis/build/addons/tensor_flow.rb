@@ -17,7 +17,7 @@ module Travis
               sh.echo "Invalid version '#{raw_version}' given. Valid versions are: #{ALLOWED_VERSIONS.join(' ')}", ansi: :red
               return
             end
-            sh.echo "Installing TenserFlow version: #{version}", ansi: :yellow
+            sh.echo "Installing TensorFlow version: #{version}", ansi: :yellow
             sh.cmd "pip install --trusted-host pip.cache.travis-ci.com -i http://pip.cache.travis-ci.com/root/pypi/+simple/ tensorflow==#{version}", sudo: false
           end
         end
