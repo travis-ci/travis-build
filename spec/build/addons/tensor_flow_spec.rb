@@ -19,7 +19,7 @@ describe Travis::Build::Addons::TensorFlow, :sexp do
   context 'when version is valid' do
     let(:config) { '2.6.0' }
 
-    it { should include_sexp [:echo, 'Installing TenserFlow version: 2.6.0', { ansi: :yellow }] }
+    it { should include_sexp [:echo, 'Installing TensorFlow version: 2.6.0', { ansi: :yellow }] }
     it { should include_sexp [:cmd, "pip install --trusted-host pip.cache.travis-ci.com -i http://pip.cache.travis-ci.com/root/pypi/+simple/ tensorflow==2.6.0"] }
   end
 end
