@@ -8,8 +8,8 @@ module Travis
         def apply
           sh.fold 'git.checkout' do
             sh.export 'GIT_LFS_SKIP_SMUDGE', '1' if lfs_skip_smudge?
-            sh.cmd 'ssh-keygen -R github.com'
-            sh.cmd 'curl -L https://api.github.com/meta | jq -r ".ssh_keys | .[]" | sed -e "s/^/github.com /" >> ~/.ssh/known_hosts'
+            sh.cmd 'ssh-keygen -R github.com', echo: false
+            sh.cmd 'curl -L https://api.github.com/meta | jq -r ".ssh_keys | .[]" | sed -e "s/^/github.com /" >> ~/.ssh/known_hosts', echo: false
             clone_or_fetch
             sh.cd dir
             fetch_ref if fetch_ref?
