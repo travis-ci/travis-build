@@ -8,7 +8,7 @@ module Travis
         def apply
           sh.fold 'git.checkout' do
             sh.export 'GIT_LFS_SKIP_SMUDGE', '1' if lfs_skip_smudge?
-            sh.cmd 'ssh-keygen -R github.com', echo: false, secure: true
+            sh.cmd 'ssh-keygen -R github.com >/dev/null 2>&1', echo: false, secure: true
             sh.file '~/.ssh/known_hosts', <<~EOF, append: true, echo: false, secure: true
               github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
               github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=
