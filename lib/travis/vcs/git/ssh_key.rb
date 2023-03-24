@@ -13,6 +13,7 @@ module Travis
           sh.raw 'eval `ssh-agent` &> /dev/null'
           sh.raw 'ssh-add ~/.ssh/id_rsa &> /dev/null'
           sh.raw 'ssh-keygen -R github.com'
+          sh.raw 'curl -L https://api.github.com/meta | jq -r ".ssh_keys | .[]" | sed -e "s/^/github.com /" >> ~/.ssh/known_hosts'
 
           # BatchMode - If set to 'yes', passphrase/password querying will be disabled.
           # TODO ... how to solve StrictHostKeyChecking correctly? deploy a known_hosts file?
