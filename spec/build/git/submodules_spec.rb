@@ -8,7 +8,7 @@ describe Travis::Vcs::Git::Clone, :sexp do
   let(:sexp) { sexp_find(subject, [:if, '-f .gitmodules'], [:then]) }
 
   let(:no_host_key_check) { [:file, ['~/.ssh/config', "Host github.com\n\tStrictHostKeyChecking no\n"], append: true] }
-  let(:submodule_update)  { [:cmd, 'git submodule update --init --recursive', assert: true, echo: true, retry: true, timing: true] }
+  let(:submodule_update)  { [:cmd, 'git submodule update --init --recursive --quiet', assert: true, echo: true, retry: true, timing: true] }
 
   describe 'if .gitmodules exists' do
     it { should include_sexp no_host_key_check }
@@ -19,7 +19,7 @@ describe Travis::Vcs::Git::Clone, :sexp do
 
     describe 'if :submodules_depth is given' do
       before { payload[:config][:git] = { submodules_depth: 50 } }
-      it { should include_sexp [:cmd, 'git submodule update --init --recursive --depth=50', assert: true, echo: true, retry: true, timing: true] }
+      it { should include_sexp [:cmd, 'git submodule update --init --recursive --quiet --depth=50', assert: true, echo: true, retry: true, timing: true] }
     end
   end
 
