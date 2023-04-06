@@ -2,6 +2,7 @@
 
 require 'json'
 require 'logger'
+require 'tmpdir'
 require 'pathname'
 require 'date'
 

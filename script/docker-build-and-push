@@ -3,7 +3,7 @@
 set -ev
 
 app_name="web"
-local_image="travis-build_${app_name}"
+local_image="travis-build-${app_name}"
 quay_image=quay.io/travisci/travis-build
 
 unset DOCKER_CERT_PATH
