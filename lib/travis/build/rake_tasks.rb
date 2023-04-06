@@ -57,32 +57,11 @@ module Travis
       end
 
       def latest_release_for(repo)
-        conn = build_faraday_conn(host: 'api.github.com')
-
-        response = conn.get do |req|
-          releases_url = "repos/#{repo}/releases"
-          logger.info "Fetching releases from #{conn.url_prefix}#{releases_url}"
-          req.url releases_url
-          oauth_token = ENV.fetch(
-            'GITHUB_OAUTH_TOKEN', ENV.fetch('no_scope_token', 'notset')
-          )
-          if oauth_token && !oauth_token.empty? && oauth_token != 'notset'
-            logger.info(
-              "Adding 'Authorization' header for api.github.com request"
-            )
-            req.headers['Authorization'] = "token #{oauth_token}"
-          end
+        begin
+          octokit.latest_release(repo)['tag_name']
+        rescue
+          raise "Could not get latest release for #{repo}"
         end
-
-        raise "Could not find releases for #{repo}" unless response.success?
-
-        json_data = JSON.parse(response.body)
-        raise "No releases found for #{repo}" if json_data.empty?
-
-        json_data.sort! do |a, b|
-          semver_cmp(a['tag_name'].sub(/^v/, ''), b['tag_name'].sub(/^v/, ''))
-        end
-        json_data.last['tag_name']
       end
 
       def file_update_sc_data
