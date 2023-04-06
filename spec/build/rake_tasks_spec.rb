@@ -11,29 +11,8 @@ end
 describe Travis::Build::RakeTasks do
   subject { described_class }
 
-  def releases_response(*versions)
-    [
-      200,
-      { 'Content-Type' => 'application/json' },
-      JSON.dump(
-        versions.map { |v| { 'tag_name' => v } }
-      )
-    ]
-  end
-
   let :request_stubs do
     Faraday::Adapter::Test::Stubs.new do |stub|
-      %w[
-        creationix/nvm
-        tmate-io/tmate
-        tools/godep
-        travis-ci/gimme
-      ].each do |repo_slug|
-        stub.get("/repos/#{repo_slug}/releases") do |*|
-          releases_response('v1.2.3', 'v1.2.5')
-        end
-      end
-
       [
         ['tmate-io/tmate', 'tmate-v1.2.5-static-linux-amd64.tar.xz'],
         ['tools/godep', 'godep_darwin_amd64'],
@@ -168,27 +147,36 @@ describe Travis::Build::RakeTasks do
     expect(ghc_versions).to_not be_exist
   end
 
-  %w[
-    public/files/casher
-    public/files/gimme
-    public/files/godep_darwin_amd64
-    public/files/godep_linux_amd64
-    public/files/nvm.sh
-    public/files/rustup-init.sh
-    public/files/sbt
-    public/files/sc-linux.tar.gz
-    public/files/sc-osx.zip
-    public/files/tmate-static-linux-amd64.tar.xz
-    public/version-aliases/ghc.json
-  ].each do |filename|
-    it "can fetch #{filename}" do
-      %w[
-        tmp/ghc-versions.html
-      ].each { |t| Rake::Task[t].reenable }
+  context 'fetch files' do
+    let(:uri_template) { Addressable::Template.new 'https://api.github.com/repos/{owner}/{repo}/releases/latest' }
 
-      Rake::Task[filename].reenable
-      Rake::Task[filename].invoke
-      expect(tmp_top + filename).to be_exist
+    %w[
+      public/files/casher
+      public/files/gimme
+      public/files/godep_darwin_amd64
+      public/files/godep_linux_amd64
+      public/files/nvm.sh
+      public/files/rustup-init.sh
+      public/files/sbt
+      public/files/sc-linux.tar.gz
+      public/files/sc-osx.zip
+      public/files/tmate-static-linux-amd64.tar.xz
+      public/version-aliases/ghc.json
+    ].each do |filename|
+      before do
+        stub_request(:get, uri_template)
+          .to_return(headers: { content_type: 'application/json' }, body: '{"tag_name": "v1.2.5"}')
+      end
+
+      it "can fetch #{filename}" do
+        %w[
+          tmp/ghc-versions.html
+        ].each { |t| Rake::Task[t].reenable }
+
+        Rake::Task[filename].reenable
+        Rake::Task[filename].invoke
+        expect(tmp_top + filename).to be_exist
+      end
     end
   end
 
