@@ -28,13 +28,16 @@ jobs:
   - stage: test
     env:
     script: ./script/validate-example-payloads-with-docker
+
   - stage: ':ship: it to quay.io'
     env:
     script: ./script/docker-build-and-push
     if: (branch = master and type = push ) OR commit_message =~ /ship:docker/ OR env(SHIP_DOCKER) = true
 
+before_install:
+- gem update --silent --system 3.3.26
+
 before_script:
-- "gem install bundler -v 1.17.3"
 - eval "$(script/handle-docker-config)"
 - bundle install
 - bundle exec rake clean assets:precompile
