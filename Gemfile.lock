@@ -1,18 +1,18 @@
 GIT
-  remote: https://github.com/eric/metriks-librato_metrics
+  remote: https://github.com/eric/metriks-librato_metrics.git
   revision: 3acb88b36c014a8b93bdd91a867c1b3db781ad4e
   specs:
     metriks-librato_metrics (1.0.6)
       metriks (>= 0.9.9.6)
 
 GIT
-  remote: https://github.com/joshk/jemalloc-rb
+  remote: https://github.com/joshk/jemalloc-rb.git
   revision: 8c9dbef98f6bd4f96b371ec336b7e0c4fdc02d49
   specs:
     jemalloc (1.4.5)
 
 GIT
-  remote: https://github.com/travis-ci/travis-github_apps
+  remote: https://github.com/travis-ci/travis-github_apps.git
   revision: c96dc9330849ff3e2ccd7c9d00005a1a96c1a4b6
   specs:
     travis-github_apps (0.2.1)
@@ -23,13 +23,13 @@ GIT
       redis
 
 GIT
-  remote: https://github.com/travis-ci/travis-rollout
+  remote: https://github.com/travis-ci/travis-rollout.git
   revision: c79c6d0c76da98ed50b9a3edb30399d7aba8a7e2
   specs:
     travis-rollout (0.0.1)
 
 GIT
-  remote: https://github.com/travis-ci/travis-support
+  remote: https://github.com/travis-ci/travis-support.git
   revision: 77f8dad236002e6103cfdb796308e1a11d8d441e
   specs:
     travis-support (0.0.1)
@@ -105,7 +105,7 @@ GEM
     minitest (5.14.0)
     mocha (1.7.0)
       metaclass (~> 0.0.1)
-    msgpack (1.2.4)
+    msgpack (1.7.0)
     multi_json (1.14.1)
     multipart-post (2.1.1)
     mustermann (1.1.1)
@@ -117,7 +117,7 @@ GEM
     octokit (4.18.0)
       faraday (>= 0.9)
       sawyer (~> 0.8.0, >= 0.5.3)
-    optimist (3.0.0)
+    optimist (3.0.1)
     parallel (1.12.1)
     parallel_tests (2.23.0)
       parallel
@@ -144,7 +144,7 @@ GEM
     rb-fsevent (0.10.3)
     rb-inotify (0.9.10)
       ffi (>= 0.5.0, < 2)
-    rbtrace (0.4.11)
+    rbtrace (0.4.14)
       ffi (>= 1.0.6)
       msgpack (>= 0.4.3)
       optimist (>= 3.0.0)

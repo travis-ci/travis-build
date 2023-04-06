@@ -1,14 +1,9 @@
 # frozen_string_literal: true
 
 source 'https://rubygems.org'
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-if ENV.key?('DYNO')
-  ruby File.read(File.expand_path('.ruby-version', __dir__)).strip
-end
-
-def gh(slug)
-  "https://github.com/#{slug}"
-end
+ruby File.read(File.expand_path('.ruby-version', __dir__)).strip
 
 gem 'activesupport', '~> 4.0'
 gem 'addressable', '~> 2.3'
@@ -17,10 +12,10 @@ gem 'coder'
 gem 'connection_pool'
 gem 'faraday'
 gem 'faraday_middleware'
-gem 'jemalloc', git: gh('joshk/jemalloc-rb')
+gem 'jemalloc', github: 'joshk/jemalloc-rb'
 gem 'jwt', '~> 1.5'
 gem 'metriks', '0.9.9.6'
-gem 'metriks-librato_metrics', git: gh('eric/metriks-librato_metrics')
+gem 'metriks-librato_metrics', github: 'eric/metriks-librato_metrics'
 gem 'minitar'
 gem 'mocha', require: false, group: %i[development test]
 gem 'parallel_tests', require: false, group: %i[development test]
@@ -41,9 +36,9 @@ gem 'sinatra'
 gem 'sinatra-contrib'
 gem 'travis'
 gem 'travis-config'
-gem 'travis-github_apps', git: gh('travis-ci/travis-github_apps')
-gem 'travis-rollout', git: gh('travis-ci/travis-rollout')
-gem 'travis-support', git: gh('travis-ci/travis-support')
+gem 'travis-github_apps', github: 'travis-ci/travis-github_apps'
+gem 'travis-rollout', github: 'travis-ci/travis-rollout'
+gem 'travis-support', github: 'travis-ci/travis-support'
 
 gem "octokit", "~> 4.18"
 gem 'rest-client'
