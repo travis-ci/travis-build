@@ -218,7 +218,7 @@ GEM
       hashr (~> 2.0)
     typhoeus (0.8.0)
       ethon (>= 0.8.0)
-    tzinfo (1.2.7)
+    tzinfo (1.2.11)
       thread_safe (~> 0.1)
     unf (0.1.4)
       unf_ext
