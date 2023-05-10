@@ -151,7 +151,8 @@ module Travis
           end
 
           def fetch_args
-            args = ""
+            args = " "
+            args << depth_flag
             args << " --quiet" if quiet?
             args
           end
