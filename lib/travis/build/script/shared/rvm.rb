@@ -9,7 +9,7 @@ module Travis
         }
 
         CONFIG = %w(
-          rvm_remote_server_url=https://s3.amazonaws.com/travis-rubies/binaries
+          rvm_remote_server_url=https://storage.googleapis.com/travis-ci-language-archives/ruby/binaries
           rvm_remote_server_type=rubies
           rvm_remote_server_verify_downloads=1
         )
@@ -27,7 +27,7 @@ module Travis
           pkuczynski
         )
 
-        BUNDLER2_RUBY = '2.3.0'
+        BUNDLER2_RUBY = '2.5.0'
 
         def export
           super
@@ -83,6 +83,7 @@ module Travis
             if without_teeny?(version)
               setup_rvm_aliases
             end
+            sh.cmd('echo "" > /home/travis/.rvm/config/remote', echo: false, assert: false, timing: false)
             sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false, timing: false)
             sh.file '$rvm_path/user/db', CONFIG.join("\n")
             send rvm_strategy
