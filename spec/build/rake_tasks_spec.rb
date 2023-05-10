@@ -25,8 +25,8 @@ describe Travis::Build::RakeTasks do
 
       %w[
         /
-        /creationix/nvm/v1.2.5/nvm-exec
-        /creationix/nvm/v1.2.5/nvm.sh
+        /nvm-sh/nvm/v1.2.5/nvm-exec
+        /nvm-sh/nvm/v1.2.5/nvm.sh
         /paulp/sbt-extras/master/sbt
         /sc-linux.tar.gz
         /sc-osx.zip
