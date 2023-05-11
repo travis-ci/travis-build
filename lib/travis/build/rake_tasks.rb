@@ -261,15 +261,15 @@ module Travis
       end
 
       def file_update_nvm
-        latest_release = latest_release_for('creationix/nvm')
+        latest_release = latest_release_for('nvm-sh/nvm')
         logger.info "Latest nvm release is #{latest_release}"
-        fetch_githubusercontent_file "creationix/nvm/#{latest_release}/nvm.sh"
+        fetch_githubusercontent_file "nvm-sh/nvm/#{latest_release}/nvm.sh"
       end
 
       def file_update_nvm_exec
-        latest_release = latest_release_for('creationix/nvm')
+        latest_release = latest_release_for('nvm-sh/nvm')
         logger.info "Latest nvm release is #{latest_release}"
-        fetch_githubusercontent_file "creationix/nvm/#{latest_release}/nvm-exec"
+        fetch_githubusercontent_file "nvm-sh/nvm/#{latest_release}/nvm-exec"
       end
 
       def file_update_sbt
