@@ -66,10 +66,10 @@ module Travis
         def install
           warn_pip_20_3
           sh.if '-f Requirements.txt' do
-            sh.cmd 'pip install -r Requirements.txt', fold: 'install', retry: true
+            sh.cmd 'pip3 install -r Requirements.txt', fold: 'install', retry: true
           end
           sh.elif '-f requirements.txt' do
-            sh.cmd 'pip install -r requirements.txt', fold: 'install', retry: true
+            sh.cmd 'pip3 install -r requirements.txt', fold: 'install', retry: true
           end
           sh.else do
             sh.echo REQUIREMENTS_MISSING # , ansi: :red
@@ -149,10 +149,10 @@ module Travis
           end
 
           def pip_version_at_least_20_2?
-            "$(travis_vers2int $(pip --version | cut -f2 -d \" \")) -ge $(travis_vers2int \"20.2\")"
+            "$(travis_vers2int $(pip3 --version | cut -f2 -d \" \")) -ge $(travis_vers2int \"20.2\")"
           end
           def pip_version_before_20_3?
-            "$(travis_vers2int $(pip --version | cut -f2 -d \" \")) -lt $(travis_vers2int \"20.3\")"
+            "$(travis_vers2int $(pip3 --version | cut -f2 -d \" \")) -lt $(travis_vers2int \"20.3\")"
           end
 
           def warn_pip_20_3
