@@ -48,8 +48,8 @@ module Travis
         end
 
         def announce
-          sh.cmd 'python --version'
-          sh.cmd 'pip --version'
+          sh.cmd 'python3 --version'
+          sh.cmd 'pip3 --version'
           sh.export 'PIP_DISABLE_PIP_VERSION_CHECK', '1', echo: false
           sh.export 'PIP_PROGRESS_BAR', 'off', echo: false
         end
