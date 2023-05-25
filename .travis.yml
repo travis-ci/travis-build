@@ -1,5 +1,5 @@
 language: ruby
-dist: xenial
+dist: bionic
 rvm: 2.5.9
 
 services:
