@@ -620,6 +620,11 @@ module Travis
         sh 'shellcheck --version'
       end
 
+      task spec: %w(
+        tmp/sc_data.json
+        public/files/nvm.sh
+      )
+
       task default: %i[
         rubocop
         spec
