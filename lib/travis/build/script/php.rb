@@ -18,7 +18,16 @@ module Travis
 
         def configure
           super
-          configure_hhvm if hhvm?
+          case self
+          when Travis::Build::Script::Hack
+            unless config.key?(:hhvm)
+              sh.terminate 1, "Hack requires HHVM, but HHVM is not configured with \`hhvm:\`. Terminating.", ansi: :red
+              return
+            end
+            configure_hhvm hhvm_version_raw if hhvm_version_raw
+          when Travis::Build::Script::Php
+            configure_hhvm version if hhvm?
+          end
         end
 
         def export
@@ -29,37 +38,18 @@ module Travis
         def setup
           super
 
-          if php_5_3_or_older?
-            sh.if "$(lsb_release -sc 2>/dev/null) != precise" do
-              sh.echo "PHP #{version} is supported only on Precise.", ansi: :red
-              sh.echo "See https://docs.travis-ci.com/user/reference/trusty#PHP-images on how to test PHP 5.3 on Precise.", ansi: :red
-              sh.echo "Terminating.", ansi: :red
-              sh.failure
-            end
-          end
+          reject_old_php
 
-          if hhvm?
-            if nightly?
-              sh.cmd "phpenv global hhvm-nightly 3>/dev/null", assert: true
+          case self
+          when Travis::Build::Script::Hack
+            setup_php_on_demand version
+            setup_hhvm
+          when Travis::Build::Script::Php
+            if hhvm?
+              setup_hhvm
             else
-              sh.cmd "phpenv global hhvm 2>/dev/null", assert: true
+              setup_php_on_demand version
             end
-            sh.mkdir "${TRAVIS_HOME}/.phpenv/versions/hhvm/etc/conf.d", recursive: true
-          else
-            sh.cmd "phpenv global #{version} 2>/dev/null", assert: false
-            sh.if "$? -ne 0" do
-              install_php_on_demand(version)
-            end
-            unless php_5_3_or_older?
-              sh.else do
-                sh.fold "pearrc" do
-                  sh.echo "Writing ${TRAVIS_HOME}/.pearrc", ansi: :yellow
-                  overwrite_pearrc(version)
-                  sh.cmd "pear config-show", echo: true
-                end
-              end
-            end
-            sh.cmd "phpenv global #{version}", assert: true
           end
           sh.cmd "phpenv rehash", assert: false, echo: false, timing: false
           composer_self_update
@@ -112,32 +102,40 @@ module Travis
           Array(config[:php]).first.to_s
         end
 
-        def hhvm?
-          version.start_with?('hhvm')
+        def hhvm?(ver = version)
+          ver.start_with?('hhvm') || config.key?(:hhvm)
         end
 
         def hhvm_version
           return unless hhvm?
-          if match_data = /-(\d+(?:\.\d+)*)$/.match(version)
+          v = case self
+          when Travis::Build::Script::Hack
+            hhvm_version_raw
+          when Travis::Build::Script::Php
+            version
+          end
+          if match_data = /-(\d+(?:\.\d+)*)$/.match(v)
             match_data[1]
+          else
+            ''
           end
         end
 
-        def nightly?
-          version.include?('nightly')
+        def nightly?(ver = version)
+          ver.include?('nightly')
         end
 
         def composer_args
           config[:composer_args]
         end
 
-        def configure_hhvm
+        def configure_hhvm(ver)
           sh.if '"$(lsb_release -sc 2>/dev/null)" = "precise"' do
             sh.echo "HHVM is no longer supported on Ubuntu Precise. Please consider using Trusty with \\`dist: trusty\\`.", ansi: :yellow
             sh.raw "travis_terminate 1"
           end
 
-          if nightly?
+          if nightly?(ver) && hhvm?(ver)
             install_hhvm_nightly
           elsif hhvm?
             update_hhvm
@@ -152,11 +150,11 @@ module Travis
               sh.raw 'sudo find /etc/apt -type f -exec sed -e "/hhvm\\.com/d" -i.bak {} \;'
 
               if hhvm_version
-                sh.raw "echo \"deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc)-lts-#{hhvm_version} main\" | sudo tee -a /etc/apt/sources.list >&/dev/null"
+                sh.raw "echo \"deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc)-#{hhvm_version} main\" | sudo tee -a /etc/apt/sources.list >&/dev/null"
                 sh.raw 'sudo apt-get purge hhvm >&/dev/null'
               else
                 # use latest
-                sh.cmd 'echo "deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list'
+                sh.raw 'echo "deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list'
               end
 
               sh.cmd 'sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xB4112585D386EB94'
@@ -193,7 +191,7 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
             setup_alias(version, '7.0')
             version = '7.0'
           end
-          sh.raw archive_url_for('travis-php-archives', version)
+          sh.raw archive_url_for('travis-php-archives', version, 'php')
           sh.echo "Downloading archive: ${archive_url}", ansi: :yellow
           sh.cmd "curl -sSf --retry 5 -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /", echo: true, assert: false
           sh.cmd "rm -f archive.tar.bz2", echo: false
@@ -213,7 +211,7 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
         end
 
         def php_5_3_or_older?
-          !hhvm? && !nightly? && Gem::Version.new(version) < Gem::Version.new('5.4')
+          Gem::Version.new(version) < Gem::Version.new('5.4')
         rescue
           false
         end
@@ -242,6 +240,43 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
           ).gsub("__VERSION__", version)
 
           sh.cmd "echo '<?php error_reporting(0); echo serialize(#{pear_config}) ?>' | php > ${TRAVIS_HOME}/.pearrc", echo: false
+        end
+
+        def setup_hhvm
+          if nightly?
+            sh.cmd "phpenv global hhvm-nightly 3>/dev/null", assert: true
+          else
+            sh.cmd "phpenv global hhvm 2>/dev/null", assert: true
+          end
+          sh.mkdir "${TRAVIS_HOME}/.phpenv/versions/hhvm/etc/conf.d", recursive: true
+        end
+
+        def setup_php_on_demand(ver)
+          sh.cmd "phpenv global #{ver} 2>/dev/null", assert: false
+          sh.if "$? -ne 0" do
+            install_php_on_demand(ver)
+          end
+          unless php_5_3_or_older?
+            sh.else do
+              sh.fold "pearrc" do
+                sh.echo "Writing ${TRAVIS_HOME}/.pearrc", ansi: :yellow
+                overwrite_pearrc(ver)
+                sh.cmd "pear config-show", echo: true
+              end
+            end
+          end
+          sh.cmd "phpenv global #{ver}", assert: true
+        end
+
+        def reject_old_php
+          if php_5_3_or_older?
+            sh.if "$(lsb_release -sc 2>/dev/null) != precise" do
+              sh.echo "PHP #{version} is supported only on Precise.", ansi: :red
+              sh.echo "See https://docs.travis-ci.com/user/reference/trusty#PHP-images on how to test PHP 5.3 on Precise.", ansi: :red
+              sh.echo "Terminating.", ansi: :red
+              sh.failure
+            end
+          end
         end
       end
     end
