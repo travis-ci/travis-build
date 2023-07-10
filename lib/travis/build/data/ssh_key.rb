@@ -3,7 +3,7 @@ require 'base64'
 module Travis
   module Build
     class Data
-      class SshKey < Struct.new(:value, :source, :encoded)
+      class SshKey < Struct.new(:value, :source, :encoded, :public_key)
         CUSTOM = %w(repository_settings travis_yaml)
 
         def value
