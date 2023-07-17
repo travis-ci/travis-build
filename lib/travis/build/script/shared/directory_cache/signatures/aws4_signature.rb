@@ -41,7 +41,7 @@ module Travis
 
             def query_string
               canonical_query_params.map { |key, value|
-                "#{URI.encode(key.to_s, /[^~a-zA-Z0-9_.-]/)}=#{URI.encode(value.to_s, /[^~a-zA-Z0-9_.-]/)}"
+                "#{URI::Parser.new.escape(key.to_s, /[^~a-zA-Z0-9_.-]/)}=#{URI::Parser.new.escape(value.to_s, /[^~a-zA-Z0-9_.-]/)}"
               }.join('&')
             end
 

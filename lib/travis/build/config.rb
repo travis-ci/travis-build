@@ -119,7 +119,7 @@ module Travis
               'NETWORK_CHECK_URLS',
               'http://%{app_host}/empty.txt?job_id=%{job_id}&repo=%{repo}'
             )
-          ).split(',').map { |s| URI.unescape(s.strip) }
+          ).split(',').map { |s| CGI.unescape(s.strip) }
         },
         redis: {
           url: 'redis://localhost:6379',

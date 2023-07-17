@@ -145,6 +145,7 @@ module Travis
           def xcodebuild_args
             config[:xcodebuild_args].to_s.tap do |xcodebuild_args|
               %w[project workspace scheme sdk destination].each do |var|
+                xcodebuild_args = xcodebuild_args.dup if xcodebuild_args.frozen?
                 xcodebuild_args << " -#{var} #{config[:"xcode_#{var}"].to_s.shellescape}" if config[:"xcode_#{var}"]
               end
             end.strip

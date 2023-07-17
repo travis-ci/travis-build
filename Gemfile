@@ -19,7 +19,7 @@ gem 'metriks-librato_metrics', github: 'eric/metriks-librato_metrics'
 gem 'minitar'
 gem 'mocha', require: false, group: %i[development test]
 gem 'parallel_tests', require: false, group: %i[development test]
-gem 'pry', require: false, group: %i[development test]
+gem 'pry', '>= 0.14.2', require: false, group: %i[development test]
 gem 'webmock', group: :test
 gem 'puma'
 gem 'rack', '>= 2.1.4'
