@@ -59,6 +59,8 @@ travis_install_jdk_package_adoptopenjdk() {
     sudo add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/
     sudo apt-get update -yqq
     sudo apt-get -yqq --no-install-suggests --no-install-recommends install "$PACKAGE" || true
+    travis_cmd "export JAVA_HOME=/usr/lib/jvm/adoptopenjdk-${JAVA_VERSION}-hotspot-${TRAVIS_CPU_ARCH}" --echo
+    travis_cmd "export PATH=$JAVA_HOME/bin:$PATH" --echo
     sudo update-java-alternatives -s "$PACKAGE"*
   fi
 }
@@ -69,6 +71,9 @@ travis_install_jdk_package_bellsoft() {
   sudo apt-get update -yqq
   if [[ "$JAVA_VERSION" == "8" ]]; then
     JAVA_VERSION="1.8.0"
+  fi
+  if [[ "${TRAVIS_CPU_ARCH}" == "arm64" ]]; then
+    TRAVIS_CPU_ARCH="aarch64"
   fi
   PACKAGE="bellsoft-java${JAVA_VERSION}"
   if ! dpkg -s "$PACKAGE" >/dev/null 2>&1; then
