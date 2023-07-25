@@ -12,13 +12,13 @@ module Travis
                               2.6.0rc0 2.6.0rc1 2.6.0rc2 2.6.0 2.6.1 2.6.2].freeze
 
         def after_prepare
-          sh.fold 'tenser_flow' do
+          sh.fold 'tensor_flow' do
             if version.nil?
               sh.echo "Invalid version '#{raw_version}' given. Valid versions are: #{ALLOWED_VERSIONS.join(' ')}", ansi: :red
               return
             end
             sh.echo "Installing TensorFlow version: #{version}", ansi: :yellow
-            sh.cmd "pip install --trusted-host pip.cache.travis-ci.com -i http://pip.cache.travis-ci.com/root/pypi/+simple/ tensorflow==#{version}", sudo: false
+            sh.cmd "pip install tensorflow==#{version}", sudo: false
           end
         end
 
