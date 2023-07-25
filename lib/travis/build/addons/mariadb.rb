@@ -9,7 +9,8 @@ module Travis
 
         MARIADB_GPG_KEY_OLD = '0xcbcb082a1bb943db'
         MARIADB_GPG_KEY_NEW = '0xf1656f24c74cd1d8'
-        MARIADB_MIRROR  = 'nyc2.mirrors.digitalocean.com'
+        # Archive mirror contains more versions than the main mirror, so we use it by default
+        MARIADB_MIRROR  = 'archive.mariadb.org'
 
         def after_prepare
           sh.fold 'mariadb' do
@@ -21,7 +22,7 @@ module Travis
             sh.else do
               sh.cmd "apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 #{MARIADB_GPG_KEY_NEW}", sudo: true
             end
-            sh.cmd 'add-apt-repository --yes "deb http://%p/mariadb/repo/%p/ubuntu $TRAVIS_DIST main"' % [MARIADB_MIRROR, mariadb_version], sudo: true
+            sh.cmd 'add-apt-repository --yes "deb http://%p/mariadb-%p/repo/ubuntu/ "$TRAVIS_DIST" main"' % [MARIADB_MIRROR, mariadb_version], sudo: true
             sh.cmd 'travis_apt_get_update', retry: true, echo: true
             sh.cmd "PACKAGES='mariadb-server-#{mariadb_version}'", echo: true
             sh.cmd "if [[ $(lsb_release -cs) = 'precise' ]]; then PACKAGES=\"${PACKAGES} libmariadbclient-dev\"; fi", echo: true

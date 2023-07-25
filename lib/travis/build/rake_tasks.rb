@@ -2,6 +2,7 @@
 
 require 'json'
 require 'logger'
+require 'tmpdir'
 require 'pathname'
 require 'date'
 
@@ -57,32 +58,9 @@ module Travis
       end
 
       def latest_release_for(repo)
-        conn = build_faraday_conn(host: 'api.github.com')
-
-        response = conn.get do |req|
-          releases_url = "repos/#{repo}/releases"
-          logger.info "Fetching releases from #{conn.url_prefix}#{releases_url}"
-          req.url releases_url
-          oauth_token = ENV.fetch(
-            'GITHUB_OAUTH_TOKEN', ENV.fetch('no_scope_token', 'notset')
-          )
-          if oauth_token && !oauth_token.empty? && oauth_token != 'notset'
-            logger.info(
-              "Adding 'Authorization' header for api.github.com request"
-            )
-            req.headers['Authorization'] = "token #{oauth_token}"
-          end
-        end
-
-        raise "Could not find releases for #{repo}" unless response.success?
-
-        json_data = JSON.parse(response.body)
-        raise "No releases found for #{repo}" if json_data.empty?
-
-        json_data.sort! do |a, b|
-          semver_cmp(a['tag_name'].sub(/^v/, ''), b['tag_name'].sub(/^v/, ''))
-        end
-        json_data.last['tag_name']
+        octokit.latest_release(repo)['tag_name']
+      rescue
+        raise "Could not get latest release for #{repo}"
       end
 
       def file_update_sc_data
@@ -261,15 +239,15 @@ module Travis
       end
 
       def file_update_nvm
-        latest_release = latest_release_for('creationix/nvm')
+        latest_release = latest_release_for('nvm-sh/nvm')
         logger.info "Latest nvm release is #{latest_release}"
-        fetch_githubusercontent_file "creationix/nvm/#{latest_release}/nvm.sh"
+        fetch_githubusercontent_file "nvm-sh/nvm/#{latest_release}/nvm.sh"
       end
 
       def file_update_nvm_exec
-        latest_release = latest_release_for('creationix/nvm')
+        latest_release = latest_release_for('nvm-sh/nvm')
         logger.info "Latest nvm release is #{latest_release}"
-        fetch_githubusercontent_file "creationix/nvm/#{latest_release}/nvm-exec"
+        fetch_githubusercontent_file "nvm-sh/nvm/#{latest_release}/nvm-exec"
       end
 
       def file_update_sbt
