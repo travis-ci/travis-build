@@ -25,7 +25,7 @@ LABEL maintainer Travis CI GmbH <support+travis-build-docker-images@travis-ci.co
 ENV TRAVIS_BUILD_DUMP_BACKTRACE true
 ENV PORT 4000
 
-RUN gem update --silent --system 3.3.26
+RUN gem update --system 3.3.26 > /dev/null 2>&1
 
 WORKDIR /app
 
