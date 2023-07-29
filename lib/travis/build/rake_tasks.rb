@@ -12,6 +12,7 @@ require 'minitar'
 require 'rake'
 require 'rubygems'
 require 'octokit'
+require 'pry'
 
 module Travis
   module Build
@@ -204,10 +205,10 @@ module Travis
       end
 
       def task_clean
-        rm_rf(top + 'examples')
-        rm_rf(top + 'public/files')
-        rm_rf(top + 'tmp/sc_data.json')
-        rm_rf(top + 'tmp/ghc-versions.html')
+        system("rm -Rf " + top.to_s + 'examples')
+        system("rm -Rf " + top.to_s + 'public/files')
+        system("rm -Rf " + top.to_s + 'tmp/sc_data.json')
+        system("rm -Rf " + top.to_s + 'tmp/ghc-versions.html')
       end
 
       def file_update_casher
