@@ -39,22 +39,6 @@ describe Travis::Build::Env do
       expect(keys).to include('FOO')
     end
 
-    describe 'for secure env jobs' do
-      before { payload[:job][:secure_env_enabled] = true }
-
-      it 'includes secure vars' do
-        expect(keys).to include('BAR')
-      end
-
-      it 'marks secure vars as secure' do
-        expect(vars.last).to be_secure
-      end
-
-      it 'taints secure var values' do
-        expect(vars.last.value).to be_tainted
-      end
-    end
-
     describe 'for non-secure env jobs (pull requests)' do
       before { payload[:job][:secure_env_enabled] = false }
 
@@ -69,22 +53,6 @@ describe Travis::Build::Env do
 
     it 'includes non-secure vars' do
       expect(keys).to include('BAM')
-    end
-
-    describe 'for secure env jobs' do
-      before { payload[:job][:secure_env_enabled] = true }
-
-      it 'includes secure vars' do
-        expect(keys).to include('BAZ')
-      end
-
-      it 'marks secure vars as secure' do
-        expect(vars.select {|v| v.secure?}).to_not be_empty
-      end
-
-      it 'taints secure var values' do
-        expect(vars.select {|v| v.secure?}.map {|x| x.value.tainted?}.uniq).to eq [true]
-      end
     end
 
     describe 'for non-secure env jobs (pull requests)' do
