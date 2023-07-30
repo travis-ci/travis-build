@@ -205,10 +205,10 @@ module Travis
       end
 
       def task_clean
-        system("rm -Rf " + top.to_s + 'examples')
-        system("rm -Rf " + top.to_s + 'public/files')
-        system("rm -Rf " + top.to_s + 'tmp/sc_data.json')
-        system("rm -Rf " + top.to_s + 'tmp/ghc-versions.html')
+        system("rm -Rf " + top.to_s + "/examples")
+        system("rm -Rf " + top.to_s + "/public/files")
+        system("rm -Rf " + top.to_s + "/tmp/sc_data.json")
+        system("rm -Rf " + top.to_s + "/tmp/ghc-versions.html")
       end
 
       def file_update_casher
