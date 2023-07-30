@@ -12,7 +12,6 @@ require 'minitar'
 require 'rake'
 require 'rubygems'
 require 'octokit'
-require 'pry'
 
 module Travis
   module Build
