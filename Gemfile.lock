@@ -6,8 +6,8 @@ GIT
       metriks (>= 0.9.9.6)
 
 GIT
-  remote: https://github.com/joshk/jemalloc-rb.git
-  revision: 8c9dbef98f6bd4f96b371ec336b7e0c4fdc02d49
+  remote: https://github.com/piotrmilcarz/jemalloc-rb.git
+  revision: 73fac8c43a7b7cf3a79792bd7cfe933c479b83a1
   specs:
     jemalloc (1.4.5)
 
