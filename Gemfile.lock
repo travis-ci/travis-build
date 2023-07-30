@@ -12,6 +12,19 @@ GIT
     jemalloc (1.4.5)
 
 GIT
+  remote: https://github.com/sinatra/sinatra.git
+  revision: 3fe6297a4bec04e279df7842fe50fb7526dea65a
+  specs:
+    rack-protection (3.0.6)
+      rack
+    sinatra-contrib (3.0.6)
+      multi_json
+      mustermann (~> 3.0)
+      rack-protection (= 3.0.6)
+      sinatra (= 3.0.6)
+      tilt (~> 2.0)
+
+GIT
   remote: https://github.com/travis-ci/travis-config.git
   revision: f02604a813cce3a672ae89cd7e4adaa30b001532
   branch: prd-ruby-upgrade-dev
@@ -113,7 +126,7 @@ GEM
     msgpack (1.7.1)
     multi_json (1.14.1)
     multipart-post (2.3.0)
-    mustermann (1.1.1)
+    mustermann (3.0.0)
       ruby2_keywords (~> 0.0.1)
     net-http-persistent (4.0.2)
       connection_pool (~> 2.2)
@@ -139,8 +152,6 @@ GEM
       json
       websocket (~> 1.0)
     rack (2.2.7)
-    rack-protection (2.0.8.1)
-      rack
     rack-ssl (1.4.1)
       rack
     rack-test (2.1.0)
@@ -184,7 +195,7 @@ GEM
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 1.6)
     ruby-progressbar (1.10.0)
-    ruby2_keywords (0.0.2)
+    ruby2_keywords (0.0.5)
     sawyer (0.8.2)
       addressable (>= 2.3.5)
       faraday (> 0.8, < 2.0)
@@ -195,20 +206,13 @@ GEM
       json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.2)
-    sinatra (2.0.8.1)
-      mustermann (~> 1.0)
-      rack (~> 2.0)
-      rack-protection (= 2.0.8.1)
-      tilt (~> 2.0)
-    sinatra-contrib (2.0.8.1)
-      backports (>= 2.8.2)
-      multi_json
-      mustermann (~> 1.0)
-      rack-protection (= 2.0.8.1)
-      sinatra (= 2.0.8.1)
+    sinatra (3.0.6)
+      mustermann (~> 3.0)
+      rack (~> 2.2, >= 2.2.4)
+      rack-protection (= 3.0.6)
       tilt (~> 2.0)
     thread_safe (0.3.6)
-    tilt (2.0.10)
+    tilt (2.2.0)
     travis (1.8.13)
       backports
       faraday (~> 0.9)
@@ -253,9 +257,9 @@ DEPENDENCIES
   parallel_tests
   pry (>= 0.14.2)
   puma
-  rack (>= 2.1.4)
+  rack (>= 2.2.4)
   rack-ssl (~> 1.4)
-  rack-test
+  rack-test (>= 2.1.0)
   rake
   rbtrace
   rerun
@@ -264,8 +268,8 @@ DEPENDENCIES
   rubocop
   sentry-raven
   simplecov
-  sinatra
-  sinatra-contrib
+  sinatra (>= 3.0.6)
+  sinatra-contrib!
   travis
   travis-config!
   travis-github_apps!
