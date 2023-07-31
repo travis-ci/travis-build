@@ -315,7 +315,8 @@ module Travis
           apply :update_glibc
           apply :update_libssl
           apply :clean_up_path
-          apply :fix_resolv_conf
+          # Issues with cache dns in Focal
+          # apply :fix_resolv_conf
           apply :fix_etc_hosts
           apply :fix_mvn_settings_xml
           apply :no_ipv6_localhost
