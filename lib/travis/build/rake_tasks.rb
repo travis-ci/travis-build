@@ -58,7 +58,12 @@ module Travis
       end
 
       def latest_release_for(repo)
-        octokit.latest_release(repo)['tag_name']
+        logger.info "Fetching releases from #{repo}"
+
+        latest_release = octokit.latest_release(repo)['tag_name']
+        raise "No releases found for #{repo}" if latest_release.empty?
+
+        latest_release
       rescue
         raise "Could not get latest release for #{repo}"
       end
