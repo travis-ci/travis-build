@@ -51,7 +51,6 @@ module Travis
       def checkout
         disable_interactive_auth
         enable_longpaths if config[:os] == 'windows'
-        install_ssh_key if install_ssh_key?
         write_netrc if write_netrc?
         sh.newline
 
@@ -75,10 +74,6 @@ module Travis
             #TODO ?
         end
 
-        def install_ssh_key?
-          data.ssh_key?
-        end
-
         def netrc
           @netrc ||= Netrc.new(sh, data)
         end
@@ -97,10 +92,6 @@ module Travis
 
         def delete_netrc
           netrc.delete
-        end
-
-        def install_ssh_key
-          SshKey.new(sh, data).apply
         end
 
         def download_tarball

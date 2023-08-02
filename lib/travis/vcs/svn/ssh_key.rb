@@ -21,11 +21,15 @@ module Travis
         private
 
           def key
-            data[:build_token]
+            data[:build_token] || data.ssh_key.value
           end
 
           def repository_name
-            repo_slug&.split('/').last
+            if assembla?
+              repo_slug&.gsub('/', '^')
+            else
+              repo_slug&.split('/').last
+            end
           end
 
           def repo_slug

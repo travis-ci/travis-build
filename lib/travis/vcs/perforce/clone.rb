@@ -36,11 +36,26 @@ module Travis
           def clone
             sh.export 'P4USER', user, echo: true, assert: false
             sh.export 'P4CHARSET', 'utf8', echo: false, assert: false
-            sh.export 'P4PASSWD', ticket, echo: false, assert: false
-            sh.export 'P4PORT', port, echo: false, assert: false
+            sh.export 'P4PORT', port, echo: false, assert: false            
             sh.cmd 'p4 trust -y'
+            if data[:repository][:vcs_type] == 'AssemblaRepository'
+              sh.cmd "echo $(p4 info | grep 'Server address:' | cut -d ' ' -f 3- 2>/dev/null)=#{user}:#{ticket} > /tmp/p4ticket", echo: false, assert: false
+              sh.export 'P4TICKETS', '/tmp/p4ticket', echo: false, assert: false
+            else
+              sh.export 'P4PASSWD', ticket, echo: false, assert: false
+            end
+
+            return clone_merge if vcs_pull_request?
+
             sh.cmd "p4 #{p4_opt} client -S //#{dir}/#{checkout_ref} -o | p4 #{p4_opt} client -i"
             sh.cmd "p4 #{p4_opt} sync -p"
+          end
+
+          def clone_merge
+            sh.cmd "p4 #{p4_opt} client -S //#{dir}/#{pull_request_base_branch} -o | p4 #{p4_opt} client -i"
+            sh.cmd "p4 #{p4_opt} sync -p"
+            sh.cmd "p4 #{p4_opt} merge //#{dir}/#{pull_request_head_branch}/... //#{dir}/#{pull_request_base_branch}/..."
+            sh.cmd "p4 #{p4_opt} resolve -am"
           end
 
           def p4_opt
@@ -105,11 +120,11 @@ module Travis
           end
 
           def user
-            data[:sender_login]
+            data[:repository][:vcs_type] == 'AssemblaRepository' ? data.ssh_key.public_key : data[:sender_login]
           end
 
           def ticket
-            data[:build_token]
+            data[:build_token] || data.ssh_key.value
           end
 
           def config
@@ -118,6 +133,18 @@ module Travis
 
           def assembla?
             @assembla ||= data[:repository][:source_url].include? 'assembla'
+          end
+
+          def pull_request_head_branch
+            data.job[:pull_request_head_branch].shellescape if data.job[:pull_request_head_branch]
+          end
+
+          def pull_request_base_branch
+            data.job[:pull_request_base_ref].shellescape if data.job[:pull_request_base_ref]
+          end
+
+          def vcs_pull_request?
+            data.repository[:vcs_type].to_s == 'AssemblaRepository' && data.pull_request
           end
       end
     end
