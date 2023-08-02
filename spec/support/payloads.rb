@@ -70,6 +70,231 @@ PAYLOADS = {
       }
     }
   },
+  perforce: {
+    'type' => 'test',
+    'enterprise' => 'false',
+    'prefer_https' => false,
+    'host' => 'travis-ci.com',
+    'config' => {
+      'os' => 'linux',
+      'arch' => 'amd64',
+      'env' => ['FOO=foo', 'SECURE BAR=bar'],
+      'server_type' => 'perforce'
+    },
+    'repository' => {
+      'vcs_id' => '123',
+      'source_url' => 'ssl:perforce.assembla.com',
+      'vcs_type' => 'AssemblaRepository',
+      'source_host' => 'assembla.com',
+      'default_branch' => 'main'
+    },
+    'build' => {
+      'id' => '1',
+      'number' => '1',
+      'previous_state' => 'failed'
+    },
+    'job' => {
+      'id' => '1',
+      'number' => '1.1',
+      'commit' => '03148a8',
+      'branch' => 'main',
+      'commit_range' => '03148a8..f9da1fd',
+      'commit_message' => 'the commit message',
+      'secure_env_enabled' => true
+    },
+    'ssh_key' => {
+      'public_key' => 'pubkey',
+      'value' => 'privatekey'
+    }
+  },
+  perforce_pull_request: {
+    'type' => 'test',
+    'enterprise' => 'false',
+    'prefer_https' => false,
+    'host' => 'travis-ci.com',
+    'config' => {
+      'os' => 'linux',
+      'arch' => 'amd64',
+      'env' => ['FOO=foo', 'SECURE BAR=bar'],
+      'server_type' => 'perforce'
+    },
+    'repository' => {
+      'vcs_id' => '123',
+      'source_url' => 'ssl:perforce.assembla.com',
+      'vcs_type' => 'AssemblaRepository',
+      'source_host' => 'assembla.com',
+      'default_branch' => 'main'
+    },
+    'build' => {
+      'id' => '1',
+      'number' => '1',
+      'previous_state' => 'failed'
+    },
+    'job' => {
+      'id' => '1',
+      'number' => '1.1',
+      'commit' => '03148a8',
+      'branch' => 'main',
+      'commit_range' => '03148a8..f9da1fd',
+      'commit_message' => 'the commit message',
+      'secure_env_enabled' => true,
+      'pull_request' => {
+        'id' => '1'
+      },
+      'pull_request_head_branch' => 'newfeature',
+      'pull_request_base_ref' => 'main'
+    },
+    'ssh_key' => {
+      'public_key' => 'pubkey',
+      'value' => 'privatekey'
+    },
+  },
+  perforce_non_assembla: {
+    'type' => 'test',
+    'enterprise' => 'false',
+    'prefer_https' => false,
+    'host' => 'travis-ci.com',
+    'build_token' => 'mybuildtoken',
+    'sender_login' => 'travisuser',
+    'config' => {
+      'os' => 'linux',
+      'arch' => 'amd64',
+      'env' => ['FOO=foo', 'SECURE BAR=bar'],
+      'server_type' => 'perforce'
+    },
+    'repository' => {
+      'vcs_id' => '123',
+      'source_url' => 'ssl:perforce.travis-ci.com',
+      'vcs_type' => 'GithubRepository',
+      'source_host' => 'assembla.com',
+      'default_branch' => 'main'
+    },
+    'build' => {
+      'id' => '1',
+      'number' => '1',
+      'previous_state' => 'failed'
+    },
+    'job' => {
+      'id' => '1',
+      'number' => '1.1',
+      'commit' => '03148a8',
+      'branch' => 'main',
+      'commit_range' => '03148a8..f9da1fd',
+      'commit_message' => 'the commit message',
+      'secure_env_enabled' => true
+    },
+  },
+  svn: {
+    'type' => 'test',
+    'enterprise' => 'false',
+    'prefer_https' => false,
+    'host' => 'travis-ci.com',
+    'config' => {
+      'os' => 'linux',
+      'arch' => 'amd64',
+      'env' => ['FOO=foo', 'SECURE BAR=bar'],
+      'server_type' => 'perforce'
+    },
+    'repository' => {
+      'vcs_id' => '123',
+      'vcs_type' => 'AssemblaRepository',
+      'source_host' => 'assembla.com',
+      'default_branch' => 'main'
+    },
+    'build' => {
+      'id' => '1',
+      'number' => '1',
+      'previous_state' => 'failed'
+    },
+    'job' => {
+      'id' => '1',
+      'number' => '1.1',
+      'commit' => '03148a8',
+      'branch' => 'main',
+      'commit_range' => '03148a8..f9da1fd',
+      'commit_message' => 'the commit message',
+      'secure_env_enabled' => true
+    },
+    'ssh_key' => {
+      'public_key' => 'pubkey',
+      'value' => 'privatekey'
+    }
+  },
+  svn_pull_request: {
+    'type' => 'test',
+    'enterprise' => 'false',
+    'prefer_https' => false,
+    'host' => 'travis-ci.com',
+    'config' => {
+      'os' => 'linux',
+      'arch' => 'amd64',
+      'env' => ['FOO=foo', 'SECURE BAR=bar'],
+      'server_type' => 'perforce'
+    },
+    'repository' => {
+      'vcs_id' => '123',
+      'vcs_type' => 'AssemblaRepository',
+      'source_host' => 'assembla.com',
+      'default_branch' => 'main'
+    },
+    'build' => {
+      'id' => '1',
+      'number' => '1',
+      'previous_state' => 'failed'
+    },
+    'job' => {
+      'id' => '1',
+      'number' => '1.1',
+      'commit' => '03148a8',
+      'branch' => 'main',
+      'commit_range' => '03148a8..f9da1fd',
+      'commit_message' => 'the commit message',
+      'secure_env_enabled' => true,
+      'pull_request' => {
+        'id' => '1'
+      },
+      'pull_request_head_branch' => 'newfeature',
+      'pull_request_base_ref' => 'main'
+    },
+    'ssh_key' => {
+      'public_key' => 'pubkey',
+      'value' => 'privatekey'
+    },
+  },
+  svn_non_assembla: {
+    'type' => 'test',
+    'enterprise' => 'false',
+    'prefer_https' => false,
+    'host' => 'travis-ci.com',
+    'build_token' => 'mybuildtoken',
+    'sender_login' => 'travisuser',
+    'config' => {
+      'os' => 'linux',
+      'arch' => 'amd64',
+      'env' => ['FOO=foo', 'SECURE BAR=bar'],
+      'server_type' => 'perforce'
+    },
+    'repository' => {
+      'vcs_id' => '123',
+      'vcs_type' => 'GithubRepository',
+      'source_host' => 'github.com',
+      'default_branch' => 'main'
+    },
+    'build' => {
+      'id' => '1',
+      'number' => '1',
+      'previous_state' => 'failed'
+    },
+    'job' => {
+      'id' => '1',
+      'number' => '1.1',
+      'commit' => '03148a8',
+      'branch' => 'main',
+      'commit_range' => '03148a8..f9da1fd',
+      'commit_message' => 'the commit message',
+      'secure_env_enabled' => true
+    },
+  },
   worker_config: {
     'paranoid' => true,
     'skip_resolv_updates' => false,
