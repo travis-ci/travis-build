@@ -6,6 +6,12 @@ GIT
       metriks (>= 0.9.9.6)
 
 GIT
+  remote: https://github.com/travis-ci/jemalloc-rb.git
+  revision: e9528e26aff663efa2c124cdeca47700e389097d
+  specs:
+    jemalloc (1.0.2)
+
+GIT
   remote: https://github.com/travis-ci/travis-github_apps.git
   revision: c96dc9330849ff3e2ccd7c9d00005a1a96c1a4b6
   specs:
@@ -60,7 +66,7 @@ GEM
       multipart-post (>= 1.2, < 3)
     faraday_middleware (0.14.0)
       faraday (>= 0.7.4, < 1.0)
-    ffi (1.9.25)
+    ffi (1.15.5)
     gh (0.14.0)
       addressable
       backports
