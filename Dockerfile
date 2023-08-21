@@ -2,7 +2,7 @@ FROM ruby:2.5.9 as builder
 
 ARG GITHUB_OAUTH_TOKEN=notset
 
-RUN gem update --silent --system 3.3.26
+RUN gem update --system 3.3.26 > /dev/null 2>&1
 
 WORKDIR /app
 
