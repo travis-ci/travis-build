@@ -21,6 +21,7 @@ module Travis
 
           paths.each do |path|
             secret_data = Keys.const_get(version.upcase).resolve(path, vault)
+            puts "secret data is: #{secret_data}"
             if secret_data.present?
               secret_name = path.split('/').last
               secret_data.each do |key, value|
