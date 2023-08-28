@@ -6,7 +6,7 @@ GIT
       metriks (>= 0.9.9.6)
 
 GIT
-  remote: https://github.com/travis-ci/jemalloc-rb.git
+  remote: https://github.com/travis-ci/jemalloc-rb
   revision: e9528e26aff663efa2c124cdeca47700e389097d
   specs:
     jemalloc (1.0.2)
