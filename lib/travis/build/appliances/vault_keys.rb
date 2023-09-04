@@ -1,3 +1,4 @@
+require 'active_support/core_ext/object/blank'
 require 'travis/build/appliances/base'
 require 'travis/services/vault'
 
