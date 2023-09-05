@@ -2,6 +2,6 @@
 
 class String
   def output_safe
-    dup.untaint
+    dup
   end
 end

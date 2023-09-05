@@ -38,7 +38,7 @@ module Travis
 
         def initialize(key, value, options = {})
           @key = key.to_s
-          @value = value.to_s.tap { |value| value.taint if options[:secure] }
+          @value = value.to_s
           @type = options[:type]
           @secure = !!options[:secure]
         end

@@ -1,7 +1,6 @@
 module Travis
   module Shell
     class Generator
-      TaintedOutput = Class.new(StandardError)
 
       attr_reader :nodes, :level, :trace
       MAX_SPAN_ID = 0xffffffffffffffff
@@ -15,11 +14,9 @@ module Travis
         ]
       end
 
-      def generate(ignore_taint = false)
+      def generate()
         lines = Array(handle(nodes)).flatten
         script = lines.join("\n").strip
-        raise TaintedOutput if !ignore_taint && script.tainted?
-        script = unindent(script)
         script = normalize_newlines(script)
         script
       end
@@ -49,10 +46,6 @@ module Travis
           lines = Array(lines || yield).flatten.map { |line| line.split("\n").map { |line| "  #{line}" }.join("\n") }
           @level -= 1
           lines
-        end
-
-        def unindent(string)
-          string.gsub /^#{string[/\A\s*/]}/, ''
         end
 
         def normalize_newlines(string)
