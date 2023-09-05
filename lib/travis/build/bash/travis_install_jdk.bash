@@ -11,11 +11,11 @@ travis_install_jdk() {
 
   if [[ "$vendor" == "eclipse" ]]; then
     vm="openj9"
-    travis_install_jdk_package_adoptopenjdk "$version" "$vm"
+    travis_install_jdk_package_adoptium "$version" "$vm"
   else
     case "${TRAVIS_CPU_ARCH}" in
     "s390x" | "ppc64le")
-      travis_install_jdk_package_adoptopenjdk "$version" "$vm"
+      travis_install_jdk_package_adoptium "$version" "$vm"
       ;;
     "amd64")
       case "${TRAVIS_DIST}" in
@@ -46,23 +46,34 @@ travis_jdk_trusty() {
   travis_cmd "export PATH=$JAVA_HOME/bin:$PATH" --echo
 }
 
-travis_install_jdk_package_adoptopenjdk() {
+# Provider only for s390x and ppc64le
+travis_install_jdk_package_adoptium() {
   local JAVA_VERSION
   JAVA_VERSION="$1"
   sudo apt-get update -yqq
-  PACKAGE="adoptopenjdk-${JAVA_VERSION}-${vm}"
+  PACKAGE="temurin-${JAVA_VERSION}-jdk"
   if ! dpkg -s "$PACKAGE" >/dev/null 2>&1; then
-    if dpkg-query -l adoptopenjdk* >/dev/null 2>&1; then
-      dpkg-query -l adoptopenjdk* | grep adoptopenjdk | awk '{print $2}' | xargs sudo dpkg -P
+    if [[ "${TRAVIS_CPU_ARCH}" == "ppc64le" ]]; then
+      wget -O - https://adoptium.jfrog.io/artifactory/api/security/keypair/default-gpg-key/public | sudo apt-key add -
+      sudo add-apt-repository --yes https://packages.adoptium.net/artifactory/deb
+      sudo apt-get update -yqq
+      sudo apt-get -yqq --no-install-suggests --no-install-recommends install "$PACKAGE" || true
+      travis_cmd "export JAVA_HOME=/usr/lib/jvm/$PACKAGE-ppc64el" --echo
+      travis_cmd "export PATH=$JAVA_HOME/bin:$PATH" --echo
+      sudo update-java-alternatives -s "$PACKAGE"-ppc64el
+    else
+      wget -O - https://adoptium.jfrog.io/artifactory/api/security/keypair/default-gpg-key/public | sudo apt-key add -
+      sudo add-apt-repository --yes https://packages.adoptium.net/artifactory/deb
+      sudo apt-get update -yqq
+      sudo apt-get -yqq --no-install-suggests --no-install-recommends install "$PACKAGE" || true
+      travis_cmd "export JAVA_HOME=/usr/lib/jvm/$PACKAGE-s390x" --echo
+      travis_cmd "export PATH=$JAVA_HOME/bin:$PATH" --echo
+      sudo update-java-alternatives -s "$PACKAGE"-s390x
     fi
-    wget -qO - https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | sudo apt-key add -
-    sudo add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/
-    sudo apt-get update -yqq
-    sudo apt-get -yqq --no-install-suggests --no-install-recommends install "$PACKAGE" || true
-    sudo update-java-alternatives -s "$PACKAGE"*
   fi
 }
 
+# Provider only for amd and arm64
 travis_install_jdk_package_bellsoft() {
   local JAVA_VERSION
   JAVA_VERSION="$1"
@@ -72,12 +83,22 @@ travis_install_jdk_package_bellsoft() {
   fi
   PACKAGE="bellsoft-java${JAVA_VERSION}"
   if ! dpkg -s "$PACKAGE" >/dev/null 2>&1; then
-    wget -qO - https://download.bell-sw.com/pki/GPG-KEY-bellsoft | sudo apt-key add -
-    sudo add-apt-repository "deb [arch=$TRAVIS_CPU_ARCH] https://apt.bell-sw.com/ stable main"
-    sudo apt-get update -yqq
-    sudo apt-get -yqq --no-install-suggests --no-install-recommends install "$PACKAGE" || true
-    travis_cmd "export JAVA_HOME=/usr/lib/jvm/bellsoft-java${JAVA_VERSION}-${TRAVIS_CPU_ARCH}" --echo
-    travis_cmd "export PATH=$JAVA_HOME/bin:$PATH" --echo
-    sudo update-java-alternatives -s "$PACKAGE"*
+    if [[ "${TRAVIS_CPU_ARCH}" == "arm64" ]]; then
+      wget -qO - https://download.bell-sw.com/pki/GPG-KEY-bellsoft | sudo apt-key add -
+      sudo add-apt-repository "deb [arch=$TRAVIS_CPU_ARCH] https://apt.bell-sw.com/ stable main"
+      sudo apt-get update -yqq
+      sudo apt-get -yqq --no-install-suggests --no-install-recommends install "$PACKAGE" || true
+      travis_cmd "export JAVA_HOME=/usr/lib/jvm/bellsoft-java${JAVA_VERSION}-aarch64" --echo
+      travis_cmd "export PATH=$JAVA_HOME/bin:$PATH" --echo
+      sudo update-java-alternatives -s "$PACKAGE"*
+    else
+      wget -qO - https://download.bell-sw.com/pki/GPG-KEY-bellsoft | sudo apt-key add -
+      sudo add-apt-repository "deb [arch=$TRAVIS_CPU_ARCH] https://apt.bell-sw.com/ stable main"
+      sudo apt-get update -yqq
+      sudo apt-get -yqq --no-install-suggests --no-install-recommends install "$PACKAGE" || true
+      travis_cmd "export JAVA_HOME=/usr/lib/jvm/bellsoft-java${JAVA_VERSION}-${TRAVIS_CPU_ARCH}" --echo
+      travis_cmd "export PATH=$JAVA_HOME/bin:$PATH" --echo
+      sudo update-java-alternatives -s "$PACKAGE"*
+    fi
   fi
 }

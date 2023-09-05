@@ -5,14 +5,14 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby File.read(File.expand_path('.ruby-version', __dir__)).strip
 
-gem 'activesupport', '~> 4.0'
+gem 'activesupport', '~> 7'
 gem 'addressable', '~> 2.3'
 gem 'codeclimate-test-reporter', require: false, group: %i[development test]
 gem 'coder'
 gem 'connection_pool'
 gem 'faraday'
 gem 'faraday_middleware'
-gem 'jemalloc', github: 'piotrmilcarz/jemalloc-rb'
+gem 'jemalloc', github: 'travis-ci/jemalloc-rb'
 gem 'jwt', '~> 1.5'
 gem 'metriks', '0.9.9.6'
 gem 'metriks-librato_metrics', github: 'eric/metriks-librato_metrics'
