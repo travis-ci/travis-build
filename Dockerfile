@@ -26,6 +26,11 @@ ENV TRAVIS_BUILD_DUMP_BACKTRACE true
 ENV PORT 4000
 
 RUN gem update --system 3.3.26 > /dev/null 2>&1
+RUN ( \
+   apt-get update ; \
+   apt-get install -y --no-install-recommends libjemalloc-dev\
+   && rm -rf /var/lib/apt/lists/* \
+)
 
 WORKDIR /app
 
