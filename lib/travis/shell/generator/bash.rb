@@ -203,11 +203,6 @@ module Travis
           def handle_secure_vars(key, value, options)
             if options[:echo] && options[:secure]
               options[:echo] = "export #{key}=[secure]"
-              # Mark secure value as safe for output *here only*
-              # to ensure the presence of the previously tainted
-              # value in any other strings will result in the
-              # compiled script being tainted
-              value = value.output_safe
             end
             [key, value, options]
           end

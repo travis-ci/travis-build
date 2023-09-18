@@ -351,7 +351,7 @@ module Travis
             end
 
             def uri_normalize_name(branch)
-              URI.encode(branch)
+              URI::Parser.new.escape(branch)
             end
 
             def aws_signature_version
