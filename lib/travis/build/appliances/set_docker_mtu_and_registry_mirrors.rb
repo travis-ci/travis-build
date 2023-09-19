@@ -6,7 +6,7 @@ module Travis
       class SetDockerMtuAndRegistryMirrors < Base
         
         REGISTRY_URL = Travis::Build.config.registry_url.output_safe.freeze
-        MTU = Travis::Build.config.docker.mtu.freeze
+        MTU = Travis::Build.config.docker.mtu.output_safe.to_i.freeze
 
         def apply?
           linux?
@@ -21,7 +21,7 @@ if [[ $? = 0 ]]; then
   sudo jsonpatch /etc/docker/daemon.json mtu.jsonpatch > daemon.json
   sudo mv daemon.json /etc/docker/daemon.json
 else
-  echo '{"mtu":1350}' | sudo tee /etc/docker/daemon.json > /dev/null
+  echo '{"mtu":#{MTU}}' | sudo tee /etc/docker/daemon.json > /dev/null
 fi
 
 if curl --connect-timeout 1 -fsSL -o /dev/null \
