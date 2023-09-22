@@ -26,7 +26,7 @@ module Travis
           def update_nvm
           nvm_ver = 'v0.39.5'
           nvm_dir = "${TRAVIS_HOME}/.nvm"
-          sh.raw "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/#{nvm_ver}/install.sh | bash", assert: false
+          sh.raw "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/#{nvm_ver}/install.sh | bash &> /dev/null", assert: false
           sh.raw "source #{nvm_dir}/nvm.sh", assert: false
           end
 
