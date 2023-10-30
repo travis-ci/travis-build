@@ -23,15 +23,7 @@ module Travis
             sh.raw "source #{nvm_dir}/nvm.sh", assert: false
           end
 
-          def update_nvm
-          nvm_ver = 'v0.39.5'
-          nvm_dir = "${TRAVIS_HOME}/.nvm"
-          sh.raw "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/#{nvm_ver}/install.sh | bash &> /dev/null", assert: false
-          sh.raw "source #{nvm_dir}/nvm.sh", assert: false
-          end
-
           def install
-            update_nvm
             if node_js_given_in_config?
               use_version node_js.version
             else
@@ -60,7 +52,6 @@ module Travis
           end
 
           def install_version(ver)
-            update_nvm
             sh.fold "nvm.install" do
               sh.cmd "nvm install #{ver}#{stderrlog}", assert: false, timing: true
               sh.if '$? -ne 0' do
