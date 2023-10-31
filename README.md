@@ -1,5 +1,5 @@
 # Travis Build [![Build Status](https://travis-ci.com/travis-ci/travis-build.svg?branch=master)](https://travis-ci.com/travis-ci/travis-build)
-
+# [![Docker Image CI](https://github.com/Miguelzamora13/travis-build/actions/workflows/docker-image.yml/badge.svg)](https://github.com/Miguelzamora13/travis-build/actions/workflows/docker-image.yml)
 Travis Build exposes an API that [Travis
 Workers](https://github.com/travis-ci/worker) and [Job
 Board](https://github.com/travis-ci/job-board) use to generate a bash script
