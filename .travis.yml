@@ -76,3 +76,5 @@ deploy:
     condition: $INTEGRATION_SPECS == 1
     repo: travis-ci/travis-build
   edge: true
+git:
+  submodules: false
