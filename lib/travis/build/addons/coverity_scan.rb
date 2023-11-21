@@ -17,6 +17,7 @@ module Travis
           @sh = sh
           @data = data
           @config = config.respond_to?(:to_hash) ? config.to_hash : {}
+          @build_script_present = !!@config[:build_script_url]
           @config[:build_script_url] ||= "#{SCAN_URL}/scripts/travisci_build_coverity_scan.sh"
         end
 
@@ -70,6 +71,12 @@ SH
         end
 
         def build_command
+          shebang = Faraday.get(@config[:build_script_url]).body.to_s.split("\n").first.to_s.strip
+          interpreter = 'bash'
+          if shebang.present? && matches = shebang.match(%r{\A#!(/bin/\w+)\z})
+            interpreter = matches[1]
+          end
+
           sh.raw "export TRAVIS_TEST_RESULT=$(( ${TRAVIS_TEST_RESULT:-0} ))"
           sh.if "${TRAVIS_TEST_RESULT} = 0", echo: true do
             sh.fold('build_coverity') do
@@ -79,7 +86,12 @@ SH
               env << "COVERITY_SCAN_BUILD_COMMAND=\"${COVERITY_SCAN_BUILD_COMMAND:-#{@config[:build_command]}}\""
               env << "COVERITY_SCAN_BUILD_COMMAND_PREPEND=\"${COVERITY_SCAN_BUILD_COMMAND_PREPEND:-#{@config[:build_command_prepend]}}\""
               env << "COVERITY_SCAN_BRANCH_PATTERN=${COVERITY_SCAN_BRANCH_PATTERN:-#{@config[:branch_pattern]}}"
-              sh.cmd "curl -s #{@config[:build_script_url]} | #{env.join(' ')} bash", echo: true
+              sh.cmd "curl -s #{@config[:build_script_url]} | #{env.join(' ')} #{interpreter}", echo: true
+              sh.raw 'result=$?', echo: true
+              sh.if '$result -ne 0', echo: true do
+                sh.raw "echo -e \"\033[33;1mSkipping build_coverity due to script error\033[0m\""
+                sh.raw 'exit 1', echo: true
+              end
             end
           end
           sh.else echo:true do
