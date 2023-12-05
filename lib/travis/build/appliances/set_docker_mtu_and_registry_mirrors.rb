@@ -6,7 +6,7 @@ module Travis
       class SetDockerMtuAndRegistryMirrors < Base
         
         REGISTRY_URL = Travis::Build.config.registry_url.output_safe.freeze
-        MTU = Travis::Build.config.docker.mtu.output_safe.to_i.freeze
+        MTU = Travis::Build.config.docker.mtu.to_i.freeze
 
         def apply?
           linux?
