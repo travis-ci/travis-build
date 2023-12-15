@@ -1,0 +1,44 @@
+#!/usr/bin/env ruby
+# Help
+def usage
+  puts <<END
+  Usage: je [ARGS]...
+  
+  Options:
+    -v        verbose mode
+    --version show version
+END
+  exit
+end
+
+# Option parsing
+$verbose = false
+$sys_jemalloc = '/usr/lib/x86_64-linux-gnu/libjemalloc.so.2'
+argv = ARGV
+usage() if argv.length == 0
+if argv[0] == '-v'
+  $verbose = true
+  argv = argv[1..-1]
+elsif argv[0] == '--version'
+  require 'jemalloc/version'
+  puts "jemalloc version #{JEMalloc::VERSION}"
+  exit
+end
+usage() if argv.length == 0
+
+# Set ENV for preloading jemalloc
+lib_dir = File.expand_path('../lib/', File.dirname(__FILE__))
+if File.exist? (lib_dir + "/jemalloc.so")
+  puts "=> Injecting jemalloc..." if $verbose
+  ENV.store("LD_PRELOAD", lib_dir + "/jemalloc.so")
+elsif File.exist? (lib_dir + "/jemalloc.bundle")
+  puts "=> Injecting jemalloc..." if $verbose
+  ENV.store("DYLD_INSERT_LIBRARIES", lib_dir + "/jemalloc.bundle")
+elsif File.exist? ($sys_jemalloc)
+  puts "=> Injecting jemalloc..." if $verbose
+  ENV.store("LD_PRELOAD", $sys_jemalloc)
+else
+  puts "=> Can't inject, jemalloc not found"
+end
+
+Kernel.exec *argv

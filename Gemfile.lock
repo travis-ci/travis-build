@@ -6,12 +6,6 @@ GIT
       metriks (>= 0.9.9.6)
 
 GIT
-  remote: https://github.com/joshk/jemalloc-rb
-  revision: 8c9dbef98f6bd4f96b371ec336b7e0c4fdc02d49
-  specs:
-    jemalloc (1.4.5)
-
-GIT
   remote: https://github.com/travis-ci/travis-github_apps
   revision: 929dadf0b4f60ca4240d52a11fc032917ff3f83a
   branch: ga-ext_access
@@ -243,7 +237,6 @@ DEPENDENCIES
   connection_pool
   faraday
   faraday_middleware
-  jemalloc!
   jwt (~> 1.5)
   metriks (= 0.9.9.6)
   metriks-librato_metrics!
