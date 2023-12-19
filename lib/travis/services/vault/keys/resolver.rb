@@ -19,9 +19,11 @@ module Travis
 
           namespace = nil
           vault_secrets = []
-          secrets = appliance.vault[:secrets]
-          namespace = secrets[:namespace].find { |el| el.is_a?(Hash) && el&.dig(:name) }&.dig(:name) if secrets.include?(:namespace)
 
+          if appliance.vault.is_a?(Hash)
+            secrets = appliance.vault[:secrets]
+            namespace = secrets[:namespace].find { |el| el.is_a?(Hash) && el&.dig(:name) }&.dig(:name) if secrets&.include?(:namespace)
+          end
           paths.each do |path|
             parts = path.split('/',2)
             mount = parts&.first
