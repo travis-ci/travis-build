@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Travis::Vault::Keys::KV1 do
   describe '.resolve' do
-    subject { described_class.resolve(path, vault) }
+    subject { described_class.resolve('', 'secret', path, vault) }
 
     let(:vault) do
       {
