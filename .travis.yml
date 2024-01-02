@@ -39,6 +39,7 @@ jobs:
       if: (branch = master and type = push ) OR commit_message =~ /ship:docker/ OR env(SHIP_DOCKER) = true
 
 before_install:
+  - gem install rubygems-update -v 3.4.22
   - gem update --system 3.3.26 > /dev/null 2>&1
 
 before_script:
