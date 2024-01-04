@@ -132,6 +132,7 @@ module Travis
       end
 
       def compile(ignore_taint = false)
+        raise 'oops'
         nodes = sexp
         Shell.generate(nodes, ignore_taint)
       rescue Travis::Shell::Generator::TaintedOutput => to
@@ -452,6 +453,7 @@ module Travis
         end
 
         def show_compile_error_msg(exception, event)
+          puts "Exception Occurred when trying to compile #{exception.class}. Message: #{exception.message}. Backtrace:  \n #{exception.backtrace.join("\n")}"
           @sh = Shell::Builder.new
           error_message_ary(exception, event).each { |line| sh.raw "echo -e \"\033[31;1m#{line}\033[0m\"" }
           sh.raw "exit 2"
