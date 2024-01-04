@@ -132,7 +132,6 @@ module Travis
       end
 
       def compile(ignore_taint = false)
-        raise 'oops'
         nodes = sexp
         Shell.generate(nodes, ignore_taint)
       rescue Travis::Shell::Generator::TaintedOutput => to
