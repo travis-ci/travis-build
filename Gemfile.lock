@@ -6,6 +6,12 @@ GIT
       metriks (>= 0.9.9.6)
 
 GIT
+  remote: https://github.com/travis-ci/jemalloc-rb
+  revision: e9528e26aff663efa2c124cdeca47700e389097d
+  specs:
+    jemalloc (1.0.2)
+
+GIT
   remote: https://github.com/travis-ci/travis-github_apps
   revision: 929dadf0b4f60ca4240d52a11fc032917ff3f83a
   branch: ga-ext_access
@@ -37,8 +43,8 @@ GEM
       i18n (>= 0.7, < 2)
       minitest (~> 5.1)
       tzinfo (~> 1.1)
-    addressable (2.8.0)
-      public_suffix (>= 2.0.2, < 5.0)
+    addressable (2.8.4)
+      public_suffix (>= 2.0.2, < 6.0)
     ast (2.4.0)
     atomic (1.1.101)
     avl_tree (1.1.3)
@@ -57,11 +63,11 @@ GEM
       unf (>= 0.0.5, < 1.0.0)
     ethon (0.11.0)
       ffi (>= 1.3.0)
-    faraday (0.17.5)
+    faraday (0.17.6)
       multipart-post (>= 1.2, < 3)
     faraday_middleware (0.14.0)
       faraday (>= 0.7.4, < 1.0)
-    ffi (1.9.25)
+    ffi (1.15.5)
     gh (0.14.0)
       addressable
       backports
@@ -102,7 +108,7 @@ GEM
       metaclass (~> 0.0.1)
     msgpack (1.2.4)
     multi_json (1.15.0)
-    multipart-post (2.2.3)
+    multipart-post (2.3.0)
     mustermann (2.0.2)
       ruby2_keywords (~> 0.0.1)
     net-http-persistent (3.0.0)
@@ -110,7 +116,7 @@ GEM
     net-http-pipeline (1.0.1)
     netrc (0.11.0)
     nio4r (2.5.8)
-    octokit (4.18.0)
+    octokit (4.22.0)
       faraday (>= 0.9)
       sawyer (~> 0.8.0, >= 0.5.3)
     optimist (3.0.0)
@@ -123,7 +129,7 @@ GEM
     pry (0.11.3)
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
-    public_suffix (4.0.6)
+    public_suffix (4.0.7)
     puma (4.3.12)
       nio4r (~> 2.0)
     pusher-client (0.6.2)
