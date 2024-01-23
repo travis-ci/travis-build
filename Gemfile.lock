@@ -243,6 +243,7 @@ DEPENDENCIES
   connection_pool
   faraday
   faraday_middleware
+  jemalloc!
   jwt (~> 1.5)
   metriks (= 0.9.9.6)
   metriks-librato_metrics!
