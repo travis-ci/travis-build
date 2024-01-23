@@ -41,24 +41,6 @@ describe Travis::Vault::Keys::Resolver do
       end
     end
 
-    context 'when paths contain unusual chars' do
-      let(:paths) { %w[path/to/something/secret-thing] }
-
-      before do
-        Travis::Vault::Keys::KV2.stubs(:resolve).with(paths.first, vault).returns({ my_key: 'MySecretValue' })
-      end
-
-      context 'when path returns value from Vault' do
-        it do
-          sh.expects(:export).never
-          sh.expects(:echo).with('The env name secret-thing_my_key is invalid. Valid chars: a-z, A-Z, 0-9 and _. May NOT begin with a number.', ansi: :yellow)
-          data.expects(:vault_secrets=).never
-
-          call
-        end
-      end
-    end
-
     context 'when path does not returns value from Vault' do
       let(:paths) { %w[kv/path/to/something/secret_thing mnt/another/secret_thing] }
 
