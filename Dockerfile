@@ -19,6 +19,7 @@ RUN ( \
    apt-get update ; \
    # update to deb 10.8
    apt-get upgrade -y ; \
+   apt install libjemalloc-dev; \
    rm -rf /var/lib/apt/lists/* \
 )
 

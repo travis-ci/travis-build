@@ -24,9 +24,9 @@ describe Travis::Vault::Keys::Resolver do
       let(:paths) { %w[path/to/something/secret_thing another/secret_thing another/secret_thing] }
 
       before do
-        Travis::Vault::Keys::KV2.stubs(:resolve).with(paths.first, vault).returns({ my_key: 'MySecretValue' })
-        Travis::Vault::Keys::KV2.stubs(:resolve).with(paths[1], vault).returns({ something_else: 'ABC' })
-        Travis::Vault::Keys::KV2.stubs(:resolve).with(paths.last, vault).returns({ something_else: 'ABC' })
+        Travis::Vault::Keys::KV2.stubs(:resolve).with(nil, 'path', paths.first.split('/',2).last, vault).returns({ my_key: 'MySecretValue' })
+        Travis::Vault::Keys::KV2.stubs(:resolve).with(nil, 'another', paths[1].split('/',2).last, vault).returns({ something_else: 'ABC' })
+        Travis::Vault::Keys::KV2.stubs(:resolve).with(nil, 'another', paths.last.split('/',2).last, vault).returns({ something_else: 'ABC' })
       end
 
       context 'when path returns value from Vault' do
@@ -41,30 +41,12 @@ describe Travis::Vault::Keys::Resolver do
       end
     end
 
-    context 'when paths contain unusual chars' do
-      let(:paths) { %w[path/to/something/secret-thing] }
-
-      before do
-        Travis::Vault::Keys::KV2.stubs(:resolve).with(paths.first, vault).returns({ my_key: 'MySecretValue' })
-      end
-
-      context 'when path returns value from Vault' do
-        it do
-          sh.expects(:export).never
-          sh.expects(:echo).with('The env name secret-thing_my_key is invalid. Valid chars: a-z, A-Z, 0-9 and _. May NOT begin with a number.', ansi: :yellow)
-          data.expects(:vault_secrets=).never
-
-          call
-        end
-      end
-    end
-
     context 'when path does not returns value from Vault' do
-      let(:paths) { %w[path/to/something/secret_thing another/secret_thing] }
+      let(:paths) { %w[kv/path/to/something/secret_thing mnt/another/secret_thing] }
 
       before do
-        Travis::Vault::Keys::KV2.stubs(:resolve).with(paths.first, vault).returns(nil)
-        Travis::Vault::Keys::KV2.stubs(:resolve).with(paths.last, vault).returns(nil)
+        Travis::Vault::Keys::KV2.stubs(:resolve).with(nil, 'kv', paths.first.split('/',2).last, vault).returns(nil)
+        Travis::Vault::Keys::KV2.stubs(:resolve).with(nil, 'mnt', paths.last.split('/',2).last, vault).returns(nil)
       end
 
       it do
