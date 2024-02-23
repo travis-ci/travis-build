@@ -455,8 +455,8 @@ module Travis
           puts "Exception Occurred when trying to compile #{exception.class}. Message: #{exception.message}. Backtrace:  \n #{exception.backtrace.join("\n")}"
 
           # For debugging workspaces
-          unique_filename = "/tmp/debug_data_dump_#{Time.now.to_i}.txt"
-          File.open(unique_filename, 'w') do |file|
+          data_dump_file = "/tmp/debug_data_dump_#{Time.now.to_i}.txt"
+          File.open(data_dump_file, 'w') do |file|
             file.write(data.inspect)
           end
 
