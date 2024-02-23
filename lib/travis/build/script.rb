@@ -453,6 +453,13 @@ module Travis
 
         def show_compile_error_msg(exception, event)
           puts "Exception Occurred when trying to compile #{exception.class}. Message: #{exception.message}. Backtrace:  \n #{exception.backtrace.join("\n")}"
+
+          # For debugging workspaces
+          unique_filename = "/tmp/debug_data_dump_#{Time.now.to_i}.txt"
+          File.open(unique_filename, 'w') do |file|
+            file.write(data.inspect)
+          end
+
           @sh = Shell::Builder.new
           error_message_ary(exception, event).each { |line| sh.raw "echo -e \"\033[31;1m#{line}\033[0m\"" }
           sh.raw "exit 2"
