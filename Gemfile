@@ -33,7 +33,7 @@ gem 'sentry-raven'
 gem 'simplecov', require: false, group: %i[development test]
 gem 'sinatra', '>= 3.0.6'
 gem 'travis'
-gem 'travis-config', github: 'travis-ci/travis-config', branch: 'prd-ruby-upgrade-dev'
+gem 'travis-config', github: 'travis-ci/travis-config'
 gem 'travis-github_apps', github: 'travis-ci/travis-github_apps'
 gem 'travis-rollout', github: 'travis-ci/travis-rollout'
 gem 'travis-support', github: 'travis-ci/travis-support'
