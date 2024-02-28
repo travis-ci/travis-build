@@ -12,7 +12,7 @@ describe 'script header', integration: true do
   end
 
   let :rendered do
-    Travis::Shell.generate(script.send(:sh).to_sexp, false)
+    Travis::Shell.generate(script.send(:sh).to_sexp)
   end
 
   let :bash_body do

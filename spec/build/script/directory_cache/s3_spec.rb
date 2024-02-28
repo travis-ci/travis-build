@@ -9,7 +9,7 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
   end
 
   def signed_url_for(branch, signature, ext = 'tbz')
-    Shellwords.escape(S3_SIGNED_URL % [url_for(URI.encode(branch), ext), signature])
+    Shellwords.escape(S3_SIGNED_URL % [url_for(URI::Parser.new.escape(branch), ext), signature])
   end
 
   let(:master_fetch_signature) { "163b2a236fcfda37d58c1d50c27d86fbd04efb4a6d97219134f71854e3e0383b" }
@@ -18,8 +18,8 @@ describe Travis::Build::Script::DirectoryCache::S3, :sexp do
   let(:fetch_signature_tgz)    { master_fetch_signature_tgz }
   let(:push_signature)         { "d388be7ca53fb612892cffe0844c957ee6062efe08c997ddcb5d2e8e1501e339" }
 
-  let(:url)           { url_for(URI.encode(branch)) }
-  let(:url_tgz)       { url_for(URI.encode(branch), 'tgz') }
+  let(:url)           { url_for(URI::Parser.new.escape(branch)) }
+  let(:url_tgz)       { url_for(URI::Parser.new.escape(branch), 'tgz') }
   let(:fetch_url_tgz) { Shellwords.escape "#{url_tgz}&X-Amz-Expires=20&X-Amz-Signature=#{fetch_signature_tgz}&X-Amz-SignedHeaders=host" }
   let(:push_url)      { Shellwords.escape("#{url}&X-Amz-Expires=30&X-Amz-Signature=#{push_signature}&X-Amz-SignedHeaders=host").gsub(/\.tbz(\?)?/, '.tgz\1') }
 
