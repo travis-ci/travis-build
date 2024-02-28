@@ -106,7 +106,7 @@ module Travis
           end
 
           def pypy?
-            config[:python] =~ /pypy/i
+            config[:python].to_s =~ /pypy/i
           end
 
           def system_site_packages

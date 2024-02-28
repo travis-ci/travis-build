@@ -143,11 +143,13 @@ module Travis
           end
 
           def xcodebuild_args
+            args = ""
             config[:xcodebuild_args].to_s.tap do |xcodebuild_args|
               %w[project workspace scheme sdk destination].each do |var|
-                xcodebuild_args << " -#{var} #{config[:"xcode_#{var}"].to_s.shellescape}" if config[:"xcode_#{var}"]
+                args << " -#{var} #{config[:"xcode_#{var}"].to_s.shellescape}" if config[:"xcode_#{var}"]
               end
-            end.strip
+            end
+            args.strip
           end
 
           def suppress_cocoapods_msg

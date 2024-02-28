@@ -9,7 +9,7 @@ describe Travis::Build::Script::DirectoryCache::Gcs, :sexp do
   end
 
   def signed_url_for(branch, signature, ext = 'tbz', timeout = 30)
-    Shellwords.escape(GCS_SIGNED_URL % [url_for(URI.encode(branch), ext, timeout), signature])
+    Shellwords.escape(GCS_SIGNED_URL % [url_for(URI::Parser.new.escape(branch), ext, timeout), signature])
   end
 
   let(:master_fetch_signature) { "rtH5pKA2GoRqKYjQu3UweW5kRSk%3D" }

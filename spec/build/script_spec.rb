@@ -7,12 +7,6 @@ describe Travis::Build::Script, :sexp do
   let(:code)    { script.compile }
   subject       { script.sexp }
 
-  it 'raises an exception if the generated code is tainted (leaking secure env vars)' do
-    payload[:config][:env] = ['SECURE FOO=foo']
-    Travis::Build::Env::Var.any_instance.stubs(:secure?).returns(false)
-    expect { code }.to raise_error(Travis::Shell::Generator::TaintedOutput)
-  end
-
   it 'uses ${TRAVIS_BUILD_DIR} as a working directory' do
     expect(code).to match %r(cd +"\${TRAVIS_BUILD_DIR}")
   end
@@ -45,13 +39,6 @@ describe Travis::Build::Script, :sexp do
     it 'on script being true' do
       payload[:config][:script] = true
       expect { subject }.to_not raise_error
-    end
-
-    it 'if s3_options are tainted' do
-      access_key_id = payload['cache_options']['s3']['access_key_id'].dup
-      access_key_id.taint
-      payload['cache_options']['s3']['access_key_id'] = access_key_id
-      expect { code }.to_not raise_error
     end
   end
 
