@@ -45,7 +45,7 @@ describe Travis::Vault::Keys::Resolver do
       let(:paths) { %w[path/to/something/secret-thing] }
 
       before do
-        Travis::Vault::Keys::KV2.stubs(:resolve).with(paths.first, vault).returns({ my_key: 'MySecretValue' })
+        Travis::Vault::Keys::KV2.stubs(:resolve).with(nil, 'path', paths.first, vault).returns({ my_key: 'MySecretValue' })
       end
 
       context 'when path returns value from Vault' do
