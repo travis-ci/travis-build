@@ -42,7 +42,7 @@ describe Travis::Vault::Keys::Resolver do
     end
 
     context 'when paths contain unusual chars' do
-      let(:paths) { %w[path/to/something/secret-thing] }
+      let(:paths) { %w[to/something/secret-thing] }
 
       before do
         Travis::Vault::Keys::KV2.stubs(:resolve).with(nil, 'path', paths.first, vault).returns({ my_key: 'MySecretValue' })
