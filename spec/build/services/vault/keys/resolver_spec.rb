@@ -59,7 +59,7 @@ describe Travis::Vault::Keys::Resolver do
       end
     end
 
-    ccontext 'when path does not returns value from Vault' do
+    context 'when path does not returns value from Vault' do
       let(:paths) { %w[kv/path/to/something/secret_thing mnt/another/secret_thing] }
 
       before do
