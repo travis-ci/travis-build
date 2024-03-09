@@ -12,6 +12,7 @@ gem 'coder'
 gem 'connection_pool'
 gem 'faraday'
 gem 'faraday_middleware'
+gem 'jemalloc', git: gh('travis-ci/jemalloc-rb')
 gem 'jwt', '~> 1.5'
 gem 'metriks', '0.9.9.6'
 gem 'metriks-librato_metrics', github: 'eric/metriks-librato_metrics'
