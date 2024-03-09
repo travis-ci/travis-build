@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'pry'
 
 describe Travis::Vault::Keys::Resolver do
   describe '#call' do
