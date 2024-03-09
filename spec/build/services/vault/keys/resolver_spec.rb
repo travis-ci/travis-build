@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'pry'
 
 describe Travis::Vault::Keys::Resolver do
   describe '#call' do
@@ -42,10 +43,10 @@ describe Travis::Vault::Keys::Resolver do
     end
 
     context 'when paths contain unusual chars' do
-      let(:paths) { %w[to/something/secret-thing] }
+      let(:paths) { %w[path/to/something/secret-thing] }
 
       before do
-        Travis::Vault::Keys::KV2.stubs(:resolve).with(nil, 'path', paths.first, vault).returns({ my_key: 'MySecretValue' })
+        Travis::Vault::Keys::KV2.stubs(:resolve).with(nil, 'path', 'to/something/secret-thing', vault).returns({ my_key: 'MySecretValue' })
       end
 
       context 'when path returns value from Vault' do
