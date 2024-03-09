@@ -19,6 +19,12 @@ GIT
       tilt (~> 2.0)
 
 GIT
+  remote: https://github.com/travis-ci/jemalloc-rb.git
+  revision: e9528e26aff663efa2c124cdeca47700e389097d
+  specs:
+    jemalloc (1.0.2)
+
+GIT
   remote: https://github.com/travis-ci/travis-config.git
   revision: 601e9a6dcb799dc14944c40153c60aaf935629ee
   specs:
@@ -239,6 +245,7 @@ DEPENDENCIES
   connection_pool
   faraday
   faraday_middleware
+  jemalloc!
   jwt (~> 1.5)
   metriks (= 0.9.9.6)
   metriks-librato_metrics!
