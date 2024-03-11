@@ -32,8 +32,9 @@ GIT
       hashr (~> 2.0)
 
 GIT
-  remote: https://github.com/travis-ci/travis-github_apps.git
-  revision: c96dc9330849ff3e2ccd7c9d00005a1a96c1a4b6
+  remote: https://github.com/travis-ci/travis-github_apps
+  revision: 929dadf0b4f60ca4240d52a11fc032917ff3f83a
+  branch: ga-ext_access
   specs:
     travis-github_apps (0.2.1)
       activesupport (>= 3.2)
@@ -164,7 +165,10 @@ GEM
       ffi (>= 1.0.6)
       msgpack (>= 0.4.3)
       optimist (>= 3.0.0)
-    redis (4.1.4)
+    redis (5.1.0)
+      redis-client (>= 0.17.0)
+    redis-client (0.21.0)
+      connection_pool
     rerun (0.14.0)
       listen (~> 3.0)
     rest-client (2.1.0)
