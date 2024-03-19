@@ -17,7 +17,7 @@ travis_setup_postgresql() {
       version='10'
       ;;
     focal)
-      version='12'
+      version='13'
       ;;
     jammy)
       version='14'

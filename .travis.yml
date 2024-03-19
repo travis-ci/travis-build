@@ -1,6 +1,6 @@
 language: ruby
 dist: bionic
-rvm: 2.5.9
+rvm: 3.2.2
 
 services:
   - redis

@@ -132,12 +132,9 @@ module Travis
         @setup_cache_has_run_for = {}
       end
 
-      def compile(ignore_taint = false)
+      def compile
         nodes = sexp
-        Shell.generate(nodes, ignore_taint)
-      rescue Travis::Shell::Generator::TaintedOutput => to
-        log_tainted_nodes(nodes)
-        raise to
+        Shell.generate(nodes)
       rescue Exception => e
         event = Travis::Build.config.sentry_dsn.empty? ? nil : Raven.capture_exception(e)
 
@@ -156,14 +153,6 @@ module Travis
       def sexp
         run
         sh.to_sexp
-      end
-
-      def log_tainted_nodes(nodes)
-        return unless Travis::Build.config.tainted_node_logging_enabled?
-        tainted_values = nodes.flatten.select(&:tainted?)
-        Travis::Build.logger.error(
-          "nodes contain tainted value(s) #{tainted_values.inspect}"
-        )
       end
 
       def cache_slug_keys

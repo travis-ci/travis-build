@@ -55,7 +55,7 @@ module Travis
         end
 
         def run_stage?(addon, stage)
-          addon.respond_to?(stage) && (!addon.respond_to?(:"#{stage}?") || addon.send(:"#{stage}?"))
+          addon.class.method_defined?(stage) && (!addon.class.method_defined?(:"#{stage}?") || addon.send(:"#{stage}?"))
         end
 
         def addon(name, config)

@@ -42,7 +42,7 @@ module Travis
 
           def agent
             str = File.read(path) % { url: "#{ENV['HUB_URL']}/jobs/#{job_id}" }
-            str.untaint
+            str
           end
 
           def path
@@ -54,7 +54,7 @@ module Travis
           end
 
           def token
-            jwt.create.untaint
+            jwt.create
           end
 
           def jwt

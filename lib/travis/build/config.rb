@@ -119,7 +119,7 @@ module Travis
               'NETWORK_CHECK_URLS',
               'http://%{app_host}/empty.txt?job_id=%{job_id}&repo=%{repo}'
             )
-          ).split(',').map { |s| URI.unescape(s.strip) }
+          ).split(',').map { |s| CGI.unescape(s.strip) }
         },
         redis: {
           url: 'redis://localhost:6379',
@@ -130,7 +130,6 @@ module Travis
         sentry_dsn: ENV.fetch(
           'TRAVIS_BUILD_SENTRY_DSN', ENV.fetch('SENTRY_DSN', '')
         ),
-        tainted_node_logging_enabled: false,
         trace_command: ENV.fetch('TRACE_COMMAND', 'GIT_TRACE=true'),
         trace_git_commands_owners: ENV.fetch('TRACE_GIT_COMMANDS_OWNERS', ''),
         trace_git_commands_slugs: ENV.fetch('TRACE_GIT_COMMANDS_SLUGS', ''),
