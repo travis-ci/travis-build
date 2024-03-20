@@ -157,7 +157,10 @@ module Travis
         dump_backtrace: ENV.fetch(
           'TRAVIS_BUILD_DUMP_BACKTRACE', ENV.fetch('DUMP_BACKTRACE', 'false')
         ).to_bool,
-        wait_for_network_check: ENV.fetch('TRAVIS_WAIT_FOR_NETWORK_CHECK', 'true').to_bool
+        wait_for_network_check: ENV.fetch('TRAVIS_WAIT_FOR_NETWORK_CHECK', 'true').to_bool,
+        sbom: {
+          image_url: ENV.fetch('TRAVIS_BUILD_SBOM_IMAGE_URL', 'travis-sbom')
+        }
       )
 
       default(
