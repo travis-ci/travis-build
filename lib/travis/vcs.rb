@@ -49,6 +49,7 @@ module Travis
 
       def defaults(server_type)
         @provider_name = server_type
+        @provider_name = 'svn' if @provider_name == 'subversion'
         "Travis::Vcs::#{provider_name.to_s.camelize}".constantize.defaults
       rescue NameError
         raise Travis::Build::UnknownServiceTypeError.new provider_name
@@ -57,6 +58,7 @@ module Travis
       private
       def vcs(sh,data)
         provider = data[:repository][:server_type] if data.key?(:repository)
+        provider = 'svn' if provider == 'subversion'
         provider = provider_name unless provider
         @provider_name = provider
         "Travis::Vcs::#{provider.to_s.camelize}".constantize.new(sh,data)

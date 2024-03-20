@@ -64,7 +64,7 @@ describe Travis::Vcs::Git::Clone, :sexp do
   describe 'when the repository is already cloned' do
     subject         { sexp_find(sexp, [:if, "! -d #{dir}/.git"], [:else]) }
 
-    let(:fetch)     { [:cmd, "git -C #{payload[:repository][:slug]} fetch origin", assert: true, echo: true, retry: true, timing: true] }
+    let(:fetch)     { [:cmd, "git -C #{payload[:repository][:slug]} fetch origin --depth=#{depth}", assert: true, echo: true, retry: true, timing: true] }
     let(:reset)     { [:cmd, "git -C #{payload[:repository][:slug]} reset --hard", assert: true, echo: true] }
 
     it { should include_sexp fetch }
@@ -75,7 +75,7 @@ describe Travis::Vcs::Git::Clone, :sexp do
         payload[:config][:git].merge!({ quiet: true })
       end
 
-      let(:quiet_fetch)     { [:cmd, "git -C #{payload[:repository][:slug]} fetch origin --quiet", assert: true, echo: true, retry: true, timing: true] }
+      let(:quiet_fetch)     { [:cmd, "git -C #{payload[:repository][:slug]} fetch origin --depth=#{depth} --quiet", assert: true, echo: true, retry: true, timing: true] }
 
       it { should include_sexp quiet_fetch }
     end
@@ -99,7 +99,7 @@ describe Travis::Vcs::Git::Clone, :sexp do
         payload[:config][:git].merge!({ quiet: true })
       end
 
-      let(:quiet_fetch_ref) { [:cmd, %r(git fetch origin \+[\w/]+: --quiet), assert: true, echo: true, retry: true, timing: true] }
+      let(:quiet_fetch_ref) { [:cmd, %r(git fetch origin \+[\w/]+: --depth=#{depth} --quiet), assert: true, echo: true, retry: true, timing: true] }
 
       it { should include_sexp quiet_fetch_ref }
     end

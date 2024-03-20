@@ -9,6 +9,7 @@ describe Travis::Build::Data do
       it { expect(data.ssh_key.source).to be_nil }
       it { expect(data.ssh_key).to be_encoded }
       it { expect(data.ssh_key.fingerprint).to eq('57:78:65:c2:c9:c8:c9:f7:dd:2b:35:39:40:27:d2:40') }
+      it { expect(data.ssh_key.public_key).to be_nil }
     end
 
     describe 'returns nil if there is no ssh_key' do
@@ -22,6 +23,14 @@ describe Travis::Build::Data do
       it { expect(data.ssh_key.source).to eql('the source') }
       it { expect(data.ssh_key).to_not be_encoded }
       it { expect(data.ssh_key.fingerprint).to eq('57:78:65:c2:c9:c8:c9:f7:dd:2b:35:39:40:27:d2:40') }
+    end
+
+    context 'when public key is provided' do
+      let(:public_key) { 'ssh-rsa public-key' }
+      let(:data) { Travis::Build::Data.new(ssh_key: { value: TEST_PRIVATE_KEY, public_key: public_key, source: 'the source' }) }
+
+      it { expect(data.ssh_key.value).to eql(TEST_PRIVATE_KEY) }
+      it { expect(data.ssh_key.public_key).to eql(public_key) }
     end
 
     describe 'does not fail on an invalid key' do

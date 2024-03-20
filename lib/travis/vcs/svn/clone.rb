@@ -48,11 +48,35 @@ module Travis
           end
 
           def clone
+            return clone_merge if vcs_pull_request?
             sh.cmd "svn co #{source_url}#{clone_args} #{repository_name}", assert: false, retry: true
           end
 
           def checkout
+            return checkout_merge if vcs_pull_request?
             sh.cmd "svn update -r #{checkout_ref}", timing: false
+          end
+
+          def clone_merge
+            target_args = ""
+            if pull_request_base_branch && pull_request_base_branch == 'trunk'
+              target_args << "/#{pull_request_base_branch}"
+            else
+              target_args << "/branches/#{pull_request_base_branch}" if pull_request_base_branch
+            end
+
+            sh.cmd "svn co #{source_url}#{target_args} #{repository_name}", assert: false, retry: true
+          end
+
+          def checkout_merge
+            source_args = ""
+            if pull_request_head_branch && pull_request_head_branch == 'trunk'
+              source_args << "/#{pull_request_head_branch}"
+            else
+              source_args << "/branches/#{pull_request_head_branch}" if pull_request_head_branch
+            end
+
+            sh.cmd "svn merge --non-interactive ^#{source_args}", timing: false
           end
 
           def checkout_ref
@@ -70,6 +94,8 @@ module Travis
             args = ""
             if branch && branch == 'trunk'
               args << "/#{branch}"
+            elsif data.tag
+              args << "/tags/#{tag}" if tag
             else
               args << "/branches/#{branch}" if branch
             end
@@ -92,12 +118,24 @@ module Travis
             data.tag.shellescape if data.tag
           end
 
+          def pull_request_head_branch
+            data.job[:pull_request_head_branch].shellescape if data.job[:pull_request_head_branch]
+          end
+
+          def pull_request_base_branch
+            data.job[:pull_request_base_ref].shellescape if data.job[:pull_request_base_ref]
+          end
+
           def user
             data[:sender_login]
           end
 
           def config
             data.config
+          end
+
+          def vcs_pull_request?
+            data.repository[:vcs_type].to_s == 'AssemblaRepository' && data.pull_request
           end
       end
     end

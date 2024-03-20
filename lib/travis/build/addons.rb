@@ -1,4 +1,4 @@
-require 'active_support/core_ext/string/inflections.rb'
+require 'active_support/core_ext/string/inflections'
 require 'travis/build/addons/apt'
 require 'travis/build/addons/apt_packages'
 require 'travis/build/addons/apt_retries'
@@ -13,6 +13,8 @@ require 'travis/build/addons/homebrew'
 require 'travis/build/addons/hostname'
 require 'travis/build/addons/hosts'
 require 'travis/build/addons/mariadb'
+require 'travis/build/addons/tensor_flow'
+require 'travis/build/addons/blender'
 require 'travis/build/addons/rethinkdb'
 require 'travis/build/addons/postgresql'
 require 'travis/build/addons/sauce_connect'
@@ -54,7 +56,7 @@ module Travis
         end
 
         def run_stage?(addon, stage)
-          addon.respond_to?(stage) && (!addon.respond_to?(:"#{stage}?") || addon.send(:"#{stage}?"))
+          addon.class.method_defined?(stage) && (!addon.class.method_defined?(:"#{stage}?") || addon.send(:"#{stage}?"))
         end
 
         def addon(name, config)

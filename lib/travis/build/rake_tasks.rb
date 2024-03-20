@@ -58,7 +58,12 @@ module Travis
       end
 
       def latest_release_for(repo)
-        octokit.latest_release(repo)['tag_name']
+        logger.info "Fetching releases from #{repo}"
+
+        latest_release = octokit.latest_release(repo)['tag_name']
+        raise "No releases found for #{repo}" if latest_release.empty?
+
+        latest_release
       rescue
         raise "Could not get latest release for #{repo}"
       end
@@ -204,10 +209,10 @@ module Travis
       end
 
       def task_clean
-        rm_rf(top + 'examples')
-        rm_rf(top + 'public/files')
-        rm_rf(top + 'tmp/sc_data.json')
-        rm_rf(top + 'tmp/ghc-versions.html')
+        system("rm -Rf " + top.to_s + "/examples")
+        system("rm -Rf " + top.to_s + "/public/files")
+        system("rm -Rf " + top.to_s + "/tmp/sc_data.json")
+        system("rm -Rf " + top.to_s + "/tmp/ghc-versions.html")
       end
 
       def file_update_casher
