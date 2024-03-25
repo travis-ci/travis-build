@@ -160,7 +160,7 @@ module Travis
           end
 
           def npm_disable_spinner
-            sh.cmd 'npm config set spin false || true', echo: false, timing: false
+            sh.cmd 'npm config set spin false --silent || true', echo: false, timing: false
           end
 
           def npm_disable_strict_ssl
