@@ -25,6 +25,7 @@ gem 'puma'
 gem 'rack', '>= 2.2.4'
 gem 'rack-ssl', '~> 1.4'
 gem 'rack-test', '>= 2.1.0'
+gem 'redis', '~> 4'
 gem 'rake'
 gem 'rbtrace'
 gem 'rerun', require: false, group: :development
