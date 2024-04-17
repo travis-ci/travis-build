@@ -30,6 +30,10 @@ module Travis
         def deployment?
           name == :after_success && config[:addons].is_a?(Hash) && !!config[:addons][:deploy]
         end
+
+        def sbom?
+          config[:addons].is_a?(Hash) && !!config[:addons][:sbom]
+        end
       end
     end
   end
