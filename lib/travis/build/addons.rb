@@ -25,6 +25,7 @@ require 'travis/build/addons/sonarqube'
 require 'travis/build/addons/browserstack'
 require 'travis/build/addons/srcclr'
 require 'travis/build/addons/pkg'
+require 'travis/build/addons/sbom'
 
 module Travis
   module Build
@@ -65,7 +66,15 @@ module Travis
         end
 
         def addon_config
+          push_down_deploy
           config[:addons] || {}
+        end
+
+        def push_down_deploy
+          addons_data = config.fetch(:addons, {})
+          if deploy_data = addons_data.delete(:deploy)
+            config[:addons] = addons_data.merge({deploy: deploy_data})
+          end
         end
     end
   end

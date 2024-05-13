@@ -20,10 +20,9 @@ GIT
 
 GIT
   remote: https://github.com/travis-ci/travis-config.git
-  revision: f02604a813cce3a672ae89cd7e4adaa30b001532
-  branch: prd-ruby-upgrade-dev
+  revision: 601e9a6dcb799dc14944c40153c60aaf935629ee
   specs:
-    travis-config (1.1.5)
+    travis-config (2.0.0)
       hashr (~> 2.0)
 
 GIT
