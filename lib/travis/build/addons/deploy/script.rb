@@ -168,6 +168,10 @@ module Travis
             end
 
             def install
+              if config[:edge].nil? && dpl_version.nil? && !ENV['DPL_VERSION'].nil? && !dpl_deprecation_message.nil?
+                sh.echo dpl_deprecation_message, ansi: :yellow
+              end
+
               if edge_changed?(last_deploy, config)
                 cmd "gem uninstall -aIx dpl", echo: true
               end
@@ -219,13 +223,15 @@ module Travis
               # this is not 100% accurate, but chances are low that people run
               # into using false values (not supported in v1 anyway) while we
               # release dpl v2 gradually.
-              !!config[:edge]
+              has_specific_version = (!dpl_version.nil? || !ENV['DPL_VERSION'].nil?) && !!!config[:edge]
+              version = dpl_version || ENV['DPL_VERSION']
+              has_specific_version ? Gem::Version.new(version) >= Gem::Version.new('2.0.0') : true
             end
 
             def cmd(cmd, *args)
               sh.if "-e $HOME/.rvm/scripts/rvm" do
                 sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
-                sh.cmd("rvm $(travis_internal_ruby) --fuzzy do ruby -S #{cmd}", *args)
+                sh.cmd("rvm #{dpl_ruby_version} --fuzzy do ruby -S #{cmd}", *args)
               end
               sh.else do
                 sh.cmd("ruby -S #{cmd}", *args)
@@ -233,6 +239,7 @@ module Travis
             end
 
             def dpl_install_command(want_pre_19 = false)
+              @want_pre_19 = want_pre_19
               edge = config[:edge]
               if edge.respond_to? :fetch
                 src = edge.fetch(:source, 'travis-ci/dpl')
@@ -246,13 +253,18 @@ module Travis
               else
                 command << " dpl"
               end
-              command << " -v '< 1.9' " if want_pre_19
-              command << " --pre" if edge
+              if dpl_version.nil?
+                command << " -v '< 1.9' " if want_pre_19
+                command << " -v #{ENV['DPL_VERSION'].to_s.shellescape}" if !want_pre_19 && !edge && !ENV['DPL_VERSION'].nil?
+                command << " --pre" if edge
+              else
+                command << " -v #{dpl_version}"
+              end
               command
             end
 
             def options
-              config.flat_map { |k,v| option(k,v) }.compact.join(" ")
+              config.except(:dpl_version).flat_map { |k,v| option(k,v) }.compact.join(" ")
             end
 
             def warning_message(message)
@@ -310,6 +322,22 @@ module Travis
 
             def compact(hash)
               hash.reject { |_, value| value.nil? }.to_h
+            end
+
+            def want_pre_19?
+              @want_pre_19
+            end
+
+            def dpl_version
+              config[:dpl_version].nil? ? nil : config[:dpl_version].to_s.shellescape
+            end
+
+            def dpl_deprecation_message
+              ENV['DPL_DEPRECATE_MESSAGE']
+            end
+
+            def dpl_ruby_version
+              dpl2? || want_pre_19? ? '$(travis_internal_ruby)' : '2.7'
             end
         end
       end
