@@ -35,12 +35,13 @@ module Travis
 
         def handle_nonrsa(key)
           parsed_key = SSHData::PrivateKey.parse_openssh(key)
-          return nil unless parsed_key && parsed_key.length
+          public_key = parsed_key[0]&.public_key
+          return unless public_key
 
-          bytes = if parsed_key[0]&.public_key.respond_to?(:public_key_bytes)
-                    parsed_key[0]&.public_key.public_key_bytes
-                  elsif parsed_key[0]&.public_key.respond_to?(:pk)
-                    parsed_key[0]&.public_key.pk
+          bytes = if public_key.respond_to?(:public_key_bytes)
+                    public_key.public_key_bytes
+                  elsif public_key.respond_to?(:pk)
+                    public_key.pk
                   else
                     nil
                   end
