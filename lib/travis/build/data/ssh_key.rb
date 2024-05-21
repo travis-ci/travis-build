@@ -42,14 +42,11 @@ module Travis
                     public_key.public_key_bytes
                   elsif public_key.respond_to?(:pk)
                     public_key.pk
-                  else
-                    nil
                   end
-          return nil unless bytes
+          return unless bytes
 
           OpenSSL::Digest::MD5.new(bytes).hexdigest.scan(/../).join(':')
         rescue SSHData::DecodeError
-          nil
         end
 
       end
