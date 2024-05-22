@@ -38,6 +38,23 @@ describe Travis::Build::Data do
       it { expect { data }.to_not raise_error }
       it { expect(data.ssh_key.fingerprint).to be_nil }
     end
+
+    describe 'ed25519 provided' do
+      let (:private_key_eddsa) {
+        "-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+QyNTUxOQAAACBQXfKTsmUKEONVc2i974UqTzI+Jci36WMfk/BnsWbU1gAAAJgPwlTaD8JU
+2gAAAAtzc2gtZWQyNTUxOQAAACBQXfKTsmUKEONVc2i974UqTzI+Jci36WMfk/BnsWbU1g
+AAAEBKnjD7h7IMc9yK5y+8yddm7Lze3vvP7+4OIbsYJ83raFBd8pOyZQoQ41VzaL3vhSpP
+Mj4lyLfpYx+T8GexZtTWAAAAEmJnQExBUFRPUC1ISTQ5Q0hOTgECAw==
+-----END OPENSSH PRIVATE KEY-----"
+      }
+      let(:data) { Travis::Build::Data.new(ssh_key: { value: private_key_eddsa, source: 'the source' }) }
+      it { expect(data.ssh_key.value).to eql(private_key_eddsa) }
+      it { expect(data.ssh_key.source).to eql('the source') }
+      it { expect(data.ssh_key).to_not be_encoded }
+      it { expect(data.ssh_key.fingerprint).to eq('80:4e:61:7a:e3:28:a2:c6:42:57:e3:42:e4:16:bd:de') }
+    end
   end
 
   describe 'cache' do
