@@ -1,6 +1,5 @@
 require 'travis/build/addons/base'
 require 'travis/build/addons/sbom/script'
-require 'pry'
 
 module Travis
   module Build
