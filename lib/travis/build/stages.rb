@@ -11,6 +11,8 @@ module Travis
 
     class Stages
       STAGES = [
+        Stage.new(:conditional, :after_success,  false),
+        Stage.new(:conditional, :after_failure,  false),
         Stage.new(:builtin,     :setup_filter,   :always),
         Stage.new(:builtin,     :configure,      :always),
         Stage.new(:builtin,     :prepare,        :always),
@@ -31,8 +33,6 @@ module Travis
         Stage.new(:builtin,     :create_workspaces, false),
         Stage.new(:builtin,     :cache,          false),
         Stage.new(:builtin,     :reset_state,    true),
-        Stage.new(:conditional, :after_success,  false),
-        Stage.new(:conditional, :after_failure,  false),
         Stage.new(:custom,      :after_script,   false),
         Stage.new(:builtin,     :finish,         :always),
       ]
