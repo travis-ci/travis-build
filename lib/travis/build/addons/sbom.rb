@@ -33,13 +33,13 @@ module Travis
         end
 
         def after_after_success
-          sh.if('[ $TRAVIS_TEST_RESULT -eq 0 ]') do
+          sh.if('$TRAVIS_TEST_RESULT -eq 0') do
             Script.new(@script, sh, data, config).generate
           end
         end
 
         def after_after_failure
-          sh.if('[ $TRAVIS_TEST_RESULT -ne 0 ]') do
+          sh.if('$TRAVIS_TEST_RESULT -ne 0') do
             Script.new(@script, sh, data, config).generate
           end
         end
