@@ -22,7 +22,7 @@ module Travis
           end
 
           def operator
-            name == :after_success ? '-eq' : '-ne'
+            name == :after_success ? '=' : '!='
           end
       end
     end
