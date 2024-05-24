@@ -63,6 +63,7 @@ module Travis
 
         post '/script' do
           payload = JSON.parse(request.body.read)
+          File.write('/tmp/payload.json', payload)
 
           unless Travis::Build.config.sentry_dsn.empty?
             Raven.extra_context(
