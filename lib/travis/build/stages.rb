@@ -7,12 +7,11 @@ require 'travis/build/stages/skip'
 
 module Travis
   module Build
+
     Stage = Struct.new(:type, :name, :run_in_debug)
 
     class Stages
       STAGES = [
-        Stage.new(:conditional, :after_success,  false),
-        Stage.new(:conditional, :after_failure,  false),
         Stage.new(:builtin,     :setup_filter,   :always),
         Stage.new(:builtin,     :configure,      :always),
         Stage.new(:builtin,     :prepare,        :always),
@@ -33,6 +32,8 @@ module Travis
         Stage.new(:builtin,     :create_workspaces, false),
         Stage.new(:builtin,     :cache,          false),
         Stage.new(:builtin,     :reset_state,    true),
+        Stage.new(:conditional, :after_success,  false),
+        Stage.new(:conditional, :after_failure,  false),
         Stage.new(:custom,      :after_script,   false),
         Stage.new(:builtin,     :finish,         :always),
       ]
@@ -124,6 +125,7 @@ module Travis
       end
 
       def run_stage(type, name)
+        type = STAGES.find { |stage| stage.name==name }.type
         type = :builtin if fallback?(type, name)
         type = :skip    if skip?(type, name)
         stage = self.class.const_get(type.to_s.camelize).new(script, name)
