@@ -62,7 +62,7 @@ module Travis
         end
 
         post '/script' do
-          File.write('/tmp/payload.json', payload)
+          File.write('/tmp/payload.json', request.body.read)
           payload = JSON.parse(request.body.read)
 
           unless Travis::Build.config.sentry_dsn.empty?
