@@ -15,12 +15,16 @@
     ".result": "configured",
     "addons": {
       "apt": {
-        "packages": ["bc"]
+        "packages": [
+          "bc"
+        ]
       }
     },
     "after_failure": "bundle exec chirp dumplogs",
     "after_script": "bundle exec chirp sendstats 2>/dev/null",
-    "env": ["FOO=bar"],
+    "env": [
+      "FOO=bar"
+    ],
     "cache": "bundler",
     "global_env": [
       "CHIRP_SUMMARY_OUTPUT=\"${TRAVIS_BUILD_DIR}/chirp.json\"",
@@ -31,7 +35,9 @@
     "linux_shared": {
       "addons": {
         "apt": {
-          "packages": ["bc"]
+          "packages": [
+            "bc"
+          ]
         }
       },
       "os": "linux"
@@ -40,12 +46,16 @@
       "webhooks": {
         "on_failure": "never",
         "on_success": "always",
-        "urls": ["https://chirp-tracker-production.herokuapp.com/travis"]
+        "urls": [
+          "https://chirp-tracker-production.herokuapp.com/travis"
+        ]
       }
     },
     "os": "linux",
     "rvm": "default",
-    "script": ["bundle exec rake"],
+    "script": [
+      "bundle exec rake"
+    ],
     "sudo": false
   },
   "env_vars": [
