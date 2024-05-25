@@ -95,14 +95,21 @@ module Travis
           STAGES.each do |stage|
             case stage.run_in_debug
             when :always
-              sh.raw "travis_run_#{stage.name}"
+              sh.raw wrap_if_needed(stage.type, stage.name)
             when true
-              sh.raw "travis_run_#{stage.name}" if debug_build?
+              sh.raw wrap_if_needed(stage.type, stage.name) if debug_build?
             when false
-              sh.raw "travis_run_#{stage.name}" unless debug_build?
+              sh.raw wrap_if_needed(stage.type, stage.name) unless debug_build?
             end
           end
         }
+      end
+
+      def wrap_if_needed(type, name)
+        return "travis_run_#{name}" unless type == :conditional
+
+        condition = "[[ $TRAVIS_TEST_RESULT #{name == :after_success ? '=' : '!='} 0 ]]"
+        "if #{condition}; then travis_run_#{name}; fi"
       end
 
       def define_header_stage
@@ -125,7 +132,6 @@ module Travis
       end
 
       def run_stage(type, name)
-        type = STAGES.find { |stage| stage.name==name }.type
         type = :builtin if fallback?(type, name)
         type = :skip    if skip?(type, name)
         stage = self.class.const_get(type.to_s.camelize).new(script, name)
