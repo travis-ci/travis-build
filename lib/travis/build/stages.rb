@@ -95,17 +95,17 @@ module Travis
           STAGES.each do |stage|
             case stage.run_in_debug
             when :always
-              sh.raw wrap_if_needed(stage.type, stage.name)
+              sh.raw wrap_if_conditional(stage.type, stage.name)
             when true
-              sh.raw wrap_if_needed(stage.type, stage.name) if debug_build?
+              sh.raw wrap_if_conditional(stage.type, stage.name) if debug_build?
             when false
-              sh.raw wrap_if_needed(stage.type, stage.name) unless debug_build?
+              sh.raw wrap_if_conditional(stage.type, stage.name) unless debug_build?
             end
           end
         }
       end
 
-      def wrap_if_needed(type, name)
+      def wrap_if_conditional(type, name)
         return "travis_run_#{name}" unless type == :conditional
 
         condition = "[[ $TRAVIS_TEST_RESULT #{name == :after_success ? '=' : '!='} 0 ]]"
