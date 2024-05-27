@@ -10,6 +10,7 @@ gem 'addressable', '~> 2.3'
 gem 'codeclimate-test-reporter', require: false, group: %i[development test]
 gem 'coder'
 gem 'connection_pool'
+gem 'ed25519'
 gem 'faraday'
 gem 'faraday_middleware'
 gem 'jwt', '~> 1.5'
@@ -32,6 +33,7 @@ gem 'rubocop', require: false, group: %i[development test]
 gem 'sentry-raven'
 gem 'simplecov', require: false, group: %i[development test]
 gem 'sinatra', '>= 3.0.6'
+gem 'ssh_data'
 gem 'travis'
 gem 'travis-config', github: 'travis-ci/travis-config'
 gem 'travis-github_apps', github: 'travis-ci/travis-github_apps'
