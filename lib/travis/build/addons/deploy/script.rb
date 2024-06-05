@@ -231,7 +231,7 @@ module Travis
             def cmd(cmd, *args)
               sh.if "-e $HOME/.rvm/scripts/rvm" do
                 sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
-                sh.cmd("rvm #{dpl_ruby_version} --fuzzy do ruby -S #{cmd}", *args)
+                sh.cmd("rvm use #{dpl_ruby_version} --fuzzy do ruby -S #{cmd}", *args)
               end
               sh.else do
                 sh.cmd("ruby -S #{cmd}", *args)
@@ -337,7 +337,7 @@ module Travis
             end
 
             def dpl_ruby_version
-              dpl2? || want_pre_19? ? '$(travis_internal_ruby)' : '2.7'
+              dpl2? || want_pre_19? ? '$(travis_internal_ruby)' : '2'
             end
         end
       end
