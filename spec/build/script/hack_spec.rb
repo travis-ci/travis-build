@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe Travis::Build::Script::Php, :sexp do
-  let(:data)     { payload_for(:push, :php) }
+describe Travis::Build::Script::Hack, :sexp do
+  let(:data)     { payload_for(:push, :hack) }
   let(:script)   { described_class.new(data) }
   subject(:sexp) { script.sexp }
   it             { store_example }
@@ -9,18 +9,17 @@ describe Travis::Build::Script::Php, :sexp do
   it_behaves_like 'a bash script'
 
   it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=php'] }
-    let(:cmds) { ['phpunit'] }
+    let(:code) { ['TRAVIS_LANGUAGE=hack'] }
   end
 
   it_behaves_like 'a build script sexp'
 
   it 'sets TRAVIS_PHP_VERSION' do
-    should include_sexp [:export, ['TRAVIS_PHP_VERSION', '7.2']]
+    should include_sexp [:export, ['TRAVIS_PHP_VERSION', '7.3']]
   end
 
   it 'sets up the php version' do
-    should include_sexp [:cmd, 'phpenv global 7.2 2>/dev/null', echo: true, timing: true]
+    should include_sexp [:cmd, 'phpenv global 7.3 2>/dev/null', echo: true, timing: true]
     should include_sexp [:cmd, 'phpenv rehash']
   end
 
@@ -32,42 +31,9 @@ describe Travis::Build::Script::Php, :sexp do
     should include_sexp [:cmd, 'composer --version', echo: true]
   end
 
-  it 'runs phpunit' do
-    should include_sexp [:cmd, 'phpunit', echo: true, timing: true]
-  end
-
-  context "with minimal config" do
-    before do
-      data[:config][:language] = 'php'; data[:config].delete(:php)
-      described_class.send :remove_const, :DEPRECATIONS
-      described_class.const_set("DEPRECATIONS", [
-        {
-          name: 'PHP',
-          current_default: '5.5',
-          new_default: '7.3',
-          cutoff_date: '2018-03-15',
-        }
-      ])
-    end
-
-    context "before default change cutoff date" do
-      before do
-        DateTime.stubs(:now).returns(DateTime.parse("2018-01-01"))
-      end
-      it { should include_sexp [:echo, /Using the default PHP version/, ansi: :yellow] }
-    end
-
-    context "after default change cutoff date" do
-      before do
-        DateTime.stubs(:now).returns(DateTime.parse("2019-01-01"))
-      end
-      it { should_not include_sexp [:echo, /Using the default PHP version/, ansi: :yellow] }
-    end
-  end
-
   describe 'installs php nightly' do
     before { data[:config][:php] = 'nightly' }
-    it { should include_sexp [:cmd, 'curl -sSf --retry 5 -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /', echo: true, timing: true] }
+    it { should include_sexp [:cmd, 'curl -s -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /', echo: true, timing: true] }
   end
 
   context 'with php nightly' do
@@ -129,14 +95,14 @@ describe Travis::Build::Script::Php, :sexp do
   end
 
    describe 'installs hhvm-nightly' do
-    before { data[:config][:php] = 'hhvm-nightly' }
+    before { data[:config][:hhvm] = 'hhvm-nightly' }
     it { should include_sexp [:cmd, 'travis_apt_get_update'] }
     it { should include_sexp [:cmd, 'sudo apt-get install hhvm-nightly -y 2>&1 >/dev/null'] }
     it { store_example(name: 'hhvm-nightly') }
   end
 
    describe 'installs specific hhvm version' do
-    before { data[:config][:php] = 'hhvm-3.12' }
+    before { data[:config][:hhvm] = 'hhvm-3.12' }
     it { should include_sexp [:cmd, 'travis_apt_get_update'] }
     it { should include_sexp [:cmd, 'sudo apt-get install -y hhvm', timing: true, assert: true, echo: true] }
     it { should include_sexp [:raw, "echo \"deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc)-3.12 main\" | sudo tee -a /etc/apt/sources.list >&/dev/null"] }
@@ -149,28 +115,7 @@ describe Travis::Build::Script::Php, :sexp do
 
     it 'installs PHP version on demand' do
       expect(sexp).to include_sexp [:raw, "archive_url=https://s3.amazonaws.com/travis-php-archives/binaries/${travis_host_os}/${travis_rel_version}/$(uname -m)/php-#{version}.tar.bz2", assert: true]
-      expect(sexp).to include_sexp [:cmd, "curl -sSf --retry 5 -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /", echo: true, timing: true]
+      expect(sexp).to include_sexp [:cmd, "curl -s -o archive.tar.bz2 $archive_url && tar xjf archive.tar.bz2 --directory /", echo: true, timing: true]
     end
   end
-
-  # describe 'before_install' do
-  #   subject { sexp_filter(sexp, [:if, '-f composer.json'])[0] }
-
-  #   it 'runs composer self-update if composer.json exists' do
-  #     should include_sexp [:cmd, 'composer self-update', assert: true, echo: true, timing: true]
-  #   end
-  # end
-
-  # describe 'install' do
-  #   subject { sexp_filter(sexp, [:if, '-f composer.json'])[1] }
-
-  #   describe 'runs composer install if composer.json exists' do
-  #     it { should include_sexp [:cmd, 'composer install', assert: true, echo: true, timing: true] }
-  #   end
-
-  #   describe 'uses given composer_args' do
-  #     before { data[:config].update(composer_args: '--some --args') }
-  #     it { should include_sexp [:cmd, 'composer install --some --args', assert: true, echo: true, timing: true] }
-  #   end
-  # end
 end
