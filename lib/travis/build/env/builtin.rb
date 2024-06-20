@@ -44,7 +44,7 @@ module Travis
               TRAVIS_JOB_WEB_URL:     "https://#{data[:host]}/#{repository[:slug]}/jobs/#{job[:id]}",
               TRAVIS_BRANCH:          job[:branch],
               TRAVIS_COMMIT:          job[:commit],
-              TRAVIS_COMMIT_MESSAGE: '$(test -d .git && git log --format=%B -n 1 | head -c 32768)',
+              TRAVIS_COMMIT_MESSAGE:  Shellwords.escape(job[:commit_message]) || '$(test -d .git && git log --format=%B -n 1 | head -c 32768)',
               TRAVIS_COMMIT_RANGE:    job[:commit_range],
               TRAVIS_REPO_SLUG:       repository[:slug],
               TRAVIS_REPO_PRIVATE:    repository[:private],
@@ -56,6 +56,7 @@ module Travis
               TRAVIS_PULL_REQUEST_BRANCH: job[:pull_request_head_branch],
               TRAVIS_PULL_REQUEST_SHA: job[:pull_request_head_sha],
               TRAVIS_PULL_REQUEST_SLUG: job[:pull_request_head_slug],
+              TRAVIS_PULL_REQUEST_IS_DRAFT: job[:pull_request_is_draft],
             }
           end
       end

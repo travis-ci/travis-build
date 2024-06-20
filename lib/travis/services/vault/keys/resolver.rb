@@ -40,6 +40,7 @@ module Travis
                 env_name = key
                 env_name = [secret_name, env_name].join('_') if true # To-Do: Make the prepend customizable from .travis.yml
                 env_name = (path.split('/') << env_name).join('_') if false # To-Do: Make the prepend customizable from .travis.yml
+                env_name.gsub!(/[^0-9a-zA-Z]/,'_')
                 if env_name.match?(ENV_NAME_REGEX)
                   export(env_name.upcase, %("#{value}"), echo: false, secure: true)
                   vault_secrets << value

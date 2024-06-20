@@ -34,33 +34,131 @@ describe Travis::Build::Addons::Deploy, :sexp do
 
     it { expect(sexp).to include_sexp [:cmd, './before_deploy_1.sh', assert: true, echo: true, timing: true] }
     it { expect(sexp).to include_sexp [:cmd, './before_deploy_2.sh', assert: true, echo: true, timing: true] }
-    it "installs dpl < 1.9 if travis_internal_ruby returns 1.9*" do
-      expect(
-        sexp_filter(
+
+    context 'when DPL_VERSION environment variable is set' do
+      let(:dpl_version) { '1.10.16' }
+
+      before { ENV['DPL_VERSION'] = dpl_version }
+      after  { ENV.delete('DPL_VERSION') }
+
+      it "installs dpl < 1.9 if travis_internal_ruby returns 1.9*" do
+        expect(
           sexp_filter(
-            sexp,
-            [:if, "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*"]
-          )[0],
-          [:if, "-e $HOME/.rvm/scripts/rvm"]
-        )[0]
-      ).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl -v '< 1.9' ", echo: true, assert: true, timing: true]
+            sexp_filter(
+              sexp,
+              [:if, "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*"]
+            )[0],
+            [:if, "-e $HOME/.rvm/scripts/rvm"]
+          )[0]
+        ).to include_sexp [:cmd, "rvm use $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl -v '< 1.9' ", echo: true, assert: true, timing: true]
+      end
+
+      it "installs dpl version specified if travis_internal_ruby does not return 1.9*" do
+        expect(
+          sexp_filter(
+            sexp_filter(
+              sexp,
+              [:if, "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*"]
+            )[0],
+            [:if, "-e $HOME/.rvm/scripts/rvm"]
+          )[1]
+        ).to include_sexp [:cmd, "rvm use 2 --fuzzy do ruby -S gem install dpl -v #{dpl_version}", echo: true, assert: true, timing: true]
+      end
+      it { expect(sexp).to include_sexp [:cmd, "rvm use 2 --fuzzy do ruby -S gem install dpl -v #{dpl_version}", echo: true, assert: true, timing: true] }
+      # it { expect(sexp).to include_sexp [:cmd, 'rvm use $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=heroku --password=foo --email=user@host --fold', assert: true, timing: true] }
+      # it { expect(sexp).to include_sexp terminate_on_failure }
+      it { expect(sexp).to include_sexp [:cmd, "rvm use 2 --fuzzy do ruby -S dpl --provider=\"heroku\" --password=\"foo\" --email=\"user@host\" --fold; if [ $? -ne 0 ]; then echo \"failed to deploy\"; travis_terminate 2; fi", {:timing=>true}] }
     end
 
-    it "installs latest dpl if travis_internal_ruby does not return 1.9*" do
-      expect(
-        sexp_filter(
+    context 'when DPL_VERSION environment variable is not set' do
+      it "installs dpl < 1.9 if travis_internal_ruby returns 1.9*" do
+        expect(
           sexp_filter(
-            sexp,
-            [:if, "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*"]
-          )[0],
-          [:if, "-e $HOME/.rvm/scripts/rvm"]
-        )[1]
-      ).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl", echo: true, assert: true, timing: true]
+            sexp_filter(
+              sexp,
+              [:if, "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*"]
+            )[0],
+            [:if, "-e $HOME/.rvm/scripts/rvm"]
+          )[0]
+        ).to include_sexp [:cmd, "rvm use $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl -v '< 1.9' ", echo: true, assert: true, timing: true]
+      end
+
+      it "installs latest dpl if travis_internal_ruby does not return 1.9*" do
+        expect(
+          sexp_filter(
+            sexp_filter(
+              sexp,
+              [:if, "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*"]
+            )[0],
+            [:if, "-e $HOME/.rvm/scripts/rvm"]
+          )[1]
+        ).to include_sexp [:cmd, "rvm use $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl", echo: true, assert: true, timing: true]
+      end
+      it { expect(sexp).to include_sexp [:cmd, 'rvm use $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl', echo: true, assert: true, timing: true] }
+      it { expect(sexp).to include_sexp [:cmd, "rvm use $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=\"heroku\" --password=\"foo\" --email=\"user@host\" --fold; if [ $? -ne 0 ]; then echo \"failed to deploy\"; travis_terminate 2; fi", {:timing=>true}] }
     end
-    it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl', echo: true, assert: true, timing: true] }
-    # it { expect(sexp).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=heroku --password=foo --email=user@host --fold', assert: true, timing: true] }
-    # it { expect(sexp).to include_sexp terminate_on_failure }
-    it { expect(sexp).to include_sexp [:cmd, "rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=\"heroku\" --password=\"foo\" --email=\"user@host\" --fold; if [ $? -ne 0 ]; then echo \"failed to deploy\"; travis_terminate 2; fi", {:timing=>true}] }
+
+    context 'when dpl_version config is set' do
+      context 'and dpl_version is below 2' do
+        let(:dpl_version) { '1.10.16' }
+        let(:config) { { provider: 'heroku', password: 'foo', email: 'user@host', dpl_version: dpl_version } }
+
+        it "installs dpl version specified using ruby 2.x" do
+          expect(
+            sexp_filter(
+              sexp_filter(
+                sexp,
+                [:if, "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*"]
+              )[0],
+              [:if, "-e $HOME/.rvm/scripts/rvm"]
+            )[1]
+          ).to include_sexp [:cmd, "rvm use 2 --fuzzy do ruby -S gem install dpl -v #{dpl_version}", echo: true, assert: true, timing: true]
+        end
+        it { expect(sexp).to include_sexp [:cmd, "rvm use 2 --fuzzy do ruby -S gem install dpl -v #{dpl_version}", echo: true, assert: true, timing: true] }
+        it { expect(sexp).to include_sexp [:cmd, "rvm use 2 --fuzzy do ruby -S dpl --provider=\"heroku\" --password=\"foo\" --email=\"user@host\" --fold; if [ $? -ne 0 ]; then echo \"failed to deploy\"; travis_terminate 2; fi", {:timing=>true}] }
+      end
+
+      context 'and dpl_version is 2' do
+        let(:dpl_version) { '2.0.3.beta.5' }
+        let(:config) { { provider: 'heroku', password: 'foo', email: 'user@host', dpl_version: dpl_version } }
+
+        it "installs dpl version specified using travis_internal_ruby" do
+          expect(
+            sexp_filter(
+              sexp_filter(
+                sexp,
+                [:if, "$(rvm use $(travis_internal_ruby) do ruby -e \"puts RUBY_VERSION\") = 1.9*"]
+              )[0],
+              [:if, "-e $HOME/.rvm/scripts/rvm"]
+            )[1]
+          ).to include_sexp [:cmd, "rvm use $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl -v #{dpl_version}", echo: true, assert: true, timing: true]
+        end
+        it { expect(sexp).to include_sexp [:cmd, "rvm use $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl -v #{dpl_version}", echo: true, assert: true, timing: true] }
+        it { expect(sexp).to include_sexp [:cmd, "rvm use $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=\"heroku\" --password=\"foo\" --email=\"user@host\" --fold; if [ $? -ne 0 ]; then echo \"failed to deploy\"; travis_terminate 2; fi", {:timing=>true}] }
+      end
+    end
+
+    context 'deprecation message' do
+      let(:config) { { provider: 'heroku', password: 'foo', email: 'user@host' } }
+      let(:sexp)   { sexp_find(subject, [:if, '($TRAVIS_BRANCH = master)']) }
+
+      let(:dpl_version) { '1.10.16' }
+      let(:dpl_deprecation_message) { 'This is a deprecation message' }
+
+      before do
+        ENV['DPL_VERSION'] = dpl_version
+        ENV['DPL_DEPRECATE_MESSAGE'] = dpl_deprecation_message
+      end
+
+      after do
+        ENV.delete('DPL_VERSION')
+        ENV.delete('DPL_DEPRECATE_MESSAGE')
+      end
+
+      it { expect(sexp).to include_sexp [:cmd, "rvm use 2 --fuzzy do ruby -S gem install dpl -v #{dpl_version}", echo: true, assert: true, timing: true] }
+      it { expect(sexp).to include_sexp [:echo, dpl_deprecation_message, ansi: :yellow] }
+    end
+
     it { expect(sexp).to include_sexp [:cmd, './after_deploy_1.sh', echo: true, timing: true] }
     it { expect(sexp).to include_sexp [:cmd, './after_deploy_2.sh', echo: true, timing: true] }
   end
@@ -118,7 +216,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
     let(:config) { { provider: 'heroku', edge: { source: 'svenvfuchs/dpl', branch: 'foo' } } }
 
     it { should match_sexp [:if, '($TRAVIS_BRANCH = master)'] }
-    it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
+    it { should include_sexp [:cmd, 'rvm use $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
     it { store_example(name: 'edge') }
   end
 
@@ -127,7 +225,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
     let(:config) { { provider: 'heroku', edge: { source: 'svenvfuchs/dpl', branch: 'foo' } } }
 
     it { should match_sexp [:if, '($TRAVIS_BRANCH = master)'] }
-    it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
+    it { should include_sexp [:cmd, 'rvm use $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
     it { store_example(name: 'edge') }
   end
 
@@ -143,12 +241,12 @@ describe Travis::Build::Addons::Deploy, :sexp do
     let(:config)    { [heroku, nodejitsu] }
 
     it { should match_sexp [:if, '($TRAVIS_BRANCH = master) && ($FOO = foo)'] }
-    # it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=heroku --password=foo --email=user@host --fold', assert: true, timing: true] }
-    it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider="heroku" --password="foo" --email="user@host" --fold; if [ $? -ne 0 ]; then echo "failed to deploy"; travis_terminate 2; fi', timing: true] }
+    # it { should include_sexp [:cmd, 'rvm use $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=heroku --password=foo --email=user@host --fold', assert: true, timing: true] }
+    it { should include_sexp [:cmd, 'rvm use $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider="heroku" --password="foo" --email="user@host" --fold; if [ $? -ne 0 ]; then echo "failed to deploy"; travis_terminate 2; fi', timing: true] }
     it { should match_sexp [:if, '($TRAVIS_BRANCH = master) && ($BAR = bar)'] }
-    # it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=nodejitsu --user=foo --api_key=bar --fold', assert: true, timing: true] }
-    it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider="nodejitsu" --user="foo" --api_key="bar" --fold; if [ $? -ne 0 ]; then echo "failed to deploy"; travis_terminate 2; fi', timing: true] }
-    it { should_not include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
+    # it { should include_sexp [:cmd, 'rvm use $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=nodejitsu --user=foo --api_key=bar --fold', assert: true, timing: true] }
+    it { should include_sexp [:cmd, 'rvm use $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider="nodejitsu" --user="foo" --api_key="bar" --fold; if [ $? -ne 0 ]; then echo "failed to deploy"; travis_terminate 2; fi', timing: true] }
+    it { should_not include_sexp [:cmd, 'rvm use $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
     it { store_example(name: 'multiple providers') }
 
     context 'when dpl switches from release to edge' do
@@ -156,7 +254,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
       let(:nodejitsu) { { provider: 'nodejitsu', user: 'foo', api_key: 'bar', on: { condition: '$BAR = bar' }, edge: true } }
       let(:config)    { [heroku, nodejitsu] }
 
-      it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
+      it { should include_sexp [:cmd, 'rvm use $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
     end
 
     context 'when dpl switches from edge to release' do
@@ -164,7 +262,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
       let(:nodejitsu) { { provider: 'nodejitsu', user: 'foo', api_key: 'bar', on: { condition: '$BAR = bar' }, edge: true } }
       let(:config)    { [nodejitsu, heroku] }
 
-      it { should include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
+      it { should include_sexp [:cmd, 'rvm use $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
     end
 
     context 'when multiple dpl edge releases use the identical edge definitions' do
@@ -173,7 +271,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
       let(:config)    { [nodejitsu, heroku] }
       let(:second_deploy) { sexp_find(subject, [:fold, "dpl_1"]) }
 
-      it { expect(second_deploy).to_not include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
+      it { expect(second_deploy).to_not include_sexp [:cmd, 'rvm use $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
       it { store_example(name: 'identical edges') }
     end
 
@@ -183,7 +281,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
       let(:config)    { [nodejitsu, heroku] }
       let(:second_deploy) { sexp_find(subject, [:fold, "dpl_1"]) }
 
-      it { expect(second_deploy).to include_sexp [:cmd, 'rvm $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
+      it { expect(second_deploy).to include_sexp [:cmd, 'rvm use $(travis_internal_ruby) --fuzzy do ruby -S gem uninstall -aIx dpl', echo: true] }
     end
   end
 
