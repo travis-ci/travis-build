@@ -26,6 +26,17 @@ module Travis
                 sh.cmd "wget -q -O tmate.tar.xz #{static_build_linux_url}", echo: false, retry: true
                 sh.cmd "tar --strip-components=1 -xf tmate.tar.xz", echo: false
               end
+              sh.elif "$(uname) = 'FreeBSD'" do
+                sh.cmd 'sudo pkg install -y libevent msgpack libssh', echo: true
+                sh.cmd 'git clone https://github.com/tmate-io/tmate.git', echo: true
+                sh.cd 'tmate', echo: false, stack: true
+                sh.cmd 'git checkout 2.4.0', echo: true
+                sh.cmd './autogen.sh', echo: true
+                sh.cmd './configure', echo: true
+                sh.cmd 'make', echo: true
+                sh.cmd 'sudo make install', echo: true
+                sh.cd :back, echo: false, stack: true
+              end
               sh.else do
                 sh.echo "We are setting up the debug environment. This may take a while..."
                 sh.cmd "brew update &> /dev/null", echo: false, retry: true
