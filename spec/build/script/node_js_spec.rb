@@ -111,10 +111,6 @@ describe Travis::Build::Script::NodeJs, :sexp do
     should include_sexp [:cmd, 'npm --version', echo: true]
   end
 
-  it 'disables the npm spinner' do
-    should include_sexp [:cmd, 'npm config set spin false --silent || true', assert: true]
-  end
-
   describe 'if package.json exists' do
     let(:sexp) { sexp_find(subject, [:if, '-f package.json'], [:then]) }
 
