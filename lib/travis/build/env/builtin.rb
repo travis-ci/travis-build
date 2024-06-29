@@ -18,7 +18,6 @@ module Travis
             value = [BUILD_DIR, value].join('/') if key == :TRAVIS_BUILD_DIR
             Var.new(key, value, type: :builtin)
           end
-          puts "#{TRAVIS_REPO_SLUG}"
           Array(evs)
         end
 
