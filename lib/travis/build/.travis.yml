@@ -1,3 +1,1 @@
 language: ruby
-before_script:
-  - echo "TRAVIS_REPO_SLUG: $TRAVIS_REPO_SLUG"
