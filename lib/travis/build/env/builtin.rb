@@ -57,7 +57,7 @@ module Travis
               TRAVIS_PULL_REQUEST_SHA: job[:pull_request_head_sha],
               TRAVIS_PULL_REQUEST_SLUG: job[:pull_request_head_slug],
               TRAVIS_PULL_REQUEST_IS_DRAFT: job[:pull_request_is_draft],
-              TRAVIS_JOB_RESTARTED: job[:restarted],
+              TRAVIS_JOB_RESTARTED: job[:restarted_at],
               TRAVIS_JOB_RESTARTED_BY: job[:restarted_by],
             }
           end
