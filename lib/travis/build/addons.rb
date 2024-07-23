@@ -1,4 +1,4 @@
-require 'active_support/core_ext/string/inflections'
+require 'active_support/core_ext/string/inflections.rb'
 require 'travis/build/addons/apt'
 require 'travis/build/addons/apt_packages'
 require 'travis/build/addons/apt_retries'

@@ -37,7 +37,7 @@ module Travis
           end
 
           def store_key
-            redis.set(key, 1, ex: TTL)
+            redis.setex(key, TTL, 1)
           end
 
           def agent
