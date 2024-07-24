@@ -100,7 +100,7 @@ module Travis
       def ssh_key
         @ssh_key ||= if ssh_key = data[:ssh_key]
           SshKey.new(ssh_key[:value], ssh_key[:source], ssh_key[:encoded], ssh_key[:public_key])
-        elsif source_key = data[:config][:source_key]
+        elsif data[:config] && source_key = data[:config][:source_key]
           SshKey.new(source_key, nil, true, nil)
         end
       end
@@ -152,11 +152,15 @@ module Travis
       def source_ssh?
         return false if prefer_https?
         ((repo_private? || force_private?) && !installation?) ||
-          (repo_private? && custom_ssh_key?)
+          ((repo_private? || enterprise?) && custom_ssh_key?)
       end
 
       def force_private?
         github? && !source_host&.include?('github.com')
+      end
+
+      def enterprise?
+        ENV['TRAVIS_ENTERPRISE'] == 'true' || nil
       end
 
       def github?
