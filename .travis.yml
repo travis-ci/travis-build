@@ -75,5 +75,5 @@ deploy:
     branch: master
     condition: $INTEGRATION_SPECS == 1
     repo: travis-ci/travis-build
-  edge:
-    branch: v2.0.5-beta.1
+  dpl_version: 2.0.5.beta.1
+  edge: true
