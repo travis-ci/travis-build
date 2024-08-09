@@ -12,31 +12,14 @@ travis_setup_go() {
     return 86
   fi
 
-  export GIMME_GO_VERSION="${go_version}"
-  __travis_go_ensure_resolved
-
-  local gimme_env="${TRAVIS_TMPDIR}/gimme.env"
-  if ! gimme >"${gimme_env}"; then
-    echo 'Failed to run gimme' >&2
-    return 86
-  fi
-
-  tee -a "${TRAVIS_HOME}/.bashrc" <"${gimme_env}" &>/dev/null
   # shellcheck source=/dev/null
-  source "${gimme_env}"
 
   travis_cmd "export GOPATH=\"${TRAVIS_HOME}/gopath\"" --echo
   travis_cmd "export PATH=\"${TRAVIS_HOME}/gopath/bin:${PATH}\"" --echo
   travis_cmd "export GO111MODULE=\"${GO111MODULE}\"" --echo
 
-  mkdir -p "${TRAVIS_HOME}/gopath/src/${go_import_path}"
-  tar -Pczf "${TRAVIS_TMPDIR}/src_archive.tar.gz" -C "${TRAVIS_BUILD_DIR}" . &&
-    tar -Pxzf "${TRAVIS_TMPDIR}/src_archive.tar.gz" -C "${TRAVIS_HOME}/gopath/src/${go_import_path}"
 
-  export TRAVIS_BUILD_DIR="${TRAVIS_HOME}/gopath/src/${go_import_path}"
-  travis_cmd cd\ "${TRAVIS_HOME}/gopath/src/${go_import_path}" --assert
-
-  local _old_remote
-  _old_remote="$(git config --get remote.origin.url)"
-  git config remote.origin.url "${_old_remote%.git}"
+  go install golang.org/dl/go${go_version}@latest
+  go${go_version} download
+  sudo ln -s ${TRAVIS_HOME}/gopath/bin/go${go_version} ${TRAVIS_HOME}/gopath/bin/go
 }

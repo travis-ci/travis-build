@@ -2,6 +2,7 @@
 set -o errexit
 
 main() {
+  ./get-latest-go&
   cd "$(dirname "$0")/.."
   : "${PORT:=5000}"
   : "${RACK_ENV:=development}"

@@ -68,6 +68,9 @@ module Travis
         private def normalized_go_version
           v = Array(config[:go]).first.to_s
           return v if v == 'go1'
+          if v == 'stable' || v == 'master'
+            return File.read('/tmp/go-version') || ''
+          end
           v.sub(/^go/, '')
         end
 
