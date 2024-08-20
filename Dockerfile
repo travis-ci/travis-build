@@ -36,6 +36,7 @@ WORKDIR /app
 
 COPY --from=builder /app /app
 COPY --from=builder /usr/local/bundle/config /usr/local/bundle/config
+RUN cp /app/script/get-latest-go /etc/cron.daily/
 
 HEALTHCHECK --interval=5s CMD script/healthcheck
 
