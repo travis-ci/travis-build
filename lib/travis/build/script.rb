@@ -333,6 +333,7 @@ module Travis
           apply :shell_session_update
           apply :git_v2
           apply :set_docker_mtu_and_registry_mirrors
+          apply :docker_config
           apply :resolvconf
           apply :maven_central_mirror
           apply :maven_https

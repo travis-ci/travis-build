@@ -6,4 +6,4 @@ require 'json'
 require 'travis/build'
 
 payload = JSON.parse(STDIN.read)
-puts Travis::Build.script(payload).compile(true)
+puts Travis::Build.script(payload).compile
