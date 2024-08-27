@@ -89,6 +89,10 @@ module Travis
         data[:env_vars] || []
       end
 
+      def vm_config
+        data[:vm_config] || []
+      end
+
       def custom_ssh_key?
         !!ssh_key&.custom?
       end
