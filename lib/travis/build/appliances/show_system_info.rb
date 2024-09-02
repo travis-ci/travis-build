@@ -25,6 +25,7 @@ module Travis
             sh.echo "Build id: #{Shellwords.escape(data.build[:id])}"
             sh.echo "Job id: #{Shellwords.escape(data.job[:id])}"
             sh.echo "Runtime kernel version: $(uname -r)"
+            sh.echo "VM: #{Shellwords.escape(data[:vm_size] || 'default')}"
           end
 
           def show_travis_build_version
