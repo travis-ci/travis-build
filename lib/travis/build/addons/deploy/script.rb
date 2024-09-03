@@ -261,6 +261,17 @@ module Travis
                 command << " -v '< 1.9' " if want_pre_19
                 command << " -v #{ENV['DPL_VERSION'].to_s.output_safe.shellescape}" if !want_pre_19 && !edge && !ENV['DPL_VERSION'].nil?
                 command << " --pre" if edge
+                puts "====================================="
+                puts "====================================="
+                puts "====================================="
+                puts "====================================="
+                puts "COMMAND"
+                puts command.inspect
+                puts "====================================="
+                puts "====================================="
+                puts "====================================="
+                puts "====================================="
+                command
               else
                 command << " -v #{dpl_version}"
               end
