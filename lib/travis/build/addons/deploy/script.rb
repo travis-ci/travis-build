@@ -329,7 +329,7 @@ module Travis
             end
 
             def dpl_version
-              config[:dpl_version].nil? ? nil : config[:dpl_version].to_s.shellescape
+              config[:dpl_version].nil? ? nil : config[:dpl_version].to_s.shellescape.output_safe
             end
 
             def dpl_deprecation_message
