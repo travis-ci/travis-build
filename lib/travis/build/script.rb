@@ -135,9 +135,6 @@ module Travis
         nodes = sexp
         Shell.generate(nodes, ignore_taint)
       rescue Travis::Shell::Generator::TaintedOutput => to
-        puts "inside compile rescue"
-        puts "inside compile rescue"
-        puts "inside compile rescue"
         log_tainted_nodes(nodes)
         raise to
       rescue Exception => e

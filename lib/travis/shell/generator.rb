@@ -18,19 +18,6 @@ module Travis
       def generate(ignore_taint = false)
         lines = Array(handle(nodes)).flatten
         script = lines.join("\n").strip
-        puts "script.tainted? #{script.tainted?}"
-        puts "!ignore_taint #{!ignore_taint}"
-        # puts "======================================================="
-        # puts "======================================================="
-        # puts "======================================================="
-        # puts "======================================================="
-        # puts "======================================================="
-        # puts script.inspect
-        # puts "======================================================="
-        # puts "======================================================="
-        # puts "======================================================="
-        # puts "======================================================="
-        # puts "======================================================="
         raise TaintedOutput if !ignore_taint && script.tainted?
         script = unindent(script)
         script = normalize_newlines(script)
