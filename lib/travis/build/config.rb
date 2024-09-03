@@ -133,7 +133,7 @@ module Travis
         sentry_dsn: ENV.fetch(
           'TRAVIS_BUILD_SENTRY_DSN', ENV.fetch('SENTRY_DSN', '')
         ),
-        tainted_node_logging_enabled: false,
+        tainted_node_logging_enabled: true,
         trace_command: ENV.fetch('TRACE_COMMAND', 'GIT_TRACE=true'),
         trace_git_commands_owners: ENV.fetch('TRACE_GIT_COMMANDS_OWNERS', ''),
         trace_git_commands_slugs: ENV.fetch('TRACE_GIT_COMMANDS_SLUGS', ''),
