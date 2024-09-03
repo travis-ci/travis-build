@@ -254,6 +254,10 @@ module Travis
                 command << " dpl"
               end
               if dpl_version.nil?
+                puts "inside dpl_version.nil"
+                puts "inside dpl_version.nil"
+                puts "inside dpl_version.nil"
+                puts "inside dpl_version.nil"
                 command << " -v '< 1.9' " if want_pre_19
                 command << " -v #{ENV['DPL_VERSION'].to_s.shellescape}" if !want_pre_19 && !edge && !ENV['DPL_VERSION'].nil?
                 command << " --pre" if edge
