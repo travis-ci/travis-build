@@ -255,7 +255,7 @@ module Travis
               end
               if dpl_version.nil?
                 command << " -v '< 1.9' " if want_pre_19
-                command << " -v #{ENV['DPL_VERSION'].to_s.shellescape}" if !want_pre_19 && !edge && !ENV['DPL_VERSION'].nil?
+                command << " -v #{ENV['DPL_VERSION'].to_s.output_safe.shellescape}" if !want_pre_19 && !edge && !ENV['DPL_VERSION'].nil?
                 command << " --pre" if edge
               else
                 command << " -v #{dpl_version}"
@@ -329,7 +329,7 @@ module Travis
             end
 
             def dpl_version
-              config[:dpl_version].nil? ? nil : config[:dpl_version].to_s.shellescape
+              config[:dpl_version].nil? ? nil : config[:dpl_version].to_s.output_safe.shellescape
             end
 
             def dpl_deprecation_message
