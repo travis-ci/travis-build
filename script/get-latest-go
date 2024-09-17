@@ -3,13 +3,8 @@
 require 'net/http'
 
 def go_version
-  res = Net::HTTP.get URI('https://go.dev/dl/')
-  start = res.index '/dl/go'
-  if start
-    start += '/dl/'.length
-    last = res.index '"', start
-    res[start, last- start]&.match(/go\d+\.\d+\.?\d*/)&.to_s[2..]
-  end
+  res = Net::HTTP.get URI('https://go.dev/VERSION?m=text')
+  res.match(/(?<=go).*/)
 end
 
 File.write('/tmp/go-version',go_version)
