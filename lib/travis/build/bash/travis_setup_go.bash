@@ -18,7 +18,9 @@ travis_setup_go() {
   travis_cmd "export PATH=\"${TRAVIS_HOME}/gopath/bin:${PATH}\"" --echo
   travis_cmd "export GO111MODULE=\"${GO111MODULE}\"" --echo
 
-  go install golang.org/dl/go"${go_version}"@latest
-  go"${go_version}" download
-  sudo ln -s "${TRAVIS_HOME}"/gopath/bin/go"${go_version}" "${TRAVIS_HOME}"/gopath/bin/go
+  go install "golang.org/dl/go${go_version}@latest"
+  "go${go_version}" download
+  sudo ln -s "${TRAVIS_HOME}/gopath/bin/go${go_version}" "${TRAVIS_HOME}/gopath/bin/go"
+  travis_cmd "export GOROOT=$(go${go_version} env GOROOT)" --echo
+  travis_cmd "export PATH=${GOROOT}/bin:${PATH}" --echo
 }
