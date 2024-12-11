@@ -231,7 +231,12 @@ module Travis
             def cmd(cmd, *args)
               sh.if "-e $HOME/.rvm/scripts/rvm" do
                 sh.cmd('type rvm &>/dev/null || source ~/.rvm/scripts/rvm', echo: false, assert: false)
-                sh.cmd("rvm use #{dpl_ruby_version} --fuzzy do ruby -S #{cmd}", *args)
+                  sh.if "$(command -v sw_vers)" do
+                    sh.cmd("rvm use #{ENV['MAC_RUBY_DPL'] || '3.1.1'} --fuzzy do ruby -S #{cmd}", *args)
+                  end  
+                  sh.else do
+                    sh.cmd("rvm use #{dpl_ruby_version} --fuzzy do ruby -S #{cmd}", *args)
+                  end 
               end
               sh.else do
                 sh.cmd("ruby -S #{cmd}", *args)
