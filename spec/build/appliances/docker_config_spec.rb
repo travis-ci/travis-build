@@ -9,7 +9,6 @@ describe Travis::Build::Appliances::DockerConfig, :sexp do
 
   describe '#apply' do
     context 'use default' do
-      before {ENV.delete('TRAVIS_BUILD_DOCKER_BUILDKIT_PROGRESS') }
         it { should include_sexp [:raw, "export BUILDKIT_PROGRESS=plain"] }
     end
 

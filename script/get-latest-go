@@ -1,23 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 require 'net/http'
-require 'json'
-
-def go_json
-  res = Net::HTTP.get URI('https://go.dev/dl/?mode=json&include=all')
-  j = JSON.parse(res)
-  j.reverse_each do |x|
-    next unless  x['stable'] == true
-
-    version = x['version']
-    version.slice!('go')
-    parts = version.split('.')
-    parts.pop if parts.length > 2
-    fname = parts.join('.')
-
-    File.write("/tmp/go-version-#{fname}.x", version)
-  end
-end
 
 def go_version
   res = Net::HTTP.get URI('https://go.dev/dl/')
@@ -30,4 +13,3 @@ def go_version
 end
 
 File.write('/tmp/go-version',go_version)
-go_json
