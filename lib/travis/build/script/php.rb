@@ -1,10 +1,14 @@
+require 'travis/build/script/shared/jvm'
+
 module Travis
   module Build
     class Script
-      class Php < Script
+      class Php < Jvm
+
         DEFAULTS = {
           php:      '7.2',
-          composer: '--no-interaction --prefer-source'
+          composer: '--no-interaction --prefer-source',
+          jdk:      'default'
         }
 
         DEPRECATIONS = [
@@ -28,7 +32,6 @@ module Travis
 
         def setup
           super
-
           if php_5_3_or_older?
             sh.if "$(lsb_release -sc 2>/dev/null) != precise" do
               sh.echo "PHP #{version} is supported only on Precise.", ansi: :red
@@ -61,6 +64,7 @@ module Travis
             end
             sh.cmd "phpenv global #{version}", assert: true
           end
+
           sh.cmd "phpenv rehash", assert: false, echo: false, timing: false
           composer_self_update
         end
@@ -155,7 +159,6 @@ module Travis
                 sh.raw "echo \"deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc)-lts-#{hhvm_version} main\" | sudo tee -a /etc/apt/sources.list >&/dev/null"
                 sh.raw 'sudo apt-get purge hhvm >&/dev/null'
               else
-                # use latest
                 sh.cmd 'echo "deb [ arch=amd64 ] http://dl.hhvm.com/ubuntu $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list'
               end
 
@@ -182,8 +185,6 @@ hhvm.libxml.ext_entity_whitelist=file,http,https
           EOF
           sh.raw "sudo mkdir -p $(dirname #{ini_file_path}); echo '#{ini_file_addition}' | sudo tee -a #{ini_file_path} > /dev/null"
           sh.raw "sudo chown $(whoami) #{ini_file_path}"
-          # Ensure that the configured session storage directory exists if
-          # specified in the ini file.
           sh.raw "grep session.save_path #{ini_file_path} | cut -d= -f2 | sudo xargs mkdir -m 01733 -p"
         end
 
