@@ -48,10 +48,10 @@ module Travis
 
         def export_tokens
           if config[:token]
-            sh.export 'SONAR_TOKEN', config[:token], echo: false
+            sh.export 'SONAR_TOKEN', config[:token], raw: true, echo: false
           end
           if config[:github_token]
-            sh.export 'SONAR_GITHUB_TOKEN', config[:github_token], echo: false
+            sh.export 'SONAR_GITHUB_TOKEN', config[:github_token], raw: true, echo: false
           end
         end
 
