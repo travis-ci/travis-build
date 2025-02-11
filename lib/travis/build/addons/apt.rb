@@ -16,6 +16,7 @@ module Travis
           bionic
           focal
           jammy
+          noble
         ).freeze
 
         attr_reader :safelisted, :disallowed_while_sudo

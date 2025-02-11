@@ -148,6 +148,12 @@ View valid versions of \"dotnet\" at https://docs.travis-ci.com/user/languages/c
               sh.elif '$(lsb_release -cs) = focal' do
                 sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://packages.microsoft.com/ubuntu/20.04/prod focal main' > /etc/apt/sources.list.d/dotnet-official.list\"", assert: true
               end
+              sh.elif '$(lsb_release -cs) = jammy' do
+                sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://packages.microsoft.com/ubuntu/22.04/prod jammy main' > /etc/apt/sources.list.d/dotnet-official.list\"", assert: true
+              end
+              sh.elif '$(lsb_release -cs) = noble' do
+                sh.cmd "sudo sh -c \"echo 'deb [arch=amd64] https://packages.microsoft.com/ubuntu/24.04/prod noble main' > /etc/apt/sources.list.d/dotnet-official.list\"", assert: true
+              end
               sh.else do
                 sh.failure "The version of this operating system is not supported by .NET Core. View valid versions at https://docs.travis-ci.com/user/languages/csharp/"
               end

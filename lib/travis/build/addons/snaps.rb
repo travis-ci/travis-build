@@ -14,6 +14,7 @@ module Travis
           bionic
           focal
           jammy
+          noble
         ).freeze
 
         def before_prepare?
