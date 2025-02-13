@@ -22,6 +22,9 @@ travis_setup_postgresql() {
     jammy)
       version='14'
       ;;
+    noble)
+      version='16'
+      ;;
     *)
       echo -e "${ANSI_RED}Unrecognized operating system.${ANSI_CLEAR}"
       ;;
