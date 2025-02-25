@@ -18,10 +18,17 @@ travis_setup_go() {
   travis_cmd "export PATH=\"${TRAVIS_HOME}/gopath/bin:${PATH}\"" --echo
   travis_cmd "export GO111MODULE=\"${GO111MODULE}\"" --echo
 
-  go install "golang.org/dl/go${go_version}@latest"
-  "go${go_version}" download
-  sudo ln -s "${TRAVIS_HOME}/gopath/bin/go${go_version}" "${TRAVIS_HOME}/gopath/bin/go"
-  travis_cmd "export GOROOT=$(go"${go_version}" env GOROOT)" --echo
+  if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
+    echo "Detected Windows environment. Installing Go via Chocolatey..."
+    choco install golang --version="${go_version}" -y
+    travis_cmd "export PATH=/c/Go/bin:${PATH}" --echo
+  else
+    go install "golang.org/dl/go${go_version}@latest"
+    "go${go_version}" download
+    sudo ln -s "${TRAVIS_HOME}/gopath/bin/go${go_version}" "${TRAVIS_HOME}/gopath/bin/go"
+    travis_cmd "export GOROOT=$(go"${go_version}" env GOROOT)" --echo
+  fi
+
   travis_cmd "export PATH=${GOROOT}/bin:${PATH}" --echo
   mkdir -p "$(dirname "${GOPATH}/src/${go_import_path}")"
   ln -s "${TRAVIS_BUILD_DIR}" "$GOPATH/src/${go_import_path}"
