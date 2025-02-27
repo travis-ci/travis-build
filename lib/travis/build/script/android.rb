@@ -12,10 +12,10 @@ module Travis
           super
 
           if build_tools_desired.empty?
-            sh.echo "No build-tools version is specified in android.components. Consider adding one of:", ansi: :yellow
-            sh.cmd  "android list sdk --extended --no-ui --all | awk -F\\\" '/^id.*build-tools/ {print $2}'", echo: false, timing: false
-            sh.echo "The following versions are pre-installed:", ansi: :yellow
-            sh.cmd  "for v in $(ls /usr/local/android-sdk/build-tools/ | sort -r 2>/dev/null); do echo build-tools-$v; done; echo", echo: false, timing: false
+            sh.echo "No build-tools version specified in android.components. Consider adding one of the following:", ansi: :yellow
+            sh.cmd "sdkmanager --list | awk '/build-tools/ {print $1}'", echo: false, timing: false
+            sh.echo "The following versions are preinstalled:", ansi: :yellow
+            sh.cmd "for v in $(ls #{android_sdk_build_tools_dir} | sort -r 2>/dev/null); do echo build-tools-$v; done; echo", echo: false, timing: false
           end
 
           install_sdk_components unless components.empty?
@@ -46,26 +46,47 @@ module Travis
               components.each do |name|
                 sh.cmd install_sdk_component(name)
               end
+              # Accepting licenses - required for some installations
+              sh.cmd 'yes | sdkmanager --licenses', echo: true
             end
           end
 
           def install_sdk_component(name)
-            code = "android-update-sdk --components=#{name}"
-            code << " --accept-licenses='#{licenses.join('|')}'" unless licenses.empty?
-            code
+            # Convert name from format "build-tools-31.0.0" to "build-tools;31.0.0" for sdkmanager
+            sdk_name = if name =~ /^build-tools-(.+)$/
+                         "build-tools;#{$1}"
+                       else
+                         name
+                       end
+            "sdkmanager \"#{sdk_name}\""
           end
 
           def build_tools_desired
-            components.map { |component|
-              match = /build-tools-(?<version>[\d\.]+)/.match(component)
-              match[:version] if match
-            }
+            components.map do |component|
+              if component =~ /^build-tools-(?<version>[\d\.]+)$/
+                Regexp.last_match[:version]
+              end
+            end.compact
           end
 
           def ensure_tools_bin_path
-            tools_bin_path = '/usr/local/android-sdk/tools/bin'
+            # Determine the path to cmdline-tools using ANDROID_HOME if available
+            tools_bin_path = if ENV['ANDROID_HOME']
+                               File.join(ENV['ANDROID_HOME'], 'cmdline-tools', 'latest', 'bin')
+                             else
+                               '/usr/local/android-sdk/android-sdk/cmdline-tools/latest/cmdline-tools/bin/sdkmanager'
+                             end
             sh.if "$(echo :$PATH: | grep -v :#{tools_bin_path}:)" do
               sh.export "PATH", "#{tools_bin_path}:$PATH"
+            end
+          end
+
+          def android_sdk_build_tools_dir
+            # Determine build-tools directory based on ANDROID_HOME
+            if ENV['ANDROID_HOME']
+              File.join(ENV['ANDROID_HOME'], 'build-tools')
+            else
+              '/usr/local/android-sdk/build-tools'
             end
           end
 
@@ -81,7 +102,7 @@ module Travis
             config[:android] || {}
           end
 
-        end
+      end
     end
   end
 end
