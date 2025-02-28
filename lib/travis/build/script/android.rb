@@ -8,17 +8,15 @@ module Travis
 
         include Jdk
 
-                  def setup
+        def setup
           super
 
           # Set Android SDK environment variables and export them
           set_android_environment_variables
 
-          android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
-          
           if build_tools_desired.empty?
             sh.echo "No build-tools version specified in android.components. Consider adding one of the following:", ansi: :yellow
-            sh.cmd "sdkmanager --sdk_root=#{android_home}/android-sdk --list | grep 'build-tools' | cut -d'|' -f1", echo: false, timing: false
+            sh.cmd "sdkmanager --list | grep 'build-tools' | cut -d'|' -f1", echo: false, timing: false
             sh.echo "The following versions are preinstalled:", ansi: :yellow
             sh.cmd "for v in $(ls #{android_sdk_build_tools_dir} | sort -r 2>/dev/null); do echo build-tools-$v; done; echo", echo: false, timing: false
           end
@@ -49,29 +47,13 @@ module Travis
             sh.export 'ANDROID_HOME', android_home
             
             # Set path to sdkmanager based on specified structure
-            sdk_root = "#{android_home}/android-sdk"
-            sdkmanager_path = "#{sdk_root}/cmdline-tools/latest/cmdline-tools/bin"
+            sdkmanager_path = "#{android_home}/android-sdk/cmdline-tools/latest/cmdline-tools/bin"
             
             # Add paths to PATH
-            sh.export 'PATH', "#{sdkmanager_path}:#{sdk_root}/tools:#{sdk_root}/tools/bin:#{sdk_root}/platform-tools:$PATH"
-
-            # Create necessary directories and set permissions
-            sh.cmd "mkdir -p #{sdk_root}", echo: false
-            sh.cmd "mkdir -p #{sdk_root}/licenses", echo: false
-            sh.cmd "mkdir -p #{sdk_root}/.android", echo: false
+            sh.export 'PATH', "#{sdkmanager_path}:#{android_home}/android-sdk/tools:#{android_home}/android-sdk/tools/bin:#{android_home}/android-sdk/platform-tools:$PATH"
             
-            # Create necessary property files
-            sh.cmd "touch #{sdk_root}/.android/repositories.cfg", echo: false
-            
-            # Set proper permissions
-            sh.cmd "chmod -R 755 #{sdk_root}", echo: false
-            sh.cmd "chmod -R 777 #{sdk_root}/.android", echo: false
-            sh.cmd "chmod -R 777 #{sdk_root}/licenses", echo: false
-            
-            # Create standard license files to bypass some checks
-            sh.cmd "echo '24333f8a63b6825ea9c5514f83c2829b004d1fee' > #{sdk_root}/licenses/android-sdk-license", echo: false
-            sh.cmd "echo '84831b9409646a918e30573bab4c9c91346d8abd' > #{sdk_root}/licenses/android-sdk-preview-license", echo: false
-          end
+            # Create directory structure if it doesn't exist
+            sh.cmd "mkdir -p #{sdkmanager_path}", echo: false
           end
 
           def install_sdk_components
@@ -80,44 +62,12 @@ module Travis
               
               android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
               
-              # Automatically accept all licenses - create a script to handle this
-              sh.echo 'Setting up license acceptance script'
-              sh.cmd "mkdir -p /tmp/android-sdk-licenses"
-              sh.cmd "cat > /tmp/android-sdk-licenses/accept-licenses.sh << 'EOL'
-#!/bin/bash
-set -e
-count=0
-while [ $count -lt 100 ]; do
-  sleep 1
-  if [ $(ps -ef | grep sdkmanager | grep -v grep | wc -l) -eq 0 ]; then
-    break
-  fi
-  output=$(ps -ef | grep 'Accept? (y/N)' | grep -v grep || true)
-  if [ ! -z \"$output\" ]; then
-    echo y | sdkmanager --sdk_root=#{android_home}/android-sdk --licenses >/dev/null
-    count=0
-  else
-    count=$((count+1))
-  fi
-done
-EOL"
-              sh.cmd "chmod +x /tmp/android-sdk-licenses/accept-licenses.sh"
+              # Accepting licenses preemptively - required for non-interactive installation
+              sh.cmd "yes | sdkmanager --sdk_root=#{android_home}/android-sdk --licenses >/dev/null || true", echo: true
               
-              # First, try to accept all licenses up front
-              sh.cmd "echo y | sdkmanager --sdk_root=#{android_home}/android-sdk --licenses >/dev/null || true"
-              
-              # Start the license acceptance script in the background
-              sh.cmd "/tmp/android-sdk-licenses/accept-licenses.sh &"
-              
-              # Install each component
               components.each do |name|
                 sh.cmd install_sdk_component(name)
-                # Give time for any license prompts to be handled by the background script
-                sh.cmd "sleep 2"
               end
-              
-              # Kill the license acceptance script if it's still running
-              sh.cmd "pkill -f accept-licenses.sh || true"
             end
           end
 
@@ -139,7 +89,6 @@ EOL"
                          name
                        end
             
-            # Auto-accept any license prompt that may appear during installation
             "yes | sdkmanager --sdk_root=#{android_home}/android-sdk '#{sdk_name}' --verbose"
           end
 
