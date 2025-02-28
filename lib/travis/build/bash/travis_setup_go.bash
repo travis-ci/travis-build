@@ -14,7 +14,8 @@ travis_setup_go() {
 
   # shellcheck source=/dev/null
 
-  travis_cmd "export GOPATH=\"${TRAVIS_HOME}/gopath\"" --echo
+  export GOPATH="${TRAVIS_HOME}/gopath"
+  echo "GOPATH set to: $GOPATH"
   travis_cmd "export PATH=\"${TRAVIS_HOME}/gopath/bin:${PATH}\"" --echo
   travis_cmd "export GO111MODULE=\"${GO111MODULE}\"" --echo
 
