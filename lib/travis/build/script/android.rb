@@ -39,12 +39,6 @@ module Travis
           sh.export 'ANDROID_HOME', android_home
           sh.export 'ANDROID_SDK_ROOT', sdk_root
           sh.export 'PATH', "#{sdkmanager_path}:#{sdk_root}/platform-tools:$PATH"
-
-          sh.cmd "mkdir -p #{sdk_root}/licenses #{sdk_root}/.android", echo: false
-          sh.cmd "touch #{sdk_root}/.android/repositories.cfg", echo: false
-
-          sh.cmd "echo '24333f8a63b6825ea9c5514f83c2829b004d1fee' > #{sdk_root}/licenses/android-sdk-license", echo: false
-          sh.cmd "echo '84831b9409646a918e30573bab4c9c91346d8abd' > #{sdk_root}/licenses/android-sdk-preview-license", echo: false
         end
 
         def install_sdk_components
