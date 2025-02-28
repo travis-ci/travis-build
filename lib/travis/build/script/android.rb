@@ -8,15 +8,17 @@ module Travis
 
         include Jdk
 
-        def setup
+                  def setup
           super
 
           # Set Android SDK environment variables and export them
           set_android_environment_variables
 
+          android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
+          
           if build_tools_desired.empty?
             sh.echo "No build-tools version specified in android.components. Consider adding one of the following:", ansi: :yellow
-            sh.cmd "sdkmanager --list | grep 'build-tools' | cut -d'|' -f1", echo: false, timing: false
+            sh.cmd "sdkmanager --sdk_root=#{android_home}/android-sdk --list | grep 'build-tools' | cut -d'|' -f1", echo: false, timing: false
             sh.echo "The following versions are preinstalled:", ansi: :yellow
             sh.cmd "for v in $(ls #{android_sdk_build_tools_dir} | sort -r 2>/dev/null); do echo build-tools-$v; done; echo", echo: false, timing: false
           end
@@ -60,8 +62,10 @@ module Travis
             sh.fold 'android.install' do
               sh.echo 'Installing Android dependencies'
               
+              android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
+              
               # Accepting licenses preemptively - required for non-interactive installation
-              sh.cmd 'yes | sdkmanager --licenses >/dev/null || true', echo: true
+              sh.cmd "yes | sdkmanager --sdk_root=#{android_home}/android-sdk --licenses >/dev/null || true", echo: true
               
               components.each do |name|
                 sh.cmd install_sdk_component(name)
@@ -70,6 +74,8 @@ module Travis
           end
 
           def install_sdk_component(name)
+            android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
+            
             # Convert name from format "build-tools-31.0.0" to "build-tools;31.0.0" for sdkmanager
             sdk_name = if name =~ /^build-tools-(.+)$/
                          "build-tools;#{$1}"
@@ -85,7 +91,7 @@ module Travis
                          name
                        end
             
-            "sdkmanager '#{sdk_name}' --verbose"
+            "sdkmanager --sdk_root=#{android_home}/android-sdk '#{sdk_name}' --verbose"
           end
 
           def build_tools_desired
