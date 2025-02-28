@@ -64,12 +64,44 @@ module Travis
               
               android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
               
-              # Accepting licenses preemptively - required for non-interactive installation
-              sh.cmd "yes | sdkmanager --sdk_root=#{android_home}/android-sdk --licenses >/dev/null || true", echo: true
+              # Automatically accept all licenses - create a script to handle this
+              sh.echo 'Setting up license acceptance script'
+              sh.cmd "mkdir -p /tmp/android-sdk-licenses"
+              sh.cmd "cat > /tmp/android-sdk-licenses/accept-licenses.sh << 'EOL'
+#!/bin/bash
+set -e
+count=0
+while [ $count -lt 100 ]; do
+  sleep 1
+  if [ $(ps -ef | grep sdkmanager | grep -v grep | wc -l) -eq 0 ]; then
+    break
+  fi
+  output=$(ps -ef | grep 'Accept? (y/N)' | grep -v grep || true)
+  if [ ! -z \"$output\" ]; then
+    echo y | sdkmanager --sdk_root=#{android_home}/android-sdk --licenses >/dev/null
+    count=0
+  else
+    count=$((count+1))
+  fi
+done
+EOL"
+              sh.cmd "chmod +x /tmp/android-sdk-licenses/accept-licenses.sh"
               
+              # First, try to accept all licenses up front
+              sh.cmd "echo y | sdkmanager --sdk_root=#{android_home}/android-sdk --licenses >/dev/null || true"
+              
+              # Start the license acceptance script in the background
+              sh.cmd "/tmp/android-sdk-licenses/accept-licenses.sh &"
+              
+              # Install each component
               components.each do |name|
                 sh.cmd install_sdk_component(name)
+                # Give time for any license prompts to be handled by the background script
+                sh.cmd "sleep 2"
               end
+              
+              # Kill the license acceptance script if it's still running
+              sh.cmd "pkill -f accept-licenses.sh || true"
             end
           end
 
@@ -91,7 +123,8 @@ module Travis
                          name
                        end
             
-            "sdkmanager --sdk_root=#{android_home}/android-sdk '#{sdk_name}' --verbose"
+            # Auto-accept any license prompt that may appear during installation
+            "echo y | sdkmanager --sdk_root=#{android_home}/android-sdk '#{sdk_name}' --verbose"
           end
 
           def build_tools_desired
