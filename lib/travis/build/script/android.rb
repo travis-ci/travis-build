@@ -8,15 +8,19 @@ module Travis
 
         include Jdk
 
-        def setup
+                  def setup
           super
 
-          # Set up Android SDK environment
-          set_up_android_sdk
+          # Set Android SDK environment variables and export them
+          set_android_environment_variables
 
+          android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
+          
           if build_tools_desired.empty?
             sh.echo "No build-tools version specified in android.components. Consider adding one of the following:", ansi: :yellow
-            sh.cmd "for v in $(ls #{android_sdk_build_tools_dir} 2>/dev/null || echo); do echo build-tools-$v; done", echo: false, timing: false
+            sh.cmd "sdkmanager --sdk_root=#{android_home}/android-sdk --list | grep 'build-tools' | cut -d'|' -f1", echo: false, timing: false
+            sh.echo "The following versions are preinstalled:", ansi: :yellow
+            sh.cmd "for v in $(ls #{android_sdk_build_tools_dir} | sort -r 2>/dev/null); do echo build-tools-$v; done; echo", echo: false, timing: false
           end
 
           install_sdk_components unless components.empty?
@@ -39,72 +43,99 @@ module Travis
 
         private
 
-          def set_up_android_sdk
-            sh.fold 'android.setup' do
-              sh.echo 'Setting up Android SDK'
-              
-              # Define paths
-              sh.export 'ANDROID_HOME', '/usr/local/android-sdk'
-              sh.export 'ANDROID_SDK_ROOT', '/usr/local/android-sdk/android-sdk'
-              
-              # Create necessary directories with proper permissions
-              sh.cmd "sudo mkdir -p $ANDROID_SDK_ROOT/licenses", echo: true
-              sh.cmd "sudo mkdir -p $ANDROID_SDK_ROOT/.android", echo: true
-              sh.cmd "sudo mkdir -p $HOME/.android", echo: true
-              
-              # Create configuration files
-              sh.cmd "sudo touch $ANDROID_SDK_ROOT/.android/repositories.cfg", echo: true
-              sh.cmd "sudo touch $HOME/.android/repositories.cfg", echo: true
-              
-              # Set permissions
-              sh.cmd "sudo chmod -R 777 $ANDROID_SDK_ROOT", echo: true
-              sh.cmd "sudo chmod -R 777 $HOME/.android", echo: true
-              
-              # Accept licenses by creating license files with known license hashes
-              sh.cmd "echo '24333f8a63b6825ea9c5514f83c2829b004d1fee' | sudo tee $ANDROID_SDK_ROOT/licenses/android-sdk-license > /dev/null", echo: true
-              sh.cmd "echo '84831b9409646a918e30573bab4c9c91346d8abd' | sudo tee $ANDROID_SDK_ROOT/licenses/android-sdk-preview-license > /dev/null", echo: true
-              
-              # Add cmdline-tools to PATH
-              cmdline_tools_bin = "$ANDROID_SDK_ROOT/cmdline-tools/latest/cmdline-tools/bin"
-              sh.cmd "[ -d \"#{cmdline_tools_bin}\" ] || sudo mkdir -p #{cmdline_tools_bin}", echo: true
-              sh.export 'PATH', "#{cmdline_tools_bin}:$ANDROID_SDK_ROOT/tools:$ANDROID_SDK_ROOT/tools/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH"
-            end
+          def set_android_environment_variables
+            # Determine Android SDK home
+            android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
+            sh.export 'ANDROID_HOME', android_home
+            
+            # Set path to sdkmanager based on specified structure
+            sdk_root = "#{android_home}/android-sdk"
+            sdkmanager_path = "#{sdk_root}/cmdline-tools/latest/cmdline-tools/bin"
+            
+            # Add paths to PATH
+            sh.export 'PATH', "#{sdkmanager_path}:#{sdk_root}/tools:#{sdk_root}/tools/bin:#{sdk_root}/platform-tools:$PATH"
+
+            # Create necessary directories and set permissions
+            sh.cmd "mkdir -p #{sdk_root}", echo: false
+            sh.cmd "mkdir -p #{sdk_root}/licenses", echo: false
+            sh.cmd "mkdir -p #{sdk_root}/.android", echo: false
+            
+            # Create necessary property files
+            sh.cmd "touch #{sdk_root}/.android/repositories.cfg", echo: false
+            
+            # Set proper permissions
+            sh.cmd "chmod -R 755 #{sdk_root}", echo: false
+            sh.cmd "chmod -R 777 #{sdk_root}/.android", echo: false
+            sh.cmd "chmod -R 777 #{sdk_root}/licenses", echo: false
+            
+            # Create standard license files to bypass some checks
+            sh.cmd "echo '24333f8a63b6825ea9c5514f83c2829b004d1fee' > #{sdk_root}/licenses/android-sdk-license", echo: false
+            sh.cmd "echo '84831b9409646a918e30573bab4c9c91346d8abd' > #{sdk_root}/licenses/android-sdk-preview-license", echo: false
+          end
           end
 
           def install_sdk_components
             sh.fold 'android.install' do
               sh.echo 'Installing Android dependencies'
               
-              # Install each component individually with error handling
+              android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
+              sdk_root = "#{android_home}/android-sdk"
+              
+              # Ensure SDK directories exist with proper permissions
+              sh.cmd "mkdir -p #{sdk_root}/licenses", echo: true
+              sh.cmd "mkdir -p #{sdk_root}/.android", echo: true
+              sh.cmd "touch #{sdk_root}/.android/repositories.cfg", echo: true
+              sh.cmd "chmod -R 777 #{sdk_root}/.android", echo: true
+              sh.cmd "chmod -R 777 #{sdk_root}/licenses", echo: true
+              
+              # Create license acceptance files (these are the standard license hashes)
+              sh.cmd "echo '24333f8a63b6825ea9c5514f83c2829b004d1fee' > #{sdk_root}/licenses/android-sdk-license", echo: true
+              sh.cmd "echo '84831b9409646a918e30573bab4c9c91346d8abd' > #{sdk_root}/licenses/android-sdk-preview-license", echo: true
+              
+              # Add all known license agreements to bypass interactive prompts
+              sh.cmd "mkdir -p #{sdk_root}/licenses", echo: false
+              sh.cmd "echo '24333f8a63b6825ea9c5514f83c2829b004d1fee' > #{sdk_root}/licenses/android-sdk-license", echo: false
+              sh.cmd "echo '84831b9409646a918e30573bab4c9c91346d8abd' > #{sdk_root}/licenses/android-sdk-preview-license", echo: false
+              sh.cmd "echo 'd975f751698a77b662f1254ddbeed3901e976f5a' > #{sdk_root}/licenses/intel-android-extra-license", echo: false
+              sh.cmd "echo '8933bad161af4178b1185d1a37fbf41ea5269c55' > #{sdk_root}/licenses/android-googletv-license", echo: false
+              sh.cmd "echo '33b6a2b64607f11b759f320ef9dff4ae5c47d97a' > #{sdk_root}/licenses/google-gdk-license", echo: false
+              
+              # Install each component
               components.each do |name|
-                component_name = convert_component_name(name)
-                
-                sh.echo "Installing #{component_name}", ansi: :yellow
-                
-                # Use a simple, direct command to avoid complex shell expression issues
-                sh.cmd "yes | sudo -E ANDROID_HOME=$ANDROID_SDK_ROOT sdkmanager --sdk_root=$ANDROID_SDK_ROOT '#{component_name}' || true", echo: true
-                
-                # Verify installation
-                sh.cmd "sdkmanager --list | grep -q '#{component_name}' || echo 'Warning: Installation of #{component_name} may have failed'", echo: true
+                sh.cmd install_sdk_component(name)
               end
             end
           end
 
-          def convert_component_name(name)
+          def install_sdk_component(name)
+            android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
+            sdk_root = "#{android_home}/android-sdk"
+            
             # Convert name from format "build-tools-31.0.0" to "build-tools;31.0.0" for sdkmanager
-            if name =~ /^build-tools-(.+)$/
-              "build-tools;#{$1}"
-            elsif name =~ /^platform-tools-(.+)$/
-              "platform-tools"
-            elsif name =~ /^tools-(.+)$/
-              "tools"
-            elsif name =~ /^platforms-android-(.+)$/
-              "platforms;android-#{$1}"
-            elsif name =~ /^system-images-android-(.+)-(.+)-(.+)$/
-              "system-images;android-#{$1};#{$2};#{$3}"
-            else
-              name
-            end
+            sdk_name = if name =~ /^build-tools-(.+)$/
+                         "build-tools;#{$1}"
+                       elsif name =~ /^platform-tools-(.+)$/
+                         "platform-tools"
+                       elsif name =~ /^tools-(.+)$/
+                         "tools"
+                       elsif name =~ /^platforms-android-(.+)$/
+                         "platforms;android-#{$1}"
+                       elsif name =~ /^system-images-android-(.+)-(.+)-(.+)$/
+                         "system-images;android-#{$1};#{$2};#{$3}"
+                       else
+                         name
+                       end
+            
+            # More robust command with environment variables and error handling
+            "mkdir -p #{sdk_root}/.android && " +
+            "touch #{sdk_root}/.android/repositories.cfg && " +
+            "JAVA_OPTS='-Duser.home=#{sdk_root}' " +
+            "ANDROID_SDK_HOME='#{sdk_root}' " +
+            "echo y | sdkmanager --sdk_root='#{sdk_root}' '#{sdk_name}' --verbose || " +
+            "echo 'Retrying installation...' && " +
+            "JAVA_OPTS='-Duser.home=#{sdk_root}' " +
+            "ANDROID_SDK_HOME='#{sdk_root}' " +
+            "echo y | sdkmanager --sdk_root='#{sdk_root}' '#{sdk_name}' --verbose"
           end
 
           def build_tools_desired
@@ -116,7 +147,9 @@ module Travis
           end
 
           def android_sdk_build_tools_dir
-            '/usr/local/android-sdk/android-sdk/build-tools'
+            # Get build-tools directory based on ANDROID_HOME with nested android-sdk directory
+            android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
+            File.join(android_home, 'android-sdk', 'build-tools')
           end
 
           def components
