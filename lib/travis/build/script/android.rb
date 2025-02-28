@@ -14,9 +14,6 @@ module Travis
           # Set Android SDK environment variables and export them
           set_android_environment_variables
 
-          # Ensure correct permissions for Android SDK
-          sh.cmd "chmod -R 777 /usr/local/android-sdk", echo: true
-
           if build_tools_desired.empty?
             sh.echo "No build-tools version specified in android.components. Consider adding one of the following:", ansi: :yellow
             sh.cmd "sdkmanager --list | grep 'build-tools' | cut -d'|' -f1", echo: false, timing: false
