@@ -89,7 +89,7 @@ module Travis
                          name
                        end
             
-            "yes | sdkmanager --sdk_root=#{android_home}/android-sdk '#{sdk_name}' --verbose"
+            "yes | sdkmanager --sdk_root=#{android_home}/android-sdk \"#{sdk_name}\" --verbose"
           end
 
           def build_tools_desired
