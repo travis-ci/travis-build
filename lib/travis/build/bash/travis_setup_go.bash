@@ -2,17 +2,15 @@ travis_setup_go() {
   local go_version="${TRAVIS_GO_VERSION:-${1}}"
   local go_import_path="${TRAVIS_GO_IMPORT_PATH:-${2}}"
 
-  if [[ ! "${go_version}" ]]; then
+  if [[ -z "${go_version}" ]]; then
     echo 'Missing TRAVIS_GO_VERSION' >&2
     return 86
   fi
 
-  if [[ ! "${go_import_path}" ]]; then
+  if [[ -z "${go_import_path}" ]]; then
     echo 'Missing TRAVIS_GO_IMPORT_PATH' >&2
     return 86
   fi
-
-  # shellcheck source=/dev/null
 
   export GOPATH="${TRAVIS_HOME}/gopath"
   echo "GOPATH set to: $GOPATH"
@@ -20,7 +18,7 @@ travis_setup_go() {
   export PATH="${TRAVIS_HOME}/gopath/bin:${PATH}"
   echo "Updated PATH: $PATH"
 
-  export GO111MODULE="${GO111MODULE}"
+  export GO111MODULE="on"
   echo "GO111MODULE set to: $GO111MODULE"
 
   if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
@@ -28,19 +26,25 @@ travis_setup_go() {
     choco install golang --version="${go_version}" -y
     export PATH="/c/Go/bin:${PATH}"
     echo "Windows PATH updated: $PATH"
+
+    # Ensure Go is installed
+    if ! command -v go &>/dev/null; then
+      echo "Go installation failed! Exiting..."
+      exit 1
+    fi
   else
-    echo "Detected non-Windows environment. Installing Go the standard way..."
+    echo "Detected Linux/macOS environment. Installing Go..."
     go install "golang.org/dl/go${go_version}@latest"
     "go${go_version}" download
 
-    # Only use sudo if it's available (Linux/macOS)
+    # Use sudo only if available
     if command -v sudo &>/dev/null; then
       sudo ln -s "${TRAVIS_HOME}/gopath/bin/go${go_version}" "${TRAVIS_HOME}/gopath/bin/go"
     else
       ln -s "${TRAVIS_HOME}/gopath/bin/go${go_version}" "${TRAVIS_HOME}/gopath/bin/go"
     fi
 
-    # Ensure go command exists before setting GOROOT
+    # Ensure Go exists before setting GOROOT
     if command -v "go${go_version}" &>/dev/null; then
       export GOROOT=$("go${go_version}" env GOROOT)
       echo "GOROOT set to: $GOROOT"
