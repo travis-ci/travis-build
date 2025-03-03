@@ -93,10 +93,22 @@ module Travis
           else
             android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
             sdk_name = case name
-                       when /^build-tools-(.+)$/ then "build-tools;#{$1}"
-                       when /^platforms-android-(.+)$/ then "platforms;android-#{$1}"
-                       when /^system-images-android-(.+)-(.+)-(.+)$/ then "system-images;android-#{$1};#{$2};#{$3}"
-                       else name
+                       when /^build-tools-(.+)$/
+                         "build-tools;#{$1}"
+                       when /^platforms-android-(.+)$/
+                         "platforms;android-#{$1}"
+                       when /^android-(.+)$/
+                         "platforms;android-#{$1}"
+                       when /^system-images-android-(.+)-(.+)-(.+)$/
+                         "system-images;android-#{$1};#{$2};#{$3}"
+                       when /^extra-google-google_play_services$/
+                         "extras;google;google_play_services"
+                       when /^extra-google-m2repository$/
+                         "extras;google;m2repository"
+                       when /^extra-android-m2repository$/
+                         "extras;android;m2repository"
+                       else
+                         name
                        end
             "yes | sdkmanager --sdk_root=#{android_home} \"#{sdk_name}\" --verbose"
           end
