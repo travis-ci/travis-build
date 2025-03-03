@@ -89,7 +89,8 @@ module Travis
 
         def install_sdk_component(name)
           if ubuntu_trusty?
-            "android-update-sdk --components=#{name} --accept-licenses='#{licenses.join('|')}'"
+            accept = licenses.any? ? " --accept-licenses='#{licenses.join('|')}'" : ""
+            "android-update-sdk --components=#{name}#{accept}"
           else
             android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
             sdk_name = case name
