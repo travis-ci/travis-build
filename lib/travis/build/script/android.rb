@@ -11,7 +11,6 @@ module Travis
         def setup
           super
 
-          # Set Android SDK environment variables and export them
           set_android_environment_variables
 
           if build_tools_desired.empty?
@@ -42,17 +41,13 @@ module Travis
         private
 
           def set_android_environment_variables
-            # Determine Android SDK home
             android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
             sh.export 'ANDROID_HOME', android_home
             
-            # Set path to sdkmanager based on specified structure
-            sdkmanager_path = "#{android_home}/android-sdk/cmdline-tools/latest/cmdline-tools/bin"
+            sdkmanager_path = "#{android_home}/cmdline-tools/bin"
             
-            # Add paths to PATH
-            sh.export 'PATH', "#{sdkmanager_path}:#{android_home}/android-sdk/tools:#{android_home}/android-sdk/tools/bin:#{android_home}/android-sdk/platform-tools:$PATH"
+            sh.export 'PATH', "#{sdkmanager_path}:#{android_home}/tools:#{android_home}/tools/bin:#{android_home}/platform-tools:$PATH"
             
-            # Create directory structure if it doesn't exist
             sh.cmd "mkdir -p #{sdkmanager_path}", echo: false
           end
 
@@ -62,8 +57,7 @@ module Travis
               
               android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
               
-              # Accepting licenses preemptively - required for non-interactive installation
-              sh.cmd "yes | sdkmanager --sdk_root=#{android_home}/android-sdk --licenses >/dev/null || true", echo: true
+              sh.cmd "yes | sdkmanager --sdk_root=#{android_home} --licenses >/dev/null || true", echo: true
               
               components.each do |name|
                 sh.cmd install_sdk_component(name)
@@ -74,7 +68,6 @@ module Travis
           def install_sdk_component(name)
             android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
             
-            # Convert name from format "build-tools-31.0.0" to "build-tools;31.0.0" for sdkmanager
             sdk_name = if name =~ /^build-tools-(.+)$/
                          "build-tools;#{$1}"
                        elsif name =~ /^platform-tools-(.+)$/
@@ -89,7 +82,7 @@ module Travis
                          name
                        end
             
-            "yes | sdkmanager --sdk_root=#{android_home}/android-sdk \"#{sdk_name}\" --verbose"
+            "yes | sdkmanager --sdk_root=#{android_home} \"#{sdk_name}\" --verbose"
           end
 
           def build_tools_desired
@@ -101,9 +94,8 @@ module Travis
           end
 
           def android_sdk_build_tools_dir
-            # Get build-tools directory based on ANDROID_HOME with nested android-sdk directory
             android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
-            File.join(android_home, 'android-sdk', 'build-tools')
+            File.join(android_home, 'build-tools')
           end
 
           def components
