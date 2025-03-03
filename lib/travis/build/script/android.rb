@@ -48,7 +48,6 @@ module Travis
             
             sh.export 'PATH', "#{sdkmanager_path}:#{android_home}/tools:#{android_home}/tools/bin:#{android_home}/platform-tools:$PATH"
             
-            sh.cmd "mkdir -p #{sdkmanager_path}", echo: false
           end
 
           def install_sdk_components
