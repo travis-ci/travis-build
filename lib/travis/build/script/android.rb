@@ -40,74 +40,82 @@ module Travis
 
         private
 
-          def set_android_environment_variables
-            android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
-            sh.export 'ANDROID_HOME', android_home
-            
-            sdkmanager_path = "#{android_home}/cmdline-tools/bin"
-            
-            sh.export 'PATH', "#{sdkmanager_path}:#{android_home}/tools:#{android_home}/tools/bin:#{android_home}/platform-tools:$PATH"
-            
-          end
+        def set_android_environment_variables
+          android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
+          
+          sdkmanager_path = if File.exist?(File.join(android_home, 'cmdline-tools', 'latest', 'bin', 'sdkmanager'))
+                              File.join(android_home, 'cmdline-tools', 'latest', 'bin')
+                            else
+                              File.join(android_home, 'cmdline-tools', 'bin')
+                            end
 
-          def install_sdk_components
-            sh.fold 'android.install' do
-              sh.echo 'Installing Android dependencies'
-              
-              android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
-              
-              sh.cmd "yes | sdkmanager --sdk_root=#{android_home} --licenses >/dev/null || true", echo: true
-              
-              components.each do |name|
-                sh.cmd install_sdk_component(name)
-              end
+          sh.export 'ANDROID_HOME', android_home
+          sh.export 'PATH', "#{sdkmanager_path}:#{android_home}/tools:#{android_home}/tools/bin:#{android_home}/platform-tools:$PATH"
+        end
+
+        def install_sdk_components
+          sh.fold 'android.install' do
+            sh.echo 'Installing Android dependencies'
+
+            android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
+            sdkmanager_path = if File.exist?(File.join(android_home, 'cmdline-tools', 'latest', 'bin', 'sdkmanager'))
+                                File.join(android_home, 'cmdline-tools', 'latest', 'bin', 'sdkmanager')
+                              else
+                                File.join(android_home, 'cmdline-tools', 'bin', 'sdkmanager')
+                              end
+
+            sh.cmd "yes | #{sdkmanager_path} --licenses >/dev/null || true", echo: true
+
+            components.each do |name|
+              sh.cmd install_sdk_component(name)
             end
           end
+        end
 
-          def install_sdk_component(name)
-            android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
-            
-            sdk_name = if name =~ /^build-tools-(.+)$/
-                         "build-tools;#{$1}"
-                       elsif name =~ /^platform-tools-(.+)$/
-                         "platform-tools"
-                       elsif name =~ /^tools-(.+)$/
-                         "tools"
-                       elsif name =~ /^platforms-android-(.+)$/
-                         "platforms;android-#{$1}"
-                       elsif name =~ /^system-images-android-(.+)-(.+)-(.+)$/
-                         "system-images;android-#{$1};#{$2};#{$3}"
-                       else
-                         name
-                       end
-            
-            "yes | sdkmanager --sdk_root=#{android_home} \"#{sdk_name}\" --verbose"
-          end
+        def install_sdk_component(name)
+          android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
+          sdkmanager_path = if File.exist?(File.join(android_home, 'cmdline-tools', 'latest', 'bin', 'sdkmanager'))
+                              File.join(android_home, 'cmdline-tools', 'latest', 'bin', 'sdkmanager')
+                            else
+                              File.join(android_home, 'cmdline-tools', 'bin', 'sdkmanager')
+                            end
 
-          def build_tools_desired
-            components.map do |component|
-              if component =~ /^build-tools-(?<version>[\d\.]+)$/
-                Regexp.last_match[:version]
-              end
-            end.compact
-          end
+          sdk_name = case name
+                     when /^build-tools-(.+)$/ then "build-tools;#{$1}"
+                     when /^platform-tools$/ then "platform-tools"
+                     when /^tools$/ then "tools"
+                     when /^platforms-android-(.+)$/ then "platforms;android-#{$1}"
+                     when /^system-images-android-(.+)-(.+)-(.+)$/ then "system-images;android-#{$1};#{$2};#{$3}"
+                     else name
+                   end
 
-          def android_sdk_build_tools_dir
-            android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
-            File.join(android_home, 'build-tools')
-          end
+          "yes | #{sdkmanager_path} \"#{sdk_name}\" --verbose"
+        end
 
-          def components
-            android_config[:components] || []
-          end
+        def build_tools_desired
+          components.map do |component|
+            if component =~ /^build-tools-(?<version>[\d\.]+)$/
+              Regexp.last_match[:version]
+            end
+          end.compact
+        end
 
-          def licenses
-            android_config[:licenses] || []
-          end
+        def android_sdk_build_tools_dir
+          android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
+          File.join(android_home, 'build-tools')
+        end
 
-          def android_config
-            config[:android] || {}
-          end
+        def components
+          android_config[:components] || []
+        end
+
+        def licenses
+          android_config[:licenses] || []
+        end
+
+        def android_config
+          config[:android] || {}
+        end
       end
     end
   end
