@@ -36,7 +36,10 @@ module Travis
         private
 
         def ubuntu_trusty?
-          sh.cmd "lsb_release -cs | grep -q '^trusty$'", echo: false, timing: false
+          result = `lsb_release -cs`.strip
+          result == "trusty"
+        rescue
+          false
         end
 
         def setup_trusty
