@@ -10,18 +10,12 @@ module Travis
 
         def setup
           super
-
-          # Set Android SDK environment variables and export them
-          set_android_environment_variables
-
-          if build_tools_desired.empty?
-            sh.echo "No build-tools version specified in android.components. Consider adding one of the following:", ansi: :yellow
-            sh.cmd "sdkmanager --list | grep 'build-tools' | cut -d'|' -f1", echo: false, timing: false
-            sh.echo "The following versions are preinstalled:", ansi: :yellow
-            sh.cmd "for v in $(ls #{android_sdk_build_tools_dir} | sort -r 2>/dev/null); do echo build-tools-$v; done; echo", echo: false, timing: false
+          
+          if ubuntu_trusty?
+            setup_trusty
+          else
+            setup_newer
           end
-
-          install_sdk_components unless components.empty?
         end
 
         def script
@@ -41,82 +35,95 @@ module Travis
 
         private
 
-          def set_android_environment_variables
-            # Determine Android SDK home
-            android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
-            sh.export 'ANDROID_HOME', android_home
-            
-            # Set path to sdkmanager based on specified structure
-            sdkmanager_path = "#{android_home}/android-sdk/cmdline-tools/latest/cmdline-tools/bin"
-            
-            # Add paths to PATH
-            sh.export 'PATH', "#{sdkmanager_path}:#{android_home}/android-sdk/tools:#{android_home}/android-sdk/tools/bin:#{android_home}/android-sdk/platform-tools:$PATH"
-            
-            # Create directory structure if it doesn't exist
-            sh.cmd "mkdir -p #{sdkmanager_path}", echo: false
-          end
+        def ubuntu_trusty?
+          sh.cmd "lsb_release -cs | grep -q '^trusty$'", echo: false, timing: false
+        end
 
-          def install_sdk_components
-            sh.fold 'android.install' do
-              sh.echo 'Installing Android dependencies'
-              
-              android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
-              
-              # Accepting licenses preemptively - required for non-interactive installation
-              sh.cmd "yes | sdkmanager --sdk_root=#{android_home}/android-sdk --licenses >/dev/null || true", echo: true
-              
-              components.each do |name|
-                sh.cmd install_sdk_component(name)
-              end
+        def setup_trusty
+          if build_tools_desired.empty?
+            sh.echo "No build-tools version is specified in android.components. Consider adding one of:", ansi: :yellow
+            sh.cmd  "android list sdk --extended --no-ui --all | awk -F\" '/^id.*build-tools/ {print $2}'", echo: false, timing: false
+            sh.echo "The following versions are pre-installed:", ansi: :yellow
+            sh.cmd  "for v in $(ls /usr/local/android-sdk/build-tools/ | sort -r 2>/dev/null); do echo build-tools-$v; done; echo", echo: false, timing: false
+          end
+          install_sdk_components unless components.empty?
+          ensure_tools_bin_path
+        end
+
+        def setup_newer
+          set_android_environment_variables
+          if build_tools_desired.empty?
+            sh.echo "No build-tools version specified in android.components. Consider adding one of the following:", ansi: :yellow
+            sh.cmd "sdkmanager --list | grep 'build-tools' | cut -d'|' -f1", echo: false, timing: false
+            sh.echo "The following versions are preinstalled:", ansi: :yellow
+            sh.cmd "for v in $(ls #{android_sdk_build_tools_dir} | sort -r 2>/dev/null); do echo build-tools-$v; done; echo", echo: false, timing: false
+          end
+          install_sdk_components unless components.empty?
+        end
+
+        def set_android_environment_variables
+          android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
+          sh.export 'ANDROID_HOME', android_home
+          sdkmanager_path = "#{android_home}/android-sdk/cmdline-tools/latest/cmdline-tools/bin"
+          sh.export 'PATH', "#{sdkmanager_path}:#{android_home}/android-sdk/tools:#{android_home}/android-sdk/tools/bin:#{android_home}/android-sdk/platform-tools:$PATH"
+          sh.cmd "mkdir -p #{sdkmanager_path}", echo: false
+        end
+
+        def install_sdk_components
+          sh.fold 'android.install' do
+            sh.echo 'Installing Android dependencies'
+            components.each do |name|
+              sh.cmd install_sdk_component(name)
             end
           end
+        end
 
-          def install_sdk_component(name)
+        def install_sdk_component(name)
+          if ubuntu_trusty?
+            "android-update-sdk --components=#{name} --accept-licenses='#{licenses.join('|')}'"
+          else
             android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
-            
-            # Convert name from format "build-tools-31.0.0" to "build-tools;31.0.0" for sdkmanager
-            sdk_name = if name =~ /^build-tools-(.+)$/
-                         "build-tools;#{$1}"
-                       elsif name =~ /^platform-tools-(.+)$/
-                         "platform-tools"
-                       elsif name =~ /^tools-(.+)$/
-                         "tools"
-                       elsif name =~ /^platforms-android-(.+)$/
-                         "platforms;android-#{$1}"
-                       elsif name =~ /^system-images-android-(.+)-(.+)-(.+)$/
-                         "system-images;android-#{$1};#{$2};#{$3}"
-                       else
-                         name
+            sdk_name = case name
+                       when /^build-tools-(.+)$/ then "build-tools;#{$1}"
+                       when /^platforms-android-(.+)$/ then "platforms;android-#{$1}"
+                       when /^system-images-android-(.+)-(.+)-(.+)$/ then "system-images;android-#{$1};#{$2};#{$3}"
+                       else name
                        end
-            
             "yes | sdkmanager --sdk_root=#{android_home}/android-sdk \"#{sdk_name}\" --verbose"
           end
+        end
 
-          def build_tools_desired
-            components.map do |component|
-              if component =~ /^build-tools-(?<version>[\d\.]+)$/
-                Regexp.last_match[:version]
-              end
-            end.compact
-          end
+        def build_tools_desired
+          components.map { |component|
+            if component =~ /^build-tools-(?<version>[\d\.]+)$/
+              Regexp.last_match[:version]
+            end
+          }.compact
+        end
 
-          def android_sdk_build_tools_dir
-            # Get build-tools directory based on ANDROID_HOME with nested android-sdk directory
-            android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
-            File.join(android_home, 'android-sdk', 'build-tools')
-          end
+        def android_sdk_build_tools_dir
+          android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
+          File.join(android_home, 'android-sdk', 'build-tools')
+        end
 
-          def components
-            android_config[:components] || []
+        def ensure_tools_bin_path
+          tools_bin_path = '/usr/local/android-sdk/tools/bin'
+          sh.if "$(echo :$PATH: | grep -v :#{tools_bin_path}:)" do
+            sh.export "PATH", "#{tools_bin_path}:$PATH"
           end
+        end
 
-          def licenses
-            android_config[:licenses] || []
-          end
+        def components
+          android_config[:components] || []
+        end
 
-          def android_config
-            config[:android] || {}
-          end
+        def licenses
+          android_config[:licenses] || []
+        end
+
+        def android_config
+          config[:android] || {}
+        end
       end
     end
   end
