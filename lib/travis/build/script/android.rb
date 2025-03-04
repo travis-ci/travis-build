@@ -66,8 +66,14 @@ module Travis
                          "tools"
                        elsif name =~ /^platforms-android-(.+)$/
                          "platforms;android-#{$1}"
+                       elsif name =~ /^android-(.+)$/
+                         "platforms;android-#{$1}"
                        elsif name =~ /^system-images-android-(.+)-(.+)-(.+)$/
                          "system-images;android-#{$1};#{$2};#{$3}"
+                       elsif name =~ /^extra-google-(.+)$/
+                         "extras;google;#{$1}"
+                       elsif name =~ /^extra-android-(.+)$/
+                         "extras;android;#{$1}"
                        else
                          name
                        end
