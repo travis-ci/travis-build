@@ -23,39 +23,56 @@ describe Travis::Build::Script::Android, :sexp do
     before { data[:config][:android] = {} }
 
     it 'does not install any sdk component by default' do
-      expect(subject.flatten.join).not_to include('android-sdk-update')
+      expect(subject.flatten.join).not_to include('android.install')
     end
 
-    it 'installs the provided sdk components accepting provided license patterns' do
-      components = %w(build-tools-19.0.3 android-19 sysimg-19 sysimg-18)
-      licenses   = %w(android-sdk-license-.+ intel-.+)
+    it 'sets up the Android environment variables' do
+      android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
+      sdkmanager_bin = "#{android_home}/cmdline-tools/bin/sdkmanager"
+      
+      should include_sexp [:export, 'ANDROID_HOME', android_home]
+      should include_sexp [:export, 'PATH', "#{File.dirname(sdkmanager_bin)}:#{android_home}/tools:#{android_home}/tools/bin:#{android_home}/platform-tools:$PATH"]
+      should include_sexp [:cmd, "mkdir -p #{File.dirname(sdkmanager_bin)}", echo: false]
+    end
+
+    it 'shows available build-tools versions when none specified' do
+      android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
+      sdkmanager_bin = "#{android_home}/cmdline-tools/bin/sdkmanager"
+      
+      should include_sexp [:echo, "No build-tools version specified in android.components. Consider adding one of the following:", ansi: :yellow]
+      should include_sexp [:cmd, "#{sdkmanager_bin} --list | grep 'build-tools' | cut -d'|' -f1", echo: false, timing: false]
+      should include_sexp [:echo, "The following versions are preinstalled:", ansi: :yellow]
+      should include_sexp [:cmd, "for v in $(ls #{android_home}/build-tools | sort -r 2>/dev/null); do echo build-tools-$v; done; echo", echo: false, timing: false]
+    end
+
+    it 'installs the provided sdk components' do
+      android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
+      sdkmanager_bin = "#{android_home}/cmdline-tools/bin/sdkmanager"
+      components = %w(build-tools-30.0.3 platforms-android-30 system-images-android-30-google-x86)
 
       data[:config][:android][:components] = components
-      data[:config][:android][:licenses]   = licenses
-
+      
+      should include_sexp [:fold, 'android.install', fold_options]
+      should include_sexp [:echo, 'Installing Android dependencies']
+      should include_sexp [:cmd, "yes | #{sdkmanager_bin} --sdk_root=#{android_home} --licenses >/dev/null || true", echo: true]
+      
       components.each do |component|
-        cmd = "android-update-sdk --components=#{component} --accept-licenses='#{licenses.join('|')}'"
-        should include_sexp [:cmd, cmd, options]
+        if component =~ /^build-tools-(.+)$/
+          sdk_name = "build-tools;#{$1}"
+        elsif component =~ /^platform-tools-(.+)$/
+          sdk_name = "platform-tools"
+        elsif component =~ /^tools-(.+)$/
+          sdk_name = "tools"
+        elsif component =~ /^platforms-android-(.+)$/
+          sdk_name = "platforms;android-#{$1}"
+        elsif component =~ /^system-images-android-(.+)-(.+)-(.+)$/
+          sdk_name = "system-images;android-#{$1};#{$2};#{$3}"
+        else
+          sdk_name = component
+        end
+        
+        should include_sexp [:cmd, "yes | #{sdkmanager_bin} --sdk_root=#{android_home} \"#{sdk_name}\" --verbose", options]
       end
-    end
-
-    it 'installs the provided sdk components accepting a single license' do
-      components = %w(sysimg-19 sysimg-18)
-      license    = 'mips-android-sysimage-license-15del8cc'
-
-      data[:config][:android][:components] = components
-      data[:config][:android][:licenses]   = [license]
-
-      components.each do |component|
-        cmd = "android-update-sdk --components=#{component} --accept-licenses='#{license}'"
-        should include_sexp [:cmd, cmd, options]
-      end
-    end
-
-    it 'installs the provided sdk component using license defaults' do
-      data[:config][:android][:components] = %w(build-tools-18.1.0)
-      should include_sexp [:cmd, 'android-update-sdk --components=build-tools-18.1.0', options]
-      should_not include_sexp [:cmd, 'android-update-sdk --components=build-tools-18.1.0 --accept-licenses', options]
     end
   end
 
@@ -86,5 +103,13 @@ describe Travis::Build::Script::Android, :sexp do
       branch = sexp_find(sexp, [:else])
       expect(branch).to include_sexp ant_install_test
     end
+  end
+
+  def fold_options
+    {
+      animate: true,
+      echo: true,
+      timing: true
+    }
   end
 end
