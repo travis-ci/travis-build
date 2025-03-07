@@ -9,7 +9,22 @@ module Travis
         end
 
         def delete
-          sh.raw "rm -f ${TRAVIS_HOME}/#{netrc_filename}"
+          host = Shellwords.escape(data.source_host)
+          file_path = "${TRAVIS_HOME}/#{netrc_filename}"
+
+          if netrc_filename == '_netrc'
+            # Windows
+            sh.raw %(
+              powershell -Command "
+                (Get-Content #{file_path}) |
+                  Where-Object { $_ -notmatch 'login|password' } |
+                  Set-Content #{file_path}
+              "
+            )
+          else
+            # Linux/macOS
+            sh.raw "sed -i '/^machine #{host}/,/^$/ { /login/d; /password/d; }' #{file_path}"
+          end
         end
 
         private
