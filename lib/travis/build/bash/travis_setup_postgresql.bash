@@ -19,6 +19,9 @@ travis_setup_postgresql() {
     focal)
       version='13'
       ;;
+    Ootpa)
+      version='12'
+      ;;
     jammy)
       version='14'
       ;;
@@ -26,7 +29,7 @@ travis_setup_postgresql() {
       version='16'
       ;;
     *)
-      echo -e "${ANSI_RED}Unrecognized operating system.${ANSI_CLEAR}"
+      echo -e "${ANSI_RED}Unrecognized operating system ${TRAVIS_DIST}.${ANSI_CLEAR}"
       ;;
     esac
   fi
@@ -37,6 +40,9 @@ travis_setup_postgresql() {
   if [[ "${TRAVIS_INIT}" == upstart ]]; then
     start_cmd="sudo service postgresql start ${version}"
     stop_cmd="sudo service postgresql stop"
+  elif [[ "${TRAVIS_DIST}" == Ootpa ]]; then
+    start_cmd="sudo systemctl start postgresql-${version}"
+    stop_cmd="sudo systemctl stop postgresql"
   elif [[ "${TRAVIS_INIT}" == systemd ]]; then
     start_cmd="sudo systemctl start postgresql@${version}-main"
     stop_cmd="sudo systemctl stop postgresql"
