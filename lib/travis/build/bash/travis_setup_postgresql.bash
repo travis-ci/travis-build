@@ -1,5 +1,5 @@
 travis_setup_postgresql() {
-  local port start_cmd stop_cmd
+  local port=5432 start_cmd stop_cmd
   local version="${1}"
 
   if [[ -z "${version}" ]]; then
@@ -44,7 +44,17 @@ travis_setup_postgresql() {
 
   ${stop_cmd}
 
-  sudo pg_createcluster ${version} main
+  sudo pg_dropcluster --stop "${version}" main || true
+
+  sudo pg_createcluster "${version}" main
+
+  sudo sed -i "s/^port = .*/port = ${port}/" "/etc/postgresql/${version}/main/postgresql.conf"
+
+  for existing_version in $(pg_lsclusters | grep "${port}" | awk '{print $1}'); do
+    if [ "${existing_version}" != "${version}" ]; then
+      sudo pg_ctlcluster "${existing_version}" main stop || true
+    fi
+  done
 
   sudo bash -c "
 	if [[ -d /var/ramfs && ! -d \"/var/ramfs/postgresql/${version}\" ]]; then
@@ -53,13 +63,16 @@ travis_setup_postgresql() {
 	fi
   " &>/dev/null
 
+  sudo sed -i "s/^local.*postgres.*peer$/local   all             postgres                                trust/" "/etc/postgresql/${version}/main/pg_hba.conf"
+  sudo sed -i "s/^host.*all.*all.*127.0.0.1\\/32.*md5$/host    all             all             127.0.0.1\\/32            trust/" "/etc/postgresql/${version}/main/pg_hba.conf"
+
   ${start_cmd}
   echo "${start_cmd}"
 
+  sleep 2
+
   pushd / &>/dev/null || true
-  for port in 5432 5433; do
-    sudo -u postgres createuser -s -p "${port}" travis
-    sudo -u postgres createdb -O travis -p "${port}" travis
-  done &>/dev/null
+  sudo -u postgres createuser -s -p "${port}" travis
+  sudo -u postgres createdb -O travis -p "${port}" travis
   popd &>/dev/null || true
 }
