@@ -44,6 +44,8 @@ travis_setup_postgresql() {
 
   ${stop_cmd}
 
+  sudo pg_createcluster ${version} main
+
   sudo bash -c "
 	if [[ -d /var/ramfs && ! -d \"/var/ramfs/postgresql/${version}\" ]]; then
     mkdir -p /var/ramfs/postgresql
