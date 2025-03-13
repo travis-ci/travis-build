@@ -30,8 +30,12 @@ module Travis
           sh.elif '-f pom.xml' do
             sh.cmd 'mvn install -B', echo: true
           end
-          sh.else do
+          sh.elif '-f build.xml' do
             sh.cmd 'ant debug install test'
+          end
+          sh.else do
+            sh.echo 'No known build file found. Please provide one of: gradlew, build.gradle, pom.xml, or build.xml', ansi: :red
+            sh.cmd 'false', echo: false
           end
         end
 
