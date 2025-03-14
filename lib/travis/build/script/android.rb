@@ -10,14 +10,101 @@ module Travis
 
         def setup
           super
-          set_android_environment_variables
-          if build_tools_desired.empty?
-            sh.echo "No build-tools version specified in android.components. Consider adding one of the following:", ansi: :yellow
-            sh.cmd "#{@sdkmanager_bin} --list | grep 'build-tools' | cut -d'|' -f1", echo: false, timing: false
-            sh.echo "The following versions are preinstalled:", ansi: :yellow
-            sh.cmd "for v in $(ls #{android_sdk_build_tools_dir} | sort -r 2>/dev/null); do echo build-tools-$v; done; echo", echo: false, timing: false
+          
+          android_home = '/usr/local/android-sdk'
+          sh.echo "Using Android SDK at #{android_home}", ansi: :green
+          sh.export 'ANDROID_HOME', android_home, echo: true
+          
+          sh.echo "Setting up sdkmanager", ansi: :green
+          
+          # Najpierw sprawdzamy, czy sdkmanager jest dostępny w PATH
+          sdkmanager_path = nil
+          sdkmanager_cmd = nil
+          
+          sh.cmd "command -v sdkmanager >/dev/null && echo \"FOUND_IN_PATH=YES\" || echo \"FOUND_IN_PATH=NO\"", echo: false, assert: true do |result|
+            if result.stdout.include?("FOUND_IN_PATH=YES")
+              sh.echo "sdkmanager available in PATH", ansi: :green
+              sdkmanager_cmd = "sdkmanager --sdk_root=\"#{android_home}\""
+            else
+              sh.echo "sdkmanager not available in PATH, checking specific locations", ansi: :yellow
+              
+              # Sprawdzamy konkretną ścieżkę, którą widzimy w logach
+              sdkmanager_path = "#{android_home}/cmdline-tools/bin/sdkmanager"
+              
+              sh.cmd "test -f \"#{sdkmanager_path}\" && echo \"FOUND=YES\" || echo \"FOUND=NO\"", echo: false, assert: true do |path_result|
+                if path_result.stdout.include?("FOUND=YES")
+                  sh.echo "Found sdkmanager at #{sdkmanager_path}", ansi: :green
+                  sdkmanager_cmd = "\"#{sdkmanager_path}\" --sdk_root=\"#{android_home}\""
+                else
+                  sdkmanager_path = nil
+                  sh.echo "sdkmanager not found at expected location", ansi: :yellow
+                end
+              end
+            end
           end
-          install_sdk_components unless components.empty?
+          
+          # Jeśli nadal nie mamy sdkmanager, dodajemy narzędzia Android do PATH
+          if sdkmanager_cmd.nil?
+            sh.echo "Trying to add Android tools to PATH", ansi: :yellow
+            sh.export 'PATH', "#{android_home}/cmdline-tools/bin:#{android_home}/tools/bin:#{android_home}/platform-tools:$PATH", echo: true
+            
+            sh.cmd "command -v sdkmanager >/dev/null && echo \"NOW_FOUND=YES\" || echo \"NOW_FOUND=NO\"", echo: false, assert: true do |result|
+              if result.stdout.include?("NOW_FOUND=YES")
+                sh.echo "sdkmanager now available in PATH after adjustment", ansi: :green
+                sdkmanager_cmd = "sdkmanager --sdk_root=\"#{android_home}\""
+              else
+                sh.echo "sdkmanager still not available in PATH", ansi: :red
+              end
+            end
+          end
+          
+          # Używamy komendy sdkmanager, jeśli jest dostępna
+          if sdkmanager_cmd
+            sh.echo "Using sdkmanager command: #{sdkmanager_cmd}", ansi: :green
+            
+            if build_tools_desired.empty?
+              sh.echo "No build-tools version specified in android.components. Available versions:", ansi: :yellow
+              sh.cmd "#{sdkmanager_cmd} --list | grep 'build-tools' | cut -d'|' -f1 || echo 'Failed to list build-tools'", echo: true, assert: true
+              
+              sh.echo "Preinstalled versions:", ansi: :yellow
+              sh.cmd "ls -la #{android_sdk_build_tools_dir} 2>/dev/null || echo 'None'", echo: true, assert: true
+            end
+            
+            unless components.empty?
+              sh.echo "Installing Android components: #{components.join(', ')}", ansi: :green
+              
+              sh.echo "Accepting SDK licenses"
+              sh.cmd "yes | #{sdkmanager_cmd} --licenses > /dev/null || echo 'License acceptance failed'", echo: true, assert: true
+              
+              components.each do |name|
+                sh.echo "Installing component: #{name}", ansi: :yellow
+                
+                sdk_name = if name =~ /^build-tools-(.+)$/
+                  "build-tools;#{$1}"
+                elsif name == 'platform-tools'
+                  "platform-tools"
+                elsif name == 'tools'
+                  "tools"
+                elsif name =~ /^platforms-android-(.+)$/
+                  "platforms;android-#{$1}"
+                elsif name =~ /^android-(.+)$/
+                  "platforms;android-#{$1}"
+                elsif name =~ /^system-images-android-(.+)-(.+)-(.+)$/
+                  "system-images;android-#{$1};#{$2};#{$3}"
+                elsif name =~ /^extra-google-(.+)$/
+                  "extras;google;#{$1}"
+                elsif name =~ /^extra-android-(.+)$/
+                  "extras;android;#{$1}"
+                else
+                  name
+                end
+                
+                sh.cmd "yes | #{sdkmanager_cmd} \"#{sdk_name}\" --verbose || echo 'Installation of #{name} failed'", echo: true, assert: true
+              end
+            end
+          else
+            sh.echo "Could not find sdkmanager, Android build may fail", ansi: :red
+          end
         end
 
         def script
@@ -36,49 +123,6 @@ module Travis
         end
 
         private
-
-          def set_android_environment_variables
-            android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
-            sh.export 'ANDROID_HOME', android_home
-            @sdkmanager_bin = "#{android_home}/cmdline-tools/bin/sdkmanager"
-            sh.export 'PATH', "#{File.dirname(@sdkmanager_bin)}:#{android_home}/tools:#{android_home}/tools/bin:#{android_home}/platform-tools:$PATH"
-            sh.cmd "mkdir -p #{File.dirname(@sdkmanager_bin)}", echo: false
-          end
-
-          def install_sdk_components
-            sh.fold 'android.install' do
-              sh.echo 'Installing Android dependencies'
-              android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
-              sh.cmd "yes | #{@sdkmanager_bin} --sdk_root=#{android_home} --licenses >/dev/null || true", echo: true
-              components.each do |name|
-                sh.cmd install_sdk_component(name)
-              end
-            end
-          end
-
-          def install_sdk_component(name)
-            android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
-            sdk_name = if name =~ /^build-tools-(.+)$/
-                         "build-tools;#{$1}"
-                       elsif name =~ /^platform-tools-(.+)$/
-                         "platform-tools"
-                       elsif name =~ /^tools-(.+)$/
-                         "tools"
-                       elsif name =~ /^platforms-android-(.+)$/
-                         "platforms;android-#{$1}"
-                       elsif name =~ /^android-(.+)$/
-                         "platforms;android-#{$1}"
-                       elsif name =~ /^system-images-android-(.+)-(.+)-(.+)$/
-                         "system-images;android-#{$1};#{$2};#{$3}"
-                       elsif name =~ /^extra-google-(.+)$/
-                         "extras;google;#{$1}"
-                       elsif name =~ /^extra-android-(.+)$/
-                         "extras;android;#{$1}"
-                       else
-                         name
-                       end
-            "yes | #{@sdkmanager_bin} --sdk_root=#{android_home} \"#{sdk_name}\" --verbose"
-          end
 
           def build_tools_desired
             components.map do |component|

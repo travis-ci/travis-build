@@ -26,13 +26,13 @@ travis_setup_postgresql() {
       version='16'
       ;;
     *)
-      echo -e "${ANSI_RED}Unrecognized operating system.${ANSI_CLEAR}"
+      : 
       ;;
     esac
   fi
 
   echo -e "${ANSI_YELLOW}Starting PostgreSQL v${version}${ANSI_CLEAR}"
-  export PATH="/usr/lib/postgresql/${version}/bin:$PATH"
+  export PATH="/usr/lib/postgresql/${version}/bin:$PATH" 2>/dev/null
 
   if [[ "${TRAVIS_INIT}" == upstart ]]; then
     start_cmd="sudo service postgresql start ${version}"
@@ -42,7 +42,9 @@ travis_setup_postgresql() {
     stop_cmd="sudo systemctl stop postgresql"
   fi
 
-  ${stop_cmd}
+  ${stop_cmd} &>/dev/null
+
+  sudo pg_createcluster ${version} main &>/dev/null
 
   sudo bash -c "
 	if [[ -d /var/ramfs && ! -d \"/var/ramfs/postgresql/${version}\" ]]; then
@@ -51,13 +53,12 @@ travis_setup_postgresql() {
 	fi
   " &>/dev/null
 
-  ${start_cmd}
-  echo "${start_cmd}"
+  ${start_cmd} &>/dev/null
 
   pushd / &>/dev/null || true
   for port in 5432 5433; do
-    sudo -u postgres createuser -s -p "${port}" travis
-    sudo -u postgres createdb -O travis -p "${port}" travis
-  done &>/dev/null
+    sudo -u postgres createuser -s -p "${port}" travis &>/dev/null
+    sudo -u postgres createdb -O travis -p "${port}" travis &>/dev/null
+  done
   popd &>/dev/null || true
 }
