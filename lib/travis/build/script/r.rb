@@ -50,6 +50,7 @@ module Travis
           sh.export 'TRAVIS_R_VERSION_STRING', config[:r].to_s, echo: false
           sh.export 'R_LIBS_USER', '~/R/Library', echo: false
           sh.export 'R_LIBS_SITE', '/usr/local/lib/R/site-library:/usr/lib/R/site-library', echo: false
+          sh.export 'R_MAKEVARS_SITE', '~/.Makevars.site', echo: false
           sh.export '_R_CHECK_CRAN_INCOMING_', 'false', echo: false
           sh.export 'NOT_CRAN', 'true', echo: false
         end
@@ -172,6 +173,10 @@ module Travis
               options_repos = "options(repos = c(#{repos_str}))"
               sh.cmd %Q{echo '#{options_repos}' > ~/.Rprofile.site}
               sh.export 'R_PROFILE', "~/.Rprofile.site", echo: false
+
+              # Set -Wall -pedantic in the site Makevars to catch more issues,
+              # as CRAN runs with -pedantic
+              sh.cmd %Q{echo 'PKG_CXXFLAGS=-Wall -pedantic\nPKG_CFLAGS=-Wall -pedantic' > ~/.Makevars.site}
 
               # PDF manual requires latex
               if config[:latex]
