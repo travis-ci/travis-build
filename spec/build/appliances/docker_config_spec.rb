@@ -9,9 +9,8 @@ describe Travis::Build::Appliances::DockerConfig, :sexp do
 
   describe '#apply' do
     context 'use default' do
-      it "exports BUILDKIT_PROGRESS=plain within a fold" do
-        should include_sexp [:fold, "Docker config", [:cmds, [[:raw, "export BUILDKIT_PROGRESS=plain"]]]]
-      end
+      before { ENV['TRAVIS_BUILD_DOCKER_BUILDKIT_PROGRESS'] = nil }
+      it { should include_sexp [:raw, "export BUILDKIT_PROGRESS=plain"] }
     end
 
     context 'use custom' do
