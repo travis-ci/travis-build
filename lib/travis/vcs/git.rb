@@ -92,7 +92,7 @@ module Travis
         end
 
         def delete_netrc?
-          !data.keep_netrc?
+          ENV['DELETE_NETRC'] == 'true' || !data.keep_netrc?
         end
 
         def delete_netrc
