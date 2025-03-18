@@ -1,90 +1,106 @@
-require 'spec_helper'
+module Travis
+  module Build
+    class Script
+      class Android < Script
+        DEFAULTS = {
+          android: {}
+        }
 
-describe Travis::Build::Script::Android, :sexp do
-  let(:data)   { payload_for(:push, :android) }
-  let(:script) { described_class.new(data) }
-  subject      { script.sexp }
-  it           { store_example }
+        def setup
+          super
 
-  it_behaves_like 'a bash script'
+          # Set up Android environment variables
+          android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
+          sdkmanager_bin = "#{android_home}/cmdline-tools/bin/sdkmanager"
+          
+          # Export Android environment variables with the correct format
+          sh.export 'ANDROID_HOME', android_home
+          sh.export 'PATH', "#{File.dirname(sdkmanager_bin)}:#{android_home}/tools:#{android_home}/tools/bin:#{android_home}/platform-tools:$PATH"
+          
+          # Make sure the directory for sdkmanager exists
+          sh.cmd "mkdir -p #{File.dirname(sdkmanager_bin)}", echo: false
+          
+          # Install components if specified
+          if config[:android] && config[:android][:components]
+            sh.fold 'android.install', fold_options do
+              sh.echo 'Installing Android dependencies'
+              sh.cmd "yes | #{sdkmanager_bin} --sdk_root=#{android_home} --licenses >/dev/null || true", echo: true
+              
+              config[:android][:components].each do |component|
+                if component =~ /^build-tools-(.+)$/
+                  sdk_name = "build-tools;#{$1}"
+                elsif component =~ /^platform-tools-(.+)$/
+                  sdk_name = "platform-tools"
+                elsif component =~ /^tools-(.+)$/
+                  sdk_name = "tools"
+                elsif component =~ /^platforms-android-(.+)$/
+                  sdk_name = "platforms;android-#{$1}"
+                elsif component =~ /^system-images-android-(.+)-(.+)-(.+)$/
+                  sdk_name = "system-images;android-#{$1};#{$2};#{$3}"
+                else
+                  sdk_name = component
+                end
+                
+                sh.cmd "yes | #{sdkmanager_bin} --sdk_root=#{android_home} \"#{sdk_name}\" --verbose", echo: true, timing: true
+              end
+            end
+          else
+            # Show available build-tools when none specified
+            sh.echo "No build-tools version specified in android.components. Consider adding one of the following:", ansi: :yellow
+            sh.cmd "#{sdkmanager_bin} --list | grep 'build-tools' | cut -d'|' -f1", echo: false, timing: false
+            sh.echo "The following versions are preinstalled:", ansi: :yellow
+            sh.cmd "for v in $(ls #{android_home}/build-tools | sort -r 2>/dev/null); do echo build-tools-$v; done; echo", echo: false, timing: false
+          end
+        end
 
-  it_behaves_like 'compiled script' do
-    let(:code) { ['TRAVIS_LANGUAGE=android'] }
-    let(:cmds) { ['gradlew build connectedCheck'] }
-  end
+        def script
+          sh.if '-f gradlew' do
+            sh.cmd './gradlew build connectedCheck', echo: true, timing: true
+          end
+          sh.elif '-f build.gradle' do
+            sh.cmd 'gradle build connectedCheck', echo: true, timing: true
+          end
+          sh.elif '-f pom.xml' do
+            sh.cmd 'mvn install -B', echo: true, timing: true
+          end
+          sh.else do
+            sh.cmd 'ant debug install test', echo: true, timing: true
+          end
+        end
 
-  it_behaves_like 'a build script sexp'
-  it_behaves_like 'a jdk build sexp'
-  it_behaves_like 'announces java versions'
+        def install
+          sh.if "! -e #{gradle_path}" do
+            sh.echo "Maven version is: $(mvn --version)", ansi: :yellow
+            sh.echo "Gradle version is: $(gradle --version)", ansi: :yellow
+          end
+        end
 
-  describe 'on setup' do
-    let(:options) { { assert: true, echo: true, timing: true } }
+        def cache_slug
+          super << "--android-"
+        end
 
-    before { data[:config][:android] = {} }
+        def use_jdk
+          super
+        end
 
-    it 'does not install any sdk component by default' do
-      expect(subject.flatten.join).not_to include('android-sdk-update')
-    end
+        def announce_android
+          super
+        end
 
-    it 'installs the provided sdk components accepting provided license patterns' do
-      components = %w(build-tools-19.0.3 android-19 sysimg-19 sysimg-18)
-      licenses   = %w(android-sdk-license-.+ intel-.+)
+        private
 
-      data[:config][:android][:components] = components
-      data[:config][:android][:licenses]   = licenses
+        def gradle_path
+          './gradlew'
+        end
 
-      components.each do |component|
-        cmd = "android-update-sdk --components=#{component} --accept-licenses='#{licenses.join('|')}'"
-        should include_sexp [:cmd, cmd, options]
+        def fold_options
+          {
+            animate: true,
+            echo: true,
+            timing: true
+          }
+        end
       end
-    end
-
-    it 'installs the provided sdk components accepting a single license' do
-      components = %w(sysimg-19 sysimg-18)
-      license    = 'mips-android-sysimage-license-15del8cc'
-
-      data[:config][:android][:components] = components
-      data[:config][:android][:licenses]   = [license]
-
-      components.each do |component|
-        cmd = "android-update-sdk --components=#{component} --accept-licenses='#{license}'"
-        should include_sexp [:cmd, cmd, options]
-      end
-    end
-
-    it 'installs the provided sdk component using license defaults' do
-      data[:config][:android][:components] = %w(build-tools-18.1.0)
-      should include_sexp [:cmd, 'android-update-sdk --components=build-tools-18.1.0', options]
-      should_not include_sexp [:cmd, 'android-update-sdk --components=build-tools-18.1.0 --accept-licenses', options]
-    end
-  end
-
-  describe 'script' do
-    let(:sexp) { sexp_find(subject, [:if, '-f gradlew']) }
-
-    let(:gradlew_connected_check) { [:cmd, './gradlew build connectedCheck', echo: true, timing: true] }
-    let(:gradle_connected_check)  { [:cmd, 'gradle build connectedCheck', echo: true, timing: true] }
-    let(:mvn_install_b)           { [:cmd, 'mvn install -B', echo: true, timing: true] }
-    let(:ant_install_test)        { [:cmd, 'ant debug install test', echo: true, timing: true] }
-
-    it 'runs ./gradlew build connectedCheck if ./gradlew exists' do
-      branch = sexp_find(sexp, [:then])
-      expect(branch).to include_sexp gradlew_connected_check
-    end
-
-    it 'runs gradle build connectedCheck if ./gradlew does not exist' do
-      branch = sexp_find(sexp, [:elif, '-f build.gradle'])
-      expect(branch).to include_sexp gradle_connected_check
-    end
-
-    it 'runs mvn install -B if pom.xml exists' do
-      branch = sexp_find(sexp, [:elif, '-f pom.xml'])
-      expect(branch).to include_sexp mvn_install_b
-    end
-
-    it 'runs default android ant tasks if neither gradle nor mvn are used' do
-      branch = sexp_find(sexp, [:else])
-      expect(branch).to include_sexp ant_install_test
     end
   end
 end

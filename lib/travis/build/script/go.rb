@@ -71,7 +71,13 @@ module Travis
           if v == 'stable' || v == 'master'
             return File.read('/tmp/go-version') || ''
           end
-          v.sub(/^go/, '')
+
+          v = v.sub(/^go/, '')
+          return File.read("/tmp/go-version-#{v}") if v.match(/\d+.\d+.x/)
+
+          v
+        rescue
+          v
         end
 
         private def gimme_config
