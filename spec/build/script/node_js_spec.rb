@@ -167,5 +167,13 @@ describe Travis::Build::Script::NodeJs, :sexp do
         expect(subject).to include_sexp [:cmd, "nvs add 0.10", assert: true, echo: true, timing: true]
       end
     end
+
+    context 'when no node_js version is given' do
+      let(:config) { {} }
+
+      it "installs 0.10" do
+        expect(subject).to include_sexp [:cmd, "nvs add 0.10", assert: true, echo: true, timing: true]
+      end
+    end
   end
 end
