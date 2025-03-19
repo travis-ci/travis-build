@@ -42,7 +42,7 @@ describe Travis::Build::Addons::Sonarcloud, :sexp do
   describe 'new pull request analysis' do
     let(:job) { super().merge( {:pull_request => '123', :pull_request_head_branch => 'master' })}
 
-    it { should_not include_sexp [:export, ['SONAR_GITHUB_TOKEN', 'mytoken' ]] }
+    it { should_not include_sexp [:export, ['SONAR_GITHUB_TOKEN', 'mytoken' ], {:raw=>true}] }
     it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS',
       "\"{ \\\"sonar.pullrequest.key\\\" : \\\"123\\\", \\\"sonar.pullrequest.branch\\\" : \\\"master\\\", \\\"sonar.pullrequest.base\\\" : \\\"master\\\", \\\"sonar.pullrequest.provider\\\" : \\\"GitHub\\\", \\\"sonar.pullrequest.github.repository\\\" : \\\"#{data[:repository][:slug]}\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
   end
@@ -50,7 +50,7 @@ describe Travis::Build::Addons::Sonarcloud, :sexp do
   describe 'new pull request to long branch' do
     let(:job) { super().merge( {:pull_request => '123', :pull_request_head_branch => 'branch1' })}
 
-    it { should_not include_sexp [:export, ['SONAR_GITHUB_TOKEN', 'mytoken' ]] }
+    it { should_not include_sexp [:export, ['SONAR_GITHUB_TOKEN', 'mytoken' ], {:raw=>true}] }
     it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS',
       "\"{ \\\"sonar.pullrequest.key\\\" : \\\"123\\\", \\\"sonar.pullrequest.branch\\\" : \\\"branch1\\\", \\\"sonar.pullrequest.base\\\" : \\\"master\\\", \\\"sonar.pullrequest.provider\\\" : \\\"GitHub\\\", \\\"sonar.pullrequest.github.repository\\\" : \\\"#{data[:repository][:slug]}\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
   end
@@ -59,7 +59,7 @@ describe Travis::Build::Addons::Sonarcloud, :sexp do
     let(:config) { { :github_token => 'mytoken' } }
     let(:job) { super().merge(:pull_request => '123')}
 
-    it { should include_sexp [:export, ['SONAR_GITHUB_TOKEN', 'mytoken' ]] }
+    it { should include_sexp [:export, ['SONAR_GITHUB_TOKEN', 'mytoken' ], {:raw=>true}] }
     it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS',
       "\"{ \\\"sonar.analysis.mode\\\" : \\\"preview\\\", \\\"sonar.github.repository\\\" : \\\"#{data[:repository][:slug]}\\\", \\\"sonar.github.pullRequest\\\" : \\\"123\\\", \\\"sonar.github.oauth\\\" : \\\"$SONAR_GITHUB_TOKEN\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
   end
@@ -69,7 +69,7 @@ describe Travis::Build::Addons::Sonarcloud, :sexp do
     let(:job) { super().merge(:pull_request => '123')}
 
     # it's already set in the env
-    it { should_not include_sexp [:export, ['SONAR_GITHUB_TOKEN', 'mytoken' ]] }
+    it { should_not include_sexp [:export, ['SONAR_GITHUB_TOKEN', 'mytoken' ], {:raw=>true}] }
     it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS',
       "\"{ \\\"sonar.analysis.mode\\\" : \\\"preview\\\", \\\"sonar.github.repository\\\" : \\\"#{data[:repository][:slug]}\\\", \\\"sonar.github.pullRequest\\\" : \\\"123\\\", \\\"sonar.github.oauth\\\" : \\\"$SONAR_GITHUB_TOKEN\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
   end
@@ -79,7 +79,7 @@ describe Travis::Build::Addons::Sonarcloud, :sexp do
     let(:job) { super().merge(:pull_request => '123')}
 
     # it's already set in the env
-    it { should_not include_sexp [:export, ['SONAR_GITHUB_TOKEN', 'mytoken' ]] }
+    it { should_not include_sexp [:export, ['SONAR_GITHUB_TOKEN', 'mytoken' ], {:raw=>true}] }
     it { should include_sexp [:export, ['SONARQUBE_SCANNER_PARAMS',
       "\"{ \\\"sonar.analysis.mode\\\" : \\\"preview\\\", \\\"sonar.github.repository\\\" : \\\"#{data[:repository][:slug]}\\\", \\\"sonar.github.pullRequest\\\" : \\\"123\\\", \\\"sonar.github.oauth\\\" : \\\"$SONAR_GITHUB_TOKEN\\\", \\\"sonar.host.url\\\" : \\\"https://sonarcloud.io\\\" }\""]] }
   end
