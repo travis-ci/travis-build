@@ -12,6 +12,7 @@ module Travis
           super
           set_android_environment_variables
           create_symlinks
+          update_cmdline_tools_latest
           if build_tools_desired.empty?
             sh.echo "Installed sdkmanager version:", ansi: :yellow
             sh.cmd "#{@sdkmanager_bin} --sdk_root=#{@android_home} --version", echo: true, timing: false
@@ -40,12 +41,19 @@ module Travis
           @android_home = ENV['ANDROID_HOME'] || '/usr/local/android-sdk'
           sh.export 'ANDROID_HOME', @android_home
           sh.export 'ANDROID_SDK_ROOT', @android_home
-
+          new_path = "#{@android_home}/cmdline-tools/latest/bin:" \
+                     "#{@android_home}/tools:" \
+                     "#{@android_home}/tools/bin:" \
+                     "#{@android_home}/platform-tools:" \
+                     "/usr/local/cmdline-tools/bin:" \
+                     "/usr/local/emulator:" \
+                     "/usr/local/platform-tools:$PATH"
+          sh.export 'PATH', new_path
+          
           sh.cmd "sudo mkdir -p #{@android_home}/cmdline-tools/latest/bin", echo: false
           sh.cmd "if [ ! -f #{@android_home}/cmdline-tools/latest/bin/sdkmanager ]; then sudo ln -s #{@android_home}/cmdline-tools/bin/sdkmanager #{@android_home}/cmdline-tools/latest/bin/sdkmanager; fi", echo: false
         
           @sdkmanager_bin = "#{@android_home}/cmdline-tools/latest/bin/sdkmanager"
-          sh.export 'PATH', "#{File.dirname(@sdkmanager_bin)}:#{@android_home}/tools:#{@android_home}/tools/bin:#{@android_home}/platform-tools:$PATH"
         end
 
         def create_symlinks
@@ -55,10 +63,18 @@ module Travis
           sh.cmd "sudo ln -s #{@android_home}/extras /usr/local/extras", echo: false
           sh.cmd "sudo ln -s #{@android_home}/platform-tools /usr/local/platform-tools", echo: false
           sh.cmd "sudo ln -s #{@android_home}/system-images /usr/local/system-images", echo: false
-
-          sh.export 'PATH', "/usr/local/cmdline-tools/bin:/usr/local/emulator:/usr/local/platform-tools:$PATH"
         end
-        
+
+        def update_cmdline_tools_latest
+          sh.fold 'android.update_cmdline_tools_latest' do
+            sh.echo 'Updating cmdline-tools latest directory'
+            sh.cmd "sudo rsync -a #{@android_home}/cmdline-tools/bin/ #{@android_home}/cmdline-tools/latest/bin/"
+            sh.cmd "sudo rsync -a #{@android_home}/cmdline-tools/lib/ #{@android_home}/cmdline-tools/latest/lib/"
+            sh.cmd "sudo cp -n #{@android_home}/cmdline-tools/NOTICE.txt #{@android_home}/cmdline-tools/latest/"
+            sh.cmd "sudo cp -n #{@android_home}/cmdline-tools/source.properties #{@android_home}/cmdline-tools/latest/"
+          end
+        end
+
         def install_sdk_components
           sh.fold 'android.install' do
             sh.echo 'Installing Android dependencies'
