@@ -23,10 +23,15 @@ module Travis
       attr_reader :data, :language_default_p
 
       def initialize(data, defaults = {})
+        puts "[DEBUG] Raw YAML input: #{data.inspect}"
+        puts "[DEBUG] Raw scheduler defaults: #{defaults.inspect}"
         data = data.deep_symbolize_keys
         defaults = defaults.deep_symbolize_keys
+        puts "[DEBUG] Symbolized YAML: #{data.inspect}"
+        puts "[DEBUG] Symbolized defaults: #{defaults.inspect}"
         @language_default_p = data[:language_default_p]
         @data = DEFAULTS.deep_merge(data.deep_merge(defaults))
+        puts "[DEBUG] Final merged data: #{@data.inspect}"
       end
 
       def [](key)
