@@ -221,6 +221,7 @@ module Travis
       end
 
       def job
+        puts " [DEBUG] Job data: #{data[:job].inspect}"
         data[:job] || {}
       end
 
