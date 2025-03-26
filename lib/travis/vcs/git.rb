@@ -94,7 +94,9 @@ module Travis
         def delete_netrc?
           return false if data.key?(:keep_netrc) && data[:keep_netrc]
 
-          ENV['DELETE_NETRC'] == 'true'
+          return true if ENV['DELETE_NETRC'] == 'true'
+
+          false
         end
 
         def delete_netrc
