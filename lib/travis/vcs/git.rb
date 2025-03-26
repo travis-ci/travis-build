@@ -99,8 +99,6 @@ module Travis
           end
 
           return true if ENV['DELETE_NETRC'] == 'true'
-
-          false
         end
 
         def delete_netrc
