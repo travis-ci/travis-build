@@ -26,7 +26,7 @@ module Travis
         data = data.deep_symbolize_keys
         defaults = defaults.deep_symbolize_keys
         @language_default_p = data[:language_default_p]
-        @data = DEFAULTS.deep_merge(defaults.deep_merge(data))
+        @data = DEFAULTS.deep_merge(data.deep_merge(defaults))
       end
 
       def [](key)
