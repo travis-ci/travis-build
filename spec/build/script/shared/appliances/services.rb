@@ -58,6 +58,20 @@ shared_examples_for 'starts services' do
       end
     end
 
+    describe 'podman' do
+      let(:services) { [:podman] }
+      it "adheres to init system" do
+        expect(sexp_find(subject, [:if, '"$TRAVIS_INIT" == upstart']))
+          .to include_sexp(
+            [:cmd, 'sudo service podman start', echo: true, timing: true]
+          )
+        expect(sexp_find(subject, [:elif, '"$TRAVIS_INIT" == systemd']))
+          .to include_sexp(
+            [:cmd, 'sudo systemctl start podman', echo: true, timing: true]
+          )
+      end
+    end
+
     describe 'mysql' do
       let(:services) { [:mysql] }
       it 'starts mysql and then travis_waits for ping' do
