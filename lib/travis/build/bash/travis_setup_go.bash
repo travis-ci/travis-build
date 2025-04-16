@@ -24,7 +24,7 @@ travis_setup_go() {
     travis_cmd "export GOROOT=\$(go${go_version} env GOROOT)" --echo
     travis_cmd "export PATH=\${GOROOT}/bin:\${PATH}" --echo
   fi
-  
+
   mkdir -p "$(dirname "${GOPATH}/src/${go_import_path}")"
   ln -s "${TRAVIS_BUILD_DIR}" "$GOPATH/src/${go_import_path}"
 }
