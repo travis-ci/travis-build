@@ -62,12 +62,12 @@ describe Travis::Build::Addons::Deploy, :sexp do
             )[0],
             [:if, "-e $HOME/.rvm/scripts/rvm"]
           )[1]
-        ).to include_sexp [:cmd, "rvm use 2 --fuzzy do ruby -S gem install dpl -v #{dpl_version}", echo: true, assert: true, timing: true]
+        ).to include_sexp [:cmd, "rvm use $(travis_internal_ruby --fuzzy do ruby -S gem install dpl -v #{dpl_version}", echo: true, assert: true, timing: true]
       end
-      it { expect(sexp).to include_sexp [:cmd, "rvm use 2 --fuzzy do ruby -S gem install dpl -v #{dpl_version}", echo: true, assert: true, timing: true] }
+      it { expect(sexp).to include_sexp [:cmd, "rvm use $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl -v #{dpl_version}", echo: true, assert: true, timing: true] }
       # it { expect(sexp).to include_sexp [:cmd, 'rvm use $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=heroku --password=foo --email=user@host --fold', assert: true, timing: true] }
       # it { expect(sexp).to include_sexp terminate_on_failure }
-      it { expect(sexp).to include_sexp [:cmd, "rvm use 2 --fuzzy do ruby -S dpl --provider=\"heroku\" --password=\"foo\" --email=\"user@host\" --fold; if [ $? -ne 0 ]; then echo \"failed to deploy\"; travis_terminate 2; fi", {:timing=>true}] }
+      it { expect(sexp).to include_sexp [:cmd, "rvm use $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=\"heroku\" --password=\"foo\" --email=\"user@host\" --fold; if [ $? -ne 0 ]; then echo \"failed to deploy\"; travis_terminate 2; fi", {:timing=>true}] }
     end
 
     context 'when DPL_VERSION environment variable is not set' do
@@ -112,10 +112,10 @@ describe Travis::Build::Addons::Deploy, :sexp do
               )[0],
               [:if, "-e $HOME/.rvm/scripts/rvm"]
             )[1]
-          ).to include_sexp [:cmd, "rvm use 2 --fuzzy do ruby -S gem install dpl -v #{dpl_version}", echo: true, assert: true, timing: true]
+          ).to include_sexp [:cmd, "rvm use $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl -v #{dpl_version}", echo: true, assert: true, timing: true]
         end
-        it { expect(sexp).to include_sexp [:cmd, "rvm use 2 --fuzzy do ruby -S gem install dpl -v #{dpl_version}", echo: true, assert: true, timing: true] }
-        it { expect(sexp).to include_sexp [:cmd, "rvm use 2 --fuzzy do ruby -S dpl --provider=\"heroku\" --password=\"foo\" --email=\"user@host\" --fold; if [ $? -ne 0 ]; then echo \"failed to deploy\"; travis_terminate 2; fi", {:timing=>true}] }
+        it { expect(sexp).to include_sexp [:cmd, "rvm use $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl -v #{dpl_version}", echo: true, assert: true, timing: true] }
+        it { expect(sexp).to include_sexp [:cmd, "rvm use $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=\"heroku\" --password=\"foo\" --email=\"user@host\" --fold; if [ $? -ne 0 ]; then echo \"failed to deploy\"; travis_terminate 2; fi", {:timing=>true}] }
       end
 
       context 'and dpl_version is 2' do
@@ -155,7 +155,7 @@ describe Travis::Build::Addons::Deploy, :sexp do
         ENV.delete('DPL_DEPRECATE_MESSAGE')
       end
 
-      it { expect(sexp).to include_sexp [:cmd, "rvm use 2 --fuzzy do ruby -S gem install dpl -v #{dpl_version}", echo: true, assert: true, timing: true] }
+      it { expect(sexp).to include_sexp [:cmd, "rvm use $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl -v #{dpl_version}", echo: true, assert: true, timing: true] }
       it { expect(sexp).to include_sexp [:echo, dpl_deprecation_message, ansi: :yellow] }
     end
 
