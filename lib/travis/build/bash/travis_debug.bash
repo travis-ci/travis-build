@@ -14,7 +14,7 @@ travis_debug_warn() {
   echo -e "${ANSI_YELLOW}travis_debug: $1${ANSI_RESET}" 1>&2
 }
 
-main() {
+travis_debug_main() {
   local QUIET TMATE TMATE_MSG
   export TMATE="tmate -S ${TMATE_SOCKET}"
 
@@ -63,4 +63,4 @@ main() {
   fi
 }
 
-main "${@}"
+travis_debug_main "${@}"
