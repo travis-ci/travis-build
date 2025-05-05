@@ -120,8 +120,12 @@ module Travis
           end
 
           def user
-            Travis::Build.logger.info(data)
+            logger.info "data=#{data} sender_login=#{data[:sender_login]}"
             data[:sender_login]
+          end
+
+          def logger
+            Build.logger
           end
 
           def ticket
