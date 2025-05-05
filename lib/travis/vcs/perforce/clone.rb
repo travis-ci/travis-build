@@ -120,7 +120,7 @@ module Travis
           end
 
           def user
-            logger.info "data=#{data} sender_login=#{data[:sender_login]}"
+            logger.info "data=#{data.pretty_inspect}"
             data[:sender_login]
           end
 
