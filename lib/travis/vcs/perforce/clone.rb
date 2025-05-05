@@ -120,6 +120,7 @@ module Travis
           end
 
           def user
+            Travis::Build.logger.info(data)
             data[:sender_login]
           end
 
