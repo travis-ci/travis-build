@@ -120,7 +120,7 @@ module Travis
           end
 
           def user
-            data[:repository][:vcs_type] == 'AssemblaRepository' ? data.ssh_key.public_key : data[:sender_login]
+            data[:sender_login]
           end
 
           def ticket
