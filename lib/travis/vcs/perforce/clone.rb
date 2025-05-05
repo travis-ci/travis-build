@@ -39,8 +39,8 @@ module Travis
             sh.export 'P4PORT', port, echo: false, assert: false            
             sh.cmd 'p4 trust -y'
             if data[:repository][:vcs_type] == 'AssemblaRepository'
-              sh.cmd "echo $(p4 info | grep 'Server address:' | cut -d ' ' -f 3- 2>/dev/null)=#{user}:#{ticket} > /tmp/p4ticket", echo: false, assert: false
-              sh.export 'P4TICKETS', '/tmp/p4ticket', echo: false, assert: false
+              sh.cmd "echo $(p4 info | grep 'Server address:' | cut -d ' ' -f 3- 2>/dev/null)=#{user}:#{ticket} > /tmp/.p4tickets", echo: false, assert: false
+              sh.export 'P4TICKETS', '/tmp/.p4tickets', echo: false, assert: false
             else
               sh.export 'P4PASSWD', ticket, echo: false, assert: false
             end
@@ -121,7 +121,7 @@ module Travis
 
           def user
             logger.info "data=#{data.pretty_inspect}"
-            data[:sender_login]
+            data[:repository][:vcs_type] == 'AssemblaRepository' ? data.ssh_key.public_key : data[:sender_login]
           end
 
           def logger
