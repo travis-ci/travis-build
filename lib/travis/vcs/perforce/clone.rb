@@ -41,6 +41,7 @@ module Travis
             if data[:repository][:vcs_type] == 'AssemblaRepository'
               sh.cmd "echo $(p4 info | grep 'Server address:' | cut -d ' ' -f 3- 2>/dev/null)=#{user}:#{ticket} > /tmp/.p4tickets", echo: false, assert: false
               sh.export 'P4TICKETS', '/tmp/.p4tickets', echo: false, assert: false
+              sh.export 'P4PASSWD', ticket, echo: false, assert: false
             else
               sh.export 'P4PASSWD', ticket, echo: false, assert: false
             end
