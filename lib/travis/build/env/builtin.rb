@@ -60,8 +60,8 @@ module Travis
               TRAVIS_JOB_RESTARTED: job[:restarted_at],
               TRAVIS_JOB_RESTARTED_BY: job[:restarted_by],
             }
-            envs[:TRAVIS_CUSTOM_IMAGE_ID] = job[:created_custom_image][:id] if job[:created_custom_image]
-            envs[:TRAVIS_CUSTOM_IMAGE_NAME] = job[:created_custom_image][:name] if job[:created_custom_image]
+            envs[:TRAVIS_CREATED_CUSTOM_IMAGE_ID] = job[:created_custom_image][:id] if job[:created_custom_image]
+            envs[:TRAVIS_CREATED_CUSTOM_IMAGE_NAME] = job[:created_custom_image][:name] if job[:created_custom_image]
             envs
           end
       end
