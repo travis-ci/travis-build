@@ -245,8 +245,11 @@ module Travis
         def run
           stages.run if apply :validate
           sh.raw 'travis_cleanup'
-          sh.raw 'travis_custom_image' if creates_custom_image?
-          sh.raw 'travis_footer'
+          if creates_custom_image?
+            sh.raw 'travis_custom_image'
+          else
+            sh.raw 'travis_footer'
+          end
           # apply :deprecations
         end
 
