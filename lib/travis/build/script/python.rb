@@ -11,7 +11,7 @@ module Travis
           {
             name: 'Python',
             current_default: DEFAULTS[:python],
-            new_default: '3.6',
+            new_default: '3.10',
             cutoff_date: '2019-04-16',
           }
         ]
