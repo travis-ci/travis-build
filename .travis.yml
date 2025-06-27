@@ -40,7 +40,7 @@ jobs:
 
 before_install:
 # TEST
-  - prinenv
+  - printenv
   - gem update --system 3.3.26 > /dev/null 2>&1
 
 before_script:
