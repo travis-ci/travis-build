@@ -3,7 +3,7 @@ module Travis
     class Script
       class Python < Script
         DEFAULTS = {
-          python: '3.6',
+          python: '3.10',
           virtualenv: { system_site_packages: false }
         }
 
@@ -11,7 +11,7 @@ module Travis
           {
             name: 'Python',
             current_default: DEFAULTS[:python],
-            new_default: '3.6',
+            new_default: '3.10',
             cutoff_date: '2019-04-16',
           }
         ]
