@@ -7,9 +7,9 @@ describe Travis::Build::Addons::Apt, :sexp do
   let(:sh)                 { Travis::Shell::Builder.new }
   let(:addon)              { described_class.new(script, sh, Travis::Build::Data.new(data), apt_config) }
   let(:apt_config)         { {} }
-  let(:dist)               { :xenial }
-  let(:source_alias_lists)  { { xenial: [{ alias: 'testing', sourceline: 'deb http://example.com/deb repo main' }] } }
-  let(:package_safelists) { { xenial: %w(git curl) } }
+  let(:dist)               { :focal }
+  let(:source_alias_lists)  { { focal: [{ alias: 'testing', sourceline: 'deb http://example.com/deb repo main' }] } }
+  let(:package_safelists) { { focal: %w(git curl) } }
   let(:paranoid)           { true }
   let(:safelist_skip)     { false }
   let(:apt_load_source_alias_list) { true }
@@ -40,7 +40,7 @@ describe Travis::Build::Addons::Apt, :sexp do
     linux-ppc64le
   ].each do |os|
     context "when on #{os}" do
-      let(:data) { payload_for(:push, :ruby, config: { os: os, dist: 'xenial' }) }
+      let(:data) { payload_for(:push, :ruby, config: { os: os, dist: 'focal' }) }
 
       it 'will run' do
         expect(addon.before_prepare?).to eql(true)
@@ -172,30 +172,30 @@ describe Travis::Build::Addons::Apt, :sexp do
   context 'with sources' do
     let(:deadsnakes) do
       {
-        'alias' => 'deadsnakes-xenial',
-        'sourceline' => 'ppa:fkrull/deadsnakes-xenial'
+        'alias' => 'deadsnakes-focal',
+        'sourceline' => 'ppa:fkrull/deadsnakes-focal'
       }
     end
 
     let(:packagecloud) do
       {
-        'alias' => 'packagecloud-xenial',
-        'sourceline' => 'deb https://packagecloud.io/chef/stable/ubuntu/ xenial main'
+        'alias' => 'packagecloud-focal',
+        'sourceline' => 'deb https://packagecloud.io/chef/stable/ubuntu/ focal main'
       }
     end
 
     let(:evilbadthings) do
       {
         'alias' => 'evilbadthings',
-        'sourceline' => 'deb https://evilbadthings.com/chef/stable/ubuntu/ xenial main'
+        'sourceline' => 'deb https://evilbadthings.com/chef/stable/ubuntu/ focal main'
       }
     end
 
     let(:source_alias_lists) do
       {
-        xenial: {
-          'deadsnakes-xenial' => deadsnakes,
-          'packagecloud-xenial' => packagecloud
+        focal: {
+          'deadsnakes-focal' => deadsnakes,
+          'packagecloud-focal' => packagecloud
         }
       }
     end
@@ -214,14 +214,14 @@ describe Travis::Build::Addons::Apt, :sexp do
     end
 
     context 'with multiple safelisted sources' do
-      let(:apt_config) { { sources: ['deadsnakes-xenial'] } }
+      let(:apt_config) { { sources: ['deadsnakes-focal'] } }
 
       it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
       it { should include_sexp [:cmd, 'travis_apt_get_update', retry: true, echo: true, timing: true] }
     end
 
     context 'with multiple sources, some safelisted' do
-      let(:apt_config) { { sources: ['packagecloud-xenial', 'deadsnakes-xenial', 'evilbadthings', 'ppa:evilbadppa', { sourceline: 'foobar' }] } }
+      let(:apt_config) { { sources: ['packagecloud-focal', 'deadsnakes-focal', 'evilbadthings', 'ppa:evilbadppa', { sourceline: 'foobar' }] } }
 
       it { should include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
       it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
@@ -231,7 +231,7 @@ describe Travis::Build::Addons::Apt, :sexp do
     end
 
     context 'with singular safelisted source' do
-      let(:apt_config) { { sources: 'packagecloud-xenial' } }
+      let(:apt_config) { { sources: 'packagecloud-focal' } }
 
       it { should include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
     end
@@ -244,7 +244,7 @@ describe Travis::Build::Addons::Apt, :sexp do
 
     context 'when sudo is enabled' do
       let(:paranoid) { false }
-      let(:apt_config) { { sources: ['packagecloud-xenial', 'deadsnakes-xenial', 'evilbadthings', 'ppa:archivematica/externals', { sourceline: 'foobar' }] } }
+      let(:apt_config) { { sources: ['packagecloud-focal', 'deadsnakes-focal', 'evilbadthings', 'ppa:archivematica/externals', { sourceline: 'foobar' }] } }
 
       it { should include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
       it { should include_sexp [:cmd, apt_add_repository_command(deadsnakes['sourceline']), echo: true, assert: true, timing: true] }
@@ -255,7 +255,7 @@ describe Travis::Build::Addons::Apt, :sexp do
 
     context 'when safelist skipping is enabled' do
       let(:paranoid) { true }
-      let(:apt_config) { { sources: ['packagecloud-xenial', 'deadsnakes-xenial', 'evilbadthings', 'ppa:archivematica/externals', { sourceline: 'foobar' }] } }
+      let(:apt_config) { { sources: ['packagecloud-focal', 'deadsnakes-focal', 'evilbadthings', 'ppa:archivematica/externals', { sourceline: 'foobar' }] } }
       let(:safelist_skip) { true }
 
       it { should include_sexp [:cmd, apt_sources_append_command(packagecloud['sourceline']), echo: true, assert: true, timing: true] }
@@ -267,7 +267,7 @@ describe Travis::Build::Addons::Apt, :sexp do
 
     context 'when apt source aliases are not loaded' do
       let(:apt_load_source_alias_list) { false }
-      let(:apt_config) { { sources: ['packagecloud-xenial', 'deadsnakes-xenial', 'evilbadthings', 'ppa:archivematica/externals', { sourceline: 'foobar' }] } }
+      let(:apt_config) { { sources: ['packagecloud-focal', 'deadsnakes-focal', 'evilbadthings', 'ppa:archivematica/externals', { sourceline: 'foobar' }] } }
 
       it { should include_sexp [:echo, "Skipping loading APT source aliases list", ansi: :yellow] }
       it { should_not include_sexp [:echo, /^Disallowing sources: foobar/, ansi: :red] }
@@ -278,7 +278,7 @@ describe Travis::Build::Addons::Apt, :sexp do
 
       context 'with config gives `sources` as a hash' do
         let(:apt_config) { { sources: {
-                "sourceline": "deb https://packagecloud.io/chef/stable/ubuntu/ xenial main"
+                "sourceline": "deb https://packagecloud.io/chef/stable/ubuntu/ focal main"
               } } }
 
         it { should include_sexp [:cmd, apt_sources_append_command(apt_config[:sources][:sourceline]), echo: true, assert: true, timing: true] }
