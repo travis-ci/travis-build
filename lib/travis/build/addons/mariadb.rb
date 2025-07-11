@@ -24,7 +24,7 @@ module Travis
             end
             sh.cmd 'add-apt-repository --yes "deb http://%p/mariadb-%p/repo/ubuntu/ "$TRAVIS_DIST" main"' % [MARIADB_MIRROR, mariadb_version], sudo: true
             sh.cmd 'travis_apt_get_update', retry: true, echo: true
-            sh.cmd "PACKAGES='mariadb-server-#{mariadb_version}'", echo: true
+            sh.cmd "PACKAGES='mariadb-#{mariadb_version}'", echo: true
             sh.cmd "if [[ $(lsb_release -cs) = 'precise' ]]; then PACKAGES=\"${PACKAGES} libmariadbclient-dev\"; fi", echo: true
             sh.if '"$TRAVIS_DIST" != precise && "$TRAVIS_DIST" != trusty' do
               sh.cmd 'rm -rf /var/lib/mysql', sudo: true, echo: false, timing: false
