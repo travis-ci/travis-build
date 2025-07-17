@@ -55,6 +55,11 @@ module Travis
               return
             end
 
+            if dpl2?
+              sh.echo dpl_incompatibility_message, ansi: :yellow
+              return
+            end
+
             if conditions.empty?
               run
             else
@@ -338,6 +343,10 @@ module Travis
 
             def dpl_ruby_version
               dpl2? || want_pre_19? ? '$(travis_internal_ruby)' : '2'
+            end
+
+            def dpl_incompatibility_message
+              ENV['DPL_INCOMPATIBLE_MESSAGE']
             end
         end
       end
