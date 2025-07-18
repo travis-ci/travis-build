@@ -144,15 +144,18 @@ describe Travis::Build::Addons::Deploy, :sexp do
 
       let(:dpl_version) { '1.10.16' }
       let(:dpl_deprecation_message) { 'This is a deprecation message' }
+      let(:dpl_incompatible_message) { 'This is a incompatibility message' }
 
       before do
         ENV['DPL_VERSION'] = dpl_version
         ENV['DPL_DEPRECATE_MESSAGE'] = dpl_deprecation_message
+        ENV['DPL_INCOMPATIBLE_MESSAGE'] = dpl_incompatible_message
       end
 
       after do
         ENV.delete('DPL_VERSION')
         ENV.delete('DPL_DEPRECATE_MESSAGE')
+        ENV.delete('DPL_INCOMPATIBLE_MESSAGE')
       end
 
       it { expect(sexp).to include_sexp [:cmd, "rvm use 2 --fuzzy do ruby -S gem install dpl -v #{dpl_version}", echo: true, assert: true, timing: true] }
