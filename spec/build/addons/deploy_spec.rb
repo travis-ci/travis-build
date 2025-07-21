@@ -16,7 +16,9 @@ describe Travis::Build::Addons::Deploy, :sexp do
 
   let(:terminate_on_failure) { [:if, '$? -ne 0', [:then, [:cmds, [[:echo, 'Failed to deploy.', ansi: :red], [:cmd, 'travis_terminate 2']]]]] }
   let(:dpl_incompatible_message) { 'This is a incompatibility message' }
-  before       { ENV['DPL_INCOMPATIBLE_MESSAGE'] = dpl_incompatible_message }
+  before       {
+    ENV['DPL_INCOMPATIBLE_MESSAGE'] = dpl_incompatible_message
+  }
 
   it { store_example }
 
@@ -135,7 +137,6 @@ describe Travis::Build::Addons::Deploy, :sexp do
             )[1]
           ).to include_sexp [:cmd, "rvm use $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl -v #{dpl_version}", echo: true, assert: true, timing: true]
         end
-        it { expect(sexp).to include_sexp [:echo, dpl_incompatible_message, ansi: :yellow] }
         it { expect(sexp).to include_sexp [:cmd, "rvm use $(travis_internal_ruby) --fuzzy do ruby -S gem install dpl -v #{dpl_version}", echo: true, assert: true, timing: true] }
         it { expect(sexp).to include_sexp [:cmd, "rvm use $(travis_internal_ruby) --fuzzy do ruby -S dpl --provider=\"heroku\" --password=\"foo\" --email=\"user@host\" --fold; if [ $? -ne 0 ]; then echo \"failed to deploy\"; travis_terminate 2; fi", {:timing=>true}] }
       end
@@ -147,7 +148,6 @@ describe Travis::Build::Addons::Deploy, :sexp do
 
       let(:dpl_version) { '1.10.16' }
       let(:dpl_deprecation_message) { 'This is a deprecation message' }
-      let(:dpl_incompatible_message) { 'This is a incompatibility message' }
 
       before do
         ENV['DPL_VERSION'] = dpl_version

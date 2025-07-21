@@ -55,9 +55,11 @@ module Travis
               return
             end
 
-            if dpl2?
-              sh.echo dpl_incompatibility_message, ansi: :yellow
-              return
+            sh.if '"$TRAVIS_OS_NAME" = windows' do
+              sh.if 'ruby -e "exit(Gem::Version.new(ENV[\"DPL_VERSION\"] || \"2.0.0\") >= Gem::Version.new(\"2.0.0\") ? 0 : 1)"' do
+                sh.echo dpl_incompatibility_message, ansi: :yellow
+                sh.cmd 'exit 0'
+              end
             end
 
             if conditions.empty?
