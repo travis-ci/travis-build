@@ -55,10 +55,7 @@ module Travis
               return
             end
 
-            sh.echo "Checking dpl version"
-
             if config[:dpl_version].nil? || Gem::Version.new(config[:dpl_version]) >= Gem::Version.new('2.0.0')
-              # Add the Windows check and warning
               sh.if '"$TRAVIS_OS_NAME" = windows' do
                 sh.echo dpl_incompatibility_message, ansi: :yellow
                 sh.cmd 'exit 0'
