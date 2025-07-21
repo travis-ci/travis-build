@@ -57,14 +57,12 @@ module Travis
 
             sh.echo "Checking dpl version"
 
-            sh.export 'DPL_VERSION', config[:dpl_version] || '2.0.0'
-            # Option 1: Use command substitution correctly
-            sh.raw 'DPL_IS_V2=$(ruby -r rubygems -e "print Gem::Version.new(ENV[\"DPL_VERSION\"] || \"2.0.0\") >= Gem::Version.new(\"2.0.0\") ? \"true\" : \"false\"")'
-            sh.export 'DPL_IS_V2'
-            sh.if '"$TRAVIS_OS_NAME" = windows && "$DPL_IS_V2" = true' do
-              sh.echo "Checking dpl version, windows"
-              sh.echo dpl_incompatibility_message, ansi: :yellow
-              sh.cmd 'exit 0'
+            if config[:dpl_version].nil? || Gem::Version.new(config[:dpl_version]) >= Gem::Version.new('2.0.0')
+              # Add the Windows check and warning
+              sh.if '"$TRAVIS_OS_NAME" = windows' do
+                sh.echo dpl_incompatibility_message, ansi: :yellow
+                sh.cmd 'exit 0'
+              end
             end
 
             if conditions.empty?
