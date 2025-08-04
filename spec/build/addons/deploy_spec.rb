@@ -15,6 +15,10 @@ describe Travis::Build::Addons::Deploy, :sexp do
   subject       { script.sexp }
 
   let(:terminate_on_failure) { [:if, '$? -ne 0', [:then, [:cmds, [[:echo, 'Failed to deploy.', ansi: :red], [:cmd, 'travis_terminate 2']]]]] }
+  let(:dpl_incompatible_message) { 'This is a incompatibility message' }
+  before       {
+    ENV['DPL_INCOMPATIBLE_MESSAGE'] = dpl_incompatible_message
+  }
 
   it { store_example }
 
