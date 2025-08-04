@@ -56,7 +56,7 @@ module Travis
             end
 
             if config[:dpl_version].nil? || Gem::Version.new(config[:dpl_version]) >= Gem::Version.new('2.0.0')
-              if config[:os] == 'windows'
+              if script.config[:os] == 'windows'
                 sh.echo dpl_incompatibility_message, ansi: :yellow
                 return
               end
