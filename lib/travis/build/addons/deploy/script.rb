@@ -55,6 +55,13 @@ module Travis
               return
             end
 
+            if config[:dpl_version].nil? || Gem::Version.new(config[:dpl_version]) >= Gem::Version.new('2.0.0.alpha')
+              if script.config[:os] == 'windows'
+                sh.echo dpl_incompatibility_message, ansi: :yellow
+                return
+              end
+            end
+
             if conditions.empty?
               run
             else
@@ -255,7 +262,7 @@ module Travis
               end
               if dpl_version.nil?
                 command << " -v '< 1.9' " if want_pre_19
-                command << " -v #{ENV['DPL_VERSION'].to_s.shellescape}" if !want_pre_19 && !edge && !ENV['DPL_VERSION'].nil?
+                command << " -v #{ENV['DPL_VERSION'].to_s.shellescape}" if !want_pre_19 && !edge && !ENV['DPL_VERSION'].nil? && !ENV['DPL_VERSION'].empty?
                 command << " --pre" if edge
               else
                 command << " -v #{dpl_version}"
@@ -338,6 +345,10 @@ module Travis
 
             def dpl_ruby_version
               dpl2? || want_pre_19? ? '$(travis_internal_ruby)' : '2'
+            end
+
+            def dpl_incompatibility_message
+              ENV['DPL_INCOMPATIBLE_MESSAGE']
             end
         end
       end

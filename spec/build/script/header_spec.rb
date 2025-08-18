@@ -7,7 +7,7 @@ describe 'script header', integration: true do
     <<~PRE_HEADER
       #!/bin/bash
       sudo() { :; }
-      lsb_release() { echo xenial; }
+      lsb_release() { echo focal; }
     PRE_HEADER
   end
 
@@ -69,7 +69,7 @@ describe 'script header', integration: true do
     TERM: 'xterm',
     USER: 'travis',
     TRAVIS_OS_NAME: 'linux|osx',
-    TRAVIS_DIST: 'precise|trusty|xenial'
+    TRAVIS_DIST: 'precise|trusty|xenial|bionic|focal|jammy|noble'
   }.each do |env_var, val|
     it "exports #{env_var}" do
       expect(bash_output).to match(/^declare -x #{env_var}="#{val}"$/)
