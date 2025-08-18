@@ -91,6 +91,16 @@ describe Travis::Api::Build::App, :include_sinatra_helpers do
         expect(response.status).to be == 400
       end
     end
+
+    context 'with custom image creation' do
+      it 'returns a script' do
+        header('Authorization', 'token the-other-token')
+        response = post '/script', {}, input: PAYLOADS[:push_create_image].to_json
+        expect(response.status).to eq(200)
+        expect(response.body).to match('travis_custom_image_prepare')
+        expect(response.body).to match('TRAVIS_CREATED_CUSTOM_IMAGE_NAME')
+      end
+    end
   end
 
   %w(
