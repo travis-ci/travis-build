@@ -18,9 +18,17 @@ module Travis
 
           def header
             sh.echo 'Build system information', ansi: :yellow
-            [:language, :group, :dist].each do |name|
+            [:language, :group].each do |name|
               value = data.send(name)
               sh.echo "Build #{name}: #{Shellwords.escape(value)}" if value
+            end
+            if data.job[:used_custom_image]
+              image = data.job[:used_custom_image]
+              sh.echo "Custom image id: customimage-#{image[:owner][:id]}-#{Shellwords.escape(image[:owner][:type])}-#{image[:id]}"
+              sh.echo "Custom image name: #{Shellwords.escape(image[:name])}"
+            else
+              value = data.dist
+              sh.echo "Build dist: #{Shellwords.escape(data.dist)}" if data.dist
             end
             sh.echo "Build id: #{Shellwords.escape(data.build[:id])}"
             sh.echo "Job id: #{Shellwords.escape(data.job[:id])}"
