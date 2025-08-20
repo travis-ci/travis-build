@@ -57,6 +57,8 @@ module Travis
         travis_bash_qsort_numeric
         travis_cleanup
         travis_cmd
+        travis_custom_image
+        travis_custom_image_prepare
         travis_decrypt
         travis_download
         travis_find_jdk_path
@@ -243,7 +245,11 @@ module Travis
         def run
           stages.run if apply :validate
           sh.raw 'travis_cleanup'
-          sh.raw 'travis_footer'
+          if creates_custom_image?
+            sh.raw 'travis_custom_image'
+          else
+            sh.raw 'travis_footer'
+          end
           # apply :deprecations
         end
 
@@ -263,7 +269,8 @@ module Travis
             sh.export 'TRAVIS_ENABLE_INFRA_DETECTION', 'true',
                       echo: false, assert: false
           end
-
+          sh.raw bash('travis_custom_image_prepare')
+          sh.raw 'travis_custom_image_prepare' if creates_custom_image?
           sh.raw bash('travis_preamble')
           sh.raw 'travis_preamble'
 
@@ -286,6 +293,10 @@ module Travis
 
         def apt_proxy
           @apt_proxy ||= Travis::Build.config.apt_proxy.output_safe
+        end
+
+        def creates_custom_image?
+          !!data.job[:created_custom_image]
         end
 
         def configure

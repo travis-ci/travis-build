@@ -309,6 +309,42 @@ PAYLOADS = {
         'secret_access_key' => 'secret_access_key'
       }
     }
+  },
+  push_create_image: {
+    'type' => 'test',
+    'enterprise' => 'false',
+    'prefer_https' => false,
+    'host' => 'travis-ci.com',
+    'config' => {
+      'os' => 'linux',
+      'arch' => 'amd64',
+      'env' => ['FOO=foo', 'SECURE BAR=bar'],
+      'server_type' => 'git'
+    },
+    'repository' => {
+      'github_id' => 42,
+      'slug' => 'travis-ci/travis-ci',
+      'source_host' => 'github.com',
+      'default_branch' => 'master'
+    },
+    'build' => {
+      'id' => '1',
+      'number' => '1',
+      'previous_state' => 'failed'
+    },
+    'job' => {
+      'id' => '1',
+      'number' => '1.1',
+      'commit' => '03148a8',
+      'branch' => 'master',
+      'commit_range' => '03148a8..f9da1fd',
+      'commit_message' => 'the commit message',
+      'secure_env_enabled' => true,
+      'created_custom_image' => {
+        'id' => 1,
+        'name' => 'testimage'
+      }
+    }
   }
 }.freeze
 
