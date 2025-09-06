@@ -231,10 +231,11 @@ module Travis
         def debug
           if debug_build_via_api?
             sh.echo "Debug build initiated by #{data.debug_options[:created_by]}", ansi: :yellow
+            # Virtualenv, for one, doesn't `export` its adjusted PATH, so must run the debug server in the same process
             if debug_quiet?
-              sh.raw "travis_debug --quiet"
+              sh.raw "source travis_debug --quiet"
             else
-              sh.raw "travis_debug"
+              sh.raw "source travis_debug"
             end
 
             sh.newline
