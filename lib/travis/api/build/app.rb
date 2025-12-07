@@ -62,6 +62,7 @@ module Travis
         end
 
         post '/script' do
+          request.body.rewind
           payload = JSON.parse(request.body.read)
 
           unless Travis::Build.config.sentry_dsn.empty?
@@ -79,6 +80,7 @@ module Travis
         end
 
         post '/sexp' do
+          request.body.rewind
           payload = JSON.parse(request.body.read)
 
           unless Travis::Build.config.sentry_dsn.empty?
