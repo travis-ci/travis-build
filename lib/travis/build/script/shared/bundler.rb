@@ -2,7 +2,7 @@ module Travis
   module Build
     class Script
       module Bundler
-        DEFAULT_BUNDLER_ARGS = "--jobs=3 --retry=3"
+        DEFAULT_BUNDLER_ARGS = '--jobs=3 --retry=3'
 
         def use_directory_cache?
           super || data.cache?(:bundler)
@@ -54,7 +54,7 @@ module Travis
           end
           sh.else do
             if data.cache?(:bundler)
-              sh.echo "bundler caching is configured but a Gemfile is not found. Caching may not work.", ansi: :yellow
+              sh.echo 'bundler caching is configured but a Gemfile is not found. Caching may not work.', ansi: :yellow
             else
               sh.raw ':'
             end
@@ -69,10 +69,18 @@ module Travis
                   sh.cmd 'rm -rf vendor/cache', echo: false, timing: false, assert: false
                 end
               end
-              sh.cmd bundler_install("--deployment"), fold: "install.bundler", retry: true
+              # Use 'bundle config set deployment true' for Bundler 3.0+
+              # instead of the deprecated --deployment flag
+              sh.if bundler_version_ge_3? do
+                sh.cmd 'bundle config set deployment true', echo: true, timing: false
+                sh.cmd bundler_install, fold: 'install.bundler', retry: true
+              end
+              sh.else do
+                sh.cmd bundler_install('--deployment'), fold: 'install.bundler', retry: true
+              end
             end
             sh.else do
-              sh.cmd bundler_install, fold: "install.bundler", retry: true
+              sh.cmd bundler_install, fold: 'install.bundler', retry: true
             end
           end
           sh.else do
@@ -91,60 +99,64 @@ module Travis
 
         private
 
-          def user_provided_gemfile
-            raw_data[:config] && raw_data[:config][:gemfile]
-          end
+        def user_provided_gemfile
+          raw_data[:config] && raw_data[:config][:gemfile]
+        end
 
-          def user_provided_gemfile?
-            "-f #{user_provided_gemfile}"
-          end
+        def user_provided_gemfile?
+          "-f #{user_provided_gemfile}"
+        end
 
-          def gemfile?
-            "-f ${BUNDLE_GEMFILE:-#{config[:gemfile]}}"
-          end
+        def gemfile?
+          "-f ${BUNDLE_GEMFILE:-#{config[:gemfile]}}"
+        end
 
-          def gemfile_lock?
-            "-f ${BUNDLE_GEMFILE:-#{config[:gemfile]}}.lock"
-          end
+        def gemfile_lock?
+          "-f ${BUNDLE_GEMFILE:-#{config[:gemfile]}}.lock"
+        end
 
-          def gemfile_path(*path)
-            base_dir = File.dirname(config[:gemfile])
-            File.join(base_dir, *path)
-          end
+        def gemfile_path(*path)
+          base_dir = File.dirname(config[:gemfile])
+          File.join(base_dir, *path)
+        end
 
-          def bundler_args_path
-            args = Array(bundler_args).join(" ")
-            path = args[/--path[= ](\S+)/, 1]
-            path ||= 'vendor/bundle' if args.include?('--deployment')
-            path
-          end
+        def bundler_args_path
+          args = Array(bundler_args).join(' ')
+          path = args[/--path[= ](\S+)/, 1]
+          path ||= 'vendor/bundle' if args.include?('--deployment')
+          path
+        end
 
-          def bundler_default_path(relative_to_gemfile)
-            default = relative_to_gemfile ? 'vendor/bundle' : gemfile_path('vendor/bundle')
-            "${BUNDLE_PATH:-#{default}}"
-          end
+        def bundler_default_path(relative_to_gemfile)
+          default = relative_to_gemfile ? 'vendor/bundle' : gemfile_path('vendor/bundle')
+          "${BUNDLE_PATH:-#{default}}"
+        end
 
-          def bundler_path_relative_to_gemfile
-            @bundler_path_relative_to_gemfile ||= bundler_args_path || bundler_default_path(true)
-          end
+        def bundler_path_relative_to_gemfile
+          @bundler_path_relative_to_gemfile ||= bundler_args_path || bundler_default_path(true)
+        end
 
-          def bundler_path_relative_to_project
-            @bundler_path_relative_to_project ||= bundler_args_path ? gemfile_path(bundler_args_path) : bundler_default_path(false)
-          end
+        def bundler_path_relative_to_project
+          @bundler_path_relative_to_project ||= bundler_args_path ? gemfile_path(bundler_args_path) : bundler_default_path(false)
+        end
 
-          def bundler_path(relative_to_gemfile = false)
-            relative_to_gemfile ? bundler_path_relative_to_gemfile : bundler_path_relative_to_project
-          end
+        def bundler_path(relative_to_gemfile = false)
+          relative_to_gemfile ? bundler_path_relative_to_gemfile : bundler_path_relative_to_project
+        end
 
-          def bundler_install(args = nil)
-            args = bundler_args || [DEFAULT_BUNDLER_ARGS, args].compact
-            args = [args].flatten << "--path=#{bundler_path(true)}" if data.cache?(:bundler) && !bundler_args_path
-            ['bundle install', *args].compact.join(' ')
-          end
+        def bundler_install(args = nil)
+          args = bundler_args || [DEFAULT_BUNDLER_ARGS, args].compact
+          args = [args].flatten << "--path=#{bundler_path(true)}" if data.cache?(:bundler) && !bundler_args_path
+          ['bundle install', *args].compact.join(' ')
+        end
 
-          def bundler_args
-            config[:bundler_args]
-          end
+        def bundler_args
+          config[:bundler_args]
+        end
+
+        def bundler_version_ge_3?
+          '$(bundle --version | grep -qE "Bundler version (3\\.|[4-9])")'
+        end
       end
     end
   end
