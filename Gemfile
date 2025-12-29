@@ -21,30 +21,29 @@ gem 'minitar'
 gem 'mocha', require: false, group: %i[development test]
 gem 'parallel_tests', require: false, group: %i[development test]
 gem 'pry', '>= 0.14.2', require: false, group: %i[development test]
-gem 'webmock', group: :test
-gem 'puma'
-gem 'rack', '>= 2.2.4'
+gem 'puma', '>= 6.4.3'
 gem 'rack-ssl', '~> 1.4'
 gem 'rack-test', '>= 2.1.0'
-gem 'redis', '~> 4'
 gem 'rake'
-gem 'rbtrace'
+gem 'rbtrace', '>= 0.5.0'
+gem 'redis', '~> 4'
 gem 'rerun', require: false, group: :development
+gem 'rexml', '>= 3.3.9'
 gem 'rspec', '~> 3.0', group: %i[development test]
-gem 'rubocop', require: false, group: %i[development test]
+gem 'rubocop', '~> 1.57', require: false, group: %i[development test]
 gem 'sentry-raven'
 gem 'simplecov', require: false, group: %i[development test]
-gem 'sinatra', '>= 3.0.6'
 gem 'ssh_data'
 gem 'travis'
 gem 'travis-config', github: 'travis-ci/travis-config'
 gem 'travis-github_apps', git: 'https://github.com/travis-ci/travis-github_apps', branch: 'ga-ext_access'
 gem 'travis-rollout', github: 'travis-ci/travis-rollout'
 gem 'travis-support', github: 'travis-ci/travis-support'
+gem 'webmock', group: :test
 
-gem "octokit", "~> 4.18"
+gem 'octokit', '~> 4.18'
 gem 'rest-client'
 
-github 'sinatra/sinatra' do
+github 'sinatra/sinatra', tag: 'v4.2.1' do
   gem 'sinatra-contrib'
 end
