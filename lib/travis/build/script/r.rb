@@ -125,6 +125,11 @@ module Travis
 
                 sh.cmd "sudo mkdir -p /usr/local/lib/R/site-library $R_LIBS_USER"
                 sh.cmd 'sudo chmod 2777 /usr/local/lib/R /usr/local/lib/R/site-library $R_LIBS_USER'
+
+                sh.cmd '(R_BIN=$(dirname "$(which Rscript)") && ' \
+                    'sudo chgrp "$(id -g)" "$R_BIN" && ' \
+                    'sudo chmod g+w,o+t "$R_BIN")'
+
               when 'osx'
                 # We want to update, but we don't need the 800+ lines of
                 # output.
