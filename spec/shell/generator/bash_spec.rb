@@ -136,6 +136,11 @@ describe Travis::Shell::Generator::Bash, :include_node_helpers do
       @sexp=[:export, ['foo', '$bar "baz blah" `xyz zy`']]
       expect(code).to eql('export foo=$bar "baz blah" `xyz zy`')
     end
+
+    it 'escapes Bash syntax with the raw option' do
+      @sexp = [:export, ['FOO', '$foo "$bar" `baz`'], raw: true]
+      expect(code).to eql('export FOO=\\$foo\\ \\"\\$bar\\"\\ \\`baz\\`')
+    end
   end
 
   describe :file do
