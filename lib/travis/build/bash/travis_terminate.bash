@@ -1,10 +1,11 @@
 travis_terminate() {
+  local old_ret="$?"
   if [[ ! "${TRAVIS_OS_NAME}" ]]; then
     return
   fi
 
   _travis_terminate_agent
-  "_travis_terminate_${TRAVIS_OS_NAME}" "${@}"
+  "_travis_terminate_${TRAVIS_OS_NAME}" "${1-$old_ret}" "${@:2}"
 }
 
 _travis_terminate_linux() {
