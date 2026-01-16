@@ -28,6 +28,7 @@ module Travis
               sh.cmd "brew_ruby=#{first_ruby_2_3_plus}"
             end
             update_homebrew if update_homebrew?
+            sh.cmd "export HOMEBREW_NO_AUTO_UPDATE=1" unless update_homebrew?
             install_homebrew_packages
           end
         end
