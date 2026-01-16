@@ -12,7 +12,7 @@ describe Travis::Build::Addons::Rethinkdb, :sexp do
   it { store_example }
 
   it_behaves_like 'compiled script' do
-    let(:cmds) { ["service rethinkdb stop", "service rethinkdb start"] }
+    let(:cmds) { ["service rethinkdb stop", "service rethinkdb restart"] }
   end
 
   it 'sets TRAVIS_RETHINKDB_VERSION' do
@@ -29,6 +29,6 @@ describe Travis::Build::Addons::Rethinkdb, :sexp do
   it { should include_sexp [:cmd, 'travis_apt_get_update'] }
   it { should include_sexp [:cmd, "apt-get install -y -o Dpkg::Options::='--force-confnew' rethinkdb=$package_version", sudo: true, echo: true, timing: true] }
   it { should include_sexp [:cmd, "cp /etc/rethinkdb/default.conf.sample /etc/rethinkdb/instances.d/default.conf", sudo: true] }
-  it { should include_sexp [:cmd, "service rethinkdb start", sudo: true, echo: true, timing: true] }
+  it { should include_sexp [:cmd, "service rethinkdb restart", sudo: true, echo: true, timing: true] }
   it { should include_sexp [:cmd, "rethinkdb --version", echo: true] }
 end
