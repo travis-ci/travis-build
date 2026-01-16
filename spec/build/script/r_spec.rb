@@ -139,19 +139,19 @@ describe Travis::Build::Script::R, :sexp do
 
   it 'sets repos in ~/.Rprofile.site with defaults' do
     data[:config][:cran] = 'https://cloud.r-project.org'
-    should include_sexp [:cmd, "echo 'options(repos = c(CRAN = \"https://cloud.r-project.org\"))' > ~/.Rprofile.site",
+    should include_sexp [:cmd, "echo \"options(repos = c(CRAN = \\\"https://cloud.r-project.org\\\"))\" > ~/.Rprofile.site",
                          assert: true, echo: true, timing: true]
   end
 
   it 'sets repos in ~/.Rprofile.site with user specified repos' do
     data[:config][:cran] = 'https://cran.rstudio.org'
-    should include_sexp [:cmd, "echo 'options(repos = c(CRAN = \"https://cran.rstudio.org\"))' > ~/.Rprofile.site",
+    should include_sexp [:cmd, "echo \"options(repos = c(CRAN = \\\"https://cran.rstudio.org\\\"))\" > ~/.Rprofile.site",
                          assert: true, echo: true, timing: true]
   end
 
   it 'sets repos in ~/.Rprofile.site with additional user specified repos' do
     data[:config][:repos] = {CRAN: 'https://cran.rstudio.org', ropensci: 'http://packages.ropensci.org'}
-    should include_sexp [:cmd, "echo 'options(repos = c(CRAN = \"https://cran.rstudio.org\", ropensci = \"http://packages.ropensci.org\"))' > ~/.Rprofile.site",
+    should include_sexp [:cmd, "echo \"options(repos = c(CRAN = \\\"https://cran.rstudio.org\\\", ropensci = \\\"http://packages.ropensci.org\\\"))\" > ~/.Rprofile.site",
                          assert: true, echo: true, timing: true]
   end
 
