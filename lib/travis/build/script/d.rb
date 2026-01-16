@@ -15,6 +15,18 @@ module Travis
           super << '--d-' << config[:d]
         end
 
+        def setup_cache
+          if data.cache?(:dub)
+            sh.fold 'cache.dub' do
+              directory_cache.add "$HOME/.dub", "$HOME/dlang"
+            end
+          end
+        end
+
+        def use_directory_cache?
+          super || data.cache?(:dub)
+        end
+
         def setup
           super
 
