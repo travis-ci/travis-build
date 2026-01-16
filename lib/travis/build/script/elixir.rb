@@ -47,6 +47,13 @@ export MIX_ARCHIVES=#{KIEX_MIX_HOME}elixir-#{elixir_version}' > #{KIEX_ELIXIR_HO
             sh.cmd 'mix local.rebar --force', fold: "install.rebar"
           end
           sh.cmd 'mix local.hex --force', fold: "install.hex"
+          unless hex_org_keys.empty?
+            sh.fold "auth.hex" do
+              hex_org_keys.each do |key|
+                sh.cmd "mix hex.organization auth acme --key #{key}", assert: true
+              end
+            end
+          end
           sh.cmd 'mix deps.get', fold: "install.deps"
         end
 
@@ -70,6 +77,10 @@ export MIX_ARCHIVES=#{KIEX_MIX_HOME}elixir-#{elixir_version}' > #{KIEX_ELIXIR_HO
           !( elixir_1_6_0_or_higher? && !otp_release_19_0_or_higher?)
         rescue
           false
+        end
+
+        def hex_org_keys
+          Array(config[:hex_org_keys])
         end
 
         def method_missing(m, *args, &block)
