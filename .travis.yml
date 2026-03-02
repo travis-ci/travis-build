@@ -77,3 +77,4 @@ deploy:
     repo: travis-ci/travis-build
   dpl_version: 2.0.5.beta.1
   edge: true
+
