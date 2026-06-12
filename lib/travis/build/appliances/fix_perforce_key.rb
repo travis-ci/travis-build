@@ -6,7 +6,7 @@ module Travis
       class FixPerforceKey < Base
         def apply
           sh.if "! $(command -v sw_vers)" do
-            sh.cmd "wget -qO - https://package.perforce.com/perforce.pubkey | sudo apt-key add -", assert: false, echo: false
+            sh.cmd "wget --tries=1 --timeout=10 -qO - https://package.perforce.com/perforce.pubkey | sudo apt-key add - || true", assert: false, echo: false
           end
         end
       end
