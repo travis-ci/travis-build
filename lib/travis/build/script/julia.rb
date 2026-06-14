@@ -184,7 +184,7 @@ module Travis
               url = "julialang-s3.julialang.org/bin/#{osarch}/#{$1}/julia-#{$1}-latest-#{ext}"
             when '1'
               # TODO: create a permalink to latest 1.y.z
-              url = "julialang-s3.julialang.org/bin/#{osarch}/1.5/julia-1.5-latest-#{ext}"
+              url = "julialang-s3.julialang.org/bin/#{osarch}/1.6/julia-1.6-latest-#{ext}"
             else
               sh.failure "Unknown Julia version: #{julia_version}"
             end
