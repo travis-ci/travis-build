@@ -19,7 +19,7 @@ fcntl.fcntl(sys.stdout, fcntl.F_SETFL, flags_stdout&~os.O_NONBLOCK)
 flags_stderr = fcntl.fcntl(sys.stderr, fcntl.F_GETFL)
 fcntl.fcntl(sys.stderr, fcntl.F_SETFL, flags_stderr&~os.O_NONBLOCK)
 EOPY
-  python ~/nonblock.py
+  python3 ~/nonblock.py
   rm ~/nonblock.py
 fi
 EOF

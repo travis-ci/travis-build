@@ -15,7 +15,7 @@ describe Travis::Build::Script::Python, :sexp do
 
   it_behaves_like 'compiled script' do
     let(:code) { ['TRAVIS_LANGUAGE=python'] }
-    let(:cmds) { ['pip install'] }
+    let(:cmds) { ['pip3 install'] }
   end
 
   describe 'given a script' do
@@ -146,11 +146,11 @@ describe Travis::Build::Script::Python, :sexp do
   end
 
   it 'announces python --version' do
-    should include_sexp [:cmd,  'python --version', echo: true]
+    should include_sexp [:cmd,  'python3 --version', echo: true]
   end
 
   it 'announces pip --version' do
-    should include_sexp [:cmd,  'pip --version', echo: true]
+    should include_sexp [:cmd,  'pip3 --version', echo: true]
   end
 
   describe 'install' do
@@ -160,12 +160,12 @@ describe Travis::Build::Script::Python, :sexp do
 
     it 'installs with pip if Requirements.txt exists' do
       branch = sexp_find(sexp, [:then])
-      expect(branch).to include_sexp [:cmd,  'pip install -r Requirements.txt', assert: true, echo: true, retry: true, timing: true]
+      expect(branch).to include_sexp [:cmd,  'pip3 install -r Requirements.txt', assert: true, echo: true, retry: true, timing: true]
     end
 
     it 'installs with pip if requirements.txt exists' do
       branch = sexp_find(sexp, [:elif, '-f requirements.txt'])
-      expect(branch).to include_sexp [:cmd,  'pip install -r requirements.txt', assert: true, echo: true, retry: true, timing: true]
+      expect(branch).to include_sexp [:cmd,  'pip3 install -r requirements.txt', assert: true, echo: true, retry: true, timing: true]
     end
 
     it 'errors if no requirements file exists' do
