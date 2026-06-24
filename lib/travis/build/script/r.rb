@@ -168,9 +168,9 @@ module Travis
               end
 
               # Set repos in ~/.Rprofile
-              repos_str = repos.collect {|k,v| "#{k} = \"#{v}\""}.join(", ")
+              repos_str = repos.collect {|k,v| "#{k} = \\\"#{v}\\\""}.join(", ")
               options_repos = "options(repos = c(#{repos_str}))"
-              sh.cmd %Q{echo '#{options_repos}' > ~/.Rprofile.site}
+              sh.cmd %Q{echo "#{options_repos}" > ~/.Rprofile.site}
               sh.export 'R_PROFILE', "~/.Rprofile.site", echo: false
 
               # PDF manual requires latex
