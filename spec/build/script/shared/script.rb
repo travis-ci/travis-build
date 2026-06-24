@@ -33,8 +33,8 @@ shared_examples_for 'a build script sexp' do
   end
 
   it 'does not initiate debug phase' do
-    should_not include_sexp [:raw, "travis_debug"]
-    should_not include_sexp [:raw, "travis_debug --quiet"]
+    should_not include_sexp [:raw, "source travis_debug"]
+    should_not include_sexp [:raw, "source travis_debug --quiet"]
   end
 
   it_behaves_like 'show system info'
@@ -68,14 +68,14 @@ end
 
 shared_examples_for 'a debug script' do
   it 'initiates debug phase' do
-    should include_sexp [:raw, "travis_debug"]
+    should include_sexp [:raw, "source travis_debug"]
   end
 
   context 'when debug_options sets "quiet" => true' do
     before { payload[:job][:debug_options].merge!({ quiet: true }) }
 
     it 'initiates debug phase' do
-      should include_sexp [:raw, "travis_debug --quiet"]
+      should include_sexp [:raw, "source travis_debug --quiet"]
     end
   end
 
