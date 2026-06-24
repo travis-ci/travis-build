@@ -33,6 +33,35 @@ describe Travis::Build::Script::Elixir, :sexp do
     it 'runs "mix deps.get"' do
       should include_sexp [:cmd, 'mix deps.get',  assert: true, echo: true, timing: true]
     end
+
+    context "when hex_org_key is not given" do
+      it "does not authenticate with mix server" do
+        should_not include_sexp [:cmd, 'mix hex.organization auth acme --key 126d49fb3014bd26457471ebae97c625', assert: true, echo: true, timing: true]
+      end
+    end
+
+    context "when a single hex_org_keys is given" do
+      before :each do
+        data[:config][:hex_org_keys] = '126d49fb3014bd26457471ebae97c625'
+      end
+
+      it "authenticates with mix server" do
+        should include_sexp [:cmd, 'mix hex.organization auth acme --key 126d49fb3014bd26457471ebae97c625', assert: true, echo: true, timing: true]
+        store_example "hex_org_keys"
+      end
+    end
+
+    context "when multiple hex_org_keys are given" do
+      before :each do
+        data[:config][:hex_org_keys] = ['126d49fb3014bd26457471ebae97c625', '5126d49fb3014bd26457471ebae97c62']
+      end
+
+      it "authenticates with mix server" do
+        should include_sexp [:cmd, 'mix hex.organization auth acme --key 126d49fb3014bd26457471ebae97c625', assert: true, echo: true, timing: true]
+        should include_sexp [:cmd, 'mix hex.organization auth acme --key 5126d49fb3014bd26457471ebae97c62', assert: true, echo: true, timing: true]
+        store_example "hex_org_keys-multiple"
+      end
+    end
   end
 
   describe 'script' do
