@@ -1,4 +1,5 @@
 require 'travis/build/env/builtin'
+require 'travis/build/env/defaults'
 require 'travis/build/env/config'
 require 'travis/build/env/settings'
 require 'travis/build/env/var'
@@ -6,7 +7,7 @@ require 'travis/build/env/var'
 module Travis
   module Build
     class Env
-      GROUPS = [Builtin, Settings, Config]
+      GROUPS = [Builtin, Defaults, Settings, Config]
 
       attr_reader :data
 
