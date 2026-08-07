@@ -294,14 +294,6 @@ module Travis
           "[installation_token] mint failed for GitHub App installation; " \
           "clone will fail with 'Invalid username or token' unless it succeeds on retry -- #{summary}"
         )
-        if defined?(Raven) && !Travis::Build.config.sentry_dsn.to_s.empty?
-          Raven.capture_exception(
-            error,
-            logger: 'travis-build',
-            tags:   { component: 'installation_token', repo_slug: details[:repo_slug].to_s },
-            extra:  details
-          )
-        end
       rescue => logging_error
         # Never let diagnostics break the build path.
         Travis::Build.logger.warn(
