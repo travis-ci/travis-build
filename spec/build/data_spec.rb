@@ -111,6 +111,43 @@ Mj4lyLfpYx+T8GexZtTWAAAAEmJnQExBUFRPUC1ISTQ5Q0hOTgECAw==
     it { expect(data.token).to eq 'access_token' }
   end
 
+  describe 'installation token mint failure' do
+    let(:config) do
+      { repository: { installation_id: 42, slug: 'AllTrust/services', vcs_id: 39983046 }, job: { id: 777 } }
+    end
+    let(:data) { Travis::Build::Data.new(config) }
+
+    context 'when the mint fails with a non-matching error (e.g. a network blip)' do
+      before do
+        Travis::GithubApps.any_instance.stubs(:access_token)
+          .raises(RuntimeError.new('Faraday::ConnectionFailed: connection reset'))
+      end
+
+      it 'logs the failure with customer/installation context and returns nil (no raise)' do
+        Travis::Build.logger.expects(:error).with do |msg|
+          msg.include?('installation_token') &&
+            msg.include?('repo_slug="AllTrust/services"') &&
+            msg.include?('installation_id=42') &&
+            msg.include?('job_id=777') &&
+            msg.include?('will_raise=false')
+        end
+        expect(data.installation_token).to be_nil
+      end
+    end
+
+    context 'when the mint fails with "Failed to obtain token from GitHub"' do
+      before do
+        Travis::GithubApps.any_instance.stubs(:access_token)
+          .raises(RuntimeError.new('Failed to obtain token from GitHub: 404 - Not Found'))
+      end
+
+      it 'logs the failure and raises GithubAppsTokenFetchError' do
+        Travis::Build.logger.expects(:error).with { |msg| msg.include?('will_raise=true') }
+        expect { data.installation_token }.to raise_error(Travis::Build::GithubAppsTokenFetchError)
+      end
+    end
+  end
+
   describe 'source_ssh' do
     describe 'source_ssh for GHE force_private' do
       let(:config) { { oauth_token: 'access_token', prefer_https: false, repository: { vcs_type: 'GithubRepository', source_host: 'test.ghe.com', vcs_id: 123 } } }

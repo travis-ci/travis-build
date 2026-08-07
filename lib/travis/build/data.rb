@@ -259,9 +259,54 @@ module Travis
       def installation_token
         GithubApps.new(installation_id, {}, allowed_repositories).access_token
       rescue RuntimeError => e
+        log_installation_token_failure(e)
         if e.message =~ /Failed to obtain token from GitHub/
           raise Travis::Build::GithubAppsTokenFetchError.new
         end
+
+        # Any other mint failure falls through to a nil token here. The git netrc
+        # (lib/travis/vcs/git/netrc.rb) then writes an empty password, and the clone fails with
+        # the opaque "remote: Invalid username or token. Password authentication is not supported
+        # for Git operations." We log the real cause above so the failure is diagnosable from
+        # travis-build logs instead of being silently swallowed.
+        nil
+      end
+
+      # Emit a structured, greppable record when an installation-token mint fails, so support/eng
+      # can tie an opaque clone failure back to the customer, repo, installation, and root error.
+      # Diagnostics must never interfere with token handling, hence the outer rescue.
+      def log_installation_token_failure(error)
+        details = {
+          event:                'installation_token_fetch_failed',
+          repo_slug:            (slug rescue nil),
+          github_id:            (github_id rescue nil),
+          installation_id:      installation_id,
+          job_id:               (job[:id] rescue nil),
+          allowed_repositories: allowed_repositories,
+          error_class:          error.class.name,
+          error_message:        error.message.to_s[0, 500],
+          # true  => raises GithubAppsTokenFetchError (build fails at compilation with a clear error)
+          # false => returns a nil token => clone fails later with "Invalid username or token"
+          will_raise:           !(error.message =~ /Failed to obtain token from GitHub/).nil?
+        }
+        summary = details.map { |k, v| "#{k}=#{v.inspect}" }.join(' ')
+        Travis::Build.logger.error(
+          "[installation_token] mint failed for GitHub App installation; " \
+          "clone will fail with 'Invalid username or token' unless it succeeds on retry -- #{summary}"
+        )
+        if defined?(Raven) && !Travis::Build.config.sentry_dsn.to_s.empty?
+          Raven.capture_exception(
+            error,
+            logger: 'travis-build',
+            tags:   { component: 'installation_token', repo_slug: details[:repo_slug].to_s },
+            extra:  details
+          )
+        end
+      rescue => logging_error
+        # Never let diagnostics break the build path.
+        Travis::Build.logger.warn(
+          "[installation_token] failed to log mint failure: #{logging_error.class}: #{logging_error.message}"
+        ) rescue nil
       end
 
       def workspaces
