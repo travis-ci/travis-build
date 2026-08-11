@@ -26,6 +26,7 @@ module Travis
         private
           TRACE_COMMAND_GIT_TRACE = "GIT_TRACE=true"
           TRACE_COMMAND_STRACE = "strace"
+          TRACE_COMMAND_CURL = "curl"
           TRACE_COMMAND_ALL = "all"
           DEFAULT_TRACE_COMMAND = TRACE_COMMAND_GIT_TRACE
 
@@ -52,6 +53,11 @@ module Travis
           def trace_command
             if Travis::Build.config.trace_command.output_safe == TRACE_COMMAND_ALL
               "GIT_TRACE=true GIT_FLUSH=1 GIT_TRACE_PERFORMANCE=true GIT_TRACE_PACK_ACCESS=true GIT_TRACE_PACKET=true GIT_TRACE_PACK_ACCESS=true strace"
+            elsif Travis::Build.config.trace_command.output_safe == TRACE_COMMAND_CURL
+              # Dump the HTTP request/response headers (incl. status + X-GitHub-Request-Id) so an
+              # opaque "Invalid username or token" clone failure shows GitHub's real reason.
+              # GIT_TRACE_CURL redacts the Authorization header; _NO_DATA suppresses the body.
+              "GIT_TRACE_CURL=1 GIT_TRACE_CURL_NO_DATA=1"
             elsif Travis::Build.config.trace_command.output_safe == TRACE_COMMAND_STRACE
               "strace"
             else
