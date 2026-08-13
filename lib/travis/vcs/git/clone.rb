@@ -14,6 +14,7 @@ module Travis
               github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=
               github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=
             EOF
+            verify_netrc_credential if trace_git_commands?
             clone_or_fetch
             sh.cd dir
             fetch_ref if fetch_ref?
@@ -67,6 +68,28 @@ module Travis
 
           def git_cmd
             trace_git_commands? ? "#{trace_command} git" : "git"
+          end
+
+          # Diagnostic, ALLOWLISTED REPOS ONLY (gated by trace_git_commands? in #apply, which
+          # is empty by default -- this never emits for a customer build). Prints the byte
+          # length + short SHA-256 of the credential exactly as it sits in the netrc git is
+          # about to read, i.e. the bytes immediately before git builds the HTTP Basic auth
+          # header. Compared with the server-side mint fingerprint (build/data.rb), this proves
+          # whether the token reached the worker unchanged -- the truncation/line-wrap check
+          # GitHub asked for. NEVER prints the token: only its length and a one-way hash prefix.
+          # assert:false + `|| true` so it can never fail the build.
+          def verify_netrc_credential
+            netrc = "${TRAVIS_HOME}/#{netrc_basename}"
+            cmd = "if [ -f #{netrc} ]; then " \
+                  "__p=$(awk 'tolower($1)==\"password\"{print $2; exit}' #{netrc}); " \
+                  "printf '[git_netrc_verify] credential length=%s sha256=%s\\n' " \
+                  "\"${#__p}\" \"$(printf %s \"$__p\" | sha256sum 2>/dev/null | cut -c1-16)\"; " \
+                  "unset __p; fi || true"
+            sh.cmd cmd, echo: false, assert: false, timing: false
+          end
+
+          def netrc_basename
+            data.config[:os].to_s.downcase == 'windows' ? '_netrc' : '.netrc'
           end
 
           def git_clone

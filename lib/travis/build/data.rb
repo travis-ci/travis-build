@@ -1,4 +1,5 @@
 require 'faraday'
+require 'digest'
 require 'core_ext/hash/deep_merge'
 require 'core_ext/hash/deep_symbolize_keys'
 require 'travis/github_apps'
@@ -233,7 +234,19 @@ module Travis
 
       def token
         # CHANGE FOR DEPLOY
-        installation? ? installation_token : data[:oauth_token]
+        #
+        # Memoized so the credential is minted exactly ONCE per build. #installation_token
+        # builds its GithubApps client with an empty config, so the gem's redis cache is
+        # inactive and every call otherwise mints a brand-new token over HTTP. That is what
+        # made the diagnostic in lib/travis/vcs/git/netrc.rb (which also calls #token) mint a
+        # second token ~200ms after the one actually written to the netrc -- the double-mint
+        # GitHub traced. `defined?` (not `||=`) so a nil/failed mint is cached too and never
+        # retried in a tight loop. Returning the same object also makes the mint-time and
+        # netrc-write fingerprints comparable (see #log_token_fingerprint).
+        return @token if defined?(@token)
+        @token = installation? ? installation_token : data[:oauth_token]
+        log_token_fingerprint('mint', @token)
+        @token
       end
 
       def debug_options
@@ -299,6 +312,35 @@ module Travis
         Travis::Build.logger.warn(
           "[installation_token] failed to log mint failure: #{logging_error.class}: #{logging_error.message}"
         ) rescue nil
+      end
+
+      # Diagnostic only. Records a NON-reversible fingerprint (byte length + short SHA-256
+      # prefix) of the credential right after it is minted, so it can be compared with the
+      # fingerprint taken immediately before the netrc/Basic-auth header is built
+      # (lib/travis/vcs/git/netrc.rb) and with the worker-side check in git/clone.rb.
+      # Matching fingerprints prove the exact token we minted is the one handed to git; a
+      # mismatch would prove in-process corruption -- exactly what GitHub asked us to confirm.
+      # The token value itself is NEVER logged. Server-side (travis-build logs) only, and
+      # wrapped so diagnostics can never break the build.
+      def log_token_fingerprint(stage, value)
+        return unless defined?(Travis::Build) && Travis::Build.respond_to?(:logger)
+
+        secret  = value.to_s
+        present = !secret.strip.empty?
+        details = {
+          event:           'git_token_fingerprint',
+          stage:           stage,
+          repo_slug:       (slug rescue nil),
+          installation_id: ((installation_id rescue nil) if (installation? rescue false)),
+          job_id:          (job[:id] rescue nil),
+          credential_present: present,
+          credential_length:  secret.length,
+          credential_sha256:  (present ? Digest::SHA256.hexdigest(secret)[0, 16] : nil)
+        }
+        summary = details.reject { |_, v| v.nil? }.map { |k, v| "#{k}=#{v.inspect}" }.join(' ')
+        Travis::Build.logger.info("[git_token_fingerprint] #{summary}")
+      rescue => e
+        Travis::Build.logger.warn("[git_token_fingerprint] failed: #{e.class}: #{e.message}") rescue nil
       end
 
       def workspaces

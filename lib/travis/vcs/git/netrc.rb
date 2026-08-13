@@ -1,3 +1,5 @@
+require 'digest'
+
 module Travis
   module Vcs
     class Git < Base
@@ -34,7 +36,11 @@ module Travis
               installation_id:    ((data.installation_id rescue nil) if (data.installation? rescue false)),
               job_id:             (data.job[:id] rescue nil),
               credential_present: present,      # presence only — the token value is NEVER logged
-              credential_length:  token.length  # 0 == empty == clone fails with "Invalid username or token"
+              credential_length:  token.length, # 0 == empty == clone fails with "Invalid username or token"
+              # Non-reversible fingerprint of the SAME token we are about to write. Compare
+              # against the mint-time fingerprint (build/data.rb #log_token_fingerprint): equal
+              # => the minted token reached the netrc intact; unequal => in-process corruption.
+              credential_sha256:  (present ? Digest::SHA256.hexdigest(token)[0, 16] : nil)
             }
             summary = details.reject { |_, v| v.nil? }.map { |k, v| "#{k}=#{v.inspect}" }.join(' ')
 
