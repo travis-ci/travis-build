@@ -1,5 +1,7 @@
 require 'faraday'
 require 'digest'
+require 'socket'
+require 'time'
 require 'core_ext/hash/deep_merge'
 require 'core_ext/hash/deep_symbolize_keys'
 require 'travis/github_apps'
@@ -11,6 +13,15 @@ module Travis
   module Build
     class Data
       DEFAULTS = { }
+
+      # Diagnostic (GitHub ticket 4655118). The two REST endpoints GitHub asked us to hit
+      # with the freshly-minted installation token from BOTH the minting service and the
+      # build worker, so they can tell whether the credential is usable at issuance, after
+      # the worker handoff, or only when it reaches git. `%{slug}` is the allowlisted repo.
+      TOKEN_REST_PROBE_PATHS = [
+        'installation/repositories',
+        'repos/%{slug}'
+      ].freeze
 
       DEFAULT_CACHES = {
         bundler:      false,
@@ -246,6 +257,10 @@ module Travis
         return @token if defined?(@token)
         @token = installation? ? installation_token : data[:oauth_token]
         log_token_fingerprint('mint', @token)
+        # GitHub ticket 4655118: from the service that minted it, immediately exercise the
+        # token against REST so we can compare with the same probe on the worker (clone.rb)
+        # and with the git edge. Allowlisted slugs only (empty by default -> no-op).
+        probe_token_rest('mint') if (installation? rescue false) && trace_token_probe?
         @token
       end
 
@@ -341,6 +356,94 @@ module Travis
         Travis::Build.logger.info("[git_token_fingerprint] #{summary}")
       rescue => e
         Travis::Build.logger.warn("[git_token_fingerprint] failed: #{e.class}: #{e.message}") rescue nil
+      end
+
+      # Reuses the SAME allowlist gate as the worker-side git tracing (clone.rb): only repos
+      # in TRACE_GIT_COMMANDS_SLUGS (empty by default) are probed, so this never runs for a
+      # customer build and adds no GitHub API calls to the hot path. Wrapped so a config
+      # surprise can never break the mint.
+      def trace_token_probe?
+        return false unless defined?(Travis::Build) && Travis::Build.respond_to?(:config)
+        slugs = Travis::Build.config.trace_git_commands_slugs.output_safe.split(',')
+        slugs.include?(slug)
+      rescue StandardError
+        false
+      end
+
+      # Diagnostic only (GitHub ticket 4655118). From the minting service, in-process, hit the
+      # two REST endpoints GitHub specified with the token we just minted and record — per
+      # request — HTTP status, X-GitHub-Request-Id, GitHub's Date response header (their common
+      # clock), a local UTC timestamp, a monotonic reading (drift-immune within this process),
+      # this service's identifier, and the same non-reversible length + SHA-256 fingerprint we
+      # log elsewhere. The token itself and the Authorization header are NEVER logged. Compared
+      # with the worker-side probe (clone.rb) and the git edge, this tells GitHub whether the
+      # credential is already unusable at issuance. Server-side logs only; wrapped so diagnostics
+      # can never break the build.
+      def probe_token_rest(stage)
+        return unless defined?(Travis::Build) && Travis::Build.respond_to?(:logger)
+
+        secret = token.to_s
+        return if secret.strip.empty?
+
+        fingerprint = Digest::SHA256.hexdigest(secret)[0, 16]
+        endpoint    = ENV['GITHUB_API_ENDPOINT'] || 'https://api.github.com'
+        service_id  = (Socket.gethostname rescue nil)
+        conn = Faraday.new(url: endpoint) do |f|
+          f.options.timeout      = 5
+          f.options.open_timeout = 5
+          f.adapter Faraday.default_adapter
+        end
+
+        TOKEN_REST_PROBE_PATHS.each do |template|
+          path      = format(template, slug: slug)
+          monotonic = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+          begin
+            response = conn.get(path) do |req|
+              req.headers['Authorization'] = "token #{secret}" # NEVER logged
+              req.headers['Accept']        = 'application/vnd.github+json'
+              req.headers['User-Agent']    = 'travis-build-token-probe'
+            end
+            log_token_rest_probe(
+              stage:             stage,
+              path:              path,
+              http_status:       response.status,
+              github_request_id: response.headers['x-github-request-id'],
+              github_date:       response.headers['date'],
+              service_id:        service_id,
+              monotonic_s:       monotonic.round(3),
+              length:            secret.length,
+              fingerprint:       fingerprint
+            )
+          rescue StandardError => e
+            Travis::Build.logger.warn(
+              "[git_token_rest_probe] request failed path=#{path.inspect} #{e.class}: #{e.message}"
+            ) rescue nil
+          end
+        end
+      rescue StandardError => e
+        Travis::Build.logger.warn("[git_token_rest_probe] setup failed: #{e.class}: #{e.message}") rescue nil
+      end
+
+      def log_token_rest_probe(fields)
+        details = {
+          event:             'git_token_rest_probe',
+          location:          'minter',
+          stage:             fields[:stage],
+          path:              fields[:path],
+          http_status:       fields[:http_status],
+          github_request_id: fields[:github_request_id],
+          github_date:       fields[:github_date],
+          local_utc:         (Time.now.utc.iso8601(3) rescue nil),
+          monotonic_s:       fields[:monotonic_s],
+          service_id:        fields[:service_id],
+          repo_slug:         (slug rescue nil),
+          installation_id:   ((installation_id rescue nil) if (installation? rescue false)),
+          job_id:            (job[:id] rescue nil),
+          credential_length: fields[:length],
+          credential_sha256: fields[:fingerprint]
+        }
+        summary = details.reject { |_, v| v.nil? }.map { |k, v| "#{k}=#{v.inspect}" }.join(' ')
+        Travis::Build.logger.info("[git_token_rest_probe] #{summary}")
       end
 
       def workspaces

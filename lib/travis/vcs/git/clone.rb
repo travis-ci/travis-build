@@ -15,6 +15,7 @@ module Travis
               github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=
             EOF
             verify_netrc_credential if trace_git_commands?
+            probe_token_rest if trace_git_commands?
             clone_or_fetch
             sh.cd dir
             fetch_ref if fetch_ref?
@@ -90,6 +91,50 @@ module Travis
 
           def netrc_basename
             data.config[:os].to_s.downcase == 'windows' ? '_netrc' : '.netrc'
+          end
+
+          GITHUB_API_ENDPOINT = "https://api.github.com"
+
+          # The two REST endpoints GitHub asked us to hit (ticket 4655118) — the second scoped
+          # to the repo being cloned.
+          def token_rest_probe_paths
+            ["/installation/repositories", "/repos/#{repo_slug}"]
+          end
+
+          # Diagnostic, ALLOWLISTED REPOS ONLY (gated by trace_git_commands? in #apply). The
+          # worker counterpart to build/data.rb#probe_token_rest: immediately before git runs,
+          # take the SAME token out of the netrc and exercise it against the same two REST
+          # endpoints from THIS machine, capturing per request the HTTP status,
+          # X-GitHub-Request-Id, GitHub's Date response header (the common clock GitHub asked
+          # for), a local UTC timestamp, this worker's hostname, and the same token length +
+          # short SHA-256. If REST succeeds here but the clone 401s, the divergence is git-vs-REST
+          # auth at their edge; if REST fails here too, the credential died in the handoff.
+          # NEVER prints the token or the Authorization header: curl dumps RESPONSE headers only
+          # (-D -, no -v), the token lives only in a shell variable, and echo:false keeps the
+          # command text (a $var reference, not the literal) out of the log. assert:false + `|| true`
+          # so it can never fail the build.
+          def probe_token_rest
+            netrc = "${TRAVIS_HOME}/#{netrc_basename}"
+            cmd = +""
+            cmd << "if [ -f #{netrc} ]; then "
+            cmd << "__tok=$(awk 'tolower($1)==\"password\"{print $2; exit}' #{netrc}); "
+            cmd << "if [ -n \"$__tok\" ]; then "
+            cmd << "__len=${#__tok}; "
+            cmd << "__sha=$(printf %s \"$__tok\" | sha256sum 2>/dev/null | cut -c1-16); "
+            token_rest_probe_paths.each do |path|
+              cmd << "__hdr=$(curl -sS -o /dev/null -D - "
+              cmd << "-H \"Authorization: token $__tok\" "
+              cmd << "-H 'Accept: application/vnd.github+json' "
+              cmd << "-H 'User-Agent: travis-build-token-probe' "
+              cmd << "#{GITHUB_API_ENDPOINT}#{path} 2>/dev/null); "
+              cmd << "__status=$(printf '%s\\n' \"$__hdr\" | awk 'toupper($1) ~ /^HTTP/ {print $2; exit}'); "
+              cmd << "__rid=$(printf '%s\\n' \"$__hdr\" | awk 'tolower($1)==\"x-github-request-id:\"{print $2; exit}'); "
+              cmd << "__ghd=$(printf '%s\\n' \"$__hdr\" | awk 'tolower($0) ~ /^date:/ {sub(/^[^:]*: */, \"\"); print; exit}'); "
+              cmd << "printf '[git_token_rest_probe] location=worker path=%s http_status=%s github_request_id=%s github_date=\\\"%s\\\" local_utc=%s worker_id=%s credential_length=%s credential_sha256=%s\\n' "
+              cmd << "\"#{path}\" \"$__status\" \"$__rid\" \"$__ghd\" \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\" \"$(hostname 2>/dev/null)\" \"$__len\" \"$__sha\"; "
+            end
+            cmd << "fi; unset __tok __len __sha __hdr __status __rid __ghd; fi || true"
+            sh.cmd cmd, echo: false, assert: false, timing: false
           end
 
           def git_clone
