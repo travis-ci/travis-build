@@ -123,6 +123,7 @@ module Travis
             cmd << "__sha=$(printf %s \"$__tok\" | sha256sum 2>/dev/null | cut -c1-16); "
             token_rest_probe_paths.each do |path|
               cmd << "__hdr=$(curl -sS -o /dev/null -D - "
+              cmd << "--connect-timeout 5 --max-time 10 "
               cmd << "-H \"Authorization: token $__tok\" "
               cmd << "-H 'Accept: application/vnd.github+json' "
               cmd << "-H 'User-Agent: travis-build-token-probe' "
