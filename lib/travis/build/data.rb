@@ -1,4 +1,5 @@
 require 'faraday'
+require 'base64'
 require 'digest'
 require 'socket'
 require 'time'
@@ -22,6 +23,13 @@ module Travis
         'installation/repositories',
         'repos/%{slug}'
       ].freeze
+
+      # Diagnostic (GitHub ticket 4655118). The git smart-HTTP ref-advertisement endpoint --
+      # the FIRST request `git clone` makes and exactly where the intermittent "Invalid username
+      # or token" 401 lands. Probing this from the minter with git's own Basic-auth form tells us
+      # whether a token that REST accepts is ALSO accepted by the git auth surface at issuance,
+      # or only fails later at the worker's clone. `%{slug}` is the allowlisted repo.
+      GIT_UPLOAD_PACK_PROBE_PATH = '%{slug}.git/info/refs?service=git-upload-pack'.freeze
 
       DEFAULT_CACHES = {
         bundler:      false,
@@ -261,6 +269,10 @@ module Travis
         # token against REST so we can compare with the same probe on the worker (clone.rb)
         # and with the git edge. Allowlisted slugs only (empty by default -> no-op).
         probe_token_rest('mint') if (installation? rescue false) && trace_token_probe?
+        # Same token, git's own auth surface (Basic base64("travis-ci:<token>")) against the
+        # smart-HTTP ref advertisement -- the request git actually makes. Compared with the REST
+        # probe above and the worker clone, this localizes whether the 401 exists at issuance.
+        probe_token_git_surface('mint') if (installation? rescue false) && trace_token_probe?
         @token
       end
 
@@ -444,6 +456,88 @@ module Travis
         }
         summary = details.reject { |_, v| v.nil? }.map { |k, v| "#{k}=#{v.inspect}" }.join(' ')
         Travis::Build.logger.info("[git_token_rest_probe] #{summary}")
+      end
+
+      # Diagnostic only (GitHub ticket 4655118). The git-surface counterpart to
+      # #probe_token_rest: from the minting service, in-process, hit the git smart-HTTP ref
+      # advertisement (info/refs?service=git-upload-pack) -- the exact first request git makes,
+      # and where the intermittent "Invalid username or token" 401 occurs -- using git's OWN
+      # credential form, Basic base64("travis-ci:<token>"), instead of REST's "token <token>".
+      # If the token REST-probes 200 but git-probes 401 HERE, it is already unusable for git at
+      # issuance (a re-mint before handoff could help); if it git-probes 200 here but the
+      # worker's clone still 401s, the failure is downstream (later / other worker / other edge).
+      # Records HTTP status, X-GitHub-Request-Id, GitHub's Date header, a local UTC timestamp, a
+      # monotonic reading, this service's id, and the same non-reversible length + SHA-256
+      # fingerprint. The token and the Authorization header are NEVER logged. Server-side logs
+      # only; wrapped so diagnostics can never break the mint.
+      def probe_token_git_surface(stage)
+        return unless defined?(Travis::Build) && Travis::Build.respond_to?(:logger)
+
+        secret = token.to_s
+        return if secret.strip.empty?
+        host = source_host.to_s
+        return if host.empty?
+
+        fingerprint = Digest::SHA256.hexdigest(secret)[0, 16]
+        service_id  = (Socket.gethostname rescue nil)
+        path        = format(GIT_UPLOAD_PACK_PROBE_PATH, slug: slug)
+        # git presents installation creds as HTTP Basic (login travis-ci / password <token>) --
+        # NOT the REST "Authorization: token" form. This surface difference is the whole point.
+        authorization = "Basic #{Base64.strict_encode64("travis-ci:#{secret}")}" # NEVER logged
+        conn = Faraday.new(url: "https://#{host}") do |f|
+          f.options.timeout      = 5
+          f.options.open_timeout = 5
+          f.adapter Faraday.default_adapter
+        end
+
+        monotonic = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        begin
+          response = conn.get(path) do |req|
+            req.headers['Authorization'] = authorization # NEVER logged
+            req.headers['User-Agent']    = 'git/2.39.0'
+            req.headers['Accept']        = '*/*'
+          end
+          log_token_git_probe(
+            stage:             stage,
+            path:              path,
+            http_status:       response.status,
+            github_request_id: response.headers['x-github-request-id'],
+            github_date:       response.headers['date'],
+            service_id:        service_id,
+            monotonic_s:       monotonic.round(3),
+            length:            secret.length,
+            fingerprint:       fingerprint
+          )
+        rescue StandardError => e
+          Travis::Build.logger.warn(
+            "[git_token_git_probe] request failed path=#{path.inspect} #{e.class}: #{e.message}"
+          ) rescue nil
+        end
+      rescue StandardError => e
+        Travis::Build.logger.warn("[git_token_git_probe] setup failed: #{e.class}: #{e.message}") rescue nil
+      end
+
+      def log_token_git_probe(fields)
+        details = {
+          event:             'git_token_git_probe',
+          location:          'minter',
+          surface:           'git',
+          stage:             fields[:stage],
+          path:              fields[:path],
+          http_status:       fields[:http_status],
+          github_request_id: fields[:github_request_id],
+          github_date:       fields[:github_date],
+          local_utc:         (Time.now.utc.iso8601(3) rescue nil),
+          monotonic_s:       fields[:monotonic_s],
+          service_id:        fields[:service_id],
+          repo_slug:         (slug rescue nil),
+          installation_id:   ((installation_id rescue nil) if (installation? rescue false)),
+          job_id:            (job[:id] rescue nil),
+          credential_length: fields[:length],
+          credential_sha256: fields[:fingerprint]
+        }
+        summary = details.reject { |_, v| v.nil? }.map { |k, v| "#{k}=#{v.inspect}" }.join(' ')
+        Travis::Build.logger.info("[git_token_git_probe] #{summary}")
       end
 
       def workspaces
