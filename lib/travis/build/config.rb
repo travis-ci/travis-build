@@ -138,6 +138,11 @@ module Travis
         trace_command: ENV.fetch('TRACE_COMMAND', 'GIT_TRACE=true'),
         trace_git_commands_owners: ENV.fetch('TRACE_GIT_COMMANDS_OWNERS', ''),
         trace_git_commands_slugs: ENV.fetch('TRACE_GIT_COMMANDS_SLUGS', ''),
+        # Allowlist (comma-separated slugs, empty by default -> never fires for a customer build)
+        # for the clone-auth re-mint signal: on a git-clone 401, emit exit code 89 so the worker
+        # re-mints a fresh installation token and retries. GitHub ticket 4655118. See
+        # Travis::Vcs::Git::Clone#remint_on_clone_auth?.
+        clone_auth_remint_slugs: ENV.fetch('CLONE_AUTH_REMINT_SLUGS', ''),
         update_glibc: ENV.fetch(
           'TRAVIS_BUILD_UPDATE_GLIBC',
           ENV.fetch('TRAVIS_UPDATE_GLIBC', ENV.fetch('UPDATE_GLIBC', 'false'))

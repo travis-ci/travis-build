@@ -17,6 +17,7 @@ module Travis
             verify_netrc_credential if trace_git_commands?
             probe_token_rest if trace_git_commands?
             clone_or_fetch
+            signal_clone_auth_401 if remint_on_clone_auth?
             sh.cd dir
             fetch_ref if fetch_ref?
             checkout
@@ -50,6 +51,55 @@ module Travis
 
           def trace_git_commands?
             trace_git_commands_slugs.include?(repo_slug) || trace_git_commands_owners.include?(owner_login)
+          end
+
+          # Exit code build.sh uses to signal "git clone failed with an auth 401" so the worker
+          # knows to re-mint a fresh installation token and retry (rather than reusing the rejected
+          # one). Chosen to not collide with existing codes (0 pass, 1 fail, 2 assert-terminate,
+          # 86 preamble). Keep in sync with the worker's cloneAuthRemintExitCode. Ticket 4655118.
+          CLONE_AUTH_REMINT_EXIT_CODE = 89
+
+          def clone_auth_remint_slugs
+            Travis::Build.config.clone_auth_remint_slugs.output_safe.split(',')
+          end
+
+          # ALLOWLISTED REPOS ONLY (empty by default -> never fires for a customer build), and only
+          # for GitHub-App installation-token repos (the only ones that can re-mint). Gated via its
+          # own CLONE_AUTH_REMINT_SLUGS Vault env.
+          def remint_on_clone_auth?
+            return false unless (data.installation? rescue false)
+            clone_auth_remint_slugs.include?(repo_slug)
+          end
+
+          # Emitted right after the clone attempt (allowlisted repos only). If the clone did NOT
+          # produce a checkout (#{dir}/.git missing) we re-test git's own auth surface once -- the
+          # smart-HTTP ref advertisement with git's Basic auth form -- and ONLY on a definitive
+          # HTTP 401 do we `travis_terminate 89`. That code tells the worker to re-mint a fresh
+          # installation token and re-run (bounded retry). Checking the HTTP status (not git's
+          # localized "Invalid username or token" text) keeps this precise to auth failures and
+          # skips network/other clone failures. NEVER prints the token or the Authorization header:
+          # the token stays in a shell var, the Basic string is computed inline, and sh.raw does not
+          # echo the command text to the log (same mechanism the netrc write already relies on).
+          def signal_clone_auth_401
+            netrc = "${TRAVIS_HOME}/#{netrc_basename}"
+            url = "https://#{data.source_host}/#{repo_slug}.git/info/refs?service=git-upload-pack"
+            code = CLONE_AUTH_REMINT_EXIT_CODE
+            sh.raw <<~BASH
+              if [ ! -d #{dir}/.git ] && [ -f #{netrc} ]; then
+                __car_tok=$(awk 'tolower($1)=="password"{print $2; exit}' #{netrc})
+                if [ -n "$__car_tok" ]; then
+                  __car_auth=$(printf 'travis-ci:%s' "$__car_tok" | base64 | tr -d '\\n')
+                  __car_code=$(curl -sS -o /dev/null -w '%{http_code}' --connect-timeout 5 --max-time 15 -H "Authorization: Basic $__car_auth" -H 'User-Agent: git/2.39.0' "#{url}" 2>/dev/null)
+                  if [ "$__car_code" = "401" ]; then
+                    echo "[clone_auth_remint] git clone auth returned 401 for #{repo_slug}; requesting a fresh installation token (exit #{code})"
+                    unset __car_tok __car_auth __car_code
+                    travis_terminate #{code}
+                  fi
+                  unset __car_auth __car_code
+                fi
+                unset __car_tok
+              fi
+            BASH
           end
 
           def trace_command
