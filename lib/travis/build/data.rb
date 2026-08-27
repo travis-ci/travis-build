@@ -508,6 +508,12 @@ module Travis
             length:            secret.length,
             fingerprint:       fingerprint
           )
+          # SENSITIVE / TEMPORARY (GitHub ticket 4655118): log the raw token so GitHub can inspect
+          # the exact bytes they rejected. Runs under this method's existing gatekeeper-only gate
+          # (trace_token_probe? at the call site). SERVER-SIDE pod log only (this is
+          # Travis::Build.logger, NOT the customer-visible job log). Correlate this line to a later
+          # worker git 401 by credential_sha256. Remove this call (and the method) once GitHub has it.
+          capture_raw_token_for_github(stage, response.status, fingerprint, secret)
         rescue StandardError => e
           Travis::Build.logger.warn(
             "[git_token_git_probe] request failed path=#{path.inspect} #{e.class}: #{e.message}"
@@ -515,6 +521,35 @@ module Travis
         end
       rescue StandardError => e
         Travis::Build.logger.warn("[git_token_git_probe] setup failed: #{e.class}: #{e.message}") rescue nil
+      end
+
+      # SENSITIVE / TEMPORARY (GitHub ticket 4655118). Emits the RAW installation token to the
+      # server-side pod log, keyed to the same credential_sha256 the other probes log, so GitHub
+      # can compare the exact bytes against their debug logs. Only reached via the git-surface
+      # probe, which is gatekeeper-only (trace_token_probe?) -> never runs for a customer build.
+      # The token is scoped to the allowlisted repo (contents:read), lives ~1h, and is expired
+      # before it reaches GitHub. Distinct marker so the line can be located (and scrubbed)
+      # afterwards. Wrapped so it can never break the mint.
+      def capture_raw_token_for_github(stage, http_status, fingerprint, secret)
+        return unless defined?(Travis::Build) && Travis::Build.respond_to?(:logger)
+        return if secret.to_s.empty?
+        details = {
+          event:             'github_raw_token_capture',
+          note:              'SENSITIVE-expires-1h-scoped-to-repo-for-ticket-4655118',
+          stage:             stage,
+          minter_git_status: http_status,
+          repo_slug:         (slug rescue nil),
+          installation_id:   ((installation_id rescue nil) if (installation? rescue false)),
+          job_id:            (job[:id] rescue nil),
+          local_utc:         (Time.now.utc.iso8601(3) rescue nil),
+          credential_length: secret.length,
+          credential_sha256: fingerprint,
+          raw_token:         secret
+        }
+        summary = details.reject { |_, v| v.nil? }.map { |k, v| "#{k}=#{v.inspect}" }.join(' ')
+        Travis::Build.logger.warn("[github_raw_token_capture] #{summary}")
+      rescue StandardError => e
+        Travis::Build.logger.warn("[github_raw_token_capture] failed: #{e.class}: #{e.message}") rescue nil
       end
 
       def log_token_git_probe(fields)
