@@ -71,33 +71,26 @@ module Travis
             clone_auth_remint_slugs.include?(repo_slug)
           end
 
-          # Emitted right after the clone attempt (allowlisted repos only). If the clone did NOT
-          # produce a checkout (#{dir}/.git missing) we re-test git's own auth surface once -- the
-          # smart-HTTP ref advertisement with git's Basic auth form -- and ONLY on a definitive
-          # HTTP 401 do we `travis_terminate 89`. That code tells the worker to re-mint a fresh
-          # installation token and re-run (bounded retry). Checking the HTTP status (not git's
-          # localized "Invalid username or token" text) keeps this precise to auth failures and
-          # skips network/other clone failures. NEVER prints the token or the Authorization header:
-          # the token stays in a shell var, the Basic string is computed inline, and sh.raw does not
-          # echo the command text to the log (same mechanism the netrc write already relies on).
+          # Emitted right after the clone attempt (allowlisted repos only). If the clone step
+          # finished without producing a checkout (#{dir}/.git missing), we `travis_terminate 89`,
+          # which tells the worker to re-mint a fresh installation token and re-run (bounded retry).
+          #
+          # We deliberately do NOT re-test git's auth surface here before signalling. A single
+          # Basic-auth request to the ref advertisement does not reproduce git's own
+          # challenge/response flow, so GitHub can answer it 404 (private repo, existence hidden)
+          # or an intermittent 200, while the clone itself saw 401 -- i.e. the re-test returns a
+          # status that disagrees with the clone and the signal is silently missed (observed on
+          # job 640578974: clone 401, re-test surface 404, no 89 emitted). Keying purely off
+          # "clone produced no checkout" avoids that mismatch. If the missing checkout was a
+          # network/non-auth failure instead, a re-mint cannot fix it -- but the worker's retry
+          # cap (2) bounds the attempts and the build then errors, so this stays safe. No token or
+          # Authorization header is read or printed here at all.
           def signal_clone_auth_401
-            netrc = "${TRAVIS_HOME}/#{netrc_basename}"
-            url = "https://#{data.source_host}/#{repo_slug}.git/info/refs?service=git-upload-pack"
             code = CLONE_AUTH_REMINT_EXIT_CODE
             sh.raw <<~BASH
-              if [ ! -d #{dir}/.git ] && [ -f #{netrc} ]; then
-                __car_tok=$(awk 'tolower($1)=="password"{print $2; exit}' #{netrc})
-                if [ -n "$__car_tok" ]; then
-                  __car_auth=$(printf 'travis-ci:%s' "$__car_tok" | base64 | tr -d '\\n')
-                  __car_code=$(curl -sS -o /dev/null -w '%{http_code}' --connect-timeout 5 --max-time 15 -H "Authorization: Basic $__car_auth" -H 'User-Agent: git/2.39.0' "#{url}" 2>/dev/null)
-                  if [ "$__car_code" = "401" ]; then
-                    echo "[clone_auth_remint] git clone auth returned 401 for #{repo_slug}; requesting a fresh installation token (exit #{code})"
-                    unset __car_tok __car_auth __car_code
-                    travis_terminate #{code}
-                  fi
-                  unset __car_auth __car_code
-                fi
-                unset __car_tok
+              if [ ! -d #{dir}/.git ]; then
+                echo "[clone_auth_remint] git clone produced no checkout for #{repo_slug}; requesting a fresh installation token (exit #{code})"
+                travis_terminate #{code}
               fi
             BASH
           end
