@@ -116,8 +116,14 @@ module Travis
                    "'printf \"username=x-access-token\\n\"' " \
                    "'printf \"password=%s\\n\" \"$TRAVIS_CLONE_TOKEN\"' > #{helper}"
             sh.raw "chmod 0700 #{helper}"
-            sh.raw "printf '[git_cred_helper] username=x-access-token credential length=%s sha256=%s\\n' " \
-                   "\"${#TRAVIS_CLONE_TOKEN}\" \"$(printf %s \"$TRAVIS_CLONE_TOKEN\" | sha256sum 2>/dev/null | cut -c1-16)\""
+            # Confirmation fingerprint (length + short sha256; the token itself is never printed).
+            # DEBUG-ONLY: gated on trace_git_commands? so it does NOT appear in every customer build
+            # log once the helper is enabled fleet-wide -- it stays visible for the trace allowlist
+            # (gatekeeper canary) and any future debugging.
+            if trace_git_commands?
+              sh.raw "printf '[git_cred_helper] username=x-access-token credential length=%s sha256=%s\\n' " \
+                     "\"${#TRAVIS_CLONE_TOKEN}\" \"$(printf %s \"$TRAVIS_CLONE_TOKEN\" | sha256sum 2>/dev/null | cut -c1-16)\""
+            end
           end
 
           def remove_clone_credential_helper
