@@ -94,17 +94,16 @@ module Travis
           def install_clone_credential_helper
             sh.export 'GK_CLONE_TOKEN', data.token.to_s, echo: false
             helper = clone_credential_helper_path
-            sh.raw <<~BASH
-              cat > #{helper} <<'GKHELPER'
-              #!/usr/bin/env bash
-              [ "$1" = "get" ] || exit 0
-              printf 'username=x-access-token\\n'
-              printf 'password=%s\\n' "$GK_CLONE_TOKEN"
-              GKHELPER
-              chmod 0700 #{helper}
-              printf '[git_cred_helper] username=x-access-token credential length=%s sha256=%s\\n' \\
-                "${#GK_CLONE_TOKEN}" "$(printf %s "$GK_CLONE_TOKEN" | sha256sum 2>/dev/null | cut -c1-16)"
-            BASH
+            # Write the helper WITHOUT a heredoc. The shell generator indents every emitted
+            # line (generator.rb#indent), and an indented heredoc terminator (<<'EOF') is not
+            # recognized -- it swallows the rest of the script and breaks parsing (exit 86).
+            # printf keeps each write on ONE logical line, which stays valid at any indent.
+            sh.raw "printf '%s\\n' '#!/usr/bin/env bash' '[ \"$1\" = get ] || exit 0' " \
+                   "'printf \"username=x-access-token\\n\"' " \
+                   "'printf \"password=%s\\n\" \"$GK_CLONE_TOKEN\"' > #{helper}"
+            sh.raw "chmod 0700 #{helper}"
+            sh.raw "printf '[git_cred_helper] username=x-access-token credential length=%s sha256=%s\\n' " \
+                   "\"${#GK_CLONE_TOKEN}\" \"$(printf %s \"$GK_CLONE_TOKEN\" | sha256sum 2>/dev/null | cut -c1-16)\""
           end
 
           def remove_clone_credential_helper
