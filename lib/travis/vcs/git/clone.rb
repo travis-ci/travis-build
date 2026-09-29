@@ -82,11 +82,11 @@ module Travis
           # netrc parsing. INSTALLATION-TOKEN CLONES ONLY: OAuth clones write a different netrc shape
           # (token in the login field, no password) and must keep using it -- the helper below emits
           # the installation shape (username=x-access-token) and would send the wrong credential for
-          # OAuth. Staged rollout: while also gated on trace_git_commands? the helper is limited to
-          # the TRACE_GIT_COMMANDS_SLUGS allowlist (gatekeeper canary). TO GO LIVE for all
-          # installation-token clones, drop the `&& trace_git_commands?` condition below.
+          # OAuth. LIVE for ALL installation-token clones (ticket 4655118). To restrict back to a
+          # canary, re-add `&& trace_git_commands?` (limits it to the TRACE_GIT_COMMANDS_SLUGS
+          # allowlist); the [git_cred_helper] confirmation log stays trace-gated regardless.
           def use_clone_credential_helper?
-            (data.installation? rescue false) && trace_git_commands?
+            (data.installation? rescue false)
           end
 
           # Empty-value entry first clears any inherited/system credential.helper; the second points
