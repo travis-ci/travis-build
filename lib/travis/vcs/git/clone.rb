@@ -14,11 +14,13 @@ module Travis
               github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=
               github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=
             EOF
+            install_clone_credential_helper if use_clone_credential_helper?
             clone_or_fetch
             sh.cd dir
             fetch_ref if fetch_ref?
             checkout
             sh.cmd "git fsck", assert: false, retry: true if trace_git_commands?
+            remove_clone_credential_helper if use_clone_credential_helper?
           end
           sh.newline
         end
@@ -59,8 +61,73 @@ module Travis
             end
           end
 
+          # Two independent concerns are layered onto the git invocation:
+          #   * credential helper (use_clone_credential_helper?) -- when on, GIT_TERMINAL_PROMPT=0
+          #     makes a rejected credential fail FAST instead of falling through to GIT_ASKPASS=echo
+          #     (git.rb:disable_interactive_auth) and putting git's own prompt text on the wire, and
+          #     the -c credential.helper flags clear any inherited helper and supply the installation
+          #     token DIRECTLY rather than via libcurl's netrc parsing (ticket 4655118).
+          #   * verbose tracing (trace_git_commands?) -- debug-only, allowlisted, unrelated to the fix.
+          # They are gated separately so the fix can go to all installation clones without turning on
+          # tracing for everyone.
           def git_cmd
-            trace_git_commands? ? "#{trace_command} git" : "git"
+            prefix = +""
+            prefix << "GIT_TERMINAL_PROMPT=0 " if use_clone_credential_helper?
+            prefix << "#{trace_command} "      if trace_git_commands?
+            suffix = use_clone_credential_helper? ? " #{clone_cred_flags}" : ""
+            "#{prefix}git#{suffix}"
+          end
+
+          # Supply the installation token to git through a credential helper instead of libcurl's
+          # netrc parsing. INSTALLATION-TOKEN CLONES ONLY: OAuth clones write a different netrc shape
+          # (token in the login field, no password) and must keep using it -- the helper below emits
+          # the installation shape (username=x-access-token) and would send the wrong credential for
+          # OAuth. LIVE for ALL installation-token clones (ticket 4655118). To restrict back to a
+          # canary, re-add `&& trace_git_commands?` (limits it to the TRACE_GIT_COMMANDS_SLUGS
+          # allowlist); the [git_cred_helper] confirmation log stays trace-gated regardless.
+          def use_clone_credential_helper?
+            (data.installation? rescue false)
+          end
+
+          # Empty-value entry first clears any inherited/system credential.helper; the second points
+          # git at our token-supplying helper. useHttpPath=false so one credential covers the repo.
+          def clone_cred_flags
+            "-c credential.helper= -c credential.helper=#{clone_credential_helper_path} -c credential.useHttpPath=false"
+          end
+
+          def clone_credential_helper_path
+            "${TRAVIS_HOME}/.git-credential-travis"
+          end
+
+          # INSTALLATION-TOKEN CLONES ONLY (gated by use_clone_credential_helper?). Writes a git
+          # credential helper that hands git the installation token directly (username=x-access-token)
+          # and logs the length + short sha256 of EXACTLY what it emits, taken at git's real
+          # credential handoff rather than from the netrc file. The token lives ONLY in an env var
+          # exported with echo:false: it never appears on a command line, in the build log, or in
+          # `ps`, and (unlike the netrc) is never written to disk. NEVER prints the token itself.
+          def install_clone_credential_helper
+            sh.export 'TRAVIS_CLONE_TOKEN', data.token.to_s, echo: false
+            helper = clone_credential_helper_path
+            # Write the helper WITHOUT a heredoc. The shell generator indents every emitted
+            # line (generator.rb#indent), and an indented heredoc terminator (<<'EOF') is not
+            # recognized -- it swallows the rest of the script and breaks parsing (exit 86).
+            # printf keeps each write on ONE logical line, which stays valid at any indent.
+            sh.raw "printf '%s\\n' '#!/usr/bin/env bash' '[ \"$1\" = get ] || exit 0' " \
+                   "'printf \"username=x-access-token\\n\"' " \
+                   "'printf \"password=%s\\n\" \"$TRAVIS_CLONE_TOKEN\"' > #{helper}"
+            sh.raw "chmod 0700 #{helper}"
+            # Confirmation fingerprint (length + short sha256; the token itself is never printed).
+            # DEBUG-ONLY: gated on trace_git_commands? so it does NOT appear in every customer build
+            # log once the helper is enabled fleet-wide -- it stays visible for the trace allowlist
+            # (gatekeeper canary) and any future debugging.
+            if trace_git_commands?
+              sh.raw "printf '[git_cred_helper] username=x-access-token credential length=%s sha256=%s\\n' " \
+                     "\"${#TRAVIS_CLONE_TOKEN}\" \"$(printf %s \"$TRAVIS_CLONE_TOKEN\" | sha256sum 2>/dev/null | cut -c1-16)\""
+            end
+          end
+
+          def remove_clone_credential_helper
+            sh.raw "rm -f #{clone_credential_helper_path}; unset TRAVIS_CLONE_TOKEN || true"
           end
 
           def git_clone
