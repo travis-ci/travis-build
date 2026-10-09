@@ -120,8 +120,12 @@ describe Travis::Vcs::Git, :sexp do
     context "when keep_netrc is false" do
       before { payload[:keep_netrc] = false }
 
-      it 'deletes .netrc' do
-        should include_sexp [:raw, "rm -f ${TRAVIS_HOME}/.netrc", assert: true]
+      it 'removes credentials from .netrc' do
+        should include_sexp(
+          :raw,
+          %r{^sed -i '/\^machine github\\.com/,/\^\$/ { /login/d; /password/d; }' \$\{TRAVIS_HOME\}/\.netrc$},
+          assert: true
+        )
       end
     end
   end
